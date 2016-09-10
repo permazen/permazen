@@ -24,7 +24,7 @@ public abstract class JField extends JSchemaObject {
 
     final Method getter;
 
-    JSchemaObject parent;
+    JSchemaObject parent;                               // either JClass or JComplexField
     boolean requiresDefaultValidation;
 
     JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
@@ -120,7 +120,7 @@ public abstract class JField extends JSchemaObject {
         valueField.visitEnd();
     }
 
-    void outputCachedValueGetterMethod(ClassGenerator<?> generator, ClassWriter cw, Method fieldReaderMethod) {
+    void outputCachedNonSimpleValueGetterMethod(ClassGenerator<?> generator, ClassWriter cw, Method fieldReaderMethod) {
         final MethodVisitor mv = generator.startMethod(cw, this.getter);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),

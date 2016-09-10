@@ -72,7 +72,7 @@ public abstract class JComplexField extends JField {
 
     @Override
     final void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputCachedValueGetterMethod(generator, cw, this.getFieldReaderMethod());
+        this.outputCachedNonSimpleValueGetterMethod(generator, cw, this.getFieldReaderMethod());
     }
 
     abstract Method getFieldReaderMethod();

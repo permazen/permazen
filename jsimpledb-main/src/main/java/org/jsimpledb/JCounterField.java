@@ -55,7 +55,7 @@ public class JCounterField extends JField {
 
     @Override
     void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputCachedValueGetterMethod(generator, cw, ClassGenerator.READ_COUNTER_FIELD_METHOD);
+        this.outputCachedNonSimpleValueGetterMethod(generator, cw, ClassGenerator.READ_COUNTER_FIELD_METHOD);
     }
 }
 
