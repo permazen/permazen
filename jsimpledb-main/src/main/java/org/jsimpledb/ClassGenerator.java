@@ -73,6 +73,7 @@ class ClassGenerator<T> {
     static final Method GET_SCHEMA_VERSION_METHOD;
     static final Method UPDATE_SCHEMA_VERSION_METHOD;
     static final Method REVALIDATE_METHOD;
+    static final Method IS_SNAPSHOT_METHOD;
     static final Method COPY_TO_METHOD;
     static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
     static final Method GET_TRANSACTION_METHOD;
@@ -123,6 +124,7 @@ class ClassGenerator<T> {
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class, Class[].class);
+            IS_SNAPSHOT_METHOD = JTransaction.class.getMethod("isSnapshot");
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
               JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
@@ -249,12 +251,12 @@ class ClassGenerator<T> {
 
     private void outputFields(ClassWriter cw) {
 
-        // Output "tx" field
+        // Output "$tx" field
         final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT,
           TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null);
         fv.visitEnd();
 
-        // Output "id" field
+        // Output "$id" field
         final FieldVisitor idField = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
           ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null);
         idField.visitEnd();
@@ -371,7 +373,7 @@ class ClassGenerator<T> {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitTypeInsn(Opcodes.INSTANCEOF, Type.getType(SnapshotJTransaction.class).getInternalName());
+        this.emitInvoke(mv, IS_SNAPSHOT_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
