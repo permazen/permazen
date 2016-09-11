@@ -3,6 +3,7 @@ Version 2.2.2
     - Fixed bug where XMLObjectSerializer.load() failed on forward references
     - Improved speed of Transaction.copy() when notifications are disabled
     - Cache simple field values for better efficiency in repeated reads
+    - Fixed race condition bug in AtomicArrayKVStore.snapshot()
 
 Version 2.2.1 Released September 7, 2016
 

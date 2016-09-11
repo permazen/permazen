@@ -738,22 +738,31 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
 
-            // Get outstanding modifications; if we are compacting, there are two sets of modifications
-            final Writes writes1;
-            if (this.mods.getKVStore() instanceof MutableView) {
-                final MutableView oldMods = (MutableView)this.mods.getKVStore();
-                assert oldMods.getKVStore() == this.kvstore;
-                writes1 = oldMods.getWrites();
-            } else
-                writes1 = null;
-            final Writes writes2 = this.mods.getWrites();
+            // Clone the modifications currrently being compacted, if any
+            Writes compactingWrites = null;
+            if (this.mods.getKVStore() instanceof MutableView) {                            // we are compacting
+                assert this.compaction != null;
+                final MutableView compactingMods = (MutableView)this.mods.getKVStore();
+                assert compactingMods.getKVStore() == this.kvstore;
+                synchronized (compactingMods) {
+                    if (!compactingMods.getWrites().isEmpty())
+                        compactingWrites = compactingMods.getWrites().clone();
+                }
+            }
 
-            // Clone (non-empty) writes to construct snapshot
+            // Clone the uncompacted modifications, if any
+            Writes outstandingWrites = null;
+            synchronized (this.mods) {
+                if (!this.mods.getWrites().isEmpty())
+                    outstandingWrites = this.mods.getWrites().clone();
+            }
+
+            // Build snapshot by layering uncompacted modifications on top
             KVStore snapshot = this.kvstore;
-            if (writes1 != null && !writes1.isEmpty())
-                snapshot = new MutableView(snapshot, null, writes1.clone());
-            if (writes2 != null && !writes2.isEmpty())
-                snapshot = new MutableView(snapshot, null, writes2.clone());
+            if (compactingWrites != null)
+                snapshot = new MutableView(snapshot, null, compactingWrites);
+            if (outstandingWrites != null)
+                snapshot = new MutableView(snapshot, null, outstandingWrites);
 
             // Done
             return new CloseableForwardingKVStore(snapshot);
