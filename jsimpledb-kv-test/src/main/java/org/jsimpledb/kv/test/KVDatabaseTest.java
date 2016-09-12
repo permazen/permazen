@@ -600,11 +600,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         key = this.rb(2, false);
                         val = tx.get(key);
                         this.log("get: " + s(key) + " -> " + s(val));
-                        if (val == null)
-                            Assert.assertTrue(!knownValues.containsKey(key));
-                        else if (knownValues.containsKey(key))
-                            Assert.assertEquals(s(knownValues.get(key)), s(val));
-                        else {
+                        if (val == null) {
+                            Assert.assertTrue(!knownValues.containsKey(key),
+                              this + ": get(" + s(key) + ") returned null but knownValues has " + knownValuesView);
+                        } else if (knownValues.containsKey(key)) {
+                            Assert.assertEquals(s(knownValues.get(key)), s(val),
+                              this + ": get(" + s(key) + ") returned " + s(val) + " but knownValues has " + knownValuesView);
+                        } else {
                             knownValues.put(key, val);
                             knownValuesChanged = true;
                         }
@@ -619,9 +621,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         min = this.rb(2, true);
                         pair = tx.getAtLeast(min);
                         this.log("getAtLeast: " + s(min) + " -> " + s(pair));
-                        if (pair == null)
-                            Assert.assertTrue(knownValues.tailMap(min).isEmpty());
-                        else if (knownValues.containsKey(pair.getKey()))
+                        if (pair == null) {
+                            Assert.assertTrue(knownValues.tailMap(min).isEmpty(),
+                              this + ": getAtLeast(" + s(min) + ") returned null but knownValues has " + knownValuesView);
+                        } else if (knownValues.containsKey(pair.getKey()))
                             Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
                             knownValues.put(pair.getKey(), pair.getValue());
@@ -633,7 +636,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         this.log("getAtMost: " + s(max) + " -> " + s(pair));
                         if (pair == null) {
                             Assert.assertTrue(knownValues.headMap(max).isEmpty(),
-                              "getAtMost(" + s(max) + ") returned null but knownValues has " + knownValuesView);
+                              this + ": getAtMost(" + s(max) + ") returned null but knownValues has " + knownValuesView);
                         } else if (knownValues.containsKey(pair.getKey()))
                             Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
@@ -708,7 +711,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     final byte[] key = entry.getKey();
                     final byte[] val = entry.getValue();
                     final byte[] txVal = tx.get(key);
-                    Assert.assertEquals(txVal, val, "tx has " + s(txVal) + " for key " + s(key)
+                    Assert.assertEquals(txVal, val, this + ": tx has " + s(txVal) + " for key " + s(key)
                       + " but knownValues has:\n*** KNOWN VALUES: " + knownValuesView);
                 }
 
@@ -750,13 +753,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     // Verify
                     this.log("tx was definitely committed");
                     Assert.assertEquals(actualView, knownValuesView,
-                      "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + knownValuesView + "\n");
+                      this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + knownValuesView + "\n");
                 } else if (Boolean.FALSE.equals(committed)) {
 
                     // Verify
                     this.log("tx was definitely rolled back");
                     Assert.assertEquals(actualView, committedDataView,
-                      "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + committedDataView + "\n");
+                      this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + committedDataView + "\n");
                 } else {
 
                     // We don't know whether transaction got committed or not .. check both possibilities
@@ -766,7 +769,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
                     // Verify one or the other
                     assert matchCommit || matchRollback :
-                      "\n*** ACTUAL:\n" + actualView
+                      this + "\n*** ACTUAL:\n" + actualView
                       + "\n*** COMMIT:\n" + knownValuesView
                       + "\n*** ROLLBACK:\n" + committedDataView + "\n";
                     committed = matchCommit;
@@ -833,6 +836,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (this.r(nullchance) == 0)
                 return null;
             return this.rb(len, true);
+        }
+
+        @Override
+        public String toString() {
+            return "Thread[" + this.getName() + "]";
         }
     }
 
