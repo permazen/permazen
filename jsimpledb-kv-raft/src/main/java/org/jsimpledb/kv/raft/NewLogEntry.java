@@ -20,7 +20,7 @@ class NewLogEntry {
     private final File tempFile;
 
     /**
-     * Create an instance from a transaction and a temporary file
+     * Create an instance from a transaction and a temporary file.
      *
      * @param data log entry mutations
      * @throws Exception if an error occurs
