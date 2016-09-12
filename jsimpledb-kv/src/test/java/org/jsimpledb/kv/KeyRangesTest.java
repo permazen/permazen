@@ -242,7 +242,9 @@ public class KeyRangesTest extends KeyRangeTestSupport {
 
     @Test(dataProvider = "empty")
     public void testEmpty(KeyRanges keyRanges) throws Exception {
-        Assert.assertEquals(keyRanges, KeyRanges.EMPTY);
+        Assert.assertEquals(keyRanges.size(), 0, "not empty: " + keyRanges);
+        Assert.assertTrue(keyRanges.isEmpty(), "not empty: " + keyRanges);
+        Assert.assertEquals(keyRanges, new KeyRanges(), "not empty: " + keyRanges);
     }
 
     @DataProvider(name = "empty")
@@ -252,6 +254,7 @@ public class KeyRangesTest extends KeyRangeTestSupport {
         return new KeyRanges[][] {
             { new KeyRanges() },
             { new KeyRanges(empty1) },
+            { new KeyRanges(empty2) },
             { new KeyRanges(empty1, empty2) },
             { new KeyRanges(empty2, empty1) },
         };

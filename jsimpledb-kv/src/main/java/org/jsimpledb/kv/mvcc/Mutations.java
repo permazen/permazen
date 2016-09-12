@@ -21,6 +21,9 @@ public interface Mutations {
     /**
      * Get the key ranges removals contained by this instance.
      *
+     * <p>
+     * The caller must not invoke {@link java.util.Iterator#remove}.
+     *
      * @return key ranges removed
      */
     Iterable<? extends KeyRange> getRemoveRanges();
@@ -29,7 +32,7 @@ public interface Mutations {
      * Get the written key/value pairs contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
+     * The caller must not modify any of the returned {@code byte[]} arrays, nor invoke {@link java.util.Iterator#remove}.
      *
      * @return mapping from key to corresponding value
      */
@@ -39,7 +42,7 @@ public interface Mutations {
      * Get the counter adjustments contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
+     * The caller must not modify any of the returned {@code byte[]} arrays, nor invoke {@link java.util.Iterator#remove}.
      *
      * @return mapping from key to corresponding counter adjustment
      */

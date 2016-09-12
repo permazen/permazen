@@ -144,7 +144,8 @@ public class KeyRange implements SizeEstimating {
     }
 
     /**
-     * Determine if this key range overlaps the specified key range.
+     * Determine if this key range overlaps the specified key range, i.e., there exists at least one {@code byte[]}
+     * key that both ranges have in common.
      *
      * @param range other instance
      * @return true if this instance overlaps {@code range}

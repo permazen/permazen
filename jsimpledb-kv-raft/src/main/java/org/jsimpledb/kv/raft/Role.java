@@ -257,6 +257,7 @@ public abstract class Role {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
+        assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Get transaction mutations
         final Writes writes = tx.getMutableView().getWrites();
