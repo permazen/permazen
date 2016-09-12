@@ -42,11 +42,8 @@ import org.jsimpledb.util.SizeEstimator;
  * In all cases, the underlying {@link KVStore} is never modified.
  *
  * <p>
- * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.
- *
- * <p>
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
- * without first locking this instance.
+ * without first locking the containing instance.
  */
 @ThreadSafe
 public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
@@ -104,6 +101,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
      * This includes all keys explicitly or implicitly read by calls to
      * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
      *
+     * <p>
+     * The returned object should only be accessed while synchronized on this instance.
+     *
      * @return reads recorded, or null if this instance is not configured to record reads
      */
     public synchronized Reads getReads() {
@@ -112,6 +112,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
     /**
      * Get the {@link Writes} associated with this instance.
+     *
+     * <p>
+     * The returned object should only be accessed while synchronized on this instance.
      *
      * @return writes recorded
      */
@@ -302,7 +305,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 // Object
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return this.getClass().getSimpleName()
           + "[writes=" + this.writes
           + (this.reads != null ? ",reads=" + this.reads : "")
@@ -330,7 +333,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         }
 
         // Adjust counter value by accumulated adjustment value and re-encode
-        return this.kv.encodeCounter(counterValue + adjust);
+        final byte[] adjustedValue = this.kv.encodeCounter(counterValue + adjust);
+        assert adjustedValue != null;
+        return adjustedValue;
     }
 
     // Record that keys were read in the range [minKey, maxKey)
