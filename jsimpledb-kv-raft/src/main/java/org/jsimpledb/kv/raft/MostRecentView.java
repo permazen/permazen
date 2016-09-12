@@ -44,7 +44,7 @@ class MostRecentView {
                 break;
             final Writes writes = logEntry.getWrites();
             if (!writes.isEmpty())
-                kview = new MutableView(kview, null, logEntry.getWrites());
+                kview = new MutableView(kview, null, writes);
             logEntry.applyConfigChange(this.config);
             viewIndex = logEntry.getIndex();
             viewTerm = logEntry.getTerm();
