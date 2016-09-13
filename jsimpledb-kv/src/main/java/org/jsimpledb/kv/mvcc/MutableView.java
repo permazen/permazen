@@ -144,7 +144,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
         // Check removes
         if (this.writes.getRemoves().contains(key))
-            return null;
+            return null;                                            // we can ignore adjustments of missing values
 
         // Read from underlying k/v store
         value = this.kv.get(key);
@@ -249,12 +249,13 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
         // Calculate new, cumulative adjustment
         final Long oldAdjust = this.writes.getAdjusts().get(key);
-        final long adjust = (oldAdjust != null ? oldAdjust : 0) + amount;
+        if (oldAdjust != null)
+            amount += oldAdjust;
 
         // Record/update adjustment
-        if (adjust != 0)
-            this.writes.getAdjusts().put(key, adjust);
-        else
+        if (amount != 0)
+            this.writes.getAdjusts().put(key, amount);
+        else if (oldAdjust != null)
             this.writes.getAdjusts().remove(key);
     }
 
@@ -328,8 +329,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         try {
             counterValue = this.kv.decodeCounter(value);
         } catch (IllegalArgumentException e) {
-            this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable
-            return value;
+            return value;                                       // previous adjustment was bogus because value was not decodable
         }
 
         // Adjust counter value by accumulated adjustment value and re-encode
