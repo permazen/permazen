@@ -5,8 +5,6 @@
 
 package org.jsimpledb.kv.test;
 
-import com.google.common.base.Converter;
-
 import java.io.Closeable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,8 +13,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +31,6 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.ConvertedNavigableMap;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -523,7 +522,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private final Random random;
         private final TreeMap<byte[], byte[]> committedData;            // tracks actual committed data, if known
         private final NavigableMap<String, String> committedDataView;
-        private final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
 
         private Throwable fail;
 
@@ -536,7 +534,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             this.id = id;
             this.store = store;
             this.committedData = committedData;
-            this.committedDataView = this.stringView(this.committedData);
+            this.committedDataView = stringView(this.committedData);
             this.random = new Random(seed);
             this.log("seed = " + seed);
         }
@@ -562,8 +560,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private void test() throws Exception {
 
             // Keep track of key/value pairs that we know should exist in the transaction
-            final TreeMap<byte[], byte[]> knownValues = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-            final NavigableMap<String, String> knownValuesView = this.stringView(knownValues);
+            final TreeMap<byte[], byte[]> knownValues = new TreeMap<>(ByteUtil.COMPARATOR);
+            final NavigableMap<String, String> knownValuesView = stringView(knownValues);
+            final TreeSet<byte[]> myPutValues = new TreeSet<>(ByteUtil.COMPARATOR);
+            final NavigableSet<String> myPutValuesView = stringView(myPutValues);
 
             // Create transaction
             final KVTransaction tx = this.store.createTransaction();
@@ -575,11 +575,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Save a copy of committed data
             final TreeMap<byte[], byte[]> previousCommittedData = this.committedData != null ?
               (TreeMap<byte[], byte[]>)this.committedData.clone() : null;
-            //final NavigableMap<String, String> previousCommittedDataView = this.stringView(previousCommittedData);
+            //final NavigableMap<String, String> previousCommittedDataView = stringView(previousCommittedData);
 
             // Verify committed data is accurate before starting
             if (this.committedData != null)
-                Assert.assertEquals(this.stringView(this.readDatabase(tx)), knownValuesView);
+                Assert.assertEquals(stringView(this.readDatabase(tx)), knownValuesView);
 
             // Note: if this.committedData != null, then knownValues will exactly track the transaction, otherwise,
             // knownValues only contains values we know are in there; nothing is known about uncontained values.
@@ -597,33 +597,37 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     int option = this.r(62);
                     boolean knownValuesChanged = false;
                     if (option < 10) {                                              // get
-                        key = this.rb(2, false);
+                        key = this.rb(1, false);
                         val = tx.get(key);
                         this.log("get: " + s(key) + " -> " + s(val));
                         if (val == null) {
                             Assert.assertTrue(!knownValues.containsKey(key),
-                              this + ": get(" + s(key) + ") returned null but knownValues has " + knownValuesView);
+                              this + ": get(" + s(key) + ") returned null but knownValues has " + knownValuesView
+                              +  " and myPutValues has " + myPutValuesView);
                         } else if (knownValues.containsKey(key)) {
                             Assert.assertEquals(s(knownValues.get(key)), s(val),
-                              this + ": get(" + s(key) + ") returned " + s(val) + " but knownValues has " + knownValuesView);
+                              this + ": get(" + s(key) + ") returned " + s(val) + " but knownValues has " + knownValuesView
+                              +  " and myPutValues has " + myPutValuesView);
                         } else {
                             knownValues.put(key, val);
                             knownValuesChanged = true;
                         }
                     } else if (option < 20) {                                       // put
-                        key = this.rb(2, false);
+                        key = this.rb(1, false);
                         val = this.rb(2, true);
                         this.log("put: " + s(key) + " -> " + s(val));
                         tx.put(key, val);
                         knownValues.put(key, val);
+                        myPutValues.add(key);
                         knownValuesChanged = true;
                     } else if (option < 30) {                                       // getAtLeast
-                        min = this.rb(2, true);
+                        min = this.rb(1, true);
                         pair = tx.getAtLeast(min);
                         this.log("getAtLeast: " + s(min) + " -> " + s(pair));
                         if (pair == null) {
                             Assert.assertTrue(knownValues.tailMap(min).isEmpty(),
-                              this + ": getAtLeast(" + s(min) + ") returned null but knownValues has " + knownValuesView);
+                              this + ": getAtLeast(" + s(min) + ") returned null but knownValues has " + knownValuesView
+                              +  " and myPutValues has " + myPutValuesView);
                         } else if (knownValues.containsKey(pair.getKey()))
                             Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
@@ -631,12 +635,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             knownValuesChanged = true;
                         }
                     } else if (option < 40) {                                       // getAtMost
-                        max = this.rb(2, true);
+                        max = this.rb(1, true);
                         pair = tx.getAtMost(max);
                         this.log("getAtMost: " + s(max) + " -> " + s(pair));
                         if (pair == null) {
                             Assert.assertTrue(knownValues.headMap(max).isEmpty(),
-                              this + ": getAtMost(" + s(max) + ") returned null but knownValues has " + knownValuesView);
+                              this + ": getAtMost(" + s(max) + ") returned null but knownValues has " + knownValuesView
+                              +  " and myPutValues has " + myPutValuesView);
                         } else if (knownValues.containsKey(pair.getKey()))
                             Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
@@ -644,12 +649,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             knownValuesChanged = true;
                         }
                     } else if (option < 50) {                                       // remove
-                        key = this.rb(2, false);
+                        key = this.rb(1, false);
                         if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false))) != null)
                             key = pair.getKey();
                         this.log("remove: " + s(key));
                         tx.remove(key);
                         knownValues.remove(key);
+                        myPutValues.remove(key);
                         knownValuesChanged = true;
                     } else if (option < 52) {                                       // removeRange
                         min = this.rb2(2, 20);
@@ -658,14 +664,19 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
                         this.log("removeRange: " + s(min) + " to " + s(max));
                         tx.removeRange(min, max);
-                        if (min == null && max == null)
+                        if (min == null && max == null) {
                             knownValues.clear();
-                        else if (min == null)
+                            myPutValues.clear();
+                        } else if (min == null) {
                             knownValues.headMap(max).clear();
-                        else if (max == null)
+                            myPutValues.headSet(max).clear();
+                        } else if (max == null) {
                             knownValues.tailMap(min).clear();
-                        else
+                            myPutValues.tailSet(min).clear();
+                        } else {
                             knownValues.subMap(min, max).clear();
+                            myPutValues.subSet(min, max).clear();
+                        }
                         knownValuesChanged = true;
                     } else if (option < 60) {                                       // adjustCounter
                         key = this.rb(1, false);
@@ -692,6 +703,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         this.log("adj: " + s(key) + " by " + adj + " -> should now be " + s(encodedCounter));
                         tx.adjustCounter(key, adj);
                         knownValues.put(key, encodedCounter);
+                        myPutValues.add(key);
                         knownValuesChanged = true;
                     } else {                                                        // sleep
                         final int millis = this.r(50);
@@ -712,13 +724,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     final byte[] val = entry.getValue();
                     final byte[] txVal = tx.get(key);
                     Assert.assertEquals(txVal, val, this + ": tx has " + s(txVal) + " for key " + s(key)
-                      + " but knownValues has:\n*** KNOWN VALUES: " + knownValuesView);
+                      + " but knownValues has:\n*** KNOWN VALUES: " + knownValuesView
+                      + "\n*** MY PUT VALUES: " + myPutValuesView);
                 }
 
                 // Maybe commit
                 final boolean rollback = this.r(5) == 3;
                 this.log("about to " + (rollback ? "rollback" : "commit") + ":\n   KNOWN: "
-                  + knownValuesView + "\n  COMMITTED: " + committedDataView);
+                  + knownValuesView + "\n  COMMITTED: " + committedDataView
+                  + "\n  MY PUTS: " + myPutValuesView);
                 if (rollback) {
                     tx.rollback();
                     committed = false;
@@ -744,7 +758,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
                 // Read actual content
                 final TreeMap<byte[], byte[]> actual = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-                final NavigableMap<String, String> actualView = this.stringView(actual);
+                final NavigableMap<String, String> actualView = stringView(actual);
                 actual.putAll(this.readDatabase());
 
                 // Update what we think is in the database and then compare to actual content
@@ -781,12 +795,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     this.committedData.putAll(knownValues);
                 }
             }
-        }
-
-        private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
-            if (byteMap == null)
-                return null;
-            return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, this.converter, this.converter);
         }
 
         private TreeMap<byte[], byte[]> readDatabase() {

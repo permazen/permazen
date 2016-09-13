@@ -5,8 +5,6 @@
 
 package org.jsimpledb.kv.test;
 
-import com.google.common.base.Converter;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -27,7 +25,6 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.LongEncoder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -189,16 +186,9 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
     }
 
     private void compare(TreeMap<byte[], byte[]> map1, TreeMap<byte[], byte[]> map2) {
-        final NavigableMap<String, String> smap1 = this.stringView(map1);
-        final NavigableMap<String, String> smap2 = this.stringView(map2);
+        final NavigableMap<String, String> smap1 = stringView(map1);
+        final NavigableMap<String, String> smap2 = stringView(map2);
         Assert.assertEquals(smap1, smap2, "\n*** ACTUAL:\n" + smap1 + "\n*** EXPECTED:\n" + smap2 + "\n");
-    }
-
-    private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
-        if (byteMap == null)
-            return null;
-        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, converter, converter);
     }
 }
 

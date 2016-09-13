@@ -7,6 +7,8 @@ package org.jsimpledb.kv.test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -17,6 +19,9 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.test.TestSupport;
+import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ConvertedNavigableMap;
+import org.jsimpledb.util.ConvertedNavigableSet;
 
 /**
  * Base class for key/value unit tests.
@@ -69,5 +74,18 @@ public abstract class KVTestSupport extends TestSupport {
         if (key.length != 1 && key.length != 2)
             throw new IllegalArgumentException();
         return new KVPair(b(key[0]), key.length > 1 ? b(key[1]) : new byte[0]);
+    }
+
+    public static NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+        if (byteMap == null)
+            return null;
+        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap,
+          ByteUtil.STRING_CONVERTER.reverse(), ByteUtil.STRING_CONVERTER.reverse());
+    }
+
+    public static NavigableSet<String> stringView(NavigableSet<byte[]> byteSet) {
+        if (byteSet == null)
+            return null;
+        return new ConvertedNavigableSet<String, byte[]>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
     }
 }
