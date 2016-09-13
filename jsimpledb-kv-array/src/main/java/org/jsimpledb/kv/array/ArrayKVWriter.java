@@ -215,7 +215,9 @@ public class ArrayKVWriter implements Closeable {
             while (remove != null) {
                 final byte[] removeMax = remove.getMax();
                 if (removeMax != null && ByteUtil.compare(removeMax, key) <= 0) {
-                    remove = removeIterator.hasNext() ? removeIterator.next() : null;
+                    final KeyRange next = removeIterator.hasNext() ? removeIterator.next() : null;
+                    assert next == null || ByteUtil.compare(next.getMin(), removeMax) > 0;
+                    remove = next;
                     continue;
                 }
                 break;
@@ -241,7 +243,7 @@ public class ArrayKVWriter implements Closeable {
                     break;
                 // FALLTHROUGH
             case MERGE_ADJUST | MERGE_PUT:
-            case MERGE_ADJUST | MERGE_PUT | MERGE_KV:
+            case MERGE_ADJUST | MERGE_PUT | MERGE_KV:                   // adjusted a put value
             {
                 final byte[] encodedCount = (inputs & MERGE_PUT) != 0 ? put.getValue() : kv.getValue();
                 final long counter;
@@ -259,12 +261,35 @@ public class ArrayKVWriter implements Closeable {
             }
 
             // Advance k/v, put, and/or adjust
-            if ((inputs & MERGE_KV) != 0)
-                kv = kvIterator.hasNext() ? kvIterator.next() : null;
-            if ((inputs & MERGE_PUT) != 0)
-                put = putIterator.hasNext() ? putIterator.next() : null;
-            if ((inputs & MERGE_ADJUST) != 0)
-                adjust = adjustIterator.hasNext() ? adjustIterator.next() : null;
+            if ((inputs & MERGE_KV) != 0) {
+                assert kv != null;
+                final KVPair next = kvIterator.hasNext() ? kvIterator.next() : null;
+                assert next == null || ByteUtil.compare(next.getKey(), kv.getKey()) > 0;
+                kv = next;
+            }
+            if ((inputs & MERGE_PUT) != 0) {
+                assert put != null;
+                final Map.Entry<byte[], byte[]> next = putIterator.hasNext() ? putIterator.next() : null;
+                assert next == null || ByteUtil.compare(next.getKey(), put.getKey()) > 0;
+                put = next;
+            }
+            if ((inputs & MERGE_ADJUST) != 0) {
+                assert adjust != null;
+                final Map.Entry<byte[], Long> next = adjustIterator.hasNext() ? adjustIterator.next() : null;
+                assert next == null || ByteUtil.compare(next.getKey(), adjust.getKey()) > 0;
+                adjust = next;
+            }
+        }
+
+        // Close iterators
+        for (Iterator<?> i : new Iterator<?>[] { removeIterator, putIterator, adjustIterator }) {
+            if (i instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable)i).close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
         }
     }
 
