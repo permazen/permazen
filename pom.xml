@@ -684,10 +684,10 @@
                         <raftMinElectionTimeout>100</raftMinElectionTimeout>
                         <raftMaxElectionTimeout>150</raftMaxElectionTimeout>
                         <raftHeartbeatTimeout>50</raftHeartbeatTimeout>
-                        <raftMaxTransactionDuration>500</raftMaxTransactionDuration>
+                        <raftMaxTransactionDuration>5000</raftMaxTransactionDuration>
                         <raftFollowerProbingEnabled>true</raftFollowerProbingEnabled>
                         <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
-                        <raftNetworkDropRatio>0.05</raftNetworkDropRatio>
+                        <raftNetworkDropRatio>0.10</raftNetworkDropRatio>
 
                         <!-- kv-rocksdb -->
                         <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
