@@ -15,13 +15,15 @@ import org.jsimpledb.util.ByteUtil;
 /**
  * A key/value pair.
  *
+ * <p>
  * Note: the internal byte arrays are not copied; therefore, values passed to the constructor
  * or returned from the accessor methods must not be modified if instances are to remain immutable.
+ * To ensure safety, use {@link #clone}.
  */
-public class KVPair {
+public class KVPair implements Cloneable {
 
-    private final byte[] key;
-    private final byte[] value;
+    private /*final*/ byte[] key;
+    private /*final*/ byte[] value;
 
     /**
      * Constructor. The given arrays are copied.
@@ -68,6 +70,28 @@ public class KVPair {
     public byte[] getValue() {
         return this.value;
     }
+
+// Cloneable
+
+    /**
+     * Deep-clone this instance. Copys this instance as well as the key and value {@code byte[]} arrays.
+     *
+     * @return cloned instance
+     */
+    @Override
+    public KVPair clone() {
+        final KVPair clone;
+        try {
+            clone = (KVPair)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.key = clone.key.clone();
+        clone.value = clone.value.clone();
+        return clone;
+    }
+
+// Object
 
     @Override
     public String toString() {
