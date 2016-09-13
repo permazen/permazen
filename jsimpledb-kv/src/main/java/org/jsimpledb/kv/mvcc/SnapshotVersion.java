@@ -21,7 +21,7 @@ import org.jsimpledb.kv.CloseableKVStore;
  *  <li>MVCC version number</li>
  *  <li>{@link CloseableKVStore} snapshot</li>
  *  <li>Open transactions based on this version</li>
- *  <li>The {@link Writes} of the transaction that was committed on this version, if any</li>
+ *  <li>The {@link Writes} of the transaction that was committed on top of this version, if any</li>
  *  </ul>
  */
 public class SnapshotVersion implements Closeable {

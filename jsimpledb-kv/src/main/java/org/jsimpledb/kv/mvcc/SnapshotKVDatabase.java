@@ -332,8 +332,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             }
             if (conflict) {
                 throw this.logException(new RetryTransactionException(tx, "transaction is based on MVCC version "
-                  + transactionSnapshotVersion.getVersion() + " but the transaction committed at MVCC version "
-                  + version + " contains conflicting writes"));
+                  + transactionSnapshotVersion.getVersion() + " but the transaction committed into MVCC version "
+                  + (version + 1) + " contains conflicting writes"));
             }
         }
 
