@@ -88,19 +88,20 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
     @Override
     public byte[] get(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
-        return this.map.get(key);
+        final byte[] value = this.map.get(key);
+        return value != null ? value.clone() : null;
     }
 
     @Override
     public KVPair getAtLeast(byte[] minKey) {
         final Map.Entry<byte[], byte[]> entry = minKey != null ? this.map.ceilingEntry(minKey) : this.map.firstEntry();
-        return entry != null ? new KVPair(entry) : null;
+        return entry != null ? new KVPair(entry.getKey().clone(), entry.getValue().clone()) : null;
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
         final Map.Entry<byte[], byte[]> entry = maxKey != null ? this.map.lowerEntry(maxKey) : this.map.lastEntry();
-        return entry != null ? new KVPair(entry) : null;
+        return entry != null ? new KVPair(entry.getKey().clone(), entry.getValue().clone()) : null;
     }
 
     @Override
@@ -117,7 +118,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
         return Iterators.transform(rangeMap.entrySet().iterator(), new Function<Map.Entry<byte[], byte[]>, KVPair>() {
             @Override
             public KVPair apply(Map.Entry<byte[], byte[]> entry) {
-                return new KVPair(entry.getKey(), entry.getValue());
+                return new KVPair(entry.getKey().clone(), entry.getValue().clone());
             }
         });
     }
@@ -126,7 +127,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
     public void put(byte[] key, byte[] value) {
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
-        this.map.put(key, value);
+        this.map.put(key.clone(), value.clone());
     }
 
     @Override

@@ -40,6 +40,9 @@ public interface KVStore {
     /**
      * Get the value associated with the given key, if any.
      *
+     * <p>
+     * Modifications to the returned {@code byte[]} array do not affect this instance.
+     *
      * @param key key
      * @return value associated with key, or null if not found
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
@@ -56,6 +59,9 @@ public interface KVStore {
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
      * then this method returns null.
      *
+     * <p>
+     * Modifications to the returned {@code byte[]} arrays do not affect this instance.
+     *
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
      * @return smallest key/value pair with {@code key >= minKey}, or null if none exists
      * @throws StaleTransactionException if an underlying transaction is no longer usable
@@ -69,6 +75,9 @@ public interface KVStore {
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
      * then this method behaves as if {@code maxKey} were null.
+     *
+     * <p>
+     * Modifications to the returned {@code byte[]} arrays do not affect this instance.
      *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @return largest key/value pair with {@code key < maxKey}, or null if none exists
@@ -102,6 +111,9 @@ public interface KVStore {
      * Some implementations may return {@link Iterator}s that are also {@link java.io.Closeable}; invokers of this
      * method are encouraged to detect and {@link java.io.Closeable#close close()} such instances, though this is not
      * required for correct behavior.
+     *
+     * <p>
+     * Modifications to the returned {@link KVPair} key and value {@code byte[]} arrays do not affect this instance.
      *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)

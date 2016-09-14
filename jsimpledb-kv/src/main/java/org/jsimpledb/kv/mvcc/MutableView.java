@@ -140,7 +140,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         // Check puts
         byte[] value = this.writes.getPuts().get(key);
         if (value != null)
-            return this.applyCounterAdjustment(key, value);
+            return this.applyCounterAdjustment(key, value).clone();
 
         // Check removes
         if (this.writes.getRemoves().contains(key))
@@ -154,7 +154,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
         // Apply counter adjustments
         if (value != null)                                          // we can ignore adjustments of missing values
-            value = this.applyCounterAdjustment(key, value);
+            value = this.applyCounterAdjustment(key, value).clone();
 
         // Done
         return value;
@@ -504,7 +504,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                     this.putnext = null;
                     this.putdone = true;
                 } else
-                    this.putnext = new KVPair(putEntry);
+                    this.putnext = new KVPair(putEntry.getKey().clone(), putEntry.getValue().clone());
             }
 
             // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
