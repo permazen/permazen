@@ -329,13 +329,29 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * The implementation in {@link SQLKVDatabase} invokes {@link DataSource#getConnection()} on the
-     * {@linkplain #dataSource configured} {@link DataSource}.
+     * {@linkplain #dataSource configured} {@link DataSource}, and then deletates to
+     * {@link #configureConnection configureConnection()} to perform any required configuration
+     * of the new {@link Connection}.
      *
      * @return new transaction {@link Connection}
      * @throws SQLException if an error occurs
      */
     protected Connection createTransactionConnection() throws SQLException {
-        return this.dataSource.getConnection();
+        final Connection connection = this.dataSource.getConnection();
+        this.configureConnection(connection);
+        return connection;
+    }
+
+    /**
+     * Configure a newly created {@link Connection}.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} does nothing.
+     *
+     * @param connection newly created {@link Connection}
+     * @throws SQLException if an error occurs
+     */
+    protected void configureConnection(Connection connection) throws SQLException {
     }
 
     /**
