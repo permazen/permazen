@@ -425,7 +425,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
         static final StmtType GET_AT_MOST_SINGLE = new StmtType() {
             @Override
             PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
-                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(false)), log);
+                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(true)), log);
             };
         };
         static final StmtType GET_FIRST = new StmtType() {
