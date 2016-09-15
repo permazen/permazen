@@ -14,8 +14,8 @@ import org.jsimpledb.kv.KeyRange;
  *
  * <p>
  * Each mutation is either a key/value put, the removal of a key range (possibly containing only a single key),
- * or a counter adjustment. Mutations are expected to be applied in the order: removes, puts, adjusts.
- * Theefore, if the same key is mutated in multiple ways, adjusts override puts, and puts override removes.
+ * or a counter adjustment. Mutations are expected to be applied in the order: removes, puts, adjusts. Therefore,
+ * if the same key is mutated in multiple ways, adjusts should occur after puts, and puts should occur after removes.
  */
 public interface Mutations {
 
