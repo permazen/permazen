@@ -8,18 +8,20 @@ package org.jsimpledb.kv.array;
 import com.google.common.collect.Lists;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
-import org.jsimpledb.test.TestSupport;
+import org.jsimpledb.kv.test.AtomicKVStoreTest;
 import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ArrayKVStoreTest extends TestSupport {
+public class ArrayKVStoreTest extends AtomicKVStoreTest {
 
     @Test
     private void testArrayKVStore() throws Exception {
@@ -105,6 +107,19 @@ public class ArrayKVStoreTest extends TestSupport {
                 }
             }
         }
+    }
+
+    @Override
+    protected void compact(AtomicKVStore kvstore) throws Exception {
+        ((AtomicArrayKVStore)kvstore).scheduleCompaction();
+        Thread.sleep(1000);
+    }
+
+    @Override
+    protected AtomicArrayKVStore createAtomicKVStore(File dir) throws Exception {
+        final AtomicArrayKVStore kv = new AtomicArrayKVStore();
+        kv.setDirectory(dir);
+        return kv;
     }
 
     private void verify(byte[] actual, byte[] expected) {

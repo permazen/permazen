@@ -23,6 +23,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;
@@ -32,6 +33,14 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public abstract class AtomicKVStoreTest extends KVTestSupport {
+
+    private static final byte[] KEY1 = new byte[] { (byte)0x10 };
+    private static final byte[] KEY2 = new byte[] { (byte)0x20 };
+    private static final byte[] KEY3 = new byte[] { (byte)0x18 };
+
+    private static final byte[] VAL1 = new byte[] { (byte)0xee };
+    private static final byte[] VAL2 = new byte[] { (byte)0xff };
+    private static final byte[] VAL3 = new byte[] { (byte)0xaa };
 
     private File dir;
 
@@ -117,6 +126,88 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         kv.stop();
     }
 
+    @Test(dataProvider = "kvstores")
+    public void testChangeUnderneath(AtomicKVStore kvstore) throws Exception {
+
+        // Start kvstore
+
+        kvstore.start();
+
+        // Initialize kvstore with (KEY1, VAL1)
+
+        final Writes mods = new Writes();
+        mods.getPuts().put(KEY1, VAL1);
+        kvstore.mutate(mods, true);
+        this.log.debug("step1: kvstore=" + stringView(this.asMap(kvstore)));
+        Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
+          s(KEY1), s(VAL1)));
+
+        // Create and verify snapshot
+
+        final MutableView snap = new MutableView(kvstore.snapshot());
+        this.log.debug("step2: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+          s(KEY1), s(VAL1)));
+
+        // Add (KEY2, VAL2) to kvstore and verify
+
+        mods.clear();
+        mods.getPuts().put(KEY2, VAL2);
+        kvstore.mutate(mods, true);
+
+        this.log.debug("step3: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
+          s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
+        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+          s(KEY1), s(VAL1)));
+
+        // Add (KEY2, VAL3) to snapshot and verify
+
+        snap.put(KEY2, VAL3);
+
+        this.log.debug("step4: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
+          s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
+        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+          s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
+
+        // Remove (KEY2, VAL2) from kvstore and verify
+
+        mods.clear();
+        //mods.getRemoves().add(new KeyRange(KEY2, null));
+        mods.setRemoves(mods.getRemoves().add(new KeyRange(KEY2, null)));
+        kvstore.mutate(mods, true);
+
+        this.log.debug("step5: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
+          s(KEY1), s(VAL1)));
+        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+          s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
+
+        // Compact
+
+        this.compact(kvstore);
+
+        // Verify again
+
+        this.log.debug("step6: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
+          s(KEY1), s(VAL1)));
+        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+          s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
+
+        Assert.assertEquals(snap.getAtLeast(KEY3), new KVPair(KEY2, VAL3));
+        Assert.assertEquals(kvstore.getAtLeast(KEY3), null);
+
+        // Done
+
+        kvstore.stop();
+    }
+
+    protected void compact(AtomicKVStore kvstore) throws Exception {
+        // Subclass can do something here
+    }
+
     private Writes getPuts(int count, TreeMap<byte[], byte[]> map) {
         final Writes writes = new Writes();
         for (int i = 0; i < 16; i++) {
@@ -192,5 +283,13 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         final NavigableMap<String, String> smap2 = stringView(map2);
         Assert.assertEquals(smap1, smap2, "\n*** ACTUAL:\n" + smap1 + "\n*** EXPECTED:\n" + smap2 + "\n");
     }
-}
 
+    private TreeMap<byte[], byte[]> asMap(KVStore kvstore) {
+        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
+        for (Iterator<KVPair> i = kvstore.getRange(null, null, false); i.hasNext(); ) {
+            final KVPair pair = i.next();
+            map.put(pair.getKey(), pair.getValue());
+        }
+        return map;
+    }
+}
