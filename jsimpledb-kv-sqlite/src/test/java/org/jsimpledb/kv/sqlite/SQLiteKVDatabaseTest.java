@@ -7,6 +7,7 @@ package org.jsimpledb.kv.sqlite;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.test.KVDatabaseTest;
@@ -19,12 +20,22 @@ public class SQLiteKVDatabaseTest extends KVDatabaseTest {
     private SQLiteKVDatabase kvdb;
 
     @BeforeClass(groups = "configure")
-    @Parameters("sqliteFilePrefix")
-    public void setFilePrefix(@Optional String filePrefix) throws IOException {
+    @Parameters({ "sqliteFilePrefix", "exclusiveLocking", "pragmas" })
+    public void setFilePrefix(
+      @Optional String filePrefix,
+      @Optional("true") boolean exclusiveLocking,
+      @Optional String pragmas) throws IOException {
         if (filePrefix != null) {
             final File file = File.createTempFile(filePrefix, ".sqlite3");
             this.kvdb = new SQLiteKVDatabase();
             this.kvdb.setDatabaseFile(file);
+            this.kvdb.setExclusiveLocking(exclusiveLocking);
+            if (pragmas != null) {
+                final ArrayList<String> pragmaList = new ArrayList<>();
+                for (String pragma : pragmas.split("\\s*,\\s*"))
+                    pragmaList.add(pragma);
+                this.kvdb.setPragmas(pragmaList);
+            }
         }
     }
 

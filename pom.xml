@@ -698,6 +698,7 @@
 
                         <!-- kv-sqlite -->
                         <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
+                        <exclusiveLocking>true</exclusiveLocking>
 
                     </systemPropertyVariables>
                     <properties>

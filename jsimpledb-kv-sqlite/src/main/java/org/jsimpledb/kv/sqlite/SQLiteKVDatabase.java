@@ -9,6 +9,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -49,6 +50,8 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
 
     private File file;
     private SQLiteConfig config;
+    private boolean exclusiveLocking;
+    private List<String> pragmas;
 
     /**
      * Constructor.
@@ -87,6 +90,30 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
      */
     public void setSQLiteConfig(SQLiteConfig config) {
         this.config = config;
+    }
+
+    /**
+     * Configure whether the database connection locking mode uses exclusive locking.
+     * This provides a performance benefit, but requires that this Java process be the only one accessing the database.
+     *
+     * <p>
+     * Default is normal (non-exclusive) locking.
+     *
+     * @param exclusiveLocking true for exclusive locking, false for normal locking
+     * @see <a href="https://www.sqlite.org/pragma.html#pragma_locking_mode">PRAGMA schema.locking_mode</a>
+     */
+    public void setExclusiveLocking(boolean exclusiveLocking) {
+        this.exclusiveLocking = exclusiveLocking;
+    }
+
+    /**
+     * Configure arbitrary {@code PRAGMA} statements to be executed on newly created {@link Connection}s.
+     *
+     * @param pragmas zero or more pragma statements (without the {@code PRAGMA} keyword) to execute on new {@link Connection}s
+     * @see <a href="https://www.sqlite.org/pragma.html">PRAGMA statements</a>
+     */
+    public void setPragmas(List<String> pragmas) {
+        this.pragmas = pragmas;
     }
 
 // Overrides
@@ -133,6 +160,24 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
             statement.execute("COMMIT");
         }
         this.log.debug("SQLite database " + (this.file != null ? this.file + " " : "") + "started");
+    }
+
+    @Override
+    protected void configureConnection(Connection connection) throws SQLException {
+        if (!this.exclusiveLocking && (this.pragmas == null || this.pragmas.isEmpty()))
+            return;
+        try (final Statement statement = connection.createStatement()) {
+            if (this.exclusiveLocking) {
+                this.log.debug("configuring database connection for exclusive locking");
+                statement.execute("PRAGMA locking_mode=EXCLUSIVE");
+            }
+            if (this.pragmas != null) {
+                for (String pragma : this.pragmas) {
+                    this.log.debug("configuring database connection with PRAGMA " + pragma);
+                    statement.execute("PRAGMA " + pragma);
+                }
+            }
+        }
     }
 
     @Override
