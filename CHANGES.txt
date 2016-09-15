@@ -5,6 +5,7 @@ Version 2.2.2
     - Cache simple field values for better efficiency in repeated reads
     - Fixed race condition bug in AtomicArrayKVStore.snapshot()
     - Fixed bug in SQL key/value stores ordering getAtMost() queries
+    - Fixed performance issue with Raft and key watches
 
 Version 2.2.1 Released September 7, 2016
 

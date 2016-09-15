@@ -347,8 +347,8 @@ public class LeaderRole extends Role {
             // Perform various service
             this.raft.requestService(this.checkReadyTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
-            this.raft.requestService(this.applyCommittedLogEntriesService);
             this.raft.requestService(this.triggerKeyWatchesService);
+            this.raft.requestService(this.applyCommittedLogEntriesService);
 
             // Notify all (up-to-date) followers with the updated leaderCommit
             this.updateAllSynchronizedFollowersNow();

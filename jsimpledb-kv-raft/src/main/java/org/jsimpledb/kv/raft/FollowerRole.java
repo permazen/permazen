@@ -670,8 +670,8 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
             this.raft.commitIndex = newCommitIndex;
             this.raft.requestService(this.checkWaitingTransactionsService);
-            this.raft.requestService(this.applyCommittedLogEntriesService);
             this.raft.requestService(this.triggerKeyWatchesService);
+            this.raft.requestService(this.applyCommittedLogEntriesService);
         }
 
         // Debug
