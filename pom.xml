@@ -680,7 +680,7 @@
                         <!-- kv-raft -->
                         <raftDirPrefix>RaftDB</raftDirPrefix>
                         <raftNumNodes>3</raftNumNodes>
-                        <raftCommitTimeout>2500</raftCommitTimeout>
+                        <raftCommitTimeout>5000</raftCommitTimeout>
                         <raftMinElectionTimeout>100</raftMinElectionTimeout>
                         <raftMaxElectionTimeout>150</raftMaxElectionTimeout>
                         <raftHeartbeatTimeout>50</raftHeartbeatTimeout>
