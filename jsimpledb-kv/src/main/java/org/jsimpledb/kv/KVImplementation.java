@@ -103,8 +103,8 @@ public abstract class KVImplementation {
     }
 
     /**
-     * Subclass support method for parsing out a single command line flag without argument.
-     * If found, the {@code flag} is removed from {@code options}.
+     * Subclass support method for parsing out a boolean command line flag (i.e., a flag without an argument).
+     * If found, all instances of {@code flag} are removed from {@code options}.
      *
      * @param options command line options
      * @param flag command line flag taking an argument
