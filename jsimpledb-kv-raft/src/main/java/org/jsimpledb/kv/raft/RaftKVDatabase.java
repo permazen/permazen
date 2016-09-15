@@ -48,7 +48,7 @@ import org.dellroad.stuff.net.TCPNetwork;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransactionException;
-import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
@@ -1601,7 +1601,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Update persistent store
         final Writes writes = new Writes();
         writes.getPuts().put(CURRENT_TERM_KEY, LongEncoder.encode(newTerm));
-        writes.setRemoves(new KeyRanges(VOTED_FOR_KEY));
+        writes.getRemoves().add(new KeyRange(VOTED_FOR_KEY));
         try {
             this.kv.mutate(writes, true);
         } catch (Exception e) {

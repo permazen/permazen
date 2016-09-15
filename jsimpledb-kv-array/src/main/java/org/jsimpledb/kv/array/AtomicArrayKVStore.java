@@ -690,14 +690,14 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     @Override
     public void remove(byte[] key) {
         final Writes writes = new Writes();
-        writes.setRemoves(new KeyRanges(key));
+        writes.getRemoves().add(new KeyRange(key));
         this.mutate(writes, false);
     }
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         final Writes writes = new Writes();
-        writes.setRemoves(new KeyRanges(minKey != null ? minKey : ByteUtil.EMPTY, maxKey));
+        writes.getRemoves().add(new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey));
         this.mutate(writes, false);
     }
 
@@ -826,7 +826,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 writes = (Writes)mutations;
             else {
                 writes = new Writes();
-                writes.setRemoves(new KeyRanges(mutations.getRemoveRanges()));
+                writes.getRemoves().add(new KeyRanges(mutations.getRemoveRanges()));
                 for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
                     writes.getPuts().put(entry.getKey(), entry.getValue());
                 for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())

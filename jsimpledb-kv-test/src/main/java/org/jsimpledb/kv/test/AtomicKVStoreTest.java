@@ -174,8 +174,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         // Remove (KEY2, VAL2) from kvstore and verify
 
         mods.clear();
-        //mods.getRemoves().add(new KeyRange(KEY2, null));
-        mods.setRemoves(mods.getRemoves().add(new KeyRange(KEY2, null)));
+        mods.getRemoves().add(new KeyRange(KEY2, null));
         kvstore.mutate(mods, true);
 
         this.log.debug("step5: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
@@ -230,8 +229,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
             if (this.random.nextInt(5) > 0) {
                 final byte[] key = new byte[] { (byte)this.random.nextInt(0xff) };
                 this.log.trace("[" + count + "]: REMOVE: " + ByteUtil.toString(key));
-                //writes.getRemoves().add(new KeyRange(key));
-                writes.setRemoves(writes.getRemoves().add(new KeyRange(key)));
+                writes.getRemoves().add(new KeyRange(key));
                 map.remove(key);
             } else {
                 final byte[] x = this.random.nextInt(10) == 0 ? new byte[0] : new byte[] { (byte)this.random.nextInt(0xff) };
@@ -239,8 +237,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
                 final byte[] minKey = y == null || ByteUtil.compare(x, y) < 0 ? x : y;
                 final byte[] maxKey = y == null || ByteUtil.compare(x, y) < 0 ? y : x;
                 this.log.trace("[" + count + "]: REMOVE: [" + ByteUtil.toString(minKey) + ", " + ByteUtil.toString(maxKey) + ")");
-                //writes.getRemoves().add(new KeyRange(minKey, maxKey));
-                writes.setRemoves(writes.getRemoves().add(new KeyRange(minKey, maxKey)));
+                writes.getRemoves().add(new KeyRange(minKey, maxKey));
                 if (maxKey == null)
                     map.tailMap(minKey, true).clear();
                 else

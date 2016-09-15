@@ -63,13 +63,13 @@ public class KVPairIteratorTest extends KeyRangeTestSupport {
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                KeyRanges.FULL,
+                KeyRanges.full(),
                 null,
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                KeyRanges.EMPTY,
+                KeyRanges.empty(),
                 ba()
             },
 

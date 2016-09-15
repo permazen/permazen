@@ -78,12 +78,12 @@ public class MutableViewTest extends TestSupport {
     public void testReadTracking() throws Exception {
         final KVStore kvstore = new NavigableMapKVStore();
         final MutableView mv = new MutableView(kvstore);
-        final KeyRanges expectedReads = KeyRanges.EMPTY;
+        final KeyRanges expectedReads = KeyRanges.empty();
         final byte[] min = ByteUtil.parse("0123");
         final byte[] max = ByteUtil.parse("4567");
         final Iterator<KVPair> i = mv.getRange(min, max, false);
         i.hasNext();
-        Assert.assertEquals(mv.getReads().getReads(), new KeyRanges(min, max));
+        Assert.assertEquals(mv.getReads(), new Reads(new KeyRanges(min, max)));
     }
 
     @Test

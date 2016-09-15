@@ -467,7 +467,7 @@ public abstract class Message {
         Preconditions.checkArgument(buf != null, "null buf");
         final ByteBufferInputStream in = new ByteBufferInputStream(buf);
         try {
-            return Reads.deserialize(in);
+            return new Reads(in);
         } catch (IOException e) {
             if (e.getCause() instanceof BufferUnderflowException)
                 throw (BufferUnderflowException)e.getCause();

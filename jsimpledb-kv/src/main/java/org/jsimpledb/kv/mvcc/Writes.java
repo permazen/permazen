@@ -11,9 +11,9 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import org.jsimpledb.kv.KVStore;
@@ -39,7 +39,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 public class Writes implements Cloneable, Mutations, SizeEstimating {
 
-    private KeyRanges removes = KeyRanges.EMPTY;
+    private /*final*/ KeyRanges removes = KeyRanges.empty();
     private /*final*/ TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
     private /*final*/ TreeMap<byte[], Long> adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
 
@@ -52,20 +52,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
      */
     public KeyRanges getRemoves() {
         return this.removes;
-    }
-
-    /**
-     * Set the key ranges removals contained by this instance.
-     *
-     * <p>
-     * The caller must not modify any of the {@code byte[]} arrays in the returned {@link KeyRanges}.
-     *
-     * @param removes key ranges removed
-     * @throws IllegalArgumentException if {@code removes} is null
-     */
-    public void setRemoves(KeyRanges removes) {
-        Preconditions.checkArgument(removes != null, "null removes");
-        this.removes = removes;
     }
 
     /**
@@ -105,7 +91,7 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
      * Clear all mutations.
      */
     public void clear() {
-        this.removes = KeyRanges.EMPTY;
+        this.removes.clear();
         this.puts.clear();
         this.adjusts.clear();
     }
@@ -113,18 +99,18 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
 // Mutations
 
     @Override
-    public List<KeyRange> getRemoveRanges() {
-        return this.removes.asList();
+    public NavigableSet<KeyRange> getRemoveRanges() {
+        return this.removes.asSet();
     }
 
     @Override
     public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-        return this.puts.entrySet();
+        return this.getPuts().entrySet();
     }
 
     @Override
     public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-        return this.adjusts.entrySet();
+        return this.getAdjusts().entrySet();
     }
 
 // Application
@@ -251,7 +237,7 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
         final Writes writes = new Writes();
 
         // Populate removes
-        writes.removes = KeyRanges.deserialize(input);
+        writes.removes = new KeyRanges(input);
 
         // Populate puts
         int count = UnsignedIntEncoder.read(input);
@@ -317,6 +303,7 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.removes = this.removes.clone();
         clone.puts = (TreeMap<byte[], byte[]>)this.puts.clone();
         clone.adjusts = (TreeMap<byte[], Long>)this.adjusts.clone();
         return clone;

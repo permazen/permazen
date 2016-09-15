@@ -194,7 +194,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         this.writes.getPuts().remove(key);
 
         // Record the remove
-        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(key)));
+        this.writes.getRemoves().add(new KeyRange(key));
     }
 
     @Override
@@ -214,7 +214,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         }
 
         // Record the remove
-        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(minKey, maxKey)));
+        this.writes.getRemoves().add(new KeyRange(minKey, maxKey));
     }
 
     @Override
@@ -351,20 +351,20 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
         // Already tracked?
         final KeyRange readRange = new KeyRange(minKey, maxKey);
-        if (this.reads.getReads().contains(readRange))
+        if (this.reads.contains(readRange))
             return;
 
         // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes
-        KeyRanges readRanges = new KeyRanges(readRange);
+        final KeyRanges readRanges = new KeyRanges(readRange);
         final Set<byte[]> putKeys = (maxKey != null ?
           this.writes.getPuts().subMap(minKey, maxKey) : this.writes.getPuts().tailMap(minKey)).keySet();
         for (byte[] key : putKeys)
-            readRanges = readRanges.remove(new KeyRange(key));
-        readRanges = readRanges.intersection(this.writes.getRemoves().inverse());
+            readRanges.remove(new KeyRange(key));
+        readRanges.remove(this.writes.getRemoves());
 
         // Record reads
         if (!readRanges.isEmpty())
-            this.reads.setReads(this.reads.getReads().union(readRanges));
+            this.reads.add(readRanges);
     }
 
 // RangeIterator
@@ -436,10 +436,6 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                 return false;
 
             // Find the next underlying k/v pair, if we don't already have it
-            final KeyRanges removes;
-            synchronized (MutableView.this) {
-                removes = MutableView.this.writes.getRemoves();
-            }
             if (this.kviter != null && this.kvnext == null) {
                 while (true) {
 
@@ -455,7 +451,10 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                       "key " + ByteUtil.toString(this.kvnext.getKey()) + " is not past cursor " + ByteUtil.toString(this.cursor);
 
                     // If k/v pair has been removed, skip past the matching remove range
-                    final KeyRange[] ranges = removes.findKey(this.kvnext.getKey());
+                    final KeyRange[] ranges;
+                    synchronized (MutableView.this) {
+                        ranges = MutableView.this.writes.getRemoves().findKey(this.kvnext.getKey());
+                    }
                     if (ranges[0] == ranges[1] && ranges[0] != null) {
                         final KeyRange removeRange = ranges[0];
 

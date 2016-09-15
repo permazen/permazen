@@ -215,7 +215,7 @@ public class LockManager {
             for (Lock lock : owner.locks) {
                 if (write && !lock.write)
                     continue;
-                ranges = ranges.remove(lock);
+                ranges.remove(lock);
             }
             return ranges.isEmpty();
         }

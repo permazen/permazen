@@ -23,8 +23,8 @@ public class ReadsTest extends TestSupport {
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         reads.serialize(output);
         final ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-        final Reads reads2 = Reads.deserialize(input);
-        Assert.assertEquals(reads2.getReads(), reads.getReads());
+        final Reads reads2 = new Reads(input);
+        Assert.assertEquals(reads2, reads);
         final ByteArrayOutputStream output2 = new ByteArrayOutputStream();
         reads2.serialize(output2);
         Assert.assertEquals(output2.toByteArray(), output.toByteArray());
@@ -33,8 +33,8 @@ public class ReadsTest extends TestSupport {
     @DataProvider(name = "ranges")
     private KeyRanges[][] genReads() throws Exception {
         return new KeyRanges[][] {
-            { KeyRanges.EMPTY },
-            { KeyRanges.FULL },
+            { KeyRanges.empty() },
+            { KeyRanges.full() },
             { new KeyRanges(KeyRange.forPrefix(b("0123")), KeyRange.forPrefix(b("33"))) },
             { new KeyRanges(
               new KeyRange(b(""), b("ffff")),

@@ -14,6 +14,7 @@ import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CoreIndex3;
 import org.jsimpledb.core.CoreIndex4;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 
 /**
@@ -21,7 +22,7 @@ import org.jsimpledb.kv.KeyRanges;
  */
 class IndexInfo {
 
-    private static final KeyRanges NULL_RANGE = new KeyRanges(new byte[] { (byte)0xff }, null);
+    private static final KeyRange NULL_RANGE = new KeyRange(new byte[] { (byte)0xff }, null);
 
     // For simple indexes only
     final JSimpleFieldInfo fieldInfo;
@@ -250,11 +251,11 @@ class IndexInfo {
                 return null;
 
             // Create a filter for the actual type
-            KeyRanges filter = jdb.keyRangesFor(this.actualType);
+            final KeyRanges filter = jdb.keyRangesFor(this.actualType);
 
             // For values other than the target value, we need to also accept null values in the index
             if (this.matchNull)
-                filter = filter.union(NULL_RANGE);
+                filter.add(NULL_RANGE);
 
             // Done
             return filter;

@@ -869,7 +869,7 @@ public class LeaderRole extends Role {
             // Decode reads
             final Reads reads;
             try {
-                reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));
+                reads = new Reads(new ByteBufferInputStream(msg.getReadsData()));
             } catch (Exception e) {
                 this.error("error decoding reads data in " + msg, e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),

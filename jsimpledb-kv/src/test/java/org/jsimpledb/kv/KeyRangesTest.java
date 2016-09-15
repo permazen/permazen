@@ -163,10 +163,34 @@ public class KeyRangesTest extends KeyRangeTestSupport {
 
 ///////////// add(), remove()
 
+    @Test(dataProvider = "removes")
+    public void testRemove(KeyRange range, KeyRanges expected) throws Exception {
+
+        final KeyRanges kr1 = KeyRanges.empty();
+        kr1.add(kr("01", "02"));
+        kr1.add(kr("03", "04"));
+        kr1.add(kr("0400", "06"));
+        kr1.add(kr("09", "0a"));
+        kr1.add(kr("0b", null));
+
+        kr1.remove(range);
+
+        Assert.assertEquals(kr1.toString(), expected.toString());
+    }
+
+    @DataProvider(name = "removes")
+    private Object[][] removeCases() throws Exception {
+        return new Object[][] {
+          { kr("", "0a00"),     krs(kr("0b", null)) },
+          { kr("00", "0b"),     krs(kr("0b", null)) },
+          { kr("0100", "0b"),   krs(kr("01", "0100"), kr("0b", null)) },
+        };
+    }
+
     @Test
     public void testAddRemove() throws Exception {
-        final HashSet<KeyRange> ranges = new HashSet<>();                               // expected ranges
-        KeyRanges keyRanges = KeyRanges.EMPTY;                                          // actual ranges
+        final HashSet<KeyRange> expected = new HashSet<>();                             // expected ranges
+        final KeyRanges actual = KeyRanges.empty();                                     // actual ranges
         for (int i = 0; i < 100000; i++) {
 
             // Get bounds
@@ -179,30 +203,32 @@ public class KeyRangesTest extends KeyRangeTestSupport {
                 if (maxKey != null)
                     this.random.nextBytes(maxKey);
             } while (maxKey != null && ByteUtil.compare(maxKey, minKey) < 0);
+
+            // Create new range
             final KeyRange range = new KeyRange(minKey, maxKey);
 
             // Mutate
             if (this.random.nextInt(3) < 2) {                                           // add
-                keyRanges = keyRanges.add(range);
-                ranges.add(range);
+                actual.add(range);
+                expected.add(range);
             } else {                                                                    // remove
-                keyRanges = keyRanges.remove(range);
-                final KeyRange[] prevs = ranges.toArray(new KeyRange[ranges.size()]);
-                ranges.clear();
+                actual.remove(range);
+                final KeyRange[] prevs = expected.toArray(new KeyRange[expected.size()]);
+                expected.clear();
                 for (KeyRange prev : prevs) {
                     if (!range.overlaps(prev)) {
-                        ranges.add(prev);
+                        expected.add(prev);
                         continue;
                     }
                     if (ByteUtil.compare(prev.getMin(), range.getMin()) < 0)
-                        ranges.add(new KeyRange(prev.getMin(), range.getMin()));
+                        expected.add(new KeyRange(prev.getMin(), range.getMin()));
                     if (range.getMax() != null && (prev.getMax() == null || ByteUtil.compare(range.getMax(), prev.getMax()) < 0))
-                        ranges.add(new KeyRange(range.getMax(), prev.getMax()));
+                        expected.add(new KeyRange(range.getMax(), prev.getMax()));
                 }
             }
 
             // Verify
-            Assert.assertEquals(keyRanges, new KeyRanges(ranges.toArray(new KeyRange[ranges.size()])));
+            Assert.assertEquals(actual.asSet(), new KeyRanges(expected.toArray(new KeyRange[expected.size()])).asSet());
         }
     }
 
@@ -213,15 +239,21 @@ public class KeyRangesTest extends KeyRangeTestSupport {
 
         Assert.assertEquals(ranges, ranges.inverse().inverse());
         Assert.assertEquals(ranges.asList(), ranges.inverse().inverse().asList());
-        Assert.assertEquals(ranges.union(ranges.inverse()), KeyRanges.FULL);
 
-        Assert.assertTrue(ranges.union(ranges.inverse()).isFull());
-        Assert.assertEquals(ranges.intersection(ranges.inverse()), KeyRanges.EMPTY);
-        Assert.assertTrue(ranges.intersection(ranges.inverse()).isEmpty());
+        final KeyRanges inverse = ranges.inverse();
+        final KeyRanges ranges2 = ranges.clone();
+        ranges2.add(inverse);
+        Assert.assertEquals(ranges2, KeyRanges.full());
+        Assert.assertTrue(ranges2.isFull());
+
+        final KeyRanges ranges3 = ranges.clone();
+        ranges3.intersect(inverse);
+        Assert.assertEquals(ranges3, KeyRanges.empty());
+        Assert.assertTrue(ranges3.isEmpty());
 
         final byte[] b1 = this.randomBytes(false);
-        Assert.assertEquals(ranges.contains(b1), !ranges.inverse().contains(b1),
-          "ranges " + ranges + " and inverse " + ranges.inverse() + " agree on containing " + s(b1));
+        Assert.assertEquals(ranges.contains(b1), !inverse.contains(b1),
+          "ranges " + ranges + " and inverse " + inverse + " agree on containing " + s(b1));
 
     }
 
@@ -234,6 +266,34 @@ public class KeyRangesTest extends KeyRangeTestSupport {
             for (int j = 0; j < numRanges; j++)
                 list.add(this.randomKeyRange());
             paramsList.add(new Object[] { new KeyRanges(list) });
+        }
+        return paramsList.toArray(new Object[paramsList.size()][]);
+    }
+
+    @Test(dataProvider = "intersects")
+    public void testIntersects(KeyRanges ranges1, KeyRanges ranges2) throws Exception {
+        KeyRanges x = ranges1.clone();
+        x.intersect(ranges2.inverse());
+
+        KeyRanges y = ranges1.clone();
+        y.remove(ranges2);
+
+        Assert.assertEquals(x, y);
+    }
+
+    @DataProvider(name = "intersects")
+    private Object[][] dataIntersects() throws Exception {
+        final ArrayList<Object[]> paramsList = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            final ArrayList<KeyRanges> paramList = new ArrayList<>(2);
+            for (int j = 0; j < 2; j++) {
+                final int numRanges = this.random.nextInt(10);
+                final ArrayList<KeyRange> rangeList = new ArrayList<>(numRanges);
+                for (int k = 0; k < numRanges; k++)
+                    rangeList.add(this.randomKeyRange());
+                paramList.add(new KeyRanges(rangeList));
+            }
+            paramsList.add(paramList.toArray());
         }
         return paramsList.toArray(new Object[paramsList.size()][]);
     }

@@ -46,8 +46,8 @@ public class WritesTest extends TestSupport {
         list.add(writes1);
 
         final Writes writes2 = new Writes();
-        writes2.setRemoves(writes2.getRemoves().add(KeyRange.forPrefix(b("6666"))));
-        writes2.setRemoves(writes2.getRemoves().add(new KeyRange(b("003333"), b("004444"))));
+        writes2.getRemoves().add(KeyRange.forPrefix(b("6666")));
+        writes2.getRemoves().add(new KeyRange(b("003333"), b("004444")));
         list.add(writes2);
 
         final Writes writes3 = new Writes();
@@ -88,13 +88,12 @@ public class WritesTest extends TestSupport {
 
         // Set up mutations
         final Writes writes = new Writes();
-        writes.setRemoves(
-          KeyRanges.forPrefix(b("3311"))
-            .add(new KeyRange(b("66"), null))
-            .add(new KeyRange(b("550002"), b("550003")))
-            .add(new KeyRange(b(""), b("02")))
-            .add(new KeyRange(b("40")))
-            .add(new KeyRange(b("4444"), b("5500"))));
+        writes.getRemoves().add(KeyRanges.forPrefix(b("3311")));
+        writes.getRemoves().add(new KeyRange(b("66"), null));
+        writes.getRemoves().add(new KeyRange(b("550002"), b("550003")));
+        writes.getRemoves().add(new KeyRange(b(""), b("02")));
+        writes.getRemoves().add(new KeyRange(b("40")));
+        writes.getRemoves().add(new KeyRange(b("4444"), b("5500")));
         writes.getPuts().put(b("331100"), b("22"));
         writes.getPuts().put(b("7323"), b("9933"));
         writes.getPuts().put(b(""), b("ffff"));

@@ -33,14 +33,13 @@ public class MessageTest extends TestSupport {
 
         final Writes writes = new Writes();
         writes.getPuts().put(b("0102"), b("0304"));
-        writes.setRemoves(new KeyRanges(b("5555"), b("6666")));
+        writes.getRemoves().add(new KeyRanges(b("5555"), b("6666")));
         writes.getAdjusts().put(b("8888"), 99L);
         final ByteArrayOutputStream writesBuf = new ByteArrayOutputStream();
         writes.serialize(writesBuf);
         final byte[] writesData = writesBuf.toByteArray();
 
-        final Reads reads = new Reads();
-        reads.setReads(new KeyRanges(b("33"), b("44")));
+        final Reads reads = new Reads(new KeyRanges(b("33"), b("44")));
         final ByteArrayOutputStream readsBuf = new ByteArrayOutputStream();
         reads.serialize(readsBuf);
         final byte[] readsData = readsBuf.toByteArray();

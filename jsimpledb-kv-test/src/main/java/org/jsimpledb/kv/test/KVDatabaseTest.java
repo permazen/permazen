@@ -576,8 +576,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             final NavigableSet<String> putValuesView = stringView(putValues);
 
             // Keep track of known empty ranges
-            //final KeyRanges knownEmpty = new KeyRanges();
-            KeyRanges knownEmpty = new KeyRanges();
+            final KeyRanges knownEmpty = new KeyRanges();
 
             // Create transaction
             final KVTransaction tx = this.store.createTransaction();
@@ -620,8 +619,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                               this + ": get(" + s(key) + ") returned null but"
                               + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                               + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                            //knownEmpty.add(new KeyRange(key));
-                            knownEmpty = knownEmpty.add(new KeyRange(key));
+                            knownEmpty.add(new KeyRange(key));
                             knownValuesChanged = true;
                         } else if (knownValues.containsKey(key)) {
                             assert s(knownValues.get(key)).equals(s(val)) :
@@ -643,8 +641,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         tx.put(key, val);
                         knownValues.put(key, val);
                         putValues.add(key);
-                        //knownEmpty.remove(new KeyRange(key));
-                        knownEmpty = knownEmpty.remove(new KeyRange(key));
+                        knownEmpty.remove(new KeyRange(key));
                         knownValuesChanged = true;
                     } else if (option < 30) {                                       // getAtLeast
                         min = this.rb(1, true);
@@ -666,8 +663,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                           this + ": getAtLeast(" + s(min) + ") returned " + pair + " but"
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        //knownEmpty.add(new KeyRange(min, pair != null ? pair.getKey() : null));
-                        knownEmpty = knownEmpty.add(new KeyRange(min, pair != null ? pair.getKey() : null));
+                        knownEmpty.add(new KeyRange(min, pair != null ? pair.getKey() : null));
                         knownValuesChanged = true;
                     } else if (option < 40) {                                       // getAtMost
                         max = this.rb(1, true);
@@ -689,9 +685,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                           this + ": getAtMost(" + s(max) + ") returned " + pair + " but"
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        //knownEmpty.add(new KeyRange(pair != null ? ByteUtil.getNextKey(pair.getKey()) : ByteUtil.EMPTY, max));
-                        knownEmpty = knownEmpty.add(
-                          new KeyRange(pair != null ? ByteUtil.getNextKey(pair.getKey()) : ByteUtil.EMPTY, max));
+                        knownEmpty.add(new KeyRange(pair != null ? ByteUtil.getNextKey(pair.getKey()) : ByteUtil.EMPTY, max));
                         knownValuesChanged = true;
                     } else if (option < 50) {                                       // remove
                         key = this.rb(1, false);
@@ -701,8 +695,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         tx.remove(key);
                         knownValues.remove(key);
                         putValues.remove(key);
-                        //knownEmpty.add(new KeyRange(key));
-                        knownEmpty = knownEmpty.add(new KeyRange(key));
+                        knownEmpty.add(new KeyRange(key));
                         knownValuesChanged = true;
                     } else if (option < 52) {                                       // removeRange
                         min = this.rb2(2, 20);
@@ -724,8 +717,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             knownValues.subMap(min, max).clear();
                             putValues.subSet(min, max).clear();
                         }
-                        //knownEmpty.add(new KeyRange(min != null ? min : ByteUtil.EMPTY, max));
-                        knownEmpty = knownEmpty.add(new KeyRange(min != null ? min : ByteUtil.EMPTY, max));
+                        knownEmpty.add(new KeyRange(min != null ? min : ByteUtil.EMPTY, max));
                         knownValuesChanged = true;
                     } else if (option < 60) {                                       // adjustCounter
                         key = this.rb(1, false);
@@ -753,8 +745,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         this.log("adj: " + s(key) + " by " + adj + " -> should now be " + s(encodedCounter));
                         tx.adjustCounter(key, adj);
                         knownValues.put(key, encodedCounter);
-                        //knownEmpty.remove(new KeyRange(key));
-                        knownEmpty = knownEmpty.remove(new KeyRange(key));
+                        knownEmpty.remove(new KeyRange(key));
                         knownValuesChanged = true;
                     } else {                                                        // sleep
                         final int millis = this.r(50);

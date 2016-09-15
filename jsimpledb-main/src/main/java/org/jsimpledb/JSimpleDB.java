@@ -726,7 +726,7 @@ public class JSimpleDB {
      */
     KeyRanges keyRangesFor(Class<?> type) {
         if (type == null)
-            return KeyRanges.FULL;
+            return KeyRanges.full();
         final ArrayList<KeyRange> list = new ArrayList<>(this.jclasses.size());
         boolean invert = false;
         if (type == UntypedJObject.class) {
