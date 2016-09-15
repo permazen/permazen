@@ -687,7 +687,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
-        buf.append(this.getClass().getSimpleName()).append("[");
+        buf.append('[');
         int index = 0;
     rangeLoop:
         for (KeyRange range : this.ranges) {
@@ -703,7 +703,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
             }
             buf.append(range);
         }
-        buf.append("]");
+        buf.append(']');
         return buf.toString();
     }
 
