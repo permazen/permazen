@@ -28,6 +28,10 @@ public class SQLiteKVDatabaseTest extends KVDatabaseTest {
         }
     }
 
+    protected boolean allowBothTransactionsToFail() {
+        return true;
+    }
+
     @Override
     protected KVDatabase getKVDatabase() {
         return this.kvdb;
