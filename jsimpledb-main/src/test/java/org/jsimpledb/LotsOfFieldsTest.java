@@ -35,16 +35,16 @@ public class LotsOfFieldsTest extends TestSupport {
 
         final Class<?>[] classes = new Class<?>[] {
             Fields0.class,
-            Fields7.class, 
-            Fields8.class, 
-            Fields15.class, 
-            Fields16.class, 
-            Fields31.class, 
-            Fields32.class, 
-            Fields39.class, 
-            Fields43.class, 
-            Fields63.class, 
-            Fields64.class, 
+            Fields7.class,
+            Fields8.class,
+            Fields15.class,
+            Fields16.class,
+            Fields31.class,
+            Fields32.class,
+            Fields39.class,
+            Fields43.class,
+            Fields63.class,
+            Fields64.class,
             Fields65.class
         };
         final JSimpleDB jdb = BasicTest.getJSimpleDB(classes);
