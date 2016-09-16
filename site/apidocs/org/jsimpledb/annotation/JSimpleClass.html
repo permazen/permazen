@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleClass (JSimpleDB 2.2.1 API)</title>
+<title>JSimpleClass (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleClass (JSimpleDB 2.2.1 API)";
+        parent.document.title="JSimpleClass (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -313,7 +313,7 @@ public @interface <span class="strong">JSimpleClass</span></pre>
  <p>
  If <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenFields()"><code>autogenFields()</code></a> is false, this property is ignored. Otherwise, if this property is true,
  any auto-generated reference fields will allow assignment to deleted objects in normal transactions.
- In other words, they will behave as if they had a <code>&#64;JField</code> annotation with <a href="../../../org/jsimpledb/annotation/JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a>
+ In other words, they will behave as if they had a <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a> annotation with <a href="../../../org/jsimpledb/annotation/JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a>
  set to true.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether auto-generated reference fields should allow assignment to a deleted object in normal transactions</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a></dd></dl>
 <dl>
@@ -335,8 +335,8 @@ public @interface <span class="strong">JSimpleClass</span></pre>
  <p>
  If <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenFields()"><code>autogenFields()</code></a> is false, this property is ignored. Otherwise, if this property is true,
  any auto-generated reference fields will allow assignment to deleted objects in snapshot transactions.
- In other words, they will behave as if they had a <code>&#64;JField</code> annotation with <a href="../../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>JField.allowDeletedSnapshot()</code></a>
- set to true.</div>
+ In other words, they will behave as if they had a <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a> annotation with
+ <a href="../../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>JField.allowDeletedSnapshot()</code></a> set to true.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether auto-generated reference fields should allow assignment to a deleted object in snapshot transactions</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>JField.allowDeletedSnapshot()</code></a></dd></dl>
 <dl>
 <dt>Default:</dt>

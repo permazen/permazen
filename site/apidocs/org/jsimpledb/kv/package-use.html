@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.kv (JSimpleDB 2.2.1 API)</title>
+<title>Uses of Package org.jsimpledb.kv (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.kv (JSimpleDB 2.2.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.kv (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -646,42 +646,48 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KeyFilter.html#org.jsimpledb.kv.mvcc">KeyFilter</a>
+<div class="block">A predicate for filtering <code>byte[]</code> keys that is also capable of efficiently jumping over
+ contiguous regions of uncontained keys.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KeyRange.html#org.jsimpledb.kv.mvcc">KeyRange</a>
 <div class="block">Represents a contiguous range of <code>byte[]</code> keys, when keys are sorted in unsigned lexical order.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KeyRanges.html#org.jsimpledb.kv.mvcc">KeyRanges</a>
 <div class="block">A fixed set of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> instances that can be treated as a unified whole, in particular as a <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVDatabase.html#org.jsimpledb.kv.mvcc">KVDatabase</a>
 <div class="block">A transactional database with a simple key/value API.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.mvcc">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPairIterator.html#org.jsimpledb.kv.mvcc">KVPairIterator</a>
 <div class="block">An <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> that iterates over all key/value pairs in a <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> within a range of keys,
  without using the <a href="../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)"><code>KVStore.getRange()</code></a> method.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.mvcc">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.mvcc">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.mvcc">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>

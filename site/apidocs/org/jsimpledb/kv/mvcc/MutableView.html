@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>MutableView (JSimpleDB 2.2.1 API)</title>
+<title>MutableView (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="MutableView (JSimpleDB 2.2.1 API)";
+        parent.document.title="MutableView (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -123,11 +123,8 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
  In all cases, the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> is never modified.
 
  <p>
- Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.
-
- <p>
  Instances are thread safe; however, directly accessing the associated <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> or <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> is not thread safe
- without first locking this instance.</div>
+ without first locking the containing instance.</div>
 </li>
 </ul>
 </div>
@@ -354,7 +351,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 
  <p>
  This includes all keys explicitly or implicitly read by calls to
- <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#get(byte[])"><code>get()</code></a>, <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html#getAtLeast(byte[])"><code>getAtLeast()</code></a>, <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html#getAtMost(byte[])"><code>getAtMost()</code></a>, and <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#getRange(byte[], byte[], boolean)"><code>getRange()</code></a>.</div>
+ <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#get(byte[])"><code>get()</code></a>, <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html#getAtLeast(byte[])"><code>getAtLeast()</code></a>, <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html#getAtMost(byte[])"><code>getAtMost()</code></a>, and <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#getRange(byte[], byte[], boolean)"><code>getRange()</code></a>.
+
+ <p>
+ The returned object should only be accessed while synchronized on this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>reads recorded, or null if this instance is not configured to record reads</dd></dl>
 </li>
 </ul>
@@ -365,7 +365,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 <li class="blockList">
 <h4>getWrites</h4>
 <pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;getWrites()</pre>
-<div class="block">Get the <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> associated with this instance.</div>
+<div class="block">Get the <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> associated with this instance.
+
+ <p>
+ The returned object should only be accessed while synchronized on this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>writes recorded</dd></dl>
 </li>
 </ul>
@@ -390,7 +393,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 <h4>get</h4>
 <pre>public&nbsp;byte[]&nbsp;get(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
-<div class="block">Get the value associated with the given key, if any.</div>
+<div class="block">Get the value associated with the given key, if any.
+
+ <p>
+ Modifications to the returned <code>byte[]</code> array do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">get</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>
@@ -433,7 +439,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
  <p>
  Some implementations may return <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a>s that are also <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io"><code>Closeable</code></a>; invokers of this
  method are encouraged to detect and <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>close()</code></a> such instances, though this is not
- required for correct behavior.</div>
+ required for correct behavior.
+
+ <p>
+ Modifications to the returned <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv"><code>KVPair</code></a> key and value <code>byte[]</code> arrays do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">getRange</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>

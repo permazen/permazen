@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Mutations (JSimpleDB 2.2.1 API)</title>
+<title>Mutations (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Mutations (JSimpleDB 2.2.1 API)";
+        parent.document.title="Mutations (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -96,7 +96,8 @@
 
  <p>
  Each mutation is either a key/value put, the removal of a key range (possibly containing only a single key),
- or a counter adjustment. Mutations are expected to be applied in the order: removes, puts, adjusts.</div>
+ or a counter adjustment. Mutations are expected to be applied in the order: removes, puts, adjusts. Therefore,
+ if the same key is mutated in multiple ways, adjusts should occur after puts, and puts should occur after removes.</div>
 </li>
 </ul>
 </div>
@@ -155,7 +156,10 @@
 <li class="blockList">
 <h4>getRemoveRanges</h4>
 <pre><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;&nbsp;getRemoveRanges()</pre>
-<div class="block">Get the key ranges removals contained by this instance.</div>
+<div class="block">Get the key ranges removals contained by this instance.
+
+ <p>
+ The caller must not invoke <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true#remove()" title="class or interface in java.util"><code>Iterator.remove()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>key ranges removed</dd></dl>
 </li>
 </ul>
@@ -169,7 +173,7 @@
 <div class="block">Get the written key/value pairs contained by this instance.
 
  <p>
- The caller must not modify any of the returned <code>byte[]</code> arrays.</div>
+ The caller must not modify any of the returned <code>byte[]</code> arrays, nor invoke <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true#remove()" title="class or interface in java.util"><code>Iterator.remove()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>mapping from key to corresponding value</dd></dl>
 </li>
 </ul>
@@ -183,7 +187,7 @@
 <div class="block">Get the counter adjustments contained by this instance.
 
  <p>
- The caller must not modify any of the returned <code>byte[]</code> arrays.</div>
+ The caller must not modify any of the returned <code>byte[]</code> arrays, nor invoke <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true#remove()" title="class or interface in java.util"><code>Iterator.remove()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>mapping from key to corresponding counter adjustment</dd></dl>
 </li>
 </ul>

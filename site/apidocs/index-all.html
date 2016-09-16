@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.2.1 API)</title>
+<title>Index (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.2.1 API)";
+        parent.document.title="Index (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -290,7 +290,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRange)">add(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
-<div class="block">Return a new <a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> added.</div>
+<div class="block">Add all the keys in the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> to this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRanges)">add(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Add all the key ranges in the given <a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> to this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AbstractValue.html#add(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.expr.Value)">add(ParseSession, Value)</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AbstractValue.html" title="class in org.jsimpledb.parse.expr">AbstractValue</a></dt>
 <dd>&nbsp;</dd>
@@ -556,8 +560,6 @@
 <dd>
 <div class="block">Add the estimated size of this instance (in bytes) to the given estimator.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#addTo(org.jsimpledb.util.SizeEstimator)">addTo(SizeEstimator)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#addTo(org.jsimpledb.util.SizeEstimator)">addTo(SizeEstimator)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/SizeEstimating.html#addTo(org.jsimpledb.util.SizeEstimator)">addTo(SizeEstimator)</a></span> - Method in interface org.jsimpledb.util.<a href="./org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></dt>
@@ -1028,6 +1030,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/index/Index4.html#asSet()">asSet()</a></span> - Method in interface org.jsimpledb.index.<a href="./org/jsimpledb/index/Index4.html" title="interface in org.jsimpledb.index">Index4</a></dt>
 <dd>
 <div class="block">View this index as a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> of tuples.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#asSet()">asSet()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Get a view of the <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a sorted set.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/expr/AssignmentExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">AssignmentExprParser</span></a> - Class in <a href="./org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></dt>
 <dd>
@@ -1897,6 +1903,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdSet.html#clear()">clear()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util">ObjIdSet</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#clear()">clear()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Remove all keys from this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#clear()">clear()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
 <div class="block">Clear all mutations.</div>
@@ -1956,6 +1966,12 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdSet.html#clone()">clone()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util">ObjIdSet</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KVPair.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></dt>
+<dd>
+<div class="block">Deep-clone this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
 <dd>
 <div class="block">Clone this instance.</div>
@@ -2203,6 +2219,8 @@
 <dd>
 <div class="block">Constructor for error case.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html#compact(org.jsimpledb.kv.mvcc.AtomicKVStore)">compact(AtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html" title="class in org.jsimpledb.kv.test">AtomicKVStoreTest</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KVNavigableMap.html#comparator()">comparator()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KVNavigableMap.html" title="class in org.jsimpledb.kv.util">KVNavigableMap</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KVNavigableSet.html#comparator()">comparator()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KVNavigableSet.html" title="class in org.jsimpledb.kv.util">KVNavigableSet</a></dt>
@@ -2293,6 +2311,14 @@
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/AbstractTable.html#configureColumns()">configureColumns()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/AbstractTable.html" title="class in org.jsimpledb.vaadin">AbstractTable</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/JObjectTable.html#configureColumns()">configureColumns()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/JObjectTable.html" title="class in org.jsimpledb.vaadin">JObjectTable</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html#configureConnection(java.sql.Connection)">configureConnection(Connection)</a></span> - Method in class org.jsimpledb.kv.mysql.<a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.mysql">MySQLKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#configureConnection(java.sql.Connection)">configureConnection(Connection)</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
+<dd>
+<div class="block">Configure a newly created <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#configureConnection(java.sql.Connection)">configureConnection(Connection)</a></span> - Method in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#configureTransaction(org.jsimpledb.JTransaction, org.springframework.transaction.TransactionDefinition)">configureTransaction(JTransaction, TransactionDefinition)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
@@ -3191,14 +3217,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableSet.html#descendingSet()">descendingSet()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#deserialize(java.io.InputStream)">deserialize(InputStream)</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
-<dd>
-<div class="block">Deserialize an instance created by <a href="./org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#deserialize(java.io.InputStream)">deserialize(InputStream)</a></span> - Static method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>
-<div class="block">Deserialize an instance created by <a href="./org/jsimpledb/kv/mvcc/Reads.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#deserialize(java.io.InputStream)">deserialize(InputStream)</a></span> - Static method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
 <div class="block">Deserialize an instance created by <a href="./org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
@@ -3326,9 +3344,9 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/XMLObjectSerializer.html#ELEMENT_TAG">ELEMENT_TAG</a></span> - Static variable in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/XMLObjectSerializer.html" title="class in org.jsimpledb.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#EMPTY">EMPTY</a></span> - Static variable in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#empty()">empty()</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
-<div class="block">The empty instance containing zero ranges.</div>
+<div class="block">Create an empty instance containing zero ranges.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/ByteUtil.html#EMPTY">EMPTY</a></span> - Static variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util">ByteUtil</a></dt>
 <dd>
@@ -4002,9 +4020,9 @@
 <dd>
 <div class="block">The <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> containing the full range (i.e., all keys).</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#FULL">FULL</a></span> - Static variable in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#full()">full()</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
-<div class="block">The "full" instance containing a single <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
+<div class="block">Create a "full" instance containing a single <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func"><span class="strong">Function</span></a> - Interface in <a href="./org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a></dt>
 <dd>
@@ -6049,10 +6067,6 @@
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> associated with this instance.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#getReads()">getReads()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>
-<div class="block">Get the ranges of keys read.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/Message.html#getReads(java.nio.ByteBuffer)">getReads(ByteBuffer)</a></span> - Static method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/Message.html" title="class in org.jsimpledb.kv.raft.msg">Message</a></dt>
 <dd>
 <div class="block">Deserialize a <a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> previously serialized by <a href="./org/jsimpledb/kv/raft/msg/Message.html#putReads(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Reads)"><code>putReads()</code></a> from the buffer.</div>
@@ -6639,6 +6653,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#getUnrefCloseable()">getUnrefCloseable()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
 <dd>
 <div class="block">Create an empty <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io"><code>Closeable</code></a> that, when <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>close()</code></a>'d, decrements the reference count.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/util/XMLObjectSerializer.html#getUnresolvedReferences()">getUnresolvedReferences()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/XMLObjectSerializer.html" title="class in org.jsimpledb.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Get all unresolved forward object references.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/Bounds.html#getUpperBound()">getUpperBound()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/Bounds.html" title="class in org.jsimpledb.util">Bounds</a></dt>
 <dd>
@@ -7319,13 +7337,17 @@
 <dd>
 <div class="block">An internal error occurred.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#intersect(org.jsimpledb.kv.KeyRange)">intersect(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Remove all the keys not also in the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#intersect(org.jsimpledb.kv.KeyRanges)">intersect(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Remove all key ranges not also in the given <a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyFilterUtil.html#intersection(org.jsimpledb.kv.KeyFilter...)">intersection(KeyFilter...)</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyFilterUtil.html" title="class in org.jsimpledb.kv">KeyFilterUtil</a></dt>
 <dd>
 <div class="block">Create a <a href="./org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a> that represents the intersection of the given instances.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#intersection(org.jsimpledb.kv.KeyRanges...)">intersection(KeyRanges...)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
-<dd>
-<div class="block">Create an instance that represents the intersection of this and the provided instance(s).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/NavigableSets.html#intersection(java.lang.Iterable)">intersection(Iterable&lt;? extends NavigableSet&lt;E&gt;&gt;)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util">NavigableSets</a></dt>
 <dd>
@@ -7334,6 +7356,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/NavigableSets.html#intersection(java.util.NavigableSet...)">intersection(NavigableSet&lt;E&gt;...)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util">NavigableSets</a></dt>
 <dd>
 <div class="block">Create a read-only view of the intersection of two or more <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#intersects(org.jsimpledb.kv.KeyRange)">intersects(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Determine whether this instance intersects the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>, i.e., there exists at least one key contained in both.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#INVALID_DATABASE_NAME">INVALID_DATABASE_NAME</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
@@ -8253,6 +8279,10 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRanges)">KeyRanges(KeyRanges)</a></span> - Constructor for class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Copy constructor.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRange)">KeyRanges(KeyRange)</a></span> - Constructor for class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Constructor for an instance containing a single range.</div>
@@ -8264,6 +8294,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#KeyRanges(byte[], byte[])">KeyRanges(byte[], byte[])</a></span> - Constructor for class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Constructor for an instance containing a single range.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#KeyRanges(java.io.InputStream)">KeyRanges(InputStream)</a></span> - Constructor for class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Constructor to deserialize an instance created by <a href="./org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdMap.html#keySet()">keySet()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a></dt>
 <dd>&nbsp;</dd>
@@ -9804,7 +9838,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#overlaps(org.jsimpledb.kv.KeyRange)">overlaps(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
-<div class="block">Determine if this key range overlaps the specified key range.</div>
+<div class="block">Determine if this key range overlaps the specified key range, i.e., there exists at least one <code>byte[]</code>
+ key that both ranges have in common.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html#overwrite(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">overwrite(KVTransaction, KVTransaction)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">OverwriteMergeStrategy</a></dt>
 <dd>
@@ -9934,7 +9969,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVImplementation.html#parseCommandLineFlag(java.util.ArrayDeque, java.lang.String)">parseCommandLineFlag(ArrayDeque&lt;String&gt;, String)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVImplementation.html" title="class in org.jsimpledb.kv">KVImplementation</a></dt>
 <dd>
-<div class="block">Subclass support method for parsing out a single command line flag without argument.</div>
+<div class="block">Subclass support method for parsing out a boolean command line flag (i.e., a flag without an argument).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVImplementation.html#parseCommandLineOption(java.util.ArrayDeque, java.lang.String)">parseCommandLineOption(ArrayDeque&lt;String&gt;, String)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVImplementation.html" title="class in org.jsimpledb.kv">KVImplementation</a></dt>
 <dd>
@@ -10178,8 +10213,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html#postCommit(org.jsimpledb.kv.simple.SimpleKVTransaction, boolean)">postCommit(SimpleKVTransaction, boolean)</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/cockroach/CockroachKVImplementation.html#POSTGRESQL_DRIVER_CLASS_NAME">POSTGRESQL_DRIVER_CLASS_NAME</a></span> - Static variable in class org.jsimpledb.kv.cockroach.<a href="./org/jsimpledb/kv/cockroach/CockroachKVImplementation.html" title="class in org.jsimpledb.kv.cockroach">CockroachKVImplementation</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction(Connection)</a></span> - Method in class org.jsimpledb.kv.mysql.<a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.mysql">MySQLKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction(Connection)</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
 <dd>
@@ -10537,6 +10570,10 @@
 <dd>
 <div class="block">Import objects pairs into the <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/util/XMLObjectSerializer.html#read(java.io.InputStream, boolean)">read(InputStream, boolean)</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/XMLObjectSerializer.html" title="class in org.jsimpledb.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Import objects pairs into the <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/XMLObjectSerializer.html#read(javax.xml.stream.XMLStreamReader)">read(XMLStreamReader)</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/XMLObjectSerializer.html" title="class in org.jsimpledb.core.util">XMLObjectSerializer</a></dt>
 <dd>
 <div class="block">Import objects into the <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.</div>
@@ -10663,11 +10700,15 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#Reads()">Reads()</a></span> - Constructor for class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
 <dd>
-<div class="block">Constructs an empty instance.</div>
+<div class="block">Construct an empty instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#Reads(org.jsimpledb.kv.KeyRanges)">Reads(KeyRanges)</a></span> - Constructor for class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
 <dd>
-<div class="block">Constructs an instance initialized with the given read ranges</div>
+<div class="block">Construct an instance containing the given key ranges.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#Reads(java.io.InputStream)">Reads(InputStream)</a></span> - Constructor for class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
+<dd>
+<div class="block">Constructor to deserialize an instance created by <a href="./org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
@@ -10862,7 +10903,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRange)">remove(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
-<div class="block">Return a new <a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> removed.</div>
+<div class="block">Remove all the keys in the given <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRanges)">remove(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Remove all the key ranges in the given <a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVPairIterator.html#remove()">remove()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a></dt>
 <dd>&nbsp;</dd>
@@ -11062,6 +11107,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/ParseContext.html#reset()">reset()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a></dt>
 <dd>
 <div class="block">Reset this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JObject.html#resetCachedFieldValues()">resetCachedFieldValues()</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
+<dd>
+<div class="block">Reset cached simple field values.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#resetValidationQueue()">resetValidationQueue()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
@@ -11428,10 +11477,6 @@
 <dd>
 <div class="block">Serialize this instance.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#serialize(java.io.OutputStream)">serialize(OutputStream)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>
-<div class="block">Serialize this instance.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)">serialize(OutputStream)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
 <div class="block">Serialize this instance.</div>
@@ -11439,10 +11484,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#serializedLength()">serializedLength()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Calculate the number of bytes required to serialize this instance via <a href="./org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#serializedLength()">serializedLength()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>
-<div class="block">Calculate the number of bytes required to serialize this instance via <a href="./org/jsimpledb/kv/mvcc/Reads.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#serializedLength()">serializedLength()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
@@ -11669,6 +11710,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setErrorMessagePrefix(java.lang.String)">setErrorMessagePrefix(String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
 <div class="block">Set prefix for error messages.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#setExclusiveLocking(boolean)">setExclusiveLocking(boolean)</a></span> - Method in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></dt>
+<dd>
+<div class="block">Configure whether the database connection locking mode uses exclusive locking.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setExecutor(java.util.concurrent.Executor)">setExecutor(Executor)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
 <dd>
@@ -11949,6 +11994,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/TypeContainer.html#setParent(java.lang.Object, java.lang.Object)">setParent(Object, Object)</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/TypeContainer.html" title="class in org.jsimpledb.vaadin">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#setPragmas(java.util.List)">setPragmas(List&lt;String&gt;)</a></span> - Method in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></dt>
+<dd>
+<div class="block">Configure arbitrary <code>PRAGMA</code> statements to be executed on newly created <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>s.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html#setRaftKVDatabase(org.jsimpledb.kv.raft.RaftKVDatabase)">setRaftKVDatabase(RaftKVDatabase)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a></dt>
 <dd>
 <div class="block">Set the <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>.</div>
@@ -11963,10 +12012,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly(boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#setReads(org.jsimpledb.kv.KeyRanges)">setReads(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>
-<div class="block">Set the ranges of keys read.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html#setRejoinMergeStrategy(org.jsimpledb.kv.raft.fallback.MergeStrategy)">setRejoinMergeStrategy(MergeStrategy)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a></dt>
 <dd>
 <div class="block">Configure the merge strategy to apply when transitioning from a lower priority database to this database
@@ -11976,10 +12021,6 @@
 <dd>
 <div class="block">Configure a container to be <a href="./org/jsimpledb/vaadin/ReloadableJObjectContainer.html#reload()"><code>reload()</code></a>'ed
  after any successful edit.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#setRemoves(org.jsimpledb.kv.KeyRanges)">setRemoves(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
-<dd>
-<div class="block">Set the key ranges removals contained by this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/demo/Planet.html#setRinged(boolean)">setRinged(boolean)</a></span> - Method in class org.jsimpledb.demo.<a href="./org/jsimpledb/demo/Planet.html" title="class in org.jsimpledb.demo">Planet</a></dt>
 <dd>&nbsp;</dd>
@@ -12718,6 +12759,10 @@
 <dd>
 <div class="block">Primary constructor.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVTestSupport.html#stringView(java.util.NavigableMap)">stringView(NavigableMap&lt;byte[], byte[]&gt;)</a></span> - Static method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVTestSupport.html" title="class in org.jsimpledb.kv.test">KVTestSupport</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVTestSupport.html#stringView(java.util.NavigableSet)">stringView(NavigableSet&lt;byte[]&gt;)</a></span> - Static method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVTestSupport.html" title="class in org.jsimpledb.kv.test">KVTestSupport</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/parse/util/StripPrefixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">StripPrefixFunction</span></a> - Class in <a href="./org/jsimpledb/parse/util/package-summary.html">org.jsimpledb.parse.util</a></dt>
 <dd>
 <div class="block">Strips a prefix, which must match any input.</div>
@@ -12799,6 +12844,8 @@
 <div class="block">The test specification is invalid.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html#testAtomicKVStore(org.jsimpledb.kv.mvcc.AtomicKVStore)">testAtomicKVStore(AtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html" title="class in org.jsimpledb.kv.test">AtomicKVStoreTest</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html#testChangeUnderneath(org.jsimpledb.kv.mvcc.AtomicKVStore)">testChangeUnderneath(AtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/AtomicKVStoreTest.html" title="class in org.jsimpledb.kv.test">AtomicKVStoreTest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.html#testConflictingTransactions(org.jsimpledb.kv.KVDatabase)">testConflictingTransactions(KVDatabase)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest</a></dt>
 <dd>&nbsp;</dd>
@@ -12970,8 +13017,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a></dt>
@@ -13025,6 +13070,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.RandomTask.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.RandomTask.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest.RandomTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AbstractNamed.html#toString()">toString()</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AbstractNamed.html" title="class in org.jsimpledb.parse.expr">AbstractNamed</a></dt>
 <dd>&nbsp;</dd>
@@ -13320,10 +13367,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyFilterUtil.html#union(org.jsimpledb.kv.KeyFilter...)">union(KeyFilter...)</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyFilterUtil.html" title="class in org.jsimpledb.kv">KeyFilterUtil</a></dt>
 <dd>
 <div class="block">Create a <a href="./org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a> that represents the union of the given instances.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#union(org.jsimpledb.kv.KeyRanges...)">union(KeyRanges...)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
-<dd>
-<div class="block">Create an instance that represents the union of this and the provided instance(s).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/NavigableSets.html#union(java.util.NavigableSet...)">union(NavigableSet&lt;E&gt;...)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util">NavigableSets</a></dt>
 <dd>

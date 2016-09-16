@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>MySQLKVDatabase (JSimpleDB 2.2.1 API)</title>
+<title>MySQLKVDatabase (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="MySQLKVDatabase (JSimpleDB 2.2.1 API)";
+        parent.document.title="MySQLKVDatabase (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -176,27 +176,27 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mysql/MySQLKVDatabase.html#configureConnection(java.sql.Connection)">configureConnection</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
+<div class="block">Configure a newly created <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mysql/MySQLKVDatabase.html#createSQLKVTransaction(java.sql.Connection)">createSQLKVTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
 <div class="block">Create a new <a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVTransaction</code></a> for a new transaction given the specified <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mysql/MySQLKVDatabase.html#initializeDatabaseIfNecessary(java.sql.Connection)">initializeDatabaseIfNecessary</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
 <div class="block">Perform any required database initialization.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mysql/MySQLKVDatabase.html#limitSingleRow(java.lang.String)">limitSingleRow</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</code>
 <div class="block">Appends <code>LIMIT 1</code> to the statement.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mysql/MySQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
-<div class="block">Subclass hook invoked just before opening a new SQL transaction.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -224,7 +224,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.kv.sql.<a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></h3>
-<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#beginTransaction(java.sql.Connection)">beginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAllStatement(boolean)">createGetAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtLeastStatement(boolean)">createGetAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtMostStatement(boolean)">createGetAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetRangeStatement(boolean)">createGetRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetStatement()">createGetStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createPutStatement()">createPutStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAllStatement()">createRemoveAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtLeastStatement()">createRemoveAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtMostStatement()">createRemoveAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveRangeStatement()">createRemoveRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveStatement()">createRemoveStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction()">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getDataSource()">getDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel()">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel(java.util.Map)">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getKeyColumnName()">getKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getTableName()">getTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getValueColumnName()">getValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#postBeginTransaction(java.sql.Connection)">postBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setIsolationLevel(org.jsimpledb.kv.sql.IsolationLevel)">setIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setKeyColumnName(java.lang.String)">setKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setValueColumnName(java.lang.String)">setValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#start()">start</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#stop()">stop</a></code></li>
+<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#beginTransaction(java.sql.Connection)">beginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAllStatement(boolean)">createGetAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtLeastStatement(boolean)">createGetAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtMostStatement(boolean)">createGetAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetRangeStatement(boolean)">createGetRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetStatement()">createGetStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createPutStatement()">createPutStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAllStatement()">createRemoveAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtLeastStatement()">createRemoveAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtMostStatement()">createRemoveAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveRangeStatement()">createRemoveRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveStatement()">createRemoveStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction()">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getDataSource()">getDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel()">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel(java.util.Map)">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getKeyColumnName()">getKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getTableName()">getTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getValueColumnName()">getValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#postBeginTransaction(java.sql.Connection)">postBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setIsolationLevel(org.jsimpledb.kv.sql.IsolationLevel)">setIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setKeyColumnName(java.lang.String)">setKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setValueColumnName(java.lang.String)">setValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#start()">start</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#stop()">stop</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -344,26 +344,25 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></code> - if an error occurs</dd></dl>
 </li>
 </ul>
-<a name="preBeginTransaction(java.sql.Connection)">
+<a name="configureConnection(java.sql.Connection)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>preBeginTransaction</h4>
-<pre>protected&nbsp;void&nbsp;preBeginTransaction(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
+<h4>configureConnection</h4>
+<pre>protected&nbsp;void&nbsp;configureConnection(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                             throws <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">SQLKVDatabase</a></code></strong></div>
-<div class="block">Subclass hook invoked just before opening a new SQL transaction.
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#configureConnection(java.sql.Connection)">SQLKVDatabase</a></code></strong></div>
+<div class="block">Configure a newly created <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVDatabase</code></a> does nothing. Note: subclasses must ensure the transaction is
- configured for the <a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql"><code>IsolationLevel</code></a> configured on this instance.</div>
+ The implementation in <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVDatabase</code></a> does nothing.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>connection</code> - the <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a> for a new transaction</dd>
+<dd><code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#configureConnection(java.sql.Connection)">configureConnection</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>connection</code> - newly created <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></code> - if an error occurs</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createSQLKVTransaction(java.sql.Connection)"><code>createSQLKVTransaction()</code></a></dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></code> - if an error occurs</dd></dl>
 </li>
 </ul>
 <a name="createSQLKVTransaction(java.sql.Connection)">

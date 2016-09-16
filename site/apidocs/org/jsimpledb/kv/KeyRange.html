@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyRange (JSimpleDB 2.2.1 API)</title>
+<title>KeyRange (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyRange (JSimpleDB 2.2.1 API)";
+        parent.document.title="KeyRange (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -276,7 +276,8 @@ implements <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="inte
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRange.html#overlaps(org.jsimpledb.kv.KeyRange)">overlaps</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
-<div class="block">Determine if this key range overlaps the specified key range.</div>
+<div class="block">Determine if this key range overlaps the specified key range, i.e., there exists at least one <code>byte[]</code>
+ key that both ranges have in common.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -449,7 +450,8 @@ implements <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="inte
 <li class="blockList">
 <h4>overlaps</h4>
 <pre>public&nbsp;boolean&nbsp;overlaps(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
-<div class="block">Determine if this key range overlaps the specified key range.</div>
+<div class="block">Determine if this key range overlaps the specified key range, i.e., there exists at least one <code>byte[]</code>
+ key that both ranges have in common.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - other instance</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if this instance overlaps <code>range</code></dd>
 <dt><span class="strong">Throws:</span></dt>

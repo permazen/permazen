@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KVImplementation (JSimpleDB 2.2.1 API)</title>
+<title>KVImplementation (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KVImplementation (JSimpleDB 2.2.1 API)";
+        parent.document.title="KVImplementation (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -210,7 +210,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVImplementation.html#parseCommandLineFlag(java.util.ArrayDeque, java.lang.String)">parseCommandLineFlag</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/ArrayDeque.html?is-external=true" title="class or interface in java.util">ArrayDeque</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;options,
                     <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;flag)</code>
-<div class="block">Subclass support method for parsing out a single command line flag without argument.</div>
+<div class="block">Subclass support method for parsing out a boolean command line flag (i.e., a flag without an argument).</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -385,8 +385,8 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>parseCommandLineFlag</h4>
 <pre>protected&nbsp;boolean&nbsp;parseCommandLineFlag(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/ArrayDeque.html?is-external=true" title="class or interface in java.util">ArrayDeque</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;options,
                            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;flag)</pre>
-<div class="block">Subclass support method for parsing out a single command line flag without argument.
- If found, the <code>flag</code> is removed from <code>options</code>.</div>
+<div class="block">Subclass support method for parsing out a boolean command line flag (i.e., a flag without an argument).
+ If found, all instances of <code>flag</code> are removed from <code>options</code>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - command line options</dd><dd><code>flag</code> - command line flag taking an argument</dd>
 <dt><span class="strong">Returns:</span></dt><dd>whether flag is present</dd></dl>
 </li>

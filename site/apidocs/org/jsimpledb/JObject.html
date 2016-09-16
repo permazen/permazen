@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JObject (JSimpleDB 2.2.1 API)</title>
+<title>JObject (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JObject (JSimpleDB 2.2.1 API)";
+        parent.document.title="JObject (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -196,11 +196,17 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#resetCachedFieldValues()">resetCachedFieldValues</a></strong>()</code>
+<div class="block">Reset cached simple field values.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)">revalidate</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;groups)</code>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#upgrade()">upgrade</a></strong>()</code>
 <div class="block">Update the schema version of this instance, if necessary, so that it matches the schema version
@@ -469,7 +475,7 @@
 <a name="copyIn(java.lang.String...)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>copyIn</h4>
 <pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;copyIn(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
@@ -505,6 +511,25 @@
   (no exception is thrown however if an indirectly referenced object does not exist)</dd>
 <dd><code><a href="../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></code> - if the schema corresponding to this object's version is not identical in both transactions</dd>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any path in <code>refPaths</code> is invalid</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>copyOut()</code></a></dd></dl>
+</li>
+</ul>
+<a name="resetCachedFieldValues()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>resetCachedFieldValues</h4>
+<pre>void&nbsp;resetCachedFieldValues()</pre>
+<div class="block">Reset cached simple field values.
+
+ <p>
+ <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s instances may cache simple field values after they have been read from the underlying
+ key/value store for efficiency. This method causes any such cached values to be forgotten, so they will
+ be re-read from the underlying key/value store on the next read of the field.
+
+ <p>
+ Normally this method does not need to be used. It may be needed to maintain consistency
+ in exotic situations, for example, where the underlying key/value store is being modified directly.</div>
 </li>
 </ul>
 </li>

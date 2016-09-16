@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Class org.jsimpledb.kv.KeyRanges (JSimpleDB 2.2.1 API)</title>
+<title>Uses of Class org.jsimpledb.kv.KeyRanges (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Class org.jsimpledb.kv.KeyRanges (JSimpleDB 2.2.1 API)";
+        parent.document.title="Uses of Class org.jsimpledb.kv.KeyRanges (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -95,27 +95,6 @@
 <!--   -->
 </a>
 <h3>Uses of <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a> in <a href="../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></h3>
-<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing fields, and an explanation">
-<caption><span>Fields in <a href="../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> declared as <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#EMPTY">EMPTY</a></strong></code>
-<div class="block">The empty instance containing zero ranges.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#FULL">FULL</a></strong></code>
-<div class="block">The "full" instance containing a single <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
-</td>
-</tr>
-</tbody>
-</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
 <caption><span>Methods in <a href="../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> that return <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
@@ -125,14 +104,12 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRange)">add</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
-<div class="block">Return a new <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> added.</div>
-</td>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#clone()">clone</a></strong>()</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#deserialize(java.io.InputStream)">deserialize</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
-<div class="block">Deserialize an instance created by <a href="../../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#empty()">empty</a></strong>()</code>
+<div class="block">Create an empty instance containing zero ranges.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -142,9 +119,9 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#intersection(org.jsimpledb.kv.KeyRanges...)">intersection</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the intersection of this and the provided instance(s).</div>
+<td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#full()">full</a></strong>()</code>
+<div class="block">Create a "full" instance containing a single <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -159,18 +136,6 @@
 <div class="block">Create a new instance from this one, with each <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> prefixed by the given byte sequence.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRange)">remove</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
-<div class="block">Return a new <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> removed.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#union(org.jsimpledb.kv.KeyRanges...)">union</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the union of this and the provided instance(s).</div>
-</td>
-</tr>
 </tbody>
 </table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -181,22 +146,41 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRanges)">add</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Add all the key ranges in the given <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> to this instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#contains(org.jsimpledb.kv.KeyRanges)">contains</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
 <div class="block">Determine whether this instance contains the given <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a>, i.e., all keys contained by
  the given <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> are also contained by this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#intersection(org.jsimpledb.kv.KeyRanges...)">intersection</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the intersection of this and the provided instance(s).</div>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#intersect(org.jsimpledb.kv.KeyRanges)">intersect</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Remove all key ranges not also in the given <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRanges)">remove</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Remove all the key ranges in the given <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
+<caption><span>Constructors in <a href="../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tbody>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">KeyRanges.</span><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#union(org.jsimpledb.kv.KeyRanges...)">union</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the union of this and the provided instance(s).</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRanges)">KeyRanges</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Copy constructor.</div>
 </td>
 </tr>
 </tbody>
@@ -206,6 +190,21 @@
 <!--   -->
 </a>
 <h3>Uses of <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a> in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing subclasses, and an explanation">
+<caption><span>Subclasses of <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a> in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></strong></code>
+<div class="block">Holds a set of reads from a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
 <caption><span>Methods in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> that return <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
@@ -215,35 +214,8 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><span class="strong">Reads.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#getReads()">getReads</a></strong>()</code>
-<div class="block">Get the ranges of keys read.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
 <td class="colLast"><span class="strong">Writes.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Writes.html#getRemoves()">getRemoves</a></strong>()</code>
 <div class="block">Get the key ranges removals contained by this instance.</div>
-</td>
-</tr>
-</tbody>
-</table>
-<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
-<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">Reads.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#setReads(org.jsimpledb.kv.KeyRanges)">setReads</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;reads)</code>
-<div class="block">Set the ranges of keys read.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">Writes.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Writes.html#setRemoves(org.jsimpledb.kv.KeyRanges)">setRemoves</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;removes)</code>
-<div class="block">Set the key ranges removals contained by this instance.</div>
 </td>
 </tr>
 </tbody>
@@ -255,8 +227,8 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#Reads(org.jsimpledb.kv.KeyRanges)">Reads</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;reads)</code>
-<div class="block">Constructs an instance initialized with the given read ranges</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#Reads(org.jsimpledb.kv.KeyRanges)">Reads</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Construct an instance containing the given key ranges.</div>
 </td>
 </tr>
 </tbody>

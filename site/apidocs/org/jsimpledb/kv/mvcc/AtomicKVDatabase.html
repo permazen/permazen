@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>AtomicKVDatabase (JSimpleDB 2.2.1 API)</title>
+<title>AtomicKVDatabase (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="AtomicKVDatabase (JSimpleDB 2.2.1 API)";
+        parent.document.title="AtomicKVDatabase (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -334,7 +334,10 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <h4>get</h4>
 <pre>public&nbsp;byte[]&nbsp;get(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
-<div class="block">Get the value associated with the given key, if any.</div>
+<div class="block">Get the value associated with the given key, if any.
+
+ <p>
+ Modifications to the returned <code>byte[]</code> array do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">get</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>
@@ -356,7 +359,10 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 
  <p>
  If keys starting with <code>0xff</code> are not supported by this instance, and <code>minKey</code> starts with <code>0xff</code>,
- then this method returns null.</div>
+ then this method returns null.
+
+ <p>
+ Modifications to the returned <code>byte[]</code> arrays do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])">getAtLeast</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>
@@ -378,7 +384,10 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 
  <p>
  If keys starting with <code>0xff</code> are not supported by this instance, and <code>maxKey</code> starts with <code>0xff</code>,
- then this method behaves as if <code>maxKey</code> were null.</div>
+ then this method behaves as if <code>maxKey</code> were null.
+
+ <p>
+ Modifications to the returned <code>byte[]</code> arrays do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])">getAtMost</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>
@@ -421,7 +430,10 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
  <p>
  Some implementations may return <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a>s that are also <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io"><code>Closeable</code></a>; invokers of this
  method are encouraged to detect and <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>close()</code></a> such instances, though this is not
- required for correct behavior.</div>
+ required for correct behavior.
+
+ <p>
+ Modifications to the returned <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv"><code>KVPair</code></a> key and value <code>byte[]</code> arrays do not affect this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">getRange</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>

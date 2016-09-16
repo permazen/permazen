@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>XMLObjectSerializer (JSimpleDB 2.2.1 API)</title>
+<title>XMLObjectSerializer (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="XMLObjectSerializer (JSimpleDB 2.2.1 API)";
+        parent.document.title="XMLObjectSerializer (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -268,8 +268,21 @@ extends <a href="../../../../org/jsimpledb/util/AbstractXMLStreaming.html" title
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a>&lt;<a href="../../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html#getUnresolvedReferences()">getUnresolvedReferences</a></strong>()</code>
+<div class="block">Get all unresolved forward object references.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html#read(java.io.InputStream)">read</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
+<div class="block">Import objects pairs into the <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html#read(java.io.InputStream, boolean)">read</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input,
+    boolean&nbsp;allowUnresolvedReferences)</code>
 <div class="block">Import objects pairs into the <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.</div>
 </td>
 </tr>
@@ -508,6 +521,23 @@ extends <a href="../../../../org/jsimpledb/util/AbstractXMLStreaming.html" title
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>length &lt; -1</code></dd></dl>
 </li>
 </ul>
+<a name="getUnresolvedReferences()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUnresolvedReferences</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a>&lt;<a href="../../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a>&gt;&nbsp;getUnresolvedReferences()</pre>
+<div class="block">Get all unresolved forward object references.
+
+ <p>
+ When <a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html#read(java.io.InputStream, boolean)"><code>read()</code></a> is invoked with <code>allowUnresolvedReferences = true</code>,
+ unresolved forward object references do not trigger an exception; this allows forward references to span
+ multiple invocations. Instead, these references are collected and made available to the caller in the returned map.
+ Callers may also modify the returned map as desired between invocations.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>mapping from unresolved forward object reference to some referring field</dd></dl>
+</li>
+</ul>
 <a name="getGeneratedIdCache()">
 <!--   -->
 </a>
@@ -543,12 +573,42 @@ extends <a href="../../../../org/jsimpledb/util/AbstractXMLStreaming.html" title
 <div class="block">Import objects pairs into the <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.
 
  <p>
- The input format is auto-detected for each <code>&lt;object&gt;</code> based on the presense of the <code>"type"</code> attribute.</div>
+ This is a convenience method, equivalent to:
+ <blockquote><pre>
+ read(input, false)
+ </pre></blockquote></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - XML input</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the number of objects read</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamException.html?is-external=true" title="class or interface in javax.xml.stream">XMLStreamException</a></code> - if an error occurs</dd>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd></dl>
+</li>
+</ul>
+<a name="read(java.io.InputStream, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>read</h4>
+<pre>public&nbsp;int&nbsp;read(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input,
+       boolean&nbsp;allowUnresolvedReferences)
+         throws <a href="http://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamException.html?is-external=true" title="class or interface in javax.xml.stream">XMLStreamException</a></pre>
+<div class="block">Import objects pairs into the <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> associated with this instance from the given XML input.
+
+ <p>
+ The input format is auto-detected for each <code>&lt;object&gt;</code> based on the presense of the <code>"type"</code> attribute.
+
+ <p>
+ Can optionally check for unresolved object references after reading is complete. If this checking is enabled,
+ an exception is thrown if any unresolved references remain. In any case, the unresolved references are available
+ via <a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html#getUnresolvedReferences()"><code>getUnresolvedReferences()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - XML input</dd><dd><code>allowUnresolvedReferences</code> - true to allow unresolved references, false to throw an exception</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the number of objects read</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamException.html?is-external=true" title="class or interface in javax.xml.stream">XMLStreamException</a></code> - if an error occurs</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd>
+<dd><code><a href="../../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if <code>allowUnresolvedReferences</code> is true and any unresolved references
+  remain when loading is complete</dd></dl>
 </li>
 </ul>
 <a name="read(javax.xml.stream.XMLStreamReader)">

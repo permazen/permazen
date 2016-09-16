@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JTransaction (JSimpleDB 2.2.1 API)</title>
+<title>JTransaction (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JTransaction (JSimpleDB 2.2.1 API)";
+        parent.document.title="JTransaction (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -779,7 +779,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
  object if necessary (with resulting <a href="../../org/jsimpledb/annotation/OnVersionChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnVersionChange</code></a> notifications).
- If <code>CopyState.isSuppressNotifications()</code> returns false, <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>
+ If <a href="../../org/jsimpledb/CopyState.html#isSuppressNotifications()"><code>CopyState.isSuppressNotifications()</code></a> returns false, <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>
  and <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications will also be delivered; however,
  these annotations must also have <code>snapshotTransactions = true</code> if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>).
 
@@ -796,10 +796,11 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  must be identical in both transactions.
 
  <p>
- If any copied objects contain reference fields configured with <code>JField#allowDeleted</code><code>= false</code>,
+ If any copied objects contain reference fields configured with
+ <a href="../../org/jsimpledb/annotation/JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a><code>= false</code>,
  then any objects referenced by those fields must also be copied, or else must already exist in <code>dest</code>
- (if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, then <code>JField#allowDeletedSnapshot</code> applies instead).
- Otherwise, a <a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a> is thrown and it is indeterminate which objects were copied.
+ (if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, then <a href="../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>JField.allowDeletedSnapshot()</code></a>
+ applies instead). Otherwise, a <a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a> is thrown and it is indeterminate which objects were copied.
 
  <p>
  Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
@@ -840,7 +841,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
  object if necessary (with resulting <a href="../../org/jsimpledb/annotation/OnVersionChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnVersionChange</code></a> notifications).
- If <code>CopyState.isSuppressNotifications()</code> returns false, <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>
+ If <a href="../../org/jsimpledb/CopyState.html#isSuppressNotifications()"><code>CopyState.isSuppressNotifications()</code></a> returns false, <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>
  and <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications will also be delivered; however,
  these annotations must also have <code>snapshotTransactions = true</code> if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>).
 
@@ -854,10 +855,11 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  must be identical in both transactions.
 
  <p>
- If any copied objects contain reference fields configured with <code>JField#allowDeleted</code><code>= false</code>,
+ If any copied objects contain reference fields configured with
+ <a href="../../org/jsimpledb/annotation/JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a><code>= false</code>,
  then any objects referenced by those fields must also be copied, or else must already exist in <code>dest</code>
- (if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, then <code>JField#allowDeletedSnapshot</code> applies instead).
- Otherwise, a <a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a> is thrown and it is indeterminate which objects were copied.
+ (if <code>dest</code> is a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, then <a href="../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>JField.allowDeletedSnapshot()</code></a>
+ applies instead). Otherwise, a <a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a> is thrown and it is indeterminate which objects were copied.
 
  <p>
  Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,

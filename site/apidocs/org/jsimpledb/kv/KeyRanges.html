@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyRanges (JSimpleDB 2.2.1 API)</title>
+<title>KeyRanges (JSimpleDB 2.3.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyRanges (JSimpleDB 2.2.1 API)";
+        parent.document.title="KeyRanges (JSimpleDB 2.3.0 API)";
     }
 //-->
 </script>
@@ -61,13 +61,13 @@
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
@@ -95,17 +95,21 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;, <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a>, <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></dd>
+<dd><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;, <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a>, <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="strong">KeyRanges</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
-implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;, <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a>, <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></pre>
+implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;, <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a>, <a href="../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a></pre>
 <div class="block">A fixed set of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> instances that can be treated as a unified whole, in particular as a <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>.
 
  <p>
- Instances are immutable.</div>
+ Instances are not thread safe.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a></dd></dl>
 </li>
 </ul>
@@ -113,33 +117,6 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field_summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#EMPTY">EMPTY</a></strong></code>
-<div class="block">The empty instance containing zero ranges.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#FULL">FULL</a></strong></code>
-<div class="block">The "full" instance containing a single <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_summary">
@@ -163,18 +140,28 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(java.io.InputStream)">KeyRanges</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
+<div class="block">Constructor to deserialize an instance created by <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(java.lang.Iterable)">KeyRanges</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;&nbsp;ranges)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRange...)">KeyRanges</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>...&nbsp;ranges)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRange)">KeyRanges</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
 <div class="block">Constructor for an instance containing a single range.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#KeyRanges(org.jsimpledb.kv.KeyRanges)">KeyRanges</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Copy constructor.</div>
 </td>
 </tr>
 </table>
@@ -193,22 +180,44 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRange)">add</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
-<div class="block">Return a new <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> added.</div>
+<div class="block">Add all the keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> to this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#add(org.jsimpledb.kv.KeyRanges)">add</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Add all the key ranges in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> to this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#addTo(org.jsimpledb.util.SizeEstimator)">addTo</a></strong>(<a href="../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</code>
 <div class="block">Add the estimated size of this instance (in bytes) to the given estimator.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#asList()">asList</a></strong>()</code>
 <div class="block">Get the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a list.</div>
 </td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#asSet()">asSet</a></strong>()</code>
+<div class="block">Get a view of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a sorted set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#clear()">clear</a></strong>()</code>
+<div class="block">Remove all keys from this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#clone()">clone</a></strong>()</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
@@ -231,16 +240,16 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#deserialize(java.io.InputStream)">deserialize</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
-<div class="block">Deserialize an instance created by <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#deserializeIterator(java.io.InputStream)">deserializeIterator</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
 <div class="block">Deserialize an instance created by <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a> in the form of an
  iterator of the individual <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#empty()">empty</a></strong>()</code>
+<div class="block">Create an empty instance containing zero ranges.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -260,59 +269,83 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#full()">full</a></strong>()</code>
+<div class="block">Create a "full" instance containing a single <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#getMax()">getMax</a></strong>()</code>
 <div class="block">Get the maximum key contained by this instance (exclusive).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#getMin()">getMin</a></strong>()</code>
 <div class="block">Get the minimum key contained by this instance (inclusive).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#hashCode()">hashCode</a></strong>()</code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#intersect(org.jsimpledb.kv.KeyRange)">intersect</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
+<div class="block">Remove all the keys not also in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
+</td>
+</tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#intersection(org.jsimpledb.kv.KeyRanges...)">intersection</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the intersection of this and the provided instance(s).</div>
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#intersect(org.jsimpledb.kv.KeyRanges)">intersect</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Remove all key ranges not also in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#intersects(org.jsimpledb.kv.KeyRange)">intersects</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
+<div class="block">Determine whether this instance intersects the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>, i.e., there exists at least one key contained in both.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#inverse()">inverse</a></strong>()</code>
 <div class="block">Create the inverse of this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#isEmpty()">isEmpty</a></strong>()</code>
 <div class="block">Determine whether this instance is empty, i.e., contains no keys.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#isFull()">isFull</a></strong>()</code>
 <div class="block">Determine whether this instance is "full", i.e., contains all keys.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#iterator()">iterator</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#prefixedBy(byte[])">prefixedBy</a></strong>(byte[]&nbsp;prefix)</code>
 <div class="block">Create a new instance from this one, with each <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> prefixed by the given byte sequence.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRange)">remove</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</code>
-<div class="block">Return a new <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> removed.</div>
+<div class="block">Remove all the keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#remove(org.jsimpledb.kv.KeyRanges)">remove</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</code>
+<div class="block">Remove all the key ranges in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -349,19 +382,13 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyRanges.html#union(org.jsimpledb.kv.KeyRanges...)">union</a></strong>(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</code>
-<div class="block">Create an instance that represents the union of this and the provided instance(s).</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -371,34 +398,6 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field_detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a name="EMPTY">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EMPTY</h4>
-<pre>public static final&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a> EMPTY</pre>
-<div class="block">The empty instance containing zero ranges.</div>
-</li>
-</ul>
-<a name="FULL">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>FULL</h4>
-<pre>public static final&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a> FULL</pre>
-<div class="block">The "full" instance containing a single <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_detail">
@@ -416,7 +415,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 
  <p>
  Creates an instance that contains all keys contained by any of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s in <code>ranges</code>.
- The given <code>ranges</code> may be adjacent, overlap, and/or be listed in any order; this constructor
+ The given <code>ranges</code> may be empty, adjacent, overlap, and/or be listed in any order; this constructor
  will normalize them.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - individual key ranges</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -434,11 +433,24 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 
  <p>
  Creates an instance that contains all keys contained by any of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s in <code>ranges</code>.
- The given <code>ranges</code> may be adjacent, overlap, and/or be listed in any order; this constructor
+ The given <code>ranges</code> may be empty, adjacent, overlap, and/or be listed in any order; this constructor
  will normalize them.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - individual key ranges</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> or any <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> therein is null</dd></dl>
+</li>
+</ul>
+<a name="KeyRanges(org.jsimpledb.kv.KeyRanges)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>KeyRanges</h4>
+<pre>public&nbsp;KeyRanges(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</pre>
+<div class="block">Copy constructor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - value to copy</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> is null</dd></dl>
 </li>
 </ul>
 <a name="KeyRanges(org.jsimpledb.kv.KeyRange)">
@@ -470,7 +482,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <a name="KeyRanges(byte[], byte[])">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>KeyRanges</h4>
 <pre>public&nbsp;KeyRanges(byte[]&nbsp;min,
@@ -479,6 +491,23 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>min</code> - minimum key (inclusive); must not be null</dd><dd><code>max</code> - maximum key (exclusive), or null for no maximum</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>min &gt; max</code></dd></dl>
+</li>
+</ul>
+<a name="KeyRanges(java.io.InputStream)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>KeyRanges</h4>
+<pre>public&nbsp;KeyRanges(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)
+          throws <a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Constructor to deserialize an instance created by <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - input stream containing data from <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/EOFException.html?is-external=true" title="class or interface in java.io">EOFException</a></code> - if the input ends unexpectedly</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is invalid</dd></dl>
 </li>
 </ul>
 </li>
@@ -503,6 +532,26 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>prefix</code> is null</dd></dl>
 </li>
 </ul>
+<a name="empty()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>empty</h4>
+<pre>public static&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;empty()</pre>
+<div class="block">Create an empty instance containing zero ranges.</div>
+</li>
+</ul>
+<a name="full()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>full</h4>
+<pre>public static&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;full()</pre>
+<div class="block">Create a "full" instance containing a single <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains all keys.</div>
+</li>
+</ul>
 <a name="asList()">
 <!--   -->
 </a>
@@ -513,8 +562,22 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <div class="block">Get the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a list.
 
  <p>
- The returned <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s will be listed in order.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>minimal, unmodifiable list of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s sorted by key range</dd></dl>
+ The returned <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s will be listed in order. Modifications to the returned list do not affect this instance.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>minimal list of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s sorted by key range</dd></dl>
+</li>
+</ul>
+<a name="asSet()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>asSet</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;&nbsp;asSet()</pre>
+<div class="block">Get a view of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a sorted set.
+
+ <p>
+ The returned <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s will be sorted in order according to <a href="../../../org/jsimpledb/kv/KeyRange.html#SORT_BY_MIN"><code>KeyRange.SORT_BY_MIN</code></a>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>view of this instance as a minimal, unmodifiable sorted set of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s sorted by minimum key</dd></dl>
 </li>
 </ul>
 <a name="size()">
@@ -526,6 +589,16 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <pre>public&nbsp;int&nbsp;size()</pre>
 <div class="block">Determine the number of individual <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s contained in this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>size of this instance</dd></dl>
+</li>
+</ul>
+<a name="clear()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clear</h4>
+<pre>public&nbsp;void&nbsp;clear()</pre>
+<div class="block">Remove all keys from this instance.</div>
 </li>
 </ul>
 <a name="isEmpty()">
@@ -628,6 +701,20 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>range</code> is null</dd></dl>
 </li>
 </ul>
+<a name="intersects(org.jsimpledb.kv.KeyRange)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intersects</h4>
+<pre>public&nbsp;boolean&nbsp;intersects(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
+<div class="block">Determine whether this instance intersects the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>, i.e., there exists at least one key contained in both.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - key range to test</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if this instance intersects <code>range</code>, otherwise false</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>range</code> is null</dd></dl>
+</li>
+</ul>
 <a name="findKey(byte[])">
 <!--   -->
 </a>
@@ -656,10 +743,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <ul class="blockList">
 <li class="blockList">
 <h4>add</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;add(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
-<div class="block">Return a new <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> added.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - range to add</dd>
-<dt><span class="strong">Returns:</span></dt><dd>this instance with <code>range</code> added</dd>
+<pre>public&nbsp;void&nbsp;add(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
+<div class="block">Add all the keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> to this instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - key range to add</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>range</code> is null</dd></dl>
 </li>
@@ -670,40 +756,66 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;remove(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
-<div class="block">Return a new <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> instance equal to this instance with all keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> removed.</div>
+<pre>public&nbsp;void&nbsp;remove(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
+<div class="block">Remove all the keys in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - range to remove</dd>
-<dt><span class="strong">Returns:</span></dt><dd>this instance with <code>range</code> removed</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>range</code> is null</dd></dl>
 </li>
 </ul>
-<a name="union(org.jsimpledb.kv.KeyRanges...)">
+<a name="intersect(org.jsimpledb.kv.KeyRange)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>union</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;union(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</pre>
-<div class="block">Create an instance that represents the union of this and the provided instance(s).</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>others</code> - other instances</dd>
-<dt><span class="strong">Returns:</span></dt><dd>the union of this instance and <code>others</code></dd>
+<h4>intersect</h4>
+<pre>public&nbsp;void&nbsp;intersect(<a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;range)</pre>
+<div class="block">Remove all the keys not also in the given <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> from this instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>range</code> - key range to intersect with</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>others</code> or any element in <code>others</code> is null</dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>range</code> is null</dd></dl>
 </li>
 </ul>
-<a name="intersection(org.jsimpledb.kv.KeyRanges...)">
+<a name="add(org.jsimpledb.kv.KeyRanges)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>intersection</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;intersection(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>...&nbsp;others)</pre>
-<div class="block">Create an instance that represents the intersection of this and the provided instance(s).</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>others</code> - other instances</dd>
-<dt><span class="strong">Returns:</span></dt><dd>the intersection of this instance and <code>others</code></dd>
+<h4>add</h4>
+<pre>public&nbsp;void&nbsp;add(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</pre>
+<div class="block">Add all the key ranges in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> to this instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - key ranges to add</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>others</code> or any element in <code>others</code> is null</dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> is null</dd></dl>
+</li>
+</ul>
+<a name="remove(org.jsimpledb.kv.KeyRanges)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre>public&nbsp;void&nbsp;remove(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</pre>
+<div class="block">Remove all the key ranges in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - key ranges to remove</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> is null</dd></dl>
+</li>
+</ul>
+<a name="intersect(org.jsimpledb.kv.KeyRanges)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intersect</h4>
+<pre>public&nbsp;void&nbsp;intersect(<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;ranges)</pre>
+<div class="block">Remove all key ranges not also in the given <a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><code>KeyRanges</code></a> from this instance.
+
+ <p>
+ Equivalent to <code>remove(ranges.inverse())</code>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - key ranges to intersect with</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> is null</dd></dl>
 </li>
 </ul>
 <a name="iterator()">
@@ -758,24 +870,6 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <pre>public&nbsp;long&nbsp;serializedLength()</pre>
 <div class="block">Calculate the number of bytes required to serialize this instance via <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>number of serialized bytes</dd></dl>
-</li>
-</ul>
-<a name="deserialize(java.io.InputStream)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>deserialize</h4>
-<pre>public static&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;deserialize(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)
-                             throws <a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Deserialize an instance created by <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - input stream containing data from <a href="../../../org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)"><code>serialize()</code></a></dd>
-<dt><span class="strong">Returns:</span></dt><dd>deserialized instance</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/EOFException.html?is-external=true" title="class or interface in java.io">EOFException</a></code> - if the input ends unexpectedly</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is invalid</dd></dl>
 </li>
 </ul>
 <a name="deserializeIterator(java.io.InputStream)">
@@ -872,6 +966,19 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
   to indicate an upper bound greater than all <code>byte[]</code> keys (which implies <code>key</code> was also empty)</dd></dl>
 </li>
 </ul>
+<a name="clone()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clone</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;clone()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="equals(java.lang.Object)">
 <!--   -->
 </a>
@@ -963,13 +1070,13 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
