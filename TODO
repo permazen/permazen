@@ -2,11 +2,7 @@
 SHORT TERM
 ==========
 
-- Improve efficiency of KeyRanges and MutableView reads tracking
-
 - Connection pooling in SQL k/v implementations
-
-- Don't @OnCreate or @OnChange during a copyTo() ?
 
 - Relax requirement for consistent storage ID type if there are no indexes?
     - Would complicate FieldInfo logic
