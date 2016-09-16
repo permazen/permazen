@@ -6,6 +6,7 @@ Version 2.3.0 Released September 15, 2016
     - Fixed race condition bug in AtomicArrayKVStore.snapshot()
     - Fixed bug in SQL key/value stores ordering getAtMost() queries
     - Fixed performance issue with Raft and key watches
+    - Rewrote KeyRanges to address poor performance
 
 Version 2.2.1 Released September 7, 2016
 
