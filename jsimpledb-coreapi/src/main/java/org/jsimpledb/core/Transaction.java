@@ -3065,18 +3065,19 @@ public class Transaction {
     // Matches FieldMonitors who monitor the specified field in the specified object type
     private static final class MonitoredPredicate implements Predicate<FieldMonitor> {
 
-        private final ObjId id;
+        private final byte[] idBytes;
         private final int storageId;
 
         MonitoredPredicate(ObjId id, int storageId) {
-            this.id = id;
+            assert id != null;
+            this.idBytes = id.getBytes();
             this.storageId = storageId;
         }
 
         @Override
         public boolean apply(FieldMonitor monitor) {
             assert monitor != null;
-            return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.id.getBytes()));
+            return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.idBytes));
         }
     }
 
