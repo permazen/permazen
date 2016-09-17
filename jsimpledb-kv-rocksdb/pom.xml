@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb</artifactId>
-        <version>2.3.0</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
     <artifactId>jsimpledb-kv-rocksdb</artifactId>
     <name>JSimpleDB RocksDB Key/Value Store</name>
