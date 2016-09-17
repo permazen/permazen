@@ -8,7 +8,7 @@ In particular:
   * **Query language concordance** Does the code that performs queries look like regular Java code, or do we have to learn a new “query language”?
   * **Query performance transparency** Is the performance of a query obvious from looking at the code that performs it?
   * **Data type congruence** Do database types agree with Java types? Are all field values supported? Do we always read back the same values we write?
-  * **First class offline data** Can it be precisely defined which data is actually copied out of a transaction? Does offline data have all the rights and privileges of “online” (i.e., transactional) data? Does this include index queries and a framework for handling schema differences?
+  * **First class offline data** Can it be precisely defined which data is actually copied out of a transaction? Does offline data have all the rights and privileges of “online” (i.e., transactional) data? Does this include index queries and a framework for handling schema differences? Can offline data be easily serialized/deserialized?
   * **Schema verification** Is the schema assumed by the code cross-checked against the schema actually present in the database?
   * **Incremental schema evolution** Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Are any whole database operations ever required?
   * **Structural schema changes** Are structural schema updates performed automatically?
