@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug with @OnChange methods having a non-generic change parameter
+
 Version 2.3.0 Released September 15, 2016
 
     - Fixed bug where XMLObjectSerializer.load() failed on forward references

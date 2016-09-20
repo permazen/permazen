@@ -201,6 +201,30 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testNonGenericParameter() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(NonGenericChange.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final NonGenericChange c = jtx.create(NonGenericChange.class);
+
+            Assert.assertNull(c.getChange());
+
+            c.setName("fred");
+
+            Assert.assertEquals(c.getChange(),
+              new SimpleFieldChange<NonGenericChange, String>(c, 123, "name", null, "fred"));
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -501,6 +525,25 @@ public class OnChangeTest extends TestSupport {
         @OnChange("friends.element.name")
         private void onChange() {
             this.changeNotifications++;
+        }
+    }
+
+    @JSimpleClass
+    public abstract static class NonGenericChange implements JObject {
+
+        private Object change;
+
+        public Object getChange() {
+            return this.change;
+        }
+
+        @JField(storageId = 123)
+        public abstract String getName();
+        public abstract void setName(String name);
+
+        @OnChange
+        private void onChange(Object change) {
+            this.change = change;
         }
     }
 }

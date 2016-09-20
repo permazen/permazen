@@ -69,8 +69,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         final boolean isStatic;
         final HashMap<ReferencePath, HashSet<Integer>> paths;
+        final Class<?>[] genericTypes;
 
-        @SuppressWarnings("unchecked")
         ChangeMethodInfo(Method method, OnChange annotation) {
             super(method, annotation);
 
@@ -150,17 +150,26 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 expandedPathList.add(unexpandedPath);
             }
 
-            // Get method parameter type (generic and raw), if any
+            // Get method parameter type (generic and raw), if any, and extract generic types from the FieldChange<?> parameter
             final TypeToken<?> genericParameterType;
-            final Class<? extends FieldChange<T>> rawParameterType;
+            final Class<?> rawParameterType;
             switch (method.getParameterTypes().length) {
             case 1:
-                rawParameterType = (Class<? extends FieldChange<T>>)method.getParameterTypes()[0];
+                rawParameterType = method.getParameterTypes()[0];
                 genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
+                final Type firstParameterType = method.getGenericParameterTypes()[0];
+                if (firstParameterType instanceof ParameterizedType) {
+                    final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
+                    for (Type type : ((ParameterizedType)firstParameterType).getActualTypeArguments())
+                        genericTypeList.add(TypeToken.of(type).getRawType());
+                    this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
+                } else
+                    this.genericTypes = new Class<?>[] { rawParameterType };
                 break;
             case 0:
                 rawParameterType = null;
                 genericParameterType = null;
+                this.genericTypes = null;
                 break;
             default:
                 throw new RuntimeException("internal error");
@@ -248,7 +257,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         // Register listeners for this method
         void registerChangeListener(JTransaction jtx) {
-            final ChangeMethodListener listener = new ChangeMethodListener(jtx, this.getMethod());
+            final ChangeMethodListener listener = new ChangeMethodListener(jtx, this.getMethod(), this.genericTypes);
             for (Map.Entry<ReferencePath, HashSet<Integer>> entry : this.paths.entrySet()) {
                 final ReferencePath path = entry.getKey();
                 final HashSet<Integer> objectTypeStorageIds = entry.getValue();
@@ -282,26 +291,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         private final Method method;
         private final Class<?>[] genericTypes;
 
-        ChangeMethodListener(JTransaction jtx, Method method) {
-            Preconditions.checkArgument(jtx != null, "null jtx");
-            Preconditions.checkArgument(method != null, "null method");
+        ChangeMethodListener(JTransaction jtx, Method method, Class<?>[] genericTypes) {
+            assert jtx != null;
+            assert method != null;
             this.jtx = jtx;
             this.method = method;
-
-            // Extract generic types from method's FieldChange<?> parameter
-            switch (this.method.getParameterTypes().length) {
-            case 1:
-                final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
-                for (Type type : ((ParameterizedType)this.method.getGenericParameterTypes()[0]).getActualTypeArguments())
-                    genericTypeList.add(TypeToken.of(type).getRawType());
-                this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
-                break;
-            case 0:
-                this.genericTypes = null;
-                break;
-            default:
-                throw new RuntimeException("internal error");
-            }
+            this.genericTypes = genericTypes;
         }
 
     // SimpleFieldChangeListener
