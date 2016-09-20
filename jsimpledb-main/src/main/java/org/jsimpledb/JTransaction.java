@@ -205,6 +205,7 @@ public class JTransaction {
     @GuardedBy("this")
     private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();  // maps object -> groups for pending validation
     private final JObjectCache jobjectCache = new JObjectCache(this);
+    private final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<>(this, JObject.class);
 
     @GuardedBy("this")
     private SnapshotJTransaction snapshotTransaction;
@@ -1183,7 +1184,7 @@ public class JTransaction {
         }
         final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
-          Iterables.transform(targetObjects, new ReferenceConverter<JObject>(this, JObject.class)));
+          Iterables.transform(targetObjects, this.referenceConverter));
         return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, startType));
     }
 
@@ -1375,14 +1376,13 @@ public class JTransaction {
         // Look for a composite index
         final JCompositeIndexInfo indexInfo = this.jdb.jcompositeIndexInfos.get(storageId);
         if (indexInfo != null) {
-            final Converter<JObject, ObjId> targetConverter = new ReferenceConverter<JObject>(this, JObject.class);
             switch (indexInfo.jfieldInfos.size()) {
             case 2:
             {
                 final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
                 final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
                 return new ConvertedIndex2(this.tx.queryCompositeIndex2(indexInfo.storageId),
-                  value1Converter, value2Converter, targetConverter);
+                  value1Converter, value2Converter, this.referenceConverter);
             }
             case 3:
             {
@@ -1390,7 +1390,7 @@ public class JTransaction {
                 final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
                 final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
                 return new ConvertedIndex3(this.tx.queryCompositeIndex3(indexInfo.storageId),
-                  value1Converter, value2Converter, value3Converter, targetConverter);
+                  value1Converter, value2Converter, value3Converter, this.referenceConverter);
             }
             case 4:
             {
@@ -1399,7 +1399,7 @@ public class JTransaction {
                 final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
                 final Converter<?, ?> value4Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(3));
                 return new ConvertedIndex4(this.tx.queryCompositeIndex4(indexInfo.storageId),
-                  value1Converter, value2Converter, value3Converter, value4Converter, targetConverter);
+                  value1Converter, value2Converter, value3Converter, value4Converter, this.referenceConverter);
             }
             // COMPOSITE-INDEX
             default:
@@ -1419,22 +1419,21 @@ public class JTransaction {
         // Build the appropriate index for the field
         final JSimpleFieldInfo fieldInfo = (JSimpleFieldInfo)someFieldInfo;
         final Converter<?, ?> valueConverter = this.getReverseConverter(fieldInfo);
-        final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<JObject>(this, JObject.class);
         final int parentStorageId = fieldInfo.getParentStorageId();
         final JComplexFieldInfo parentInfo = parentStorageId != 0 ?
           this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class) : null;
         if (parentInfo instanceof JListFieldInfo) {
             return new ConvertedIndex2(this.tx.queryListElementIndex(fieldInfo.storageId),
-              valueConverter, referenceConverter, Converter.identity());
+              valueConverter, this.referenceConverter, Converter.identity());
         } else if (parentInfo instanceof JMapFieldInfo
           && ((JMapFieldInfo)parentInfo).getSubFieldInfoName(fieldInfo).equals(MapField.VALUE_FIELD_NAME)) {
             final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)parentInfo;
             final JSimpleFieldInfo keyFieldInfo = mapFieldInfo.getKeyFieldInfo();
             final Converter<?, ?> keyConverter = this.getReverseConverter(keyFieldInfo);
             return new ConvertedIndex2(this.tx.queryMapValueIndex(fieldInfo.storageId),
-              valueConverter, referenceConverter, keyConverter);
+              valueConverter, this.referenceConverter, keyConverter);
         } else
-            return new ConvertedIndex(this.tx.queryIndex(fieldInfo.storageId), valueConverter, referenceConverter);
+            return new ConvertedIndex(this.tx.queryIndex(fieldInfo.storageId), valueConverter, this.referenceConverter);
     }
 
     private Converter<?, ?> getReverseConverter(JSimpleFieldInfo fieldInfo) {
@@ -1819,7 +1818,7 @@ public class JTransaction {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {
-            return new ReferenceConverter<JObject>(JTransaction.this, JObject.class).reverse();
+            return JTransaction.this.referenceConverter.reverse();
         }
 
         @Override
