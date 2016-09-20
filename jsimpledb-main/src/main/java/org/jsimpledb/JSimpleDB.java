@@ -129,6 +129,9 @@ public class JSimpleDB {
     final boolean anyJClassRequiresDefaultValidation;
     final AnnotatedElement elementRequiringJSR303Validation;
 
+    // Cached listener sets used by JTransaction.<init>()
+    final Transaction.ListenerSet[] listenerSets = new Transaction.ListenerSet[4];
+
     ValidatorFactory validatorFactory;
 
     volatile int actualVersion;

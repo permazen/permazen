@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -166,6 +167,15 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
+ * <b>Listener Sets</b>
+ * <ul>
+ *  <li>{@link #snapshotListeners} - Create an immutable snapshot of all registered listeners</li>
+ *  <li>{@link #setListeners} - Bulk registration of listeners from a previously created snapshot</li>
+ *  <li>{@link #getUserObject} - Get user object associated with this instance</li>
+ *  <li>{@link #setUserObject} - Set user object associated with this instance</li>
+ * </ul>
+ *
+ * <p>
  * All methods returning a set of values return a {@link NavigableSet}.
  * The {@link NavigableSets} utility class provides methods for the efficient {@link NavigableSets#intersection intersection},
  * {@link NavigableSets#union union}, {@link NavigableSets#difference difference}, and
@@ -182,11 +192,13 @@ public class Transaction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    // Meta-data
     final Database db;
     final KVTransaction kvt;
     final Schemas schemas;
     final Schema schema;
 
+    // TX state
     @GuardedBy("this")
     boolean stale;
     @GuardedBy("this")
@@ -198,20 +210,27 @@ public class Transaction {
     @GuardedBy("this")
     boolean disableListenerNotifications;
 
+    // Listeners
+    @GuardedBy("this")
+    private Set<VersionChangeListener> versionChangeListeners;
+    @GuardedBy("this")
+    private Set<CreateListener> createListeners;
+    @GuardedBy("this")
+    private Set<DeleteListener> deleteListeners;
+    @GuardedBy("this")
+    private NavigableMap<Integer, HashSet<FieldMonitor>> monitorMap;                // key is field's storage ID
+
+    // Callbacks
+    @GuardedBy("this")
+    private LinkedHashSet<Callback> callbacks;
+
+    // Misc
     @GuardedBy("this")
     private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier>>> pendingNotifications = new ThreadLocal<>();
     @GuardedBy("this")
-    private final HashSet<VersionChangeListener> versionChangeListeners = new HashSet<>();
-    @GuardedBy("this")
-    private final HashSet<CreateListener> createListeners = new HashSet<>();
-    @GuardedBy("this")
-    private final HashSet<DeleteListener> deleteListeners = new HashSet<>();
-    @GuardedBy("this")
-    private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
-    @GuardedBy("this")
-    private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
-    @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
+    @GuardedBy("this")
+    private Object userObject;
 
     // Recording of deleted assignments used during a copy() operation (otherwise should be null)
     private ObjIdMap<ReferenceField> deletedAssignments;
@@ -342,13 +361,15 @@ public class Transaction {
             this.log.trace("commit() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
         Callback failedCallback = null;
         try {
-            for (Callback callback : this.callbacks) {
-                failedCallback = callback;
-                if (this.log.isTraceEnabled())
-                    this.log.trace("commit() invoking beforeCommit() on transaction " + this + " callback " + callback);
-                callback.beforeCommit(this.readOnly);
+            if (this.callbacks != null) {
+                for (Callback callback : this.callbacks) {
+                    failedCallback = callback;
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("commit() invoking beforeCommit() on transaction " + this + " callback " + callback);
+                    callback.beforeCommit(this.readOnly);
+                }
+                failedCallback = null;
             }
-            failedCallback = null;
         } finally {
 
             // TX operations no longer permitted
@@ -381,13 +402,15 @@ public class Transaction {
                 this.kvt.rollback();
             else
                 this.kvt.commit();
-            for (Callback callback : this.callbacks) {
-                failedCallback = callback;
-                if (this.log.isTraceEnabled())
-                    this.log.trace("commit() invoking afterCommit() on transaction " + this + " callback " + callback);
-                callback.afterCommit();
+            if (this.callbacks != null) {
+                for (Callback callback : this.callbacks) {
+                    failedCallback = callback;
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("commit() invoking afterCommit() on transaction " + this + " callback " + callback);
+                    callback.afterCommit();
+                }
+                failedCallback = null;
             }
-            failedCallback = null;
         } finally {
 
             // Log the offending callback, if any
@@ -435,6 +458,8 @@ public class Transaction {
     }
 
     private /*synchronized*/ void triggerBeforeCompletion() {
+        if (this.callbacks == null)
+            return;
         for (Callback callback : this.callbacks) {
             if (this.log.isTraceEnabled())
                 this.log.trace("invoking beforeCompletion() on transaction " + this + " callback " + callback);
@@ -448,6 +473,8 @@ public class Transaction {
     }
 
     private /*synchronized*/ void triggerAfterCompletion(boolean committed) {
+        if (this.callbacks == null)
+            return;
         for (Callback callback : this.callbacks) {
             if (this.log.isTraceEnabled())
                 this.log.trace("invoking afterCompletion() on transaction " + this + " callback " + callback);
@@ -546,6 +573,8 @@ public class Transaction {
         Preconditions.checkArgument(callback != null, "null callback");
         if (this.stale || this.ending)
             throw new StaleTransactionException(this);
+        if (this.callbacks == null)
+            this.callbacks = new LinkedHashSet<>();
         this.callbacks.add(callback);
     }
 
@@ -751,7 +780,7 @@ public class Transaction {
             this.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);
 
         // Notify listeners
-        if (!this.disableListenerNotifications) {
+        if (!this.disableListenerNotifications && this.createListeners != null) {
             for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
                 listener.onCreate(this, id);
         }
@@ -835,7 +864,7 @@ public class Transaction {
             }
 
             // Do we need to issue delete notifications for the object being deleted?
-            if (info.isDeleteNotified() || this.deleteListeners.isEmpty())
+            if (info.isDeleteNotified() || this.deleteListeners == null || this.deleteListeners.isEmpty())
                 break;
 
             // Set "delete notified" flag and update object info cache
@@ -843,7 +872,7 @@ public class Transaction {
             this.objInfoCache.put(id, new ObjInfo(this, id, info.getVersion(), true, info.schema, info.objType));
 
             // Issue delete notifications and retry
-            if (!this.disableListenerNotifications) {
+            if (!this.disableListenerNotifications && this.deleteListeners != null) {
                 for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
                     listener.onDelete(this, id);
             }
@@ -1138,7 +1167,8 @@ public class Transaction {
         final boolean existed = dstInfo != null;
 
         // If destination object already exists and has upgrade listeners, go through the normal upgrade process first
-        if (existed && dstInfo.getVersion() != objectVersion && !dstTx.versionChangeListeners.isEmpty()) {
+        if (existed && dstInfo.getVersion() != objectVersion
+          && dstTx.versionChangeListeners != null && !dstTx.versionChangeListeners.isEmpty()) {
             dstTx.changeVersion(dstInfo, dstSchema);
             dstInfo = dstTx.loadIntoCache(dstId);
         }
@@ -1223,11 +1253,14 @@ public class Transaction {
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addCreateListener(CreateListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.createListeners == null)
+            this.createListeners = new HashSet<>(1);
         this.createListeners.add(listener);
     }
 
@@ -1237,11 +1270,14 @@ public class Transaction {
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeCreateListener(CreateListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.createListeners == null)
+            return;
         this.createListeners.remove(listener);
     }
 
@@ -1251,11 +1287,14 @@ public class Transaction {
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addDeleteListener(DeleteListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.deleteListeners == null)
+            this.deleteListeners = new HashSet<>(1);
         this.deleteListeners.add(listener);
     }
 
@@ -1265,11 +1304,14 @@ public class Transaction {
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeDeleteListener(DeleteListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.deleteListeners == null)
+            return;
         this.deleteListeners.remove(listener);
     }
 
@@ -1367,7 +1409,7 @@ public class Transaction {
         }
 
         // Gather removed fields' values here for user migration if any VersionChangeListeners are registered
-        final TreeMap<Integer, Object> oldValueMap = !this.versionChangeListeners.isEmpty() ?
+        final TreeMap<Integer, Object> oldValueMap = this.versionChangeListeners != null && !this.versionChangeListeners.isEmpty() ?
           new TreeMap<Integer, Object>() : null;
 
     //////// Remove the index entries corresponding to removed composite indexes
@@ -1547,8 +1589,10 @@ public class Transaction {
           Maps.unmodifiableNavigableMap(oldValueMap) : null;
 
         // Notify about version update
-        for (VersionChangeListener listener : this.versionChangeListeners)
-            listener.onVersionChange(this, id, oldVersion, newVersion, readOnlyOldValuesMap);
+        if (this.versionChangeListeners != null) {
+            for (VersionChangeListener listener : this.versionChangeListeners)
+                listener.onVersionChange(this, id, oldVersion, newVersion, readOnlyOldValuesMap);
+        }
     }
 
     /**
@@ -1599,11 +1643,14 @@ public class Transaction {
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addVersionChangeListener(VersionChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.versionChangeListeners == null)
+            this.versionChangeListeners = new HashSet<>(1);
         this.versionChangeListeners.add(listener);
     }
 
@@ -1613,11 +1660,14 @@ public class Transaction {
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeVersionChangeListener(VersionChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.versionChangeListeners == null)
+            return;
         this.versionChangeListeners.remove(listener);
     }
 
@@ -2330,6 +2380,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
@@ -2352,6 +2403,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SetFieldChangeListener listener) {
@@ -2374,6 +2426,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       ListFieldChangeListener listener) {
@@ -2396,6 +2449,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       MapFieldChangeListener listener) {
@@ -2415,11 +2469,14 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
         this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        if (monitors != null)
+            monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2434,11 +2491,14 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        if (monitors != null)
+            monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2453,11 +2513,14 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        if (monitors != null)
+            monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2472,11 +2535,14 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        if (monitors != null)
+            monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     private <T extends Field<?>> void validateChangeListener(Class<T> expectedFieldType,
@@ -2502,12 +2568,20 @@ public class Transaction {
             this.schemas.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
     }
 
-    private synchronized HashSet<FieldMonitor> getMonitorsForField(int storageId, boolean adding) {
-        HashSet<FieldMonitor> monitors = this.monitorMap.get(storageId);
+    private synchronized HashSet<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
+        HashSet<FieldMonitor> monitors;
+        if (this.monitorMap == null) {
+            if (!create)
+                return null;
+            this.monitorMap = new TreeMap<>();
+            monitors = null;
+        } else
+            monitors = this.monitorMap.get(storageId);
         if (monitors == null) {
-            monitors = new HashSet<FieldMonitor>();
-            if (adding)
-                this.monitorMap.put(storageId, monitors);
+            if (!create)
+                return null;
+            monitors = new HashSet<FieldMonitor>(1);
+            this.monitorMap.put(storageId, monitors);
         }
         return monitors;
     }
@@ -2521,11 +2595,12 @@ public class Transaction {
      * This method should only be invoked if this.disableListenerNotifications is false.
      */
     void addFieldChangeNotification(FieldChangeNotifier notifier) {
+        assert Thread.holdsLock(this);
         assert !this.disableListenerNotifications;
 
         // Does anybody care?
         final int storageId = notifier.getStorageId();
-        HashSet<FieldMonitor> monitors = this.monitorMap.get(storageId);
+        HashSet<FieldMonitor> monitors = this.monitorMap != null ? this.monitorMap.get(storageId) : null;
         if (monitors == null || !Iterables.any(monitors, new MonitoredPredicate(notifier.getId(), storageId)))
             return;
 
@@ -2543,6 +2618,9 @@ public class Transaction {
      * Determine if there are any monitors watching the specified field.
      */
     boolean hasFieldMonitor(ObjId id, Field<?> field) {
+        assert Thread.holdsLock(this);
+        if (this.monitorMap == null)
+            return false;
         final HashSet<FieldMonitor> monitors = this.monitorMap.get(field.storageId);
         return monitors != null && Iterables.any(monitors, new MonitoredPredicate(id, field.storageId));
     }
@@ -2551,6 +2629,9 @@ public class Transaction {
      * Determine if there are any monitors watching any field in the specified type.
      */
     boolean hasFieldMonitor(ObjType objType) {
+        assert Thread.holdsLock(this);
+        if (this.monitorMap == null)
+            return false;
         for (int storageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
             if (Iterables.any(this.monitorMap.get(storageId), new MonitoredPredicate(ObjId.getMin(objType.storageId), storageId)))
                 return true;
@@ -2612,9 +2693,10 @@ public class Transaction {
                     // For all pending notifications, back-track references and notify all field monitors for the field
                     for (FieldChangeNotifier notifier : entry.getValue()) {
                         assert notifier.getStorageId() == storageId;
-                        final ArrayList<FieldMonitor> monitorList = new ArrayList<>(this.getMonitorsForField(storageId, false));
-                        if (!monitorList.isEmpty())
-                            this.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), monitorList, 0);
+                        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+                        if (monitors == null || monitors.isEmpty())
+                            continue;
+                        this.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), new ArrayList<>(monitors), 0);
                     }
                 }
             } finally {
@@ -2942,6 +3024,79 @@ public class Transaction {
         return writer.getBytes();
     }
 
+// Listener snapshots
+
+    /**
+     * Create a read-only snapshot of all ({@link CreateListener}s, {@link DeleteListener}s, {@link VersionChangeListener}s,
+     * {@link SimpleFieldChangeListener}s, {@link SetFieldChangeListener}s, {@link ListFieldChangeListener}s, and
+     * {@link MapFieldChangeListener}s currently registered on this instance.
+     *
+     * <p>
+     * The snapshot can be applied to other transactions having compatible schemas via {@link #setListeners setListeners()}.
+     *
+     * @see #setListeners setListeners()
+     */
+    public synchronized ListenerSet snapshotListeners() {
+        return new ListenerSet(this);
+    }
+
+    /**
+     * Apply a snapshot created via {@link #snapshotListeners} to this instance.
+     *
+     * <p>
+     * Any currently registered listeners are unregistered and replaced by the listeners in {@code listeners}.
+     * This method may be invoked multiple times; however, once this method has been invoked, any subsequent
+     * attempts to register or unregister individual listeners will result in an {@link UnsupportedOperationException}.
+     *
+     * @param listeners listener set created by {@link #snapshotListeners}
+     * @throws IllegalArgumentException if {@code listeners} was created from a transaction with an incompatible schema
+     * @throws IllegalArgumentException if {@code listeners} is null
+     */
+    public synchronized void setListeners(ListenerSet listeners) {
+        Preconditions.checkArgument(listeners != null, "null listeners");
+
+        // Verify listeners are compatible with this transaction
+        while (listeners.monitorMap != null) {
+
+            // Do a quick check
+            if (Arrays.equals(listeners.schema.encodedXML, this.schema.encodedXML))
+                break;
+
+            // Do a slow check
+            if (listeners.schema.schemaModel.isCompatibleWith(this.schema.schemaModel))
+                break;
+
+            // Not compatible
+            throw new IllegalArgumentException("listener set was created from a transaction having an incompatible schema");
+        }
+
+        // Apply listeners to this instance
+        this.versionChangeListeners = listeners.versionChangeListeners;
+        this.createListeners = listeners.createListeners;
+        this.deleteListeners = listeners.deleteListeners;
+        this.monitorMap = listeners.monitorMap;
+    }
+
+// User Object
+
+    /**
+     * Associate an arbitrary object with this instance.
+     *
+     * @param obj user object
+     */
+    public synchronized void setUserObject(Object obj) {
+        this.userObject = obj;
+    }
+
+    /**
+     * Get the object with this instance by {@link #setUserObject setUserObject()}, if any.
+     *
+     * @param obj associated user object, or null if none has been set
+     */
+    public synchronized Object getUserObject() {
+        return this.userObject;
+    }
+
 // Mutation
 
     interface Mutation<V> {
@@ -3057,6 +3212,42 @@ public class Transaction {
 
         @Override
         public void afterCompletion(boolean committed) {
+        }
+    }
+
+// Listeners
+
+    /**
+     * A fixed collection of listeners ({@link CreateListener}s, {@link DeleteListener}s, {@link VersionChangeListener}s,
+     * {@link SimpleFieldChangeListener}s, {@link SetFieldChangeListener}s, {@link ListFieldChangeListener}s, and
+     * {@link MapFieldChangeListener}s) that can be efficiently registered on a {@link Transaction} all at once.
+     *
+     * <p>
+     * To create an instance of this class, use {@link Transaction#snapshotListeners} after registering the desired
+     * set of listeners. Once created, the instance can be used repeatedly to configured the same set of listeners
+     * on any other compatible {@link Transaction} via {@link Transaction#setListeners Transaction.setListeners()}.
+     * Here "compatible" means field change listener paths and types are valid for the new transaction's schemas.
+     */
+    public static final class ListenerSet {
+
+        final Set<VersionChangeListener> versionChangeListeners;
+        final Set<CreateListener> createListeners;
+        final Set<DeleteListener> deleteListeners;
+        final NavigableMap<Integer, HashSet<FieldMonitor>> monitorMap;
+
+        final Schema schema;
+
+        private ListenerSet(Transaction tx) {
+            assert Thread.holdsLock(tx);
+            this.versionChangeListeners = tx.versionChangeListeners != null ?
+              Collections.unmodifiableSet(new HashSet<>(tx.versionChangeListeners)) : null;
+            this.createListeners = tx.createListeners != null ?
+              Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
+            this.deleteListeners = tx.deleteListeners != null ?
+              Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
+            this.monitorMap = tx.monitorMap != null ?                           // JAVA8: Collections.unmodifiableNavigableMap
+              Maps.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
+            this.schema = tx.schema;
         }
     }
 

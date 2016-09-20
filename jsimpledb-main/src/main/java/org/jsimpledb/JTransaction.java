@@ -198,10 +198,6 @@ public class JTransaction {
     final Transaction tx;
 
     private final ValidationMode validationMode;
-    private final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
-    private final InternalCreateListener internalCreateListener = new InternalCreateListener();
-    private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
-    private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
     @GuardedBy("this")
     private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();  // maps object -> groups for pending validation
     private final JObjectCache jobjectCache = new JObjectCache(this);
@@ -229,37 +225,54 @@ public class JTransaction {
         this.tx = tx;
         this.validationMode = validationMode;
 
+        // Set back-reference
+        tx.setUserObject(this);
+
+        // Register listeners, or re-use our existing listener set
+        final boolean automaticValidation = validationMode == ValidationMode.AUTOMATIC;
+        final boolean isSnapshot = this.isSnapshot();
+        final int listenerSetIndex = (automaticValidation ? 2 : 0) + (isSnapshot ? 0 : 1);
+        final Transaction.ListenerSet listenerSet = jdb.listenerSets[listenerSetIndex];
+        if (listenerSet == null) {
+            JTransaction.registerListeners(jdb, tx, automaticValidation, isSnapshot);
+            jdb.listenerSets[listenerSetIndex] = tx.snapshotListeners();
+        } else
+            tx.setListeners(listenerSet);
+    }
+
+    // Register listeners for the given situation
+    private static void registerListeners(JSimpleDB jdb, Transaction tx, boolean automaticValidation, boolean isSnapshot) {
+
         // Register listeners for @OnCreate and validation on creation
-        if (this.jdb.hasOnCreateMethods
-          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresDefaultValidation))
-            this.tx.addCreateListener(this.internalCreateListener);
+        if (jdb.hasOnCreateMethods || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
+            tx.addCreateListener(new InternalCreateListener());
 
         // Register listeners for @OnDelete
-        if (this.jdb.hasOnDeleteMethods)
-            this.tx.addDeleteListener(this.internalDeleteListener);
+        if (jdb.hasOnDeleteMethods)
+            tx.addDeleteListener(new InternalDeleteListener());
 
         // Register listeners for @OnChange
-        for (JClass<?> jclass : this.jdb.jclasses.values()) {
+        for (JClass<?> jclass : jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
-                if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
+                if (isSnapshot && !info.getAnnotation().snapshotTransactions())
                     continue;
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
-                changeInfo.registerChangeListener(this);
+                changeInfo.registerChangeListener(tx);
             }
         }
 
         // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
-        if (validationMode == ValidationMode.AUTOMATIC) {
-            for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
+        if (automaticValidation) {
+            final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
+            for (JFieldInfo jfieldInfo : jdb.jfieldInfos.values()) {
                 if (jfieldInfo.isRequiresDefaultValidation())
-                    jfieldInfo.registerChangeListener(this.tx, new int[0], null, this.defaultValidationListener);
+                    jfieldInfo.registerChangeListener(tx, new int[0], null, defaultValidationListener);
             }
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
-        if (this.jdb.hasOnVersionChangeMethods
-          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresDefaultValidation))
-            this.tx.addVersionChangeListener(this.internalVersionChangeListener);
+        if (jdb.hasOnVersionChangeMethods || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
+            tx.addVersionChangeListener(new InternalVersionChangeListener());
     }
 
 // Thread-local Access
@@ -1653,130 +1666,139 @@ public class JTransaction {
 
 // InternalCreateListener
 
-    private class InternalCreateListener implements CreateListener {
+    private static class InternalCreateListener implements CreateListener {
 
         @Override
         public void onCreate(Transaction tx, ObjId id) {
-            final JClass<?> jclass;
-            try {
-                jclass = JTransaction.this.jdb.getJClass(id);
-            } catch (TypeNotInSchemaVersionException e) {
-                return;                                             // object type does not exist in our schema
-            }
-            this.doOnCreate(jclass, id);
+            final JTransaction jtx = (JTransaction)tx.getUserObject();
+            assert jtx != null && jtx.tx == tx;
+            jtx.doOnCreate(id);
+        }
+    }
+
+    private void doOnCreate(ObjId id) {
+
+        // Get JClass, if known
+        final JClass<?> jclass;
+        try {
+            jclass = this.jdb.getJClass(id);
+        } catch (TypeNotInSchemaVersionException e) {
+            return;                                             // object type does not exist in our schema
         }
 
-        // This method exists solely to bind the generic type parameters
-        private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
+        // Enqueue for revalidation
+        if (this.validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
+            this.revalidate(Collections.singleton(id));
 
-            // Enqueue for revalidation
-            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
-                JTransaction.this.revalidate(Collections.singleton(id));
-
-            // Notify @OnCreate methods
-            Object jobj = null;
-            for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods) {
-                if (JTransaction.this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
-                    continue;
-                if (jobj == null)
-                    jobj = JTransaction.this.get(id);
-                Util.invoke(info.getMethod(), jobj);
-            }
+        // Notify @OnCreate methods
+        Object jobj = null;
+        for (OnCreateScanner<?>.MethodInfo info : jclass.onCreateMethods) {
+            if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
+                continue;
+            if (jobj == null)
+                jobj = this.get(id);
+            Util.invoke(info.getMethod(), jobj);
         }
     }
 
 // InternalDeleteListener
 
-    private class InternalDeleteListener implements DeleteListener {
+    private static class InternalDeleteListener implements DeleteListener {
 
         @Override
         public void onDelete(Transaction tx, ObjId id) {
-            final JClass<?> jclass;
-            try {
-                jclass = JTransaction.this.jdb.getJClass(id);
-            } catch (TypeNotInSchemaVersionException e) {
-                return;                                             // object type does not exist in our schema
-            }
-            this.doOnDelete(jclass, id);
+            final JTransaction jtx = (JTransaction)tx.getUserObject();
+            assert jtx != null && jtx.tx == tx;
+            jtx.doOnDelete(id);
+        }
+    }
+
+    private void doOnDelete(ObjId id) {
+
+        // Get JClass, if known
+        final JClass<?> jclass;
+        try {
+            jclass = this.jdb.getJClass(id);
+        } catch (TypeNotInSchemaVersionException e) {
+            return;                                             // object type does not exist in our schema
         }
 
-        // This method exists solely to bind the generic type parameters
-        private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
-            Object jobj = null;
-            for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods) {
-                if (JTransaction.this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
-                    continue;
-                if (jobj == null)
-                    jobj = JTransaction.this.get(id);
-                Util.invoke(info.getMethod(), jobj);
-            }
+        // Notify @OnDelete methods
+        Object jobj = null;
+        for (OnDeleteScanner<?>.MethodInfo info : jclass.onDeleteMethods) {
+            if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
+                continue;
+            if (jobj == null)
+                jobj = this.get(id);
+            Util.invoke(info.getMethod(), jobj);
         }
     }
 
 // InternalVersionChangeListener
 
-    private class InternalVersionChangeListener implements VersionChangeListener {
+    private static class InternalVersionChangeListener implements VersionChangeListener {
 
         @Override
         public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-            final JClass<?> jclass;
-            try {
-                jclass = JTransaction.this.jdb.getJClass(id);
-            } catch (TypeNotInSchemaVersionException e) {
-                return;                                             // object type does not exist in our schema
-            }
-            this.doOnVersionChange(jclass, id, oldVersion, newVersion, oldFieldValues);
+            final JTransaction jtx = (JTransaction)tx.getUserObject();
+            assert jtx != null && jtx.tx == tx;
+            jtx.doOnVersionChange(id, oldVersion, newVersion, oldFieldValues);
+        }
+    }
+
+    private void doOnVersionChange(ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+
+        // Get JClass, if known
+        final JClass<?> jclass;
+        try {
+            jclass = this.jdb.getJClass(id);
+        } catch (TypeNotInSchemaVersionException e) {
+            return;                                             // object type does not exist in our schema
         }
 
-        // This method exists solely to bind the generic type parameters
-        private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
-          int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+        // Enqueue for revalidation
+        if (this.validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
+            this.revalidate(Collections.singleton(id));
 
-            // Enqueue for revalidation
-            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
-                JTransaction.this.revalidate(Collections.singleton(id));
+        // Skip the rest if there are no @OnChange methods
+        if (jclass.onVersionChangeMethods.isEmpty())
+            return;
 
-            // Skip the rest if there are no @OnChange methods
-            if (jclass.onVersionChangeMethods.isEmpty())
-                return;
+        // Get old object type info
+        final Schema oldSchema = this.tx.getSchemas().getVersion(oldVersion);
+        final ObjType objType = oldSchema.getObjType(id.getStorageId());
 
-            // Get old object type info
-            final Schema oldSchema = JTransaction.this.tx.getSchemas().getVersion(oldVersion);
-            final ObjType objType = oldSchema.getObjType(id.getStorageId());
+        // The object that was upgraded
+        JObject jobj = null;
 
-            // The object that was upgraded
-            JObject jobj = null;
-
-            // Convert old field values from core API objects to JDB layer objects
-            final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
-              new Maps.EntryTransformer<Integer, Object, Object>() {
-                @Override
-                public Object transformEntry(Integer storageId, Object oldValue) {
-                    return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
-                }
-            });
-
-            // Build alternate version of old values map that is keyed by field name instead of storage ID
-            final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
-              new Function<Field<?>, Object>() {
-                @Override
-                public Object apply(Field<?> field) {
-                    return oldValuesByStorageId.get(field.getStorageId());
-                }
-            });
-
-            // Invoke listener methods
-            for (OnVersionChangeScanner<T>.MethodInfo info0 : jclass.onVersionChangeMethods) {
-                final OnVersionChangeScanner<T>.VersionChangeMethodInfo info
-                  = (OnVersionChangeScanner<T>.VersionChangeMethodInfo)info0;
-
-                // Get Java model object
-                if (jobj == null)
-                    jobj = JTransaction.this.get(id);
-
-                // Invoke method
-                info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
+        // Convert old field values from core API objects to JDB layer objects
+        final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
+          new Maps.EntryTransformer<Integer, Object, Object>() {
+            @Override
+            public Object transformEntry(Integer storageId, Object oldValue) {
+                return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
             }
+        });
+
+        // Build alternate version of old values map that is keyed by field name instead of storage ID
+        final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
+          new Function<Field<?>, Object>() {
+            @Override
+            public Object apply(Field<?> field) {
+                return oldValuesByStorageId.get(field.getStorageId());
+            }
+        });
+
+        // Invoke listener methods
+        for (OnVersionChangeScanner<?>.MethodInfo info0 : jclass.onVersionChangeMethods) {
+            final OnVersionChangeScanner<?>.VersionChangeMethodInfo info = (OnVersionChangeScanner<?>.VersionChangeMethodInfo)info0;
+
+            // Get Java model object
+            if (jobj == null)
+                jobj = this.get(id);
+
+            // Invoke method
+            info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
         }
     }
 
@@ -1855,14 +1877,14 @@ public class JTransaction {
 
 // DefaultValidationListener
 
-    private class DefaultValidationListener implements AllChangesListener {
+    private static class DefaultValidationListener implements AllChangesListener {
 
     // SimpleFieldChangeListener
 
         @Override
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
     // SetFieldChangeListener
@@ -1870,18 +1892,18 @@ public class JTransaction {
         @Override
         public <E> void onSetFieldAdd(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public <E> void onSetFieldRemove(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
     // ListFieldChangeListener
@@ -1889,24 +1911,24 @@ public class JTransaction {
         @Override
         public <E> void onListFieldAdd(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public <E> void onListFieldRemove(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public <E> void onListFieldReplace(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
     // MapFieldChangeListener
@@ -1914,38 +1936,40 @@ public class JTransaction {
         @Override
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
-            this.revalidateIfNeeded(id, field, referrers);
+            this.revalidateIfNeeded(tx, id, field, referrers);
         }
 
     // Internal methods
 
-        private void revalidateIfNeeded(ObjId id, Field<?> field, NavigableSet<ObjId> referrers) {
+        private void revalidateIfNeeded(Transaction tx, ObjId id, Field<?> field, NavigableSet<ObjId> referrers) {
+            final JTransaction jtx = (JTransaction)tx.getUserObject();
+            assert jtx != null && jtx.tx == tx;
             final JClass<?> jclass;
             try {
-                jclass = JTransaction.this.jdb.getJClass(id);
+                jclass = jtx.jdb.getJClass(id);
             } catch (TypeNotInSchemaVersionException e) {
                 return;
             }
             final JField jfield = jclass.getJField(field.getStorageId(), JField.class);
             if (jfield.requiresDefaultValidation)
-                JTransaction.this.revalidate(referrers);
+                jtx.revalidate(referrers);
         }
     }
 }

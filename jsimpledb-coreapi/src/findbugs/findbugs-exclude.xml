@@ -41,4 +41,16 @@
         <Method name="clone"/>
         <Bug pattern="ML_SYNC_ON_UPDATED_FIELD"/>
     </Match>
+    <Match>
+        <Class name="org.jsimpledb.core.Transaction"/>
+        <!-- <Method name="hasFieldMonitor"/> -->
+        <Field name="monitorMap"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.core.Transaction"/>
+        <!-- <Method name="doCopyFields, changeVersion"/> -->
+        <Field name="versionChangeListeners"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
 </FindBugsFilter>
