@@ -430,7 +430,7 @@ public class Database {
      * Initialize (if necessary) and validate the given {@link KVStore} for use with this database.
      *
      * @param kvstore key/value store
-     * @param schemaModel schema to use with the new transaction - <b>assumed to be valid</b>, or null
+     * @param schemaModel schema to use with the new transaction, or null
      * @param version schema version number
      * @param allowNewSchema whether creating a new schema version is allowed
      */
