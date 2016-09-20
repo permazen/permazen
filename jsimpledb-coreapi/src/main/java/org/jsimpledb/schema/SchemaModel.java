@@ -217,6 +217,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      */
     public boolean isCompatibleWith(SchemaModel that) {
         Preconditions.checkArgument(that != null, "null that");
+        if (this == that)
+            return true;
         if (!AbstractSchemaItem.allAreCompatible(this.schemaObjectTypes, that.schemaObjectTypes))
             return false;
         return true;
