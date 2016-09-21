@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.3.0 API)</title>
+<title>Index (JSimpleDB 2.3.1 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.3.0 API)";
+        parent.document.title="Index (JSimpleDB 2.3.1 API)";
     }
 //-->
 </script>
@@ -6728,6 +6728,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVImplementation.html#getUsageText()">getUsageText()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVImplementation.html" title="class in org.jsimpledb.kv.raft">RaftKVImplementation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#getUserObject()">getUserObject()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
+<div class="block">Get the object with this instance by <a href="./org/jsimpledb/core/Transaction.html#setUserObject(java.lang.Object)"><code>setUserObject()</code></a>, if any.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getValidationMode()">getValidationMode()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> configured for this instance.</div>
@@ -11894,6 +11898,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setLineLimit(int)">setLineLimit(int)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#setListeners(org.jsimpledb.core.Transaction.ListenerSet)">setListeners(Transaction.ListenerSet)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
+<div class="block">Apply a snapshot created via <a href="./org/jsimpledb/core/Transaction.html#snapshotListeners()"><code>Transaction.snapshotListeners()</code></a> to this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setLogDirectory(java.io.File)">setLogDirectory(File)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the directory in which uncommitted log entries are stored.</div>
@@ -12147,6 +12155,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/test/TestSupport.html#setUpValidator()">setUpValidator()</a></span> - Method in class org.jsimpledb.test.<a href="./org/jsimpledb/test/TestSupport.html" title="class in org.jsimpledb.test">TestSupport</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#setUserObject(java.lang.Object)">setUserObject(Object)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
+<div class="block">Associate an arbitrary object with this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#setValidateBeforeCommit(boolean)">setValidateBeforeCommit(boolean)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
 <div class="block">Configure whether to invoke <a href="./org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a> just prior to commit (and prior to any
@@ -12504,6 +12516,12 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#SnapshotLevelDBKVStore(org.iq80.leveldb.DB, boolean)">SnapshotLevelDBKVStore(DB, boolean)</a></span> - Constructor for class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html" title="class in org.jsimpledb.kv.leveldb">SnapshotLevelDBKVStore</a></dt>
 <dd>
 <div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#snapshotListeners()">snapshotListeners()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
+<div class="block">Create a read-only snapshot of all (<a href="./org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a>s, <a href="./org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a>s, <a href="./org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s,
+ <a href="./org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SimpleFieldChangeListener</code></a>s, <a href="./org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SetFieldChangeListener</code></a>s, <a href="./org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>ListFieldChangeListener</code></a>s, and
+ <a href="./org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>MapFieldChangeListener</code></a>s currently registered on this instance.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">SnapshotRefs</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
@@ -13139,6 +13157,12 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.CallbackAdapter.html#Transaction.CallbackAdapter()">Transaction.CallbackAdapter()</a></span> - Constructor for class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.CallbackAdapter.html" title="class in org.jsimpledb.core">Transaction.CallbackAdapter</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/core/Transaction.ListenerSet.html" title="class in org.jsimpledb.core"><span class="strong">Transaction.ListenerSet</span></a> - Class in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
+<dd>
+<div class="block">A fixed collection of listeners (<a href="./org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a>s, <a href="./org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a>s, <a href="./org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s,
+ <a href="./org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SimpleFieldChangeListener</code></a>s, <a href="./org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SetFieldChangeListener</code></a>s, <a href="./org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>ListFieldChangeListener</code></a>s, and
+ <a href="./org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>MapFieldChangeListener</code></a>s) that can be efficiently registered on a <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> all at once.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#TRANSACTION_CANCELLED">TRANSACTION_CANCELLED</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
 <div class="block">Operation aborted because the transaction was cancelled.</div>
