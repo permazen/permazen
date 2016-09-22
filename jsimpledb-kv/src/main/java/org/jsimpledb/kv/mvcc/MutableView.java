@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
@@ -21,7 +20,6 @@ import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.SizeEstimating;
 import org.jsimpledb.util.SizeEstimator;
@@ -349,22 +347,8 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         if (minKey == null)
             minKey = ByteUtil.EMPTY;
 
-        // Already tracked?
-        final KeyRange readRange = new KeyRange(minKey, maxKey);
-        if (this.reads.contains(readRange))
-            return;
-
-        // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes
-        final KeyRanges readRanges = new KeyRanges(readRange);
-        final Set<byte[]> putKeys = (maxKey != null ?
-          this.writes.getPuts().subMap(minKey, maxKey) : this.writes.getPuts().tailMap(minKey)).keySet();
-        for (byte[] key : putKeys)
-            readRanges.remove(new KeyRange(key));
-        readRanges.remove(this.writes.getRemoves());
-
-        // Record reads
-        if (!readRanges.isEmpty())
-            this.reads.add(readRanges);
+        // Add range
+        this.reads.add(new KeyRange(minKey, maxKey));
     }
 
 // RangeIterator
