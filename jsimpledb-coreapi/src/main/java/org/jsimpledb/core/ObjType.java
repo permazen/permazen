@@ -31,6 +31,7 @@ public class ObjType extends SchemaItem {
     final FieldTypeRegistry fieldTypeRegistry;
     final TreeMap<Integer, Field<?>> fields = new TreeMap<>();
     final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
+    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();
     final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
     final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
@@ -57,7 +58,14 @@ public class ObjType extends SchemaItem {
         this.buildMap(this.simpleFields, SimpleField.class);
         this.buildMap(this.complexFields, ComplexField.class);
         this.buildMap(this.counterFields, CounterField.class);
-        for (ReferenceField referenceField : Iterables.filter(this.getFieldsAndSubFields(), ReferenceField.class))
+
+        // Build list of all fields including sub-fields
+        this.fieldsAndSubFields.addAll(this.fields.values());
+        for (ComplexField<?> field : this.complexFields.values())
+            this.fieldsAndSubFields.addAll(field.getSubFields());
+
+        // Build mappings for reference fields
+        for (ReferenceField referenceField : Iterables.filter(this.fieldsAndSubFields, ReferenceField.class))
             this.referenceFields.put(referenceField.storageId, referenceField);
 
         // Build composite indexes
@@ -165,16 +173,6 @@ public class ObjType extends SchemaItem {
      */
     public SortedMap<String, CompositeIndex> getCompositeIndexesByName() {
         return Collections.unmodifiableSortedMap(this.compositeIndexesByName);
-    }
-
-    /**
-     * Get all fields, including sub-fields.
-     */
-    Iterable<Field<?>> getFieldsAndSubFields() {
-        Iterable<Field<?>> i = this.fields.values();
-        for (ComplexField<?> field : this.complexFields.values())
-            i = Iterables.concat(i, field.getSubFields());
-        return i;
     }
 
     @Override

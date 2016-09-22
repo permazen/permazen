@@ -93,7 +93,7 @@ public class Schemas {
         // the field exists and is indexed.
         for (Schema version : this.versions.values()) {
             for (ObjType objType : version.objTypeMap.values()) {
-                for (SimpleField<?> field : Iterables.filter(objType.getFieldsAndSubFields(), SimpleField.class)) {
+                for (SimpleField<?> field : Iterables.filter(objType.fieldsAndSubFields, SimpleField.class)) {
                     if (!field.indexed)
                         continue;
                     TreeSet<Integer> containingTypes = this.indexedFieldToContainingTypesMap.get(field.storageId);

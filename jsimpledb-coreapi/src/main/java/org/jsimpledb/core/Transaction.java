@@ -2985,7 +2985,7 @@ public class Transaction {
             // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them.
             // Do this separately for each such field in each object type because the fields may have different DeleteAction's.
             for (ObjType objType : schemaVersion.objTypeMap.values()) {
-                for (ReferenceField field : Iterables.filter(objType.getFieldsAndSubFields(), ReferenceField.class)) {
+                for (ReferenceField field : Iterables.filter(objType.fieldsAndSubFields, ReferenceField.class)) {
 
                     // Check delete action and field
                     if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
