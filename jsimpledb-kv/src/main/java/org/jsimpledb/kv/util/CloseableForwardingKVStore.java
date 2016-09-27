@@ -34,7 +34,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
      * Constructor for a do-nothing {@link #close}.
      *
      * <p>
-     * With this construtor, nothing will actually be closed when {@link #close} is invoked.
+     * With this constructor, nothing will actually be closed when {@link #close} is invoked.
      *
      * @param kvstore key/value store for forwarding
      * @throws IllegalArgumentException if {@code kvstore} is null
