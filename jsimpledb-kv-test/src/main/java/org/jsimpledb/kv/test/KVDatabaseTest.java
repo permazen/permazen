@@ -335,9 +335,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     futures[i].get();
                     this.log.info(txs[i] + " #" + (i + 1) + " succeeded on commit");
                     fails[i] = null;
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     while (e instanceof ExecutionException)
-                        e = (Exception)e.getCause();
+                        e = e.getCause();
                     assert e instanceof RetryTransactionException : "wrong exception type: " + e;
                     final RetryTransactionException retry = (RetryTransactionException)e;
                     Assert.assertSame(retry.getTransaction(), txs[i]);
