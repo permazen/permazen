@@ -144,9 +144,10 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         // Create and verify snapshot
 
-        final MutableView snap = new MutableView(kvstore.snapshot());
-        this.log.debug("step2: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
-        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+        final CloseableKVStore snapshot = kvstore.snapshot();
+        final MutableView view = new MutableView(snapshot);
+        this.log.debug("step2: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1)));
 
         // Add (KEY2, VAL2) to kvstore and verify
@@ -155,20 +156,20 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         mods.getPuts().put(KEY2, VAL2);
         kvstore.mutate(mods, true);
 
-        this.log.debug("step3: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        this.log.debug("step3: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
-        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+        Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1)));
 
-        // Add (KEY2, VAL3) to snapshot and verify
+        // Add (KEY2, VAL3) to view and verify
 
-        snap.put(KEY2, VAL3);
+        view.put(KEY2, VAL3);
 
-        this.log.debug("step4: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        this.log.debug("step4: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
-        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+        Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
 
         // Remove (KEY2, VAL2) from kvstore and verify
@@ -177,10 +178,10 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         mods.getRemoves().add(new KeyRange(KEY2, null));
         kvstore.mutate(mods, true);
 
-        this.log.debug("step5: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        this.log.debug("step5: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
-        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+        Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
 
         // Compact
@@ -189,18 +190,18 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         // Verify again
 
-        this.log.debug("step6: kvstore=" + stringView(this.asMap(kvstore)) + " snap=" + stringView(this.asMap(snap)));
+        this.log.debug("step6: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
-        Assert.assertEquals(stringView(this.asMap(snap)), buildMap(
+        Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
 
-        Assert.assertEquals(snap.getAtLeast(KEY3), new KVPair(KEY2, VAL3));
+        Assert.assertEquals(view.getAtLeast(KEY3), new KVPair(KEY2, VAL3));
         Assert.assertEquals(kvstore.getAtLeast(KEY3), null);
 
         // Done
 
-        snap.close();
+        snapshot.close();
         kvstore.stop();
     }
 
