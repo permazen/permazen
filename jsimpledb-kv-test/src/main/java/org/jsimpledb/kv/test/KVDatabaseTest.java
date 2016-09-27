@@ -335,6 +335,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     futures[i].get();
                     this.log.info(txs[i] + " #" + (i + 1) + " succeeded on commit");
                     fails[i] = null;
+                } catch (AssertionError e) {
+                    throw e;
                 } catch (Throwable e) {
                     while (e instanceof ExecutionException)
                         e = e.getCause();
