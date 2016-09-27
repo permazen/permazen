@@ -200,6 +200,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         // Done
 
+        snap.close();
         kvstore.stop();
     }
 
