@@ -275,13 +275,8 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
         private Iterator(final RocksIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
 
-            // Make sure we eventually close the iterator
-            RocksDBKVStore.this.cursorTracker.add(this, new Closeable() {
-                @Override
-                public void close() {
-                    cursor.close();
-                }
-            });
+            // Make sure we eventually close the cursor
+            RocksDBKVStore.this.cursorTracker.add(this, new CursorCloser(cursor));
 
             // Sanity checks
             Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
@@ -381,6 +376,8 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         private boolean findNext() {
 
             // Sanity check
+            assert Thread.holdsLock(this);
+            assert !this.closed;
             assert this.next == null;
             if (this.finished)
                 return false;
@@ -447,12 +444,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.closed = true;
             if (RocksDBKVStore.this.log.isTraceEnabled())
                 RocksDBKVStore.this.log.trace("closing " + this);
-            assert RocksDBUtil.isInitialized(this.cursor);
-            try {
-                this.cursor.close();
-            } catch (Throwable e) {
-                RocksDBKVStore.this.log.debug("caught exception closing db iterator (ignoring)", e);
-            }
+            new CursorCloser(this.cursor).close();
         }
 
     // Object
@@ -464,6 +456,33 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
               + ",maxKey=" + ByteUtil.toString(this.maxKey)
               + (this.reverse ? ",reverse" : "")
               + "]";
+        }
+    }
+
+// CursorCloser
+
+    // This needs to be a static class so it doesn't have a strong reference to the Iterator that created it
+    private static class CursorCloser implements Closeable {
+
+        private final RocksIterator cursor;
+
+        CursorCloser(RocksIterator cursor) {
+            this.cursor = cursor;
+        }
+
+        @Override
+        public void close() {
+
+            // RocksDB objects implement AutoCloseable, not Closeable, so we have to close them exactly once
+            synchronized (this.cursor) {
+                if (RocksDBUtil.isInitialized(this.cursor)) {
+                    try {
+                        this.cursor.close();
+                    } catch (Throwable e) {
+                        LoggerFactory.getLogger(this.getClass()).debug("caught exception closing db iterator (ignoring)", e);
+                    }
+                }
+            }
         }
     }
 }
