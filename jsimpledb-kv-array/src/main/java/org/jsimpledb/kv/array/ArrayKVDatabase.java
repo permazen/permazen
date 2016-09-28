@@ -6,9 +6,9 @@
 package org.jsimpledb.kv.array;
 
 import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotKVDatabase;
 import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
-import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
  * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link AtomicArrayKVStore}, providing concurrent transactions
@@ -45,8 +45,8 @@ public class ArrayKVDatabase extends SnapshotKVDatabase {
 // SnapshotKVDatabase
 
     @Override
-    protected ArrayKVTransaction createSnapshotKVTransaction(SnapshotVersion versionInfo) {
-        return new ArrayKVTransaction(this, versionInfo);
+    protected ArrayKVTransaction createSnapshotKVTransaction(MutableView view, long baseVersion) {
+        return new ArrayKVTransaction(this, view, baseVersion);
     }
 
     @Override

@@ -5,8 +5,8 @@
 
 package org.jsimpledb.kv.rocksdb;
 
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotKVDatabase;
-import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
  * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link RocksDBAtomicKVStore}, providing concurrent transactions
@@ -39,8 +39,8 @@ public class RocksDBKVDatabase extends SnapshotKVDatabase {
 // SnapshotKVDatabase
 
     @Override
-    protected RocksDBKVTransaction createSnapshotKVTransaction(SnapshotVersion versionInfo) {
-        return new RocksDBKVTransaction(this, versionInfo);
+    protected RocksDBKVTransaction createSnapshotKVTransaction(MutableView view, long baseVersion) {
+        return new RocksDBKVTransaction(this, view, baseVersion);
     }
 }
 

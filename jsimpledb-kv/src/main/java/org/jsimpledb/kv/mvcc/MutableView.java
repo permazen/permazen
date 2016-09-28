@@ -20,6 +20,7 @@ import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.SizeEstimating;
 import org.jsimpledb.util.SizeEstimator;
@@ -46,16 +47,22 @@ import org.jsimpledb.util.SizeEstimator;
 @ThreadSafe
 public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
 
-    private final KVStore kv;
+    @GuardedBy("this")
+    private KVStore kv;
     @GuardedBy("this")
     private /*final*/ Writes writes;
     @GuardedBy("this")
     private Reads reads;
+    @GuardedBy("this")
+    private boolean readOnly;
 
 // Constructors
 
     /**
      * Constructor.
+     *
+     * <p>
+     * The instance will use a new, empty {@link Reads} instance for read tracking.
      *
      * @param kv underlying {@link KVStore}
      * @throws IllegalArgumentException if {@code kv} is null
@@ -88,8 +95,23 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
      *
      * @return underlying {@link KVStore}
      */
-    public KVStore getKVStore() {
+    public synchronized KVStore getKVStore() {
         return this.kv;
+    }
+
+    /**
+     * Swap out the underlying {@link KVStore} associated with this instance.
+     *
+     * <p>
+     * Note: the new {@link KVStore} should have a consistent encoding of counter values as the previous {@link KVStore},
+     * otherwise a concurrent thread may read previously written counter values back incorrectly.
+     *
+     * @param kv new underlying {@link KVStore}
+     * @throws IllegalArgumentException if {@code kv} is null
+     */
+    public synchronized void setKVStore(KVStore kv) {
+        Preconditions.checkArgument(kv != null, "null kv");
+        this.kv = kv;
     }
 
     /**
@@ -130,6 +152,17 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         this.reads = null;
     }
 
+    /**
+     * Configure this instance as read-only.
+     *
+     * <p>
+     * Any subsequent invocations of {@link #put put()}, {@link #remove remove()}, {@link #removeRange removeRange()},
+     * or {@link #adjustCounter adjustCounter()} will result in an {@link IllegalStateException}.
+     */
+    public synchronized void setReadOnly() {
+        this.readOnly = true;
+    }
+
 // KVStore
 
     @Override
@@ -159,9 +192,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-
-        // Build iterator
+    public synchronized Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         return new RangeIterator(minKey, maxKey, reverse);
     }
 
@@ -171,6 +202,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
+        Preconditions.checkState(!this.readOnly, "instance is read-only");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -184,6 +216,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkState(!this.readOnly, "instance is read-only");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -197,6 +230,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
     @Override
     public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+
+        // Sanity check
+        Preconditions.checkState(!this.readOnly, "instance is read-only");
 
         // Realize minKey
         if (minKey == null)
@@ -217,16 +253,27 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
     @Override
     public byte[] encodeCounter(long value) {
-        return this.kv.encodeCounter(value);
+        final KVStore currentKV;
+        synchronized (this) {
+            currentKV = this.kv;
+        }
+        return currentKV.encodeCounter(value);
     }
 
     @Override
     public long decodeCounter(byte[] bytes) {
-        return this.kv.decodeCounter(bytes);
+        final KVStore currentKV;
+        synchronized (this) {
+            currentKV = this.kv;
+        }
+        return currentKV.decodeCounter(bytes);
     }
 
     @Override
     public synchronized void adjustCounter(byte[] key, long amount) {
+
+        // Sanity check
+        Preconditions.checkState(!this.readOnly, "instance is read-only");
 
         // Check puts
         final byte[] putValue = this.writes.getPuts().get(key);
@@ -308,6 +355,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         return this.getClass().getSimpleName()
           + "[writes=" + this.writes
           + (this.reads != null ? ",reads=" + this.reads : "")
+          + (this.readOnly ? ",r/o" : "")
           + "]";
     }
 
@@ -353,32 +401,47 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
 // RangeIterator
 
+    @ThreadSafe
     private class RangeIterator implements Iterator<KVPair>, Closeable {
+
+        // Locking order: (1) RangeIterator (2) MutableView
 
         private final boolean reverse;          // iteration direction
         private final byte[] limit;             // limit of iteration; exclusive if forward, inclusive if reverse
 
+        @GuardedBy("this")
+        private KVStore kv;                     // underlying k/v store corresponding to this.kviter
+        @GuardedBy("this")
         private byte[] cursor;                  // current position; inclusive if forward, exclusive if reverse
+        @GuardedBy("this")
         private KVPair next;                    // the next k/v pair queued up, or null if not found yet
+        @GuardedBy("this")
         private byte[] removeKey;               // key to remove if remove() is invoked
+        @GuardedBy("this")
         private boolean finished;
 
         // Position in underlying k/v store
+        @GuardedBy("this")
         private Iterator<KVPair> kviter;        // k/v store iterator, if any left
+        @GuardedBy("this")
         private KVPair kvnext;                  // next kvstore pair, if already retrieved
 
         // Position in puts
+        @GuardedBy("this")
         private KVPair putnext;                 // next put pair, if already retrieved
+        @GuardedBy("this")
         private boolean putdone;                // no more pairs left in puts
 
         RangeIterator(byte[] minKey, byte[] maxKey, boolean reverse) {
+            assert Thread.holdsLock(MutableView.this);
 
             // Realize minKey
             if (minKey == null)
                 minKey = ByteUtil.EMPTY;
 
-            // Initialize cursors
-            this.kviter = MutableView.this.kv.getRange(minKey, maxKey, reverse);
+            // Initialize cursor
+            this.kv = MutableView.this.kv;
+            this.kviter = this.kv.getRange(minKey, maxKey, reverse);
             this.cursor = reverse ? maxKey : minKey;
             this.limit = reverse ? minKey : maxKey;
             this.reverse = reverse;
@@ -419,75 +482,90 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
             if (this.finished)
                 return false;
 
-            // Find the next underlying k/v pair, if we don't already have it
-            if (this.kviter != null && this.kvnext == null) {
-                while (true) {
+            // Find the next underlying k/v pair, if we don't already have it. Whenever we access the underlying KVStore
+            // we synchronize on this MutableView; this prevents it from changing out from under us while we're using it,
+            // as well as avoiding races with other threads doing put(), remove(), etc.
+            synchronized (MutableView.this) {
 
-                    // Get next k/v pair in underlying key/value store, if any
-                    if (!this.kviter.hasNext()) {
-                        this.closeKVStoreIterator();
-                        break;
-                    }
-                    this.kvnext = this.kviter.next();
-                    assert this.kvnext != null;
-                    assert !this.isPastLimit(this.kvnext.getKey());
-                    assert this.isPast(this.kvnext.getKey(), this.cursor) :
-                      "key " + ByteUtil.toString(this.kvnext.getKey()) + " is not past cursor " + ByteUtil.toString(this.cursor);
+                // Detect if the underlying key/value store has been swapped out; if so, we must get a new iterator
+                if (this.kviter != null && this.kv != MutableView.this.kv) {
+                    this.closeKVStoreIterator();
+                    this.kv = MutableView.this.kv;
+                    this.kviter = this.reverse ?
+                      this.kv.getRange(this.limit, this.cursor, true) :
+                      this.kv.getRange(this.cursor, this.limit, false);
+                }
 
-                    // If k/v pair has been removed, skip past the matching remove range
-                    final KeyRange[] ranges;
-                    synchronized (MutableView.this) {
-                        ranges = MutableView.this.writes.getRemoves().findKey(this.kvnext.getKey());
-                    }
-                    if (ranges[0] == ranges[1] && ranges[0] != null) {
-                        final KeyRange removeRange = ranges[0];
+                // Advance to the next key/value pair
+                if (this.kviter != null && this.kvnext == null) {
 
-                        // Find the end of the remove range (if any)
-                        final byte[] removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
-                        if (removeRangeEnd == null
-                         || this.isPastLimit(removeRangeEnd)
-                         || (this.reverse && Arrays.equals(removeRangeEnd, this.limit))) {
+                    // Get removes
+                    final KeyRanges removes = MutableView.this.writes.getRemoves();
+
+                    // Find next key/value pair that has not been removed
+                    while (true) {
+
+                        // Get next k/v pair in underlying key/value store, if any
+                        if (!this.kviter.hasNext()) {
                             this.closeKVStoreIterator();
                             break;
                         }
+                        this.kvnext = this.kviter.next();
+                        assert this.kvnext != null;
+                        assert !this.isPastLimit(this.kvnext.getKey());
+                        assert this.isPast(this.kvnext.getKey(), this.cursor) :
+                          "key " + ByteUtil.toString(this.kvnext.getKey())
+                          + " is not past cursor " + ByteUtil.toString(this.cursor);
 
-                        // Skip over it and restart iterator
-                        this.closeKVStoreIterator();
-                        final byte[] iterMin;
-                        final byte[] iterMax;
-                        if (this.reverse) {
-                            iterMin = this.limit;
-                            iterMax = removeRangeEnd;
-                        } else {
-                            iterMin = removeRangeEnd;
-                            iterMax = this.limit;
+                        // If k/v pair has been removed, skip past the matching remove range
+                        final KeyRange[] ranges = removes.findKey(this.kvnext.getKey());
+                        if (ranges[0] == ranges[1] && ranges[0] != null) {
+                            final KeyRange removeRange = ranges[0];
+
+                            // Find the end of the remove range (if any)
+                            final byte[] removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
+                            if (removeRangeEnd == null
+                             || this.isPastLimit(removeRangeEnd)
+                             || (this.reverse && Arrays.equals(removeRangeEnd, this.limit))) {
+                                this.closeKVStoreIterator();
+                                break;
+                            }
+
+                            // Skip over it and restart iterator
+                            this.closeKVStoreIterator();
+                            final byte[] iterMin;
+                            final byte[] iterMax;
+                            if (this.reverse) {
+                                iterMin = this.limit;
+                                iterMax = removeRangeEnd;
+                            } else {
+                                iterMin = removeRangeEnd;
+                                iterMax = this.limit;
+                            }
+                            this.kviter = MutableView.this.kv.getRange(iterMin, iterMax, this.reverse);
+                            continue;
                         }
-                        this.kviter = MutableView.this.kv.getRange(iterMin, iterMax, this.reverse);
-                        continue;
+
+                        // Got one
+                        break;
                     }
-
-                    // Got one
-                    break;
                 }
-            }
 
-            // Find next put pair, if we don't already have it
-            if (!this.putdone && this.putnext == null) {
-                Map.Entry<byte[], byte[]> putEntry;
-                synchronized (MutableView.this) {
+                // Find next put pair, if we don't already have it
+                if (!this.putdone && this.putnext == null) {
+                    final Map.Entry<byte[], byte[]> putEntry;
                     if (this.reverse) {
                         putEntry = this.cursor != null ?
                           MutableView.this.writes.getPuts().lowerEntry(this.cursor) :
                           MutableView.this.writes.getPuts().lastEntry();
-                    } else {
+                    } else
                         putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
-                    }
+                    if (putEntry == null || this.isPastLimit(putEntry.getKey())) {
+                        this.putnext = null;
+                        this.putdone = true;
+                    } else
+                        this.putnext = new KVPair(putEntry.getKey().clone(), putEntry.getValue().clone());
                 }
-                if (putEntry == null || this.isPastLimit(putEntry.getKey())) {
-                    this.putnext = null;
-                    this.putdone = true;
-                } else
-                    this.putnext = new KVPair(putEntry.getKey().clone(), putEntry.getValue().clone());
             }
 
             // Figure out which pair appears first (k/v or put); if there's a tie, the put wins

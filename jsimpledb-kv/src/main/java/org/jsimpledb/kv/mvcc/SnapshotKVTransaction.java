@@ -11,49 +11,72 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
-import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
+import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * {@link SnapshotKVDatabase} transaction.
  */
+@ThreadSafe
 public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction, Closeable {
 
-// Note: locking order: (1) SnapshotKVTransaction, (2) SnapshotKVDatabase
+// Note: locking order: (1) SnapshotKVTransaction, (2) SnapshotKVDatabase, (3) MutableView
 
     private static final AtomicLong COUNTER = new AtomicLong();
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final long uniqueId = COUNTER.incrementAndGet();
-    private final long startTime;
-    private final SnapshotKVDatabase kvdb;
-    private final SnapshotVersion versionInfo;
-    private final MutableView mutableView;
+    final long uniqueId = COUNTER.incrementAndGet();
+    final long startTime;
+    final SnapshotKVDatabase kvdb;
+    final MutableView view;
+    final long baseVersion;
 
+    @GuardedBy("kvdb")
+    KVTransactionException error;
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @GuardedBy("this")
     private boolean closed;
+    @GuardedBy("this")
     private long timeout;
 
     /**
      * Constructor.
      *
      * @param kvdb the associated database
-     * @param versionInfo the associated MVCC version
+     * @param view mutable view to be used for this transaction
+     * @param baseVersion the database version associated with {@code base}
      */
-    protected SnapshotKVTransaction(SnapshotKVDatabase kvdb, SnapshotVersion versionInfo) {
+    protected SnapshotKVTransaction(SnapshotKVDatabase kvdb, MutableView view, long baseVersion) {
+        Preconditions.checkArgument(kvdb != null);
+        Preconditions.checkArgument(view != null);
         this.kvdb = kvdb;
-        this.versionInfo = versionInfo;
+        this.view = view;
+        this.baseVersion = baseVersion;
         this.startTime = System.nanoTime();
-        this.mutableView = new MutableView(versionInfo.getSnapshotRefs().getKVStore());
     }
 
 // Accessors
+
+    /**
+     * Get the MVCC database version number on which this instance is (or was originally) based.
+     *
+     * @return transaction base version number
+     */
+    public long getBaseVersion() {
+        return this.baseVersion;
+    }
 
     /**
      * Get the {@link MutableView} associated with this instance.
@@ -61,16 +84,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * @return associated access and mutation state
      */
     public MutableView getMutableView() {
-        return this.mutableView;
-    }
-
-    /**
-     * Get the MVCC version associated with this instance.
-     *
-     * @return associated MVCC version
-     */
-    public SnapshotVersion getSnapshotVersion() {
-        return this.versionInfo;
+        return this.view;
     }
 
 // ForwardingKVStore
@@ -82,11 +96,13 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * The implementation in {@link SnapshotKVTransaction} returns the {@link MutableView} associated with this instance.
      *
      * @return the underlying {@link KVStore}
+     * @throws StaleTransactionException if this transaction is no longer valid
+     * @throws TransactionTimeoutException if this transaction has timed out
      */
     @Override
-    protected KVStore delegate() {
+    protected synchronized KVStore delegate() {
         this.checkState();
-        return this.mutableView;
+        return this.view;
     }
 
 // KVTransaction
@@ -114,7 +130,8 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public ListenableFuture<Void> watchKey(byte[] key) {
+    public synchronized ListenableFuture<Void> watchKey(byte[] key) {
+        this.checkState();
         return this.kvdb.watchKey(key);
     }
 
@@ -135,18 +152,14 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
     @Override
     public CloseableKVStore mutableSnapshot() {
-        final SnapshotRefs snapshotRefs;
+        final Writes writes;
         synchronized (this) {
             this.checkState();
-            snapshotRefs = this.versionInfo.getSnapshotRefs();
-            snapshotRefs.ref();
+            synchronized (this.view) {
+                writes = this.view.getWrites().clone();
+            }
         }
-        final Writes writes;
-        synchronized (this.mutableView) {
-            writes = this.mutableView.getWrites().clone();
-        }
-        final MutableView snapshotView = new MutableView(snapshotRefs.getKVStore(), null, writes);
-        return new CloseableForwardingKVStore(snapshotView, snapshotRefs.getUnrefCloseable());
+        return this.kvdb.createMutableSnapshot(writes);
     }
 
 // Closeable
@@ -165,10 +178,10 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 // Object
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return this.getClass().getSimpleName()
           + "[id=" + this.uniqueId
-          + ",vers=" + this.versionInfo.getVersion()
+          + ",vers=" + this.baseVersion
           + (this.closed ? ",closed" : "")
           + "]";
     }
@@ -176,25 +189,51 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (!this.closed)
-               this.log.warn(this + " leaked without commit() or rollback()");
-            this.close();
+            final boolean leaked;
+            synchronized (this) {
+                leaked = !this.closed;
+            }
+            if (leaked) {
+                this.log.warn(this + " leaked without commit() or rollback()");
+                this.close();
+            }
         } finally {
             super.finalize();
         }
     }
 
+// SnapshotKVDatabase Methods
+
+    // Note both this and this.kvdb must be locked (in that order!)
+    void throwErrorIfAny() {
+        assert Thread.holdsLock(this);
+        assert Thread.holdsLock(this.kvdb);
+        final KVTransactionException e = this.error;
+        if (e == null)
+            return;
+        ThrowableUtil.prependCurrentStackTrace(e);
+        this.error = null;
+        this.closed = true;
+        throw this.kvdb.logException(e);
+    }
+
 // Internal methods
 
     private void checkState() {
+        assert Thread.holdsLock(this);
+        synchronized (this.kvdb) {
+            this.throwErrorIfAny();
+        }
         if (this.closed)
             throw this.kvdb.logException(new StaleTransactionException(this));
         if (this.timeout == 0)
             return;
-        final long time = (System.nanoTime() - this.startTime) / 1000000L;
-        if (time >= this.timeout) {
+        final long duration = (System.nanoTime() - this.startTime) / 1000000L;
+        if (duration >= this.timeout) {
+            this.closed = true;
+            this.kvdb.rollback(this);
             throw this.kvdb.logException(new TransactionTimeoutException(this,
-              "transaction has timed out after " + time + "ms > limit of " + this.timeout + "ms"));
+              "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms"));
         }
     }
 }

@@ -5,8 +5,8 @@
 
 package org.jsimpledb.kv.leveldb;
 
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
-import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
  * {@link LevelDBKVDatabase} transaction.
@@ -16,8 +16,8 @@ public class LevelDBKVTransaction extends SnapshotKVTransaction {
     /**
      * Constructor.
      */
-    LevelDBKVTransaction(LevelDBKVDatabase kvdb, SnapshotVersion versionInfo) {
-        super(kvdb, versionInfo);
+    LevelDBKVTransaction(LevelDBKVDatabase kvdb, MutableView view, long baseVersion) {
+        super(kvdb, view, baseVersion);
     }
 
 // KVTransaction

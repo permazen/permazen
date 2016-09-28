@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class SnapshotRefs {
 
     private final CloseableKVStore snapshot;
-    private final AtomicInteger refs;
+    private final AtomicInteger refs = new AtomicInteger(1);
 
     /**
      * Constructor.
@@ -40,7 +40,6 @@ public class SnapshotRefs {
     public SnapshotRefs(CloseableKVStore snapshot) {
         Preconditions.checkArgument(snapshot != null, "null snapshot");
         this.snapshot = snapshot;
-        this.refs = new AtomicInteger(1);
     }
 
     /**

@@ -5,8 +5,8 @@
 
 package org.jsimpledb.kv.array;
 
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
-import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
  * {@link ArrayKVDatabase} transaction.
@@ -16,8 +16,8 @@ public class ArrayKVTransaction extends SnapshotKVTransaction {
     /**
      * Constructor.
      */
-    ArrayKVTransaction(ArrayKVDatabase kvdb, SnapshotVersion versionInfo) {
-        super(kvdb, versionInfo);
+    ArrayKVTransaction(ArrayKVDatabase kvdb, MutableView view, long baseVersion) {
+        super(kvdb, view, baseVersion);
     }
 
 // KVTransaction

@@ -14,4 +14,9 @@
         <Method name="&lt;init&gt;"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="org.jsimpledb.kv.mvcc.MutableView$RangeIterator"/>
+        <Method name="findNext"/>
+        <Bug pattern="DC_DOUBLECHECK"/>
+    </Match>
 </FindBugsFilter>

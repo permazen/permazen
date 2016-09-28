@@ -7,9 +7,9 @@ package org.jsimpledb.kv.leveldb;
 
 import org.iq80.leveldb.DBException;
 import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotKVDatabase;
 import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
-import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
  * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link LevelDBAtomicKVStore}, providing concurrent transactions
@@ -42,8 +42,8 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
 // SnapshotKVDatabase
 
     @Override
-    protected LevelDBKVTransaction createSnapshotKVTransaction(SnapshotVersion versionInfo) {
-        return new LevelDBKVTransaction(this, versionInfo);
+    protected LevelDBKVTransaction createSnapshotKVTransaction(MutableView view, long baseVersion) {
+        return new LevelDBKVTransaction(this, view, baseVersion);
     }
 
     @Override
