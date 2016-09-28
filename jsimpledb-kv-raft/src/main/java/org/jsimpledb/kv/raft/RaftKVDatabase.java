@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.ByteArrayInputStream;
@@ -1354,10 +1355,7 @@ public class RaftKVDatabase implements KVDatabase {
             } catch (ExecutionException e) {
                 final Throwable cause = e.getCause();
                 ThrowableUtil.prependCurrentStackTrace(cause);
-                if (cause instanceof Error)
-                    throw (Error)cause;
-                if (cause instanceof RuntimeException)
-                    throw (RuntimeException)cause;
+                Throwables.propagateIfPossible(cause);
                 throw new KVTransactionException(tx, "commit failed", cause);           // should never get here
             }
         } finally {

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.spring;
 
+import com.google.common.base.Throwables;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -223,14 +225,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
                 jtx.rollback();
             else
                 jtx.commit();
-            if (t instanceof Error)
-                throw (Error)t;
-            if (t instanceof RuntimeException)
-                throw (RuntimeException)t;
-            if (t instanceof ServletException)
-                throw (ServletException)t;
-            if (t instanceof IOException)
-                throw (IOException)t;
+            Throwables.propagateIfPossible(t, ServletException.class, IOException.class);
             throw new RuntimeException(t);
         } finally {
             JTransaction.setCurrent(null);

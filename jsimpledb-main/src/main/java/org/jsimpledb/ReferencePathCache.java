@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -51,10 +52,7 @@ class ReferencePathCache {
         } catch (UncheckedExecutionException e) {
             cause = e.getCause() != null ? e.getCause() : e;
         }
-        if (cause instanceof Error)
-            throw (Error)cause;
-        if (cause instanceof RuntimeException)
-            throw (RuntimeException)cause;
+        Throwables.propagateIfPossible(cause);
         throw new RuntimeException("internal error", cause);
     }
 

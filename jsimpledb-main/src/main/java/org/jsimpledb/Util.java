@@ -7,6 +7,7 @@ package org.jsimpledb;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
@@ -459,16 +460,10 @@ public final class Util {
         try {
             return method.invoke(target, params);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof Error)
-                throw (Error)e.getCause();
-            if (e.getCause() instanceof RuntimeException)
-                throw (RuntimeException)e.getCause();
+            Throwables.propagateIfPossible(e.getCause());
             throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
-        } catch (Error e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
+            Throwables.propagateIfPossible(e);
             throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
         }
     }

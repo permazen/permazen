@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -214,10 +215,7 @@ class JObjectCache {
             Throwable cause = e;
             if (cause instanceof InvocationTargetException)
                 cause = ((InvocationTargetException)cause).getTargetException();
-            if (cause instanceof RuntimeException)
-                throw (RuntimeException)cause;
-            if (cause instanceof Error)
-                throw (Error)cause;
+            Throwables.propagateIfPossible(cause);
             throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
         } finally {
 

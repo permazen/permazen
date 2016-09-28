@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -869,11 +870,7 @@ public class JSimpleDB {
         try {
             return this.indexInfoCache.getUnchecked(key);
         } catch (UncheckedExecutionException e) {
-            final Throwable t = e.getCause();
-            if (t instanceof RuntimeException)
-                throw (RuntimeException)t;
-            if (t instanceof Error)
-                throw (Error)t;
+            Throwables.propagateIfPossible(e.getCause());
             throw e;
         }
     }
