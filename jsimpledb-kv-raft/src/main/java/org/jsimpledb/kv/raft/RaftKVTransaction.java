@@ -48,37 +48,37 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     // Transaction info
     private final long txId = COUNTER.incrementAndGet();
     private final SettableFuture<Void> commitFuture = SettableFuture.create();
-    private final RaftKVDatabase kvdb;
+    private final RaftKVDatabase raft;
     private final SnapshotRefs snapshotRefs;            // snapshot of the committed key/value store
     private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)
     private final long baseTerm;                        // term of the log entry on which this transaction is based
     private final long baseIndex;                       // index of the log entry on which this transaction is based
 
-    @GuardedBy("kvdb")
+    @GuardedBy("raft")
     private TxState state = TxState.EXECUTING;
-    @GuardedBy("kvdb")
+    @GuardedBy("raft")
     private Consistency consistency = Consistency.LINEARIZABLE;
     private volatile boolean readOnly;
     private volatile int timeout;
     private volatile String[] configChange;             // cluster config change associated with this transaction
-    @GuardedBy("kvdb")
+    @GuardedBy("raft")
     private Timer commitTimer;
-    @GuardedBy("kvdb")
+    @GuardedBy("raft")
     private long commitTerm;                            // term of the log entry representing this transaction's commit
-    @GuardedBy("kvdb")
+    @GuardedBy("raft")
     private long commitIndex;                           // index of the log entry representing this transaction's commit
 
     /**
      * Constructor.
      *
-     * @param kvdb associated database
+     * @param raft associated database
      * @param baseTerm term of the Raft log entry on which this transaction is based
      * @param baseIndex index of the Raft log entry on which this transaction is based
      * @param snapshot underlying state machine snapshot; will be closed with this instance
      * @param view this transaction's view of the (prefixed) key/value store
      */
-    RaftKVTransaction(RaftKVDatabase kvdb, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {
-        this.kvdb = kvdb;
+    RaftKVTransaction(RaftKVDatabase raft, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {
+        this.raft = raft;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
         this.snapshotRefs = new SnapshotRefs(snapshot);
@@ -102,13 +102,13 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return transaction state
      */
     public TxState getState() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.state;
         }
     }
     void setState(TxState state) {
         assert state != null;
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             assert state.compareTo(this.state) >= 0;
             if (this.state.equals(TxState.EXECUTING) && !this.state.equals(state))
                 this.snapshotRefs.unref();
@@ -141,12 +141,12 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return associated commit log entry index, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
      */
     public long getCommitTerm() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.commitTerm;
         }
     }
     void setCommitTerm(long commitTerm) {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             this.commitTerm = commitTerm;
         }
     }
@@ -158,12 +158,12 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return associated commit log entry term, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
      */
     public long getCommitIndex() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.commitIndex;
         }
     }
     void setCommitIndex(long commitIndex) {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             this.commitIndex = commitIndex;
         }
     }
@@ -177,7 +177,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return transaction consistency level
      */
     public Consistency getConsistency() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.consistency;
         }
     }
@@ -197,7 +197,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     public void setConsistency(Consistency consistency) {
         Preconditions.checkArgument(consistency != null, "null consistency");
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             if (this.consistency.equals(consistency))
                 return;
             Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
@@ -258,7 +258,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     public void configChange(String identity, String address) {
         Preconditions.checkArgument(identity != null, "null identity");
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
@@ -279,7 +279,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return cluster config change, or null if there is none
      */
     public String[] getConfigChange() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.configChange != null ? this.configChange.clone() : null;
         }
     }
@@ -297,7 +297,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
 
     @Override
     public RaftKVDatabase getKVDatabase() {
-        return this.kvdb;
+        return this.raft;
     }
 
     /**
@@ -345,17 +345,17 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     @Override
     public ListenableFuture<Void> watchKey(byte[] key) {
-        return this.kvdb.watchKey(this, key);
+        return this.raft.watchKey(this, key);
     }
 
     @Override
     public void commit() {
-        this.kvdb.commit(this);
+        this.raft.commit(this);
     }
 
     @Override
     public void rollback() {
-        this.kvdb.rollback(this);
+        this.raft.rollback(this);
     }
 
     /**
@@ -371,7 +371,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     @Override
     public CloseableKVStore mutableSnapshot() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.snapshotRefs.ref();
@@ -409,7 +409,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
 
     @Override
     public String toString() {
-        synchronized (this.kvdb) {
+        synchronized (this.raft) {
             return this.getClass().getSimpleName()
               + "[txId=" + this.txId
               + ",state=" + this.state
@@ -426,7 +426,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     @Override
     protected void finalize() throws Throwable {
         try {
-            synchronized (this.kvdb) {
+            synchronized (this.raft) {
                 if (!TxState.CLOSED.equals(this.state)) {
                     this.log.warn(this + " leaked without commit() or rollback()");
                     this.rollback();
