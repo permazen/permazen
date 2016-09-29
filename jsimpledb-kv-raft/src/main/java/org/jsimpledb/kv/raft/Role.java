@@ -260,11 +260,11 @@ public abstract class Role {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Get transaction mutations
-        final Writes writes = tx.getMutableView().getWrites();
+        final Writes writes = tx.view.getWrites();
         final String[] configChange = tx.getConfigChange();
 
         // Determine whether transaction is truly read-only
-        final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() && configChange == null);
+        final boolean readOnly = tx.readOnly || (writes.isEmpty() && configChange == null);
 
         // Check whether we can commit the transaction immediately
         if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {           // i.e., UNCOMMITTED
@@ -276,12 +276,12 @@ public abstract class Role {
 
         // Check whether we don't need to bother talking to the leader
         if (readOnly && !tx.getConsistency().isGuaranteesUpToDateReads()) {                 // i.e., EVENTUAL, EVENTUAL_COMMITTED
-            this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+            this.advanceReadyTransaction(tx, tx.baseTerm, tx.baseIndex);
             return;
         }
 
         // Requires leader communication - let subclass handle it
-        this.checkReadyLeaderTransaction(tx, readOnly);
+        this.checkReadyLeaderTransaction(tx, readOnly);                                     // i.e., LINEARIZABLE
     }
 
     /**
@@ -318,7 +318,7 @@ public abstract class Role {
         tx.setState(TxState.COMMIT_WAITING);
 
         // Discard information we no longer need
-        tx.getMutableView().disableReadTracking();
+        tx.view.disableReadTracking();
 
         // Check this transaction to see if it can be committed
         this.raft.requestService(this.checkWaitingTransactionsService);

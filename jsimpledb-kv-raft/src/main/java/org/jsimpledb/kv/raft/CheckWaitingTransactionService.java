@@ -11,7 +11,7 @@ class CheckWaitingTransactionService extends AbstractTransactionService {
      * Constructor.
      */
     CheckWaitingTransactionService(Role role, RaftKVTransaction tx) {
-        super(role, tx, "check waiting tx#" + tx.getTxId());
+        super(role, tx, "check waiting tx#" + tx.txId);
     }
 
     @Override

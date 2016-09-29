@@ -725,7 +725,7 @@ public class LeaderRole extends Role {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Check for conflicts
-        final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
+        final String error = this.checkConflicts(tx.baseTerm, tx.baseIndex, tx.view.getReads());
         if (error != null) {
             if (this.log.isDebugEnabled())
                 this.debug("local transaction " + tx + " failed due to conflict: " + error);
@@ -735,7 +735,7 @@ public class LeaderRole extends Role {
         // Handle read-only vs. read-write transaction
         if (readOnly) {
             if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
-                this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+                this.advanceReadyTransaction(tx, tx.baseTerm, tx.baseIndex);
             else
                 this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
             return;

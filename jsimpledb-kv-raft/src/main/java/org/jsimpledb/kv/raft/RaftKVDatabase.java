@@ -1288,7 +1288,7 @@ public class RaftKVDatabase implements KVDatabase {
         tx.setTimeout(this.commitTimeout);
         if (this.log.isDebugEnabled())
             this.debug("created new transaction " + tx);
-        this.openTransactions.put(tx.getTxId(), tx);
+        this.openTransactions.put(tx.txId, tx);
 
         // Done
         return tx;
@@ -1318,25 +1318,24 @@ public class RaftKVDatabase implements KVDatabase {
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
 
                     // Setup commit timer
-                    final int timeout = tx.getTimeout();
-                    if (timeout != 0) {
-                        final Timer commitTimer = new Timer(this, "commit timer for " + tx,
-                          new Service("commit timeout for tx#" + tx.getTxId()) {
+                    if (tx.timeout != 0) {
+                        tx.commitTimer = new Timer(this, "commit timer for " + tx,
+                          new Service("commit timeout for tx#" + tx.txId) {
                             @Override
                             public void run() {
                                 switch (tx.getState()) {
                                 case COMMIT_READY:
                                 case COMMIT_WAITING:
                                     RaftKVDatabase.this.fail(tx, new RetryTransactionException(tx,
-                                      "transaction failed to complete within " + timeout + "ms (in state " + tx.getState() + ")"));
+                                      "transaction failed to complete within " + tx.timeout
+                                      + "ms (in state " + tx.getState() + ")"));
                                     break;
                                 default:
                                     break;
                                 }
                             }
                         });
-                        commitTimer.timeoutAfter(tx.getTimeout());
-                        tx.setCommitTimer(commitTimer);
+                        tx.commitTimer.timeoutAfter(tx.timeout);
                     }
                     break;
                 case CLOSED:                                        // this transaction has already been committed or rolled back
@@ -1349,7 +1348,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Wait for completion
             try {
-                tx.getCommitFuture().get();
+                tx.commitFuture.get();
             } catch (InterruptedException e) {
                 throw new RetryTransactionException(tx, "thread interrupted while waiting for commit", e);
             } catch (ExecutionException e) {
@@ -1398,12 +1397,11 @@ public class RaftKVDatabase implements KVDatabase {
             this.role.cleanupForTransaction(tx);
 
         // Cancel commit timer
-        final Timer commitTimer = tx.getCommitTimer();
-        if (commitTimer != null)
-            commitTimer.cancel();
+        if (tx.commitTimer != null)
+            tx.commitTimer.cancel();
 
         // Remove from open transactions set
-        this.openTransactions.remove(tx.getTxId());
+        this.openTransactions.remove(tx.txId);
 
         // Transition to CLOSED
         tx.setState(TxState.CLOSED);
@@ -1425,7 +1423,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Succeed transaction
         if (this.log.isDebugEnabled())
             this.debug("successfully committed " + tx);
-        tx.getCommitFuture().set(null);
+        tx.commitFuture.set(null);
         tx.setState(TxState.COMPLETED);
         this.role.cleanupForTransaction(tx);
     }
@@ -1442,7 +1440,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Fail transaction
         if (this.log.isDebugEnabled())
             this.debug("failed transaction " + tx + ": " + e);
-        tx.getCommitFuture().setException(e);
+        tx.commitFuture.setException(e);
         tx.setState(TxState.COMPLETED);
         this.role.cleanupForTransaction(tx);
     }

@@ -186,7 +186,7 @@ public class FollowerRole extends NonLeaderRole {
 
         // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
         for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values())) {
-            if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.getTxId()))
+            if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
                 this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during commit"));
         }
 
@@ -212,7 +212,7 @@ public class FollowerRole extends NonLeaderRole {
         assert Thread.holdsLock(this.raft);
 
         // Is there a required minimum leader lease timeout associated with the transaction?
-        final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.getTxId());
+        final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.txId);
         if (commitLeaderLeaseTimeout == null)
             return true;
 
@@ -298,7 +298,7 @@ public class FollowerRole extends NonLeaderRole {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Did we already send a CommitRequest for this transaction?
-        final PendingRequest pendingRequest = this.pendingRequests.get(tx.getTxId());
+        final PendingRequest pendingRequest = this.pendingRequests.get(tx.txId);
         if (pendingRequest != null) {
             if (this.log.isTraceEnabled())
                 this.trace("leaving alone ready tx " + tx + " because request already sent");
@@ -388,7 +388,7 @@ public class FollowerRole extends NonLeaderRole {
 
         // Serialize reads into buffer
         assert !readOnly || tx.getConsistency().isGuaranteesUpToDateReads();
-        final Reads reads = tx.getMutableView().getReads();
+        final Reads reads = tx.view.getReads();
         final long readsDataSize = reads.serializedLength();
         if (readsDataSize != (int)readsDataSize)
             throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
@@ -406,9 +406,9 @@ public class FollowerRole extends NonLeaderRole {
         if (!readOnly) {
 
             // Serialize mutations into a temporary file (but do not close or durably persist yet)
-            final Writes writes = tx.getMutableView().getWrites();
+            final Writes writes = tx.view.getWrites();
             final File file = new File(this.raft.logDir,
-              String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.getTxId(), RaftKVDatabase.TEMP_FILE_SUFFIX));
+              String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.txId, RaftKVDatabase.TEMP_FILE_SUFFIX));
             final FileWriter fileWriter;
             try {
                 fileWriter = new FileWriter(file);
@@ -436,15 +436,15 @@ public class FollowerRole extends NonLeaderRole {
 
             // Record pending commit write with temporary file
             final PendingWrite pendingWrite = new PendingWrite(tx, fileWriter);
-            this.pendingWrites.put(tx.getTxId(), pendingWrite);
+            this.pendingWrites.put(tx.txId, pendingWrite);
         }
 
         // Record pending request
-        this.pendingRequests.put(tx.getTxId(), new PendingRequest(tx));
+        this.pendingRequests.put(tx.txId, new PendingRequest(tx));
 
         // Send commit request to leader
         final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,
-          this.raft.currentTerm, tx.getTxId(), tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);
+          this.raft.currentTerm, tx.txId, tx.baseTerm, tx.baseIndex, readsData, mutationData);
         if (this.log.isTraceEnabled())
             this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);
         if (!this.raft.sendMessage(msg))
@@ -454,11 +454,11 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     void cleanupForTransaction(RaftKVTransaction tx) {
         assert Thread.holdsLock(this.raft);
-        this.pendingRequests.remove(tx.getTxId());
-        final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());
+        this.pendingRequests.remove(tx.txId);
+        final PendingWrite pendingWrite = this.pendingWrites.remove(tx.txId);
         if (pendingWrite != null)
             pendingWrite.cleanup();
-        this.commitLeaderLeaseTimeoutMap.remove(tx.getTxId());
+        this.commitLeaderLeaseTimeoutMap.remove(tx.txId);
     }
 
 // Messages
@@ -613,7 +613,7 @@ public class FollowerRole extends NonLeaderRole {
 
                         // Commit's writes are no longer pending
                         final RaftKVTransaction tx = pendingWrite.getTx();
-                        this.pendingWrites.remove(tx.getTxId());
+                        this.pendingWrites.remove(tx.txId);
 
                         // Close and durably persist the associated temporary file
                         try {
@@ -710,7 +710,7 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
             return;
         }
-        if (this.pendingRequests.remove(tx.getTxId()) == null) {
+        if (this.pendingRequests.remove(tx.txId) == null) {
             if (this.log.isDebugEnabled())
                 this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");
             return;
@@ -726,7 +726,7 @@ public class FollowerRole extends NonLeaderRole {
 
             // Track leader lease timeout we must wait for, if any
             if (msg.getCommitLeaderLeaseTimeout() != null)
-                this.commitLeaderLeaseTimeoutMap.put(tx.getTxId(), msg.getCommitLeaderLeaseTimeout());
+                this.commitLeaderLeaseTimeoutMap.put(tx.txId, msg.getCommitLeaderLeaseTimeout());
         } else
             this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));
     }
@@ -962,7 +962,7 @@ public class FollowerRole extends NonLeaderRole {
             final long txId = entry.getKey();
             final PendingRequest pendingRequest = entry.getValue();
             final RaftKVTransaction tx = pendingRequest.getTx();
-            assert txId == tx.getTxId();
+            assert txId == tx.txId;
             assert tx.getState().equals(TxState.COMMIT_READY);
             assert tx.getCommitTerm() == 0;
             assert tx.getCommitIndex() == 0;
@@ -971,7 +971,7 @@ public class FollowerRole extends NonLeaderRole {
             final long txId = entry.getKey();
             final PendingWrite pendingWrite = entry.getValue();
             final RaftKVTransaction tx = pendingWrite.getTx();
-            assert txId == tx.getTxId();
+            assert txId == tx.txId;
             assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);
             assert pendingWrite.getFileWriter().getFile().exists();
         }
@@ -988,8 +988,8 @@ public class FollowerRole extends NonLeaderRole {
 
         PendingRequest(RaftKVTransaction tx) {
             this.tx = tx;
-            assert !FollowerRole.this.pendingRequests.containsKey(tx.getTxId());
-            FollowerRole.this.pendingRequests.put(tx.getTxId(), this);
+            assert !FollowerRole.this.pendingRequests.containsKey(tx.txId);
+            FollowerRole.this.pendingRequests.put(tx.txId, this);
         }
 
         public RaftKVTransaction getTx() {

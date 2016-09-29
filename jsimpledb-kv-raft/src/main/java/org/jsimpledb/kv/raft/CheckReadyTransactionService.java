@@ -11,7 +11,7 @@ class CheckReadyTransactionService extends AbstractTransactionService {
      * Constructor.
      */
     CheckReadyTransactionService(Role role, RaftKVTransaction tx) {
-        super(role, tx, "check ready tx#" + tx.getTxId());
+        super(role, tx, "check ready tx#" + tx.txId);
     }
 
     @Override

@@ -26,7 +26,7 @@ class NewLogEntry {
      * @throws Exception if an error occurs
      */
     NewLogEntry(RaftKVTransaction tx, File tempFile) throws IOException {
-        this.data = new LogEntry.Data(tx.getMutableView().getWrites(), tx.getConfigChange());
+        this.data = new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange());
         this.tempFile = tempFile;
     }
 
@@ -37,9 +37,8 @@ class NewLogEntry {
      * @throws Exception if an error occurs
      */
     NewLogEntry(RaftKVTransaction tx) throws IOException {
-        this.data = new LogEntry.Data(tx.getMutableView().getWrites(), tx.getConfigChange());
-        this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX,
-          RaftKVDatabase.TEMP_FILE_SUFFIX, tx.getKVDatabase().logDir);
+        this.data = new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange());
+        this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, tx.raft.logDir);
         boolean success = false;
         try (FileWriter output = new FileWriter(this.tempFile)) {
             LogEntry.writeData(output, data);

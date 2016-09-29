@@ -37,32 +37,35 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     static final Comparator<RaftKVTransaction> SORT_BY_ID = new Comparator<RaftKVTransaction>() {
         @Override
         public int compare(RaftKVTransaction tx1, RaftKVTransaction tx2) {
-            return Long.compare(tx1.getTxId(), tx2.getTxId());
+            return Long.compare(tx1.txId, tx2.txId);
         }
     };
 
     private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    // Transaction info
-    private final long txId = COUNTER.incrementAndGet();
-    private final SettableFuture<Void> commitFuture = SettableFuture.create();
-    private final RaftKVDatabase raft;
-    private final SnapshotRefs snapshotRefs;            // snapshot of the committed key/value store
-    private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)
-    private final long baseTerm;                        // term of the log entry on which this transaction is based
-    private final long baseIndex;                       // index of the log entry on which this transaction is based
-
+    // Package-private transaction state
+    final RaftKVDatabase raft;
+    final long txId = COUNTER.incrementAndGet();
+    final SnapshotRefs snapshotRefs;                    // snapshot of the committed key/value store
+    final long baseTerm;                                // term of the log entry on which this transaction is based
+    final long baseIndex;                               // index of the log entry on which this transaction is based
+    final MutableView view;                             // transaction's view of key/value store (restricted to prefix)
+    final SettableFuture<Void> commitFuture = SettableFuture.create();
     @GuardedBy("raft")
-    private TxState state = TxState.EXECUTING;
+    boolean readOnly;                                   // read-only status
+    @GuardedBy("raft")
+    Timer commitTimer;                                  // commit timeout timer
+    @GuardedBy("raft")
+    int timeout;                                        // commit timeout, or zero for none
+
+    // Private transaction state
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    @GuardedBy("raft")
+    private TxState state = TxState.EXECUTING;          // curent state
     @GuardedBy("raft")
     private Consistency consistency = Consistency.LINEARIZABLE;
-    private volatile boolean readOnly;
-    private volatile int timeout;
-    private volatile String[] configChange;             // cluster config change associated with this transaction
     @GuardedBy("raft")
-    private Timer commitTimer;
+    private String[] configChange;                      // cluster config change associated with this transaction
     @GuardedBy("raft")
     private long commitTerm;                            // term of the log entry representing this transaction's commit
     @GuardedBy("raft")
@@ -211,7 +214,9 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return true if this transaction is configured read-only
      */
     public boolean isReadOnly() {
-        return this.readOnly;
+        synchronized (this.raft) {
+            return this.readOnly;
+        }
     }
 
     /**
@@ -222,9 +227,16 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * when read back, but they are discarded on {@link #commit commit()}.
      *
      * @param readOnly true to discard mutations on commit, false to apply mutations on commit
+     * @throws StaleTransactionException if this transaction is no longer open
      */
     public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
+        synchronized (this.raft) {
+            if (readOnly == this.readOnly)
+                return;
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.readOnly = readOnly;
+        }
     }
 
 // Configuration Stuff
@@ -313,11 +325,18 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      *
      * @param timeout transaction commit timeout in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code timeout} is negative
+     * @throws StaleTransactionException if this transaction is no longer open
      */
     @Override
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
-        this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
+        synchronized (this.raft) {
+            if (timeout == this.timeout)
+                return;
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
+        }
     }
 
     /**
@@ -382,27 +401,6 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         }
         final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
         return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
-    }
-
-// Package-access methods
-
-    int getTimeout() {
-        return this.timeout;
-    }
-
-    SettableFuture<Void> getCommitFuture() {
-        return this.commitFuture;
-    }
-
-    MutableView getMutableView() {
-        return this.view;
-    }
-
-    Timer getCommitTimer() {
-        return this.commitTimer;
-    }
-    void setCommitTimer(Timer commitTimer) {
-        this.commitTimer = commitTimer;
     }
 
 // Object
