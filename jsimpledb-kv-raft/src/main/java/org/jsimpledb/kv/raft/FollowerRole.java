@@ -663,9 +663,9 @@ public class FollowerRole extends NonLeaderRole {
             }
         }
 
-        // Update my commit index
+        // Update my commit index - note we can't do this for probes because they don't trigger log conflict detection
         final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);
-        if (newCommitIndex > this.raft.commitIndex) {
+        if (!msg.isProbe() && newCommitIndex > this.raft.commitIndex) {
             if (this.log.isDebugEnabled())
                 this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
             this.raft.commitIndex = newCommitIndex;
