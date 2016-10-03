@@ -119,7 +119,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             final int addIndex = (i + 1) % numNodes;
             final String node = this.rafts[addIndex].getIdentity();
             this.log.debug("adding node \"" + node + "\" to test cluster");
-            this.try3times(this.rafts[targetIndex], new Transactional<Void>() {
+            this.tryNtimes(this.rafts[targetIndex], new Transactional<Void>() {
                 @Override
                 public Void transact(KVTransaction tx) {
                     ((RaftKVTransaction)tx).configChange(node, node);
@@ -152,6 +152,16 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     }
 
     @Override
+    protected boolean allowBothTransactionsToFail() {
+        return true;
+    }
+
+    @Override
+    protected int getNumTries() {
+        return 6;
+    }
+
+    @Override
     public void testNonconflictingTransactions(final KVDatabase store) throws Exception {
         this.disruptCluster(new Callable<Void>() {
             @Override
@@ -163,11 +173,16 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     }
 
     @Override
-    public void testParallelTransactions(final KVDatabase store) throws Exception {
+    public void testParallelTransactions(KVDatabase store) throws Exception {
+        this.testParallelTransactions(this.rafts);
+    }
+
+    @Override
+    public void testParallelTransactions(final KVDatabase[] stores) throws Exception {
         this.disruptCluster(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                RaftKVDatabaseTest.super.testParallelTransactions(store);
+                RaftKVDatabaseTest.super.testParallelTransactions(stores);
                 return null;
             }
         });
