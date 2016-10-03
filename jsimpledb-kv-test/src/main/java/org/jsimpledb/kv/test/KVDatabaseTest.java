@@ -78,7 +78,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("testSimpleStuff() on " + store + ": clearing database");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 tx.removeRange(null, null);
@@ -89,7 +89,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Verify database is empty
         this.log.info("testSimpleStuff() on " + store + ": verifying database is empty");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 KVPair p = tx.getAtLeast(null);
@@ -105,7 +105,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // tx 1
         this.log.info("testSimpleStuff() on " + store + ": starting tx1");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 final byte[] x = tx.get(b("01"));
@@ -120,7 +120,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // tx 2
         this.log.info("testSimpleStuff() on " + store + ": starting tx2");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 final byte[] x = tx.get(b("01"));
@@ -135,7 +135,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // tx 3
         this.log.info("testSimpleStuff() on " + store + ": starting tx3");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 final byte[] x = tx.get(b("01"));
@@ -148,7 +148,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Check stale access
         this.log.info("testSimpleStuff() on " + store + ": checking stale access");
-        final KVTransaction tx = this.try3times(store, new Transactional<KVTransaction>() {
+        final KVTransaction tx = this.tryNtimes(store, new Transactional<KVTransaction>() {
             @Override
             public KVTransaction transact(KVTransaction tx) {
                 return tx;
@@ -171,7 +171,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("testKeyWatch() on " + store + ": clearing database");
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 tx.removeRange(null, null);
@@ -237,7 +237,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
             // Set watch
             this.log.info("testKeyWatch() on " + store + ": creating key watch for " + mod);
-            final Future<Void> watch = this.try3times(store, new Transactional<Future<Void>>() {
+            final Future<Void> watch = this.tryNtimes(store, new Transactional<Future<Void>>() {
                 @Override
                 public Future<Void> transact(KVTransaction tx) {
                     try {
@@ -255,7 +255,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
             // Perform modification
             this.log.info("testKeyWatch() on " + store + ": testing " + mod);
-            this.try3times(store, mod);
+            this.tryNtimes(store, mod);
 
             // Get notification
             this.log.info("testKeyWatch() on " + store + ": waiting for notification");
@@ -273,7 +273,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("starting testConflictingTransactions() on " + store);
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 tx.removeRange(null, null);
@@ -380,7 +380,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("starting testNonconflictingTransactions() on " + store);
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 tx.removeRange(null, null);
@@ -439,12 +439,16 @@ public abstract class KVDatabaseTest extends KVTestSupport {
      */
     @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
-        this.log.info("starting testParallelTransactions() on " + store);
+        this.testParallelTransactions(new KVDatabase[] { store });
+    }
+
+    public void testParallelTransactions(KVDatabase[] stores) throws Exception {
+        this.log.info("starting testParallelTransactions() on " + Arrays.asList(stores));
         for (int count = 0; count < 25; count++) {
             this.log.info("starting testParallelTransactions() iteration " + count);
             final RandomTask[] tasks = new RandomTask[25];
             for (int i = 0; i < tasks.length; i++) {
-                tasks[i] = new RandomTask(i, store, this.random.nextLong());
+                tasks[i] = new RandomTask(i, stores[this.random.nextInt(stores.length)], this.random.nextLong());
                 tasks[i].start();
             }
             for (int i = 0; i < tasks.length; i++)
@@ -456,9 +460,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
             this.log.info("finished testParallelTransactions() iteration " + count);
         }
-        this.log.info("finished testParallelTransactions() on " + store);
-        if (store instanceof Closeable)
-            ((Closeable)store).close();
+        this.log.info("finished testParallelTransactions() on " + Arrays.asList(stores));
+        for (KVDatabase store : stores) {
+            if (store instanceof Closeable)
+                ((Closeable)store).close();
+        }
     }
 
     /**
@@ -473,7 +479,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("starting testSequentialTransactions() on " + store);
 
         // Clear database
-        this.try3times(store, new Transactional<Void>() {
+        this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
                 tx.removeRange(null, null);
@@ -495,16 +501,16 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("finished testSequentialTransactions() on " + store);
     }
 
-    protected <V> V try3times(KVDatabase kvdb, Transactional<V> transactional) {
+    protected <V> V tryNtimes(KVDatabase kvdb, Transactional<V> transactional) {
         RetryTransactionException retry = null;
-        for (int count = 0; count < 3; count++) {
+        for (int count = 0; count < this.getNumTries(); count++) {
             final KVTransaction tx = kvdb.createTransaction();
             try {
                 final V result = transactional.transact(tx);
                 tx.commit();
                 return result;
             } catch (RetryTransactionException e) {
-                KVDatabaseTest.this.log.debug("retry #" + (count + 1) + " on " + e);
+                KVDatabaseTest.this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
                 retry = e;
             }
             try {
@@ -514,6 +520,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
         throw retry;
+    }
+
+    protected int getNumTries() {
+        return 3;
     }
 
     protected interface Transactional<V> {
@@ -861,7 +871,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         private TreeMap<byte[], byte[]> readDatabase() {
-            return KVDatabaseTest.this.try3times(this.store, new Transactional<TreeMap<byte[], byte[]>>() {
+            return KVDatabaseTest.this.tryNtimes(this.store, new Transactional<TreeMap<byte[], byte[]>>() {
                 @Override
                 public TreeMap<byte[], byte[]> transact(KVTransaction tx) {
                     return RandomTask.this.readDatabase(tx);
