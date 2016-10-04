@@ -35,7 +35,7 @@ public class AppendRequest extends Message {
 // Constructors
 
     /**
-     * Construtor for a "probe" that does not contain a log entry.
+     * Constructor for a "probe" that does not contain a log entry.
      *
      * @param clusterId cluster ID
      * @param senderId identity of sender
@@ -43,14 +43,12 @@ public class AppendRequest extends Message {
      * @param term sender's current term
      * @param leaderTimestamp leader's timestamp for this request
      * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed (or null)
-     * @param leaderCommit current commit index for sender
      * @param prevLogTerm term of the log entry just prior to this one
      * @param prevLogIndex index of the log entry just prior to this one
      */
     public AppendRequest(int clusterId, String senderId, String recipientId, long term,
-      Timestamp leaderTimestamp, Timestamp leaderLeaseTimeout, long leaderCommit, long prevLogTerm, long prevLogIndex) {
-        this(clusterId, senderId, recipientId, term, leaderTimestamp, leaderLeaseTimeout, leaderCommit,
-          prevLogTerm, prevLogIndex, 0, null);
+      Timestamp leaderTimestamp, Timestamp leaderLeaseTimeout, long prevLogTerm, long prevLogIndex) {
+        this(clusterId, senderId, recipientId, term, leaderTimestamp, leaderLeaseTimeout, 0, prevLogTerm, prevLogIndex, 0, null);
     }
 
     /**
@@ -115,6 +113,12 @@ public class AppendRequest extends Message {
         return this.leaderLeaseTimeout;
     }
 
+    /**
+     * Get leader's commit index.
+     *
+     * <p>
+     * For {@linkplain #isProbe probe} requests, this value should not be used and will always be zero.
+     */
     public long getLeaderCommit() {
         return this.leaderCommit;
     }
