@@ -48,7 +48,7 @@ public class MessageTest extends TestSupport {
         config.put("foo", "bar");
         config.put("jam", "bluz");
         return new Object[][] {
-            { new AppendRequest(123, "foobar", "dest\u0800", 123, new Timestamp(), new Timestamp(), 456, 1 << 50, 1 << 13) },
+            { new AppendRequest(123, "foobar", "dest\u0800", 123, new Timestamp(), new Timestamp(), 1 << 50, 1 << 13) },
             { new AppendRequest(123, "foobar", "Dest",
               123, new Timestamp(), new Timestamp(), Long.MAX_VALUE, 1 << 50, 1 << 13, 1 << 15, null) },
             { new AppendRequest(123, "foobar", "Dest",
