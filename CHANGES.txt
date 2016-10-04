@@ -1,4 +1,4 @@
-Version 2.4.0
+Version 2.4.0 Released October 4, 2016
 
     - Fix corner case bug in Raft when transactions span terms
     - Rebase transactions in MVCC-based key/value stores (including Raft)
