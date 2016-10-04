@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ArrayKVDatabase (JSimpleDB 2.3.2 API)</title>
+<title>ArrayKVDatabase (JSimpleDB 2.4.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ArrayKVDatabase (JSimpleDB 2.3.2 API)";
+        parent.document.title="ArrayKVDatabase (JSimpleDB 2.4.0 API)";
     }
 //-->
 </script>
@@ -166,7 +166,8 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a></code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</code>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.MutableView, long)">createSnapshotKVTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a>&nbsp;view,
+                           long&nbsp;baseVersion)</code>
 <div class="block">Instantiate a new <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a> instance.</div>
 </td>
 </tr>
@@ -265,24 +266,24 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
 </li>
 </ul>
-<a name="createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">
+<a name="createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.MutableView, long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createSnapshotKVTransaction</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a>&nbsp;createSnapshotKVTransaction(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">SnapshotKVDatabase</a></code></strong></div>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a>&nbsp;createSnapshotKVTransaction(<a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a>&nbsp;view,
+                                             long&nbsp;baseVersion)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.MutableView, long)">SnapshotKVDatabase</a></code></strong></div>
 <div class="block">Instantiate a new <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a> instance.
 
  <p>
  The implementation in <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a> just invokes the <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a>
- constructor using <code>this</code> and <code>versionInfo</code>. Subclasses may want to override this method
- to create a more specific subclass.</div>
+ constructor using <code>this</code>. Subclasses may want to override this method to create a more specific subclass.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>versionInfo</code> - associated snapshot info</dd>
+<dd><code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.MutableView, long)">createSnapshotKVTransaction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>view</code> - mutable view to be used for this transaction</dd><dd><code>baseVersion</code> - the database version associated with <code>base</code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>new transaction instance</dd></dl>
 </li>
 </ul>

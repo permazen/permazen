@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>TxState (JSimpleDB 2.3.2 API)</title>
+<title>TxState (JSimpleDB 2.4.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="TxState (JSimpleDB 2.3.2 API)";
+        parent.document.title="TxState (JSimpleDB 2.4.0 API)";
     }
 //-->
 </script>
@@ -235,7 +235,8 @@ the order they are declared.</div>
 
  <p>
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>RaftKVTransaction.commit()</code></a> has been invoked, but the transaction has not otherwise been dealt with yet.
- If we are a follower, it will be transmitted to the leader once the leader is known and his output queue becomes empty.
+ If we are a follower, it will be transmitted to the leader once the leader is known and his output queue becomes empty;
+ while we are waiting for the response from the leader, the transaction remains in this state.
  If we are the leader, it will be dealt with locally as soon as we can get to it.</div>
 </li>
 </ul>

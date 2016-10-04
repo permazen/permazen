@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RaftKVDatabase (JSimpleDB 2.3.2 API)</title>
+<title>RaftKVDatabase (JSimpleDB 2.4.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVDatabase (JSimpleDB 2.3.2 API)";
+        parent.document.title="RaftKVDatabase (JSimpleDB 2.4.0 API)";
     }
 //-->
 </script>
@@ -118,10 +118,6 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
   <ul>
   <li>The Raft state machine is the key/value store data.</li>
   <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
-  <li>On leaders only, committed log entries are not applied immediately; instead they kept around for time at least
-      <i>T<sub>max</sub></i> since creation, where <i>T<sub>max</sub></i> is the maximum supported transaction duration.
-      This caching is subject to <i>M<sub>max</sub></i>, which limits the total memory used; if reached, these log entries
-      are applied early.</li>
   <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (same as used by
       <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a>):
       <ul>
@@ -146,9 +142,19 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
           transaction's commit term and index, then the transaction is complete.</li>
       <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
           transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
+      <li>Upon receipt of a new log entry, both followers and leaders will "rebase" any open <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isGuaranteesUpToDateReads()">guaranteed-up-to-date</a> transactions on the new log entry if there are
+          no conflicts, or else mark it for retry if there are.
+      <li>If a transaction's base log entry is overwritten in the Raft log, the transaction fails with a retry.</li>
       </ul>
   </li>
   <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
+  <li>On leaders, committed log entries are not applied to the state machine immediately; instead they kept around until all
+      followers have confirmed receipt. The point of waiting is to avoid incoming follower transactions being rejected because
+      their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
+      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry there
+      should be no further commit requests from that follower for transactions based on earlier log entries. The time the
+      leader will wait for confirmation is limited, and this caching is subject to <i>M<sub>max</sub></i>, which limits
+      the total memory used.</li>
   <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
       term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
       which is the earliest time at which it is possible for another leader to be elected.
@@ -270,8 +276,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  In Spring applications, the transaction <a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft"><code>Consistency</code></a> level may be configured through the Spring
  <a href="../../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a> by (ab)using the transaction isolation level setting,
- for example, via the <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Transactional.html?is-external=true" title="class or interface in org.springframework.transaction.annotation"><code>&#64;Transactional</code></a> annotation's
- <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Transactional.html?is-external=true#isolation()" title="class or interface in org.springframework.transaction.annotation"><code>isolation()</code></a> property.
+ for example, via the <a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Transactional.html?is-external=true" title="class or interface in org.springframework.transaction.annotation"><code>&#64;Transactional</code></a> annotation's
+ <a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Transactional.html?is-external=true#isolation()" title="class or interface in org.springframework.transaction.annotation"><code>isolation()</code></a> property.
  All Raft consistency levels are made available this way, though the mapping from Spring's isolation levels to
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>'s consistency levels is only semantically approximate:
 
@@ -282,23 +288,23 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
   <th align="left"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> consistency level</th>
  </tr>
  <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#DEFAULT" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.DEFAULT</code></a></td>
+  <td><a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#DEFAULT" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.DEFAULT</code></a></td>
   <td><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a></td>
  </tr>
  <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#SERIALIZABLE" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.SERIALIZABLE</code></a></td>
+  <td><a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#SERIALIZABLE" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.SERIALIZABLE</code></a></td>
   <td><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a></td>
  </tr>
  <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#REPEATABLE_READ" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.REPEATABLE_READ</code></a></td>
+  <td><a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#REPEATABLE_READ" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.REPEATABLE_READ</code></a></td>
   <td><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>Consistency.EVENTUAL</code></a></td>
  </tr>
  <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_COMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_COMMITTED</code></a></td>
+  <td><a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_COMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_COMMITTED</code></a></td>
   <td><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL_COMMITTED"><code>Consistency.EVENTUAL_COMMITTED</code></a></td>
  </tr>
  <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_UNCOMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_UNCOMMITTED</code></a></td>
+  <td><a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_UNCOMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_UNCOMMITTED</code></a></td>
   <td><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#UNCOMMITTED"><code>Consistency.UNCOMMITTED</code></a></td>
  </tr>
  </table>

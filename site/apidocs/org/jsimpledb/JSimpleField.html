@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleField (JSimpleDB 2.3.2 API)</title>
+<title>JSimpleField (JSimpleDB 2.4.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleField (JSimpleDB 2.3.2 API)";
+        parent.document.title="JSimpleField (JSimpleDB 2.4.0 API)";
     }
 //-->
 </script>
@@ -131,9 +131,9 @@ extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base">Converter</a>&lt;?,?&gt;</code></td>
+<td class="colFirst"><code><a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base">Converter</a>&lt;?,?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JSimpleField.html#getConverter(org.jsimpledb.JTransaction)">getConverter</a></strong>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</code>
-<div class="block">Get a <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> that converts this field values between core API type and Java model type.</div>
+<div class="block">Get a <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> that converts this field values between core API type and Java model type.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -155,7 +155,7 @@ extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;</code></td>
+<td class="colFirst"><code><a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JSimpleField.html#getTypeToken()">getTypeToken</a></strong>()</code>
 <div class="block">Get the type of this field.</div>
 </td>
@@ -238,7 +238,7 @@ extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"
 <ul class="blockList">
 <li class="blockList">
 <h4>getTypeToken</h4>
-<pre>public&nbsp;<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;getTypeToken()</pre>
+<pre>public&nbsp;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;getTypeToken()</pre>
 <div class="block">Get the type of this field.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>this field's Java type</dd></dl>
 </li>
@@ -255,7 +255,7 @@ extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"
  <p>
  Note that for <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> and reference fields, the core API uses a different type than the Java model
  classes (<a href="../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> and <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>, respectively).
- Values can always be properly converted using the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> returned by <a href="../../org/jsimpledb/JSimpleField.html#getConverter(org.jsimpledb.JTransaction)"><code>getConverter()</code></a>.</div>
+ Values can always be properly converted using the <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> returned by <a href="../../org/jsimpledb/JSimpleField.html#getConverter(org.jsimpledb.JTransaction)"><code>getConverter()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>this field's core-layer type definition</dd></dl>
 </li>
 </ul>
@@ -320,11 +320,11 @@ extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"
 <ul class="blockList">
 <li class="blockList">
 <h4>getConverter</h4>
-<pre>public&nbsp;<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base">Converter</a>&lt;?,?&gt;&nbsp;getConverter(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</pre>
-<div class="block">Get a <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> that converts this field values between core API type and Java model type.
+<pre>public&nbsp;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base">Converter</a>&lt;?,?&gt;&nbsp;getConverter(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</pre>
+<div class="block">Get a <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> that converts this field values between core API type and Java model type.
  Only <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> and reference types require conversion; for all other types, this returns an identity converter.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jtx</code> - transaction</dd>
-<dt><span class="strong">Returns:</span></dt><dd><a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> from core API field type to Java model field type</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd><a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><code>Converter</code></a> from core API field type to Java model field type</dd></dl>
 </li>
 </ul>
 <a name="setValue(org.jsimpledb.JObject, java.lang.Object)">
