@@ -516,6 +516,7 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Get message info
+        final long leaderCommitIndex = msg.getLeaderCommit();
         final long leaderPrevTerm = msg.getPrevLogTerm();
         final long leaderPrevIndex = msg.getPrevLogIndex();
         final long logTerm = msg.getLogEntryTerm();
@@ -565,7 +566,7 @@ public class FollowerRole extends NonLeaderRole {
         if (leaderPrevIndex >= this.raft.lastAppliedIndex && !msg.isProbe()) {
 
             // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
-            if (logIndex <= lastLogIndex && this.raft.getLogTermAtIndex(logIndex) != msg.getLogEntryTerm()) {
+            if (logIndex <= lastLogIndex && logTerm != this.raft.getLogTermAtIndex(logIndex)) {
 
                 // Delete conflicting log entry, and all entries that follow it, from the log
                 final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
@@ -670,18 +671,15 @@ public class FollowerRole extends NonLeaderRole {
             }
         }
 
-        // Update my commit index, but note we can't do this for probes because our log might still contain uncommitted entries
-        if (!msg.isProbe()) {
-            final long newCommitIndex = Math.min(Math.max(msg.getLeaderCommit(), this.raft.commitIndex), lastLogIndex);
-            if (newCommitIndex > this.raft.commitIndex) {
-                if (this.log.isDebugEnabled())
-                    this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
-                this.raft.commitIndex = newCommitIndex;
-                this.raft.requestService(this.rebaseTransactionsService);
-                this.raft.requestService(this.checkWaitingTransactionsService);
-                this.raft.requestService(this.triggerKeyWatchesService);
-                this.raft.requestService(this.applyCommittedLogEntriesService);
-            }
+        // Update my commit index
+        final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);
+        if (newCommitIndex > this.raft.commitIndex) {
+            if (this.log.isDebugEnabled())
+                this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
+            this.raft.commitIndex = newCommitIndex;
+            this.raft.requestService(this.checkWaitingTransactionsService);
+            this.raft.requestService(this.triggerKeyWatchesService);
+            this.raft.requestService(this.applyCommittedLogEntriesService);
         }
 
         // Debug

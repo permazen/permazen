@@ -635,8 +635,8 @@ public class LeaderRole extends Role {
         if (!follower.isSynced() || nextIndex > this.raft.getLastLogIndex()) {
 
             // Create probe-only message
-            msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm,
-              new Timestamp(), this.leaseTimeout, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1);
+            msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
+              this.leaseTimeout, this.raft.commitIndex, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1);
         } else {
 
             // Get log entry to send
@@ -663,16 +663,15 @@ public class LeaderRole extends Role {
         // Send update
         final boolean sent = this.raft.sendMessage(msg);
 
-        // Update follower state if a log entry was sent (i.e., not just a probe)
+        // Advance next index if a log entry was sent; we allow pipelining log entries when synchronized
         if (sent && !msg.isProbe()) {
             assert follower.isSynced();
-
-            // Advance next index; we allow pipelining log entries when synchronized
             follower.setNextIndex(Math.min(follower.getNextIndex(), this.raft.getLastLogIndex()) + 1);
-
-            // Update leaderCommit for follower
-            follower.setLeaderCommit(msg.getLeaderCommit());
         }
+
+        // Update the leaderCommit we sent to the follower
+        if (sent)
+            follower.setLeaderCommit(msg.getLeaderCommit());
     }
 
     private void updateAllSynchronizedFollowersNow() {

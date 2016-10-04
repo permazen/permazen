@@ -37,18 +37,24 @@ public class AppendRequest extends Message {
     /**
      * Constructor for a "probe" that does not contain a log entry.
      *
+     * <p>
+     * Note that {@code leaderCommit} is limited to {@code prevLogIndex} by this constructor, because we can't guarantee
+     * that omitted the log entry at {@code prevLogIndex + 1} matches whatever the follower has in its log.
+     *
      * @param clusterId cluster ID
      * @param senderId identity of sender
      * @param recipientId identity of recipient
      * @param term sender's current term
      * @param leaderTimestamp leader's timestamp for this request
      * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed (or null)
+     * @param leaderCommit current commit index for sender
      * @param prevLogTerm term of the log entry just prior to this one
      * @param prevLogIndex index of the log entry just prior to this one
      */
     public AppendRequest(int clusterId, String senderId, String recipientId, long term,
-      Timestamp leaderTimestamp, Timestamp leaderLeaseTimeout, long prevLogTerm, long prevLogIndex) {
-        this(clusterId, senderId, recipientId, term, leaderTimestamp, leaderLeaseTimeout, 0, prevLogTerm, prevLogIndex, 0, null);
+      Timestamp leaderTimestamp, Timestamp leaderLeaseTimeout, long leaderCommit, long prevLogTerm, long prevLogIndex) {
+        this(clusterId, senderId, recipientId, term, leaderTimestamp, leaderLeaseTimeout, Math.min(leaderCommit, prevLogIndex),
+          prevLogTerm, prevLogIndex, 0, null);
     }
 
     /**
@@ -117,7 +123,7 @@ public class AppendRequest extends Message {
      * Get leader's commit index.
      *
      * <p>
-     * For {@linkplain #isProbe probe} requests, this value should not be used and will always be zero.
+     * For {@linkplain #isProbe probe} requests, this value is limited to the value returned by {@link #getPrevLogIndex}.
      */
     public long getLeaderCommit() {
         return this.leaderCommit;
