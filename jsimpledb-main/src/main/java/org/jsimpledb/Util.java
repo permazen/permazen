@@ -358,7 +358,7 @@ public final class Util {
         for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
             final TypeToken<?> supertype = i.next();
             for (TypeToken<?> type : types) {
-                if (!supertype.isAssignableFrom(type)) {
+                if (!supertype.isSupertypeOf(type)) {
                     i.remove();
                     break;
                 }
@@ -369,7 +369,7 @@ public final class Util {
         for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
             final TypeToken<?> supertype = i.next();
             for (TypeToken<?> supertype2 : supertypes) {
-                if (supertype2 != supertype && supertype.isAssignableFrom(supertype2)) {
+                if (supertype2 != supertype && supertype.isSupertypeOf(supertype2)) {
                     i.remove();
                     break;
                 }

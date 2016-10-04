@@ -205,7 +205,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     // Check whether method parameter type accepts as least one of them; must do so consistently raw vs. generic
                     boolean anyChangeMatch = false;
                     for (TypeToken<?> possibleChangeType : changeParameterTypes) {
-                        final boolean matchesGeneric = genericParameterType.isAssignableFrom(possibleChangeType);
+                        final boolean matchesGeneric = genericParameterType.isSupertypeOf(possibleChangeType);
                         final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
                         if (matchesGeneric != matchesRaw) {
                             throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)

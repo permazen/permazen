@@ -204,7 +204,7 @@ final class MethodUtil {
         // If parameter is a generic type variable, assume it can be any narrower type
         if (from instanceof TypeVariable) {
             for (Type bound : ((TypeVariable)from).getBounds()) {
-                if (!TypeToken.of(bound).isAssignableFrom(TypeToken.of(to).wrap()))
+                if (!TypeToken.of(bound).isSupertypeOf(TypeToken.of(to).wrap()))
                     return false;
             }
             return true;
