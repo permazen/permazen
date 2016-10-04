@@ -88,7 +88,6 @@
         <guava.version>18.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
-        <hibernate.version>4.3.3.Final</hibernate.version>
         <javax.el-api.version>2.2.4</javax.el-api.version>
         <jcip.version>1.0</jcip.version>
         <jetty.version>9.2.7.v20150116</jetty.version>
