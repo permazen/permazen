@@ -235,17 +235,8 @@ public class LeaderRole extends Role {
             return true;
         }
 
-        // Try to keep log entries around for a minimum amount of time to facilitate long-running transactions on followers
-        if (logEntry.getAge() < this.raft.maxTransactionDuration) {
-            if (this.log.isTraceEnabled()) {
-                this.trace("delaying application of " + logEntry + " because it has age "
-                  + logEntry.getAge() + "ms < " + this.raft.maxTransactionDuration + "ms");
-            }
-            return false;
-        }
-
         // If any snapshots are in progress, we don't want to apply any log entries with index greater than the snapshot's
-        // index, because then we'd "lose" the ability to update the follower with that log entry, and as a result just have
+        // index, because then we'd lose the ability to update the follower with that log entry, and as a result just have
         // to send a snapshot again. However, we impose a limit on how long we'll wait for a slow follower.
         for (Follower follower : this.followerMap.values()) {
             final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
@@ -262,10 +253,11 @@ public class LeaderRole extends Role {
             }
         }
 
-        // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time)
+        // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
+        // If the follower is not sync'd (e.g., offline) don't bother waiting.
         if (logEntry.getAge() < RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout) {
             for (Follower follower : this.followerMap.values()) {
-                if (follower.getMatchIndex() < logEntry.getIndex()) {
+                if (follower.isSynced() && follower.getMatchIndex() < logEntry.getIndex()) {
                     if (this.log.isTraceEnabled()) {
                         this.trace("delaying application of " + logEntry + " (age " + logEntry.getAge()
                           + " < " + (RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout)
@@ -345,6 +337,7 @@ public class LeaderRole extends Role {
             this.raft.commitIndex = maxCommitIndex;
 
             // Perform various service
+            this.raft.requestService(this.rebaseTransactionsService);
             this.raft.requestService(this.checkReadyTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);

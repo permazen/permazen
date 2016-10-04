@@ -224,6 +224,13 @@ public class FollowerRole extends NonLeaderRole {
         return this.leaderLeaseTimeout.compareTo(commitLeaderLeaseTimeout) >= 0;
     }
 
+    // Don't rebase a transaction that's already been sent to the leader, because by then it's too late to matter,
+    // and that would also be doing duplicate work because the leader is going to check for new conflicts anyway.
+    @Override
+    boolean mayRebase(RaftKVTransaction tx) {
+        return !this.pendingRequests.containsKey(tx.txId);
+    }
+
     @Override
     void handleElectionTimeout() {
         assert Thread.holdsLock(this.raft);
@@ -367,6 +374,7 @@ public class FollowerRole extends NonLeaderRole {
 
             // Set commit term and index from new log entry
             this.raft.commitIndex = logEntry.getIndex();
+            this.raft.requestService(this.rebaseTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);
 
             // Immediately become the leader of our new single-node cluster
@@ -669,6 +677,7 @@ public class FollowerRole extends NonLeaderRole {
                 if (this.log.isDebugEnabled())
                     this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
                 this.raft.commitIndex = newCommitIndex;
+                this.raft.requestService(this.rebaseTransactionsService);
                 this.raft.requestService(this.checkWaitingTransactionsService);
                 this.raft.requestService(this.triggerKeyWatchesService);
                 this.raft.requestService(this.applyCommittedLogEntriesService);

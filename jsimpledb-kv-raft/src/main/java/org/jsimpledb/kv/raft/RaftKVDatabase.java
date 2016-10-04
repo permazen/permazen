@@ -89,10 +89,6 @@ import org.slf4j.LoggerFactory;
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
  *  <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
- *  <li>On leaders only, committed log entries are not applied immediately; instead they kept around for time at least
- *      <i>T<sub>max</sub></i> since creation, where <i>T<sub>max</sub></i> is the maximum supported transaction duration.
- *      This caching is subject to <i>M<sub>max</sub></i>, which limits the total memory used; if reached, these log entries
- *      are applied early.</li>
  *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (same as used by
  *      {@link org.jsimpledb.kv.mvcc.SnapshotKVDatabase}):
  *      <ul>
@@ -117,9 +113,20 @@ import org.slf4j.LoggerFactory;
  *          transaction's commit term and index, then the transaction is complete.</li>
  *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
+ *      <li>Upon receipt of a new log entry, both followers and leaders will "rebase" any open {@linkplain
+ *          Consistency#isGuaranteesUpToDateReads guaranteed-up-to-date} transactions on the new log entry if there are
+ *          no conflicts, or else mark it for retry if there are.
+ *      <li>If a transaction's base log entry is overwritten in the Raft log, the transaction fails with a retry.</li>
  *      </ul>
  *  </li>
  *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
+ *  <li>On leaders, committed log entries are not applied to the state machine immediately; instead they kept around until all
+ *      followers have confirmed receipt. The point of waiting is to avoid incoming follower transactions being rejected because
+ *      their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
+ *      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry there
+ *      should be no further commit requests from that follower for transactions based on earlier log entries. The time the
+ *      leader will wait for confirmation is limited, and this caching is subject to <i>M<sub>max</sub></i>, which limits
+ *      the total memory used.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
  *      which is the earliest time at which it is possible for another leader to be elected.
@@ -1311,6 +1318,9 @@ public class RaftKVDatabase implements KVDatabase {
                 switch (tx.getState()) {
                 case EXECUTING:
 
+                    // Throw exception if transaction has already failed
+                    tx.throwExceptionIfAny();
+
                     // Transition to COMMIT_READY state
                     if (this.log.isDebugEnabled())
                         this.debug("committing transaction " + tx);
@@ -1386,7 +1396,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    private synchronized void cleanupTransaction(RaftKVTransaction tx) {
+    synchronized void cleanupTransaction(RaftKVTransaction tx) {
 
         // Debug
         if (this.log.isTraceEnabled())
@@ -1417,8 +1427,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Sanity check
         assert Thread.holdsLock(this);
         assert this.role != null;
-        if (tx.getState().equals(TxState.COMPLETED) || tx.getState().equals(TxState.CLOSED))
-            return;
+        assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);
 
         // Succeed transaction
         if (this.log.isDebugEnabled())
@@ -1429,20 +1438,30 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     // Mark a transaction as having failed
-    void fail(RaftKVTransaction tx, Exception e) {
+    void fail(RaftKVTransaction tx, KVTransactionException e) {
 
         // Sanity check
         assert Thread.holdsLock(this);
         assert this.role != null;
-        if (tx.getState().equals(TxState.COMPLETED) || tx.getState().equals(TxState.CLOSED))
-            return;
+        assert e != null;
 
         // Fail transaction
         if (this.log.isDebugEnabled())
-            this.debug("failed transaction " + tx + ": " + e);
-        tx.commitFuture.setException(e);
-        tx.setState(TxState.COMPLETED);
-        this.role.cleanupForTransaction(tx);
+            this.debug("failing transaction " + tx + ": " + e);
+        switch (tx.getState()) {
+        case EXECUTING:
+            assert tx.failure == null;
+            tx.failure = e;
+            return;                                     // leave it in state EXECUTING
+        case COMMIT_READY:
+        case COMMIT_WAITING:
+            tx.commitFuture.setException(e);
+            tx.setState(TxState.COMPLETED);
+            this.role.cleanupForTransaction(tx);
+            break;
+        default:                                        // too late, nobody cares
+            return;
+        }
     }
 
 // Service

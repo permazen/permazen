@@ -90,8 +90,10 @@ public class CommitRequest extends Message {
      * Determine whether this is a read-only transaction.
      *
      * @return true if there is no writes data, otherwise false
+     * @throws IllegalStateException if {@link #getMutationData} has already been invoked
      */
     public boolean isReadOnly() {
+        Preconditions.checkState(!this.mutationDataInvalid);
         return this.mutationData == null;
     }
 

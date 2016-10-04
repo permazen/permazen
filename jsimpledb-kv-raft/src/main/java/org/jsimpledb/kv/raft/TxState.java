@@ -27,7 +27,8 @@ public enum TxState {
      *
      * <p>
      * {@link RaftKVTransaction#commit} has been invoked, but the transaction has not otherwise been dealt with yet.
-     * If we are a follower, it will be transmitted to the leader once the leader is known and his output queue becomes empty.
+     * If we are a follower, it will be transmitted to the leader once the leader is known and his output queue becomes empty;
+     * while we are waiting for the response from the leader, the transaction remains in this state.
      * If we are the leader, it will be dealt with locally as soon as we can get to it.
      */
     COMMIT_READY,

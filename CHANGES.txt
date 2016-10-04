@@ -1,7 +1,7 @@
 Version 2.4.0
 
-    - More performance improvements in MVCC-based key/value stores
     - Fix corner case bug in Raft when transactions span terms
+    - Rebase transactions in MVCC-based key/value stores (including Raft)
 
 Version 2.3.2 Released September 27, 2016
 

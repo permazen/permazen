@@ -9,22 +9,24 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 import org.jsimpledb.kv.CloseableKVStore;
+import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotRefs;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
-import org.jsimpledb.kv.util.ForwardingKVStore;
+import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * {@link RaftKVDatabase} transaction.
  */
 @ThreadSafe
-public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction {
+public class RaftKVTransaction implements KVTransaction {
 
     static final Comparator<RaftKVTransaction> SORT_BY_ID = new Comparator<RaftKVTransaction>() {
         @Override
@@ -46,9 +48,14 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     // Package-private transaction state
     final RaftKVDatabase raft;
     final long txId = COUNTER.incrementAndGet();
-    final SnapshotRefs snapshotRefs;                    // snapshot of the committed key/value store
-    final long baseTerm;                                // term of the log entry on which this transaction is based
-    final long baseIndex;                               // index of the log entry on which this transaction is based
+    @GuardedBy("raft")
+    SnapshotRefs snapshotRefs;                          // snapshot of the committed key/value store
+    @GuardedBy("raft")
+    long baseTerm;                                      // term of the log entry on which this transaction is based
+    @GuardedBy("raft")
+    long baseIndex;                                     // index of the log entry on which this transaction is based
+    @GuardedBy("raft")
+    KVTransactionException failure;                     // exception to throw on next access (in state EXECUTING), if any
     final MutableView view;                             // transaction's view of key/value store (restricted to prefix)
     final SettableFuture<Void> commitFuture = SettableFuture.create();
     @GuardedBy("raft")
@@ -113,8 +120,13 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         assert state != null;
         synchronized (this.raft) {
             assert state.compareTo(this.state) >= 0;
-            if (this.state.equals(TxState.EXECUTING) && !this.state.equals(state))
+            if (this.state.equals(TxState.EXECUTING) && !this.state.equals(state)) {
+                synchronized (this.view) {
+                    this.view.setReadOnly();
+                }
                 this.snapshotRefs.unref();
+                this.snapshotRefs = null;
+            }
             this.state = state;
         }
     }
@@ -125,7 +137,9 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return associated base log term
      */
     public long getBaseTerm() {
-        return this.baseTerm;
+        synchronized (this.raft) {
+            return this.baseTerm;
+        }
     }
 
     /**
@@ -134,7 +148,9 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return associated base log index
      */
     public long getBaseIndex() {
-        return this.baseIndex;
+        synchronized (this.raft) {
+            return this.baseIndex;
+        }
     }
 
     /**
@@ -149,9 +165,8 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         }
     }
     void setCommitTerm(long commitTerm) {
-        synchronized (this.raft) {
-            this.commitTerm = commitTerm;
-        }
+        assert Thread.holdsLock(this.raft);
+        this.commitTerm = commitTerm;
     }
 
     /**
@@ -166,9 +181,8 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         }
     }
     void setCommitIndex(long commitIndex) {
-        synchronized (this.raft) {
-            this.commitIndex = commitIndex;
-        }
+        assert Thread.holdsLock(this.raft);
+        this.commitIndex = commitIndex;
     }
 
     /**
@@ -205,6 +219,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
                 return;
             Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
             this.consistency = consistency;
+            this.raft.requestService(this.raft.role.rebaseTransactionsService);
         }
     }
 
@@ -236,6 +251,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.readOnly = readOnly;
+            this.raft.requestService(this.raft.role.rebaseTransactionsService);
         }
     }
 
@@ -296,13 +312,96 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         }
     }
 
-// ForwardingKVStore
+// KVStore
 
     @Override
-    protected KVStore delegate() {
-        if (!this.state.equals(TxState.EXECUTING))
-            throw new StaleTransactionException(this);
-        return this.view;
+    public byte[] get(byte[] key) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            return this.view.get(key);
+        }
+    }
+
+    @Override
+    public KVPair getAtLeast(byte[] minKey) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            return this.view.getAtLeast(minKey);
+        }
+    }
+
+    @Override
+    public KVPair getAtMost(byte[] maxKey) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            return this.view.getAtMost(maxKey);
+        }
+    }
+
+    @Override
+    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            return this.view.getRange(minKey, maxKey, reverse);
+        }
+    }
+
+    @Override
+    public void put(byte[] key, byte[] value) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            this.view.put(key, value);
+        }
+    }
+
+    @Override
+    public void remove(byte[] key) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            this.view.remove(key);
+        }
+    }
+
+    @Override
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            this.view.removeRange(minKey, maxKey);
+        }
+    }
+
+    @Override
+    public void adjustCounter(byte[] key, long amount) {
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
+            this.view.adjustCounter(key, amount);
+        }
+    }
+
+    @Override
+    public byte[] encodeCounter(long value) {
+        return this.view.encodeCounter(value);
+    }
+
+    @Override
+    public long decodeCounter(byte[] bytes) {
+        return this.view.decodeCounter(bytes);
     }
 
 // KVTransaction
@@ -390,17 +489,49 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     @Override
     public CloseableKVStore mutableSnapshot() {
-        synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.snapshotRefs.ref();
-        }
         final Writes writes;
         synchronized (this.view) {
             writes = this.view.getWrites().clone();
         }
-        final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
-        return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
+        synchronized (this.raft) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            assert this.snapshotRefs != null;
+            this.snapshotRefs.ref();
+            final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
+            return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
+        }
+    }
+
+// Package-access methods
+
+    void rebase(long baseTerm, long baseIndex, KVStore kvstore, CloseableKVStore snapshot) {
+        assert Thread.holdsLock(this.view);
+        assert this.state.equals(TxState.EXECUTING);
+        assert this.snapshotRefs != null;
+        this.rebase(baseTerm, baseIndex);
+        this.view.setKVStore(kvstore);
+        this.snapshotRefs.unref();
+        this.snapshotRefs = new SnapshotRefs(snapshot);
+    }
+
+    void rebase(long baseTerm, long baseIndex) {
+        assert Thread.holdsLock(this.raft);
+        assert baseIndex > this.baseIndex;
+        this.baseTerm = baseTerm;
+        this.baseIndex = baseIndex;
+    }
+
+    void throwExceptionIfAny() {
+        assert Thread.holdsLock(this.raft);
+        assert this.state.equals(TxState.EXECUTING);
+        final KVTransactionException e = this.failure;
+        if (e != null) {
+            this.failure = null;
+            this.raft.cleanupTransaction(this);
+            ThrowableUtil.prependCurrentStackTrace(e);
+            throw e;
+        }
     }
 
 // Object
@@ -414,7 +545,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
               + ",base=" + this.baseIndex + "t" + this.baseTerm
               + ",consistency=" + this.consistency
               + (this.readOnly ? ",readOnly" : "")
-              + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
+              + (this.configChange != null ? ",configChange=" + this.configChange[0] + "@" + this.configChange[1] : "")
               + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
               + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
               + "]";
@@ -443,21 +574,29 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         assert this.baseTerm <= currentTerm;
         switch (this.state) {
         case EXECUTING:
+            assert this.commitTerm == 0;
+            assert this.commitIndex == 0;
+            assert this.snapshotRefs != null;
+            break;
         case COMMIT_READY:
             assert this.commitTerm == 0;
             assert this.commitIndex == 0;
+            assert this.snapshotRefs == null;
+            assert this.failure == null;
             break;
         case COMMIT_WAITING:
             assert this.commitTerm >= this.baseTerm;
             assert this.commitTerm <= currentTerm;
             assert this.commitIndex >= this.baseIndex;                                      // equal implies a read-only tx
             assert this.commitIndex > this.baseIndex || this.view.getWrites().isEmpty();
+            assert this.failure == null;
             break;
         case COMPLETED:
             assert this.commitFuture.isDone();
             assert this.commitTerm == 0 || this.commitTerm >= this.baseTerm;
             assert this.commitIndex == 0 || this.commitIndex >= this.baseIndex;
             assert this.commitTerm <= currentTerm;
+            assert this.failure == null;
             break;
         case CLOSED:
         default:
