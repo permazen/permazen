@@ -78,7 +78,7 @@
         <previous.version>2.3.2</previous.version>
 
         <!-- Dependency versions -->
-        <ant.version>1.8.1</ant.version>
+        <ant.version>1.9.7</ant.version>
         <asm.version>5.1</asm.version>
         <aspectj.version>1.8.9</aspectj.version>
         <bdb.version>6.4.9</bdb.version>
@@ -88,24 +88,24 @@
         <guava.version>19.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
-        <javax.el-api.version>2.2.4</javax.el-api.version>
+        <javax.el-api.version>2.2.5</javax.el-api.version>
         <jcip.version>1.0</jcip.version>
-        <jetty.version>9.2.7.v20150116</jetty.version>
-        <jline.version>2.14.1</jline.version>
-        <leveldb.version>0.8.1</leveldb.version>
+        <jetty.version>9.2.19.v20160908</jetty.version>
+        <jline.version>2.14.2</jline.version>
+        <leveldb.version>0.9</leveldb.version>
         <log4j.version>1.2.17</log4j.version>
-        <mysql.version>5.1.38</mysql.version>
+        <mysql.version>5.1.40</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.3.9</plugin-api.version>
-        <postgresql.version>9.4.1208.jre7</postgresql.version>
-        <rocksdb.version>4.9.0</rocksdb.version>
+        <postgresql.version>9.4.1211.jre7</postgresql.version>
+        <rocksdb.version>4.11.2</rocksdb.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <spring.version>4.1.9.RELEASE</spring.version>
-        <sqlite.version>3.8.11.2</sqlite.version>
+        <spring.version>4.3.3.RELEASE</spring.version>
+        <sqlite.version>3.14.2.1</sqlite.version>
         <testng.version>6.9.10</testng.version>
-        <vaadin7.version.prefix>7.5</vaadin7.version.prefix>
-        <vaadin7.version>7.5.5</vaadin7.version>
+        <vaadin7.version.prefix>7.7</vaadin7.version.prefix>
+        <vaadin7.version>7.7.3</vaadin7.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
 
     </properties>
