@@ -254,17 +254,27 @@ public class LeaderRole extends Role {
         }
 
         // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
-        // If the follower is not sync'd (e.g., offline) don't bother waiting.
-        if (logEntry.getAge() < RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout) {
+        // If the follower appears to be offline, don't bother waiting.
+        final int maxLogEntryAge = RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout;
+        if (logEntry.getAge() < maxLogEntryAge) {
+            final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
             for (Follower follower : this.followerMap.values()) {
-                if (follower.isSynced() && follower.getMatchIndex() < logEntry.getIndex()) {
-                    if (this.log.isTraceEnabled()) {
-                        this.trace("delaying application of " + logEntry + " (age " + logEntry.getAge()
-                          + " < " + (RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout)
-                          + ") because of slow " + follower);
-                    }
-                    return false;
+
+                // Has this follower acknowledged reciept of the log entry?
+                if (follower.getMatchIndex() >= logEntry.getIndex())
+                    continue;
+
+                // If we haven't heard from this follower in a while, don't bother waiting for it
+                final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
+                if (leaderTimestamp == null || leaderTimestamp.compareTo(minLeaderTimestamp) <= 0)
+                    continue;
+
+                // Wait for follower to do so before applying to state machine
+                if (this.log.isTraceEnabled()) {
+                    this.trace("delaying application of " + logEntry + " (age "
+                      + logEntry.getAge() + " < " + maxLogEntryAge + ") because of slow " + follower);
                 }
+                return false;
             }
         }
 
