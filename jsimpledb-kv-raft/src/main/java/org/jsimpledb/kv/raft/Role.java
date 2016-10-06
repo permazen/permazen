@@ -370,7 +370,8 @@ public abstract class Role {
             // already been applied to the state machine on some leader and that leader sent
             // use an InstallSnapshot message. We don't know whether it actually got committed
             // or not, so the transaction must be retried.
-            throw new RetryTransactionException(tx, "committed log entry was missed");
+            throw new RetryTransactionException(tx, "commit index " + commitIndex
+              + " < last applied log index " + this.raft.lastAppliedIndex);
         }
 
         // Has the transaction's log entry been received and committed yet?

@@ -1128,9 +1128,9 @@ public class LeaderRole extends Role {
         final long minIndex = this.raft.lastAppliedIndex;
         final long maxIndex = this.raft.getLastLogIndex();
         if (baseIndex < minIndex)
-            return "transaction is too old: snapshot index " + baseIndex + " < last applied log index " + minIndex;
+            return "transaction is too old: base index " + baseIndex + " < last applied log index " + minIndex;
         if (baseIndex > maxIndex)
-            return "transaction is too new: snapshot index " + baseIndex + " > most recent log index " + maxIndex;
+            return "transaction is too new: base index " + baseIndex + " > most recent log index " + maxIndex;
 
         // Validate the term of the log entry on which the transaction is based
         final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);
