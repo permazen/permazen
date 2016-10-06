@@ -321,8 +321,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            return this.view.get(key);
         }
+        return this.view.get(key);
     }
 
     @Override
@@ -331,8 +331,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            return this.view.getAtLeast(minKey);
         }
+        return this.view.getAtLeast(minKey);
     }
 
     @Override
@@ -341,8 +341,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            return this.view.getAtMost(maxKey);
         }
+        return this.view.getAtMost(maxKey);
     }
 
     @Override
@@ -351,8 +351,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            return this.view.getRange(minKey, maxKey, reverse);
         }
+        return this.view.getRange(minKey, maxKey, reverse);
     }
 
     @Override
@@ -361,8 +361,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            this.view.put(key, value);
         }
+        this.view.put(key, value);
     }
 
     @Override
@@ -371,8 +371,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            this.view.remove(key);
         }
+        this.view.remove(key);
     }
 
     @Override
@@ -381,8 +381,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            this.view.removeRange(minKey, maxKey);
         }
+        this.view.removeRange(minKey, maxKey);
     }
 
     @Override
@@ -391,8 +391,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.throwExceptionIfAny();
-            this.view.adjustCounter(key, amount);
         }
+        this.view.adjustCounter(key, amount);
     }
 
     @Override
