@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed incorrect exception type thrown on an unsafe Raft config change
+
 Version 2.4.0 Released October 4, 2016
 
     - Fixed corner case bug in Raft when transactions span terms

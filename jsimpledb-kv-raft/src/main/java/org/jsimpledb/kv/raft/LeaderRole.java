@@ -744,6 +744,8 @@ public class LeaderRole extends Role {
             final LogEntry logEntry;
             try {
                 logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
+            } catch (IllegalStateException e) {
+                throw new RetryTransactionException(tx, e.getMessage());
             } catch (Exception e) {
                 throw new KVTransactionException(tx, "error attempting to persist transaction", e);
             }
@@ -925,7 +927,10 @@ public class LeaderRole extends Role {
             try {
                 logEntry = this.applyNewLogEntry(new NewLogEntry(this.raft, msg.getMutationData()));
             } catch (Exception e) {
-                this.error("error appending new log entry for " + msg, e);
+                if (!(e instanceof IllegalStateException))
+                    this.error("error appending new log entry for " + msg, e);
+                else if (this.log.isDebugEnabled())
+                    this.debug("error appending new log entry for " + msg + ": " + e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
                 return;
@@ -1039,7 +1044,12 @@ public class LeaderRole extends Role {
         return 0;
     }
 
-    // Apply a new log entry to the Raft log; if operation fails, cancel() newLogEntry
+    /**
+     * Apply a new log entry to the Raft log; if operation fails, {@link NewLogEntry#cancel cancel()} {@code newLogEntry}.
+     *
+     * @throws IllegalStateException if a config change would not be safe at the current time
+     * @throws IllegalArgumentException if the config change attempts to remove the last node
+     */
     private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
         assert Thread.holdsLock(this.raft);
 
