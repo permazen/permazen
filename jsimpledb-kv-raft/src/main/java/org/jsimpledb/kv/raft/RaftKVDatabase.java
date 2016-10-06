@@ -1197,6 +1197,7 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkState(this.role != null, "not started");
         if (tx.getState() != TxState.EXECUTING)
             throw new StaleTransactionException(tx);
+        tx.throwExceptionIfAny();
         if (this.keyWatchTracker == null)
             this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);

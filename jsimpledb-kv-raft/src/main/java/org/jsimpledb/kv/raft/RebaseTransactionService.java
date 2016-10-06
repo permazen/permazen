@@ -15,9 +15,13 @@ class RebaseTransactionService extends AbstractTransactionService {
     }
 
     @Override
+    @SuppressWarnings("fallthrough")
     protected void doRun() {
         switch (this.tx.getState()) {
         case EXECUTING:
+            if (tx.failure != null)
+                break;
+            // FALLTHROUGH
         case COMMIT_READY:
             this.role.rebaseTransaction(this.tx);
             break;

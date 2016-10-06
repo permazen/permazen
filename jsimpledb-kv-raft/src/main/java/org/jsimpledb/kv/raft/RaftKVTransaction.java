@@ -290,6 +290,7 @@ public class RaftKVTransaction implements KVTransaction {
             Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
             this.configChange = new String[] { identity, address };
         }
     }
@@ -496,6 +497,7 @@ public class RaftKVTransaction implements KVTransaction {
         synchronized (this.raft) {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
+            this.throwExceptionIfAny();
             assert this.snapshotRefs != null;
             this.snapshotRefs.ref();
             final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
@@ -518,6 +520,7 @@ public class RaftKVTransaction implements KVTransaction {
     void rebase(long baseTerm, long baseIndex) {
         assert Thread.holdsLock(this.raft);
         assert baseIndex > this.baseIndex;
+        assert this.failure == null;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
     }

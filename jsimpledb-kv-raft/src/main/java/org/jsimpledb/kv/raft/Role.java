@@ -418,6 +418,7 @@ public abstract class Role {
         // Sanity check
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.EXECUTING) || tx.getState().equals(TxState.COMMIT_READY);
+        assert tx.failure == null;
 
         // This only applies to transactions that require up-to-date reads
         final boolean needsRebase;
