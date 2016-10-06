@@ -342,10 +342,10 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
-    static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
-    static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;
-    static final int FOLLOWER_LINGER_HEARTBEATS = 3;                        // how long to keep updating removed followers
-    static final float MAX_CLOCK_DRIFT = 0.01f;                             // max clock drift as a percentage ratio
+    static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;     // how long to wait for a follower to receive a log entry
+    static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;                    // maximum number of log entries not applied to k/v store
+    static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
+    static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
 
     // File prefixes and suffixes
     static final String TX_FILE_PREFIX = "tx-";
