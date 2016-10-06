@@ -946,7 +946,7 @@ public class LeaderRole extends Role {
                 return;
             }
             if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " for remote " + msg);
+                this.debug("added log entry " + logEntry + " for rec'd " + msg);
 
             // Follower transaction data optimization
             follower.getSkipDataLogEntries().add(logEntry);
