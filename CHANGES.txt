@@ -1,6 +1,7 @@
-Version Next
+Version 2.4.1
 
     - Fixed incorrect exception type thrown on an unsafe Raft config change
+    - Miscellaneous other minor fixes and improvements to Raft
 
 Version 2.4.0 Released October 4, 2016
 
