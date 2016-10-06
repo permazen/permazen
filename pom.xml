@@ -678,15 +678,15 @@
 
                         <!-- kv-raft -->
                         <raftDirPrefix>RaftDB</raftDirPrefix>
-                        <raftNumNodes>3</raftNumNodes>
+                        <raftNumNodes>5</raftNumNodes>
                         <raftCommitTimeout>5000</raftCommitTimeout>
-                        <raftMinElectionTimeout>100</raftMinElectionTimeout>
-                        <raftMaxElectionTimeout>150</raftMaxElectionTimeout>
-                        <raftHeartbeatTimeout>50</raftHeartbeatTimeout>
+                        <raftMinElectionTimeout>200</raftMinElectionTimeout>
+                        <raftMaxElectionTimeout>250</raftMaxElectionTimeout>
+                        <raftHeartbeatTimeout>90</raftHeartbeatTimeout>
                         <raftMaxTransactionDuration>5000</raftMaxTransactionDuration>
                         <raftFollowerProbingEnabled>true</raftFollowerProbingEnabled>
-                        <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
-                        <raftNetworkDropRatio>0.10</raftNetworkDropRatio>
+                        <raftNetworkDelayMillis>35</raftNetworkDelayMillis>
+                        <raftNetworkDropRatio>0.15</raftNetworkDropRatio>
 
                         <!-- kv-rocksdb -->
                         <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
