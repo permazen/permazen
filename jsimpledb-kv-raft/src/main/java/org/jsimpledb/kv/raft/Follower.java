@@ -186,6 +186,11 @@ public class Follower {
 
 // Package-access methods
 
+    boolean hasLogEntry(long index) {
+        assert Thread.holdsLock(this.raft);
+        return this.matchIndex >= index && this.raft.isClusterMember(this.identity);
+    }
+
     SnapshotTransmit getSnapshotTransmit() {
         assert Thread.holdsLock(this.raft);
         return this.snapshotTransmit;

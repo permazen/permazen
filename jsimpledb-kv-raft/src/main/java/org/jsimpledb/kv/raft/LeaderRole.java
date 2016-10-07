@@ -313,11 +313,7 @@ public class LeaderRole extends Role {
         for (long index = this.raft.commitIndex + 1; index <= this.raft.getLastLogIndex(); index++) {
 
             // Count the number of nodes (possibly including myself) that have a copy of the log entry at index
-            int count = startingCount;
-            for (Follower follower : this.followerMap.values()) {                       // count followers who are members
-                if (follower.getMatchIndex() >= index && this.raft.isClusterMember(follower.getIdentity()))
-                    count++;
-            }
+            final int count = startingCount + this.countFollowersWithLogEntry(index);
 
             // The log entry term must match my current term (exception: unless every node has it)
             final long term = this.raft.getLogTermAtIndex(index);
@@ -363,6 +359,20 @@ public class LeaderRole extends Role {
                 this.stepDown();
             }
         }
+    }
+
+    private int countFollowersWithLogEntry(long index) {
+        assert index <= this.raft.getLastLogIndex();
+
+        // Count the number of followers (who are also cluster members) that have a copy of the log entry at the specified index
+        int nodesWithLogEntry = 0;
+        for (Follower follower : this.followerMap.values()) {
+            if (follower.hasLogEntry(index))
+                nodesWithLogEntry++;
+        }
+
+        // Done
+        return nodesWithLogEntry;
     }
 
     /**
