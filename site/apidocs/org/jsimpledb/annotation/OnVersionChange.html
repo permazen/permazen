@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnVersionChange (JSimpleDB 2.4.0 API)</title>
+<title>OnVersionChange (JSimpleDB 2.4.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnVersionChange (JSimpleDB 2.4.0 API)";
+        parent.document.title="OnVersionChange (JSimpleDB 2.4.1 API)";
     }
 //-->
 </script>
@@ -153,12 +153,19 @@ public @interface <span class="strong">OnVersionChange</span></pre>
 <th class="colLast" scope="col">Optional Element and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/annotation/OnVersionChange.html#alwaysUseEnumValue()">alwaysUseEnumValue</a></strong></code>
+<div class="block">Configure whether to always use <a href="../../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> objects to represent
+ the values in <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> fields.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/annotation/OnVersionChange.html#newVersion()">newVersion</a></strong></code>
 <div class="block">Required new schema version.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/annotation/OnVersionChange.html#oldVersion()">oldVersion</a></strong></code>
 <div class="block">Required old schema version.</div>
@@ -206,7 +213,7 @@ public @interface <span class="strong">OnVersionChange</span></pre>
 <a name="newVersion()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>newVersion</h4>
 <pre>public abstract&nbsp;int&nbsp;newVersion</pre>
@@ -224,6 +231,39 @@ public @interface <span class="strong">OnVersionChange</span></pre>
 <dl>
 <dt>Default:</dt>
 <dd>0</dd>
+</dl>
+</li>
+</ul>
+<a name="alwaysUseEnumValue()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>alwaysUseEnumValue</h4>
+<pre>public abstract&nbsp;boolean&nbsp;alwaysUseEnumValue</pre>
+<div class="block">Configure whether to always use <a href="../../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> objects to represent
+ the values in <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> fields.
+
+ <p>
+ When populating the <code>oldValues</code> map for an <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> field, if the field's type has changed
+ an <a href="../../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> object must be used to represent the <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> constant in the
+ original <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> type, which may no longer exist. When an <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> field's type has not changed,
+ the actual <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> constants are used.
+
+ <p>
+ Setting this property to true will force <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> field values to always be represented as
+ <a href="../../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> objects, regardless of whether the field's type has changed,
+ making these values consistent in all cases.
+
+ <p>
+ <b>Note:</b> this property's default will change to true in a future release, and eventually it will
+ be deprecated and eliminated. Existing <a href="../../../org/jsimpledb/annotation/OnVersionChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnVersionChange</code></a> methods that expect
+ <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> instances should be updated to use <a href="../../../org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><code>EnumValue</code></a> instances instead.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/EnumValue.html#find(java.lang.Class)"><code>EnumValue.find()</code></a>, 
+<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true#valueOf(java.lang.Class, java.lang.String)" title="class or interface in java.lang"><code>Enum.valueOf()</code></a></dd></dl>
+<dl>
+<dt>Default:</dt>
+<dd>false</dd>
 </dl>
 </li>
 </ul>
