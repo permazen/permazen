@@ -96,5 +96,30 @@ public @interface OnVersionChange {
      * @return new schema version, or zero for no restriction
      */
     int newVersion() default 0;
+
+    /**
+     * Configure whether to always use {@link org.jsimpledb.core.EnumValue} objects to represent
+     * the values in {@link Enum} fields.
+     *
+     * <p>
+     * When populating the {@code oldValues} map for an {@link Enum} field, if the field's type has changed
+     * an {@link org.jsimpledb.core.EnumValue} object must be used to represent the {@link Enum} constant in the
+     * original {@link Enum} type, which may no longer exist. When an {@link Enum} field's type has not changed,
+     * the actual {@link Enum} constants are used.
+     *
+     * <p>
+     * Setting this property to true will force {@link Enum} field values to always be represented as
+     * {@link org.jsimpledb.core.EnumValue} objects, regardless of whether the field's type has changed,
+     * making these values consistent in all cases.
+     *
+     * <p>
+     * <b>Note:</b> this property's default will change to true in a future release, and eventually it will
+     * be deprecated and eliminated. Existing {@link OnVersionChange &#64;OnVersionChange} methods that expect
+     * {@link Enum} instances should be updated to use {@link org.jsimpledb.core.EnumValue} instances instead.
+     *
+     * @see org.jsimpledb.core.EnumValue#find EnumValue.find()
+     * @see Enum#valueOf Enum.valueOf()
+     */
+    boolean alwaysUseEnumValue() default false;
 }
 

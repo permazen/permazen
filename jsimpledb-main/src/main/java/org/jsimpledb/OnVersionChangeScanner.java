@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsimpledb.annotation.OnVersionChange;
+import org.jsimpledb.core.EnumValue;
 
 /**
  * Scans for {@link OnVersionChange &#64;OnVersionChange} annotations.
@@ -113,7 +116,11 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
                 return;
 
             // Determine which map to provide
-            final Map<?, Object> oldValues = this.byName ? oldValuesByName : oldValuesByStorageId;
+            Map<?, Object> oldValues = this.byName ? oldValuesByName : oldValuesByStorageId;
+
+            // Map Enum -> EnumValue if so configured TODO: deprecate & remove alwaysUseEnumValue(), change default
+            if (this.getAnnotation().alwaysUseEnumValue())
+                oldValues = this.mapEnumValues(oldValues);
 
             // Invoke method
             switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
@@ -147,6 +154,15 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         public int hashCode() {
             return super.hashCode()
               ^ (this.byName ? 1 : 0);
+        }
+
+        private <K> Map<K, Object> mapEnumValues(Map<K, Object> map) {
+            return Maps.transformValues(map, new Function<Object, Object>() {
+                @Override
+                public Object apply(Object value) {
+                    return value instanceof Enum ? new EnumValue((Enum<?>)value) : value;
+                }
+            });
         }
     }
 }
