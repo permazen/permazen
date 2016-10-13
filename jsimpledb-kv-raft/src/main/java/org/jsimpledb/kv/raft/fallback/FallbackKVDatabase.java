@@ -329,19 +329,32 @@ public class FallbackKVDatabase implements KVDatabase {
             for (FallbackTarget target : this.targets)
                 target.getRaftKVDatabase().start();
 
-            // Start periodic availability checks
-            for (FallbackTarget target : this.targets) {
-                target.future = this.executor.scheduleWithFixedDelay(
-                  new AvailabilityCheckTask(target), 0, target.getCheckInterval(), TimeUnit.MILLISECONDS);
-            }
+            // Initialize my state (note: some may get overwritten by readStateFile())
+            this.migrating = false;
+            this.lastStandaloneActiveTime = null;
+            this.currentTargetIndex = Math.max(-1, Math.min(this.targets.size() - 1, this.initialTargetIndex));
 
-            // Initialize target runtime state
+            // Perform initial availability checks and initialize target runtime state
             for (FallbackTarget target : this.targets) {
-                target.available = true;
+                this.log.info("performing initial availability check for " + target);
+                target.available = false;
+                try {
+                    target.available = target.checkAvailability();
+                } catch (Exception e) {
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("checkAvailable() for " + target + " threw exception", e);
+                    else if (this.log.isDebugEnabled())
+                        this.log.debug("checkAvailable() for " + target + " threw exception: " + e);
+                }
+                this.log.info(target + " is initially " + (target.available ? "" : "un") + "available");
                 target.lastChangeTimestamp = null;
             }
-            this.currentTargetIndex = Math.max(-1, Math.min(this.targets.size() - 1, this.initialTargetIndex));
-            this.migrationCount = 0;
+
+            // Start periodic availability checks
+            for (FallbackTarget target : this.targets) {
+                target.future = this.executor.scheduleWithFixedDelay(new AvailabilityCheckTask(target),
+                  target.getCheckInterval(), target.getCheckInterval(), TimeUnit.MILLISECONDS);
+            }
 
             // Read state file, if present
             if (this.stateFile.exists()) {
@@ -354,7 +367,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
             // Set up periodic migration checks
             this.migrationCheckFuture = this.executor.scheduleWithFixedDelay(
-              new MigrationCheckTask(), MIGRATION_CHECK_INTERVAL, MIGRATION_CHECK_INTERVAL, TimeUnit.MILLISECONDS);
+              new MigrationCheckTask(), 0, MIGRATION_CHECK_INTERVAL, TimeUnit.MILLISECONDS);
 
             // Done
             this.started = true;
