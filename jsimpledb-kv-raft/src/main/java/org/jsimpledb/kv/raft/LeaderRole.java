@@ -833,7 +833,6 @@ public class LeaderRole extends Role {
         if (msg.getMatchIndex() > follower.getMatchIndex()) {
             follower.setMatchIndex(msg.getMatchIndex());
             this.raft.requestService(this.updateLeaderCommitIndexService);
-            this.raft.requestService(this.applyCommittedLogEntriesService);
             if (!this.raft.isClusterMember(follower.getIdentity()))
                 this.raft.requestService(this.updateKnownFollowersService);
         }
