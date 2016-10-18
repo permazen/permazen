@@ -276,12 +276,8 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
-        // Get transaction mutations
-        final Writes writes = tx.view.getWrites();
-        final String[] configChange = tx.getConfigChange();
-
         // Determine whether transaction is truly read-only
-        final boolean readOnly = tx.readOnly || (writes.isEmpty() && configChange == null);
+        final boolean readOnly = tx.readOnly || !tx.hasMutations();
 
         // Check whether we can commit the transaction immediately
         if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {           // i.e., UNCOMMITTED
@@ -422,18 +418,7 @@ public abstract class Role {
         assert tx.failure == null;
 
         // This only applies to transactions that require up-to-date reads
-        final boolean needsRebase;
-        if (tx.getConsistency().isGuaranteesUpToDateReads())
-            needsRebase = true;
-        else if (tx.readOnly)
-            needsRebase = false;
-        else {
-            synchronized (tx.view) {
-                needsRebase = tx.view.getWrites().isEmpty() && tx.getConfigChange() == null;    // tx is "effectively read-only"
-            }
-        }
-        if (!needsRebase)
-            return;
+        final boolean needsRebase = tx.getConsistency().isGuaranteesUpToDateReads() || (!tx.readOnly && tx.hasMutations());
 
         // Is it possible and appropriate to rebase this transaction?
         if (tx.baseIndex < this.raft.lastAppliedIndex || tx.baseIndex >= this.raft.commitIndex || !this.mayRebase(tx))

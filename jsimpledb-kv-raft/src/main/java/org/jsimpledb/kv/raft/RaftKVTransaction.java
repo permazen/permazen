@@ -537,6 +537,15 @@ public class RaftKVTransaction implements KVTransaction {
         }
     }
 
+    boolean hasMutations() {
+        assert Thread.holdsLock(this.raft);
+        if (this.configChange != null)
+            return true;
+        synchronized (this.view) {
+            return !this.view.getWrites().isEmpty();
+        }
+    }
+
 // Object
 
     @Override
@@ -591,7 +600,7 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.commitTerm >= this.baseTerm;
             assert this.commitTerm <= currentTerm;
             assert this.commitIndex >= this.baseIndex;                                      // equal implies a read-only tx
-            assert this.commitIndex > this.baseIndex || this.view.getWrites().isEmpty();
+            assert this.commitIndex > this.baseIndex || !this.hasMutations();
             assert this.failure == null;
             break;
         case COMPLETED:

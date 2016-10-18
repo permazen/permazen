@@ -414,7 +414,7 @@ public class FollowerRole extends NonLeaderRole {
         if (!readOnly) {
 
             // Serialize mutations into a temporary file (but do not close or durably persist yet)
-            final Writes writes = tx.view.getWrites();
+            final Writes writes = tx.view.getWrites();          // synchronization not req'd here because tx is COMMIT_READY
             final File file = new File(this.raft.logDir,
               String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.txId, RaftKVDatabase.TEMP_FILE_SUFFIX));
             final FileWriter fileWriter;
