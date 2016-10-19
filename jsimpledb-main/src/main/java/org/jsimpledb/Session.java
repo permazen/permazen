@@ -12,6 +12,7 @@ import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
 import org.slf4j.Logger;
@@ -29,6 +30,21 @@ import org.slf4j.LoggerFactory;
  * @see SessionMode
  */
 public class Session {
+
+    /**
+     * Default value for the {@linkplain #getMaxRetries maximum number of retry attempts}.
+     */
+    public static final int DEFAULT_MAX_RETRIES = 4;
+
+    /**
+     * Default value for the {@linkplain #getInitialRetryDelay initial retry delay} (in milliseconds).
+     */
+    public static final int DEFAULT_INITIAL_RETRY_DELAY = 100;
+
+    /**
+     * Default value for the {@linkplain #getMaximumRetryDelay maximum retry delay} (in milliseconds).
+     */
+    public static final int DEFAULT_MAXIMUM_RETRY_DELAY = 2500;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -48,6 +64,11 @@ public class Session {
     private KVTransaction kvt;
     private Transaction tx;
     private boolean rollbackOnly;
+
+    // Retry settings
+    private int maxRetries = DEFAULT_MAX_RETRIES;
+    private int initialRetryDelay = DEFAULT_INITIAL_RETRY_DELAY;
+    private int maximumRetryDelay = DEFAULT_MAXIMUM_RETRY_DELAY;
 
 // Constructors
 
@@ -298,6 +319,60 @@ public class Session {
         this.readOnly = readOnly;
     }
 
+    /**
+     * Get the maximum number of allowed retries when a {@link RetryableAction} is given to
+     * {@link #performSessionAction performSessionAction()}.
+     *
+     * <p>
+     * Default value is {@link #DEFAULT_MAX_RETRIES}.
+     *
+     * @return maximum number of retry attempts, or zero if retries are disabled
+     * @see Session#performSessionAction Session.performSessionAction()
+     */
+    public int getMaxRetries() {
+        return this.maxRetries;
+    }
+    public void setMaxRetries(int maxRetries) {
+        Preconditions.checkArgument(maxRetries >= 0, "maxRetries < 0");
+        this.maxRetries = maxRetries;
+    }
+
+    /**
+     * Get the initial retry delay when a {@link RetryableAction} is given to
+     * {@link #performSessionAction performSessionAction()}.
+     *
+     * <p>
+     * Default value is {@link #DEFAULT_INITIAL_RETRY_DELAY}.
+     *
+     * @return initial retry delay in milliseconds
+     * @see Session#performSessionAction Session.performSessionAction()
+     */
+    public int getInitialRetryDelay() {
+        return this.initialRetryDelay;
+    }
+    public void setInitialRetryDelay(int initialRetryDelay) {
+        Preconditions.checkArgument(initialRetryDelay > 0, "initialRetryDelay < 0");
+        this.initialRetryDelay = initialRetryDelay;
+    }
+
+    /**
+     * Configure the maximum retry delay when a {@link RetryableAction} is given to
+     * {@link #performSessionAction performSessionAction()}.
+     *
+     * <p>
+     * Default value is {@link #DEFAULT_MAXIMUM_RETRY_DELAY}.
+     *
+     * @return maximum retry delay in milliseconds
+     * @see Session#performSessionAction Session.performSessionAction()
+     */
+    public int getMaximumRetryDelay() {
+        return this.maximumRetryDelay;
+    }
+    public void setMaximumRetryDelay(int maximumRetryDelay) {
+        Preconditions.checkArgument(maximumRetryDelay > 0, "maximumRetryDelay < 0");
+        this.maximumRetryDelay = maximumRetryDelay;
+    }
+
 // Errors
 
     /**
@@ -391,6 +466,13 @@ public class Session {
      * In either case, if there is already a transaction currently associated with this instance, it is left open
      * while {@code action} executes and upon return.
      *
+     * <p>
+     * If {@code action} is a {@link RetryableAction}, and the transaction throws a {@link RetryTransactionException}
+     * it will be retried automatically up to the configured {@linkplain #getMaxRetries maximum number of retry attempts}.
+     * An exponential back-off algorithm is used: after the first failed attempt, the current thread sleeps for the
+     * {@linkplain #getInitialRetryDelay initial retry delay}. After each subsequent failed attempt, the retry delay is doubled,
+     * up to the limit imposed by the configured {@linkplain #getMaximumRetryDelay maximum retry delay}.
+     *
      * @param action action to perform, possibly within a transaction
      * @return true if {@code action} completed successfully, false if a transaction could not be created
      *  or {@code action} threw an exception
@@ -412,24 +494,44 @@ public class Session {
             }
         }
 
-        // Perform transactional action within a newly created transaction
-        try {
-            if (!this.openTransaction())
-                return false;
-            boolean success = false;
-            this.rollbackOnly = false;
-            try {
-                action.run(this);
-                success = true;
-            } finally {
-                success &= this.closeTransaction(success && !this.rollbackOnly);
+        // Retry transaction as necessary
+        int retryNumber = 0;
+        int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
+        final boolean shouldRetry = action instanceof RetryableAction;
+        while (true) {
+
+            // If this is not the first attempt, sleep for a while before retrying
+            if (retryNumber > 0) {
+                try {
+                    Thread.sleep(retryDelay);
+                } catch (InterruptedException e) {
+                    this.reportException(e);
+                    return false;
+                }
+                retryDelay = Math.min(this.maximumRetryDelay, retryDelay * 2);
             }
-            return success;
-        } catch (Exception e) {
-            this.reportException(e);
-            return false;
-        } finally {
-            this.tx = null;
+
+            // Perform transactional action within a newly created transaction
+            try {
+                if (!this.openTransaction())
+                    return false;
+                boolean success = false;
+                this.rollbackOnly = false;
+                try {
+                    action.run(this);
+                    success = true;
+                } finally {
+                    success &= this.closeTransaction(success && !this.rollbackOnly);
+                }
+                return success;
+            } catch (Exception e) {
+                if (shouldRetry && e instanceof RetryTransactionException && retryNumber++ < this.maxRetries)
+                    continue;
+                this.reportException(e);
+                return false;
+            } finally {
+                this.tx = null;
+            }
         }
     }
 
@@ -578,6 +680,13 @@ public class Session {
      * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
      */
     public interface TransactionalAction extends Action {
+    }
+
+    /**
+     * Tagging interface indicating a {@link TransactionalAction} that should be retried
+     * if a {@link RetryTransactionException} is thrown.
+     */
+    public interface RetryableAction extends TransactionalAction {
     }
 }
 

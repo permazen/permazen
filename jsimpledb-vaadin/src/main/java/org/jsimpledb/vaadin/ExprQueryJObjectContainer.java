@@ -62,7 +62,7 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
     // Ensure all transactions are run in association with the session
     @Override
     protected void doInTransaction(final Runnable action) {
-        session.performParseSessionAction(new ParseSession.TransactionalAction() {
+        session.performParseSessionAction(new ParseSession.RetryableAction() {
             @Override
             public void run(ParseSession session) {
                 action.run();

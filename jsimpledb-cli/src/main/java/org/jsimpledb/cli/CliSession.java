@@ -259,7 +259,13 @@ public class CliSession extends ParseSession {
     }
 
     private Session.Action wrap(final Action action) {
-        return action instanceof TransactionalAction ?
+        return action instanceof RetryableAction ?
+          new Session.RetryableAction() {
+            @Override
+            public void run(Session session) throws Exception {
+                action.run((CliSession)session);
+            }
+          } : action instanceof TransactionalAction ?
           new Session.TransactionalAction() {
             @Override
             public void run(Session session) throws Exception {
@@ -294,6 +300,13 @@ public class CliSession extends ParseSession {
      * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
      */
     public interface TransactionalAction extends Action {
+    }
+
+    /**
+     * Tagging interface indicating a {@link TransactionalAction} that should be retried
+     * if a {@link org.jsimpledb.kv.RetryTransactionException} is thrown.
+     */
+    public interface RetryableAction extends TransactionalAction {
     }
 }
 

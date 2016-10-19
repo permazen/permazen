@@ -46,7 +46,7 @@ public class KVRemoveCommand extends AbstractKVCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
         if (maxKey != null && !range)
             throw new ParseException(ctx, "`-range' must be specified to delete a range of keys");
-        return new CliSession.TransactionalAction() {
+        return new CliSession.RetryableAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final KVTransaction kvt = session.getKVTransaction();

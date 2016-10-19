@@ -17,7 +17,7 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
         super(spec);
     }
 
-    protected abstract class RaftTransactionAction extends RaftAction implements CliSession.TransactionalAction {
+    protected abstract class RaftTransactionAction extends RaftAction implements CliSession.RetryableAction {
 
         @Override
         public final void run(CliSession session, RaftKVDatabase db) throws Exception {

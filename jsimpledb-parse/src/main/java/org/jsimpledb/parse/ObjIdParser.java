@@ -71,11 +71,12 @@ public class ObjIdParser implements Parser<ObjId> {
         final ArrayList<String> completions = new ArrayList<>();
         final ObjId min = min0;
         final ObjId max = max0;
-        session.performParseSessionAction(new ParseSession.TransactionalAction() {
+        session.performParseSessionAction(new ParseSession.RetryableAction() {
             @Override
             public void run(ParseSession session) throws Exception {
                 final Transaction tx = session.getTransaction();
                 final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
+                completions.clear();
                 for (Schema schema : tx.getSchemas().getVersions().values()) {
                     for (ObjType objType : schema.getObjTypes().values()) {
                         final int storageId = objType.getStorageId();

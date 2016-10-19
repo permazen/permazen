@@ -60,7 +60,7 @@ public class SaveCommand extends AbstractCommand {
         final Node expr = (Node)params.get("expr");
 
         // Return action
-        return new CliSession.TransactionalAction() {
+        return new CliSession.RetryableAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final Value value = expr.evaluate(session);

@@ -35,7 +35,7 @@ public class ObjTypeParser implements Parser<ObjType> {
     public ObjType parse(ParseSession session, final ParseContext ctx, final boolean complete) {
         final ObjType[] result = new ObjType[1];
         final Exception[] exception = new Exception[1];
-        session.performParseSessionAction(new ParseSession.TransactionalAction() {
+        session.performParseSessionAction(new ParseSession.RetryableAction() {
             @Override
             public void run(ParseSession session) throws Exception {
                 try {

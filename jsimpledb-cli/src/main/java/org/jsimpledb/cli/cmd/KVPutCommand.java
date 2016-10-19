@@ -39,7 +39,7 @@ public class KVPutCommand extends AbstractKVCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final byte[] key = (byte[])params.get("key");
         final byte[] value = (byte[])params.get("value");
-        return new CliSession.TransactionalAction() {
+        return new CliSession.RetryableAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 session.getKVTransaction().put(key, value);

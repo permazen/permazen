@@ -63,7 +63,7 @@ public class KVSaveCommand extends AbstractCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
 
         // Return action
-        return new CliSession.TransactionalAction() {
+        return new CliSession.RetryableAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final FileOutputStream updateOutput = !this.isWindows() ?

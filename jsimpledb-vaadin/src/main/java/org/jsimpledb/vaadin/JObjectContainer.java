@@ -279,6 +279,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
      *
      * <p>
      * The implementation in {@link JObjectContainer} performs {@code action} within a new read-only transaction.
+     * Note that {@code action} should be idempotent because the transaction will be retried if needed.
      *
      * @param action the action to perform
      */

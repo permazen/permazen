@@ -50,7 +50,7 @@ public class KVLoadCommand extends AbstractKVCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean reset = params.containsKey("reset");
         final File file = (File)params.get("file.xml");
-        return new CliSession.TransactionalAction() {
+        return new CliSession.RetryableAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final KVTransaction kvt = session.getKVTransaction();
