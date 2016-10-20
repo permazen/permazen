@@ -143,16 +143,20 @@ public abstract class Role {
     void applyCommittedLogEntries() {
         assert Thread.holdsLock(this.raft);
 
+        // Determine how many committed log entries we can apply to the state machine at this time
+        int numEntriesToApply = 0;
+        while (this.raft.lastAppliedIndex + numEntriesToApply < this.raft.commitIndex
+          && this.mayApplyLogEntry(this.raft.raftLog.get(numEntriesToApply)))
+            numEntriesToApply++;
+        final long maxAppliedIndex = this.raft.lastAppliedIndex + numEntriesToApply;
+        assert maxAppliedIndex <= this.raft.commitIndex;
+
         // Apply committed log entries to the state machine
-        while (this.raft.lastAppliedIndex < this.raft.commitIndex) {
+        while (this.raft.lastAppliedIndex < maxAppliedIndex) {
 
             // Grab the first unwritten log entry
             final LogEntry logEntry = this.raft.raftLog.get(0);
             assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
-
-            // Check with subclass
-            if (!this.mayApplyLogEntry(logEntry))
-                break;
 
             // Get the current config as of the log entry we're about to apply
             final HashMap<String, String> logEntryConfig = new HashMap<>(this.raft.lastAppliedConfig);
@@ -185,11 +189,11 @@ public abstract class Role {
                 }
             };
 
-            // Apply updates to the key/value store (durably)
+            // Apply updates to the key/value store; when applying the last one, durably persist
             if (this.log.isDebugEnabled())
                 this.debug("applying committed log entry " + logEntry + " to key/value store");
             try {
-                this.raft.kv.mutate(mutations, true);
+                this.raft.kv.mutate(mutations, this.raft.lastAppliedIndex == maxAppliedIndex);
             } catch (Exception e) {
                 if (e instanceof RuntimeException && e.getCause() instanceof IOException)
                     e = (IOException)e.getCause();
@@ -212,6 +216,9 @@ public abstract class Role {
 
     /**
      * Determine whether the given log entry may be applied to the state machine.
+     * This method can assume that the log entry is already committed.
+     *
+     * @param logEntry log entry to apply
      */
     boolean mayApplyLogEntry(LogEntry logEntry) {
         return true;
