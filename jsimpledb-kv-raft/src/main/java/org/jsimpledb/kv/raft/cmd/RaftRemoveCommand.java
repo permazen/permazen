@@ -34,10 +34,15 @@ public class RaftRemoveCommand extends AbstractTransactionRaftCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String identity = (String)params.get("identity");
         return new RaftTransactionAction() {
+
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
-                tx.setConsistency(Consistency.UNCOMMITTED);
                 tx.configChange(identity, null);
+            }
+
+            @Override
+            protected Consistency getConsistency() {
+                return Consistency.UNCOMMITTED;
             }
         };
     }

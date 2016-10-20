@@ -5,8 +5,13 @@
 
 package org.jsimpledb.kv.raft.cmd;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.raft.Consistency;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.fallback.FallbackKVTransaction;
@@ -17,7 +22,8 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
         super(spec);
     }
 
-    protected abstract class RaftTransactionAction extends RaftAction implements CliSession.RetryableAction {
+    protected abstract class RaftTransactionAction extends RaftAction
+      implements Session.RetryableAction, Session.HasTransactionOptions {
 
         @Override
         public final void run(CliSession session, RaftKVDatabase db) throws Exception {
@@ -34,6 +40,15 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
             } else
                 throw new Exception("key/value store is not Raft or Raft fallback");
             this.run(session, raftTX);
+        }
+
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return Collections.singletonMap(RaftKVDatabase.OPTION_CONSISTENCY, this.getConsistency());
+        }
+
+        protected Consistency getConsistency() {
+            return Consistency.LINEARIZABLE;
         }
 
         protected abstract void run(CliSession session, RaftKVTransaction tx) throws Exception;

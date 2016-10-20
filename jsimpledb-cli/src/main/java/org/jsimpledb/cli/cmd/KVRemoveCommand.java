@@ -8,6 +8,7 @@ package org.jsimpledb.cli.cmd;
 import java.util.EnumSet;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVTransaction;
@@ -46,16 +47,29 @@ public class KVRemoveCommand extends AbstractKVCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
         if (maxKey != null && !range)
             throw new ParseException(ctx, "`-range' must be specified to delete a range of keys");
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final KVTransaction kvt = session.getKVTransaction();
-                if (!range)
-                    kvt.remove(key);
-                else
-                    kvt.removeRange(key, maxKey);
-            }
-        };
+        return new RemoveAction(range, key, maxKey);
+    }
+
+    private static class RemoveAction implements CliSession.Action, Session.RetryableAction {
+
+        private final boolean range;
+        private final byte[] key;
+        private final byte[] maxKey;
+
+        RemoveAction(boolean range, byte[] key, byte[] maxKey) {
+            this.range = range;
+            this.key = key;
+            this.maxKey = maxKey;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final KVTransaction kvt = session.getKVTransaction();
+            if (!this.range)
+                kvt.remove(this.key);
+            else
+                kvt.removeRange(this.key, this.maxKey);
+        }
     }
 }
 

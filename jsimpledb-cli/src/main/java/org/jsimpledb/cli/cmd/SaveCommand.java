@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.JObject;
+import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.util.XMLObjectSerializer;
@@ -60,45 +61,58 @@ public class SaveCommand extends AbstractCommand {
         final Node expr = (Node)params.get("expr");
 
         // Return action
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final Value value = expr.evaluate(session);
-                final Iterable<?> i = value.checkType(session, "save", Iterable.class);
-                final FileOutputStream updateOutput = !this.isWindows() ?
-                  new AtomicUpdateFileOutputStream(file) : new FileOutputStream(file);
-                final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
-                boolean success = false;
-                final int count;
-                try {
-                    final XMLStreamWriter writer = new IndentXMLStreamWriter(
-                      XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
-                    writer.writeStartDocument("UTF-8", "1.0");
-                    count = new XMLObjectSerializer(session.getTransaction()).write(writer, nameFormat,
-                      Iterables.transform(i, new ParseCastFunction<ObjId>(ObjId.class) {
-                        @Override
-                        public ObjId apply(Object obj) {
-                            return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);
-                        }
-                      }));
-                    success = true;
-                } finally {
-                    if (success) {
-                        try {
-                            output.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
-                        ((AtomicUpdateFileOutputStream)updateOutput).cancel();
-                }
-                session.getWriter().println("Wrote " + count + " objects to `" + file + "'");
-            }
+        return new SaveAction(nameFormat, file, expr);
+    }
 
-            private boolean isWindows() {
-                return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+    private static class SaveAction implements CliSession.Action, Session.RetryableAction {
+
+        private final boolean nameFormat;
+        private final File file;
+        private final Node expr;
+
+        SaveAction(boolean nameFormat, File file, Node expr) {
+            this.nameFormat = nameFormat;
+            this.file = file;
+            this.expr = expr;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final Value value = this.expr.evaluate(session);
+            final Iterable<?> i = value.checkType(session, "save", Iterable.class);
+            final FileOutputStream updateOutput = !this.isWindows() ?
+              new AtomicUpdateFileOutputStream(this.file) : new FileOutputStream(this.file);
+            final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
+            boolean success = false;
+            final int count;
+            try {
+                final XMLStreamWriter writer = new IndentXMLStreamWriter(
+                  XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
+                writer.writeStartDocument("UTF-8", "1.0");
+                count = new XMLObjectSerializer(session.getTransaction()).write(writer, this.nameFormat,
+                  Iterables.transform(i, new ParseCastFunction<ObjId>(ObjId.class) {
+                    @Override
+                    public ObjId apply(Object obj) {
+                        return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);
+                    }
+                  }));
+                success = true;
+            } finally {
+                if (success) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
+                    ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-        };
+            session.getWriter().println("Wrote " + count + " objects to `" + this.file + "'");
+        }
+
+        private boolean isWindows() {
+            return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        }
     }
 }
 

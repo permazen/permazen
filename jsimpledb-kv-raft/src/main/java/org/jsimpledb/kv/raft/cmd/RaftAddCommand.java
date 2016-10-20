@@ -39,10 +39,15 @@ public class RaftAddCommand extends AbstractTransactionRaftCommand {
         final String identity = (String)params.get("identity");
         final String address = (String)params.get("address");
         return new RaftTransactionAction() {
+
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
-                tx.setConsistency(Consistency.UNCOMMITTED);
                 tx.configChange(identity, address);
+            }
+
+            @Override
+            protected Consistency getConsistency() {
+                return Consistency.UNCOMMITTED;
             }
         };
     }

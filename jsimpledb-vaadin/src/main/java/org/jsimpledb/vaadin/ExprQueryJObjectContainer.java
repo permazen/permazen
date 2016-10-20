@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.jsimpledb.JObject;
+import org.jsimpledb.Session;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.EvalException;
@@ -62,12 +63,15 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
     // Ensure all transactions are run in association with the session
     @Override
     protected void doInTransaction(final Runnable action) {
-        session.performParseSessionAction(new ParseSession.RetryableAction() {
+        session.performParseSessionAction(new RetryableParseAction() {
             @Override
             public void run(ParseSession session) {
                 action.run();
             }
         });
+    }
+
+    private interface RetryableParseAction extends ParseSession.Action, Session.RetryableAction {
     }
 
     @Override

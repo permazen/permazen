@@ -8,6 +8,7 @@ package org.jsimpledb.cli.cmd;
 import java.util.EnumSet;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.util.ParseContext;
@@ -37,14 +38,23 @@ public class KVPutCommand extends AbstractKVCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final byte[] key = (byte[])params.get("key");
-        final byte[] value = (byte[])params.get("value");
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                session.getKVTransaction().put(key, value);
-            }
-        };
+        return new PutAction((byte[])params.get("key"), (byte[])params.get("value"));
+    }
+
+    private static class PutAction implements CliSession.Action, Session.RetryableAction {
+
+        private final byte[] key;
+        private final byte[] value;
+
+        PutAction(byte[] key, byte[] value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            session.getKVTransaction().put(this.key, this.value);
+        }
     }
 }
 

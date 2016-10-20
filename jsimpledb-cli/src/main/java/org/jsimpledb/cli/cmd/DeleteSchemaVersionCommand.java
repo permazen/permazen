@@ -7,6 +7,7 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.util.ParseContext;
 
@@ -29,14 +30,22 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final int version = (Integer)params.get("version");
-        return new CliSession.TransactionalAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final boolean deleted = session.getTransaction().deleteSchemaVersion(version);
-                session.getWriter().println("Schema version " + version + " " + (deleted ? "deleted" : "not found"));
-            }
-        };
+        return new DeleteSchemaAction((Integer)params.get("version"));
+    }
+
+    private static class DeleteSchemaAction implements CliSession.Action, Session.TransactionalAction {
+
+        private final int version;
+
+        DeleteSchemaAction(int version) {
+            this.version = version;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final boolean deleted = session.getTransaction().deleteSchemaVersion(this.version);
+            session.getWriter().println("Schema version " + this.version + " " + (deleted ? "deleted" : "not found"));
+        }
     }
 }
 

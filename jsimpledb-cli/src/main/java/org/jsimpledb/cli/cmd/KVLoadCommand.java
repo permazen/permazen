@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.util.EnumSet;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVTransaction;
@@ -48,21 +49,30 @@ public class KVLoadCommand extends AbstractKVCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final boolean reset = params.containsKey("reset");
-        final File file = (File)params.get("file.xml");
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final KVTransaction kvt = session.getKVTransaction();
-                if (reset)
-                    kvt.removeRange(null, null);
-                final int count;
-                try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
-                    count = new XMLSerializer(kvt).read(input);
-                }
-                session.getWriter().println("Read " + count + " key/value pairs from `" + file + "'");
+        return new LoadAction(params.containsKey("reset"), (File)params.get("file.xml"));
+    }
+
+    private static class LoadAction implements CliSession.Action, Session.RetryableAction {
+
+        private final boolean reset;
+        private final File file;
+
+        LoadAction(boolean reset, File file) {
+            this.reset = reset;
+            this.file = file;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final KVTransaction kvt = session.getKVTransaction();
+            if (this.reset)
+                kvt.removeRange(null, null);
+            final int count;
+            try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
+                count = new XMLSerializer(kvt).read(input);
             }
-        };
+            session.getWriter().println("Read " + count + " key/value pairs from `" + this.file + "'");
+        }
     }
 }
 

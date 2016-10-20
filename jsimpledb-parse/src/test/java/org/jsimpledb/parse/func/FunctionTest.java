@@ -8,6 +8,7 @@ package org.jsimpledb.parse.func;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.Session;
 import org.jsimpledb.ValidationMode;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.parse.ParseSession;
@@ -65,13 +66,16 @@ public class FunctionTest extends TestSupport {
 
     private void testExpression(final String expression, Object expected) {
         final Object[] actual = new Object[1];
-        this.session.performParseSessionAction(new ParseSession.TransactionalAction() {
+        this.session.performParseSessionAction(new TestAction() {
             @Override
             public void run(ParseSession session) throws Exception {
                 actual[0] = new ExprParser().parse(session, new ParseContext(expression), false).evaluate(session).get(session);
             }
         });
         Assert.assertEquals(actual[0], expected);
+    }
+
+    private interface TestAction extends ParseSession.Action, Session.TransactionalAction {
     }
 
 // Model classes

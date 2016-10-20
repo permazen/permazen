@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.expr.EvalException;
@@ -48,7 +49,7 @@ public class EvalCommand extends AbstractCommand {
 // EvalAction
 
     /**
-     * Special {@link CliSession.TransactionalAction} used by the {@link EvalCommand} allowing access to the
+     * Special transactional {@link CliSession.Action} used by the {@link EvalCommand} allowing access to the
      * {@link EvalException} that occurred, if any.
      *
      * <p>
@@ -56,7 +57,7 @@ public class EvalCommand extends AbstractCommand {
      * thrown during expression evaluation itself, swallowing them, making it appear as if the
      * command were always successful.
      */
-    public static final class EvalAction implements CliSession.TransactionalAction {
+    public static final class EvalAction implements CliSession.Action, Session.TransactionalAction {
 
         private final Node expr;
         private final boolean force;

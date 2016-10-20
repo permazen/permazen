@@ -9,6 +9,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.regex.Matcher;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.Schema;
@@ -33,21 +34,13 @@ public class ObjTypeParser implements Parser<ObjType> {
 
     @Override
     public ObjType parse(ParseSession session, final ParseContext ctx, final boolean complete) {
-        final ObjType[] result = new ObjType[1];
-        final Exception[] exception = new Exception[1];
-        session.performParseSessionAction(new ParseSession.RetryableAction() {
-            @Override
-            public void run(ParseSession session) throws Exception {
-                try {
-                    result[0] = ObjTypeParser.this.parseInTransaction(session, ctx, complete);
-                } catch (ParseException e) {
-                    exception[0] = e;
-                }
-            }
-        });
-        if (exception[0] != null || result[0] == null)
-            throw exception[0] instanceof ParseException ? (ParseException)exception[0] : new ParseException(ctx, exception[0]);
-        return result[0];
+        final ParserAction parserAction = new ParserAction(ctx, complete);
+        session.performParseSessionAction(parserAction);
+        final ObjType result = parserAction.getResult();
+        final Exception exception = parserAction.getException();
+        if (exception != null || result == null)
+            throw exception instanceof ParseException ? (ParseException)exception : new ParseException(ctx, exception);
+        return result;
     }
 
     private ObjType parseInTransaction(ParseSession session, final ParseContext ctx, final boolean complete) {
@@ -97,6 +90,37 @@ public class ObjTypeParser implements Parser<ObjType> {
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));
         }
         return schema.getObjType(schemaObjectType.getStorageId());
+    }
+
+    private class ParserAction implements ParseSession.Action, Session.RetryableAction {
+
+        private final ParseContext ctx;
+        private final boolean complete;
+
+        private ObjType result;
+        private Exception exception;
+
+        ParserAction(ParseContext ctx, boolean complete) {
+            this.ctx = ctx;
+            this.complete = complete;
+        }
+
+        @Override
+        public void run(ParseSession session) throws Exception {
+            try {
+                this.result = ObjTypeParser.this.parseInTransaction(session, this.ctx, this.complete);
+            } catch (ParseException e) {
+                this.exception = e;
+            }
+        }
+
+        public ObjType getResult() {
+            return this.result;
+        }
+
+        public Exception getException() {
+            return this.exception;
+        }
     }
 }
 

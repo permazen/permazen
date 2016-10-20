@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
@@ -43,25 +44,36 @@ public class LoadCommand extends AbstractCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean reset = params.containsKey("reset");
         final File file = (File)params.get("file.xml");
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final Transaction tx = session.getTransaction();
-                if (reset) {
-                    int deleteCount = 0;
-                    for (ObjId id : tx.getAll()) {
-                        tx.delete(id);
-                        deleteCount++;
-                    }
-                    session.getWriter().println("Deleted " + deleteCount + " object(s)");
+        return new LoadAction(file, reset);
+    }
+
+    private static class LoadAction implements CliSession.Action, Session.RetryableAction {
+
+        private final File file;
+        private final boolean reset;
+
+        LoadAction(File file, boolean reset) {
+            this.file = file;
+            this.reset = reset;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final Transaction tx = session.getTransaction();
+            if (this.reset) {
+                int deleteCount = 0;
+                for (ObjId id : tx.getAll()) {
+                    tx.delete(id);
+                    deleteCount++;
                 }
-                final int readCount;
-                try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
-                    readCount = new XMLObjectSerializer(session.getTransaction()).read(input);
-                }
-                session.getWriter().println("Read " + readCount + " object(s) from `" + file + "'");
+                session.getWriter().println("Deleted " + deleteCount + " object(s)");
             }
-        };
+            final int readCount;
+            try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
+                readCount = new XMLObjectSerializer(session.getTransaction()).read(input);
+            }
+            session.getWriter().println("Read " + readCount + " object(s) from `" + this.file + "'");
+        }
     }
 }
 

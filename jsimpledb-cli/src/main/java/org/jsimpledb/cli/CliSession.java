@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -258,26 +259,46 @@ public class CliSession extends ParseSession {
         return this.performSessionActionWithCurrentTransaction(this.wrap(action));
     }
 
-    private Session.Action wrap(final Action action) {
-        return action instanceof RetryableAction ?
-          new Session.RetryableAction() {
-            @Override
-            public void run(Session session) throws Exception {
-                action.run((CliSession)session);
-            }
-          } : action instanceof TransactionalAction ?
-          new Session.TransactionalAction() {
-            @Override
-            public void run(Session session) throws Exception {
-                action.run((CliSession)session);
-            }
-          } :
-          new Session.Action() {
-            @Override
-            public void run(Session session) throws Exception {
-                action.run((CliSession)session);
-            }
-          };
+    private WrapperAction wrap(final Action action) {
+        return action instanceof Session.RetryableAction ?
+           new RetryableWrapperAction(action) :
+         action instanceof Session.TransactionalAction ?
+           new TransactionalWrapperAction(action) : new WrapperAction(action);
+    }
+
+    private static class WrapperAction implements Session.Action {
+
+        protected final Action action;
+
+        WrapperAction(Action action) {
+            this.action = action;
+        }
+
+        @Override
+        public void run(Session session) throws Exception {
+           this.action.run((CliSession)session);
+        }
+    }
+
+    private static class TransactionalWrapperAction extends WrapperAction
+      implements Session.TransactionalAction, Session.HasTransactionOptions {
+
+        TransactionalWrapperAction(Action action) {
+            super(action);
+        }
+
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return this.action instanceof HasTransactionOptions ?
+              ((HasTransactionOptions)this.action).getTransactionOptions() : null;
+        }
+    }
+
+    private static class RetryableWrapperAction extends TransactionalWrapperAction implements Session.RetryableAction {
+
+        RetryableWrapperAction(Action action) {
+            super(action);
+        }
     }
 
     /**
@@ -298,15 +319,11 @@ public class CliSession extends ParseSession {
 
     /**
      * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
+     *
+     * @deprecated Implement {@link Session.TransactionalAction} instead of this interface
      */
-    public interface TransactionalAction extends Action {
-    }
-
-    /**
-     * Tagging interface indicating a {@link TransactionalAction} that should be retried
-     * if a {@link org.jsimpledb.kv.RetryTransactionException} is thrown.
-     */
-    public interface RetryableAction extends TransactionalAction {
+    @Deprecated
+    public interface TransactionalAction extends Session.TransactionalAction {
     }
 }
 

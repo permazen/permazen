@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVPair;
@@ -55,42 +56,61 @@ public class KVGetCommand extends AbstractKVCommand {
         final Integer limit = (Integer)params.get("limit");
         if (maxKey != null && !range)
             throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");
-        return new CliSession.TransactionalAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final PrintWriter writer = session.getWriter();
-                final KVTransaction kvt = session.getKVTransaction();
-
-                // Handle single key
-                if (!range) {
-                    final byte[] value = kvt.get(key);
-                    writer.println(value != null && cstrings ? AbstractKVCommand.toCString(value) : ByteUtil.toString(value));
-                    return;
-                }
-
-                // Handle range of keys
-                long count = 0;
-                for (Iterator<KVPair> i = kvt.getRange(key, maxKey, false); i.hasNext(); ) {
-                    final KVPair pair = i.next();
-                    if (limit != null && count >= limit)
-                        break;
-                    if (cstrings) {
-                        writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
-                        if (!novals)
-                            writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
-                    } else {
-                        KVGetCommand.this.decode(writer, "K ", pair.getKey());
-                        if (!novals)
-                            KVGetCommand.this.decode(writer, "V ", pair.getValue());
-                    }
-                    count++;
-                }
-                writer.println("Displayed " + count + " key/value pairs");
-            }
-        };
+        return new GetAction(cstrings, range, novals, key, maxKey, limit);
     }
 
-    private void decode(PrintWriter writer, String prefix, byte[] value) {
+    private static class GetAction implements CliSession.Action, Session.TransactionalAction {
+
+        private final boolean cstrings;
+        private final boolean range;
+        private final boolean novals;
+        private final byte[] key;
+        private final byte[] maxKey;
+        private final Integer limit;
+
+        GetAction(boolean cstrings, boolean range, boolean novals, byte[] key, byte[] maxKey, Integer limit) {
+            this.cstrings = cstrings;
+            this.range = range;
+            this.novals = novals;
+            this.key = key;
+            this.maxKey = maxKey;
+            this.limit = limit;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final PrintWriter writer = session.getWriter();
+            final KVTransaction kvt = session.getKVTransaction();
+
+            // Handle single key
+            if (!this.range) {
+                final byte[] value = kvt.get(this.key);
+                writer.println(value != null && this.cstrings ? AbstractKVCommand.toCString(value) : ByteUtil.toString(value));
+                return;
+            }
+
+            // Handle range of keys
+            long count = 0;
+            for (Iterator<KVPair> i = kvt.getRange(this.key, this.maxKey, false); i.hasNext(); ) {
+                final KVPair pair = i.next();
+                if (this.limit != null && count >= this.limit)
+                    break;
+                if (this.cstrings) {
+                    writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
+                    if (!this.novals)
+                        writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
+                } else {
+                    KVGetCommand.decode(writer, "K ", pair.getKey());
+                    if (!this.novals)
+                        KVGetCommand.decode(writer, "V ", pair.getValue());
+                }
+                count++;
+            }
+            writer.println("Displayed " + count + " key/value pairs");
+        }
+    }
+
+    private static void decode(PrintWriter writer, String prefix, byte[] value) {
         for (int i = 0; i < value.length; i += 32) {
             writer.print(prefix);
             for (int j = 0; j < 32; j++) {

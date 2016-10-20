@@ -18,6 +18,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
+import org.jsimpledb.Session;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.util.XMLSerializer;
@@ -63,40 +64,55 @@ public class KVSaveCommand extends AbstractCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
 
         // Return action
-        return new CliSession.RetryableAction() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final FileOutputStream updateOutput = !this.isWindows() ?
-                  new AtomicUpdateFileOutputStream(file) : new FileOutputStream(file);
-                final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
-                boolean success = false;
-                final int count;
-                try {
-                    XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
-                    if (indent)
-                        writer = new IndentXMLStreamWriter(writer);
-                    writer.writeStartDocument("UTF-8", "1.0");
-                    final XMLSerializer serializer = new XMLSerializer(session.getKVTransaction());
-                    count = serializer.write(writer, minKey, maxKey);
-                    output.flush();
-                    success = true;
-                } finally {
-                    if (success) {
-                        try {
-                            output.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
-                        ((AtomicUpdateFileOutputStream)updateOutput).cancel();
-                }
-                session.getWriter().println("Wrote " + count + " key/value pairs to `" + file + "'");
-            }
+        return new SaveAction(file, indent, minKey, maxKey);
+    }
 
-            private boolean isWindows() {
-                return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+    private static class SaveAction implements CliSession.Action, Session.RetryableAction {
+
+        private final File file;
+        private final boolean indent;
+        private final byte[] minKey;
+        private final byte[] maxKey;
+
+        SaveAction(File file, boolean indent, byte[] minKey, byte[] maxKey) {
+            this.file = file;
+            this.indent = indent;
+            this.minKey = minKey;
+            this.maxKey = maxKey;
+        }
+
+        @Override
+        public void run(CliSession session) throws Exception {
+            final FileOutputStream updateOutput = !this.isWindows() ?
+              new AtomicUpdateFileOutputStream(this.file) : new FileOutputStream(this.file);
+            final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
+            boolean success = false;
+            final int count;
+            try {
+                XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+                if (this.indent)
+                    writer = new IndentXMLStreamWriter(writer);
+                writer.writeStartDocument("UTF-8", "1.0");
+                final XMLSerializer serializer = new XMLSerializer(session.getKVTransaction());
+                count = serializer.write(writer, this.minKey, this.maxKey);
+                output.flush();
+                success = true;
+            } finally {
+                if (success) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
+                    ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-        };
+            session.getWriter().println("Wrote " + count + " key/value pairs to `" + this.file + "'");
+        }
+
+        private boolean isWindows() {
+            return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        }
     }
 }
 

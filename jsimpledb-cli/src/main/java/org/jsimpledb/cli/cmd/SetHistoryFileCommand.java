@@ -38,7 +38,7 @@ public class SetHistoryFileCommand extends AbstractCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final File file = (File)params.get("file.txt");
-        return new CliSession.TransactionalAction() {
+        return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
                 session.getConsole().setHistoryFile(file);

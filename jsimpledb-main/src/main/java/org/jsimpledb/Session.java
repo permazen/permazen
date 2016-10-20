@@ -7,6 +7,8 @@ package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Map;
+
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
@@ -455,7 +457,8 @@ public class Session {
      *
      * <p>
      * If {@code action} is a {@link TransactionalAction}, and there is no transaction currently associated with this instance,
-     * a new transaction will be created, held open while {@code action} executes, then committed. Otherwise, {@code action}
+     * a new transaction will be created, held open while {@code action} executes, then committed; any transaction options
+     * from {@code action} implementing {@link HasTransactionOptions} will be appied. Otherwise, {@code action}
      * is just executed directly.
      *
      * <p>
@@ -463,11 +466,11 @@ public class Session {
      * {@link #reportException reportException()} and then false returned.
      *
      * <p>
-     * In either case, if there is already a transaction currently associated with this instance, it is left open
-     * while {@code action} executes and upon return.
+     * If there is already a transaction currently associated with this instance, it is left open while {@code action}
+     * executes and upon return.
      *
      * <p>
-     * If {@code action} is a {@link RetryableAction}, and the transaction throws a {@link RetryTransactionException}
+     * If {@code action} is a {@link RetryableAction}, and a newly created transaction throws a {@link RetryTransactionException},
      * it will be retried automatically up to the configured {@linkplain #getMaxRetries maximum number of retry attempts}.
      * An exponential back-off algorithm is used: after the first failed attempt, the current thread sleeps for the
      * {@linkplain #getInitialRetryDelay initial retry delay}. After each subsequent failed attempt, the retry delay is doubled,
@@ -498,6 +501,8 @@ public class Session {
         int retryNumber = 0;
         int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
         final boolean shouldRetry = action instanceof RetryableAction;
+        final Map<String, ?> options = action instanceof HasTransactionOptions ?
+          ((HasTransactionOptions)action).getTransactionOptions() : null;
         while (true) {
 
             // If this is not the first attempt, sleep for a while before retrying
@@ -513,7 +518,7 @@ public class Session {
 
             // Perform transactional action within a newly created transaction
             try {
-                if (!this.openTransaction())
+                if (!this.openTransaction(options))
                     return false;
                 boolean success = false;
                 this.rollbackOnly = false;
@@ -554,7 +559,7 @@ public class Session {
         this.rollbackOnly = true;
     }
 
-    private boolean openTransaction() {
+    private boolean openTransaction(Map<String, ?> options) {
         try {
 
             // Sanity check
@@ -563,17 +568,17 @@ public class Session {
             // Open transaction at the appropriate level
             switch (this.mode) {
             case KEY_VALUE:
-                this.kvt = this.kvdb.createTransaction();
+                this.kvt = this.kvdb.createTransaction(options);
                 break;
             case CORE_API:
-                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
+                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema, options);
                 this.kvt = this.tx.getKVTransaction();
                 break;
             case JSIMPLEDB:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a JSimpleDB transaction is already open in the current thread");
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
-                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC);
+                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
                 JTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();
                 this.kvt = this.tx.getKVTransaction();
@@ -668,9 +673,9 @@ public class Session {
     public interface Action {
 
         /**
-         * Perform some action using the given {@link Session} while a transaction is open.
+         * Perform some action using the given {@link Session}.
          *
-         * @param session session with open transaction
+         * @param session current session
          * @throws Exception if an error occurs
          */
         void run(Session session) throws Exception;
@@ -678,15 +683,34 @@ public class Session {
 
     /**
      * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
+     *
+     * <p>
+     * A new transaction will be created if necessary before this action is executed.
+     * If a transaction already exists, it will be (re)used.
      */
-    public interface TransactionalAction extends Action {
+    public interface TransactionalAction {
     }
 
     /**
-     * Tagging interface indicating a {@link TransactionalAction} that should be retried
-     * if a {@link RetryTransactionException} is thrown.
+     * Tagging interface indicating a {@link TransactionalAction} that should be retried if a
+     * {@link RetryTransactionException} is thrown.
      */
     public interface RetryableAction extends TransactionalAction {
+    }
+
+    /**
+     * Interface implemented by {@link TransactionalAction}'s that want to provide custom transaction options.
+     *
+     * @see org.jsimpledb.kv.KVDatabase#createTransaction(Map) KVDatabase#createTransaction()
+     */
+    public interface HasTransactionOptions extends TransactionalAction {
+
+        /**
+         * Get the options, if any, to be used when creating a new transaction for this action to run in.
+         *
+         * @return {@link org.jsimpledb.kv.KVDatabase}-specific transaction options, or null for none
+         */
+        Map<String, ?> getTransactionOptions();
     }
 }
 
