@@ -26,7 +26,8 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
     @Override
     public String getHelpDetail() {
         return "This command forces an immediate election timeout on the local node, which must be a follower (or a candidate)."
-          + " This node will then (be very likely to) be elected for a new term, deposing the current leader.";
+          + " If follower probing is disabled, this node will then (be very likely to) be elected for a new term,"
+          + " deposing the current leader.";
     }
 
     @Override
