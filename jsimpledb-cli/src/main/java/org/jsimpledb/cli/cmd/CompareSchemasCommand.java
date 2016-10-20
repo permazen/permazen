@@ -22,7 +22,8 @@ public class CompareSchemasCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Shows the differences between two schema versions recorded in the database";
+        return "Shows the differences between two schema versions recorded in the database.\n\n"
+          + "A version number of zero can be given to indicate the schema configured for this CLI session.";
     }
 
     @Override
@@ -58,6 +59,14 @@ public class CompareSchemasCommand extends AbstractCommand {
         }
 
         private SchemaModel getSchemaModel(CliSession session, int version) {
+            if (version == 0) {
+                final SchemaModel schemaModel = session.getSchemaModel();
+                if (schemaModel == null) {
+                    session.getWriter().println("No schema configured on this session");
+                    return null;
+                }
+                return schemaModel;
+            }
             final Schema schema = session.getTransaction().getSchemas().getVersions().get(version);
             if (schema == null) {
                 session.getWriter().println("Schema version " + version + " " + "not found");
