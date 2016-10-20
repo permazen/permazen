@@ -4,6 +4,7 @@ Version 2.4.2
     - Added Session.RetryableAction and support for automatic retries
     - Added Session.HasTranasactionOptions and support for tx options
     - Let `compare-schemas' accept version zero meaning the configured schema
+    - Added `-w' flag to the `save' and `kvsave' commands
 
 Version 2.4.1 Released October 13, 2016
 

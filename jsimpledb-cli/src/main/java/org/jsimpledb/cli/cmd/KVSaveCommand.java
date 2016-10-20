@@ -9,6 +9,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
@@ -28,7 +29,7 @@ import org.jsimpledb.util.ParseContext;
 public class KVSaveCommand extends AbstractCommand {
 
     public KVSaveCommand() {
-        super("kvsave -i:indent file.xml:file minKey? maxKey?");
+        super("kvsave -i:indent -w:weak file.xml:file minKey? maxKey?");
     }
 
     @Override
@@ -40,8 +41,10 @@ public class KVSaveCommand extends AbstractCommand {
     public String getHelpDetail() {
         return "Writes all key/value pairs to the specified XML file. Data can be read back in later via `kvload'."
           + "\n\nIf `minKey' and/or `maxKey' are specified, the keys are restricted to the specified range."
-          + " `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings."
-          + " The `-i' flag causes the output XML to be indented.";
+          + " `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings.\n"
+          + "The `-i' flag causes the output XML to be indented.\n"
+          + "If the `-w' flag is given, for certain key/value stores a weaker consistency level is used for"
+          + " the tranasction to reduce the chance of conflicts.";
     }
 
     @Override
@@ -60,23 +63,26 @@ public class KVSaveCommand extends AbstractCommand {
         // Parse parameters
         final File file = (File)params.get("file.xml");
         final boolean indent = params.containsKey("indent");
+        final boolean weak = params.containsKey("weak");
         final byte[] minKey = (byte[])params.get("minKey");
         final byte[] maxKey = (byte[])params.get("maxKey");
 
         // Return action
-        return new SaveAction(file, indent, minKey, maxKey);
+        return new SaveAction(file, indent, weak, minKey, maxKey);
     }
 
-    private static class SaveAction implements CliSession.Action, Session.RetryableAction {
+    private static class SaveAction implements CliSession.Action, Session.RetryableAction, Session.HasTransactionOptions {
 
         private final File file;
         private final boolean indent;
+        private final boolean weak;
         private final byte[] minKey;
         private final byte[] maxKey;
 
-        SaveAction(File file, boolean indent, byte[] minKey, byte[] maxKey) {
+        SaveAction(File file, boolean indent, boolean weak, byte[] minKey, byte[] maxKey) {
             this.file = file;
             this.indent = indent;
+            this.weak = weak;
             this.minKey = minKey;
             this.maxKey = maxKey;
         }
@@ -108,6 +114,12 @@ public class KVSaveCommand extends AbstractCommand {
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
             session.getWriter().println("Wrote " + count + " key/value pairs to `" + this.file + "'");
+        }
+
+        // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return this.weak ? Collections.singletonMap("consistency", "EVENTUAL") : null;
         }
 
         private boolean isWindows() {

@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ import org.jsimpledb.util.ParseContext;
 public class SaveCommand extends AbstractCommand {
 
     public SaveCommand() {
-        super("save --storage-id-format:storageIdFormat file.xml:file expr:expr");
+        super("save --storage-id-format:storageIdFormat -w:weak file.xml:file expr:expr");
     }
 
     @Override
@@ -44,7 +45,9 @@ public class SaveCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Evaluates the expression, which must evaluate to an Iterator (or Iterable) of database objects,"
-          + " and writes the objects to the specified XML file. Objects can be read back in later via `load'.";
+          + " and writes the objects to the specified XML file. Objects can be read back in later via `load'.\n"
+          + "If the `-w' flag is given, for certain key/value stores a weaker consistency level is used for"
+          + " the tranasction to reduce the chance of conflicts.";
     }
 
     @Override
@@ -57,21 +60,24 @@ public class SaveCommand extends AbstractCommand {
 
         // Parse parameters
         final boolean nameFormat = !params.containsKey("storageIdFormat");
+        final boolean weak = params.containsKey("weak");
         final File file = (File)params.get("file.xml");
         final Node expr = (Node)params.get("expr");
 
         // Return action
-        return new SaveAction(nameFormat, file, expr);
+        return new SaveAction(nameFormat, weak, file, expr);
     }
 
-    private static class SaveAction implements CliSession.Action, Session.RetryableAction {
+    private static class SaveAction implements CliSession.Action, Session.RetryableAction, Session.HasTransactionOptions {
 
         private final boolean nameFormat;
+        private final boolean weak;
         private final File file;
         private final Node expr;
 
-        SaveAction(boolean nameFormat, File file, Node expr) {
+        SaveAction(boolean nameFormat, boolean weak, File file, Node expr) {
             this.nameFormat = nameFormat;
+            this.weak = weak;
             this.file = file;
             this.expr = expr;
         }
@@ -108,6 +114,12 @@ public class SaveCommand extends AbstractCommand {
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
             session.getWriter().println("Wrote " + count + " objects to `" + this.file + "'");
+        }
+
+        // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return this.weak ? Collections.singletonMap("consistency", "EVENTUAL") : null;
         }
 
         private boolean isWindows() {
