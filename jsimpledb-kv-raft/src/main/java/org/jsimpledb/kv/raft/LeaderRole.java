@@ -225,12 +225,11 @@ public class LeaderRole extends Role {
 
         // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
         final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
-        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory
-          || this.raft.raftLog.size() > RaftKVDatabase.MAX_UNAPPLIED_LOG_ENTRIES) {
+        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory || this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
             if (this.log.isTraceEnabled()) {
                 this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
                   + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory + " and/or log length "
-                  + this.raft.raftLog.size() + " > " + RaftKVDatabase.MAX_UNAPPLIED_LOG_ENTRIES);
+                  + this.raft.raftLog.size() + " > " + this.raft.maxUnappliedLogEntries);
             }
             return true;
         }

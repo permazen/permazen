@@ -322,6 +322,13 @@ public class RaftKVDatabase implements KVDatabase {
     public static final long DEFAULT_MAX_UNAPPLIED_LOG_MEMORY = 100 * 1024 * 1024;                // 100MB
 
     /**
+     * Default maximum number of unapplied log entries ({@value DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES} bytes).
+     *
+     * @see #setMaxUnappliedLogEntries
+     */
+    public static final int DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES = 64;
+
+    /**
      * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}).
      *
      * @see #setCommitTimeout
@@ -343,7 +350,6 @@ public class RaftKVDatabase implements KVDatabase {
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;     // how long to wait for a follower to receive a log entry
-    static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;                    // maximum number of log entries not applied to k/v store
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
 
@@ -377,6 +383,7 @@ public class RaftKVDatabase implements KVDatabase {
     int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
     int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
     long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
+    int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
     boolean followerProbingEnabled;
     File logDir;
 
@@ -631,6 +638,36 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized long getMaxUnappliedLogMemory() {
         return this.maxUnappliedLogMemory;
+    }
+
+    /**
+     * Configure the maximum number of unapplied log entries.
+     *
+     * <p>
+     * A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
+     * {@link RetryTransactionException}, but at the cost of possibly slower data access.
+     *
+     * <p>
+     * This value may be changed while this instance is already running.
+     *
+     * <p>
+     * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES}.
+     *
+     * @param memory maximum number of unapplied log entries
+     * @throws IllegalArgumentException if {@code maxUnappliedLogEntries <= 0}
+     */
+    public synchronized void setMaxUnappliedLogEntries(int maxUnappliedLogEntries) {
+        Preconditions.checkArgument(maxUnappliedLogEntries > 0, "maxUnappliedLogEntries <= 0");
+        this.maxUnappliedLogEntries = maxUnappliedLogEntries;
+    }
+
+    /**
+     * Get the configured maximum number of unapplied log entries.
+     *
+     * @return maximum number of unapplied log entries
+     */
+    public synchronized long getMaxUnappliedLogEntries() {
+        return this.maxUnappliedLogEntries;
     }
 
     /**

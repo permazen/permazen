@@ -5,6 +5,7 @@ Version 2.4.2
     - Added Session.HasTranasactionOptions and support for tx options
     - Let `compare-schemas' accept version zero meaning the configured schema
     - Added `-w' flag to the `save' and `kvsave' commands
+    - Made the the maximum number of unapplied Raft log entries configurable
 
 Version 2.4.1 Released October 13, 2016
 
