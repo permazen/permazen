@@ -298,7 +298,7 @@ public class FollowerRole extends NonLeaderRole {
 // Transactions
 
     @Override
-    void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
+    void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);

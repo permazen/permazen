@@ -325,7 +325,7 @@ public abstract class Role {
         }
 
         // Requires leader communication - let subclass handle it
-        this.checkReadyLeaderTransaction(tx, readOnly);                                     // i.e., LINEARIZABLE
+        this.checkReadyLinearizableTransaction(tx, readOnly);                               // i.e., LINEARIZABLE
     }
 
     /**
@@ -339,7 +339,7 @@ public abstract class Role {
      * @param readOnly if transaction is read-only
      * @throws KVTransactionException if an error occurs
      */
-    abstract void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly);
+    abstract void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly);
 
     /**
      * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
