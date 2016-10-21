@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
@@ -44,6 +45,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected ExecutorService executor;
 
+    private final AtomicInteger numTransactionAttempts = new AtomicInteger();
+    private final AtomicInteger numTransactionRetries = new AtomicInteger();
+
     @BeforeClass(dependsOnGroups = "configure")
     public void setup() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
@@ -51,6 +55,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (kvdb.length > 0)
                 kvdb[0].start();
         }
+        this.numTransactionAttempts.set(0);
+        this.numTransactionRetries.set(0);
     }
 
     @AfterClass
@@ -60,6 +66,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (kvdb.length > 0)
                 kvdb[0].stop();
         }
+        final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
+        this.log.info(String.format("\n****************\n   Retry rate: %.2f%%\n****************\n", retryRate * 100.0));
     }
 
     @DataProvider(name = "kvdbs")
@@ -505,6 +513,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             final KVTransaction tx = kvdb.createTransaction();
+            this.numTransactionAttempts.incrementAndGet();
             try {
                 final V result = transactional.transact(tx);
                 tx.commit();
@@ -512,6 +521,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             } catch (RetryTransactionException e) {
                 KVDatabaseTest.this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
                 retry = e;
+                this.numTransactionRetries.incrementAndGet();
             }
             try {
                 Thread.sleep(100 + count * 200);
