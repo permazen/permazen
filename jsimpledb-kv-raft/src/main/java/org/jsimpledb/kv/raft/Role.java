@@ -220,7 +220,31 @@ public abstract class Role {
      *
      * @param logEntry log entry to apply
      */
-    boolean mayApplyLogEntry(LogEntry logEntry) {
+    final boolean mayApplyLogEntry(LogEntry logEntry) {
+        assert Thread.holdsLock(this.raft);
+
+        // Are we running out of memory, or keeping around too many log entries? If so, go ahead no matter what the subclass says.
+        final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
+        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory || this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
+            if (this.log.isTraceEnabled()) {
+                this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
+                  + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory + " and/or log length "
+                  + this.raft.raftLog.size() + " > " + this.raft.maxUnappliedLogEntries);
+            }
+            return true;
+        }
+
+        // Check with subclass
+        return this.roleMayApplyLogEntry(logEntry);
+    }
+
+    /**
+     * Role-specific hook to determine whether the given log entry should be applied to the state machine.
+     * This method can assume that the log entry is already committed.
+     *
+     * @param logEntry log entry to apply
+     */
+    boolean roleMayApplyLogEntry(LogEntry logEntry) {
         return true;
     }
 

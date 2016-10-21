@@ -220,19 +220,8 @@ public class LeaderRole extends Role {
     }
 
     @Override
-    boolean mayApplyLogEntry(LogEntry logEntry) {
+    boolean roleMayApplyLogEntry(LogEntry logEntry) {
         assert Thread.holdsLock(this.raft);
-
-        // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
-        final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
-        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory || this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
-            if (this.log.isTraceEnabled()) {
-                this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
-                  + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory + " and/or log length "
-                  + this.raft.raftLog.size() + " > " + this.raft.maxUnappliedLogEntries);
-            }
-            return true;
-        }
 
         // If any snapshots are in progress, we don't want to apply any log entries with index greater than the snapshot's
         // index, because then we'd lose the ability to update the follower with that log entry, and as a result just have
