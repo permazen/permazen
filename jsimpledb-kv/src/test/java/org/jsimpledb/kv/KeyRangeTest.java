@@ -51,5 +51,17 @@ public class KeyRangeTest extends KeyRangeTestSupport {
         Assert.assertEquals(kr2.getMin(), new byte[] { (byte)0xff });
         Assert.assertNull(kr2.getMax());
     }
+
+    @Test
+    public void testIsSingleKey() {
+        final KeyRange kr1 = new KeyRange(new byte[] { 0x01, 0x02 }, new byte[] { 0x01, 0x02, 0x00 });
+        Assert.assertTrue(kr1.isSingleKey());
+        final KeyRange kr2 = new KeyRange(new byte[] { 0x01, 0x02 }, new byte[] { 0x01, 0x02, 0x00, 0x00 });
+        Assert.assertFalse(kr2.isSingleKey());
+        final KeyRange kr3 = new KeyRange(new byte[] { 0x01, 0x01 }, new byte[] { 0x01, 0x02 });
+        Assert.assertFalse(kr3.isSingleKey());
+        final KeyRange kr4 = new KeyRange(new byte[] { 0x01, 0x02 }, new byte[] { 0x02, 0x02, 0x00 });
+        Assert.assertFalse(kr4.isSingleKey());
+    }
 }
 

@@ -197,7 +197,14 @@ public class KeyRange implements SizeEstimating {
      * @return true if this instance contains exactly one key, otherwise false
      */
     public boolean isSingleKey() {
-        return this.max != null && this.max.length == this.min.length + 1 && this.max[this.min.length] == 0;
+        final int lastIndex = this.min.length;
+        if (this.max == null || this.max.length != lastIndex + 1 || this.max[lastIndex] != 0)
+            return false;
+        for (int i = 0; i < lastIndex; i++) {
+            if (this.min[i] != this.max[i])
+                return false;
+        }
+        return true;
     }
 
     /**
