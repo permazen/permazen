@@ -93,16 +93,22 @@ import org.slf4j.LoggerFactory;
  *      {@link org.jsimpledb.kv.mvcc.SnapshotKVDatabase}):
  *      <ul>
  *      <li>Transactions execute locally until commit time, using a {@link org.jsimpledb.kv.mvcc.MutableView} to collect mutations.
- *          The {@link org.jsimpledb.kv.mvcc.MutableView} is based on the local node's most recent log entry
- *          (whether committed or not); this is called the <i>base term and index</i> for the transaction.</li>
+ *          The {@link org.jsimpledb.kv.mvcc.MutableView} is based on the local node's last unapplied log entry,
+ *          if any (whether committed or not), or else directly the underlying key/value store; this defines
+ *          the <i>base term and index</i> for the transaction.</li>
+ *      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
+ *          compacted key/value store, transaction performance degrades as the number of unapplied log
+ *          entries grows. Log entries are applied as soon as possible, subject to certain conditions, but
+ *          in any case limits on the {@linkplain #setMaxUnappliedLogEntries the number of unapplied log entries}
+ *          as well as their {@linkplain #setMaxUnappliedLogMemory total memory usage} are enforced.</li>
  *      <li>On commit, the transaction's {@link org.jsimpledb.kv.mvcc.Reads}, {@link org.jsimpledb.kv.mvcc.Writes},
  *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
  *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied,
  *          or was its most recently applied log entry. If this is not the case, then the transaction's base log entry
- *          is too old (older than <i>T<sub>max</sub></i>, or was applied and discarded early due to memory pressure),
- *          and so the transaction is rejected with a {@link RetryTransactionException}.
+ *          is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is rejected
+ *          with a {@link RetryTransactionException}.
  *      <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
- *          has been overwritten, and the transaction is rejected with a {@link RetryTransactionException}.
+ *          has been overwritten in a new Raft term, and the transaction is rejected with a {@link RetryTransactionException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's base log entry
  *          do not create {@linkplain org.jsimpledb.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
  *          {@link org.jsimpledb.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
@@ -124,9 +130,7 @@ import org.slf4j.LoggerFactory;
  *      followers have confirmed receipt. The point of waiting is to avoid incoming follower transactions being rejected because
  *      their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
  *      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry there
- *      should be no further commit requests from that follower for transactions based on earlier log entries. The time the
- *      leader will wait for confirmation is limited, and this caching is subject to <i>M<sub>max</sub></i>, which limits
- *      the total memory used.</li>
+ *      should be no further commit requests from that follower for transactions based on earlier log entries.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
  *      which is the earliest time at which it is possible for another leader to be elected.
@@ -579,10 +583,6 @@ public class RaftKVDatabase implements KVDatabase {
      * Configure the maximum supported duration for outstanding transactions.
      *
      * <p>
-     * This value is the <i>T<sub>max</sub></i> value from the {@linkplain RaftKVDatabase overview}.
-     * A larger value means more memory may be used.
-     *
-     * <p>
      * This value may be changed while this instance is already running.
      *
      * <p>
@@ -610,11 +610,11 @@ public class RaftKVDatabase implements KVDatabase {
      * Configure the maximum allowed memory used for unapplied log entries.
      *
      * <p>
-     * This value is the <i>M<sub>max</sub></i> value from the {@linkplain RaftKVDatabase overview}.
-     * A higher value means transactions may be larger and/or stay open longer without causing a {@link RetryTransactionException}.
+     * A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
+     * {@link RetryTransactionException}, but at the cost of possibly slower data access.
      *
      * <p>
-     * This value is approximate, and only affects leaders; followers always apply committed log entries immediately.
+     * This memory measurement value is approximate.
      *
      * <p>
      * This value may be changed while this instance is already running.
@@ -622,13 +622,12 @@ public class RaftKVDatabase implements KVDatabase {
      * <p>
      * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_MEMORY}.
      *
-     * @param memory maximum allowed memory usage for cached applied log entries
-     * @throws IllegalArgumentException if {@code memory <= 0}
-     * @see #setMaxTransactionDuration
+     * @param maxUnappliedLogMemory maximum allowed memory usage for unapplied log entries
+     * @throws IllegalArgumentException if {@code maxUnappliedLogMemory <= 0}
      */
-    public synchronized void setMaxUnappliedLogMemory(long memory) {
-        Preconditions.checkArgument(memory > 0, "memory <= 0");
-        this.maxUnappliedLogMemory = memory;
+    public synchronized void setMaxUnappliedLogMemory(long maxUnappliedLogMemory) {
+        Preconditions.checkArgument(maxUnappliedLogMemory > 0, "maxUnappliedLogMemory <= 0");
+        this.maxUnappliedLogMemory = maxUnappliedLogMemory;
     }
 
     /**
@@ -653,7 +652,7 @@ public class RaftKVDatabase implements KVDatabase {
      * <p>
      * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES}.
      *
-     * @param memory maximum number of unapplied log entries
+     * @param maxUnappliedLogEntries maximum number of unapplied log entries
      * @throws IllegalArgumentException if {@code maxUnappliedLogEntries <= 0}
      */
     public synchronized void setMaxUnappliedLogEntries(int maxUnappliedLogEntries) {
