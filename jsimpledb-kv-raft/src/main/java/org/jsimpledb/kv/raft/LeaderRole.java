@@ -241,15 +241,16 @@ public class LeaderRole extends Role {
             }
         }
 
-        // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
+        // If some follower does not yet have the log entry as committed, wait for them to get it (up to some maximum time).
         // If the follower appears to be offline, don't bother waiting.
         final int maxLogEntryAge = RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout;
         if (logEntry.getAge() < maxLogEntryAge) {
             final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
             for (Follower follower : this.followerMap.values()) {
 
-                // Has this follower acknowledged reciept of the log entry?
-                if (follower.getMatchIndex() >= logEntry.getIndex())
+                // Has this follower acknowledged reciept of the log entry and knows that it is committed?
+                // If so, then the follower has already rebased any executing transactions.
+                if (follower.getMatchIndex() >= logEntry.getIndex() && follower.getLeaderCommit() >= logEntry.getIndex())
                     continue;
 
                 // If we haven't heard from this follower in a while, don't bother waiting for it
