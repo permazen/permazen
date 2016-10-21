@@ -391,12 +391,19 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         if (this.reads == null)
             return;
 
-        // Realize minKey
-        if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+        // Define the range
+        final KeyRange range = new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey);
+
+        // If read is entirely contained in a remove range, it did not really go through to k/v store
+        if (this.writes.getRemoves().contains(range))
+            return;
+
+        // If the read is of a single key and that key has been written, it did not really go through to k/v store
+        if (range.isSingleKey() && this.writes.getPuts().containsKey(range.getMin()))
+            return;
 
         // Add range
-        this.reads.add(new KeyRange(minKey, maxKey));
+        this.reads.add(range);
     }
 
 // RangeIterator
