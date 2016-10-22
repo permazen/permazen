@@ -20,7 +20,7 @@ Ask these questions of your existing persistence solution:
   * **Schema evolution type safety** Is type safety and data type congruence guaranteed across arbitrary schema migrations?
   * **Transactional validation** Does validation occur only at the end of the transaction (as it should), or randomly and inconveniently in the middle?
   * **Cross-object validation** Is it possible to define validation constraints that span multiple objects/records? Can we register for notifications about changes in non-local objects?
-  * **Language-level data maintainability** Can database maintenance tasks be performed using the normal Java types and values? Are there convenient tools for manual and scripted use?
+  * **Language-level data maintainability** Can database maintenance tasks and queries be performed using Java types, values, and expressions (including Java 8 streams and lambdas)? Are there convenient tools for manual and scripted use?
 
 JSimpleDB addresses all of these issues, this without sacrificing flexibility or scalability.
 
