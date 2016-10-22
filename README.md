@@ -1,20 +1,24 @@
 ### JSimpleDB is a better persistence layer for Java
 
-Mainstream persistence solutions such as JPA and JDO fail to address many important issues that are _inherent_ to persistence programming. This is because they were not designed to address these issues; they were designed merely to give Java programmers access to existing database functionality.
+Mainstream persistence solutions such as JDBC, JPA and JDO were designed simply to give Java programmers access to existing database functionality. They leave many important issues that are _inherent_ to persistence programming poorly addressed or entirely up to the programmer to solve.
 
-In particular:
+JSimpleDB is a completely different way of looking at persistence programming. JSimpleDB starts over, asking the simple question, "What are the issues that are inherent to persistence programming, regardless of programming language or database technology, and how can they be addressed in the most natural way?"
 
-  * **Configuration complexity** Do we have to explicitly configure how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
+With JSimpleDB not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many persistence issues that tranditional solutions don't address at all are solved as well.
+
+Ask these questions your existing persistence solution:
+
+  * **Configuration complexity** Do we have to explicitly configure details of how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
   * **Query language concordance** Does the code that performs queries look like regular Java code, or do we have to learn a new “query language”?
-  * **Query performance transparency** Is the performance of a query obvious from looking at the code that performs it?
+  * **Query performance transparency** Is the performance of a query visible and obvious from looking at the code that performs it?
   * **Data type congruence** Do database types agree with Java types? Are all field values supported? Do we always read back the same values we write?
   * **First class offline data** Can it be precisely defined which data is actually copied out of a transaction? Does offline data have all the rights and privileges of “online” (i.e., transactional) data? Does this include index queries and a framework for handling schema differences? Can offline data be easily serialized/deserialized?
   * **Schema verification** Is the schema assumed by the code cross-checked against the schema actually present in the database?
-  * **Incremental schema evolution** Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Are any whole database operations ever required?
+  * **Incremental schema evolution** Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Can "whole database" migration operations that would limit scalability be completely avoided?
   * **Structural schema changes** Are structural schema updates performed automatically?
   * **Semantic schema changes** Is there a convenient way to specify semantic schema updates, preferably at the Java level, not the database level? Do semantic updates have access to both the old and the new values?
   * **Schema evolution type safety** Is type safety and data type congruence guaranteed across arbitrary schema migrations?
-  * **Transactional validation** Does validation only occur at the end of the transaction, or randomly and inconveniently in the middle?
+  * **Transactional validation** Does validation occur only at the end of the transaction as it should, or randomly and inconveniently in the middle?
   * **Cross-object validation** Is it possible to define validation constraints that span multiple objects/records?
   * **Language-level data maintainability** Can data maintenance tasks be performed using the normal Java types and values? Are there convenient tools for manual and scripted use?
 
