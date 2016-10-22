@@ -85,9 +85,9 @@ There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|jsi
 Documentation and links:
 
   * [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction)
-  * [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted)
+  * [Getting Started](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted)
   * [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ)
   * [API Javadocs](http://archiecobbs.github.io/jsimpledb/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html)
-  * [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison)
-  * [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
-  * [Maven Site](http://archiecobbs.github.io/jsimpledb/site/).
+  * Bullet-point [JPA Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison)
+  * [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group
+  * Auto-generated [Maven Site](http://archiecobbs.github.io/jsimpledb/site/)
