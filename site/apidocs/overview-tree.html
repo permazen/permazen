@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Class Hierarchy (JSimpleDB 2.4.1 API)</title>
+<title>Class Hierarchy (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Class Hierarchy (JSimpleDB 2.4.1 API)";
+        parent.document.title="Class Hierarchy (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -304,7 +304,7 @@
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetVerboseCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowAllSchemasCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowImportsCommand</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>)</li>
-<li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowSchemaCommand</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>)</li>
+<li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowSchemaCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowVariablesCommand</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>)</li>
 </ul>
 </li>
@@ -456,7 +456,7 @@
 </li>
 <li type="circle">org.jsimpledb.kv.raft.cmd.<a href="org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.kv.raft.cmd"><span class="strong">AbstractRaftCommand.RaftAction</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>)
 <ul>
-<li type="circle">org.jsimpledb.kv.raft.cmd.<a href="org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.kv.raft.cmd"><span class="strong">AbstractTransactionRaftCommand.RaftTransactionAction</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a>)</li>
+<li type="circle">org.jsimpledb.kv.raft.cmd.<a href="org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.kv.raft.cmd"><span class="strong">AbstractTransactionRaftCommand.RaftTransactionAction</span></a> (implements org.jsimpledb.<a href="org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a>, org.jsimpledb.<a href="org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb">Session.RetryableAction</a>)</li>
 </ul>
 </li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/AbstractValue.html" title="class in org.jsimpledb.parse.expr"><span class="strong">AbstractValue</span></a> (implements org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a>)
@@ -636,7 +636,7 @@
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/EnumNameParser.html" title="class in org.jsimpledb.parse"><span class="strong">EnumNameParser</span></a>&lt;T&gt; (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/EnumValue.html" title="class in org.jsimpledb.core"><span class="strong">EnumValue</span></a></li>
 <li type="circle">org.jsimpledb.kv.fdb.<a href="org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb"><span class="strong">ErrorCodes</span></a></li>
-<li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">EvalCommand.EvalAction</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a>)</li>
+<li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">EvalCommand.EvalAction</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, org.jsimpledb.<a href="org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a>)</li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/ExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">ExprParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.kv.raft.fallback.<a href="org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback"><span class="strong">FallbackKVDatabase</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>)</li>
 <li type="circle">org.jsimpledb.kv.raft.fallback.<a href="org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><span class="strong">FallbackTarget</span></a> (implements java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)</li>
@@ -1082,11 +1082,7 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.change.<a href="org/jsimpledb/change/ChangeSwitch.html" title="interface in org.jsimpledb.change"><span class="strong">ChangeSwitch</span></a>&lt;R&gt;</li>
-<li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.Action</span></a>
-<ul>
-<li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.TransactionalAction</span></a></li>
-</ul>
-</li>
+<li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.Action</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><span class="strong">CreateListener</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><span class="strong">DeleteListener</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/DiffGenerating.html" title="interface in org.jsimpledb.util"><span class="strong">DiffGenerating</span></a>&lt;T&gt;</li>
@@ -1171,15 +1167,15 @@
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><span class="strong">Command</span></a></li>
 </ul>
 </li>
-<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.Action</span></a>
-<ul>
-<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.TransactionalAction</span></a></li>
-</ul>
-</li>
+<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.Action</span></a></li>
 <li type="circle">org.jsimpledb.schema.<a href="org/jsimpledb/schema/SchemaFieldSwitch.html" title="interface in org.jsimpledb.schema"><span class="strong">SchemaFieldSwitch</span></a>&lt;R&gt;</li>
-<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Session.Action</span></a>
+<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Session.Action</span></a></li>
+<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><span class="strong">Session.TransactionalAction</span></a>
 <ul>
-<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><span class="strong">Session.TransactionalAction</span></a></li>
+<li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.TransactionalAction</span></a></li>
+<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.TransactionalAction</span></a></li>
+<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb"><span class="strong">Session.HasTransactionOptions</span></a></li>
+<li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb"><span class="strong">Session.RetryableAction</span></a></li>
 </ul>
 </li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><span class="strong">SetFieldChangeListener</span></a></li>

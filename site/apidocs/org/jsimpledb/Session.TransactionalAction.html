@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Session.TransactionalAction (JSimpleDB 2.4.1 API)</title>
+<title>Session.TransactionalAction (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Session.TransactionalAction (JSimpleDB 2.4.1 API)";
+        parent.document.title="Session.TransactionalAction (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -35,7 +35,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -86,8 +86,12 @@
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Superinterfaces:</dt>
-<dd><a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a></dd>
+<dt>All Known Subinterfaces:</dt>
+<dd><a href="../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a>, <a href="../../org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse">ParseSession.TransactionalAction</a>, <a href="../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a>, <a href="../../org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb">Session.RetryableAction</a></dd>
+</dl>
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><a href="../../org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.kv.raft.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a>, <a href="../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -95,30 +99,12 @@
 </dl>
 <hr>
 <br>
-<pre>public static interface <span class="strong">Session.TransactionalAction</span>
-extends <a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a></pre>
-<div class="block">Tagging interface indicating an <a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><code>Session.Action</code></a> that requires there to be an open transaction.</div>
-</li>
-</ul>
-</div>
-<div class="summary">
-<ul class="blockList">
-<li class="blockList">
-<!-- ========== METHOD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="method_summary">
-<!--   -->
-</a>
-<h3>Method Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.Session.Action">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;org.jsimpledb.<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a></h3>
-<code><a href="../../org/jsimpledb/Session.Action.html#run(org.jsimpledb.Session)">run</a></code></li>
-</ul>
-</li>
-</ul>
+<pre>public static interface <span class="strong">Session.TransactionalAction</span></pre>
+<div class="block">Tagging interface indicating an <a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><code>Session.Action</code></a> that requires there to be an open transaction.
+
+ <p>
+ A new transaction will be created if necessary before this action is executed.
+ If a transaction already exists, it will be (re)used.</div>
 </li>
 </ul>
 </div>
@@ -143,7 +129,7 @@ extends <a href="../../org/jsimpledb/Session.Action.html" title="interface in or
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">

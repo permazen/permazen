@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RaftKVDatabase (JSimpleDB 2.4.1 API)</title>
+<title>RaftKVDatabase (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVDatabase (JSimpleDB 2.4.1 API)";
+        parent.document.title="RaftKVDatabase (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -122,16 +122,22 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
       <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a>):
       <ul>
       <li>Transactions execute locally until commit time, using a <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc"><code>MutableView</code></a> to collect mutations.
-          The <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc"><code>MutableView</code></a> is based on the local node's most recent log entry
-          (whether committed or not); this is called the <i>base term and index</i> for the transaction.</li>
+          The <a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc"><code>MutableView</code></a> is based on the local node's last unapplied log entry,
+          if any (whether committed or not), or else directly the underlying key/value store; this defines
+          the <i>base term and index</i> for the transaction.</li>
+      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
+          compacted key/value store, transaction performance degrades as the number of unapplied log
+          entries grows. Log entries are applied as soon as possible, subject to certain conditions, but
+          in any case limits on the <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogEntries(int)">the number of unapplied log entries</a>
+          as well as their <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogMemory(long)">total memory usage</a> are enforced.</li>
       <li>On commit, the transaction's <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a>, <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a>,
           base index and term, and any config change are <a href="../../../../org/jsimpledb/kv/raft/msg/CommitRequest.html" title="class in org.jsimpledb.kv.raft.msg">sent</a> to the leader.</li>
       <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied,
           or was its most recently applied log entry. If this is not the case, then the transaction's base log entry
-          is too old (older than <i>T<sub>max</sub></i>, or was applied and discarded early due to memory pressure),
-          and so the transaction is rejected with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
+          is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is rejected
+          with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
       <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
-          has been overwritten, and the transaction is rejected with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
+          has been overwritten in a new Raft term, and the transaction is rejected with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
       <li>The leader confirms that the <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> associated with log entries after the transaction's base log entry
           do not create <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)">conflicts</a> when compared against the transaction's
           <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a>. If so, the transaction is rejected with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.</li>
@@ -152,9 +158,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
       followers have confirmed receipt. The point of waiting is to avoid incoming follower transactions being rejected because
       their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
       rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry there
-      should be no further commit requests from that follower for transactions based on earlier log entries. The time the
-      leader will wait for confirmation is limited, and this caching is subject to <i>M<sub>max</sub></i>, which limits
-      the total memory used.</li>
+      should be no further commit requests from that follower for transactions based on earlier log entries.</li>
   <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
       term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
       which is the earliest time at which it is possible for another leader to be elected.
@@ -348,8 +352,20 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS">DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS</a></strong></code>
+<div class="block">Default maximum number of heartbeat intervals a leader will wait for a follower to acknowledge receipt of a log entry.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_TRANSACTION_DURATION">DEFAULT_MAX_TRANSACTION_DURATION</a></strong></code>
 <div class="block">Default maximum supported outstanding transaction duration (5000ms).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES">DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES</a></strong></code>
+<div class="block">Default maximum number of unapplied log entries (64 bytes).</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -505,9 +521,22 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxFollowerAckHeartbeats()">getMaxFollowerAckHeartbeats</a></strong>()</code>
+<div class="block">Get the maximum number of heartbeat intervals a leader will wait for a follower to acknowledge
+ receipt of a log entry before compacting it.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxTransactionDuration()">getMaxTransactionDuration</a></strong>()</code>
 <div class="block">Get the configured maximum supported duration for outstanding transactions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxUnappliedLogEntries()">getMaxUnappliedLogEntries</a></strong>()</code>
+<div class="block">Get the configured maximum number of unapplied log entries.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -611,13 +640,26 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxTransactionDuration(int)">setMaxTransactionDuration</a></strong>(int&nbsp;duration)</code>
-<div class="block">Configure the maximum supported duration for outstanding transactions.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxFollowerAckHeartbeats(int)">setMaxFollowerAckHeartbeats</a></strong>(int&nbsp;maxFollowerAckHeartbeats)</code>
+<div class="block">Configure the maximum number of heartbeat intervals a leader will wait for any follower to acknowledge
+ receipt of a log entry before compacting it.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogMemory(long)">setMaxUnappliedLogMemory</a></strong>(long&nbsp;memory)</code>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxTransactionDuration(int)">setMaxTransactionDuration</a></strong>(int&nbsp;duration)</code>
+<div class="block">Configure the maximum supported duration for outstanding transactions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogEntries(int)">setMaxUnappliedLogEntries</a></strong>(int&nbsp;maxUnappliedLogEntries)</code>
+<div class="block">Configure the maximum number of unapplied log entries.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogMemory(long)">setMaxUnappliedLogMemory</a></strong>(long&nbsp;maxUnappliedLogMemory)</code>
 <div class="block">Configure the maximum allowed memory used for unapplied log entries.</div>
 </td>
 </tr>
@@ -729,6 +771,30 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Default maximum supported applied log entry memory usage (104857600L bytes).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogMemory(long)"><code>setMaxUnappliedLogMemory(long)</code></a>, 
 <a href="../../../../constant-values.html#org.jsimpledb.kv.raft.RaftKVDatabase.DEFAULT_MAX_UNAPPLIED_LOG_MEMORY">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES</pre>
+<div class="block">Default maximum number of unapplied log entries (64 bytes).</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogEntries(int)"><code>setMaxUnappliedLogEntries(int)</code></a>, 
+<a href="../../../../constant-values.html#org.jsimpledb.kv.raft.RaftKVDatabase.DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS</pre>
+<div class="block">Default maximum number of heartbeat intervals a leader will wait for a follower to acknowledge receipt of a log entry.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxFollowerAckHeartbeats(int)"><code>setMaxFollowerAckHeartbeats(int)</code></a>, 
+<a href="../../../../constant-values.html#org.jsimpledb.kv.raft.RaftKVDatabase.DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS">Constant Field Values</a></dd></dl>
 </li>
 </ul>
 <a name="DEFAULT_COMMIT_TIMEOUT">
@@ -982,10 +1048,6 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Configure the maximum supported duration for outstanding transactions.
 
  <p>
- This value is the <i>T<sub>max</sub></i> value from the <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">overview</a>.
- A larger value means more memory may be used.
-
- <p>
  This value may be changed while this instance is already running.
 
  <p>
@@ -1012,24 +1074,24 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxUnappliedLogMemory</h4>
-<pre>public&nbsp;void&nbsp;setMaxUnappliedLogMemory(long&nbsp;memory)</pre>
+<pre>public&nbsp;void&nbsp;setMaxUnappliedLogMemory(long&nbsp;maxUnappliedLogMemory)</pre>
 <div class="block">Configure the maximum allowed memory used for unapplied log entries.
 
  <p>
- This value is the <i>M<sub>max</sub></i> value from the <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">overview</a>.
- A higher value means transactions may be larger and/or stay open longer without causing a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
+ A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
+ <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>, but at the cost of possibly slower data access.
 
  <p>
- This value is approximate, and only affects leaders; followers always apply committed log entries immediately.
+ This memory measurement value is approximate.
 
  <p>
  This value may be changed while this instance is already running.
 
  <p>
  Default is <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_UNAPPLIED_LOG_MEMORY"><code>DEFAULT_MAX_UNAPPLIED_LOG_MEMORY</code></a>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>memory</code> - maximum allowed memory usage for cached applied log entries</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>maxUnappliedLogMemory</code> - maximum allowed memory usage for unapplied log entries</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>memory &lt;= 0</code></dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxTransactionDuration(int)"><code>setMaxTransactionDuration(int)</code></a></dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>maxUnappliedLogMemory &lt;= 0</code></dd></dl>
 </li>
 </ul>
 <a name="getMaxUnappliedLogMemory()">
@@ -1041,6 +1103,75 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <pre>public&nbsp;long&nbsp;getMaxUnappliedLogMemory()</pre>
 <div class="block">Get the configured maximum allowed memory used for unapplied log entries.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>maximum allowed memory usage for cached applied log entries</dd></dl>
+</li>
+</ul>
+<a name="setMaxUnappliedLogEntries(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxUnappliedLogEntries</h4>
+<pre>public&nbsp;void&nbsp;setMaxUnappliedLogEntries(int&nbsp;maxUnappliedLogEntries)</pre>
+<div class="block">Configure the maximum number of unapplied log entries.
+
+ <p>
+ A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
+ <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>, but at the cost of possibly slower data access.
+
+ <p>
+ This value may be changed while this instance is already running.
+
+ <p>
+ Default is <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES"><code>DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>maxUnappliedLogEntries</code> - maximum number of unapplied log entries</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>maxUnappliedLogEntries &lt;= 0</code></dd></dl>
+</li>
+</ul>
+<a name="getMaxUnappliedLogEntries()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxUnappliedLogEntries</h4>
+<pre>public&nbsp;long&nbsp;getMaxUnappliedLogEntries()</pre>
+<div class="block">Get the configured maximum number of unapplied log entries.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>maximum number of unapplied log entries</dd></dl>
+</li>
+</ul>
+<a name="setMaxFollowerAckHeartbeats(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxFollowerAckHeartbeats</h4>
+<pre>public&nbsp;void&nbsp;setMaxFollowerAckHeartbeats(int&nbsp;maxFollowerAckHeartbeats)</pre>
+<div class="block">Configure the maximum number of heartbeat intervals a leader will wait for any follower to acknowledge
+ receipt of a log entry before compacting it.
+
+ <p>
+ Higher values may be needed when the network is lossy.
+
+ <p>
+ This value may be changed while this instance is already running.
+
+ <p>
+ Default is <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS"><code>DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>maxFollowerAckHeartbeats</code> - maximum number of heartbeats for a leader to wait on a follower before compacting a log entry</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>maxFollowerAckHeartbeats &lt;= 0</code></dd></dl>
+</li>
+</ul>
+<a name="getMaxFollowerAckHeartbeats()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxFollowerAckHeartbeats</h4>
+<pre>public&nbsp;long&nbsp;getMaxFollowerAckHeartbeats()</pre>
+<div class="block">Get the maximum number of heartbeat intervals a leader will wait for a follower to acknowledge
+ receipt of a log entry before compacting it.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>maximum number of heartbeats for a leader to wait on a follower before compacting a log entry</dd></dl>
 </li>
 </ul>
 <a name="setCommitTimeout(int)">

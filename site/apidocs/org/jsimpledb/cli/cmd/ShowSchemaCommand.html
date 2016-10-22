@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ShowSchemaCommand (JSimpleDB 2.4.1 API)</title>
+<title>ShowSchemaCommand (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ShowSchemaCommand (JSimpleDB 2.4.1 API)";
+        parent.document.title="ShowSchemaCommand (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -100,13 +100,12 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>, <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</dd>
+<dd><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>, <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="strong">ShowSchemaCommand</span>
-extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a>
-implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></pre>
+extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></pre>
 </li>
 </ul>
 </div>
@@ -173,10 +172,14 @@ implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title=
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html#run(org.jsimpledb.cli.CliSession)">run</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session)</code>
-<div class="block">Perform some action using the given <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> while a transaction is open.</div>
-</td>
+<td class="colFirst"><code>protected static <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html#getSchemaModel(org.jsimpledb.cli.CliSession, int)">getSchemaModel</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+              int&nbsp;version)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static &lt;R&gt;&nbsp;R</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html#runWithoutSchema(org.jsimpledb.cli.CliSession, org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)">runWithoutSchema</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -260,22 +263,24 @@ implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title=
 <dt><span class="strong">Returns:</span></dt><dd>action to perform for the parsed command</dd></dl>
 </li>
 </ul>
-<a name="run(org.jsimpledb.cli.CliSession)">
+<a name="getSchemaModel(org.jsimpledb.cli.CliSession, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchemaModel</h4>
+<pre>protected static&nbsp;<a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;getSchemaModel(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                         int&nbsp;version)</pre>
+</li>
+</ul>
+<a name="runWithoutSchema(org.jsimpledb.cli.CliSession, org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>run</h4>
-<pre>public&nbsp;void&nbsp;run(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session)
-         throws <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></pre>
-<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html#run(org.jsimpledb.cli.CliSession)">CliSession.Action</a></code></strong></div>
-<div class="block">Perform some action using the given <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> while a transaction is open.</div>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html#run(org.jsimpledb.cli.CliSession)">run</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session with open transaction</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code> - if an error occurs</dd></dl>
+<h4>runWithoutSchema</h4>
+<pre>protected static&nbsp;&lt;R&gt;&nbsp;R&nbsp;runWithoutSchema(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                     org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</pre>
 </li>
 </ul>
 </li>

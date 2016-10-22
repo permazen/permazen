@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>AbstractTransactionRaftCommand.RaftTransactionAction (JSimpleDB 2.4.1 API)</title>
+<title>AbstractTransactionRaftCommand.RaftTransactionAction (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="AbstractTransactionRaftCommand.RaftTransactionAction (JSimpleDB 2.4.1 API)";
+        parent.document.title="AbstractTransactionRaftCommand.RaftTransactionAction (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -100,7 +100,7 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a></dd>
+<dd><a href="../../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a>, <a href="../../../../../org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb">Session.RetryableAction</a>, <a href="../../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -110,7 +110,7 @@
 <br>
 <pre>protected abstract class <span class="strong">AbstractTransactionRaftCommand.RaftTransactionAction</span>
 extends <a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.kv.raft.cmd">AbstractRaftCommand.RaftAction</a>
-implements <a href="../../../../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a></pre>
+implements <a href="../../../../../org/jsimpledb/Session.RetryableAction.html" title="interface in org.jsimpledb">Session.RetryableAction</a>, <a href="../../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a></pre>
 </li>
 </ul>
 </div>
@@ -149,6 +149,16 @@ implements <a href="../../../../../org/jsimpledb/cli/CliSession.TransactionalAct
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#getConsistency()">getConsistency</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#getTransactionOptions()">getTransactionOptions</a></strong>()</code>
+<div class="block">Get the options, if any, to be used when creating a new transaction for this action to run in.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVDatabase)">run</a></strong>(<a href="../../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
    <a href="../../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a>&nbsp;db)</code>&nbsp;</td>
@@ -172,13 +182,6 @@ implements <a href="../../../../../org/jsimpledb/cli/CliSession.TransactionalAct
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
 <code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.cli.CliSession.Action">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;org.jsimpledb.cli.<a href="../../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></h3>
-<code><a href="../../../../../org/jsimpledb/cli/CliSession.Action.html#run(org.jsimpledb.cli.CliSession)">run</a></code></li>
 </ul>
 </li>
 </ul>
@@ -225,6 +228,30 @@ implements <a href="../../../../../org/jsimpledb/cli/CliSession.TransactionalAct
 <dd><code><a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.RaftAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVDatabase)">run</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.kv.raft.cmd">AbstractRaftCommand.RaftAction</a></code></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code></dd></dl>
+</li>
+</ul>
+<a name="getTransactionOptions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTransactionOptions</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;getTransactionOptions()</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jsimpledb/Session.HasTransactionOptions.html#getTransactionOptions()">Session.HasTransactionOptions</a></code></strong></div>
+<div class="block">Get the options, if any, to be used when creating a new transaction for this action to run in.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jsimpledb/Session.HasTransactionOptions.html#getTransactionOptions()">getTransactionOptions</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>-specific transaction options, or null for none</dd></dl>
+</li>
+</ul>
+<a name="getConsistency()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getConsistency</h4>
+<pre>protected&nbsp;<a href="../../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;getConsistency()</pre>
 </li>
 </ul>
 <a name="run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVTransaction)">

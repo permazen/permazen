@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>CompareSchemasCommand (JSimpleDB 2.4.1 API)</title>
+<title>CompareSchemasCommand (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="CompareSchemasCommand (JSimpleDB 2.4.1 API)";
+        parent.document.title="CompareSchemasCommand (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -171,6 +171,16 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="block">Get summarized help (typically a single line).</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/CompareSchemasCommand.html#getSchemaModel(org.jsimpledb.cli.CliSession, int)">getSchemaModel</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+              int&nbsp;version)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static &lt;R&gt;&nbsp;R</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/CompareSchemasCommand.html#runWithoutSchema(org.jsimpledb.cli.CliSession, org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)">runWithoutSchema</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</code>&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.cli.cmd.AbstractCommand">
@@ -237,7 +247,7 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <a name="getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getAction</h4>
 <pre>public&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;getAction(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
@@ -251,6 +261,26 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <dd><code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - CLI session</dd><dd><code>ctx</code> - input to parse</dd><dd><code>complete</code> - false if parse is "for real", true if only for tab completion calculation</dd><dd><code>params</code> - parsed parameters indexed by name</dd>
 <dt><span class="strong">Returns:</span></dt><dd>action to perform for the parsed command</dd></dl>
+</li>
+</ul>
+<a name="getSchemaModel(org.jsimpledb.cli.CliSession, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchemaModel</h4>
+<pre>protected static&nbsp;<a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;getSchemaModel(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                         int&nbsp;version)</pre>
+</li>
+</ul>
+<a name="runWithoutSchema(org.jsimpledb.cli.CliSession, org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>runWithoutSchema</h4>
+<pre>protected static&nbsp;&lt;R&gt;&nbsp;R&nbsp;runWithoutSchema(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                     org.jsimpledb.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</pre>
 </li>
 </ul>
 </li>

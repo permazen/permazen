@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>EvalCommand.EvalAction (JSimpleDB 2.4.1 API)</title>
+<title>EvalCommand.EvalAction (JSimpleDB 2.4.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="EvalCommand.EvalAction (JSimpleDB 2.4.1 API)";
+        parent.document.title="EvalCommand.EvalAction (JSimpleDB 2.4.2 API)";
     }
 //-->
 </script>
@@ -95,7 +95,7 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a></dd>
+<dd><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -105,8 +105,8 @@
 <br>
 <pre>public static final class <span class="strong">EvalCommand.EvalAction</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a></pre>
-<div class="block">Special <code>CliSession.TransactionalAction</code> used by the <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
+implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></pre>
+<div class="block">Special transactional <code>CliSession.Action</code> used by the <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
  <a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.
 
  <p>
