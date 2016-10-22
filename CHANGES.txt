@@ -1,4 +1,4 @@
-Version 2.4.2
+Version 2.4.2 Released October 22, 2016
 
     - Minor improvments to Raft transaction handling to avoid retries
     - Added Session.RetryableAction and support for automatic retries
