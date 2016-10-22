@@ -7,14 +7,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.core.Schema;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.Diffs;
 import org.jsimpledb.util.ParseContext;
 
-public class CompareSchemasCommand extends AbstractCommand {
+public class CompareSchemasCommand extends AbstractSchemaCommand {
 
     public CompareSchemasCommand() {
         super("compare-schemas version1:int version2:int");
@@ -33,7 +31,7 @@ public class CompareSchemasCommand extends AbstractCommand {
         return new CompareAction(version1, version2);
     }
 
-    private static class CompareAction implements CliSession.Action, Session.TransactionalAction {
+    private static class CompareAction implements CliSession.Action {
 
         private final int version1;
         private final int version2;
@@ -45,8 +43,8 @@ public class CompareSchemasCommand extends AbstractCommand {
 
         @Override
         public void run(CliSession session) throws Exception {
-            final SchemaModel schema1 = this.getSchemaModel(session, this.version1);
-            final SchemaModel schema2 = this.getSchemaModel(session, this.version2);
+            final SchemaModel schema1 = AbstractSchemaCommand.getSchemaModel(session, this.version1);
+            final SchemaModel schema2 = AbstractSchemaCommand.getSchemaModel(session, this.version2);
             if (schema1 == null || schema2 == null)
                 return;
             final String desc1 = this.version1 == 0 ? "the schema configured on this session" : "schema version " + this.version1;
@@ -56,23 +54,6 @@ public class CompareSchemasCommand extends AbstractCommand {
                 session.getWriter().println("No differences found between " + desc1 + " and " + desc2);
             else
                 session.getWriter().println("Found differences found between " + desc1 + " and " + desc2 + "\n" + diffs);
-        }
-
-        private SchemaModel getSchemaModel(CliSession session, int version) {
-            if (version == 0) {
-                final SchemaModel schemaModel = session.getSchemaModel();
-                if (schemaModel == null) {
-                    session.getWriter().println("No schema configured on this session");
-                    return null;
-                }
-                return schemaModel;
-            }
-            final Schema schema = session.getTransaction().getSchemas().getVersions().get(version);
-            if (schema == null) {
-                session.getWriter().println("Schema version " + version + " " + "not found");
-                return null;
-            }
-            return schema.getSchemaModel();
         }
     }
 }

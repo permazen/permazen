@@ -11,39 +11,44 @@ import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-public class ShowSchemaCommand extends AbstractCommand implements CliSession.Action {
+public class ShowSchemaCommand extends AbstractSchemaCommand {
 
     public ShowSchemaCommand() {
-        super("show-schema");
+        super("show-schema version:int?");
     }
 
     @Override
     public String getHelpSummary() {
-        return "Shows the currently active database schema in XML form";
+        return "Shows a specific schema version, or the currently active database schema, in XML form";
     }
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        return this;
+        final Integer version = (Integer)params.get("version");
+        return new ShowSchemaAction(version != null ? version : 0);
     }
 
-// CliSession.Action
+    private static class ShowSchemaAction implements CliSession.Action {
 
-    @Override
-    public void run(CliSession session) throws Exception {
+        private final int version;
 
-        // Get schema model
-        final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
-        if (schemaModel == null) {
-            session.getWriter().println("No schema is defined yet");
-            return;
+        ShowSchemaAction(int version) {
+            this.version = version;
         }
 
-        // Print it out with version (if known)
-        final int schemaVersion = InfoCommand.getSchemaVersion(session);
-        if (schemaVersion != 0)
-            session.getWriter().println("=== Schema version " + schemaVersion + " ===");
-        session.getWriter().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+        @Override
+        public void run(CliSession session) throws Exception {
+
+            // Get schema model
+            final SchemaModel schemaModel = AbstractSchemaCommand.getSchemaModel(session, this.version);
+            if (schemaModel == null)
+                return;
+
+            // Print it out with version (if known)
+            if (this.version != 0)
+                session.getWriter().println("=== Schema version " + this.version + " ===");
+            session.getWriter().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+        }
     }
 }
 

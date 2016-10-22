@@ -7,13 +7,13 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.Session;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.Schema;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-public class ShowAllSchemasCommand extends AbstractCommand {
+public class ShowAllSchemasCommand extends AbstractSchemaCommand {
 
     public ShowAllSchemasCommand() {
         super("show-all-schemas -x:xml");
@@ -35,7 +35,7 @@ public class ShowAllSchemasCommand extends AbstractCommand {
         return new ShowSchemasAction(xml);
     }
 
-    private static class ShowSchemasAction implements CliSession.Action, Session.TransactionalAction {
+    private static class ShowSchemasAction implements CliSession.Action {
 
         private final boolean xml;
 
@@ -45,15 +45,21 @@ public class ShowAllSchemasCommand extends AbstractCommand {
 
         @Override
         public void run(CliSession session) throws Exception {
-            for (Map.Entry<Integer, Schema> entry : session.getTransaction().getSchemas().getVersions().entrySet()) {
-                final int number = entry.getKey();
-                final SchemaModel model = entry.getValue().getSchemaModel();
-                if (this.xml) {
-                    session.getWriter().println("=== Schema version " + number + " ===\n"
-                      + model.toString().replaceAll("^<.xml[^>]+>\\n", ""));
-                } else
-                    session.getWriter().println(number);
-            }
+            AbstractSchemaCommand.runWithoutSchema(session, new SchemaAgnosticAction<Void>() {
+                @Override
+                public Void runWithoutSchema(CliSession session, Transaction tx) {
+                    for (Map.Entry<Integer, Schema> entry : tx.getSchemas().getVersions().entrySet()) {
+                        final int number = entry.getKey();
+                        final SchemaModel model = entry.getValue().getSchemaModel();
+                        if (ShowSchemasAction.this.xml) {
+                            session.getWriter().println("=== Schema version " + number + " ===\n"
+                              + model.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+                        } else
+                            session.getWriter().println(number);
+                    }
+                    return null;
+                }
+            });
         }
     }
 }
