@@ -36,7 +36,7 @@ public class Session {
     /**
      * Default value for the {@linkplain #getMaxRetries maximum number of retry attempts}.
      */
-    public static final int DEFAULT_MAX_RETRIES = 4;
+    public static final int DEFAULT_MAX_RETRIES = 6;
 
     /**
      * Default value for the {@linkplain #getInitialRetryDelay initial retry delay} (in milliseconds).
