@@ -428,8 +428,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 if (txs[i] == null)
                     continue;
                 try {
+                    this.numTransactionAttempts.incrementAndGet();
                     txs[i].commit();
                 } catch (RetryTransactionException e) {
+                    this.numTransactionRetries.incrementAndGet();
                     txs[i] = store.createTransaction();
                     continue;
                 }
@@ -514,15 +516,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             final KVTransaction tx = kvdb.createTransaction();
-            this.numTransactionAttempts.incrementAndGet();
             try {
                 final V result = transactional.transact(tx);
+                this.numTransactionAttempts.incrementAndGet();
                 tx.commit();
                 return result;
             } catch (RetryTransactionException e) {
+                this.numTransactionRetries.incrementAndGet();
                 KVDatabaseTest.this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
                 retry = e;
-                this.numTransactionRetries.incrementAndGet();
             }
             try {
                 Thread.sleep(100 + count * 200);
@@ -819,7 +821,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     committed = false;
                     this.log("rolled-back");
                 } else {
-                    tx.commit();
+                    try {
+                        KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
+                        tx.commit();
+                    } catch (RetryTransactionException e) {
+                        KVDatabaseTest.this.numTransactionRetries.incrementAndGet();
+                        throw e;
+                    }
                     committed = true;
                     KVDatabaseTest.this.log.debug("*** COMMITTED TX " + tx);
                     this.log("committed");
@@ -1048,8 +1056,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         public void run() {
             try {
                 KVDatabaseTest.this.log.info("committing " + this.tx);
+                KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
                 this.tx.commit();
             } catch (RuntimeException e) {
+                if (e instanceof RetryTransactionException)
+                    KVDatabaseTest.this.numTransactionRetries.incrementAndGet();
                 KVDatabaseTest.this.log.info("exception committing " + this.tx + ": " + e);
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace(this.tx + " commit failure exception trace:", e);
