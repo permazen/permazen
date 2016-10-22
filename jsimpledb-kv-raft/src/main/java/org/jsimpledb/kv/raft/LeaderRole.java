@@ -243,7 +243,7 @@ public class LeaderRole extends Role {
 
         // If some follower does not yet have the log entry as committed, wait for them to get it (up to some maximum time).
         // If the follower appears to be offline, don't bother waiting.
-        final int maxLogEntryAge = RaftKVDatabase.MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout;
+        final int maxLogEntryAge = this.raft.maxFollowerAckHeartbeats * this.raft.heartbeatTimeout;
         if (logEntry.getAge() < maxLogEntryAge) {
             final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
             for (Follower follower : this.followerMap.values()) {

@@ -333,6 +333,13 @@ public class RaftKVDatabase implements KVDatabase {
     public static final int DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES = 64;
 
     /**
+     * Default maximum number of heartbeat intervals a leader will wait for a follower to acknowledge receipt of a log entry.
+     *
+     * @see #setMaxFollowerAckHeartbeats
+     */
+    public static final int DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS = 5;
+
+    /**
      * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}).
      *
      * @see #setCommitTimeout
@@ -353,7 +360,6 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
-    static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;     // how long to wait for a follower to receive a log entry
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
 
@@ -388,6 +394,7 @@ public class RaftKVDatabase implements KVDatabase {
     int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
     long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
     int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
+    int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
     boolean followerProbingEnabled;
     File logDir;
 
@@ -667,6 +674,37 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized long getMaxUnappliedLogEntries() {
         return this.maxUnappliedLogEntries;
+    }
+
+    /**
+     * Configure the maximum number of heartbeat intervals a leader will wait for any follower to acknowledge
+     * receipt of a log entry before compacting it.
+     *
+     * <p>
+     * Higher values may be needed when the network is lossy.
+     *
+     * <p>
+     * This value may be changed while this instance is already running.
+     *
+     * <p>
+     * Default is {@link #DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS}.
+     *
+     * @param maxFollowerAckHeartbeats maximum number of heartbeats for a leader to wait on a follower before compacting a log entry
+     * @throws IllegalArgumentException if {@code maxFollowerAckHeartbeats <= 0}
+     */
+    public synchronized void setMaxFollowerAckHeartbeats(int maxFollowerAckHeartbeats) {
+        Preconditions.checkArgument(maxFollowerAckHeartbeats > 0, "maxFollowerAckHeartbeats <= 0");
+        this.maxFollowerAckHeartbeats = maxFollowerAckHeartbeats;
+    }
+
+    /**
+     * Get the maximum number of heartbeat intervals a leader will wait for a follower to acknowledge
+     * receipt of a log entry before compacting it.
+     *
+     * @return maximum number of heartbeats for a leader to wait on a follower before compacting a log entry
+     */
+    public synchronized long getMaxFollowerAckHeartbeats() {
+        return this.maxFollowerAckHeartbeats;
     }
 
     /**
