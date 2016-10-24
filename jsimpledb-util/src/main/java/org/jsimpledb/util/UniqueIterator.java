@@ -27,7 +27,7 @@ public class UniqueIterator<E> implements Iterator<E> {
      * @param iterator wrapped {@link Iterator}
      */
     public UniqueIterator(Iterator<? extends E> iterator) {
-        this.iterator = Iterators.peekingIterator(iterator);
+        this.iterator = Iterators.<E>peekingIterator(iterator);
         this.comparator = null;
     }
 
@@ -40,7 +40,7 @@ public class UniqueIterator<E> implements Iterator<E> {
      */
     public UniqueIterator(Iterator<? extends E> iterator, Comparator<? super E> comparator) {
         Preconditions.checkArgument(comparator != null, "null comparator");
-        this.iterator = Iterators.peekingIterator(iterator);
+        this.iterator = Iterators.<E>peekingIterator(iterator);
         this.comparator = comparator;
     }
 
