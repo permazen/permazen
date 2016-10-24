@@ -225,6 +225,7 @@ public class ParseContext implements Cloneable {
     /**
      * Clone this instance.
      */
+    @Override
     public ParseContext clone() {
         try {
             return (ParseContext)super.clone();
