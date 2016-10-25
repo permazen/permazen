@@ -5,19 +5,15 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Converter;
-
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.jsimpledb.core.util.ObjIdMap;
-import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

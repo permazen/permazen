@@ -10,8 +10,6 @@ import java.util.UUID;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.core.ObjId;
-import org.jsimpledb.index.Index;
 import org.jsimpledb.test.TestSupport;
 import org.jsimpledb.util.NavigableSets;
 import org.testng.annotations.Test;

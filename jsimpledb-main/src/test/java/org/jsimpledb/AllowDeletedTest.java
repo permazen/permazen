@@ -6,12 +6,9 @@
 package org.jsimpledb;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.annotation.OnDelete;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.test.TestSupport;

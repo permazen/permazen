@@ -5,17 +5,13 @@
 
 package org.jsimpledb;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.NavigableSet;
 
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.annotation.JTransient;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class UntypedJObjectTest extends TestSupport {

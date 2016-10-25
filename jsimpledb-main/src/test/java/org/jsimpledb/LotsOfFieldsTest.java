@@ -5,26 +5,8 @@
 
 package org.jsimpledb;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.SortedSet;
-
-import org.jsimpledb.annotation.JField;
-import org.jsimpledb.annotation.JListField;
-import org.jsimpledb.annotation.JMapField;
-import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.core.DeletedObjectException;
-import org.jsimpledb.core.ReferencedObjectException;
-import org.jsimpledb.index.Index;
-import org.jsimpledb.index.Index2;
 import org.jsimpledb.test.TestSupport;
-import org.jsimpledb.tuple.Tuple2;
-import org.jsimpledb.tuple.Tuple3;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

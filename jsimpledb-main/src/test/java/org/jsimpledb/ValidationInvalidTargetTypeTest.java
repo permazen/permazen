@@ -5,26 +5,9 @@
 
 package org.jsimpledb;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.List;
-
-import javax.validation.Constraint;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import org.jsimpledb.annotation.JField;
-import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.annotation.OnValidate;
 import org.jsimpledb.test.TestSupport;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ValidationInvalidTargetTypeTest extends TestSupport {

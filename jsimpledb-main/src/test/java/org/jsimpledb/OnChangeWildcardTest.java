@@ -5,41 +5,20 @@
 
 package org.jsimpledb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.jsimpledb.annotation.JField;
-import org.jsimpledb.annotation.JListField;
-import org.jsimpledb.annotation.JMapField;
-import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
-import org.jsimpledb.change.Change;
-import org.jsimpledb.change.ChangeCopier;
 import org.jsimpledb.change.FieldChange;
-import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldChange;
-import org.jsimpledb.change.ListFieldClear;
-import org.jsimpledb.change.ListFieldRemove;
-import org.jsimpledb.change.ListFieldReplace;
-import org.jsimpledb.change.MapFieldAdd;
-import org.jsimpledb.change.MapFieldChange;
-import org.jsimpledb.change.MapFieldClear;
-import org.jsimpledb.change.MapFieldRemove;
-import org.jsimpledb.change.MapFieldReplace;
-import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldChange;
-import org.jsimpledb.change.SetFieldClear;
-import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.test.TestSupport;
 import org.jsimpledb.tuple.Tuple2;
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

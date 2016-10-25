@@ -8,9 +8,6 @@ package org.jsimpledb;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
-
-import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.Database;

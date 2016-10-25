@@ -5,8 +5,6 @@
 
 package org.jsimpledb.kv.simple;
 
-import com.google.common.base.Converter;
-
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.test.KVDatabaseTest;
