@@ -15,6 +15,8 @@ import org.jsimpledb.util.ParseContext;
  */
 abstract class PrimitiveType<T> extends NonNullFieldType<T> {
 
+    private static final long serialVersionUID = 5581526700382536487L;
+
     final Primitive<T> primitive;
 
     PrimitiveType(Primitive<T> primitive) {

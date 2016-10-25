@@ -17,6 +17,8 @@ import org.jsimpledb.util.LongEncoder;
  */
 abstract class IntegralType<T extends Number> extends PrimitiveType<T> {
 
+    private static final long serialVersionUID = -4654999812179346709L;
+
     IntegralType(Primitive<T> primitive) {
        super(primitive);
     }

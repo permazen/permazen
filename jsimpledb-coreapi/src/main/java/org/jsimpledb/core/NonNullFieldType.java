@@ -16,6 +16,8 @@ import com.google.common.reflect.TypeToken;
  */
 abstract class NonNullFieldType<T> extends FieldType<T> {
 
+    private static final long serialVersionUID = 5533087685258954052L;
+
 // Constructors
 
     protected NonNullFieldType(String name, TypeToken<T> type, long signature, T defaultValue) {

@@ -27,6 +27,8 @@ import org.jsimpledb.util.ParseContext;
  */
 abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
 
+    private static final long serialVersionUID = -7770505941381986791L;
+
     private static final Pattern BASE64_PATTERN = Pattern.compile(
       "(([-_+/\\p{Alnum}]\\s*){4})*(([-_+/\\p{Alnum}]\\s*){2}==|([-_+/\\p{Alnum}]\\s*){3}=|=)");
 

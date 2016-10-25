@@ -74,6 +74,8 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      */
     public static final String REFERENCE_TYPE_NAME = "reference";
 
+    private static final long serialVersionUID = -2295331524544358832L;
+
     final String name;
     final TypeToken<T> typeToken;
     final long signature;

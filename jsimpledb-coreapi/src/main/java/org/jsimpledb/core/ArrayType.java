@@ -29,6 +29,8 @@ import org.jsimpledb.util.ParseContext;
  */
 abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
+    private static final long serialVersionUID = 3776218636387986632L;
+
     /**
      * Array type name suffix.
      */

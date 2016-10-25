@@ -192,7 +192,7 @@ public final class Util {
         return Util.hasValidationAnnotation(obj, null);
     }
 
-    private static boolean hasValidationAnnotation(AnnotatedElement obj, Class[] validationGroups) {
+    private static boolean hasValidationAnnotation(AnnotatedElement obj, Class<?>[] validationGroups) {
         Preconditions.checkArgument(obj != null, "null obj");
         for (Annotation annotation : obj.getAnnotations()) {
             final Class<?> annotationType = annotation.annotationType();

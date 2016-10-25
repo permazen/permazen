@@ -21,6 +21,8 @@ import org.jsimpledb.util.ParseContext;
  */
 abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
 
+    private static final long serialVersionUID = 8691368371643936848L;
+
     final List<FieldType<?>> fieldTypes;
     final int size;
 

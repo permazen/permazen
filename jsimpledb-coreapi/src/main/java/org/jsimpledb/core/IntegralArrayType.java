@@ -24,6 +24,8 @@ import org.jsimpledb.util.LongEncoder;
  */
 abstract class IntegralArrayType<T, E extends Number> extends Base64ArrayType<T, E> {
 
+    private static final long serialVersionUID = -5185297639150351646L;
+
     private static final int END = 0x00;
 
     private final IntegralType<E> integralType;
