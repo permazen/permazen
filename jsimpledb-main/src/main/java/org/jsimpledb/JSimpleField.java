@@ -255,6 +255,9 @@ public class JSimpleField extends JField {
           this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
 
+        // Invalidate cached value, in case a (synchronous) @OnChange callback invokes the getter while we're setting
+        this.emitSetCachedFlag(generator, mv, false);
+
         // Get new value and prepare stack for PUTFIELD
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Type.getType(propertyType).getOpcode(Opcodes.ILOAD), 1);
