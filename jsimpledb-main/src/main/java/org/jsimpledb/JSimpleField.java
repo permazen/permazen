@@ -209,16 +209,12 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
+    void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
 
         // Get field type
         final String className = generator.getClassName();
         final Class<?> propertyType = this.typeToken.getRawType();
         final boolean wide = propertyType.isPrimitive() && (Primitive.get(propertyType).getSize() == 8);
-
-        // Get 'cached' flags field and bit offset
-        final String cachedFlagFieldName = generator.getCachedFlagFieldName(this);
-        final int cachedFlagBit = generator.getCachedFlagBit(this);
 
         // Start getter
         MethodVisitor mv = cw.visitMethod(
@@ -226,24 +222,7 @@ public class JSimpleField extends JField {
           this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
 
         // Return the cached value, if any
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
-          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
-        switch (cachedFlagBit) {
-        case 1:
-            mv.visitInsn(Opcodes.ICONST_1);
-            break;
-        case 2:
-            mv.visitInsn(Opcodes.ICONST_2);
-            break;
-        case 4:
-            mv.visitInsn(Opcodes.ICONST_4);
-            break;
-        default:
-            mv.visitLdcInsn(cachedFlagBit);
-            break;
-        }
-        mv.visitInsn(Opcodes.IAND);
+        this.emitGetCachedFlag(generator, mv);
         final Label notCached = new Label();
         mv.visitJumpInsn(Opcodes.IFEQ, notCached);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -264,27 +243,7 @@ public class JSimpleField extends JField {
         mv.visitFieldInsn(Opcodes.PUTFIELD, className, this.getCachedValueFieldName(), Type.getDescriptor(propertyType));
 
         // Set the flag indicating cached value is valid
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
-          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
-        switch (cachedFlagBit) {
-        case 1:
-            mv.visitInsn(Opcodes.ICONST_1);
-            break;
-        case 2:
-            mv.visitInsn(Opcodes.ICONST_2);
-            break;
-        case 4:
-            mv.visitInsn(Opcodes.ICONST_4);
-            break;
-        default:
-            mv.visitLdcInsn(cachedFlagBit);
-            break;
-        }
-        mv.visitInsn(Opcodes.IOR);
-        mv.visitFieldInsn(Opcodes.PUTFIELD, className, cachedFlagFieldName,
-          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        this.emitSetCachedFlag(generator, mv, true);
 
         // Done with getter
         mv.visitInsn(Type.getType(propertyType).getOpcode(Opcodes.IRETURN));
@@ -310,11 +269,22 @@ public class JSimpleField extends JField {
         mv.visitFieldInsn(Opcodes.PUTFIELD, className, this.getCachedValueFieldName(), Type.getDescriptor(propertyType));
 
         // Set the flag indicating cached value is valid
+        this.emitSetCachedFlag(generator, mv, true);
+
+        // Done with setter
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    // Get the 'cached' flag for this field onto the stack
+    private void emitGetCachedFlag(ClassGenerator<?> generator, MethodVisitor mv) {
+        final String className = generator.getClassName();
+        final String fieldName = generator.getCachedFlagFieldName(this);
+        final int flagBit = generator.getCachedFlagBit(this);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
-          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
-        switch (cachedFlagBit) {
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        switch (flagBit) {
         case 1:
             mv.visitInsn(Opcodes.ICONST_1);
             break;
@@ -325,17 +295,41 @@ public class JSimpleField extends JField {
             mv.visitInsn(Opcodes.ICONST_4);
             break;
         default:
-            mv.visitLdcInsn(cachedFlagBit);
+            mv.visitLdcInsn(flagBit);
             break;
         }
-        mv.visitInsn(Opcodes.IOR);
-        mv.visitFieldInsn(Opcodes.PUTFIELD, className, cachedFlagFieldName,
-          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        mv.visitInsn(Opcodes.IAND);
+    }
 
-        // Done with setter
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+    // Set/reset the 'cached' flag for this field
+    private void emitSetCachedFlag(ClassGenerator<?> generator, MethodVisitor mv, boolean set) {
+        final String className = generator.getClassName();
+        final String fieldName = generator.getCachedFlagFieldName(this);
+        final int flagBit = generator.getCachedFlagBit(this);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        if (set) {
+            switch (flagBit) {
+            case 1:
+                mv.visitInsn(Opcodes.ICONST_1);
+                break;
+            case 2:
+                mv.visitInsn(Opcodes.ICONST_2);
+                break;
+            case 4:
+                mv.visitInsn(Opcodes.ICONST_4);
+                break;
+            default:
+                mv.visitLdcInsn(flagBit);
+                break;
+            }
+            mv.visitInsn(Opcodes.IOR);
+        } else {
+            mv.visitLdcInsn(~flagBit);
+            mv.visitInsn(Opcodes.IAND);
+        }
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
     }
 
     void outputReadCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
