@@ -63,6 +63,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getSchemas getSchemas()} - Get the database {@link Schemas}, as seen by this transaction</li>
  *  <li>{@link #getSchema() getSchema()} - Get the {@link Schema} that will be used by this transaction</li>
  *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
+ *  <li>{@link #getUserObject} - Get user object associated with this instance</li>
+ *  <li>{@link #setUserObject} - Set user object associated with this instance</li>
  * </ul>
  *
  * <p>
@@ -170,9 +172,7 @@ import org.slf4j.LoggerFactory;
  * <b>Listener Sets</b>
  * <ul>
  *  <li>{@link #snapshotListeners} - Create an immutable snapshot of all registered listeners</li>
- *  <li>{@link #setListeners} - Bulk registration of listeners from a previously created snapshot</li>
- *  <li>{@link #getUserObject} - Get user object associated with this instance</li>
- *  <li>{@link #setUserObject} - Set user object associated with this instance</li>
+ *  <li>{@link #setListeners setListeners()} - Bulk registration of listeners from a previously created snapshot</li>
  * </ul>
  *
  * <p>
