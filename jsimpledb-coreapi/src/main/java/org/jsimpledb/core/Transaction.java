@@ -3108,7 +3108,7 @@ public class Transaction {
 
 // SimpleFieldChangeNotifier
 
-    private static abstract class SimpleFieldChangeNotifier implements FieldChangeNotifier {
+    private abstract static class SimpleFieldChangeNotifier implements FieldChangeNotifier {
 
         final int storageId;
         final ObjId id;

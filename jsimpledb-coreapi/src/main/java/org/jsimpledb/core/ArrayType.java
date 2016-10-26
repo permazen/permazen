@@ -29,8 +29,6 @@ import org.jsimpledb.util.ParseContext;
  */
 abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
-    private static final long serialVersionUID = 3776218636387986632L;
-
     /**
      * Array type name suffix.
      */
@@ -40,6 +38,8 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      * Maximum allowed array dimensions ({@value #MAX_DIMENSIONS}).
      */
     public static final int MAX_DIMENSIONS = 255;
+
+    private static final long serialVersionUID = 3776218636387986632L;
 
     final FieldType<E> elementType;
     final int dimensions;
