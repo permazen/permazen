@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.collect.Iterators;
+
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,10 +40,7 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
      */
     @Override
     public int size() {
-        int count = 0;
-        for (E elem : this)
-            count++;
-        return count;
+        return Iterators.size(this.iterator());
     }
 
     /**
