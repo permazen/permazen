@@ -1062,7 +1062,7 @@ public class Transaction {
      * This allows the caller to decide what to do about them.
      *
      * <p>
-     * If a null {@link deletedAssignments} is given, and any illegal deleted assignment would occur, then an immediate
+     * If a null {@code deletedAssignments} is given, and any illegal deleted assignment would occur, then an immediate
      * {@link DeletedObjectException} is thrown and no copy is performed.
      *
      * <p>
@@ -3094,7 +3094,7 @@ public class Transaction {
     /**
      * Get the object with this instance by {@link #setUserObject setUserObject()}, if any.
      *
-     * @param obj associated user object, or null if none has been set
+     * @return the associated user object, or null if none has been set
      */
     public synchronized Object getUserObject() {
         return this.userObject;
