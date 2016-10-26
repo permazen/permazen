@@ -42,7 +42,7 @@ public class RegisterFunctionCommand extends AbstractCommand {
                 final Class<?> cl = (Class<?>)result;
                 if (!Function.class.isAssignableFrom(cl))
                     throw new Exception("invalid parameter: " + cl + " does not implement " + Function.class);
-                final Function function = cl.asSubclass(Function.class).newInstance();
+                final Function function = cl.asSubclass(Function.class).getConstructor().newInstance();
                 session.registerFunction(function);
                 session.getWriter().println("Registered function `" + function.getName() + "'");
             }

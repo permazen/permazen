@@ -208,7 +208,8 @@ class JObjectCache {
         threadInstantiations.put(id, null);
 
         // Instantiate the JObject
-        JObject jobj = null;
+        final JObject jobj;
+        final JObject registered;
         try {
             jobj = (JObject)classGenerator.getConstructor().newInstance(this.jtx, id);
         } catch (Exception e) {
@@ -220,16 +221,16 @@ class JObjectCache {
         } finally {
 
             // Get object registered in the meantime, if any
-            final JObject registered = threadInstantiations.remove(id);
+            registered = threadInstantiations.remove(id);
 
             // Discard thread local if no longer needed
             if (threadInstantiations.isEmpty())
                 this.instantiations.remove();
-
-            // Sanity check we didn't register the wrong object
-            if (jobj != null && registered != null && registered != jobj)
-                throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + registered);
         }
+
+        // Sanity check we didn't register the wrong object
+        if (registered != null && registered != jobj)
+            throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + registered);
 
         // Done
         assert jobj != null;

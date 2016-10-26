@@ -66,6 +66,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      * returned by {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}, and loads
      * the container using the objects returned by {@link #iterateObjects}.
      */
+    @Override
     public void reload() {
 
         // Grab KVStore snapshot

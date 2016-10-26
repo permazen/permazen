@@ -458,6 +458,7 @@ public class Transaction {
     }
 
     private /*synchronized*/ void triggerBeforeCompletion() {
+        assert Thread.holdsLock(this);
         if (this.callbacks == null)
             return;
         for (Callback callback : this.callbacks) {
@@ -473,6 +474,7 @@ public class Transaction {
     }
 
     private /*synchronized*/ void triggerAfterCompletion(boolean committed) {
+        assert Thread.holdsLock(this);
         if (this.callbacks == null)
             return;
         for (Callback callback : this.callbacks) {
@@ -727,6 +729,7 @@ public class Transaction {
     }
 
     private /*synchronized*/ ObjId generateIdValidated(int storageId) {
+        assert Thread.holdsLock(this);
 
         // Create a new, unique key
         final ByteWriter keyWriter = new ByteWriter();
@@ -3105,7 +3108,7 @@ public class Transaction {
 
 // SimpleFieldChangeNotifier
 
-    private abstract class SimpleFieldChangeNotifier implements FieldChangeNotifier {
+    private static abstract class SimpleFieldChangeNotifier implements FieldChangeNotifier {
 
         final int storageId;
         final ObjId id;

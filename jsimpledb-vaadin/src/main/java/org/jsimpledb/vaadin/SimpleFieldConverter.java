@@ -28,10 +28,12 @@ public class SimpleFieldConverter<T> implements Converter<String, T> {
         this.fieldType = fieldType;
     }
 
+    @Override
     public Class<String> getPresentationType() {
         return String.class;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Class<T> getModelType() {
         return (Class<T>)this.fieldType.getTypeToken().getRawType();

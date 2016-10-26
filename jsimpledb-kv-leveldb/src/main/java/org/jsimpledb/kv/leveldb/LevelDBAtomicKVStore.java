@@ -289,6 +289,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Add shutdown hook so we don't leak native resources
         if (this.shutdownHookRegistered.compareAndSet(false, true)) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
                 public void run() {
                     LevelDBAtomicKVStore.this.stop();
                 }

@@ -41,7 +41,7 @@ public class RegisterCommandCommand extends AbstractCommand {
                 final Class<?> cl = (Class<?>)result;
                 if (!Command.class.isAssignableFrom(cl))
                     throw new Exception("invalid parameter: " + cl + " does not implement " + Command.class);
-                final Command command = cl.asSubclass(Command.class).newInstance();
+                final Command command = cl.asSubclass(Command.class).getConstructor().newInstance();
                 session.registerCommand(command);
                 session.getWriter().println("Registered command `" + command.getName() + "'");
             }

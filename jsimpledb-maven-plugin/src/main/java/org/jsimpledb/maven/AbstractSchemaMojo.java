@@ -251,8 +251,9 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             final StorageIdGenerator storageIdGenerator;
             if (storageIdGeneratorClass != null) {
                 try {
-                    storageIdGenerator = Class.forName(this.storageIdGeneratorClass,
-                      false, Thread.currentThread().getContextClassLoader()).asSubclass(StorageIdGenerator.class).newInstance();
+                    storageIdGenerator = Class.forName(this.storageIdGeneratorClass, false,
+                       Thread.currentThread().getContextClassLoader())
+                      .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
                 } catch (Exception e) {
                     throw new MojoExecutionException("error instantiatiating the configured <storageIdGeneratorClass> `"
                       + storageIdGeneratorClass + "'", e);
@@ -270,7 +271,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 this.getLog().info("instantiating " + cl + " as field type instance");
                 final FieldType<?> fieldType;
                 try {
-                    fieldType = this.asFieldTypeClass(cl).newInstance();
+                    fieldType = this.asFieldTypeClass(cl).getConstructor().newInstance();
                 } catch (Exception e) {
                     throw new MojoExecutionException("failed to instantiate class `" + cl.getName() + "'", e);
                 }

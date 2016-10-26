@@ -84,7 +84,6 @@ public class KeyWatchTracker implements Closeable {
     @GuardedBy("this")
     private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
     private final Cache<KeyFuture, KeyInfo> futureMap;
-    @GuardedBy("this")
     private final ExecutorService notifyExecutor;
 
     /**

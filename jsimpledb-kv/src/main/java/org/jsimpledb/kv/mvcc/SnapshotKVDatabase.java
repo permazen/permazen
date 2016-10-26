@@ -220,7 +220,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 // Object
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return this.getClass().getSimpleName()
           + "[kvstore=" + this.kvstore
           + ",started=" + this.started

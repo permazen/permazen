@@ -173,6 +173,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     /**
      * Ensure transaction is eventually rolled back if leaked due to an application bug.
      */
+    @Override
     protected void finalize() throws Throwable {
         try {
             if (!this.stale)

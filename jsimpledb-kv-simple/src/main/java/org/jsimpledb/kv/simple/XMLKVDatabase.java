@@ -174,7 +174,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     }
 
     @Override
-    public void start() {
+    public synchronized void start() {
         super.start();
         this.reload();
     }

@@ -200,7 +200,7 @@ public final class Util {
                 continue;
             final Class<?>[] groups;
             try {
-                groups = (Class<?>[])annotation.getClass().getMethod("groups").invoke(annotation);
+                groups = (Class<?>[])annotation.annotationType().getMethod("groups").invoke(annotation);
             } catch (NoSuchMethodException e) {
                 return true;
             } catch (RuntimeException e) {
@@ -369,7 +369,7 @@ public final class Util {
         for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
             final TypeToken<?> supertype = i.next();
             for (TypeToken<?> supertype2 : supertypes) {
-                if (supertype2 != supertype && supertype.isSupertypeOf(supertype2)) {
+                if (!supertype2.equals(supertype) && supertype.isSupertypeOf(supertype2)) {
                     i.remove();
                     break;
                 }

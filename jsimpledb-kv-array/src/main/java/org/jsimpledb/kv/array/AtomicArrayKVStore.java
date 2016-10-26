@@ -752,9 +752,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Clone the uncompacted modifications, if any
             Writes outstandingWrites = null;
-            synchronized (this.mods) {
-                if (!this.mods.getWrites().isEmpty())
-                    outstandingWrites = this.mods.getWrites().clone();
+            final MutableView uncompactedMods = this.mods;
+            synchronized (uncompactedMods) {
+                if (!uncompactedMods.getWrites().isEmpty())
+                    outstandingWrites = uncompactedMods.getWrites().clone();
             }
 
             // Build snapshot by layering uncompacted modifications on top

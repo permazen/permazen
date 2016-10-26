@@ -203,6 +203,7 @@ public class JSimpleDB {
         this.configuredVersion = version;
         this.storageIdGenerator = storageIdGenerator;
         this.loader = AccessController.doPrivileged(new PrivilegedAction<Loader>() {
+            @Override
             public Loader run() {
                 return JSimpleDB.this.new Loader();
             }

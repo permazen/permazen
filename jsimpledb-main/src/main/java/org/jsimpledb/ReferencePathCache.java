@@ -32,6 +32,7 @@ class ReferencePathCache {
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
         this.cache = CacheBuilder.newBuilder().softValues().build(new CacheLoader<Key, ReferencePath>() {
+            @Override
             public ReferencePath load(Key key) {
                 return new ReferencePath(ReferencePathCache.this.jdb, key.getStartType(), key.getPath(), key.isLastIsSubField());
             }

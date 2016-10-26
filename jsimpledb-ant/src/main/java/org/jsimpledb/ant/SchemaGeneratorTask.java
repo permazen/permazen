@@ -401,7 +401,8 @@ public class SchemaGeneratorTask extends Task {
             final StorageIdGenerator storageIdGenerator;
             try {
                 storageIdGenerator = Class.forName(this.storageIdGeneratorClassName,
-                  false, Thread.currentThread().getContextClassLoader()).asSubclass(StorageIdGenerator.class).newInstance();
+                   false, Thread.currentThread().getContextClassLoader())
+                  .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
             } catch (Exception e) {
                 throw new BuildException("failed to instantiate class `" + storageIdGeneratorClassName + "'", e);
             }
@@ -416,7 +417,7 @@ public class SchemaGeneratorTask extends Task {
                 this.log("instantiating " + cl + " as field type instance");
                 final FieldType<?> fieldType;
                 try {
-                    fieldType = this.asFieldTypeClass(cl).newInstance();
+                    fieldType = this.asFieldTypeClass(cl).getConstructor().newInstance();
                 } catch (Exception e) {
                     throw new BuildException("failed to instantiate " + cl.getName(), e);
                 }

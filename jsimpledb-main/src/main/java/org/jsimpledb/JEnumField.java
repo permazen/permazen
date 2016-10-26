@@ -69,6 +69,7 @@ public class JEnumField extends JSimpleField {
         return schemaField;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     void initialize(JSimpleDB jdb, SimpleSchemaField schemaField0) {
         super.initialize(jdb, schemaField0);

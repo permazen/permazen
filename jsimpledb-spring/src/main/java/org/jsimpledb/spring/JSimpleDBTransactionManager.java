@@ -84,6 +84,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
     private boolean validateBeforeCommit;
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (this.jdb == null)
             throw new Exception("no JSimpleDB configured");

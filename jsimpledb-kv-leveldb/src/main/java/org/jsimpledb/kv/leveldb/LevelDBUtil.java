@@ -63,7 +63,7 @@ public final class LevelDBUtil {
         final Logger log = LoggerFactory.getLogger(LevelDBKVDatabase.class);
         for (String className : classNames) {
             try {
-                return Class.forName(className, false, loader).asSubclass(DBFactory.class).newInstance();
+                return Class.forName(className, false, loader).asSubclass(DBFactory.class).getConstructor().newInstance();
             } catch (Exception e) {
                 if (log.isDebugEnabled())
                     log.debug("can't load factory class `" + className + "': " + e);
