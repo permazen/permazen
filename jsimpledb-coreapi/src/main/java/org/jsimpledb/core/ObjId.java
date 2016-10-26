@@ -225,7 +225,7 @@ public class ObjId implements Comparable<ObjId>, Serializable {
      */
     @Override
     public int hashCode() {
-        return (int)(this.value >> 32) ^ (int)this.value;
+        return (int)(this.value >> 32) ^ (int)this.value;           // JAVA8: use Long.hashCode(this.value) instead
     }
 
 // Comparable
