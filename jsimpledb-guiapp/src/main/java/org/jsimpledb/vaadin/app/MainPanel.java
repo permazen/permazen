@@ -5,6 +5,7 @@
 
 package org.jsimpledb.vaadin.app;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -78,29 +79,25 @@ public class MainPanel extends VerticalLayout {
         }
     });
 
-    private final GUIConfig guiConfig;
     private final JSimpleDB jdb;
     private final ParseSession session;
     private final JObjectChooser objectChooser;
 
-    public MainPanel(GUIConfig guiConfig) {
-        this.guiConfig = guiConfig;
-        this.jdb = this.guiConfig.getJSimpleDB();
+    /**
+     * Constructor.
+     */
+    public MainPanel(final GUIConfig guiConfig) {
+        this(new GUISession(guiConfig));
+    }
 
-        // Setup parse session
-        this.session = new ParseSession(this.jdb) {
-            @Override
-            protected void reportException(Exception e) {
-                Notification.show("Error: " + e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
-                if (MainPanel.this.guiConfig.isVerbose())
-                    MainPanel.this.log.info("exception in parse session", e);
-            }
-        };
-        this.session.setReadOnly(this.guiConfig.isReadOnly());
-        this.session.setSchemaModel(this.jdb.getSchemaModel());
-        this.session.setSchemaVersion(this.guiConfig.getSchemaVersion());
-        this.session.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
-        this.session.loadFunctionsFromClasspath();
+    /**
+     * Constructor.
+     */
+    public MainPanel(ParseSession session) {
+        Preconditions.checkArgument(session != null, "null session");
+        this.session = session;
+        this.jdb = session.getJSimpleDB();
+        Preconditions.checkArgument(this.jdb != null, "session is not a JSimpleDB session");
 
         // Setup object chooser
         this.objectChooser = new JObjectChooser(this.session, null, true);
@@ -318,6 +315,30 @@ public class MainPanel extends VerticalLayout {
     private boolean canUpgrade(ObjId id) {
         final JObject jobj = JTransaction.getCurrent().get(id);
         return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getActualVersion();
+    }
+
+// GUISession
+
+    private static class GUISession extends ParseSession {
+
+        private final GUIConfig guiConfig;
+
+        GUISession(GUIConfig guiConfig) {
+            super(guiConfig.getJSimpleDB());
+            this.guiConfig = guiConfig;
+            this.setReadOnly(this.guiConfig.isReadOnly());
+            this.setSchemaModel(this.guiConfig.getJSimpleDB().getSchemaModel());
+            this.setSchemaVersion(this.guiConfig.getSchemaVersion());
+            this.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
+            this.loadFunctionsFromClasspath();
+        }
+
+        @Override
+        protected void reportException(Exception e) {
+            Notification.show("Error: " + e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
+            if (this.guiConfig.isVerbose())
+                LoggerFactory.getLogger(this.getClass()).info("exception in parse session", e);
+        }
     }
 }
 
