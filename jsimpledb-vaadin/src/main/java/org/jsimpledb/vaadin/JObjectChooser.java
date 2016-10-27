@@ -136,6 +136,15 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
     }
 
     /**
+     * Get the {@link ParseSession} used by this instance.
+     *
+     * @return associated {@link ParseSession}
+     */
+    public ParseSession getParseSession() {
+        return this.session;
+    }
+
+    /**
      * Get the object container for this instance.
      *
      * @return associated object container

@@ -154,6 +154,14 @@ public class MainPanel extends VerticalLayout {
         //this.selectType(Object.class, true);
     }
 
+    public ParseSession getParseSession() {
+        return this.session;
+    }
+
+    public JObjectChooser getJObjectChooser() {
+        return this.objectChooser;
+    }
+
 // GUI Updates
 
     // Invoked when an object is clicked on
