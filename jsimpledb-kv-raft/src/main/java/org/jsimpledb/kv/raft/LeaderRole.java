@@ -177,7 +177,7 @@ public class LeaderRole extends Role {
 
         // Start check apply timer
         if (!this.raft.raftLog.isEmpty())
-            this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
+            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
 
         // Start timestamp scrub timer
         this.timestampScrubTimer.timeoutAfter(TIMESTAMP_SCRUB_INTERVAL);
@@ -276,7 +276,7 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         this.raft.requestService(this.applyCommittedLogEntriesService);
         if (!this.raft.raftLog.isEmpty())
-            this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
+            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
     }
 
     /**
@@ -1103,7 +1103,7 @@ public class LeaderRole extends Role {
 
         // Start check apply timer if not already running
         if (!this.checkApplyTimer.isRunning())
-            this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
+            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
 
         // Done
         return logEntry;
