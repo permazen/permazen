@@ -537,8 +537,15 @@ public class RaftKVTransaction implements KVTransaction {
         }
     }
 
-    boolean hasMutations() {
+    /**
+     * Determine if committing this transaction will require appending a new log entry to the Raft log.
+     *
+     * @return true if this is not a read-only transaction and has either a config change or a key/value store mutation
+     */
+    boolean addsLogEntry() {
         assert Thread.holdsLock(this.raft);
+        if (this.readOnly)
+            return false;
         if (this.configChange != null)
             return true;
         synchronized (this.view) {
@@ -600,7 +607,7 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.commitTerm >= this.baseTerm;
             assert this.commitTerm <= currentTerm;
             assert this.commitIndex >= this.baseIndex;                                      // equal implies a read-only tx
-            assert this.commitIndex > this.baseIndex || !this.hasMutations();
+            assert this.commitIndex > this.baseIndex || !this.addsLogEntry();
             assert this.failure == null;
             break;
         case COMPLETED:

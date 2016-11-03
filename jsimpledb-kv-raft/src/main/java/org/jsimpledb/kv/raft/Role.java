@@ -307,8 +307,8 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
-        // Determine whether transaction is truly read-only
-        final boolean readOnly = tx.readOnly || !tx.hasMutations();
+        // Determine whether transaction is truly read-only, i.e., it does not imply adding a new Raft log entry
+        final boolean readOnly = !tx.addsLogEntry();
 
         // Check whether we can commit the transaction immediately
         if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {           // i.e., UNCOMMITTED, EVENTUAL_COMMITTED
@@ -336,7 +336,7 @@ public abstract class Role {
      * This will not be invoked unless the transaction is read/write or the consistency level provides up-to-date reads.
      *
      * @param tx the transaction
-     * @param readOnly if transaction is read-only
+     * @param readOnly if transaction commit does not imply adding a Raft log entry
      * @throws KVTransactionException if an error occurs
      */
     abstract void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly);
@@ -449,7 +449,7 @@ public abstract class Role {
         assert tx.failure == null;
 
         // This only applies to transactions that require up-to-date reads
-        final boolean needsRebase = tx.getConsistency().isGuaranteesUpToDateReads() || (!tx.readOnly && tx.hasMutations());
+        final boolean needsRebase = tx.getConsistency().isGuaranteesUpToDateReads() || tx.addsLogEntry();
 
         // Is it possible and appropriate to rebase this transaction?
         if (tx.baseIndex < this.raft.lastAppliedIndex || tx.baseIndex >= this.raft.commitIndex || !this.mayRebase(tx))
