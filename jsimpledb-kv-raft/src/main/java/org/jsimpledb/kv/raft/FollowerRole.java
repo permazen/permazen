@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class FollowerRole extends NonLeaderRole {
     @GuardedBy("raft")
     private SnapshotReceive snapshotReceive;                                        // in-progress snapshot install, if any
     @GuardedBy("raft")
-    private final HashMap<Long, PendingRequest> pendingRequests = new HashMap<>();  // wait for CommitResponse or log entry
+    private final HashSet<RaftKVTransaction> pendingRequests = new HashSet<>();     // waiting for CommitResponse from leader
     @GuardedBy("raft")
     private final HashMap<Long, PendingWrite> pendingWrites = new HashMap<>();      // wait for AppendRequest with null data
     @GuardedBy("raft")
@@ -228,7 +229,7 @@ public class FollowerRole extends NonLeaderRole {
     // and that would also be doing duplicate work because the leader is going to check for new conflicts anyway.
     @Override
     boolean mayRebase(RaftKVTransaction tx) {
-        return !this.pendingRequests.containsKey(tx.txId);
+        return !this.pendingRequests.contains(tx);
     }
 
     @Override
@@ -305,8 +306,7 @@ public class FollowerRole extends NonLeaderRole {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Did we already send a CommitRequest for this transaction?
-        final PendingRequest pendingRequest = this.pendingRequests.get(tx.txId);
-        if (pendingRequest != null) {
+        if (this.pendingRequests.contains(tx)) {
             if (this.log.isTraceEnabled())
                 this.trace("leaving alone ready tx " + tx + " because request already sent");
             return;
@@ -448,7 +448,8 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Record pending request
-        this.pendingRequests.put(tx.txId, new PendingRequest(tx));
+        assert !this.pendingRequests.contains(tx);
+        this.pendingRequests.add(tx);
 
         // Send commit request to leader
         final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,
@@ -462,7 +463,7 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     void cleanupForTransaction(RaftKVTransaction tx) {
         assert Thread.holdsLock(this.raft);
-        this.pendingRequests.remove(tx.txId);
+        this.pendingRequests.remove(tx);
         final PendingWrite pendingWrite = this.pendingWrites.remove(tx.txId);
         if (pendingWrite != null)
             pendingWrite.cleanup();
@@ -719,7 +720,7 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
             return;
         }
-        if (this.pendingRequests.remove(tx.txId) == null) {
+        if (!this.pendingRequests.remove(tx)) {
             if (this.log.isDebugEnabled())
                 this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");
             return;
@@ -948,10 +949,13 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     public String toString() {
         synchronized (this.raft) {
+            final HashSet<Long> pendingRequestIds = new HashSet<Long>(pendingRequests.size());
+            for (RaftKVTransaction tx : pendingRequests)
+                pendingRequestIds.add(tx.txId);
             return this.toStringPrefix()
               + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
               + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")
-              + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")
+              + (!pendingRequestIds.isEmpty() ? ",pendingRequests=" + pendingRequestIds : "")
               + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")
               + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")
               + "]";
@@ -967,11 +971,7 @@ public class FollowerRole extends NonLeaderRole {
             return false;
         assert this.leaderAddress != null || this.leader == null;
         assert this.electionTimer.isRunning() == this.raft.isClusterMember();
-        for (Map.Entry<Long, PendingRequest> entry : this.pendingRequests.entrySet()) {
-            final long txId = entry.getKey();
-            final PendingRequest pendingRequest = entry.getValue();
-            final RaftKVTransaction tx = pendingRequest.getTx();
-            assert txId == tx.txId;
+        for (RaftKVTransaction tx : this.pendingRequests) {
             assert tx.getState().equals(TxState.COMMIT_READY);
             assert tx.getCommitTerm() == 0;
             assert tx.getCommitIndex() == 0;
@@ -985,25 +985,6 @@ public class FollowerRole extends NonLeaderRole {
             assert pendingWrite.getFileWriter().getFile().exists();
         }
         return true;
-    }
-
-// PendingRequest
-
-    // Represents a transaction in COMMIT_READY for which a CommitRequest has been sent to the leader
-    // but no CommitResponse has yet been received
-    private class PendingRequest {
-
-        private final RaftKVTransaction tx;
-
-        PendingRequest(RaftKVTransaction tx) {
-            this.tx = tx;
-            assert !FollowerRole.this.pendingRequests.containsKey(tx.txId);
-            FollowerRole.this.pendingRequests.put(tx.txId, this);
-        }
-
-        public RaftKVTransaction getTx() {
-            return this.tx;
-        }
     }
 
 // PendingWrite
