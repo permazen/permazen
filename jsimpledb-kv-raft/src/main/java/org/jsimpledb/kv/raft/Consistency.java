@@ -150,8 +150,8 @@ public enum Consistency {
      * the log entry on which they are based is committed.
      *
      * <p>
-     * This setting has no effect if {@link #isBasedOnCommittedLogEntry} returns true, because in that case
-     * the log entry on which the transaction is based is already committed when transaction starts.
+     * This setting has no effect if {@link #isBasedOnCommittedLogEntry} returns true (i.e., {@link #EVENTUAL_COMMITTED}),
+     * because in that case the log entry on which the transaction is based is already committed when transaction starts.
      *
      * @return true if transactions at this level wait for their base log entry to be committed
      */
