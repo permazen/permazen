@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.mvcc.Mutations;
@@ -46,12 +47,6 @@ public abstract class Role {
         @Override
         public void run() {
             Role.this.checkWaitingTransactions();
-        }
-    };
-    final Service rebaseTransactionsService = new Service(this, "rebase transactions") {
-        @Override
-        public void run() {
-            Role.this.rebaseTransactions();
         }
     };
     final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
@@ -90,7 +85,6 @@ public abstract class Role {
 
     void setup() {
         assert Thread.holdsLock(this.raft);
-        this.raft.requestService(this.rebaseTransactionsService);
         this.raft.requestService(this.checkReadyTransactionsService);
         this.raft.requestService(this.checkWaitingTransactionsService);
         this.raft.requestService(this.applyCommittedLogEntriesService);
@@ -123,16 +117,6 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         for (RaftKVTransaction tx : this.raft.openTransactions.values())
             new CheckWaitingTransactionService(this, tx).run();
-    }
-
-    /**
-     * Check transactions in the {@link TxState#EXECUTING} and {@link TxState#COMMIT_READY} states to see if they
-     * need to be rebased. We invoke this service method whenever our {@code commitIndex} advances.
-     */
-    void rebaseTransactions() {
-        assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
-            new RebaseTransactionService(this, tx).run();
     }
 
     /**
@@ -424,45 +408,63 @@ public abstract class Role {
     }
 
     /**
-     * Check a transaction that is executing or ready to be committed to see if we need to
-     * rebase it on a newer committed log entry, and if doing so causes a conflict.
+     * Rebase all rebasable transactions.
      *
      * <p>
-     * We only rebase transactions that are {@link TxState#EXECUTING} or {@link TxState#COMMIT_READY}.
-     *
-     * <p>
-     * This should be invoked:
-     * <ul>
-     *  <li>After the leader's {@code commitIndex} has advanced</li>
-     *  <li>After the transaction's consistency or read-only status has changed</li>
-     * </ul>
+     * This should be invoked after appending a new Raft log entry.
      *
      * @param tx the transaction
      * @throws KVTransactionException if an error occurs
      */
-    void rebaseTransaction(RaftKVTransaction tx) {
+    void rebaseTransactions() {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
-        assert tx.getState().equals(TxState.EXECUTING) || tx.getState().equals(TxState.COMMIT_READY);
+
+        // Rebase all rebasable transactions
+        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+            if (this.shouldRebase(tx)) {
+                try {
+                    this.rebaseTransaction(tx);
+                } catch (KVTransactionException e) {
+                    this.raft.fail(tx, e);
+                } catch (Exception | Error e) {
+                    this.raft.fail(tx, new KVTransactionException(tx, e));
+                }
+            }
+        }
+    }
+
+    /**
+     * Rebase the given transaction so that its base log entry the last log entry.
+     *
+     * <p>
+     * This should be invoked for any {@linkplain #shouldRebase rebasable} transaction
+     * after appending a new Raft log entry.
+     *
+     * <p>
+     * This method assumes that the given transaction is {@linkplain #shouldRebase rebasable}.
+     *
+     * @param tx the transaction
+     * @throws KVTransactionException if an error occurs
+     */
+    private void rebaseTransaction(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        assert this.shouldRebase(tx);
         assert tx.failure == null;
-
-        // This only applies to transactions that require up-to-date reads
-        final boolean needsRebase = tx.getConsistency().isGuaranteesUpToDateReads() || tx.addsLogEntry();
-
-        // Is it possible and appropriate to rebase this transaction?
-        if (tx.baseIndex < this.raft.lastAppliedIndex || tx.baseIndex >= this.raft.commitIndex || !this.mayRebase(tx))
-            return;
+        assert tx.baseIndex >= this.raft.lastAppliedIndex;
 
         // Lock the mutable view so the rebase appears to happen atomically to any threads viewing the transaction
         synchronized (tx.view) {
 
             // Check for conflicts between transaction reads and newly committed log entries
             long baseIndex = tx.baseIndex;
-            assert baseIndex < this.raft.commitIndex;
-            do {
+            final long lastIndex = this.raft.getLastLogIndex();
+            while (baseIndex < lastIndex) {
 
-                // Get committed log entry
+                // Get log entry
                 final LogEntry logEntry = this.raft.getLogEntryAtIndex(++baseIndex);
 
                 // Check for conflict
@@ -472,18 +474,16 @@ public abstract class Role {
                     throw new RetryTransactionException(tx, "writes of committed transaction at index " + baseIndex
                       + " conflict with transaction reads from transaction base index " + tx.baseIndex);
                 }
-            } while (baseIndex < this.raft.commitIndex);
-            assert baseIndex == this.raft.commitIndex;
+            }
+            assert baseIndex == lastIndex;
             final long baseTerm = this.raft.getLogTermAtIndex(baseIndex);
 
             // Rebase transaction
-            if (this.log.isDebugEnabled()) {
-                this.debug("rebasing " + tx + " from " + tx.baseIndex + "t" + tx.baseTerm
-                  + " -> " + baseIndex + "t" + baseTerm);
-            }
+            if (this.log.isDebugEnabled())
+                this.debug("rebasing " + tx + " from " + tx.baseIndex + "t" + tx.baseTerm + " -> " + baseIndex + "t" + baseTerm);
             switch (tx.getState()) {
             case EXECUTING:
-                final MostRecentView view = new MostRecentView(this.raft, true);
+                final MostRecentView view = new MostRecentView(this.raft, false);
                 assert view.getIndex() == baseIndex;
                 assert view.getTerm() == baseTerm;
                 tx.rebase(baseTerm, baseIndex, view.getView().getKVStore(), view.getSnapshot());
@@ -497,8 +497,13 @@ public abstract class Role {
         }
     }
 
-    boolean mayRebase(RaftKVTransaction tx) {
-        return true;
+    /**
+     * Determine if the given transaction should be kept rebased on the last log entry.
+     */
+    boolean shouldRebase(RaftKVTransaction tx) {
+        assert Thread.holdsLock(this.raft);
+        return ((tx.getState().equals(TxState.EXECUTING) && tx.failure == null) || tx.getState().equals(TxState.COMMIT_READY))
+          && (tx.getConsistency().isGuaranteesUpToDateReads() || tx.addsLogEntry());
     }
 
     /**
@@ -552,6 +557,8 @@ public abstract class Role {
     abstract boolean checkState();
 
     void checkTransaction(RaftKVTransaction tx) {
+        if (this.shouldRebase(tx))
+            assert tx.baseIndex == this.raft.getLastLogIndex() && tx.baseTerm == this.raft.getLastLogTerm();
     }
 
 // Logging

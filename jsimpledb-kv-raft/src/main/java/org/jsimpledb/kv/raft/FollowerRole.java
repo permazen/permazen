@@ -189,6 +189,15 @@ public class FollowerRole extends NonLeaderRole {
                 this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
         }
 
+        // Fail any transactions that are waiting on leader response to a commit request and not based on the last log entry
+        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+            if (super.shouldRebase(tx)
+              && (tx.baseIndex != this.raft.getLastLogIndex() || tx.baseTerm != this.raft.getLastLogTerm())) {
+                assert tx.getState().equals(TxState.COMMIT_READY) && this.pendingRequests.contains(tx);
+                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
+            }
+        }
+
         // Cleanup pending requests and commit writes
         this.pendingRequests.clear();
         for (PendingWrite pendingWrite : this.pendingWrites.values())
@@ -224,13 +233,6 @@ public class FollowerRole extends NonLeaderRole {
 
         // Verify leader's lease timeout has extended beyond that required by the transaction
         return this.leaderLeaseTimeout.compareTo(commitLeaderLeaseTimeout) >= 0;
-    }
-
-    // Don't rebase a transaction that's already been sent to the leader, because by then it's too late to matter,
-    // and that would also be doing duplicate work because the leader is going to check for new conflicts anyway.
-    @Override
-    boolean mayRebase(RaftKVTransaction tx) {
-        return !this.pendingRequests.contains(tx);
     }
 
     @Override
@@ -373,9 +375,11 @@ public class FollowerRole extends NonLeaderRole {
             // Update transaction
             this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
 
+            // Rebase transactions
+            this.rebaseTransactions();
+
             // Set commit term and index from new log entry
             this.raft.commitIndex = logEntry.getIndex();
-            this.raft.requestService(this.rebaseTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);
 
             // Immediately become the leader of our new single-node cluster
@@ -570,6 +574,14 @@ public class FollowerRole extends NonLeaderRole {
             // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
             if (logIndex <= lastLogIndex && logTerm != this.raft.getLogTermAtIndex(logIndex)) {
 
+                // Fail all rebasable transactions whose base log entry is being overwritten
+                for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+                    if (this.shouldRebase(tx)) {
+                        assert tx.baseIndex == lastLogIndex && tx.baseTerm == this.raft.getLogTermAtIndex(lastLogIndex);
+                        this.raft.fail(tx, new RetryTransactionException(tx, "transaction's base log entry overwritten"));
+                    }
+                }
+
                 // Delete conflicting log entry, and all entries that follow it, from the log
                 final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
                 final List<LogEntry> conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());
@@ -668,6 +680,10 @@ public class FollowerRole extends NonLeaderRole {
                 // Success?
                 success = logEntry != null;
 
+                // Rebase transactions
+                if (success)
+                    this.rebaseTransactions();
+
                 // Update last log entry index
                 lastLogIndex = this.raft.getLastLogIndex();
             }
@@ -679,7 +695,6 @@ public class FollowerRole extends NonLeaderRole {
             if (this.log.isDebugEnabled())
                 this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
             this.raft.commitIndex = newCommitIndex;
-            this.raft.requestService(this.rebaseTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);
             this.raft.requestService(this.applyCommittedLogEntriesService);
@@ -822,6 +837,8 @@ public class FollowerRole extends NonLeaderRole {
 
         // If that was the last chunk, finalize persistent state
         if (msg.isLastChunk()) {
+
+            // Flip-flop state machine
             final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
             if (this.log.isDebugEnabled()) {
                 this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "
@@ -830,6 +847,12 @@ public class FollowerRole extends NonLeaderRole {
             this.snapshotReceive = null;
             this.raft.flipFlopStateMachine(term, index, snapshotConfig);
             this.updateElectionTimer();
+
+            // Fail any rebasable transactions
+            for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+                if (this.shouldRebase(tx))
+                    this.raft.fail(tx, new RetryTransactionException(tx, "rec'd snapshot install from leader"));
+            }
         }
     }
 
@@ -943,6 +966,13 @@ public class FollowerRole extends NonLeaderRole {
         // Done
         this.votedFor = recipient;
         return true;
+    }
+
+// Role
+
+    @Override
+    boolean shouldRebase(RaftKVTransaction tx) {
+        return super.shouldRebase(tx) && !this.pendingRequests.contains(tx);
     }
 
 // Object

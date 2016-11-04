@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.raft;
 
+import com.google.common.base.Preconditions;
+
 /**
  * {@link RaftKVTransaction} supported consistency levels.
  *
@@ -43,7 +45,13 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation does not wait
      * for that log entry to be committed, and up-to-date reads are not guaranteed.
      */
-    UNCOMMITTED(false, false, false),
+    UNCOMMITTED(false, false, false) {
+        @Override
+        public boolean mayChangeTo(Consistency that) {
+            Preconditions.checkArgument(that != null);
+            return that.equals(this) || that.equals(EVENTUAL);
+        }
+    },
 
     /**
      * Committed eventual consistency.
@@ -71,7 +79,13 @@ public enum Consistency {
      * <p>
      * In Raft terms, transactions are based on the latest committed log entry, and up-to-date reads are not guaranteed.
      */
-    EVENTUAL_COMMITTED(true, false, false),
+    EVENTUAL_COMMITTED(true, false, false) {
+        @Override
+        public boolean mayChangeTo(Consistency that) {
+            Preconditions.checkArgument(that != null);
+            return that.equals(this) || that.equals(UNCOMMITTED);
+        }
+    },
 
     /**
      * Eventual consistency.
@@ -99,7 +113,13 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
      * for that log entry to be committed, and up-to-date reads are not guaranteed.
      */
-    EVENTUAL(false, true, false),
+    EVENTUAL(false, true, false) {
+        @Override
+        public boolean mayChangeTo(Consistency that) {
+            Preconditions.checkArgument(that != null);
+            return !that.equals(LINEARIZABLE);
+        }
+    },
 
     /**
      * Linearizable consistency.
@@ -116,7 +136,13 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
      * for that log entry to be committed, and up-to-date reads are guaranteed.
      */
-    LINEARIZABLE(false, true, true);
+    LINEARIZABLE(false, true, true) {
+        @Override
+        public boolean mayChangeTo(Consistency that) {
+            Preconditions.checkArgument(that != null);
+            return true;
+        }
+    };
 
     private final boolean basedOnCommittedLogEntry;
     private final boolean waitsForLogEntryToBeCommitted;
@@ -173,5 +199,28 @@ public enum Consistency {
     public boolean isGuaranteesUpToDateReads() {
         return this.guaranteesUpToDateReads;
     }
+
+    /**
+     * Determine whether an open transaction's consistency level may be {@linkplain RaftKVTransaction#setConsistency changed}
+     * from this consistency level to the specified consistency level.
+     *
+     * <p>
+     * Changes are only allowed if they do not strengthen guarantees provided by {@link #isWaitsForLogEntryToBeCommitted}
+     * and/or {@link #isGuaranteesUpToDateReads}. Specifically, these transitions are allowed:
+     *  <ul>
+     *  <li>From {@link #LINEARIZABLE} to any other consistency level</li>
+     *  <li>From {@link #EVENTUAL_COMMITTED} to {@link #UNCOMMITTED}</li>
+     *  <li>Between {@link #EVENTUAL} and {@link #UNCOMMITTED} in either direction</li>
+     *  </ul>
+     *
+     * <p>
+     * A transaction's consistency level may not be changed after {@link RaftKVTransaction#commit commit()} or
+     * {@link RaftKVTransaction#rollback rollback()} has been invoked.
+     *
+     * @param newConsistency new transaction consistency
+     * @return true if a transaction may change from this consistency to {@code newConsistency}
+     * @throws IllegalArgumentException if {@code newConsistency} is null
+     */
+    public abstract boolean mayChangeTo(Consistency newConsistency);
 }
 

@@ -175,6 +175,9 @@ public class LeaderRole extends Role {
         if (this.log.isDebugEnabled())
             this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
 
+        // Rebase transactions
+        this.rebaseTransactions();
+
         // Start check apply timer
         if (!this.raft.raftLog.isEmpty())
             this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
@@ -241,16 +244,16 @@ public class LeaderRole extends Role {
             }
         }
 
-        // If some follower does not yet have the log entry as committed, wait for them to get it (up to some maximum time).
+        // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
         // If the follower appears to be offline, don't bother waiting.
         final int maxLogEntryAge = this.raft.maxFollowerAckHeartbeats * this.raft.heartbeatTimeout;
         if (logEntry.getAge() < maxLogEntryAge) {
             final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
             for (Follower follower : this.followerMap.values()) {
 
-                // Has this follower acknowledged reciept of the log entry and knows that it is committed?
-                // If so, then the follower has already rebased any executing transactions.
-                if (follower.getMatchIndex() >= logEntry.getIndex() && follower.getLeaderCommit() >= logEntry.getIndex())
+                // Has this follower acknowledged reciept of the log entry?
+                // If so, then the follower has already rebased any rebasable transactions.
+                if (follower.getMatchIndex() >= logEntry.getIndex())
                     continue;
 
                 // If we haven't heard from this follower in a while, don't bother waiting for it
@@ -332,7 +335,6 @@ public class LeaderRole extends Role {
             this.raft.commitIndex = maxCommitIndex;
 
             // Perform various service
-            this.raft.requestService(this.rebaseTransactionsService);
             this.raft.requestService(this.checkReadyTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);
@@ -763,6 +765,9 @@ public class LeaderRole extends Role {
 
             // Update transaction
             this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
+
+            // Rebase transactions
+            this.rebaseTransactions();
         }
     }
 
@@ -945,6 +950,9 @@ public class LeaderRole extends Role {
             }
             if (this.log.isDebugEnabled())
                 this.debug("added log entry " + logEntry + " for rec'd " + msg);
+
+            // Rebase transactions
+            this.rebaseTransactions();
 
             // Follower transaction data optimization
             follower.getSkipDataLogEntries().add(logEntry);

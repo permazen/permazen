@@ -36,6 +36,70 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 public class RaftKVTransaction implements KVTransaction {
 
+/*
+
+   How transactions are managed
+   ============================
+
+   When a transaction is created, a MutableView is setup with the transaction's base log entry as the underlying
+   read-only data, implicitly establishing the base term+index for the transaction. The transaction's (initial)
+   consistency level determines whether this log entry is the last log entry (LINEARIZABLE, EVENTUAL, UNCOMMITTED)
+   or the last committed log entry (EVENTUAL_COMMITTED).
+
+   If a transaction's base log entry is ever replaced (implying it had not yet been committed, and therefore the
+   consistency level cannot be EVENTUAL_COMMITTED), then the transaction fails immediately with a retry (unless
+   UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore it's always
+   the case that a transaction's base term+index actually exists in the nodes log as an entry, or has been compacted
+   (unless UNCOMMITTED).
+
+   As long as the transaction's consistency is LINEARIZABLE, which is the only consistency level that guarantees
+   up-to-date reads, every time a log entry is added to the raft log, the transaction is rebased on that log entry.
+   Therefore open LINEARIZABLE transactions have an invariant that their base log entry is always the last log entry.
+   The rebase operation can result in a read/write conflict, in which case the transaction immediately fails with a
+   retry. Non-LINEARIZABLE transactions are never rebased and so their base term+index does not change.
+
+   When commit() is invoked, if UNCOMMITTED or EVENTUAL_COMMITTED the transaction immediately suceeds; otherwise the
+   node communicates the base term+index with the leader (possibly itself) and waits to receive the transaction's commit
+   term+index in a reply. If the transaction's base term+index is not found in the leader's log, the transaction fails;
+   otherwise, if/when the follower sees the transaction's commit term+index applied to the Raft log and committed, the
+   transaction completes.
+
+   For followers, the response from the leader may be delayed or lost; if so the transaction just times out. When a
+   follower transaction is waiting for its leader response, it no longer gets rebased; the leader is responsible
+   for performing conflict detection with any log entries after the transaction's base index, as recorded in the
+   commit request sent from the follower to the leader.
+
+   A follower transaction in state COMMIT_READY, but for whom a commit request has already been sent to the leader, is
+   effectively a special follower-specific sub-state of COMMIT_READY (this is indicated by membership in 'pendingRequests').
+
+   Compacting Log Entries
+   ----------------------
+
+   A tranasction's base log entry, if committed, may be applied into the state machine without affecting the transaction
+   due to the view being based on a read-only AtomicKVStore snapshot, which persists until closed.
+
+   Therefore because LINEARIZABLE transactions are always rebased to the last log entry, and all other transactions are never
+   rebased, there is no reason for followers to not apply committed log entries immediately.
+
+   For leaders, the situation is more complicated. Applying committed log entries too aggressively can cause these issues:
+
+    o If some follower has not received a log entry, but the leader has applied that log entry to its state machine, then
+      the only way the follower can be synchronized is via InstallSnapshot (i.e., full state machine dump), which is costly.
+
+    o In order to detect conflicts in a LINEARIZABLE transaction received from a follower, a leader must have access
+      to all log entries after the transaction's base term+index. If any of these have already been applied to the state
+      machine, the leader has no choice but to return a retry error.
+
+   Actually, these issues also apply to followers, in the sense that they could become leaders at any time, but we don't
+   worry about optimizing that relatively rare case.
+
+   To address these issues, leaders wait until all followers acknowlegde receipt of a log entry before applying it to
+   their state machine. This clearly addresses the first issue above, but also the second, assuming message reordering
+   between nodes is rare: followers' LINEARIZABLE transactions are always based on their last received log entry, so no
+   commit request should have a base term+index less than what the follower has already acknowledged receiving.
+
+*/
+
     static final Comparator<RaftKVTransaction> SORT_BY_ID = new Comparator<RaftKVTransaction>() {
         @Override
         public int compare(RaftKVTransaction tx1, RaftKVTransaction tx2) {
@@ -203,14 +267,17 @@ public class RaftKVTransaction implements KVTransaction {
      * Set the consistency level for this transaction.
      *
      * <p>
-     * This setting may be modified freely during a transaction while it is still open;
-     * it only determines the behavior of the transaction after {@link #commit} is invoked.
+     * This setting may be modified during a transaction while it is still open; such a change only affects the behavior
+     * of the transaction after {@link #commit} is invoked. However, only {@linkplain Consistency#mayChangeTo certain transitions}
+     * between consistency levels are allowed.
      *
      * @param consistency desired consistency level
      * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
      * @throws IllegalStateException if {@code consistency} is different from the {@linkplain #getConsistency currently configured
      *  consistency} but this transaction is no longer open (i.e., in state {@link TxState#EXECUTING})
      * @throws IllegalArgumentException if {@code consistency} is null
+     * @throws IllegalArgumentException if a change to {@code consistency} is {@linkplain Consistency#mayChangeTo incompatible}
+     *  with this transaction's current consistency level
      */
     public void setConsistency(Consistency consistency) {
         Preconditions.checkArgument(consistency != null, "null consistency");
@@ -218,8 +285,8 @@ public class RaftKVTransaction implements KVTransaction {
             if (this.consistency.equals(consistency))
                 return;
             Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
+            Preconditions.checkArgument(this.consistency.mayChangeTo(consistency), "illegal consistency level change");
             this.consistency = consistency;
-            this.raft.requestService(this.raft.role.rebaseTransactionsService);
         }
     }
 
@@ -251,7 +318,6 @@ public class RaftKVTransaction implements KVTransaction {
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.readOnly = readOnly;
-            this.raft.requestService(this.raft.role.rebaseTransactionsService);
         }
     }
 
