@@ -8,7 +8,6 @@ package org.jsimpledb.kv.raft;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,7 +111,7 @@ public abstract class Role {
      */
     void checkReadyTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
+        for (RaftKVTransaction tx : this.raft.openTransactions.values())
             new CheckReadyTransactionService(this, tx).run();
     }
 
@@ -122,7 +121,7 @@ public abstract class Role {
      */
     void checkWaitingTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
+        for (RaftKVTransaction tx : this.raft.openTransactions.values())
             new CheckWaitingTransactionService(this, tx).run();
     }
 

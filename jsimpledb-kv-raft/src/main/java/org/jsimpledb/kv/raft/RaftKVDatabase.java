@@ -1084,7 +1084,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.shuttingDown = true;
 
             // Fail all remaining open transactions
-            for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.openTransactions.values())) {
+            for (RaftKVTransaction tx : this.openTransactions.values()) {
                 switch (tx.getState()) {
                 case EXECUTING:
                     tx.rollback();

@@ -11,7 +11,6 @@ import com.google.common.collect.Iterables;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -185,7 +184,7 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
-        for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values())) {
+        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
             if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
                 this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
         }
