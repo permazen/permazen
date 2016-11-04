@@ -1778,6 +1778,9 @@ public class RaftKVDatabase implements KVDatabase {
         this.role.setup();
         if (this.log.isDebugEnabled())
             this.debug("changing role to " + role);
+
+        // Check state
+        assert this.checkState();
     }
 
     /**
