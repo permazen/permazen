@@ -1013,8 +1013,6 @@ public class LeaderRole extends Role {
     @Override
     boolean checkState() {
         assert Thread.holdsLock(this.raft);
-        if (!super.checkState())
-            return false;
         assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();
         for (Follower follower : this.followerMap.values()) {
             assert follower.getNextIndex() <= this.raft.getLastLogIndex() + 1;

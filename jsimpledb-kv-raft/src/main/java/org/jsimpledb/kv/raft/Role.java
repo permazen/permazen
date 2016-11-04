@@ -550,9 +550,7 @@ public abstract class Role {
 
 // Debug
 
-    boolean checkState() {
-        return true;
-    }
+    abstract boolean checkState();
 
 // Logging
 

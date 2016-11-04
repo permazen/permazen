@@ -969,8 +969,6 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     boolean checkState() {
         assert Thread.holdsLock(this.raft);
-        if (!super.checkState())
-            return false;
         assert this.leaderAddress != null || this.leader == null;
         assert this.electionTimer.isRunning() == this.raft.isClusterMember();
         for (RaftKVTransaction tx : this.pendingRequests) {

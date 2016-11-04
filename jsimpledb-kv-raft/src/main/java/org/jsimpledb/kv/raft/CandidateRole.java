@@ -191,8 +191,6 @@ public class CandidateRole extends NonLeaderRole {
     @Override
     boolean checkState() {
         assert Thread.holdsLock(this.raft);
-        if (!super.checkState())
-            return false;
         assert this.electionTimer.isRunning();
         assert this.raft.isClusterMember();
         return true;
