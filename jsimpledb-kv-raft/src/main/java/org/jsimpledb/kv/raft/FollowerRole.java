@@ -987,6 +987,24 @@ public class FollowerRole extends NonLeaderRole {
         return true;
     }
 
+    @Override
+    void checkTransaction(RaftKVTransaction tx) {
+        super.checkTransaction(tx);
+        switch (tx.getState()) {
+        case COMMIT_READY:
+            assert !this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId);
+            break;
+        case COMMIT_WAITING:
+            assert !this.pendingRequests.contains(tx);
+            break;
+        default:
+            assert !this.pendingWrites.containsKey(tx.txId);
+            assert !this.pendingRequests.contains(tx);
+            assert !this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId);
+            break;
+        }
+    }
+
 // PendingWrite
 
     // Represents a read-write transaction in COMMIT_READY or COMMIT_WAITING for which the server's AppendRequest

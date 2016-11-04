@@ -552,6 +552,9 @@ public abstract class Role {
 
     abstract boolean checkState();
 
+    void checkTransaction(RaftKVTransaction tx) {
+    }
+
 // Logging
 
     void trace(String msg, Throwable t) {

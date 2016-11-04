@@ -2259,8 +2259,14 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.role.checkState();
 
         // Check transactions
-        for (RaftKVTransaction tx : this.openTransactions.values())
-            tx.checkStateOpen(this.currentTerm, this.getLastLogIndex(), this.commitIndex);
+        for (RaftKVTransaction tx : this.openTransactions.values()) {
+            try {
+                tx.checkStateOpen(this.currentTerm, this.getLastLogIndex(), this.commitIndex);
+                this.role.checkTransaction(tx);
+            } catch (AssertionError e) {
+                throw new AssertionError("checkState() failure for " + tx, e);
+            }
+        }
     }
 
     private boolean isWindows() {
