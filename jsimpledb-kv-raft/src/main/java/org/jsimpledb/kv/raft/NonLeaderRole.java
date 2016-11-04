@@ -75,8 +75,8 @@ public abstract class NonLeaderRole extends Role {
     @Override
     void shutdown() {
         assert Thread.holdsLock(this.raft);
-        super.shutdown();
         this.electionTimer.cancel();
+        super.shutdown();
     }
 
 // Service

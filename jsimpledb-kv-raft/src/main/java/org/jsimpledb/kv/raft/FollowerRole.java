@@ -175,7 +175,6 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     void shutdown() {
         assert Thread.holdsLock(this.raft);
-        super.shutdown();
 
         // Cancel any in-progress snapshot install
         if (this.snapshotReceive != null) {
@@ -196,6 +195,9 @@ public class FollowerRole extends NonLeaderRole {
         for (PendingWrite pendingWrite : this.pendingWrites.values())
             pendingWrite.cleanup();
         this.pendingWrites.clear();
+
+        // Proceed
+        super.shutdown();
     }
 
 // Service

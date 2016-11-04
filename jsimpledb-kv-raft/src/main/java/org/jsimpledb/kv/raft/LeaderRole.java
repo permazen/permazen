@@ -186,11 +186,11 @@ public class LeaderRole extends Role {
     @Override
     void shutdown() {
         assert Thread.holdsLock(this.raft);
-        super.shutdown();
         for (Follower follower : this.followerMap.values())
             follower.cleanup();
         this.checkApplyTimer.cancel();
         this.timestampScrubTimer.cancel();
+        super.shutdown();
     }
 
 // Service
