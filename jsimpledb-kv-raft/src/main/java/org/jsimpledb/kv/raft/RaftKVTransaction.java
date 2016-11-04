@@ -564,7 +564,8 @@ public class RaftKVTransaction implements KVTransaction {
               + ",base=" + this.baseIndex + "t" + this.baseTerm
               + ",consistency=" + this.consistency
               + (this.readOnly ? ",readOnly" : "")
-              + (this.configChange != null ? ",configChange=" + this.configChange[0] + "@" + this.configChange[1] : "")
+              + (this.configChange != null ? ",config=" + (this.configChange[1] != null ?
+               "+" + this.configChange[0] + "@" + this.configChange[1] : "-" + this.configChange[0]) : "")
               + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
               + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
               + "]";
