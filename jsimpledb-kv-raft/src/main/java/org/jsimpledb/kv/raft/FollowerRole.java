@@ -187,7 +187,7 @@ public class FollowerRole extends NonLeaderRole {
         // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
         for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values())) {
             if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
-                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during commit"));
+                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
         }
 
         // Cleanup pending requests and commit writes
