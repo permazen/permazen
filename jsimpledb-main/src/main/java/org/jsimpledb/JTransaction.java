@@ -8,6 +8,7 @@ package org.jsimpledb;
 import com.google.common.base.Converter;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
@@ -63,6 +64,7 @@ import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.index.Index3;
 import org.jsimpledb.index.Index4;
+import org.jsimpledb.kv.KVDatabaseException;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -1608,8 +1610,15 @@ public class JTransaction {
 
             // Do JSR 303 validation if needed
             if (validator != null) {
-                final Set<ConstraintViolation<JObject>> violations
-                  = new ValidationContext<JObject>(jobj, validationGroups).validate(validator);
+                final Set<ConstraintViolation<JObject>> violations;
+                try {
+                    violations = new ValidationContext<JObject>(jobj, validationGroups).validate(validator);
+                } catch (RuntimeException e) {
+                    final Throwable rootCause = Throwables.getRootCause(e);
+                    if (rootCause instanceof KVDatabaseException)
+                        throw (KVDatabaseException)rootCause;
+                    throw e;
+                }
                 if (!violations.isEmpty()) {
                     throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
                       + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
