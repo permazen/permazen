@@ -134,6 +134,14 @@ public abstract class Role {
         final long maxAppliedIndex = this.raft.lastAppliedIndex + numEntriesToApply;
         assert maxAppliedIndex <= this.raft.commitIndex;
 
+        // Sanity check that all committable transactions have been committed before we compact their commit log entries
+        boolean assertionsEnabled = false;
+        assert assertionsEnabled = true;
+        if (assertionsEnabled) {
+            for (RaftKVTransaction tx : this.raft.openTransactions.values())
+                assert !tx.getState().equals(TxState.COMMIT_WAITING) || tx.getCommitIndex() > this.raft.commitIndex;
+        }
+
         // Apply committed log entries to the state machine
         while (this.raft.lastAppliedIndex < maxAppliedIndex) {
 
