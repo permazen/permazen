@@ -193,9 +193,8 @@ public abstract class Role {
             }
 
             // Update in-memory state
-            this.raft.lastAppliedTerm = logEntry.getTerm();
             assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
-            this.raft.lastAppliedIndex = logEntry.getIndex();
+            this.raft.incrementLastAppliedIndex(logEntry.getTerm());
             logEntry.applyConfigChange(this.raft.lastAppliedConfig);
             assert this.raft.currentConfig.equals(this.raft.buildCurrentConfig());
 
@@ -379,32 +378,42 @@ public abstract class Role {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
+        assert tx.getConsistency().isGuaranteesUpToDateReads();
 
         // Check whether the transaction's commit index and term corresponds to a committed log entry
         final long commitIndex = tx.getCommitIndex();
+        final long commitTerm = tx.getCommitTerm();
         if (!tx.isCommitIndexCommitted()) {
 
-            // Handle the case the transaction's committed log index has already been applied to the state machine
-            if (commitIndex < this.raft.lastAppliedIndex) {
-
-                // This can happen if we lose contact and by the time we're back the log entry has
-                // already been applied to the state machine on some leader and that leader sent
-                // us an InstallSnapshot message. We don't know whether it actually got committed
-                // or not, so the transaction must be retried.
-                throw new RetryTransactionException(tx, "commit index " + commitIndex
-                  + " < last applied log index " + this.raft.lastAppliedIndex);
-            }
-
-            // Has the transaction's log entry been received but not committed yet?
+            // Has the transaction's commit log entry been committed yet? If not, the transaction is not committed yet.
             if (commitIndex > this.raft.commitIndex)
                 return;
 
-            // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
-            final long commitTerm = tx.getCommitTerm();
-            if (this.raft.getLogTermAtIndex(commitIndex) != commitTerm)
-                throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry overwritten");
+            // Determine the actual term of the log entry corresponding to commitIndex
+            final long commitIndexActualTerm;
+            if (commitIndex >= this.raft.lastAppliedIndex)
+                commitIndexActualTerm = this.raft.getLogTermAtIndex(commitIndex);
+            else {
 
-            // The log entry at the transaction's commit index and term are committed
+                // The commit log entry has already been applied to the state machine; we may or may not know what its term was
+                if ((commitIndexActualTerm = this.raft.getAppliedLogEntryTerm(commitIndex)) == 0) {
+
+                    // This can happen if we lose contact and by the time we're back the log entry has
+                    // already been applied to the state machine on some leader and that leader sent
+                    // us an InstallSnapshot message. We don't know whether it actually got committed
+                    // or not, so the transaction must be retried.
+                    throw new RetryTransactionException(tx, "commit index " + commitIndex
+                      + " < last applied log index " + this.raft.lastAppliedIndex);
+                }
+            }
+
+            // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
+            if (commitTerm != commitIndexActualTerm) {
+                throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry "
+                  + commitIndex + "t" + commitTerm + " overwritten by " + commitIndex + "t" + commitIndexActualTerm);
+            }
+
+            // The transaction's commit log entry is committed
             tx.setCommitIndexCommitted();
         }
 

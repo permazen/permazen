@@ -2,6 +2,7 @@ Version 2.4.3
 
     - Fixed bug where stale values could be read from @OnChange methods
     - Fixed Raft bug relating to read-only transactions and role change
+    - Raft improvements to reduce the likelihood of retry exceptions
     - Simplified how Raft handles rebasing transactions
     - Unwrap key/value exceptions thrown during JSR 303 validation
 

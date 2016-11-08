@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -362,6 +363,7 @@ public class RaftKVDatabase implements KVDatabase {
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
+    static final int MAX_APPLIED_TERMS = 128;                           // how many already-applied log entry terms to rememeber
 
     // File prefixes and suffixes
     static final String TX_FILE_PREFIX = "tx-";
@@ -409,6 +411,7 @@ public class RaftKVDatabase implements KVDatabase {
     long keyWatchIndex;                                                 // index of last log entry that triggered key watches
     long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
     long lastAppliedIndex;                                              // key/value store last applied index (zero if unconfigured)
+    final long[] appliedTerms = new long[MAX_APPLIED_TERMS];            // terms of log entries already applied to state machine
     final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
     Map<String, String> lastAppliedConfig;                              // key/value store last applied config (empty if none)
     Map<String, String> currentConfig;                                  // most recent cluster config (empty if unconfigured)
@@ -1007,6 +1010,7 @@ public class RaftKVDatabase implements KVDatabase {
             final String votedFor = this.decodeString(VOTED_FOR_KEY, null);
             this.lastAppliedTerm = this.decodeLong(LAST_APPLIED_TERM_KEY, 0);
             this.lastAppliedIndex = this.decodeLong(LAST_APPLIED_INDEX_KEY, 0);
+            Arrays.fill(this.appliedTerms, 0);
             this.lastAppliedConfig = this.decodeConfig(LAST_APPLIED_CONFIG_KEY);
             this.flipflop = this.decodeBoolean(FLIP_FLOP_KEY);
             this.currentConfig = this.buildCurrentConfig();
@@ -1164,6 +1168,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.clusterId = 0;
         this.lastAppliedTerm = 0;
         this.lastAppliedIndex = 0;
+        Arrays.fill(this.appliedTerms, 0);
         this.lastAppliedConfig = null;
         this.currentConfig = null;
         if (this.keyWatchTracker != null) {
@@ -1658,6 +1663,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.flipflop = !this.flipflop;
         this.lastAppliedTerm = term;
         this.lastAppliedIndex = index;
+        Arrays.fill(this.appliedTerms, 0);
         this.lastAppliedConfig = config;
         this.commitIndex = this.lastAppliedIndex;
         final TreeMap<String, String> previousConfig = new TreeMap<>(this.currentConfig);
@@ -1835,6 +1841,7 @@ public class RaftKVDatabase implements KVDatabase {
         return this.getLogTermAtIndex(this.getLastLogIndex());
     }
 
+    // Get the term of the not-yet-applied log entry at the specified index
     long getLogTermAtIndex(long index) {
         assert Thread.holdsLock(this);
         assert index >= this.lastAppliedIndex;
@@ -1842,11 +1849,28 @@ public class RaftKVDatabase implements KVDatabase {
         return index == this.lastAppliedIndex ? this.lastAppliedTerm : this.getLogEntryAtIndex(index).getTerm();
     }
 
+    // Get the not-yet-applied log entry at the specified index
     LogEntry getLogEntryAtIndex(long index) {
         assert Thread.holdsLock(this);
         assert index > this.lastAppliedIndex;
         assert index <= this.getLastLogIndex();
         return this.raftLog.get((int)(index - this.lastAppliedIndex - 1));
+    }
+
+    // Increment the index of the last applied log entry
+    void incrementLastAppliedIndex(long term) {
+        assert Thread.holdsLock(this);
+        this.appliedTerms[(int)(this.lastAppliedIndex % MAX_APPLIED_TERMS)] = this.lastAppliedTerm;
+        this.lastAppliedIndex++;
+        this.lastAppliedTerm = term;
+    }
+
+    // Get the term of an already-applied log entry, if known, otherwise zero
+    long getAppliedLogEntryTerm(long index) {
+        assert index < this.lastAppliedIndex;
+        if (index < this.lastAppliedIndex - MAX_APPLIED_TERMS)
+            return 0;
+        return this.appliedTerms[(int)(index % MAX_APPLIED_TERMS)];
     }
 
 // Object
