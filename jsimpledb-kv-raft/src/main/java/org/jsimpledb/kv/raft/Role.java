@@ -378,7 +378,7 @@ public abstract class Role {
 
             // This can happen if we lose contact and by the time we're back the log entry has
             // already been applied to the state machine on some leader and that leader sent
-            // use an InstallSnapshot message. We don't know whether it actually got committed
+            // us an InstallSnapshot message. We don't know whether it actually got committed
             // or not, so the transaction must be retried.
             throw new RetryTransactionException(tx, "commit index " + commitIndex
               + " < last applied log index " + this.raft.lastAppliedIndex);
