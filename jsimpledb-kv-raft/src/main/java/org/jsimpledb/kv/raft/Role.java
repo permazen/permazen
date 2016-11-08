@@ -380,26 +380,33 @@ public abstract class Role {
         // Sanity check
         assert Thread.holdsLock(this.raft);
 
-        // Handle the case the transaction's committed log index has already been applied to the state machine
+        // Check whether the transaction's commit index and term corresponds to a committed log entry
         final long commitIndex = tx.getCommitIndex();
-        if (commitIndex < this.raft.lastAppliedIndex) {
+        if (!tx.isCommitIndexCommitted()) {
 
-            // This can happen if we lose contact and by the time we're back the log entry has
-            // already been applied to the state machine on some leader and that leader sent
-            // us an InstallSnapshot message. We don't know whether it actually got committed
-            // or not, so the transaction must be retried.
-            throw new RetryTransactionException(tx, "commit index " + commitIndex
-              + " < last applied log index " + this.raft.lastAppliedIndex);
+            // Handle the case the transaction's committed log index has already been applied to the state machine
+            if (commitIndex < this.raft.lastAppliedIndex) {
+
+                // This can happen if we lose contact and by the time we're back the log entry has
+                // already been applied to the state machine on some leader and that leader sent
+                // us an InstallSnapshot message. We don't know whether it actually got committed
+                // or not, so the transaction must be retried.
+                throw new RetryTransactionException(tx, "commit index " + commitIndex
+                  + " < last applied log index " + this.raft.lastAppliedIndex);
+            }
+
+            // Has the transaction's log entry been received but not committed yet?
+            if (commitIndex > this.raft.commitIndex)
+                return;
+
+            // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
+            final long commitTerm = tx.getCommitTerm();
+            if (this.raft.getLogTermAtIndex(commitIndex) != commitTerm)
+                throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry overwritten");
+
+            // The log entry at the transaction's commit index and term are committed
+            tx.setCommitIndexCommitted();
         }
-
-        // Has the transaction's log entry been received but not committed yet?
-        if (commitIndex > this.raft.commitIndex)
-            return;
-
-        // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
-        final long commitTerm = tx.getCommitTerm();
-        if (this.raft.getLogTermAtIndex(commitIndex) != commitTerm)
-            throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry overwritten");
 
         // Check with subclass
         if (!this.mayCommit(tx))

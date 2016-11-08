@@ -141,6 +141,8 @@ public class RaftKVTransaction implements KVTransaction {
     private long commitTerm;                            // term of the log entry representing this transaction's commit
     @GuardedBy("raft")
     private long commitIndex;                           // index of the log entry representing this transaction's commit
+    @GuardedBy("raft")
+    private boolean commitIndexCommitted;               // true if log entry at (commitIndex, commitTerm) is committed
 
     /**
      * Constructor.
@@ -601,6 +603,15 @@ public class RaftKVTransaction implements KVTransaction {
             ThrowableUtil.prependCurrentStackTrace(e);
             throw e;
         }
+    }
+
+    boolean isCommitIndexCommitted() {
+        assert Thread.holdsLock(this.raft);
+        return this.commitIndexCommitted;
+    }
+    void setCommitIndexCommitted() {
+        assert Thread.holdsLock(this.raft);
+        this.commitIndexCommitted = true;
     }
 
     /**
