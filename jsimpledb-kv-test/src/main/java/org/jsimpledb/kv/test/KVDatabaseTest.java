@@ -48,6 +48,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     private final AtomicInteger numTransactionAttempts = new AtomicInteger();
     private final AtomicInteger numTransactionRetries = new AtomicInteger();
 
+    private TreeMap<String, AtomicInteger> retryReasons = new TreeMap<>();
+
     @BeforeClass(dependsOnGroups = "configure")
     public void setup() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
@@ -67,8 +69,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 kvdb[0].stop();
         }
         final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
-        this.log.info(String.format("%n%n****************%nRetry rate: %.2f%% (%d / %d)%n****************%n",
+        this.log.info("%n%n****************%n");
+        this.log.info(String.format("Retry rate: %.2f%% (%d / %d)",
           retryRate * 100.0, this.numTransactionRetries.get(), this.numTransactionAttempts.get()));
+        this.log.info("Retry reasons:");
+        for (Map.Entry<String, AtomicInteger> entry : this.retryReasons.entrySet())
+            this.log.info(String.format("%10d %s", entry.getValue().get(), entry.getKey()));
+        this.log.info("%n%n****************%n");
     }
 
     @DataProvider(name = "kvdbs")
@@ -431,7 +438,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     this.numTransactionAttempts.incrementAndGet();
                     txs[i].commit();
                 } catch (RetryTransactionException e) {
-                    this.numTransactionRetries.incrementAndGet();
+                    this.updateRetryStats(e);
                     txs[i] = store.createTransaction();
                     continue;
                 }
@@ -522,7 +529,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 tx.commit();
                 return result;
             } catch (RetryTransactionException e) {
-                this.numTransactionRetries.incrementAndGet();
+                this.updateRetryStats(e);
                 KVDatabaseTest.this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
                 retry = e;
             }
@@ -541,6 +548,25 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected interface Transactional<V> {
         V transact(KVTransaction kvt);
+    }
+
+    protected void updateRetryStats(RetryTransactionException e) {
+        this.numTransactionRetries.incrementAndGet();
+        String message = e.getMessage();
+        if (message != null)
+            message = this.mapRetryExceptionMessage(message);
+        synchronized (this) {
+            AtomicInteger counter = this.retryReasons.get(message);
+            if (counter == null) {
+                counter = new AtomicInteger();
+                this.retryReasons.put(message, counter);
+            }
+            counter.incrementAndGet();
+        }
+    }
+
+    protected String mapRetryExceptionMessage(String message) {
+        return message.replaceAll("[0-9]+", "NNN");
     }
 
 // RandomTask
@@ -825,7 +851,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
                         tx.commit();
                     } catch (RetryTransactionException e) {
-                        KVDatabaseTest.this.numTransactionRetries.incrementAndGet();
+                        KVDatabaseTest.this.updateRetryStats(e);
                         throw e;
                     }
                     committed = true;
@@ -1060,7 +1086,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 this.tx.commit();
             } catch (RuntimeException e) {
                 if (e instanceof RetryTransactionException)
-                    KVDatabaseTest.this.numTransactionRetries.incrementAndGet();
+                    KVDatabaseTest.this.updateRetryStats((RetryTransactionException)e);
                 KVDatabaseTest.this.log.info("exception committing " + this.tx + ": " + e);
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace(this.tx + " commit failure exception trace:", e);
