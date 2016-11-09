@@ -1,4 +1,4 @@
-Version 2.4.3
+Version 2.4.3 Released November 9, 2016
 
     - Fixed bug where stale values could be read from @OnChange methods
     - Fixed Raft bug relating to read-only transactions and role change
