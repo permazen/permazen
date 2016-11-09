@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Transaction (JSimpleDB 2.4.2 API)</title>
+<title>Transaction (JSimpleDB 2.4.3 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Transaction (JSimpleDB 2.4.2 API)";
+        parent.document.title="Transaction (JSimpleDB 2.4.3 API)";
     }
 //-->
 </script>
@@ -119,6 +119,8 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
   <li><a href="../../../org/jsimpledb/core/Transaction.html#getSchemas()"><code>getSchemas()</code></a> - Get the database <a href="../../../org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core"><code>Schemas</code></a>, as seen by this transaction</li>
   <li><a href="../../../org/jsimpledb/core/Transaction.html#getSchema()"><code>getSchema()</code></a> - Get the <a href="../../../org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core"><code>Schema</code></a> that will be used by this transaction</li>
   <li><a href="../../../org/jsimpledb/core/Transaction.html#deleteSchemaVersion(int)"><code>deleteSchemaVersion()</code></a> - Delete a schema version that is no longer being used</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getUserObject()"><code>getUserObject()</code></a> - Get user object associated with this instance</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#setUserObject(java.lang.Object)"><code>setUserObject(java.lang.Object)</code></a> - Set user object associated with this instance</li>
  </ul>
 
  <p>
@@ -226,9 +228,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <b>Listener Sets</b>
  <ul>
   <li><a href="../../../org/jsimpledb/core/Transaction.html#snapshotListeners()"><code>snapshotListeners()</code></a> - Create an immutable snapshot of all registered listeners</li>
-  <li><a href="../../../org/jsimpledb/core/Transaction.html#setListeners(org.jsimpledb.core.Transaction.ListenerSet)"><code>setListeners(org.jsimpledb.core.Transaction.ListenerSet)</code></a> - Bulk registration of listeners from a previously created snapshot</li>
-  <li><a href="../../../org/jsimpledb/core/Transaction.html#getUserObject()"><code>getUserObject()</code></a> - Get user object associated with this instance</li>
-  <li><a href="../../../org/jsimpledb/core/Transaction.html#setUserObject(java.lang.Object)"><code>setUserObject(java.lang.Object)</code></a> - Set user object associated with this instance</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#setListeners(org.jsimpledb.core.Transaction.ListenerSet)"><code>setListeners()</code></a> - Bulk registration of listeners from a previously created snapshot</li>
  </ul>
 
  <p>
@@ -2213,7 +2213,7 @@ public&nbsp;boolean&nbsp;copy(<a href="../../../org/jsimpledb/core/ObjId.html" t
 <h4>getUserObject</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;getUserObject()</pre>
 <div class="block">Get the object with this instance by <a href="../../../org/jsimpledb/core/Transaction.html#setUserObject(java.lang.Object)"><code>setUserObject()</code></a>, if any.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - associated user object, or null if none has been set</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the associated user object, or null if none has been set</dd></dl>
 </li>
 </ul>
 </li>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RaftKVTransaction (JSimpleDB 2.4.2 API)</title>
+<title>RaftKVTransaction (JSimpleDB 2.4.3 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVTransaction (JSimpleDB 2.4.2 API)";
+        parent.document.title="RaftKVTransaction (JSimpleDB 2.4.3 API)";
     }
 //-->
 </script>
@@ -421,13 +421,16 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <div class="block">Set the consistency level for this transaction.
 
  <p>
- This setting may be modified freely during a transaction while it is still open;
- it only determines the behavior of the transaction after <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> is invoked.</div>
+ This setting may be modified during a transaction while it is still open; such a change only affects the behavior
+ of the transaction after <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> is invoked. However, only <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#mayChangeTo(org.jsimpledb.kv.raft.Consistency)">certain transitions</a>
+ between consistency levels are allowed.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>consistency</code> - desired consistency level</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if <code>consistency</code> is different from the <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#getConsistency()">currently configured
   consistency</a> but this transaction is no longer open (i.e., in state <a href="../../../../org/jsimpledb/kv/raft/TxState.html#EXECUTING"><code>TxState.EXECUTING</code></a>)</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>consistency</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>consistency</code> is null</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if a change to <code>consistency</code> is <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#mayChangeTo(org.jsimpledb.kv.raft.Consistency)">incompatible</a>
+  with this transaction's current consistency level</dd><dt><span class="strong">See Also:</span></dt><dd><a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></dd></dl>
 </li>
 </ul>
 <a name="isReadOnly()">

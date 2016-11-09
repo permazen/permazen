@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleDBTransactionManager (JSimpleDB 2.4.2 API)</title>
+<title>JSimpleDBTransactionManager (JSimpleDB 2.4.3 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.4.2 API)";
+        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.4.3 API)";
     }
 //-->
 </script>
@@ -596,7 +596,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.3.3.RELEASE/javadoc-api/
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a> just delegates to
- <code>JTransaction#createTransaction(boolean, ValidationMode, Map)</code> using this instance's configured
+ <a href="../../../org/jsimpledb/JSimpleDB.html#createTransaction(boolean, org.jsimpledb.ValidationMode, java.util.Map)"><code>JSimpleDB.createTransaction(boolean, ValidationMode, Map)</code></a> using this instance's configured
  settings for validation mode and allowing new schema versions.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - transaction options</dd>
 <dt><span class="strong">Throws:</span></dt>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JField (JSimpleDB 2.4.2 API)</title>
+<title>JField (JSimpleDB 2.4.3 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JField (JSimpleDB 2.4.2 API)";
+        parent.document.title="JField (JSimpleDB 2.4.3 API)";
     }
 //-->
 </script>
@@ -488,8 +488,8 @@ public @interface <span class="strong">JField</span></pre>
 
  <p>
  For reference fields, when true this property prevents setting this field to reference a deleted object,
- causing a <code>DeletedObjectException</code> to be thrown instead. Used together with <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a>
- (see <a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a>), this guarantees this field won't contain any dangling references.
+ causing a <a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a> to be thrown instead. Used together with
+ <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a> (see <a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a>), this guarantees this field won't contain any dangling references.
 
  <p>
  This property only controls validation in regular (non-snapshot transactions); <a href="../../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>allowDeletedSnapshot()</code></a>
@@ -499,8 +499,7 @@ public @interface <span class="strong">JField</span></pre>
  For consistency, this property must be set to true when <a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a> is set to <a href="../../../org/jsimpledb/core/DeleteAction.html#NOTHING"><code>DeleteAction.NOTHING</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether the reference field should allow assignment to deleted objects in normal transactions</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a>, 
 <a href="../../../org/jsimpledb/annotation/JField.html#allowDeletedSnapshot()"><code>allowDeletedSnapshot()</code></a>, 
-<a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenAllowDeleted()"><code>JSimpleClass.autogenAllowDeleted()</code></a>, 
-<code>org.jsimpledb.ValidReferenceConstraints</code></dd></dl>
+<a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenAllowDeleted()"><code>JSimpleClass.autogenAllowDeleted()</code></a></dd></dl>
 <dl>
 <dt>Default:</dt>
 <dd>false</dd>

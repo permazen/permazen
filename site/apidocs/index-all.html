@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.4.2 API)</title>
+<title>Index (JSimpleDB 2.4.3 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.4.2 API)";
+        parent.document.title="Index (JSimpleDB 2.4.3 API)";
     }
 //-->
 </script>
@@ -1957,7 +1957,7 @@
 <dt><a href="./org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.TransactionalAction</span></a> - Interface in <a href="./org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></dt>
 <dd>
 <div class="block"><span class="strong">Deprecated.</span>
-<div class="block"><i>Implement <code>Session.TransactionalAction</code> instead of this interface</i></div>
+<div class="block"><i>Implement <a href="./org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><code>Session.TransactionalAction</code></a> instead of this interface</i></div>
 </div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#clone()">clone()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
@@ -3625,7 +3625,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">EvalCommand.EvalAction</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
 <dd>
-<div class="block">Special transactional <code>CliSession.Action</code> used by the <a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
+<div class="block">Special transactional <code>org.jsimpledb.CliSession.Action</code> used by the <a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
  <a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><span class="strong">EvalException</span></a> - Exception in <a href="./org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></dt>
@@ -5349,6 +5349,8 @@
 <dd>
 <div class="block">Get the Java model object containing the field that changed.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/vaadin/app/MainPanel.html#getJObjectChooser()">getJObjectChooser()</a></span> - Method in class org.jsimpledb.vaadin.app.<a href="./org/jsimpledb/vaadin/app/MainPanel.html" title="class in org.jsimpledb.vaadin.app">MainPanel</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/JObjectChooser.html#getJObjectContainer()">getJObjectContainer()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/JObjectChooser.html" title="class in org.jsimpledb.vaadin">JObjectChooser</a></dt>
 <dd>
 <div class="block">Get the object container for this instance.</div>
@@ -6063,6 +6065,12 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/ParamParser.Param.html#getParser()">getParser()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/ParamParser.Param.html" title="class in org.jsimpledb.cli">ParamParser.Param</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/vaadin/app/MainPanel.html#getParseSession()">getParseSession()</a></span> - Method in class org.jsimpledb.vaadin.app.<a href="./org/jsimpledb/vaadin/app/MainPanel.html" title="class in org.jsimpledb.vaadin.app">MainPanel</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/vaadin/JObjectChooser.html#getParseSession()">getParseSession()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/JObjectChooser.html" title="class in org.jsimpledb.vaadin">JObjectChooser</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a> used by this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/ReferenceFieldConverter.html#getPresentationType()">getPresentationType()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/ReferenceFieldConverter.html" title="class in org.jsimpledb.vaadin">ReferenceFieldConverter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/SimpleFieldConverter.html#getPresentationType()">getPresentationType()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/SimpleFieldConverter.html" title="class in org.jsimpledb.vaadin">SimpleFieldConverter</a></dt>
@@ -8952,7 +8960,13 @@
 <div class="block">Main GUI panel containing the object chooser, object table, buttons, and expresssion text area.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/app/MainPanel.html#MainPanel(org.jsimpledb.vaadin.app.GUIConfig)">MainPanel(GUIConfig)</a></span> - Constructor for class org.jsimpledb.vaadin.app.<a href="./org/jsimpledb/vaadin/app/MainPanel.html" title="class in org.jsimpledb.vaadin.app">MainPanel</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/vaadin/app/MainPanel.html#MainPanel(org.jsimpledb.parse.ParseSession)">MainPanel(ParseSession)</a></span> - Constructor for class org.jsimpledb.vaadin.app.<a href="./org/jsimpledb/vaadin/app/MainPanel.html" title="class in org.jsimpledb.vaadin.app">MainPanel</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><a href="./org/jsimpledb/vaadin/app/MainUI.html" title="class in org.jsimpledb.vaadin.app"><span class="strong">MainUI</span></a> - Class in <a href="./org/jsimpledb/vaadin/app/package-summary.html">org.jsimpledb.vaadin.app</a></dt>
 <dd>
 <div class="block">Main GUI <a href="http://vaadin.com/download/release/7.7/7.7.3/docs/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui"><code>UI</code></a> component.</div>
@@ -9014,6 +9028,8 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.html#mapRetryExceptionMessage(java.lang.String)">mapRetryExceptionMessage(String)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/schema/MapSchemaField.html" title="class in org.jsimpledb.schema"><span class="strong">MapSchemaField</span></a> - Class in <a href="./org/jsimpledb/schema/package-summary.html">org.jsimpledb.schema</a></dt>
 <dd>
 <div class="block">A map field in one version of a <a href="./org/jsimpledb/schema/SchemaObjectType.html" title="class in org.jsimpledb.schema"><code>SchemaObjectType</code></a>.</div>
@@ -9082,6 +9098,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/func/SimpleFunction.html#maxArgs">maxArgs</a></span> - Variable in class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/SimpleFunction.html" title="class in org.jsimpledb.parse.func">SimpleFunction</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/Consistency.html#mayChangeTo(org.jsimpledb.kv.raft.Consistency)">mayChangeTo(Consistency)</a></span> - Method in enum org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></dt>
+<dd>
+<div class="block">Determine whether an open transaction's consistency level may be <a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#setConsistency(org.jsimpledb.kv.raft.Consistency)">changed</a>
+ from this consistency level to the specified consistency level.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#MEMORY_FILE">MEMORY_FILE</a></span> - Static variable in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></dt>
 <dd>
 <div class="block">The special <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> that, when configured via <a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)"><code>setDatabaseFile()</code></a>,
@@ -10151,7 +10172,7 @@
 <dt><a href="./org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.TransactionalAction</span></a> - Interface in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
 <div class="block"><span class="strong">Deprecated.</span>
-<div class="block"><i>Implement <code>Session.TransactionalAction</code> instead of this interface</i></div>
+<div class="block"><i>Implement <a href="./org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><code>Session.TransactionalAction</code></a> instead of this interface</i></div>
 </div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/ParseUtil.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil</span></a> - Class in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
@@ -13578,6 +13599,8 @@
 <dd>
 <div class="block">Update a single item in this container by updating its backing object.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.html#updateRetryStats(org.jsimpledb.kv.RetryTransactionException)">updateRetryStats(RetryTransactionException)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">updateSchemaVersion(ObjId)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Change the schema version of the specified object, if necessary, so that its version matches
