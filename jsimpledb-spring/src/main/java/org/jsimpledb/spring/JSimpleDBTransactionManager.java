@@ -223,7 +223,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * The implementation in {@link JSimpleDBTransactionManager} just delegates to
-     * {@link JTransaction#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
+     * {@link JSimpleDB#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
      * settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options

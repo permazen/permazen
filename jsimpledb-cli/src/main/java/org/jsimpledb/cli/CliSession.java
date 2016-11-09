@@ -320,7 +320,7 @@ public class CliSession extends ParseSession {
     /**
      * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
      *
-     * @deprecated Implement {@link Session.TransactionalAction} instead of this interface
+     * @deprecated Implement {@link org.jsimpledb.Session.TransactionalAction} instead of this interface
      */
     @Deprecated
     public interface TransactionalAction extends Session.TransactionalAction {

@@ -49,7 +49,7 @@ public class EvalCommand extends AbstractCommand {
 // EvalAction
 
     /**
-     * Special transactional {@link CliSession.Action} used by the {@link EvalCommand} allowing access to the
+     * Special transactional {@link org.jsimpledb.CliSession.Action} used by the {@link EvalCommand} allowing access to the
      * {@link EvalException} that occurred, if any.
      *
      * <p>

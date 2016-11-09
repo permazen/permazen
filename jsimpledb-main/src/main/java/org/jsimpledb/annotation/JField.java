@@ -250,8 +250,8 @@ public @interface JField {
      *
      * <p>
      * For reference fields, when true this property prevents setting this field to reference a deleted object,
-     * causing a {@link DeletedObjectException} to be thrown instead. Used together with {@link DeleteAction#EXCEPTION}
-     * (see {@link #onDelete}), this guarantees this field won't contain any dangling references.
+     * causing a {@link org.jsimpledb.core.DeletedObjectException} to be thrown instead. Used together with
+     * {@link DeleteAction#EXCEPTION} (see {@link #onDelete}), this guarantees this field won't contain any dangling references.
      *
      * <p>
      * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
@@ -264,7 +264,6 @@ public @interface JField {
      * @see #onDelete
      * @see #allowDeletedSnapshot
      * @see JSimpleClass#autogenAllowDeleted
-     * @see org.jsimpledb.ValidReferenceConstraints
      */
     boolean allowDeleted() default false;
 
