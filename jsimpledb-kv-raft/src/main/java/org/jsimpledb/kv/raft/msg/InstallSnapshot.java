@@ -167,8 +167,7 @@ public class InstallSnapshot extends Message {
           + "[\"" + this.getSenderId() + "\"->\"" + this.getRecipientId() + "\""
           + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
-          + ",snapshotTerm=" + this.snapshotTerm
-          + ",snapshotIndex=" + this.snapshotIndex
+          + ",snapshot=" + this.snapshotIndex + "t" + this.snapshotTerm
           + ",pairIndex=" + this.pairIndex
           + (this.snapshotConfig != null ? ",snapshotConfig=" + this.snapshotConfig : "")
           + ",lastChunk=" + this.lastChunk
