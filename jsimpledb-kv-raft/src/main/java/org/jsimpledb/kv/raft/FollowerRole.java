@@ -424,7 +424,7 @@ public class FollowerRole extends NonLeaderRole {
               String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.txId, RaftKVDatabase.TEMP_FILE_SUFFIX));
             final FileWriter fileWriter;
             try {
-                fileWriter = new FileWriter(file);
+                fileWriter = new FileWriter(file, this.raft.disableSync);
             } catch (IOException e) {
                 throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
             }

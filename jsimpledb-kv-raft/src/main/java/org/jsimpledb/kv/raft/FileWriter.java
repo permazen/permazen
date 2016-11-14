@@ -20,6 +20,7 @@ class FileWriter extends FilterOutputStream {
 
     private final File file;
     private final FileOutputStream fileOutput;
+    private final boolean disableSync;
 
     private long length;
 
@@ -27,15 +28,17 @@ class FileWriter extends FilterOutputStream {
      * Constructor
      *
      * @param file file to write
+     * @param disableSync true to disable data sync on close
      * @throws IOException if an error occurs opening {@code file}
      * @throws IllegalArgumentException if {@code file} is null
      */
-    FileWriter(File file) throws IOException {
+    FileWriter(File file, boolean disableSync) throws IOException {
         super(null);
         Preconditions.checkArgument(file != null, "null file");
         this.file = file;
         this.fileOutput = new FileOutputStream(file);
         this.out = new BufferedOutputStream(this.fileOutput, 4096);
+        this.disableSync = disableSync;
     }
 
     /**
@@ -82,7 +85,8 @@ class FileWriter extends FilterOutputStream {
     @Override
     public void close() throws IOException {
         this.out.flush();
-        this.fileOutput.getChannel().force(false);
+        if (!this.disableSync)
+            this.fileOutput.getChannel().force(false);
         this.out.close();
     }
 }

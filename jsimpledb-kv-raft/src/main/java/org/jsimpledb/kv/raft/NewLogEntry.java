@@ -40,7 +40,7 @@ class NewLogEntry {
         this.data = new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange());
         this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, tx.raft.logDir);
         boolean success = false;
-        try (FileWriter output = new FileWriter(this.tempFile)) {
+        try (FileWriter output = new FileWriter(this.tempFile, tx.raft.disableSync)) {
             LogEntry.writeData(output, data);
             success = true;
         } finally {
@@ -59,7 +59,7 @@ class NewLogEntry {
         this.data = data;
         this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, raft.logDir);
         boolean success = false;
-        try (FileWriter output = new FileWriter(this.tempFile)) {
+        try (FileWriter output = new FileWriter(this.tempFile, raft.disableSync)) {
             LogEntry.writeData(output, data);
             success = true;
         } finally {
@@ -82,7 +82,7 @@ class NewLogEntry {
         try {
 
             // Copy data to temporary file
-            try (FileWriter output = new FileWriter(this.tempFile)) {
+            try (FileWriter output = new FileWriter(this.tempFile, raft.disableSync)) {
                 while (dataBuf.hasRemaining())
                     output.getFileOutputStream().getChannel().write(dataBuf);
             }

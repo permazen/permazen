@@ -184,7 +184,7 @@ public abstract class Role {
             if (this.log.isDebugEnabled())
                 this.debug("applying committed log entry " + logEntry + " to key/value store");
             try {
-                this.raft.kv.mutate(mutations, this.raft.lastAppliedIndex == maxAppliedIndex);
+                this.raft.kv.mutate(mutations, !this.raft.disableSync && this.raft.lastAppliedIndex == maxAppliedIndex);
             } catch (Exception e) {
                 if (e instanceof RuntimeException && e.getCause() instanceof IOException)
                     e = (IOException)e.getCause();

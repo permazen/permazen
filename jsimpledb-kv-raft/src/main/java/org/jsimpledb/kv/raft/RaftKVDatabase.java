@@ -398,6 +398,7 @@ public class RaftKVDatabase implements KVDatabase {
     int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
     int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
     boolean followerProbingEnabled;
+    boolean disableSync;
     File logDir;
 
     // Raft runtime state
@@ -765,6 +766,22 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized boolean isFollowerProbingEnabled() {
         return this.followerProbingEnabled;
+    }
+
+    /**
+     * Disable filesystem data sync.
+     *
+     * <p>
+     * This gives higher performance in exchange for losing the guarantee of durability if the system crashes.
+     * Note: this feature is experimental and may violate consistency and/or durability guaratees.
+     *
+     * <p>
+     * Default is false.
+     *
+     * @param disableSync true to disable data sync
+     */
+    public synchronized void setDisableSync(boolean disableSync) {
+        this.disableSync = disableSync;
     }
 
 // Status
@@ -1817,7 +1834,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Atomically rename file and fsync() directory to durably persist
         Files.move(tempFile.toPath(), logEntry.getFile().toPath(), StandardCopyOption.ATOMIC_MOVE);
-        if (this.logDirChannel != null)
+        if (this.logDirChannel != null && !this.disableSync)
             this.logDirChannel.force(true);
 
         // Add new log entry to in-memory log
