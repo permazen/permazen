@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import org.jsimpledb.util.ParseContext;
 public class EvalCommand extends AbstractCommand {
 
     public EvalCommand() {
-        super("eval -f:force expr:expr");
+        super("eval -f:force -w:weak expr:expr");
     }
 
     @Override
@@ -31,7 +32,9 @@ public class EvalCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "The expression is evaluated within a transaction. If an exception occurs, the transaction is rolled back"
-          + " unless the `-f' flag is given, in which case it will be committed anyway.";
+          + " unless the `-f' flag is given, in which case it will be committed anyway.\n"
+          + "If the `-w' flag is given, for certain key/value stores a weaker consistency level is used for"
+          + " the tranasction to reduce the chance of conflicts.";
     }
 
     @Override
@@ -43,7 +46,8 @@ public class EvalCommand extends AbstractCommand {
     public EvalAction getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("expr");
         final boolean force = params.containsKey("force");
-        return new EvalAction(expr, force);
+        final boolean weak = params.containsKey("weak");
+        return new EvalAction(expr, force, weak);
     }
 
 // EvalAction
@@ -57,15 +61,17 @@ public class EvalCommand extends AbstractCommand {
      * thrown during expression evaluation itself, swallowing them, making it appear as if the
      * command were always successful.
      */
-    public static final class EvalAction implements CliSession.Action, Session.TransactionalAction {
+    public static final class EvalAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
 
         private final Node expr;
         private final boolean force;
+        private final boolean weak;
         private EvalException evalException;
 
-        private EvalAction(Node expr, boolean force) {
+        private EvalAction(Node expr, boolean force, boolean weak) {
             this.expr = expr;
             this.force = force;
+            this.weak = weak;
         }
 
         @Override
@@ -86,6 +92,12 @@ public class EvalCommand extends AbstractCommand {
             }
             if (value != Value.NO_VALUE)
                 writer.println(result);
+        }
+
+        // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return this.weak ? Collections.singletonMap("consistency", "EVENTUAL") : null;
         }
 
         /**

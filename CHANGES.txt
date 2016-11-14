@@ -1,5 +1,6 @@
 Version Next
 
+    - Added the `-w' flag to the `eval' CLI command
     - Fixed Raft bug where leaders could get into a snapshot install loop
 
 Version 2.4.3 Released November 9, 2016
