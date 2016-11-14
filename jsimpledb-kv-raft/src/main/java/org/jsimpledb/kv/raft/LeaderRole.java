@@ -444,6 +444,12 @@ public class LeaderRole extends Role {
                     this.debug("scrubbing " + follower + " leader timestamp " + leaderTimestamp);
                 follower.setLeaderTimestamp(null);
             }
+            final Timestamp snapshotTimestamp = follower.getSnapshotTimestamp();
+            if (snapshotTimestamp != null && snapshotTimestamp.isRolloverDanger()) {
+                if (this.log.isDebugEnabled())
+                    this.debug("scrubbing " + follower + " snapshot timestamp " + snapshotTimestamp);
+                follower.setSnapshotTimestamp(null);
+            }
             for (Iterator<Timestamp> i = follower.getCommitLeaseTimeouts().iterator(); i.hasNext(); ) {
                 final Timestamp leaseTimestamp = i.next();
                 if (leaseTimestamp.isRolloverDanger()) {
@@ -576,8 +582,10 @@ public class LeaderRole extends Role {
                 final InstallSnapshot msg = new InstallSnapshot(this.raft.clusterId, this.raft.identity, peer,
                   this.raft.currentTerm, snapshotTransmit.getSnapshotTerm(), snapshotTransmit.getSnapshotIndex(), pairIndex,
                   pairIndex == 0 ? snapshotTransmit.getSnapshotConfig() : null, !snapshotTransmit.hasMoreChunks(), chunk);
-                if (this.raft.sendMessage(msg))
+                if (this.raft.sendMessage(msg)) {
+                    follower.setSnapshotTimestamp(new Timestamp());
                     return;
+                }
                 if (this.log.isDebugEnabled())
                     this.debug("canceling snapshot install for " + follower + " due to failure to send " + msg);
 
@@ -817,6 +825,13 @@ public class LeaderRole extends Role {
         if (follower.getSnapshotTransmit() != null) {
             if (this.log.isTraceEnabled())
                 this.trace("rec'd " + msg + " while sending snapshot install; ignoring");
+            return;
+        }
+
+        // Ignore a response to a request that was sent prior to the most resent snapshot install
+        if (follower.getSnapshotTimestamp() != null && msg.getLeaderTimestamp().compareTo(follower.getSnapshotTimestamp()) < 0) {
+            if (this.log.isTraceEnabled())
+                this.trace("rec'd " + msg + " sent prior to snapshot install; ignoring");
             return;
         }
 

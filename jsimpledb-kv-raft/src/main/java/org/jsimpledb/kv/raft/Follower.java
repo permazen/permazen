@@ -53,6 +53,8 @@ public class Follower {
     @GuardedBy("raft")
     private Timestamp leaderTimestamp;                  // most recent leaderTimestamp received in any AppendResponse
     @GuardedBy("raft")
+    private Timestamp snapshotTimestamp;                // timestamp of the most recent snapshot install
+    @GuardedBy("raft")
     private boolean synced;                             // if previous AppendEntryRequest was successful
     @GuardedBy("raft")
     private SnapshotTransmit snapshotTransmit;          // in-progress snapshot transfer, if any
@@ -137,6 +139,21 @@ public class Follower {
     void setLeaderTimestamp(Timestamp leaderTimestamp) {
         assert Thread.holdsLock(this.raft);
         this.leaderTimestamp = leaderTimestamp;
+    }
+
+    /**
+     * Get the (leader's) timestamp of the most recent snapshot install sent to this follower, if any.
+     *
+     * @return follower leader timestamp, or null if no response has been received yet from this follower
+     */
+    public Timestamp getSnapshotTimestamp() {
+        synchronized (this.raft) {
+            return this.snapshotTimestamp;
+        }
+    }
+    void setSnapshotTimestamp(Timestamp snapshotTimestamp) {
+        assert Thread.holdsLock(this.raft);
+        this.snapshotTimestamp = snapshotTimestamp;
     }
 
     /**
