@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Follower (JSimpleDB 2.4.3 API)</title>
+<title>Follower (JSimpleDB 2.4.4 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Follower (JSimpleDB 2.4.3 API)";
+        parent.document.title="Follower (JSimpleDB 2.4.4 API)";
     }
 //-->
 </script>
@@ -174,18 +174,24 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Follower.html#getSnapshotTimestamp()">getSnapshotTimestamp</a></strong>()</code>
+<div class="block">Get the (leader's) timestamp of the most recent snapshot install sent to this follower, if any.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Follower.html#isReceivingSnapshot()">isReceivingSnapshot</a></strong>()</code>
 <div class="block">Determine whether this follower is currently being sent a whole database snapshot download.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Follower.html#isSynced()">isSynced</a></strong>()</code>
 <div class="block">Determine whether we believe this follower is "synchronized".</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Follower.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -281,6 +287,17 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>getLeaderTimestamp</h4>
 <pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;getLeaderTimestamp()</pre>
 <div class="block">Get the most recent (leader's) request timestamp returned by this follower in a response, if any.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>follower leader timestamp, or null if no response has been received yet from this follower</dd></dl>
+</li>
+</ul>
+<a name="getSnapshotTimestamp()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSnapshotTimestamp</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;getSnapshotTimestamp()</pre>
+<div class="block">Get the (leader's) timestamp of the most recent snapshot install sent to this follower, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>follower leader timestamp, or null if no response has been received yet from this follower</dd></dl>
 </li>
 </ul>

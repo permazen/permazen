@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>EvalCommand.EvalAction (JSimpleDB 2.4.3 API)</title>
+<title>EvalCommand.EvalAction (JSimpleDB 2.4.4 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="EvalCommand.EvalAction (JSimpleDB 2.4.3 API)";
+        parent.document.title="EvalCommand.EvalAction (JSimpleDB 2.4.4 API)";
     }
 //-->
 </script>
@@ -95,7 +95,7 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></dd>
+<dd><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -105,7 +105,7 @@
 <br>
 <pre>public static final class <span class="strong">EvalCommand.EvalAction</span>
 extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></pre>
+implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>, <a href="../../../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a>, <a href="../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a></pre>
 <div class="block">Special transactional <code>org.jsimpledb.CliSession.Action</code> used by the <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
  <a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.
 
@@ -138,6 +138,12 @@ implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title=
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html#getTransactionOptions()">getTransactionOptions</a></strong>()</code>
+<div class="block">Get the options, if any, to be used when creating a new transaction for this action to run in.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html#run(org.jsimpledb.cli.CliSession)">run</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session)</code>
 <div class="block">Perform some action using the given <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> while a transaction is open.</div>
@@ -181,6 +187,21 @@ implements <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title=
 <dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session with open transaction</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code> - if an error occurs</dd></dl>
+</li>
+</ul>
+<a name="getTransactionOptions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTransactionOptions</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;getTransactionOptions()</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/Session.HasTransactionOptions.html#getTransactionOptions()">Session.HasTransactionOptions</a></code></strong></div>
+<div class="block">Get the options, if any, to be used when creating a new transaction for this action to run in.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/Session.HasTransactionOptions.html#getTransactionOptions()">getTransactionOptions</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/Session.HasTransactionOptions.html" title="interface in org.jsimpledb">Session.HasTransactionOptions</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>-specific transaction options, or null for none</dd></dl>
 </li>
 </ul>
 <a name="getEvalException()">

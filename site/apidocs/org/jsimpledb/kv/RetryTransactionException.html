@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RetryTransactionException (JSimpleDB 2.4.3 API)</title>
+<title>RetryTransactionException (JSimpleDB 2.4.4 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RetryTransactionException (JSimpleDB 2.4.3 API)";
+        parent.document.title="RetryTransactionException (JSimpleDB 2.4.4 API)";
     }
 //-->
 </script>
@@ -127,7 +127,16 @@
 <pre>public class <span class="strong">RetryTransactionException</span>
 extends <a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></pre>
 <div class="block">Exception thrown when an attempt to access a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> results
- in a conflict requiring that the transaction be restarted.</div>
+ in a conflict or other condition requiring that the transaction be retried.
+
+ <p>
+ <b>Note:</b> although it is usually the case, a <a href="../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
+ does <b>not</b> necessarily mean that the transaction failed. In some situations
+ (e.g., involving failed network communication) it may not be possible to determine
+ whether a transaction succeeded or not, and this situation is indicated by throwing a
+ <a href="../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>. Whether and how often such a "false negative" can
+ occur is a function of the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation being used; ideally, all
+ transactions are idempotent and therefore correct in either case.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../serialized-form.html#org.jsimpledb.kv.RetryTransactionException">Serialized Form</a></dd></dl>
 </li>
 </ul>
