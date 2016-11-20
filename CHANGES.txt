@@ -1,3 +1,7 @@
+Version Next
+
+    - Bump SQLite to version 3.15.1.
+
 Version 2.4.4 Released November 15, 2016
 
     - Added the `-w' flag to the `eval' CLI command
