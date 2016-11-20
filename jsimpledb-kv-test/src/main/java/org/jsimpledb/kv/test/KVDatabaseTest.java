@@ -69,13 +69,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 kvdb[0].stop();
         }
         final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
-        this.log.info("%n%n****************%n");
+        this.log.info("\n\n****************\n");
         this.log.info(String.format("Retry rate: %.2f%% (%d / %d)",
           retryRate * 100.0, this.numTransactionRetries.get(), this.numTransactionAttempts.get()));
         this.log.info("Retry reasons:");
         for (Map.Entry<String, AtomicInteger> entry : this.retryReasons.entrySet())
             this.log.info(String.format("%10d %s", entry.getValue().get(), entry.getKey()));
-        this.log.info("%n%n****************%n");
+        this.log.info("\n\n****************\n");
     }
 
     @DataProvider(name = "kvdbs")
