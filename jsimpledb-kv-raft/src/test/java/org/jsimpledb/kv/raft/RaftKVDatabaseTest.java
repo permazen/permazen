@@ -12,12 +12,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
+import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
+import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
+import org.jsimpledb.kv.sqlite.SQLiteKVDatabase;
 import org.jsimpledb.kv.test.KVDatabaseTest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -35,6 +39,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     @Parameters({
       "raftDirPrefix",
       "raftNumNodes",
+      "raftKVStore",
       "raftCommitTimeout",
       "raftMinElectionTimeout",
       "raftMaxElectionTimeout",
@@ -47,7 +52,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
       "arrayCompactSpaceLowWater",
       "arrayCompactSpaceHighWater",
     })
-    public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes,
+    public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes, @Optional final String kvstoreType,
       @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
       @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
       @Optional("true") boolean followerProbingEnabled,
@@ -72,27 +77,40 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             this.rafts[i] = new RaftKVDatabase();
             final File kvdir = new File(dir, "kvstore");
             kvdir.mkdirs();
-            switch (this.random.nextInt(3)) {
-            case 1:
+            String nodeKVStoreType = kvstoreType;
+            if (nodeKVStoreType == null) {
+                final String[] kvstoreTypes = new String[] { "leveldb", "rocksdb", /*"sqlite",*/ "array" };
+                nodeKVStoreType = kvstoreTypes[this.random.nextInt(kvstoreTypes.length)];
+            }
+            this.log.info("using " + nodeKVStoreType + " as key/value store on " + name);
+            switch (nodeKVStoreType) {
+            case "leveldb":
             {
-                this.log.info("using LevelDB as key/value store for Raft test");
                 final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
                 levelkv.setDirectory(kvdir);
                 levelkv.setCreateIfMissing(true);
                 this.rafts[i].setKVStore(levelkv);
                 break;
             }
-//            case 2:
-//            {
-//                this.log.info("using RocksDB as key/value store for Raft test");
-//                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
-//                rockskv.setDirectory(kvdir);
-//                this.rafts[i].setKVStore(rockskv);
-//                break;
-//            }
-            default:
+            case "rocksdb":
             {
-                this.log.info("using Array as key/value store for Raft test");
+                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
+                rockskv.setDirectory(kvdir);
+                this.rafts[i].setKVStore(rockskv);
+                break;
+            }
+            case "sqlite":
+            {
+                final SQLiteKVDatabase sqlite = new SQLiteKVDatabase();
+                sqlite.setDatabaseFile(new File(kvdir, "kvstore.sqlite3"));
+                sqlite.setExclusiveLocking(true);
+                sqlite.setPragmas(Arrays.asList("journal_mode=WAL"));
+                final AtomicKVDatabase kvstore = new AtomicKVDatabase(sqlite);
+                this.rafts[i].setKVStore(kvstore);
+                break;
+            }
+            case "array":
+            {
                 final AtomicArrayKVStore arraykv = new AtomicArrayKVStore();
                 arraykv.setDirectory(kvdir);
                 arraykv.setCompactMaxDelay(arrayCompactMaxDelay);
@@ -101,6 +119,8 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 this.rafts[i].setKVStore(arraykv);
                 break;
             }
+            default:
+                throw new IllegalArgumentException("unknown k/v store type `" + nodeKVStoreType + "'");
             }
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
