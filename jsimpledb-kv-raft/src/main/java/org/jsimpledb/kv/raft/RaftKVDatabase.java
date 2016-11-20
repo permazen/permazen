@@ -784,6 +784,15 @@ public class RaftKVDatabase implements KVDatabase {
         this.disableSync = disableSync;
     }
 
+    /**
+     * Determine whether filesystem sync is disabled.
+     *
+     * @return true if filesystem sync is disabled, otherwise false
+     */
+    public synchronized boolean isDisableSync() {
+        return this.disableSync;
+    }
+
 // Status
 
     /**
