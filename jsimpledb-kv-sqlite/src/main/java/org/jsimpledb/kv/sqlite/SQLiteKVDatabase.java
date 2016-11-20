@@ -83,8 +83,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
     }
 
     /**
-     * Set the {@link SQLiteConfig} used to configure the auto-created {@link SQLiteDataSource}
-     * when a database file is {@linkplain #setDatabaseFile specified} but no
+     * Set an {@link SQLiteConfig} with which to configure the auto-created {@link SQLiteDataSource}.
      *
      * @param config connection config, or null for none
      */
