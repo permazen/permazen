@@ -127,7 +127,14 @@ public class Reads extends KeyRanges {
             if (this.intersects(remove)) {
                 final KeyRanges intersection = new KeyRanges(remove);
                 intersection.intersect(this);
-                conflicts.add("read/remove conflict: " + intersection);
+                final Object description;
+                if (intersection.size() > 1)
+                    description = intersection;
+                else {
+                    final KeyRange range = intersection.asList().get(0);
+                    description = range.isSingleKey() ? ByteUtil.toString(range.getMin()) : range;
+                }
+                conflicts.add("read/remove conflict: " + description);
             }
         }
 
