@@ -15,6 +15,7 @@ import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.mvcc.Mutations;
+import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.msg.AppendRequest;
 import org.jsimpledb.kv.raft.msg.AppendResponse;
@@ -495,6 +496,8 @@ public abstract class Role {
                 if (tx.view.getReads().isConflict(logEntry.getWrites())) {
                     if (this.log.isDebugEnabled())
                         this.debug("cannot rebase " + tx + " past " + logEntry + " due to conflicts, failing");
+                    if (this.raft.dumpConflicts)
+                        this.dumpConflicts(tx.view.getReads(), logEntry, "local txId=" + tx.txId);
                     throw new RetryTransactionException(tx, "writes of committed transaction at index " + baseIndex
                       + " conflict with transaction reads from transaction base index " + tx.baseIndex);
                 }
@@ -519,6 +522,14 @@ public abstract class Role {
                 throw new RuntimeException("internal error");
             }
         }
+    }
+
+    void dumpConflicts(Reads reads, LogEntry logEntry, String description) {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(description + " failing due to conflicts with " + logEntry + ":");
+        for (String conflict : reads.getConflicts(logEntry.getWrites()))
+            buf.append("\n  ").append(conflict);
+        this.info(buf.toString());
     }
 
     /**

@@ -399,6 +399,7 @@ public class RaftKVDatabase implements KVDatabase {
     int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
     boolean followerProbingEnabled;
     boolean disableSync;
+    boolean dumpConflicts;
     File logDir;
 
     // Raft runtime state
@@ -791,6 +792,30 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized boolean isDisableSync() {
         return this.disableSync;
+    }
+
+    /**
+     * Enable explicit logging of transaction conflicts.
+     *
+     * <p>
+     * If enabled, when a transaction fails to due to conflicts, the conflicting key ranges are logged.
+     *
+     * <p>
+     * Default is false.
+     *
+     * @param dumpConflicts true to disable data sync
+     */
+    public synchronized void setDumpConflicts(boolean dumpConflicts) {
+        this.dumpConflicts = dumpConflicts;
+    }
+
+    /**
+     * Determine whether explicit logging of transaction conflicts is enabled.
+     *
+     * @return true if  explicit logging of transaction conflicts is enabled, otherwise false
+     */
+    public synchronized boolean isDumpConflicts() {
+        return this.dumpConflicts;
     }
 
 // Status

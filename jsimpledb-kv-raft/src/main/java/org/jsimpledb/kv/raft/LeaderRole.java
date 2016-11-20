@@ -739,7 +739,8 @@ public class LeaderRole extends Role {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Check for conflicts
-        final String error = this.checkConflicts(tx.baseTerm, tx.baseIndex, tx.view.getReads());
+        final String error = this.checkConflicts(tx.baseTerm, tx.baseIndex, tx.view.getReads(),
+          this.raft.dumpConflicts ? "local txId=" + tx.txId : null);
         if (error != null) {
             if (this.log.isDebugEnabled())
                 this.debug("local transaction " + tx + " failed due to conflict: " + error);
@@ -903,7 +904,8 @@ public class LeaderRole extends Role {
             }
 
             // Check for conflict
-            final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);
+            final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads,
+              this.raft.dumpConflicts ? msg.getSenderId() + " txId=" + msg.getTxId() : null);
             if (conflictMsg != null) {
                 if (this.log.isDebugEnabled())
                     this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
@@ -1133,14 +1135,12 @@ public class LeaderRole extends Role {
     /**
      * Check whether a proposed transaction can commit without any MVCC conflict.
      *
-     * @param file file containing serialized copy of {@link writes} (content must already be fsync()'d to disk!)
      * @param baseTerm the term of the log entry on which the transaction is based
      * @param baseIndex the index of the log entry on which the transaction is based
      * @param reads reads performed by the transaction
-     * @param writes writes performed by the transaction
      * @return error message on failure, null for success
      */
-    private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
+    private String checkConflicts(long baseTerm, long baseIndex, Reads reads, String dumpDescription) {
         assert Thread.holdsLock(this.raft);
 
         // Validate the index of the log entry on which the transaction is based
@@ -1162,6 +1162,8 @@ public class LeaderRole extends Role {
         for (long index = baseIndex + 1; index <= maxIndex; index++) {
             final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
             if (reads.isConflict(logEntry.getWrites())) {
+                if (dumpDescription != null)
+                    this.dumpConflicts(reads, logEntry, dumpDescription);
                 return "writes of committed transaction at index " + index
                   + " conflict with transaction reads from transaction base index " + baseIndex;
             }
