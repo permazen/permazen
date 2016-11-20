@@ -298,7 +298,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         });
 
         // Both read the same key
-        final KVTransaction[] txs = new KVTransaction[] { store.createTransaction(), store.createTransaction() };
+        final KVTransaction[] txs = new KVTransaction[] {
+            this.createKVTransaction(store),
+            this.createKVTransaction(store)
+        };
         this.log.info("tx[0] is " + txs[0]);
         this.log.info("tx[1] is " + txs[1]);
         this.executor.submit(new Reader(txs[0], b("10"))).get();
@@ -378,7 +381,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Verify the resulting change is consistent with the tx that succeeded
         final byte[] expected = fails[0] == null ? b("01") : fails[1] == null ? b("02") : null;
         if (expected != null) {
-            final KVTransaction tx2 = store.createTransaction();
+            final KVTransaction tx2 = this.createKVTransaction(store);
             this.showKV(tx2, "TX2 of " + store);
             byte[] x = this.executor.submit(new Reader(tx2, b("10"))).get();
             Assert.assertEquals(x, expected);
@@ -408,7 +411,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         int done = 0;
         KVTransaction[] txs = new KVTransaction[10];
         for (int i = 0; i < txs.length; i++)
-            txs[i] = store.createTransaction();
+            txs[i] = this.createKVTransaction(store);
         while (true) {
             boolean finished = true;
             for (int i = 0; i < txs.length; i++) {
@@ -422,7 +425,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         f.get();
                     } catch (ExecutionException e) {
                         if (e.getCause() instanceof RetryTransactionException) {
-                            txs[i] = store.createTransaction();
+                            txs[i] = this.createKVTransaction(store);
                             break;
                         }
                         throw e;
@@ -439,7 +442,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     txs[i].commit();
                 } catch (RetryTransactionException e) {
                     this.updateRetryStats(e);
-                    txs[i] = store.createTransaction();
+                    txs[i] = this.createKVTransaction(store);
                     continue;
                 }
                 txs[i] = null;
@@ -522,10 +525,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     protected <V> V tryNtimes(KVDatabase kvdb, Transactional<V> transactional) {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
-            final KVTransaction tx = kvdb.createTransaction();
             try {
-                final V result = transactional.transact(tx);
                 this.numTransactionAttempts.incrementAndGet();
+                final KVTransaction tx = kvdb.createTransaction();
+                final V result = transactional.transact(tx);
                 tx.commit();
                 return result;
             } catch (RetryTransactionException e) {
@@ -544,6 +547,24 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected int getNumTries() {
         return 3;
+    }
+
+    // Some k/v databases can throw a RetryTransaction from createTransaction()
+    protected KVTransaction createKVTransaction(KVDatabase kvdb) {
+        RetryTransactionException retry = null;
+        for (int count = 0; count < this.getNumTries(); count++) {
+            try {
+                return kvdb.createTransaction();
+            } catch (RetryTransactionException e) {
+                retry = e;
+            }
+            try {
+                Thread.sleep(100 + count * 200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        throw retry;
     }
 
     protected interface Transactional<V> {
@@ -630,7 +651,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             final KeyRanges knownEmpty = new KeyRanges();
 
             // Create transaction
-            final KVTransaction tx = this.store.createTransaction();
+            final KVTransaction tx = KVDatabaseTest.this.createKVTransaction(this.store);
             KVDatabaseTest.this.log.debug("*** CREATED TX " + tx);
 
             // Load actual committed database contents (if known) into "known values" tracker
