@@ -22,11 +22,13 @@ abstract class AbstractTransactionService extends Service {
 
     @Override
     public final void run() {
+        assert Thread.holdsLock(this.role.raft);
         try {
             this.doRun();
         } catch (KVTransactionException e) {
             this.role.raft.fail(tx, e);
         } catch (Exception e) {
+            this.role.raft.error("error performing " + this.getClass().getSimpleName() + " on " + tx, e);
             this.role.raft.fail(tx, new KVTransactionException(tx, e));
         }
     }

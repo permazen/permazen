@@ -454,6 +454,7 @@ public abstract class Role {
                 } catch (KVTransactionException e) {
                     this.raft.fail(tx, e);
                 } catch (Exception | Error e) {
+                    this.raft.error("error rebasing transaction " + tx, e);
                     this.raft.fail(tx, new KVTransactionException(tx, e));
                 }
             }
