@@ -39,14 +39,26 @@ public final class ThrowableUtil {
      * @throws IllegalArgumentException if {@code t} is null
      */
     public static void prependCurrentStackTrace(Throwable t) {
+        t.setStackTrace(ThrowableUtil.appendStackFrames(t, new Throwable().getStackTrace()));
+    }
+
+    /**
+     * Prepend stack frames from the current thread onto the given exception's stack frames and return the result.
+     *
+     * @param t original exception
+     * @param outerFrames stack frames that should wrap {@code t}'s stack frames
+     * @return an array containing {@code t}'s stack frames, followed by {@code outerFrames}
+     * @throws IllegalArgumentException if {@code t} or {@code outerFrames} is null
+     */
+    public static StackTraceElement[] appendStackFrames(Throwable t, StackTraceElement[] outerFrames) {
         Preconditions.checkArgument(t != null, "null t");
+        Preconditions.checkArgument(outerFrames != null, "null outerFrames");
         final StackTraceElement[] innerFrames = t.getStackTrace();
-        final StackTraceElement[] outerFrames = new Throwable().getStackTrace();
-        final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + Math.max(outerFrames.length, 0)];
+        final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + outerFrames.length];
         System.arraycopy(innerFrames, 0, frames, 0, innerFrames.length);
         for (int i = 0; i < outerFrames.length; i++)
             frames[innerFrames.length + i] = outerFrames[i];
-        t.setStackTrace(frames);
+        return frames;
     }
 }
 
