@@ -8,6 +8,7 @@ package org.jsimpledb.kv.raft;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -447,7 +448,7 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
 
         // Rebase all rebasable transactions
-        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (this.shouldRebase(tx)) {
                 try {
                     this.rebaseTransaction(tx);
@@ -538,7 +539,7 @@ public abstract class Role {
      */
     boolean shouldRebase(RaftKVTransaction tx) {
         assert Thread.holdsLock(this.raft);
-        return ((tx.getState().equals(TxState.EXECUTING) && tx.failure == null) || tx.getState().equals(TxState.COMMIT_READY))
+        return (tx.getState().equals(TxState.EXECUTING) || tx.getState().equals(TxState.COMMIT_READY))
           && (tx.getConsistency().isGuaranteesUpToDateReads() || tx.addsLogEntry());
     }
 

@@ -52,7 +52,6 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
-import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.msg.AppendRequest;
@@ -1139,11 +1138,9 @@ public class RaftKVDatabase implements KVDatabase {
             this.shuttingDown = true;
 
             // Fail all remaining open transactions
-            for (RaftKVTransaction tx : this.openTransactions.values()) {
+            for (RaftKVTransaction tx : new ArrayList<>(this.openTransactions.values())) {
                 switch (tx.getState()) {
                 case EXECUTING:
-                    tx.rollback();
-                    break;
                 case COMMIT_READY:
                 case COMMIT_WAITING:
                     this.fail(tx, new KVTransactionException(tx, "database shutdown"));
@@ -1325,9 +1322,7 @@ public class RaftKVDatabase implements KVDatabase {
 
     synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, byte[] key) {
         Preconditions.checkState(this.role != null, "not started");
-        if (tx.getState() != TxState.EXECUTING)
-            throw new StaleTransactionException(tx);
-        tx.throwExceptionIfAny();
+        tx.verifyExecuting();
         if (this.keyWatchTracker == null)
             this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);
@@ -1449,14 +1444,14 @@ public class RaftKVDatabase implements KVDatabase {
                 switch (tx.getState()) {
                 case EXECUTING:
 
-                    // Throw exception if transaction has already failed
-                    tx.throwExceptionIfAny();
-
                     // Transition to COMMIT_READY state
                     if (this.log.isDebugEnabled())
                         this.debug("committing transaction " + tx);
                     tx.setState(TxState.COMMIT_READY);
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
+
+                    // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
+                    tx.failure = null;
 
                     // Setup commit timer
                     if (tx.timeout != 0) {
@@ -1480,7 +1475,13 @@ public class RaftKVDatabase implements KVDatabase {
                     }
                     break;
                 case CLOSED:                                        // this transaction has already been committed or rolled back
-                    throw new StaleTransactionException(tx);
+                    try {
+                        tx.verifyExecuting();                       // always throws some kind of exception
+                    } finally {
+                        tx.failure = null;                          // from now on, throw StaleTransactionException if accessed
+                    }
+                    assert false;
+                    return;
                 default:                                            // another thread is already doing the commit
                     this.warn("simultaneous commit()'s requested for " + tx + " by two different threads");
                     break;
@@ -1511,6 +1512,9 @@ public class RaftKVDatabase implements KVDatabase {
         // Sanity check
         assert this.checkState();
         assert this.role != null;
+
+        // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
+        tx.failure = null;
 
         // Check tx state
         switch (tx.getState()) {
@@ -1552,7 +1556,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.notify();
     }
 
-    // Mark a transaction as having succeeded
+    // Mark a transaction as having succeeded; it must be in COMMIT_READY or COMMIT_WAITING
     void succeed(RaftKVTransaction tx) {
 
         // Sanity check
@@ -1583,7 +1587,8 @@ public class RaftKVDatabase implements KVDatabase {
         case EXECUTING:
             assert tx.failure == null;
             tx.failure = e;
-            return;                                     // leave it in state EXECUTING
+            this.cleanupTransaction(tx);
+            break;
         case COMMIT_READY:
         case COMMIT_WAITING:
             tx.commitFuture.setException(e);

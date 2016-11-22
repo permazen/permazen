@@ -26,7 +26,6 @@ import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotRefs;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
-import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +118,7 @@ public class RaftKVTransaction implements KVTransaction {
     @GuardedBy("raft")
     long baseIndex;                                     // index of the log entry on which this transaction is based
     @GuardedBy("raft")
-    KVTransactionException failure;                     // exception to throw on next access (in state EXECUTING), if any
+    KVTransactionException failure;                     // exception to throw on next access, if any; state CLOSED only
     final MutableView view;                             // transaction's view of key/value store (restricted to prefix)
     final SettableFuture<Void> commitFuture = SettableFuture.create();
     @GuardedBy("raft")
@@ -317,8 +316,7 @@ public class RaftKVTransaction implements KVTransaction {
         synchronized (this.raft) {
             if (readOnly == this.readOnly)
                 return;
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
+            this.verifyExecuting();
             this.readOnly = readOnly;
         }
     }
@@ -356,9 +354,7 @@ public class RaftKVTransaction implements KVTransaction {
         Preconditions.checkArgument(identity != null, "null identity");
         synchronized (this.raft) {
             Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
             this.configChange = new String[] { identity, address };
         }
     }
@@ -386,9 +382,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public byte[] get(byte[] key) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         return this.view.get(key);
     }
@@ -396,9 +390,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public KVPair getAtLeast(byte[] minKey) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         return this.view.getAtLeast(minKey);
     }
@@ -406,9 +398,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public KVPair getAtMost(byte[] maxKey) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         return this.view.getAtMost(maxKey);
     }
@@ -416,9 +406,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         return this.view.getRange(minKey, maxKey, reverse);
     }
@@ -426,9 +414,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void put(byte[] key, byte[] value) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         this.view.put(key, value);
     }
@@ -436,9 +422,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void remove(byte[] key) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         this.view.remove(key);
     }
@@ -446,9 +430,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         this.view.removeRange(minKey, maxKey);
     }
@@ -456,9 +438,7 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void adjustCounter(byte[] key, long amount) {
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
         }
         this.view.adjustCounter(key, amount);
     }
@@ -501,8 +481,7 @@ public class RaftKVTransaction implements KVTransaction {
         synchronized (this.raft) {
             if (timeout == this.timeout)
                 return;
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
+            this.verifyExecuting();
             this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
         }
     }
@@ -563,9 +542,7 @@ public class RaftKVTransaction implements KVTransaction {
             writes = this.view.getWrites().clone();
         }
         synchronized (this.raft) {
-            if (!this.state.equals(TxState.EXECUTING))
-                throw new StaleTransactionException(this);
-            this.throwExceptionIfAny();
+            this.verifyExecuting();
             assert this.snapshotRefs != null;
             this.snapshotRefs.ref();
             final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
@@ -593,16 +570,10 @@ public class RaftKVTransaction implements KVTransaction {
         this.baseIndex = baseIndex;
     }
 
-    void throwExceptionIfAny() {
+    void verifyExecuting() {
         assert Thread.holdsLock(this.raft);
-        assert this.state.equals(TxState.EXECUTING);
-        final KVTransactionException e = this.failure;
-        if (e != null) {
-            this.failure = null;
-            this.raft.cleanupTransaction(this);
-            ThrowableUtil.prependCurrentStackTrace(e);
-            throw e;
-        }
+        if (!this.state.equals(TxState.EXECUTING))
+            throw this.failure != null ? this.failure.duplicate() : new StaleTransactionException(this);
     }
 
     boolean isCommitIndexCommitted() {
@@ -674,6 +645,7 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.commitTerm == 0;
             assert this.commitIndex == 0;
             assert this.snapshotRefs != null;
+            assert this.failure == null;
             break;
         case COMMIT_READY:
             assert this.commitTerm == 0;

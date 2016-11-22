@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -184,13 +185,13 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
-        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
                 this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
         }
 
         // Fail any transactions that are waiting on leader response to a commit request and not based on the last log entry
-        for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (super.shouldRebase(tx)
               && (tx.baseIndex != this.raft.getLastLogIndex() || tx.baseTerm != this.raft.getLastLogTerm())) {
                 assert tx.getState().equals(TxState.COMMIT_READY) && this.pendingRequests.contains(tx);
@@ -575,7 +576,7 @@ public class FollowerRole extends NonLeaderRole {
             if (logIndex <= lastLogIndex && logTerm != this.raft.getLogTermAtIndex(logIndex)) {
 
                 // Fail all rebasable transactions whose base log entry is being overwritten
-                for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+                for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
                     if (this.shouldRebase(tx)) {
                         assert tx.baseIndex == lastLogIndex && tx.baseTerm == this.raft.getLogTermAtIndex(lastLogIndex);
                         this.raft.fail(tx, new RetryTransactionException(tx, "transaction's base log entry overwritten"));
@@ -849,7 +850,7 @@ public class FollowerRole extends NonLeaderRole {
             this.updateElectionTimer();
 
             // Fail any rebasable transactions
-            for (RaftKVTransaction tx : this.raft.openTransactions.values()) {
+            for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
                 if (this.shouldRebase(tx))
                     this.raft.fail(tx, new RetryTransactionException(tx, "rec'd snapshot install from leader"));
             }
