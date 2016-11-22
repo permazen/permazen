@@ -28,5 +28,10 @@ public class StaleTransactionException extends KVTransactionException {
     public StaleTransactionException(KVTransaction kvt, String message, Throwable cause) {
         super(kvt, message, cause);
     }
+
+    @Override
+    public StaleTransactionException duplicate() {
+        return (StaleTransactionException)super.duplicate();
+    }
 }
 

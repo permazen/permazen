@@ -38,5 +38,10 @@ public class RetryTransactionException extends KVTransactionException {
     public RetryTransactionException(KVTransaction kvt, String message, Throwable cause) {
         super(kvt, message, cause);
     }
+
+    @Override
+    public RetryTransactionException duplicate() {
+        return (RetryTransactionException)super.duplicate();
+    }
 }
 
