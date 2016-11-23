@@ -1,4 +1,4 @@
-Version Next
+Version 2.4.5 Released November 23, 2016
 
     - Make Raft rethrow the same failure exception until commit/rollback
     - Allow invocation of non-public methods in parse expressions
