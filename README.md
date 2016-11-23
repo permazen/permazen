@@ -16,13 +16,14 @@ Ask these questions of your existing persistence solution:
   * **Schema verification** Is the schema assumed by the code cross-checked against the schema actually present in the database? Are we always guaranteed a consistent interpretation of stored data?
   * **Incremental schema evolution** Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Are we free from "whole database" migration operations that would limit scalability?
   * **Structural schema changes** Are structural schema updates performed entirely automatically for us?
-  * **Semantic schema changes** Is there a convenient way to specify semantic schema updates, preferably at the Java level, not the database level? Do semantic updates have access to both the old and the new values?
+  * **Semantic schema changes** Is there a convenient way to specify semantic schema updates, at the language level (not the database level)?
   * **Schema evolution type safety** Is type safety and data type congruence guaranteed across arbitrary schema migrations?
-  * **Transactional validation** Does validation occur only at the end of the transaction (as it should), or randomly and inconveniently in the middle?
-  * **Cross-object validation** Is it possible to define validation constraints that span multiple objects/records? Can we register for notifications about changes in non-local objects?
-  * **Language-level data maintainability** Can database maintenance tasks and queries be performed using Java types, values, and expressions (including Java 8 streams and lambdas)? Are there convenient tools for manual and scripted use?
+  * **Transactional validation** Does validation, including reference validation, occur only at the end of the transaction (as it should), or randomly and inconveniently in the middle?
+  * **Cross-object validation** Is it possible to define validation constraints that span multiple objects/records? Can we register for data-level notifications about changes in non-local objects?
+  * **Language-level data maintainability** Can database maintenance tasks and queries be performed via a command line interface (CLI) using Java types, values, and expressions (including Java 8 streams and lambdas)? Are there convenient tools for manual and scripted use?
+  * **Data store independence** Are we restricted to using only a specific type of database technology (such as SQL), or are NoSQL solutions also an option?
 
-JSimpleDB addresses all of these issues, this without sacrificing flexibility or scalability.
+JSimpleDB addresses *all* of these issues, this without sacrificing flexibility or scalability.
 
 JSimpleDB does this by treating the database as just a _sorted key/value store_, and implementing the following in Java:
 
