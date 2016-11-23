@@ -21,7 +21,6 @@ import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.kv.util.ForwardingKVStore;
-import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +40,14 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     final MutableView view;
     final long baseVersion;
 
+    // Invariant: if error != null, then !db.transactions.contains(this)
     @GuardedBy("kvdb")
     KVTransactionException error;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @GuardedBy("this")
-    private boolean closed;
+    private boolean closed;                                 // used to detect whether commit() or rollback() has been invoked
     @GuardedBy("this")
     private long timeout;
 
@@ -101,7 +101,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      */
     @Override
     protected synchronized KVStore delegate() {
-        this.checkState();
+        this.checkAlive();
         return this.view;
     }
 
@@ -131,13 +131,13 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
     @Override
     public synchronized ListenableFuture<Void> watchKey(byte[] key) {
-        this.checkState();
+        this.checkAlive();
         return this.kvdb.watchKey(key);
     }
 
     @Override
     public synchronized void commit() {
-        this.checkState();
+        this.checkAlive();
         this.closed = true;
         this.kvdb.commit(this);
     }
@@ -154,7 +154,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     public CloseableKVStore mutableSnapshot() {
         final Writes writes;
         synchronized (this) {
-            this.checkState();
+            this.checkAlive();
             synchronized (this.view) {
                 writes = this.view.getWrites().clone();
             }
@@ -204,36 +204,36 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
 // SnapshotKVDatabase Methods
 
-    // Note both this and this.kvdb must be locked (in that order!)
+    // Note this.kvdb must be locked
     void throwErrorIfAny() {
-        assert Thread.holdsLock(this);
         assert Thread.holdsLock(this.kvdb);
-        final KVTransactionException e = this.error;
-        if (e == null)
-            return;
-        ThrowableUtil.prependCurrentStackTrace(e);
-        this.error = null;
-        this.closed = true;
-        throw this.kvdb.logException(e);
+        if (this.error != null)
+            throw this.kvdb.logException(this.error.duplicate());
     }
 
 // Internal methods
 
-    private void checkState() {
+    private void checkAlive() {
         assert Thread.holdsLock(this);
-        synchronized (this.kvdb) {
-            this.throwErrorIfAny();
-        }
+
+        // Has commit() or rollback() already been invoked?
         if (this.closed)
             throw this.kvdb.logException(new StaleTransactionException(this));
-        if (this.timeout == 0)
-            return;
-        final long duration = (System.nanoTime() - this.startTime) / 1000000L;
-        if (duration >= this.timeout) {
-            this.closed = true;
-            this.kvdb.rollback(this);
-            throw this.kvdb.logException(new TransactionTimeoutException(this,
-              "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms"));
+
+        // Check for error condition
+        synchronized (this.kvdb) {
+
+            // Check for timeout (if no pre-existing error)
+            if (this.error == null && this.timeout != 0) {
+                final long duration = (System.nanoTime() - this.startTime) / 1000000L;
+                if (duration >= this.timeout) {
+                    this.error = new TransactionTimeoutException(this,
+                      "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms");
+                }
+            }
+
+            // Check for pre-existing error
+            this.throwErrorIfAny();
         }
     }
 }

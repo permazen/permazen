@@ -247,32 +247,16 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     }
 
     /**
-     * Forcibly close all outstanding transactions.
+     * Forcibly fail all outstanding transactions due to {@link #stop} being invoked.
      *
      * <p>
      * Can be used by subclasses during the shutdown sequence to ensure everything is properly cleaned up.
-     * To avoid a possible lock order reversal deadlock, this instance should <b>not</b> be locked when invoking this method.
      */
-    protected void closeTransactions() {
-
-        // Grab all remaining open transactions and mark them as failed
-        final ArrayList<SnapshotKVTransaction> stragglers;
-        synchronized (this) {
-            stragglers = new ArrayList<>(this.transactions);
-            for (SnapshotKVTransaction tx : stragglers) {
-                if (tx.error == null)
-                    tx.error = new KVTransactionException(tx, "database was stopped");
-                this.cleanupTransaction(tx);
-            }
-        }
-
-        // Close them (but not while holding my lock, to avoid lock order reversal)
-        for (SnapshotKVTransaction tx : stragglers) {
-            try {
-                tx.rollback();
-            } catch (Throwable e) {
-                this.log.debug("caught exception closing open transaction during shutdown (ignoring)", e);
-            }
+    protected synchronized void closeTransactions() {
+        for (SnapshotKVTransaction tx : new ArrayList<>(this.transactions)) {
+            if (tx.error == null)
+                tx.error = new KVTransactionException(tx, "database was stopped");
+            this.cleanupTransaction(tx);
         }
     }
 
@@ -312,6 +296,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         try {
             this.doCommit(tx);
         } finally {
+            tx.error = null;                                // from this point on, throw a StaleTransactionException if accessed
             this.cleanupTransaction(tx);
         }
     }
@@ -323,6 +308,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         assert Thread.holdsLock(tx);
         if (this.log.isTraceEnabled())
             this.log.trace("rolling back transaction " + tx);
+        tx.error = null;                                    // from this point on, throw a StaleTransactionException if accessed
         this.cleanupTransaction(tx);
     }
 
