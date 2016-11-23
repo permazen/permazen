@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Interface org.jsimpledb.kv.KVDatabase (JSimpleDB 2.4.4 API)</title>
+<title>Uses of Interface org.jsimpledb.kv.KVDatabase (JSimpleDB 2.4.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Interface org.jsimpledb.kv.KVDatabase (JSimpleDB 2.4.4 API)";
+        parent.document.title="Uses of Interface org.jsimpledb.kv.KVDatabase (JSimpleDB 2.4.5 API)";
     }
 //-->
 </script>
@@ -983,39 +983,43 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
+<td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#createKVTransaction(org.jsimpledb.kv.KVDatabase)">createKVTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testConflictingTransactions(org.jsimpledb.kv.KVDatabase)">testConflictingTransactions</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testKeyWatch(org.jsimpledb.kv.KVDatabase)">testKeyWatch</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testNonconflictingTransactions(org.jsimpledb.kv.KVDatabase)">testNonconflictingTransactions</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testParallelTransactions(org.jsimpledb.kv.KVDatabase)">testParallelTransactions</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>
 <div class="block">This test runs transactions in parallel and verifies there is no "leakage" between them.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testParallelTransactions(org.jsimpledb.kv.KVDatabase[])">testParallelTransactions</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>[]&nbsp;stores)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testSequentialTransactions(org.jsimpledb.kv.KVDatabase)">testSequentialTransactions</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>
 <div class="block">This test runs transactions sequentially and verifies that each transaction sees
  the changes that were committed in the previous transaction.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#testSimpleStuff(org.jsimpledb.kv.KVDatabase)">testSimpleStuff</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;store)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected &lt;V&gt;&nbsp;V</code></td>
 <td class="colLast"><span class="strong">KVDatabaseTest.</span><code><strong><a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.html#tryNtimes(org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.test.KVDatabaseTest.Transactional)">tryNtimes</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
          <a href="../../../../org/jsimpledb/kv/test/KVDatabaseTest.Transactional.html" title="interface in org.jsimpledb.kv.test">KVDatabaseTest.Transactional</a>&lt;V&gt;&nbsp;transactional)</code>&nbsp;</td>

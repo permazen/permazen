@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.4.4 API)</title>
+<title>Index (JSimpleDB 2.4.5 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.4.4 API)";
+        parent.document.title="Index (JSimpleDB 2.4.5 API)";
     }
 //-->
 </script>
@@ -711,6 +711,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html#AppendResponse(int, java.lang.String, java.lang.String, long, org.jsimpledb.kv.raft.Timestamp, boolean, long, long)">AppendResponse(int, String, String, long, Timestamp, boolean, long, long)</a></span> - Constructor for class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html" title="class in org.jsimpledb.kv.raft.msg">AppendResponse</a></dt>
 <dd>
 <div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/ThrowableUtil.html#appendStackFrames(java.lang.Throwable, java.lang.StackTraceElement[])">appendStackFrames(Throwable, StackTraceElement[])</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ThrowableUtil.html" title="class in org.jsimpledb.util">ThrowableUtil</a></dt>
+<dd>
+<div class="block">Prepend stack frames from the current thread onto the given exception's stack frames and return the result.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/Change.html#apply(org.jsimpledb.JTransaction, org.jsimpledb.JObject)">apply(JTransaction, JObject)</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change">Change</a></dt>
 <dd>
@@ -2101,7 +2105,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#closeTransactions()">closeTransactions()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>
-<div class="block">Forcibly close all outstanding transactions.</div>
+<div class="block">Forcibly fail all outstanding transactions due to <a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#stop()"><code>SnapshotKVDatabase.stop()</code></a> being invoked.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/ConfirmWindow.html#closeWindow()">closeWindow()</a></span> - Method in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/ConfirmWindow.html" title="class in org.jsimpledb.vaadin">ConfirmWindow</a></dt>
 <dd>
@@ -2701,6 +2705,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLDriverKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase(Object, KVDatabase, AtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLDriverKVImplementation.html" title="class in org.jsimpledb.kv.sql">SQLDriverKVImplementation</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase(Object, KVDatabase, AtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVImplementation.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVImplementation</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.html#createKVTransaction(org.jsimpledb.kv.KVDatabase)">createKVTransaction(KVDatabase)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><span class="strong">CreateListener</span></a> - Interface in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
 <dd>
@@ -3355,6 +3361,18 @@
 <dt><a href="./org/jsimpledb/cli/func/DumpFunction.html" title="class in org.jsimpledb.cli.func"><span class="strong">DumpFunction</span></a> - Class in <a href="./org/jsimpledb/cli/func/package-summary.html">org.jsimpledb.cli.func</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/DumpFunction.html#DumpFunction()">DumpFunction()</a></span> - Constructor for class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/DumpFunction.html" title="class in org.jsimpledb.cli.func">DumpFunction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KVTransactionException.html#duplicate()">duplicate()</a></span> - Method in exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></dt>
+<dd>
+<div class="block">Create a duplicate of this exception, with the current thread's stack frames prepended.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KVTransactionException.html#duplicate(java.lang.StackTraceElement[])">duplicate(StackTraceElement[])</a></span> - Method in exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></dt>
+<dd>
+<div class="block">Create a duplicate of this exception, but with its stack frames replaced by the given stack frames.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/RetryTransactionException.html#duplicate()">duplicate()</a></span> - Method in exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv">RetryTransactionException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/StaleTransactionException.html#duplicate()">duplicate()</a></span> - Method in exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a name="_E_">
@@ -7614,8 +7632,16 @@
 <dd>
 <div class="block">Get view ordering.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#isDisableSync()">isDisableSync()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>
+<div class="block">Determine whether filesystem sync is disabled.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#isDone()">isDone()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#isDumpConflicts()">isDumpConflicts()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>
+<div class="block">Determine whether explicit logging of transaction conflicts is enabled.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html#isEchoEnabled()">isEchoEnabled()</a></span> - Method in class org.jsimpledb.cli.telnet.<a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli.telnet">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdMap.html#isEmpty()">isEmpty()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a></dt>
@@ -11795,6 +11821,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setDone(boolean)">setDone(boolean)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setDumpConflicts(boolean)">setDumpConflicts(boolean)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>
+<div class="block">Enable explicit logging of transaction conflicts.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html#setEchoEnabled(boolean)">setEchoEnabled(boolean)</a></span> - Method in class org.jsimpledb.cli.telnet.<a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli.telnet">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/CollectionSchemaField.html#setElementField(org.jsimpledb.schema.SimpleSchemaField)">setElementField(SimpleSchemaField)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/CollectionSchemaField.html" title="class in org.jsimpledb.schema">CollectionSchemaField</a></dt>
@@ -12189,8 +12219,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#setSQLiteConfig(org.sqlite.SQLiteConfig)">setSQLiteConfig(SQLiteConfig)</a></span> - Method in class org.jsimpledb.kv.sqlite.<a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></dt>
 <dd>
-<div class="block">Set the <code>SQLiteConfig</code> used to configure the auto-created <code>SQLiteDataSource</code>
- when a database file is <a href="./org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)">specified</a> but no</div>
+<div class="block">Set an <code>SQLiteConfig</code> with which to configure the auto-created <code>SQLiteDataSource</code>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setStandaloneTarget(org.jsimpledb.kv.KVDatabase)">setStandaloneTarget(KVDatabase)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVDatabase</a></dt>
 <dd>

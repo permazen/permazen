@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>TransactionTimeoutException (JSimpleDB 2.4.4 API)</title>
+<title>TransactionTimeoutException (JSimpleDB 2.4.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="TransactionTimeoutException (JSimpleDB 2.4.4 API)";
+        parent.document.title="TransactionTimeoutException (JSimpleDB 2.4.5 API)";
     }
 //-->
 </script>
@@ -63,7 +63,7 @@
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods_inherited_from_class_org.jsimpledb.kv.KVTransactionException">Method</a></li>
+<li><a href="#methods_inherited_from_class_org.jsimpledb.kv.StaleTransactionException">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
@@ -176,11 +176,18 @@ extends <a href="../../../org/jsimpledb/kv/StaleTransactionException.html" title
 </a>
 <h3>Method Summary</h3>
 <ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.StaleTransactionException">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jsimpledb.kv.<a href="../../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></h3>
+<code><a href="../../../org/jsimpledb/kv/StaleTransactionException.html#duplicate()">duplicate</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.KVTransactionException">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.kv.<a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></h3>
-<code><a href="../../../org/jsimpledb/kv/KVTransactionException.html#getTransaction()">getTransaction</a></code></li>
+<code><a href="../../../org/jsimpledb/kv/KVTransactionException.html#duplicate(java.lang.StackTraceElement[])">duplicate</a>, <a href="../../../org/jsimpledb/kv/KVTransactionException.html#getTransaction()">getTransaction</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.KVDatabaseException">
@@ -311,7 +318,7 @@ extends <a href="../../../org/jsimpledb/kv/StaleTransactionException.html" title
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods_inherited_from_class_org.jsimpledb.kv.KVTransactionException">Method</a></li>
+<li><a href="#methods_inherited_from_class_org.jsimpledb.kv.StaleTransactionException">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>

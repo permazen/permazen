@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KVTransactionException (JSimpleDB 2.4.4 API)</title>
+<title>KVTransactionException (JSimpleDB 2.4.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KVTransactionException (JSimpleDB 2.4.4 API)";
+        parent.document.title="KVTransactionException (JSimpleDB 2.4.5 API)";
     }
 //-->
 </script>
@@ -176,6 +176,18 @@ extends <a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="clas
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransactionException.html#duplicate()">duplicate</a></strong>()</code>
+<div class="block">Create a duplicate of this exception, with the current thread's stack frames prepended.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransactionException.html#duplicate(java.lang.StackTraceElement[])">duplicate</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html?is-external=true" title="class or interface in java.lang">StackTraceElement</a>[]&nbsp;frames)</code>
+<div class="block">Create a duplicate of this exception, but with its stack frames replaced by the given stack frames.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransactionException.html#getTransaction()">getTransaction</a></strong>()</code>
 <div class="block">Get the <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> that generated this exception.</div>
@@ -268,12 +280,42 @@ extends <a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="clas
 <a name="getTransaction()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getTransaction</h4>
 <pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;getTransaction()</pre>
 <div class="block">Get the <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> that generated this exception.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated transaction</dd></dl>
+</li>
+</ul>
+<a name="duplicate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>duplicate</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;duplicate()</pre>
+<div class="block">Create a duplicate of this exception, with the current thread's stack frames prepended.
+
+ <p>
+ This allows the "same" exception to be thrown multiple times from different locations
+ with different outer stack frames.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/util/ThrowableUtil.html#prependCurrentStackTrace(java.lang.Throwable)"><code>ThrowableUtil.prependCurrentStackTrace(java.lang.Throwable)</code></a></dd></dl>
+</li>
+</ul>
+<a name="duplicate(java.lang.StackTraceElement[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>duplicate</h4>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;duplicate(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html?is-external=true" title="class or interface in java.lang">StackTraceElement</a>[]&nbsp;frames)</pre>
+<div class="block">Create a duplicate of this exception, but with its stack frames replaced by the given stack frames.
+
+ <p>
+ The implementation in <a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a> requires that this instance's class contains
+ a public constructor in the form of <a href="../../../org/jsimpledb/kv/KVTransactionException.html#KVTransactionException(org.jsimpledb.kv.KVTransaction, java.lang.String, java.lang.Throwable)"><code>KVTransactionException(KVTransaction, String, Throwable)</code></a>;
+ subclasses that don't have such a constructor must override this method.</div>
 </li>
 </ul>
 </li>

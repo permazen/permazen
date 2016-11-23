@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SnapshotKVDatabase (JSimpleDB 2.4.4 API)</title>
+<title>SnapshotKVDatabase (JSimpleDB 2.4.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SnapshotKVDatabase (JSimpleDB 2.4.4 API)";
+        parent.document.title="SnapshotKVDatabase (JSimpleDB 2.4.5 API)";
     }
 //-->
 </script>
@@ -190,7 +190,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#closeTransactions()">closeTransactions</a></strong>()</code>
-<div class="block">Forcibly close all outstanding transactions.</div>
+<div class="block">Forcibly fail all outstanding transactions due to <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#stop()"><code>stop()</code></a> being invoked.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -463,11 +463,10 @@ public&nbsp;void&nbsp;stop()</pre>
 <li class="blockList">
 <h4>closeTransactions</h4>
 <pre>protected&nbsp;void&nbsp;closeTransactions()</pre>
-<div class="block">Forcibly close all outstanding transactions.
+<div class="block">Forcibly fail all outstanding transactions due to <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#stop()"><code>stop()</code></a> being invoked.
 
  <p>
- Can be used by subclasses during the shutdown sequence to ensure everything is properly cleaned up.
- To avoid a possible lock order reversal deadlock, this instance should <b>not</b> be locked when invoking this method.</div>
+ Can be used by subclasses during the shutdown sequence to ensure everything is properly cleaned up.</div>
 </li>
 </ul>
 <a name="logException(org.jsimpledb.kv.KVTransactionException)">
