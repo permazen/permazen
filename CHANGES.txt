@@ -1,6 +1,7 @@
 Version Next
 
     - Make Raft rethrow the same failure exception until commit/rollback
+    - Allow invocation of non-public methods in parse expressions
     - Bump SQLite to version 3.15.1.
 
 Version 2.4.4 Released November 15, 2016

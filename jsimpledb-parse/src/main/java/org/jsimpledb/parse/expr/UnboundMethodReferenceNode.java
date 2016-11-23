@@ -59,36 +59,23 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
                 }
             } else {
 
-                // Lookup instance method, if possible
-                Method instanceMethod = null;
+                // Lookup public instance and static methods
+                Method instanceMethod = this.lookupInstanceMethod(cl, ptypes, shape, false);
+                Method staticMethod = this.lookupStaticMethod(cl, ptypes, shape, false);
 
-                if (ptypes.length > 0
-                  && (cl.isAssignableFrom(TypeToken.of(ptypes[0]).getRawType())
-                   || shape.getGenericParameterTypes()[0] instanceof TypeVariable)) {
-                    final Type[] mtypes = new Type[ptypes.length - 1];
-                    System.arraycopy(ptypes, 1, mtypes, 0, mtypes.length);
-                    try {
-                        instanceMethod = MethodUtil.findMatchingMethod(cl, this.name,
-                          mtypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, false);
-                    } catch (EvalException e) {
-                        // ignore
-                    }
+                // If neither of those were found, try non-public methods
+                if (instanceMethod == null && staticMethod == null) {
+                    instanceMethod = this.lookupInstanceMethod(cl, ptypes, shape, true);
+                    staticMethod = this.lookupStaticMethod(cl, ptypes, shape, true);
                 }
 
-                // Lookup static method
-                Method staticMethod = null;
-                try {
-                    staticMethod = MethodUtil.findMatchingMethod(cl, this.name,
-                      ptypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, true);
-                } catch (EvalException e) {
-                    // ignore
-                }
-
-                // Get corresponding method handle
+                // There must be exactly one match
                 if (instanceMethod == null && staticMethod == null)
                     throw new EvalException("method " + this.name + "() not found in " + cl);
                 if (instanceMethod != null && staticMethod != null)
                     throw new EvalException("ambiguous invocation of `" + this.name + "()' in " + cl);
+
+                // Get the corresponding method handle
                 handle = lookup.unreflect(instanceMethod != null ? instanceMethod : staticMethod);
             }
 
@@ -96,6 +83,35 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
             return new ConstNode(new ConstValue(MethodHandleProxies.asInterfaceInstance(type.getRawType(), handle)));
         } catch (NoSuchMethodException | IllegalAccessException | RuntimeException e) {
             throw new EvalException("failed to resolve method " + cl.getName() + "::" + this.name + " for " + type, e);
+        }
+    }
+
+    private Method lookupInstanceMethod(Class<?> cl, Type[] ptypes, Method shape, boolean searchNonPublic) {
+
+        // Check first parameter type can match 'this'
+        if (ptypes.length == 0)
+            return null;
+        if (!cl.isAssignableFrom(TypeToken.of(ptypes[0]).getRawType())
+          && !(shape.getGenericParameterTypes()[0] instanceof TypeVariable))
+            return null;
+
+        // Check remaining method parameter types
+        final Type[] mtypes = new Type[ptypes.length - 1];
+        System.arraycopy(ptypes, 1, mtypes, 0, mtypes.length);
+        try {
+            return MethodUtil.findMatchingMethod(cl, this.name, searchNonPublic,
+              mtypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, false);
+        } catch (EvalException e) {
+            return null;
+        }
+    }
+
+    private Method lookupStaticMethod(Class<?> cl, Type[] ptypes, Method shape, boolean searchNonPublic) {
+        try {
+            return MethodUtil.findMatchingMethod(cl, this.name, searchNonPublic,
+              ptypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, true);
+        } catch (EvalException e) {
+            return null;
         }
     }
 }

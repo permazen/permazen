@@ -66,7 +66,7 @@ public class MethodInvokeNode extends AbstractInvokeNode<MethodExecutable> {
 
         // Find matching method
         final Method method = MethodUtil.findMatchingMethod(
-          target != null ? target.getClass() : this.klass, this.name, paramInfo.getParamTypes(), null, this.klass != null);
+          target != null ? target.getClass() : this.klass, this.name, true, paramInfo.getParamTypes(), null, this.klass != null);
         final MethodExecutable executable = new MethodExecutable(method);
 
         // Fixup varargs

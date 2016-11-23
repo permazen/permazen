@@ -10,6 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -27,7 +28,7 @@ final class MethodUtil {
     }
 
     /**
-     * Find the accessible method with the specified name that's compatible with the given signature info.
+     * Find the public method with the specified name that's compatible with the given signature info.
      *
      * <p>
      * If any element in {@code paramTypes} is {@link FunctionalType}, then that parameter matches any functional type.
@@ -46,19 +47,67 @@ final class MethodUtil {
      * @param isStatic true to search static methods, false to search instance methods
      * @return the matching method
      * @throws EvalException if exactly one matching method is not found
+     * @deprecated Use {@link #findMatchingMethod(Class, String, boolean, Type[], Class, boolean)} instead
      */
+    @Deprecated
     public static Method findMatchingMethod(Class<?> type, String name, Type[] paramTypes, Class<?> returnType, boolean isStatic) {
+        return MethodUtil.findMatchingMethod(type, name, false, paramTypes, returnType, isStatic);
+    }
 
-        // Find method
+    /**
+     * Find the method with the specified name that's compatible with the given signature info.
+     *
+     * <p>
+     * If any element in {@code paramTypes} is {@link FunctionalType}, then that parameter matches any functional type.
+     * If any element in {@code paramTypes} is {@link NullType}, then that parameter matches any non-primitive type.
+     *
+     * <p>
+     * If {@code returnType} is null, then any return type matches.
+     *
+     * <p>
+     * Note: this does not correctly handle all of the oddball corner cases as specified by the JLS.
+     *
+     * @param type class to search
+     * @param name method name
+     * @param searchNonPublic false to only search public methods, true to also search non-public methods
+     *  in the case no matching public methods are found
+     * @param paramTypes parameter type lower bounds; may contain {@link FunctionalType} and {@link NullType}
+     * @param returnType return type upper bound, or null for don't care
+     * @param isStatic true to search static methods, false to search instance methods
+     * @return the matching method
+     * @throws EvalException if exactly one matching method is not found
+     */
+    public static Method findMatchingMethod(Class<?> type, String name,
+      boolean searchNonPublic, Type[] paramTypes, Class<?> returnType, boolean isStatic) {
+
+        // Find public methods
         final ArrayList<MethodExecutable> methods = new ArrayList<>();
         for (Method method : type.getMethods()) {
             if (((method.getModifiers() & Modifier.STATIC) != 0) == isStatic)
                 methods.add(new MethodExecutable(method));
         }
-        final Method method = MethodUtil.findMatchingExecutable(type, methods,
-          name, paramTypes, returnType, (isStatic ? "static" : "instance") + " method").getMember();
 
-        // Done
+        // Find matching candidates
+        ArrayList<MethodExecutable> candidates = MethodUtil.findCandidates(type, methods, name, paramTypes, returnType);
+
+        // Search non-public methods if no matching public methods were found
+        if (candidates.isEmpty() && searchNonPublic) {
+            methods.clear();
+            for (Class<?> superType = type; superType != null; superType = superType.getSuperclass()) {
+                for (Method method : superType.getDeclaredMethods()) {
+                    if (((method.getModifiers() & Modifier.PUBLIC) == 0)
+                      && ((method.getModifiers() & Modifier.STATIC) != 0) == isStatic)
+                        methods.add(new MethodExecutable(method));
+                }
+            }
+            candidates.addAll(MethodUtil.findCandidates(type, methods, name, paramTypes, returnType));
+        }
+
+        // Select the best candidate, if any
+        final Method method = MethodUtil.selectBestCandidate(candidates,
+          type, name, (isStatic ? "static" : "instance") + " method");
+
+        // Make it accessible, if possible
         try {
             return MethodUtil.makeAccessible(method);
         } catch (IllegalArgumentException e) {
@@ -85,15 +134,22 @@ final class MethodUtil {
      * @throws EvalException if exactly one matching constructor is not found
      */
     public static Constructor<?> findMatchingConstructor(Class<?> type, Type[] paramTypes) {
+
+        // Gather constructors
         final ArrayList<ConstructorExecutable> constructors = new ArrayList<>();
         for (Constructor<?> constructor : type.getConstructors())
             constructors.add(new ConstructorExecutable(constructor));
-        return MethodUtil.findMatchingExecutable(type,
-          constructors, type.getName(), paramTypes, null, "constructor").getMember();
+
+        // Find matching candidates
+        final ArrayList<ConstructorExecutable> candidates = MethodUtil.findCandidates(type,
+          constructors, type.getName(), paramTypes, null);
+
+        // Select the best candidate, if any
+        return MethodUtil.selectBestCandidate(candidates, type, type.getSimpleName(), "constructor");
     }
 
     /**
-     * Find the accessible member with the specified name that's compatible with the given signature info.
+     * Find the members with the specified name that are compatible with the given signature info.
      *
      * <p>
      * If any element in {@code paramTypes} is {@link FunctionalType}, then that parameter matches any functional type.
@@ -111,11 +167,10 @@ final class MethodUtil {
      * @param paramTypes parameter type lower bounds; may contain {@link FunctionalType} and {@link NullType}
      * @param returnType return type upper bound, or null for don't care
      * @param description description of member
-     * @return the matching member
-     * @throws EvalException if exactly one matching member is not found
+     * @return the matching members
      */
-    private static <T extends Executable<?>> T findMatchingExecutable(Class<?> type, Iterable<? extends T> executables,
-      String name, Type[] paramTypes, Class<?> returnType, String description) {
+    private static <T extends Executable<?>> ArrayList<T> findCandidates(Class<?> type,
+      Iterable<? extends T> executables, String name, Type[] paramTypes, Class<?> returnType) {
 
         // Gather candidates
         final ArrayList<T> candidates = new ArrayList<>(3);
@@ -170,11 +225,23 @@ final class MethodUtil {
             candidates.add(executable);
         }
 
+        // Done
+        return candidates;
+    }
+
+    /**
+     * Select the best candidate from the list returned by {@link #findCandidates}.
+     *
+     * @throws EvalException if exactly one best candidate is not found
+     */
+    private static <M extends Member> M selectBestCandidate(ArrayList<? extends Executable<M>> candidates,
+       Class<?> type, String name, String description) {
+
         // Any matches?
         if (candidates.isEmpty())
             throw new EvalException("no compatible " + description + " `" + name + "()' found in " + type);
 
-        // Find "best" candidate, if any
+        // Sort so the "best" candidate is first
         try {
             Collections.sort(candidates, new SignatureComparator());
         } catch (IllegalArgumentException e) {
@@ -182,7 +249,7 @@ final class MethodUtil {
         }
 
         // Done
-        return candidates.get(0);
+        return candidates.get(0).getMember();
     }
 
     public static boolean isCompatibleMethodParam(Class<?> to, Type from) {
@@ -287,7 +354,11 @@ final class MethodUtil {
      * @throws IllegalArgumentException if no public version of {@code method} exists
      */
     static Method makeAccessible(Method method) {
+
+        // Sanity check
         Preconditions.checkArgument(method != null, "null method");
+
+        // Search for publicly accessible variant
         Class<?> cl = method.getDeclaringClass();
         do {
             if ((cl.getModifiers() & Modifier.PUBLIC) != 0) {
@@ -305,7 +376,10 @@ final class MethodUtil {
                 }
             }
         } while ((cl = cl.getSuperclass()) != null);
-        throw new IllegalArgumentException("method " + method + " has no public variant");
+
+        // That didn't work, so just force it
+        method.setAccessible(true);
+        return method;
     }
 
     static boolean isPublicObjectMethod(Method method) {

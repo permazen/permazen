@@ -404,6 +404,10 @@ public class ExprParseTest extends TestSupport {
               null },
             { "System.out.println(\"foobar\")", null },
 
+            // Non-public methods
+            { "new java.util.ArrayList().ensureCapacityInternal(10)",
+              null },
+
             // Varargs
             { "String.format(\"abc\")", String.format("abc") },
             { "String.format(\"%s\", 123)", String.format("%s", 123) },

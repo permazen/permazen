@@ -43,7 +43,7 @@ public class BoundMethodReferenceNode extends MethodReferenceNode {
 
         // Resolve instance method
         final Method shape = MethodUtil.findFunctionalMethod(type.getRawType());
-        final Method method = MethodUtil.findMatchingMethod(target.getClass(), this.name,
+        final Method method = MethodUtil.findMatchingMethod(target.getClass(), this.name, true,
           shape.getGenericParameterTypes(), shape.getReturnType() != void.class ? shape.getReturnType() : null, false);
 
         // Create proxy
