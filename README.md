@@ -4,7 +4,7 @@ Mainstream persistence solutions such as JDBC, JPA and JDO were designed simply 
 
 JSimpleDB is a completely different way of looking at persistence programming. JSimpleDB starts over, asking the simple question, "What are the issues that are inherent to persistence programming, regardless of programming language or database technology, and how can they be addressed in the most language-natural way?"
 
-With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many persistence issues that tranditional solutions don't address at all are solved as well.
+With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved as well, and some entirely new, useful functionality is added.
 
 Ask these questions of your existing persistence solution:
 
