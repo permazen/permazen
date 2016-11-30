@@ -5,6 +5,7 @@
 
 package org.jsimpledb.cli.cmd;
 
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.SchemaMismatchException;
@@ -22,7 +23,12 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
 
         // Version zero means "the configured schema"
         if (version == 0) {
-            final SchemaModel schemaModel = session.getSchemaModel();
+            SchemaModel schemaModel = session.getSchemaModel();
+            if (schemaModel == null) {
+                final JSimpleDB jdb = session.getJSimpleDB();
+                if (jdb != null)
+                    schemaModel = jdb.getSchemaModel();
+            }
             if (schemaModel == null) {
                 session.getWriter().println("No schema configured on this session");
                 return null;
