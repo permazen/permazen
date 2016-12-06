@@ -493,7 +493,7 @@ public class FollowerRole extends NonLeaderRole {
     }
 
     @Override
-    void caseAppendRequest(AppendRequest msg) {
+    void caseAppendRequest(AppendRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
 
         // Cancel probing
@@ -565,6 +565,8 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("rejecting " + msg + " because previous log entry doesn't match");
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
               this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
+            if (newLogEntry != null)
+                newLogEntry.cancel();
             return;
         }
 
@@ -612,8 +614,7 @@ public class FollowerRole extends NonLeaderRole {
                 do {
 
                     // If message contains no data, we expect to get the data from the corresponding transaction
-                    final ByteBuffer mutationData = msg.getMutationData();
-                    if (mutationData == null) {
+                    if (newLogEntry == null) {
 
                         // Find the matching pending commit write
                         final PendingWrite pendingWrite;
@@ -666,9 +667,10 @@ public class FollowerRole extends NonLeaderRole {
 
                         // Append new log entry normally using the data from the request
                         try {
-                            logEntry = this.raft.appendLogEntry(logTerm, new NewLogEntry(this.raft, mutationData));
+                            logEntry = this.raft.appendLogEntry(logTerm, newLogEntry);
                         } catch (Exception e) {
                             this.error("error appending new log entry", e);
+                            newLogEntry.cancel();
                             break;
                         }
                     }

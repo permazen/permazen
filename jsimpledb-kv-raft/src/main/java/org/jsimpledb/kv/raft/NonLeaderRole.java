@@ -115,9 +115,11 @@ public abstract class NonLeaderRole extends Role {
     }
 
     @Override
-    void caseCommitRequest(CommitRequest msg) {
+    void caseCommitRequest(CommitRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
         this.failUnexpectedMessage(msg);
+        if (newLogEntry != null)
+            newLogEntry.cancel();
     }
 }
 

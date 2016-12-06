@@ -9,11 +9,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -1958,8 +1960,47 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         }
 
-        // Receive message
-        this.receiveMessage(sender, msg);
+        // If message contains serialized mutation data, at some point we are going to need to write that data to a log entry file.
+        // Instead of doing that (slow) operation while holding the lock, do it now, before we acquire the lock.
+        ByteBuffer mutationData =
+          msg instanceof AppendRequest ? ((AppendRequest)msg).getMutationData() :
+          msg instanceof CommitRequest ? ((CommitRequest)msg).getMutationData() : null;
+        final NewLogEntry newLogEntry;
+        if (mutationData != null) {
+            File tempFile = null;
+            try {
+
+                // Create temporary file
+                tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.logDir);
+
+                // Copy data to temporary file
+                try (FileWriter output = new FileWriter(tempFile, this.disableSync)) {
+                    while (mutationData.hasRemaining())
+                        output.getFileOutputStream().getChannel().write(mutationData);
+                }
+
+                // Avoid having two copies of the data in memory at once
+                mutationData = null;
+
+                // Deserialize data into memory
+                try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(tempFile), 4080)) {
+                    newLogEntry = new NewLogEntry(this, LogEntry.readData(input));
+                }
+
+                // Indicate success
+                tempFile = null;
+            } catch (IOException e) {
+                this.error("error persisting mutations from " + msg + ", ignoring", e);
+                return;
+            } finally {
+                if (tempFile != null)
+                    Util.delete(tempFile, "new log entry temp file");
+            }
+        } else
+            newLogEntry = null;
+
+        // Handle message
+        this.receiveMessage(sender, msg, newLogEntry);
     }
 
     private synchronized void outputQueueEmpty(String address) {
@@ -2013,7 +2054,10 @@ public class RaftKVDatabase implements KVDatabase {
         return false;
     }
 
-    synchronized void receiveMessage(String address, Message msg) {
+    synchronized void receiveMessage(String address, Message msg, final NewLogEntry newLogEntry) {
+
+        // Sanity check newLogEntry
+        assert newLogEntry == null || (msg instanceof AppendRequest || msg instanceof CommitRequest);
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -2091,7 +2135,7 @@ public class RaftKVDatabase implements KVDatabase {
             msg.visit(new MessageSwitch() {
                 @Override
                 public void caseAppendRequest(AppendRequest msg) {
-                    RaftKVDatabase.this.role.caseAppendRequest(msg);
+                    RaftKVDatabase.this.role.caseAppendRequest(msg, newLogEntry);
                 }
                 @Override
                 public void caseAppendResponse(AppendResponse msg) {
@@ -2099,7 +2143,7 @@ public class RaftKVDatabase implements KVDatabase {
                 }
                 @Override
                 public void caseCommitRequest(CommitRequest msg) {
-                    RaftKVDatabase.this.role.caseCommitRequest(msg);
+                    RaftKVDatabase.this.role.caseCommitRequest(msg, newLogEntry);
                 }
                 @Override
                 public void caseCommitResponse(CommitResponse msg) {

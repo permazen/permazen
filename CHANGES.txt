@@ -1,3 +1,7 @@
+Version Next
+
+    - Performance improvements in Raft and MVCC key/value databases.
+
 Version 2.4.5 Released November 23, 2016
 
     - Make Raft rethrow the same failure exception until commit/rollback

@@ -561,9 +561,9 @@ public abstract class Role {
 // Messages
 
     // This is a package access version of "implements MessageSwitch"
-    abstract void caseAppendRequest(AppendRequest msg);
+    abstract void caseAppendRequest(AppendRequest msg, NewLogEntry newLogEntry);
     abstract void caseAppendResponse(AppendResponse msg);
-    abstract void caseCommitRequest(CommitRequest msg);
+    abstract void caseCommitRequest(CommitRequest msg, NewLogEntry newLogEntry);
     abstract void caseCommitResponse(CommitResponse msg);
     abstract void caseGrantVote(GrantVote msg);
     abstract void caseInstallSnapshot(InstallSnapshot msg);

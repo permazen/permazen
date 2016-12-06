@@ -802,9 +802,11 @@ public class LeaderRole extends Role {
 // Message
 
     @Override
-    void caseAppendRequest(AppendRequest msg) {
+    void caseAppendRequest(AppendRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
         this.failDuplicateLeader(msg);
+        if (newLogEntry != null)
+            newLogEntry.cancel();
     }
 
     @Override
@@ -880,13 +882,16 @@ public class LeaderRole extends Role {
     }
 
     @Override
-    void caseCommitRequest(CommitRequest msg) {
+    void caseCommitRequest(CommitRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
 
         // Find follower
         final Follower follower = this.findFollower(msg);
-        if (follower == null)
+        if (follower == null) {
+            if (newLogEntry != null)
+                newLogEntry.cancel();
             return;
+        }
 
         // Decode reads, if any, and check for conflicts
         final ByteBuffer readsData = msg.getReadsData();
@@ -900,6 +905,8 @@ public class LeaderRole extends Role {
                 this.error("error decoding reads data in " + msg, e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
+                if (newLogEntry != null)
+                    newLogEntry.cancel();
                 return;
             }
 
@@ -911,12 +918,15 @@ public class LeaderRole extends Role {
                     this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), conflictMsg));
+                if (newLogEntry != null)
+                    newLogEntry.cancel();
                 return;
             }
         }
 
         // Handle read-only vs. read-write transaction
         if (msg.isReadOnly()) {
+            assert newLogEntry == null;
 
             // Get current time
             final Timestamp minimumLeaseTimeout = new Timestamp();
@@ -947,6 +957,7 @@ public class LeaderRole extends Role {
             // Send response
             this.raft.sendMessage(response);
         } else {
+            assert newLogEntry != null;
 
             // If the client is requesting a config change, we could check for an outstanding config change now and if so
             // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will
@@ -955,7 +966,7 @@ public class LeaderRole extends Role {
             // Commit mutations as a new log entry
             final LogEntry logEntry;
             try {
-                logEntry = this.applyNewLogEntry(new NewLogEntry(this.raft, msg.getMutationData()));
+                logEntry = this.applyNewLogEntry(newLogEntry);
             } catch (Exception e) {
                 if (!(e instanceof IllegalStateException))
                     this.error("error appending new log entry for " + msg, e);
@@ -963,6 +974,7 @@ public class LeaderRole extends Role {
                     this.debug("error appending new log entry for " + msg + ": " + e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
+                newLogEntry.cancel();
                 return;
             }
             if (this.log.isDebugEnabled())
