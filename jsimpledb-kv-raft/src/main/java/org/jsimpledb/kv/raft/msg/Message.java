@@ -7,17 +7,9 @@ package org.jsimpledb.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.ReadOnlyBufferException;
 
-import org.dellroad.stuff.io.ByteBufferInputStream;
-import org.dellroad.stuff.io.ByteBufferOutputStream;
-import org.jsimpledb.kv.mvcc.Reads;
-import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;
@@ -258,8 +250,8 @@ public abstract class Message {
      *
      * @param dest destination for encoded data
      * @param buf data to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code dest} is read only
+     * @throws java.nio.BufferOverflowException if {@code dest} overflows
      * @throws IllegalArgumentException if {@code buf} has more than 2<sup>^31</sup> bytes remaining
      * @throws IllegalArgumentException if either parameter is null
      */
@@ -275,7 +267,7 @@ public abstract class Message {
      *
      * @param buf source for encoded data
      * @return decoded data
-     * @throws BufferUnderflowException if {@code buf} underflows
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if input is bogus
      * @throws IllegalArgumentException if {@code buf} is null
      */
@@ -298,8 +290,8 @@ public abstract class Message {
      *
      * @param dest destination for encoded data
      * @param string string to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code dest} is read only
+     * @throws java.nio.BufferOverflowException if {@code dest} overflows
      * @throws IllegalArgumentException if either parameter is null
      */
     protected static void putString(ByteBuffer dest, String string) {
@@ -326,7 +318,7 @@ public abstract class Message {
      *
      * @param buf source for encoded data
      * @return decoded string, never null
-     * @throws BufferUnderflowException if {@code buf} underflows
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if input is bogus
      */
     protected static String getString(ByteBuffer buf) {
@@ -370,8 +362,8 @@ public abstract class Message {
      *
      * @param dest destination for encoded data
      * @param value value to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code dest} is read only
+     * @throws java.nio.BufferOverflowException if {@code dest} overflows
      * @throws IllegalArgumentException if {@code dest} is null
      */
     protected static void putBoolean(ByteBuffer dest, boolean value) {
@@ -384,7 +376,7 @@ public abstract class Message {
      *
      * @param buf source for encoded data
      * @return decoded value
-     * @throws BufferUnderflowException if {@code buf} underflows
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if input is bogus
      */
     protected static boolean getBoolean(ByteBuffer buf) {
@@ -404,8 +396,8 @@ public abstract class Message {
      *
      * @param dest destination for encoded data
      * @param timestamp value to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code dest} is read only
+     * @throws java.nio.BufferOverflowException if {@code dest} overflows
      * @throws IllegalArgumentException if {@code dest} or {@code timestamp} is null
      */
     protected static void putTimestamp(ByteBuffer dest, Timestamp timestamp) {
@@ -419,7 +411,7 @@ public abstract class Message {
      *
      * @param buf source for encoded data
      * @return decoded value
-     * @throws BufferUnderflowException if {@code buf} underflows
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if input is bogus
      */
     protected static Timestamp getTimestamp(ByteBuffer buf) {
@@ -429,94 +421,6 @@ public abstract class Message {
 
     protected static int calculateSize(Timestamp timestamp) {
         return UnsignedIntEncoder.encodeLength(timestamp.getMillis());
-    }
-
-    /**
-     * Serialize a {@link Reads} into the buffer.
-     *
-     * @param dest destination for encoded data
-     * @param reads value to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    protected static void putReads(ByteBuffer dest, Reads reads) {
-        Preconditions.checkArgument(dest != null, "null dest");
-        Preconditions.checkArgument(reads != null, "null reads");
-        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);
-        try {
-            reads.serialize(output);
-            output.flush();
-        } catch (IOException e) {
-            if (e.getCause() instanceof BufferOverflowException)
-                throw (BufferOverflowException)e.getCause();
-            if (e.getCause() instanceof ReadOnlyBufferException)
-                throw (ReadOnlyBufferException)e.getCause();
-            throw new RuntimeException("unexpected exception", e);
-        }
-    }
-
-    /**
-     * Deserialize a {@link Reads} previously serialized by {@link #putReads putReads()} from the buffer.
-     *
-     * @param buf source for encoded data
-     * @return decoded value, never null
-     * @throws BufferUnderflowException if {@code buf} underflows
-     */
-    protected static Reads getReads(ByteBuffer buf) {
-        Preconditions.checkArgument(buf != null, "null buf");
-        final ByteBufferInputStream in = new ByteBufferInputStream(buf);
-        try {
-            return new Reads(in);
-        } catch (IOException e) {
-            if (e.getCause() instanceof BufferUnderflowException)
-                throw (BufferUnderflowException)e.getCause();
-            throw new RuntimeException("unexpected exception", e);
-        }
-    }
-
-    /**
-     * Serialize a {@link Writes} into the buffer.
-     *
-     * @param dest destination for encoded data
-     * @param writes value to encode
-     * @throws ReadOnlyBufferException if {@code dest} is read only
-     * @throws BufferOverflowException if {@code dest} overflows
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    protected static void putWrites(ByteBuffer dest, Writes writes) {
-        Preconditions.checkArgument(dest != null, "null dest");
-        Preconditions.checkArgument(writes != null, "null writes");
-        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);
-        try {
-            writes.serialize(output);
-            output.flush();
-        } catch (IOException e) {
-            if (e.getCause() instanceof BufferOverflowException)
-                throw (BufferOverflowException)e.getCause();
-            if (e.getCause() instanceof ReadOnlyBufferException)
-                throw (ReadOnlyBufferException)e.getCause();
-            throw new RuntimeException("unexpected exception", e);
-        }
-    }
-
-    /**
-     * Deserialize a {@link Writes} previously serialized by {@link #putWrites putWrites()} from the buffer.
-     *
-     * @param buf source for encoded data
-     * @return decoded value, never null
-     * @throws BufferUnderflowException if {@code buf} underflows
-     */
-    protected static Writes getWrites(ByteBuffer buf) {
-        Preconditions.checkArgument(buf != null, "null buf");
-        final ByteBufferInputStream in = new ByteBufferInputStream(buf);
-        try {
-            return Writes.deserialize(in);
-        } catch (IOException e) {
-            if (e.getCause() instanceof BufferUnderflowException)
-                throw (BufferUnderflowException)e.getCause();
-            throw new RuntimeException("unexpected exception", e);
-        }
     }
 
 // Debugging
