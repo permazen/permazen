@@ -180,6 +180,7 @@ public class LogEntry {
      * @return {@link LogEntry} instance, or null if {@code file} or {@code file}'s name is invalid
      * @throws NullPointerException if {@code file} is null
      * @throws IOException if an I/O error occurs
+     * @throws IOException if file contains invalid data
      */
     static LogEntry fromFile(File file) throws IOException {
 
@@ -209,12 +210,18 @@ public class LogEntry {
      * @param input input stream
      * @return log entry data
      * @throws IOException if an I/O error occurs
+     * @throws IOException if file contains invalid data
      */
     static Data readData(InputStream input) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
 
         // Get writes
-        final Writes writes = Writes.deserialize(input);
+        final Writes writes;
+        try {
+            writes = Writes.deserialize(input);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("log entry input contains invalid content", e);
+        }
 
         // Get config change, if any
         final String[] configChange;
