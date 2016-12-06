@@ -1,6 +1,6 @@
-Version Next
+Version 2.4.6 Released December 6, 2016
 
-    - Performance improvements in Raft and MVCC key/value databases.
+    - Performance improvements in Raft and MVCC key/value databases
 
 Version 2.4.5 Released November 23, 2016
 
