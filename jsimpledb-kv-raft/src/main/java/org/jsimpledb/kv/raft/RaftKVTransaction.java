@@ -143,6 +143,8 @@ public class RaftKVTransaction implements KVTransaction {
     @GuardedBy("raft")
     private boolean commitIndexCommitted;               // true if log entry at (commitIndex, commitTerm) is committed
 
+    private volatile boolean executing;                 // allows for quick checks without synchronization
+
     /**
      * Constructor.
      *
@@ -193,6 +195,7 @@ public class RaftKVTransaction implements KVTransaction {
                 this.snapshotRefs = null;
             }
             this.state = state;
+            this.executing = state.equals(TxState.EXECUTING);
         }
     }
 
@@ -381,65 +384,49 @@ public class RaftKVTransaction implements KVTransaction {
 
     @Override
     public byte[] get(byte[] key) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         return this.view.get(key);
     }
 
     @Override
     public KVPair getAtLeast(byte[] minKey) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         return this.view.getAtLeast(minKey);
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         return this.view.getAtMost(maxKey);
     }
 
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         return this.view.getRange(minKey, maxKey, reverse);
     }
 
     @Override
     public void put(byte[] key, byte[] value) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         this.view.put(key, value);
     }
 
     @Override
     public void remove(byte[] key) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         this.view.remove(key);
     }
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         this.view.removeRange(minKey, maxKey);
     }
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
-        synchronized (this.raft) {
-            this.verifyExecuting();
-        }
+        this.fastVerifyExecuting();
         this.view.adjustCounter(key, amount);
     }
 
@@ -451,6 +438,14 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public long decodeCounter(byte[] bytes) {
         return this.view.decodeCounter(bytes);
+    }
+
+    private void fastVerifyExecuting() {
+        if (executing)
+            return;
+        synchronized (this.raft) {
+            this.verifyExecuting();
+        }
     }
 
 // KVTransaction

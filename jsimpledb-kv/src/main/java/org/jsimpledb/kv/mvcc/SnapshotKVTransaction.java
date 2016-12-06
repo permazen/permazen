@@ -42,7 +42,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
     // Invariant: if error != null, then !db.transactions.contains(this)
     @GuardedBy("kvdb")
-    KVTransactionException error;
+    volatile KVTransactionException error;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -220,20 +220,24 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         if (this.closed)
             throw this.kvdb.logException(new StaleTransactionException(this));
 
-        // Check for error condition
-        synchronized (this.kvdb) {
-
-            // Check for timeout (if no pre-existing error)
-            if (this.error == null && this.timeout != 0) {
-                final long duration = (System.nanoTime() - this.startTime) / 1000000L;
-                if (duration >= this.timeout) {
-                    this.error = new TransactionTimeoutException(this,
-                      "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms");
+        // Check for timeout
+        if (this.error == null && this.timeout != 0) {
+            final long duration = (System.nanoTime() - this.startTime) / 1000000L;
+            if (duration >= this.timeout) {
+                synchronized (this.kvdb) {
+                    if (this.error == null) {
+                        this.error = new TransactionTimeoutException(this,
+                          "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms");
+                    }
                 }
             }
+        }
 
-            // Check for pre-existing error
-            this.throwErrorIfAny();
+        // Check for error condition
+        if (this.error != null) {
+            synchronized (this.kvdb) {
+                this.throwErrorIfAny();
+            }
         }
     }
 }
