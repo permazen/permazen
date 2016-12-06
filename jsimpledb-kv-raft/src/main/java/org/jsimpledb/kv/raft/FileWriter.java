@@ -14,7 +14,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 
 /**
- * Utility class to write files, counting the number of bytes written, and {@code fsync()}'ing the file on {@link #close}.
+ * Utility class for writing files, counting the number of bytes written, and optionally
+ * {@code fsync()}'ing the file automatically on {@link #close}.
  */
 class FileWriter extends FilterOutputStream {
 
@@ -28,7 +29,7 @@ class FileWriter extends FilterOutputStream {
      * Constructor
      *
      * @param file file to write
-     * @param disableSync true to disable data sync on close
+     * @param disableSync true to disable automatic data sync on close
      * @throws IOException if an error occurs opening {@code file}
      * @throws IllegalArgumentException if {@code file} is null
      */
@@ -82,6 +83,15 @@ class FileWriter extends FilterOutputStream {
         this.length += len;
     }
 
+    /**
+     * Closes this output stream and releases any system resources associated with the stream.
+     *
+     * <p>
+     * If this instance is so configured, the file's content will also be durably persisted via
+     * {@link java.nio.channels.FileChannel#force FileChannel.force(false)} before this method returns.
+     *
+     * @throws IOException {@inheritDoc}
+     */
     @Override
     public void close() throws IOException {
         this.out.flush();
