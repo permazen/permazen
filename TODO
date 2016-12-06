@@ -2,6 +2,15 @@
 SHORT TERM
 ==========
 
+- Implement Spliterators in AbstractIterationSet to avoid unfortunate use of size():
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return Spliterators.spliterator((Iterable<E>)this, Spliterator.DISTINCT);
+    }
+
+  (requires JAVA8)
+
 - Connection pooling in SQL k/v implementations
 
 - Relax requirement for consistent storage ID type if there are no indexes?
@@ -13,8 +22,6 @@ SHORT TERM
         - `--console-port': accept console telnet connections on port
         - `--background': disable console on stdin/stdout, daemonize
             - Requires native code
-
-- @JField(allowNull = false) ?
 
 - LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair
 
@@ -52,8 +59,6 @@ SHORT TERM
         - Try to build JObjectContainer+table first
         - If that fails, build ObjectContainer+table instead
     - Make more modular/pluggable
-
-- Should you be able to create snapshot tx's from snapshot tx's ?
 
 - Auto-garbage collect old schemas ?
     - Keep track of highest and lowest version index entries for each schema version
