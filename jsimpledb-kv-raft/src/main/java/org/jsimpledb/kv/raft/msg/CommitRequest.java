@@ -20,6 +20,7 @@ public class CommitRequest extends Message {
     private final long baseTerm;
     private final long baseIndex;
     private final ByteBuffer readsData;
+    private final boolean readOnly;                             // derived field
 
     private ByteBuffer mutationData;
     private boolean mutationDataInvalid;                        // mutationData has already been grabbed
@@ -37,7 +38,7 @@ public class CommitRequest extends Message {
      * @param baseTerm term of the log entry on which the transaction is based
      * @param baseIndex index of the log entry on which the transaction is based
      * @param readsData keys read during the transaction
-     * @param mutationData transaction mutations, or null for none
+     * @param mutationData transaction mutations, or null for none (i.e., read only transaction)
      */
     public CommitRequest(int clusterId, String senderId, String recipientId, long term,
       long txId, long baseTerm, long baseIndex, ByteBuffer readsData, ByteBuffer mutationData) {
@@ -47,6 +48,7 @@ public class CommitRequest extends Message {
         this.baseIndex = baseIndex;
         this.readsData = readsData;
         this.mutationData = mutationData;
+        this.readOnly = this.mutationData == null;
         this.checkArguments();
     }
 
@@ -57,6 +59,7 @@ public class CommitRequest extends Message {
         this.baseIndex = LongEncoder.read(buf);
         this.readsData = !readsOptional || Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
         this.mutationData = Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
+        this.readOnly = this.mutationData == null;
         this.checkArguments();
     }
 
@@ -87,14 +90,12 @@ public class CommitRequest extends Message {
     }
 
     /**
-     * Determine whether this is a read-only transaction.
+     * Determine whether this instance represents a read-only transaction.
      *
      * @return true if there is no writes data, otherwise false
-     * @throws IllegalStateException if {@link #getMutationData} has already been invoked
      */
     public boolean isReadOnly() {
-        Preconditions.checkState(!this.mutationDataInvalid);
-        return this.mutationData == null;
+        return this.readOnly;
     }
 
     /**
