@@ -8,7 +8,9 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jsimpledb.core.CollectionField;
 
@@ -33,13 +35,18 @@ abstract class JCollectionFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(Class<?> context) {
-        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken(context).wrap());
+    public Set<TypeToken<?>> getTypeTokens(Class<?> context) {
+        final Set<TypeToken<?>> elementTypeTokens = this.getElementFieldInfo().getTypeTokens(context);
+        final HashSet<TypeToken<?>> typeTokens = new HashSet<>(elementTypeTokens.size());
+        for (TypeToken<?> elementTypeToken : elementTypeTokens)
+            typeTokens.add(this.buildTypeToken(elementTypeToken.wrap()));
+        return typeTokens;
     }
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken(targetType));
+        for (TypeToken<?> elementTypeToken : this.getElementFieldInfo().getTypeTokens(targetType))
+            this.addChangeParameterTypes(types, targetType, elementTypeToken);
     }
 
     abstract <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType);

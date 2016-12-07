@@ -5,17 +5,17 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-import org.jsimpledb.util.CastFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +92,7 @@ import org.slf4j.LoggerFactory;
 public class ReferencePath {
 
     final Class<?> startType;
-    final Class<?> targetType;
+    final Set<Class<?>> targetTypes;
     final JFieldInfo targetFieldInfo;
     final JComplexFieldInfo targetSuperFieldInfo;
     final ArrayList<JReferenceFieldInfo> referenceFieldInfos = new ArrayList<>();
@@ -140,7 +140,8 @@ public class ReferencePath {
         }
 
         // Initialize loop state
-        Class<?> currentType = this.startType;
+        final HashSet<Class<?>> currentTypes = new HashSet<>(3);
+        currentTypes.add(this.startType);
         JFieldInfo fieldInfo = null;
         JComplexFieldInfo superFieldInfo = null;
         if (this.log.isTraceEnabled()) {
@@ -152,7 +153,8 @@ public class ReferencePath {
         assert !fieldNames.isEmpty();
         while (!fieldNames.isEmpty()) {
             final String fieldName = fieldNames.removeFirst();
-            String description = "field `" + fieldName + "' in type " + currentType;
+            String description = "field `" + fieldName + "' in type "
+              + Util.findLowestCommonAncestorOfClasses(currentTypes).getRawType();
 
             // Get explicit storage ID, if any
             final int hash = fieldName.indexOf('#');
@@ -170,16 +172,20 @@ public class ReferencePath {
 
             // Logging
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: [" + searchName + "] currentType=" + currentType + " storageId=" + explicitStorageId);
+                this.log.trace("RefPath: [" + searchName + "] currentTypes=" + currentTypes + " storageId=" + explicitStorageId);
 
-            // Find all JFields matching 'fieldName' in some JClass whose type matches 'currentType'
+            // Find all JFields matching 'fieldName' in some JClass whose type matches some type in 'currentTypes'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
-            for (JClass<?> jclass : jdb.getJClasses(currentType)) {
+            final HashSet<JClass<?>> currentTypeJClasses = new HashSet<>(currentTypes.size());
+            for (Class<?> currentType : currentTypes)
+                currentTypeJClasses.addAll(jdb.getJClasses(currentType));
+            for (JClass<?> jclass : currentTypeJClasses) {
                 final JField jfield = jclass.jfieldsByName.get(searchName);
                 if (jfield == null)
                     continue;
                 if (explicitStorageId != 0 && jfield.storageId != explicitStorageId)
                     continue;
+                assert !matchingFields.containsKey(jclass) || jfield.equals(matchingFields.get(jclass));
                 matchingFields.put(jclass, jfield);
             }
 
@@ -191,24 +197,25 @@ public class ReferencePath {
             if (matchingFields.isEmpty()) {
                 throw new IllegalArgumentException(errorPrefix + "there is no field named `" + searchName + "'"
                   + (explicitStorageId != 0 ? " with storage ID " + explicitStorageId : "")
-                  + " in (any sub-type of) " + currentType);
+                  + " in (any sub-type of) " + Util.findLowestCommonAncestorOfClasses(currentTypes).getRawType());
             }
             final int fieldStorageId = matchingFields.values().iterator().next().storageId;
             for (JField jfield : matchingFields.values()) {
                 if (jfield.storageId != fieldStorageId) {
                     throw new IllegalArgumentException(errorPrefix + "there are multiple, non-equal fields named `"
-                      + fieldName + "' in sub-types of type " + currentType);
+                      + fieldName + "' in sub-types of type " + Util.findLowestCommonAncestorOfClasses(currentTypes).getRawType());
                 }
             }
             fieldInfo = jdb.getJFieldInfo(fieldStorageId, JFieldInfo.class);
 
-            // Get common supertype of all types containing the field
-            currentType = Util.findLowestCommonAncestorOfClasses(
-              Iterables.transform(matchingFields.keySet(), new JClassTypeFunction())).getRawType();
+            // Get types containing the field
+            currentTypes.clear();
+            for (JClass<?> jclass : matchingFields.keySet())
+                currentTypes.add(jclass.type);
 
             // Logging
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: updated currentType=" + currentType + " fieldType=" + fieldInfo.getTypeToken(currentType));
+                this.log.trace("RefPath: updated currentTypes=" + currentTypes + " fieldInfo=" + fieldInfo);
 
             // Handle complex fields
             superFieldInfo = null;
@@ -260,26 +267,31 @@ public class ReferencePath {
             // Add reference field to the reference field list
             this.referenceFieldInfos.add(referenceFieldInfo);
 
-            // Advance through the reference, using the narrowest type possible
-            currentType = Util.findLowestCommonAncestor(Iterables.transform(
-               Iterables.transform(matchingFields.values(), new CastFunction<JReferenceField>(JReferenceField.class)),
-              new JReferenceFieldTypeFunction())).getRawType();
+            // Advance through the reference
+            currentTypes.clear();
+            for (JField jfield : matchingFields.values())
+                currentTypes.add(((JReferenceField)jfield).typeToken.getRawType());
 
             // Logging
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: step through reference, new currentType=" + currentType);
+                this.log.trace("RefPath: step through reference, new currentTypes=" + currentTypes);
         }
 
+        // Minimize our set of target types
+        final HashSet<Class<?>> minimalTargetTypes = new HashSet<>();
+        for (TypeToken<?> typeToken : Util.findLowestCommonAncestorsOfClasses(currentTypes))
+            minimalTargetTypes.add(typeToken.getRawType());
+
         // Done
-        this.targetType = currentType;
+        this.targetTypes = Collections.unmodifiableSet(minimalTargetTypes);
         this.targetFieldInfo = fieldInfo;
         this.targetSuperFieldInfo = superFieldInfo;
 
         // Logging
         if (this.log.isTraceEnabled()) {
-            this.log.trace("RefPath: DONE: targetType=" + this.targetType + " targetFieldInfo=" + this.targetFieldInfo
-              + " targetSuperFieldInfo=" + this.targetSuperFieldInfo + " targetFieldType=" + this.getTargetFieldType()
-              + " references=" + this.referenceFieldInfos);
+            this.log.trace("RefPath: DONE: targetTypes=" + this.targetTypes + " targetTypes=" + this.targetTypes
+              + " targetFieldInfo=" + this.targetFieldInfo + " targetSuperFieldInfo=" + this.targetSuperFieldInfo
+              + " targetFieldType=" + this.getTargetFieldType() + " references=" + this.referenceFieldInfos);
         }
     }
 
@@ -301,23 +313,66 @@ public class ReferencePath {
      * Get the Java type of the object at which this path ends.
      *
      * <p>
-     * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
-     * equal the Java type of the {@linkplain #getStartType starting object type}, or possibly a sub-type
-     * if the target field exists only in a sub-type.
+     * The returned type will be as narrow as possible while still including all possibilities, but note that it's
+     * possible for there to be multiple candidates for the "target type", none of which is a sub-type of any other.
+     * To retrieve all such target types, use {@link #getTargetTypes}; this method just invokes
+     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on the result.
      *
      * @return the Java type at which this reference path ends
      */
     public Class<?> getTargetType() {
-        return this.targetType;
+        return Util.findLowestCommonAncestorOfClasses(this.targetTypes).getRawType();
+    }
+
+    /**
+     * Get the possible Java types of the object at which this path ends.
+     *
+     * <p>
+     * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this method will
+     * return only the Java type of the {@linkplain #getStartType starting object type}, or possibly a sub-type
+     * if the target field exists only in a sub-type.
+     *
+     * <p>
+     * The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
+     * type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
+     * at which this path ends.
+     *
+     * @return the Java type(s) at which this reference path ends
+     */
+    public Set<Class<?>> getTargetTypes() {
+        return this.targetTypes;
     }
 
     /**
      * Get the Java type corresponding to the field at which this path ends.
      *
+     * <p>
+     * This just returns the first element in the set returned by {@link #getTargetFieldTypes getTargetFieldTypes()}.
+     *
+     * @return the type of the field at which this reference path ends
+     * @deprecated The semantics of this method are not well-defined; use {@link #getTargetFieldTypes getTargetFieldTypes()} instead
+     */
+    @Deprecated
+    public TypeToken<?> getTargetFieldType() {
+        return this.targetFieldInfo.getTypeTokens(this.getTargetType()).iterator().next();
+    }
+
+    /**
+     * Get the Java type(s) corresponding to the field at which this path ends.
+     *
+     * <p>
+     * The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
+     * type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
+     * at which this path ends. The latter case can only occur when the field is a reference field, and there
+     * are multiple Java model classes compatible with the field's type.
+     *
      * @return the type of the field at which this reference path ends
      */
-    public TypeToken<?> getTargetFieldType() {
-        return this.targetFieldInfo.getTypeToken(this.targetType);
+    public Set<TypeToken<?>> getTargetFieldTypes() {
+        final HashSet<TypeToken<?>> targetFieldTypes = new HashSet<>(this.targetTypes.size());
+        for (Class<?> targetType : this.targetTypes)
+            targetFieldTypes.addAll(this.targetFieldInfo.getTypeTokens(targetType));
+        return targetFieldTypes;
     }
 
     /**
@@ -367,24 +422,6 @@ public class ReferencePath {
     @Override
     public String toString() {
         return this.path;
-    }
-
-// Functions
-
-    private static class JReferenceFieldTypeFunction implements Function<JReferenceField, TypeToken<?>> {
-
-        @Override
-        public TypeToken<?> apply(JReferenceField jfield) {
-            return jfield.typeToken;
-        }
-    }
-
-    private static class JClassTypeFunction implements Function<JClass<?>, Class<?>> {
-
-        @Override
-        public Class<?> apply(JClass<?> jclass) {
-            return jclass.type;
-        }
     }
 }
 

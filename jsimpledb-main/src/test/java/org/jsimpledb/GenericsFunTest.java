@@ -7,11 +7,13 @@ package org.jsimpledb;
 
 import com.google.common.reflect.TypeToken;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
+import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
@@ -85,8 +87,8 @@ public class GenericsFunTest extends TestSupport {
         final ReferencePath path1 = jdb.parseReferencePath(ListSub1.class, "list.element");
         final ReferencePath path2 = jdb.parseReferencePath(ListSub2.class, "list.element");
 
-        Assert.assertEquals(path1.getTargetFieldType(), TypeToken.of(ListSub2.class));
-        Assert.assertEquals(path2.getTargetFieldType(), TypeToken.of(ListSub1.class));
+        Assert.assertEquals(path1.getTargetFieldTypes(), Collections.singleton(TypeToken.of(ListSub2.class)));
+        Assert.assertEquals(path2.getTargetFieldTypes(), Collections.singleton(TypeToken.of(ListSub1.class)));
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);

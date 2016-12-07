@@ -425,8 +425,7 @@ public class JTransaction {
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
-        if (!refPath.targetType.isInstance(jobj))
-            throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType); // should never happen
+        assert refPath.targetTypes.iterator().next().isInstance(jobj);
         return this.tx.getKey(jobj.getObjId(), refPath.targetFieldInfo.storageId);
     }
 

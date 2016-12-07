@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jsimpledb.core.Transaction;
 
@@ -44,13 +45,14 @@ abstract class JFieldInfo {
     }
 
     /**
-     * Get the type of this field when the containing object type is known to be restricted to {@code context}.
+     * Get the type(s) of this field when the containing object type is known to be restricted to {@code context}.
      *
      * @param jdb database
      * @param context Java type containing this field
+     * @return maximally narrow Java type(s) of this field, when known to be a field in type {@code context}
      * @throws IllegalArgumentException if no sub-type of {@code context} contains this field
      */
-    public abstract TypeToken<?> getTypeToken(Class<?> context);
+    public abstract Set<TypeToken<?>> getTypeTokens(Class<?> context);
 
     /**
      * Determine whether any associated {@link JField} requires default validation.
@@ -80,6 +82,7 @@ abstract class JFieldInfo {
      *
      * @param types place to add valid parameter types to
      * @param targetType the type of the class containing the changed field
+     * @throws IllegalArgumentException if {@code targetType} does not contain this field
      */
     abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType);
 

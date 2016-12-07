@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
@@ -76,21 +79,22 @@ class IndexInfo {
 
         // Verify the field is actually indexed
         if (!this.fieldInfo.isIndexed())
-            throw new IllegalArgumentException(this.fieldInfo + " is not indexed");
+            throw new IllegalArgumentException(this.fieldInfo + " is not an indexed field");
 
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
-        valueChecks.add(new ValueCheck("value type", valueType, path.getTargetFieldType(), this.fieldInfo, true));
+        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(path.getTargetFieldTypes()), this.fieldInfo, true));
 
         // Verify target type
-        valueChecks.add(new ValueCheck("target type", startType, path.targetType));
+        valueChecks.add(new ValueCheck("target type", startType, path.targetTypes));
 
         // We should only ever see 'keyType' when field is a map value field
         if (keyType != null) {
             final JMapFieldInfo mapInfo = (JMapFieldInfo)this.superFieldInfo;
             final JSimpleFieldInfo keyInfo = mapInfo.getKeyFieldInfo();
             assert this.fieldInfo.equals(mapInfo.getValueFieldInfo());
-            valueChecks.add(new ValueCheck("map key type", keyType, keyInfo.getTypeToken(this.startType), keyInfo, true));
+            valueChecks.add(new ValueCheck("map key type", keyType,
+              this.wrapRaw(keyInfo.getTypeTokens(this.startType)), keyInfo, true));
         }
 
         // Check values
@@ -121,7 +125,7 @@ class IndexInfo {
             final Class<?> valueType = valueTypes[i];
             final JSimpleFieldInfo jfieldInfo = indexInfo.jfieldInfos.get(i);
             valueChecks.add(new ValueCheck("value type #" + (i + 1), valueType,
-              jfieldInfo.getTypeToken(this.startType), jfieldInfo instanceof JReferenceFieldInfo, true));
+              this.wrapRaw(jfieldInfo.getTypeTokens(this.startType)), jfieldInfo instanceof JReferenceFieldInfo, true));
         }
 
         // Verify target type
@@ -130,6 +134,13 @@ class IndexInfo {
         // Check values
         for (ValueCheck check : valueChecks)
             this.filters.add(check.checkAndGetKeyRanges(jdb, startType, "query on composite index `" + indexName + "'"));
+    }
+
+    private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {
+        final HashSet<Class<?>> classes = new HashSet<>(typeTokens.size());
+        for (TypeToken<?> typeToken : typeTokens)
+            classes.add(typeToken.wrap().getRawType());
+        return classes;
     }
 
     private static JCompositeIndexInfo findCompositeIndex(JSimpleDB jdb, Class<?> startType, String indexName, int numValues) {
@@ -212,40 +223,62 @@ class IndexInfo {
 
         private final String description;
         private final Class<?> actualType;
-        private final Class<?> expectedType;
+        private final Set<Class<?>> expectedTypes;
         private final boolean reference;
         private final boolean matchNull;
 
-        ValueCheck(String description,
-          Class<?> actualType, TypeToken<?> expectedType, boolean reference, boolean matchNull) {
+        // Primary constructor
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, boolean reference, boolean matchNull) {
             this.description = description;
             this.actualType = actualType;
-            this.expectedType = expectedType.wrap().getRawType();
+            this.expectedTypes = expectedTypes;
             this.reference = reference;
             this.matchNull = matchNull;
         }
 
         // Constructor for indexed fields
         ValueCheck(String description,
-          Class<?> actualType, TypeToken<?> expectedType, JSimpleFieldInfo fieldInfo, boolean matchNull) {
-            this(description, actualType, expectedType, fieldInfo instanceof JReferenceFieldInfo, matchNull);
+          Class<?> actualType, Set<Class<?>> expectedTypes, JSimpleFieldInfo fieldInfo, boolean matchNull) {
+            this(description, actualType, expectedTypes, fieldInfo instanceof JReferenceFieldInfo, matchNull);
         }
 
-        // Constructor for target type
+        // Constructor for target type (simple index)
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes) {
+            this(description, actualType, expectedTypes, true, false);
+        }
+
+        // Constructor for target type (composite index)
         ValueCheck(String description, Class<?> actualType, Class<?> expectedType) {
-            this(description, actualType, TypeToken.of(expectedType), true, false);
+            this(description, actualType, Collections.<Class<?>>singleton(expectedType));
         }
 
         public KeyRanges checkAndGetKeyRanges(JSimpleDB jdb, Class<?> startType, String queryDescription) {
 
-            // Check expected type
-            final boolean equal = this.expectedType.equals(this.actualType);
-            final boolean comparable = equal
-              || this.expectedType.isAssignableFrom(this.actualType) || this.actualType.isAssignableFrom(this.expectedType);
-            if (!(this.reference ? comparable : equal)) {
+            // Check whether actual type matches expected type
+            boolean match = this.expectedTypes.contains(this.actualType);
+            if (!match && this.reference) {
+
+                // For reference type, we allow matching any sub-type or super-type
+                for (Class<?> expectedType : this.expectedTypes) {
+                    if (expectedType.isAssignableFrom(this.actualType) || this.actualType.isAssignableFrom(expectedType)) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if (!match) {
+                final StringBuilder expectedTypesDescription = new StringBuilder();
+                if (this.expectedTypes.size() == 1)
+                    expectedTypesDescription.append(this.expectedTypes.iterator().next().getName());
+                else {
+                    for (Class<?> expectedType : this.expectedTypes) {
+                        expectedTypesDescription.append(expectedTypesDescription.length() == 0 ? "one or more of: " : ", ");
+                        expectedTypesDescription.append(expectedType.getName());
+                    }
+                }
                 throw new IllegalArgumentException("invalid " + this.description + " " + actualType.getName()
                   + " for " + queryDescription + " in " + startType + ": should be "
-                  + (this.reference ? "a super-type or sub-type of " : "") + this.expectedType.getName());
+                  + (this.reference ? "a super-type or sub-type of " : "") + expectedTypesDescription);
             }
 
             // For non reference fields, we don't have any restrictions on 'type'
@@ -265,6 +298,17 @@ class IndexInfo {
 
             // Done
             return filter;
+        }
+
+        @Override
+        public String toString() {
+            return "ValueCheck"
+              + "[description=\"" + this.description + "\""
+              + ",actualType=" + this.actualType.getSimpleName()
+              + ",expectedTypes=" + this.expectedTypes
+              + ",reference=" + this.reference
+              + ",matchNull=" + this.matchNull
+              + "]";
         }
     }
 }

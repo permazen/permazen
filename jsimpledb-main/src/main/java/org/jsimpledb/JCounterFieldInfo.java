@@ -7,7 +7,9 @@ package org.jsimpledb;
 
 import com.google.common.reflect.TypeToken;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.jsimpledb.core.Transaction;
 
@@ -18,8 +20,8 @@ class JCounterFieldInfo extends JFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(Class<?> context) {
-        return TypeToken.of(Counter.class);
+    public Set<TypeToken<?>> getTypeTokens(Class<?> context) {
+        return Collections.<TypeToken<?>>singleton(TypeToken.of(Counter.class));
     }
 
     @Override

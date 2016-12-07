@@ -134,7 +134,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     }
 
                     // Replace path with list of non-wildcard paths for every field in the target field type
-                    for (JClass<?> jclass : jdb.getJClasses(prefixReferencePath.getTargetFieldType().getRawType())) {
+                    for (JClass<?> jclass : jdb.getJClasses(
+                      prefixReferencePath.getTargetFieldTypes().iterator().next().getRawType())) {
                         for (JField jfield : jclass.jfields.values()) {
                             expandedPathWasWildcard.add(expandedPathList.size());
                             expandedPathList.add(prefixPath + "." + jfield.name + "#" + jfield.storageId);
@@ -187,33 +188,46 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                 }
 
-                // Validate the parameter type against possible changes
+                // Get the actual types and storage ID's of all model classes in the path that actually contain the target field
+                final HashSet<Class<?>> targetTypes = new HashSet<>();
+                final HashSet<Integer> storageIds = new HashSet<>();
+                for (JClass<?> jclass : jdb.getJClasses(path.targetTypes.iterator().next())) {
+                    if (jclass.jfields.containsKey(path.targetFieldInfo.storageId)) {
+                        targetTypes.add(jclass.getType());
+                        storageIds.add(jclass.storageId);
+                    }
+                }
+
+                // Validate the parameter type against the types of possible change events
                 if (rawParameterType != null) {
 
-                    // Get all (concrete) change types emitted by the target field
-                    final ArrayList<TypeToken<?>> changeParameterTypes = new ArrayList<TypeToken<?>>();
-                    try {
-                        path.targetFieldInfo.addChangeParameterTypes(changeParameterTypes, path.targetType);
-                    } catch (UnsupportedOperationException e) {
-                        if (wildcard)
-                            continue;
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                          + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
+                    // Get all possible (concrete) change types emitted by the target field
+                    final ArrayList<TypeToken<?>> possibleChangeTypes = new ArrayList<TypeToken<?>>();
+                    for (Class<?> targetType : targetTypes) {
+                        try {
+                            path.targetFieldInfo.addChangeParameterTypes(possibleChangeTypes, targetType);
+                        } catch (UnsupportedOperationException e) {
+                            if (wildcard)
+                                continue;
+                            throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
+                              + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
+                        }
+                        anyFieldsFound = true;
                     }
-                    anyFieldsFound = true;
 
-                    // Check whether method parameter type accepts as least one of them; must do so consistently raw vs. generic
+                    // Check whether method parameter type accepts as least one of them; it must do so consistently raw vs. generic
                     boolean anyChangeMatch = false;
-                    for (TypeToken<?> possibleChangeType : changeParameterTypes) {
+                    for (TypeToken<?> possibleChangeType : possibleChangeTypes) {
                         final boolean matchesGeneric = genericParameterType.isSupertypeOf(possibleChangeType);
                         final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
+                        assert !matchesGeneric || matchesRaw;
                         if (matchesGeneric != matchesRaw) {
                             throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                              + "method parameter type " + genericParameterType + " will match changes emitted from `"
-                              + stringPath + "' at runtime due to type erasure, but has incompatible generic type "
-                              + genericParameterType + "; parameter type should be compatible with "
-                              + (changeParameterTypes.size() != 1 ?
-                                  "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
+                              + "parameter type " + genericParameterType + " will match change events of type "
+                              + possibleChangeType + " from field `" + stringPath + "' at runtime due to type erasure,"
+                              + " but its generic type is incompatible; parameter type should be compatible with "
+                              + (possibleChangeTypes.size() != 1 ?
+                                  "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                         }
                         if (matchesGeneric) {
                             anyChangeMatch = true;
@@ -228,16 +242,11 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
                           + "' is invalid because no changes emitted by " + path.targetFieldInfo + " match the method's"
                           + " parameter type " + genericParameterType + "; the emitted change type is "
-                          + (changeParameterTypes.size() != 1 ? "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
+                          + (possibleChangeTypes.size() != 1 ? "one of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                     }
                 }
 
-                // Determine storage ID's corresponding to matching target types; this filters out obsolete types from old versions
-                final HashSet<Integer> storageIds = new HashSet<Integer>();
-                for (JClass<?> jclass : jdb.getJClasses(path.targetType))
-                    storageIds.add(jclass.storageId);
-
-                // Match
+                // Match on storage ID's; this filters out obsolete types from old versions
                 this.paths.put(path, storageIds);
             }
 

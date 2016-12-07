@@ -270,13 +270,13 @@ public class OnChangeTest extends TestSupport {
     // name
 
         @OnChange("name")
-        private void nameChange(FieldChange<Person> change) {
+        private void nameChange(FieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("name")
-        private void nameChange(SimpleFieldChange<Person, String> change) {
+        private void nameChange(SimpleFieldChange<? extends Person, String> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
         }
@@ -284,40 +284,40 @@ public class OnChangeTest extends TestSupport {
     // knownPeople
 
         @OnChange("knownPeople")
-        private void knownPeopleChange(FieldChange<Person> change) {
+        private void knownPeopleChange(FieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
-        private void knownPeopleChange(ListFieldChange<Person> change) {
+        private void knownPeopleChange(ListFieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
-        private void knownPeopleChange(ListFieldAdd<Person, Person> change) {
-            Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
-            OnChangeTest.recordChange(change);
-        }
-
-        @OnChange("knownPeople")
-        private void knownPeopleChange(ListFieldRemove<Person, Person> change) {
+        private void knownPeopleChange(ListFieldAdd<? extends Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
-        private void knownPeopleChange(ListFieldReplace<Person, Person> change) {
+        private void knownPeopleChange(ListFieldRemove<? extends Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
-        private void knownPeopleChange(ListFieldClear<Person> change) {
+        private void knownPeopleChange(ListFieldReplace<? extends Person, Person> change) {
+            Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
+        }
+
+        @OnChange("knownPeople")
+        private void knownPeopleChange(ListFieldClear<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
@@ -380,7 +380,7 @@ public class OnChangeTest extends TestSupport {
         }
 
         @OnChange(startType = Person.class, value = "name")
-        private static void personNameChange(SimpleFieldChange<Person, String> change) {
+        private static void personNameChange(SimpleFieldChange<? extends Person, String> change) {
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }

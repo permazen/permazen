@@ -9,8 +9,10 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Set;
 
 import org.jsimpledb.change.MapFieldAdd;
 import org.jsimpledb.change.MapFieldClear;
@@ -50,10 +52,13 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(Class<?> context) {
-        return this.buildTypeToken(
-          this.getKeyFieldInfo().getTypeToken(context).wrap(),
-          this.getValueFieldInfo().getTypeToken(context).wrap());
+    public Set<TypeToken<?>> getTypeTokens(Class<?> context) {
+        final HashSet<TypeToken<?>> typeTokens = new HashSet<>();
+        for (TypeToken<?> keyTypeToken : this.getKeyFieldInfo().getTypeTokens(context)) {
+            for (TypeToken<?> valueTypeToken : this.getValueFieldInfo().getTypeTokens(context))
+                typeTokens.add(this.buildTypeToken(keyTypeToken.wrap(), valueTypeToken.wrap()));
+        }
+        return typeTokens;
     }
 
     // This method exists solely to bind the generic type parameters
@@ -71,9 +76,10 @@ class JMapFieldInfo extends JComplexFieldInfo {
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
-        this.addChangeParameterTypes(types, targetType,
-          this.getKeyFieldInfo().getTypeToken(targetType),
-          this.getValueFieldInfo().getTypeToken(targetType));
+        for (TypeToken<?> keyTypeToken : this.getKeyFieldInfo().getTypeTokens(targetType)) {
+            for (TypeToken<?> valueTypeToken : this.getValueFieldInfo().getTypeTokens(targetType))
+                this.addChangeParameterTypes(types, targetType, keyTypeToken, valueTypeToken);
+        }
     }
 
     // This method exists solely to bind the generic type parameters

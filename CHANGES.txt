@@ -1,6 +1,8 @@
 Version 2.4.6 Released December 6, 2016
 
     - Performance improvements in Raft and MVCC key/value databases
+    - Fixed bug where index queries failed on certain type hierarchies
+    - Fixed bug where @OnChange parameter type checking was not strict enough
 
 Version 2.4.5 Released November 23, 2016
 

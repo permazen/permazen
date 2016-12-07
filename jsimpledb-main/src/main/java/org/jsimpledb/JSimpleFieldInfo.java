@@ -10,6 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.core.Transaction;
@@ -35,7 +36,7 @@ class JSimpleFieldInfo extends JFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(Class<?> context) {
+    public Set<TypeToken<?>> getTypeTokens(Class<?> context) {
         final HashSet<TypeToken<?>> contextFieldTypes = new HashSet<>();
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
 
@@ -58,7 +59,7 @@ class JSimpleFieldInfo extends JFieldInfo {
         }
         if (contextFieldTypes.isEmpty())
             throw new IllegalArgumentException("no sub-type of " + context + " contains " + this);
-        return Util.findLowestCommonAncestor(contextFieldTypes);
+        return Util.findLowestCommonAncestors(contextFieldTypes);
     }
 
     @Override
@@ -82,7 +83,8 @@ class JSimpleFieldInfo extends JFieldInfo {
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.getTypeToken(targetType));
+        for (TypeToken<?> typeToken : this.getTypeTokens(targetType))
+            this.addChangeParameterTypes(types, targetType, typeToken);
     }
 
     // This method exists solely to bind the generic type parameters

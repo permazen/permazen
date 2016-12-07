@@ -338,7 +338,35 @@ public final class Util {
     }
 
     /**
+     * Find the narrowest type(s) each of which is a supertype of all of the given types.
+     *
+     * <p>
+     * This method delegates to {@link #findLowestCommonAncestors findLowestCommonAncestors()}
+     * after converting the {@link Class} instances to {@link TypeToken}s.
+     *
+     * @param types sub-types
+     * @return maximally narrow common supertype(s)
+     * @throws IllegalArgumentException if any type in {@code types} is null
+     * @see #findLowestCommonAncestors findLowestCommonAncestors()
+     */
+    public static Set<TypeToken<?>> findLowestCommonAncestorsOfClasses(Iterable<Class<?>> types) {
+        return Util.findLowestCommonAncestors(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
+            @Override
+            public TypeToken<?> apply(Class<?> type) {
+                if (type == null)
+                    throw new IllegalArgumentException("null type");
+                return TypeToken.of(type);
+            }
+        }));
+    }
+
+    /**
      * Find the narrowest type that is a supertype of all of the given types.
+     *
+     * <p>
+     * Note that there may be more than one such type. The returned type will always be as narrow
+     * as possible, but it's possible there for there to be multiple such types for which none
+     * is a sub-type of any other.
      *
      * <p>
      * When there is more than one choice, heuristics are used. For example, we prefer
@@ -348,6 +376,39 @@ public final class Util {
      * @return narrowest common super-type
      */
     public static TypeToken<?> findLowestCommonAncestor(Iterable<TypeToken<?>> types) {
+
+        // Gather candidates
+        final Set<TypeToken<?>> supertypes = Util.findLowestCommonAncestors(types);
+
+        // Pick the best candidate that's not Object, if possible
+        final TypeToken<Object> objectType = TypeToken.of(Object.class);
+        supertypes.remove(objectType);
+        switch (supertypes.size()) {
+        case 0:
+            return objectType;
+        case 1:
+            return supertypes.iterator().next();
+        default:
+            break;
+        }
+
+        // Pick the one that's not an interface, if any (it will be the the only non-interface type)
+        for (TypeToken<?> supertype : supertypes) {
+            if (!supertype.getRawType().isInterface())
+                return supertype;
+        }
+
+        // There are now only mutually incompatible interfaces to choose from, so our last resort is Object
+        return objectType;
+    }
+
+    /**
+     * Find the narrowest type(s) each of which is a supertype of all of the given types.
+     *
+     * @param types sub-types
+     * @return maximally narrow common supertype(s)
+     */
+    public static Set<TypeToken<?>> findLowestCommonAncestors(Iterable<TypeToken<?>> types) {
 
         // Gather all supertypes of types recursively
         final HashSet<TypeToken<?>> supertypes = new HashSet<>();
@@ -376,26 +437,8 @@ public final class Util {
             }
         }
 
-        // Pick the best candidate that's not Object, if possible
-        final TypeToken<Object> objectType = TypeToken.of(Object.class);
-        supertypes.remove(objectType);
-        switch (supertypes.size()) {
-        case 0:
-            return objectType;
-        case 1:
-            return supertypes.iterator().next();
-        default:
-            break;
-        }
-
-        // Pick the one that's not an interface, if any (it will be the the only non-interface type)
-        for (TypeToken<?> supertype : supertypes) {
-            if (!supertype.getRawType().isInterface())
-                return supertype;
-        }
-
-        // There are now only mutually incompatible interfaces to choose from, so our last resort is Object
-        return objectType;
+        // Done
+        return supertypes;
     }
 
     @SuppressWarnings("unchecked")
