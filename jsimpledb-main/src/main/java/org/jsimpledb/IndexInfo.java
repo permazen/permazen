@@ -61,8 +61,14 @@ class IndexInfo {
             throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 
         // Verify target field is simple
-        if (!(path.targetFieldInfo instanceof JSimpleFieldInfo))
-            throw new IllegalArgumentException(path.targetFieldInfo + " does not support indexing; it is not a simple field");
+        if (!(path.targetFieldInfo instanceof JSimpleFieldInfo)) {
+            String message = path.targetFieldInfo + " does not support indexing: it is not a simple field";
+            if (path.targetFieldInfo instanceof JSetFieldInfo || path.targetFieldInfo instanceof JListFieldInfo)
+                message += "; perhaps you meant `" + fieldName + ".element'?";
+            else if (path.targetFieldInfo instanceof JMapFieldInfo)
+                message += "; perhaps you meant `" + fieldName + ".key' or `" + fieldName + ".value'?";
+            throw new IllegalArgumentException(message);
+        }
 
         // Get target object, field, and complex super-field (if any)
         this.fieldInfo = (JSimpleFieldInfo)path.targetFieldInfo;
