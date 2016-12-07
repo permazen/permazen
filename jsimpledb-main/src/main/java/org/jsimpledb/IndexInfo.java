@@ -116,7 +116,7 @@ class IndexInfo {
         this.indexInfo = IndexInfo.findCompositeIndex(jdb, startType, indexName, valueTypes.length);
 
         // Verify field types
-        final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
+        final ArrayList<ValueCheck> valueChecks = new ArrayList<>(valueTypes.length + 1);
         for (int i = 0; i < valueTypes.length; i++) {
             final Class<?> valueType = valueTypes[i];
             final JSimpleFieldInfo jfieldInfo = indexInfo.jfieldInfos.get(i);
