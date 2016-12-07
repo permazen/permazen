@@ -25,13 +25,8 @@ class JSetFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(Class<?> context) {
-        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken(context).wrap());
-    }
-
-    // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <E> TypeToken<NavigableSet<E>> buildTypeToken(TypeToken<E> elementType) {
+    <E> TypeToken<NavigableSet<E>> buildTypeToken(TypeToken<E> elementType) {
         return new TypeToken<NavigableSet<E>>() { }.where(new TypeParameter<E>() { }, elementType);
     }
 
@@ -40,14 +35,10 @@ class JSetFieldInfo extends JCollectionFieldInfo {
         tx.addSetFieldChangeListener(this.storageId, path, types, listener);
     }
 
-    @Override
-    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken(targetType));
-    }
-
     // This method exists solely to bind the generic type parameters
+    @Override
     @SuppressWarnings("serial")
-    private <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType) {
+    <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType) {
         types.add(new TypeToken<SetFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

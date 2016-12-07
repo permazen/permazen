@@ -5,6 +5,11 @@
 
 package org.jsimpledb;
 
+import com.google.common.reflect.TypeToken;
+
+import java.util.Collection;
+import java.util.List;
+
 import org.jsimpledb.core.CollectionField;
 
 abstract class JCollectionFieldInfo extends JComplexFieldInfo {
@@ -26,6 +31,20 @@ abstract class JCollectionFieldInfo extends JComplexFieldInfo {
             return CollectionField.ELEMENT_FIELD_NAME;
         throw new RuntimeException("internal error");
     }
+
+    @Override
+    public TypeToken<?> getTypeToken(Class<?> context) {
+        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken(context).wrap());
+    }
+
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
+        this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken(targetType));
+    }
+
+    abstract <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType);
+
+    abstract <E> TypeToken<? extends Collection<E>> buildTypeToken(TypeToken<E> elementType);
 
 // Object
 
