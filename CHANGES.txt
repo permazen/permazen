@@ -1,4 +1,4 @@
-Version 2.4.6 Released December 6, 2016
+Version 2.4.6 Released December 8, 2016
 
     - Performance improvements in Raft and MVCC key/value databases
     - Fixed bug where index queries failed on certain type hierarchies
