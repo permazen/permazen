@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Message (JSimpleDB 2.4.5 API)</title>
+<title>Message (JSimpleDB 2.4.6 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Message (JSimpleDB 2.4.5 API)";
+        parent.document.title="Message (JSimpleDB 2.4.6 API)";
     }
 //-->
 </script>
@@ -197,45 +197,33 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected static <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getReads(java.nio.ByteBuffer)">getReads</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</code>
-<div class="block">Deserialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putReads(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Reads)"><code>putReads()</code></a> from the buffer.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getRecipientId()">getRecipientId</a></strong>()</code>
 <div class="block">Get the identity of the recipient.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getSenderId()">getSenderId</a></strong>()</code>
 <div class="block">Get the identity of the sender.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getString(java.nio.ByteBuffer)">getString</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</code>
 <div class="block">Deserialize a <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putString(java.nio.ByteBuffer, java.lang.String)"><code>putString()</code></a> from the buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getTerm()">getTerm</a></strong>()</code>
 <div class="block">Get the term of the sender of this message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static <a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getTimestamp(java.nio.ByteBuffer)">getTimestamp</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</code>
 <div class="block">Deserialize a <a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft"><code>Timestamp</code></a> value previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putTimestamp(java.nio.ByteBuffer, org.jsimpledb.kv.raft.Timestamp)"><code>putTimestamp()</code></a> from the buffer.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected static <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#getWrites(java.nio.ByteBuffer)">getWrites</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</code>
-<div class="block">Deserialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putWrites(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Writes)"><code>putWrites()</code></a> from the buffer.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -260,30 +248,16 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putReads(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Reads)">putReads</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
-        <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a>&nbsp;reads)</code>
-<div class="block">Serialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> into the buffer.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putString(java.nio.ByteBuffer, java.lang.String)">putString</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
          <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;string)</code>
 <div class="block">Serialize a <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> into the buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putTimestamp(java.nio.ByteBuffer, org.jsimpledb.kv.raft.Timestamp)">putTimestamp</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
             <a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;timestamp)</code>
 <div class="block">Serialize a <a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft"><code>Timestamp</code></a> value into the buffer.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putWrites(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Writes)">putWrites</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
-         <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;writes)</code>
-<div class="block">Serialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> into the buffer.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -636,70 +610,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <a name="calculateSize(org.jsimpledb.kv.raft.Timestamp)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>calculateSize</h4>
 <pre>protected static&nbsp;int&nbsp;calculateSize(<a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;timestamp)</pre>
-</li>
-</ul>
-<a name="putReads(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Reads)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>putReads</h4>
-<pre>protected static&nbsp;void&nbsp;putReads(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
-            <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a>&nbsp;reads)</pre>
-<div class="block">Serialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> into the buffer.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>dest</code> - destination for encoded data</dd><dd><code>reads</code> - value to encode</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ReadOnlyBufferException.html?is-external=true" title="class or interface in java.nio">ReadOnlyBufferException</a></code> - if <code>dest</code> is read only</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/BufferOverflowException.html?is-external=true" title="class or interface in java.nio">BufferOverflowException</a></code> - if <code>dest</code> overflows</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is null</dd></dl>
-</li>
-</ul>
-<a name="getReads(java.nio.ByteBuffer)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getReads</h4>
-<pre>protected static&nbsp;<a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a>&nbsp;getReads(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</pre>
-<div class="block">Deserialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putReads(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Reads)"><code>putReads()</code></a> from the buffer.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - source for encoded data</dd>
-<dt><span class="strong">Returns:</span></dt><dd>decoded value, never null</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/BufferUnderflowException.html?is-external=true" title="class or interface in java.nio">BufferUnderflowException</a></code> - if <code>buf</code> underflows</dd></dl>
-</li>
-</ul>
-<a name="putWrites(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Writes)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>putWrites</h4>
-<pre>protected static&nbsp;void&nbsp;putWrites(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;dest,
-             <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;writes)</pre>
-<div class="block">Serialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> into the buffer.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>dest</code> - destination for encoded data</dd><dd><code>writes</code> - value to encode</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ReadOnlyBufferException.html?is-external=true" title="class or interface in java.nio">ReadOnlyBufferException</a></code> - if <code>dest</code> is read only</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/BufferOverflowException.html?is-external=true" title="class or interface in java.nio">BufferOverflowException</a></code> - if <code>dest</code> overflows</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is null</dd></dl>
-</li>
-</ul>
-<a name="getWrites(java.nio.ByteBuffer)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getWrites</h4>
-<pre>protected static&nbsp;<a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;getWrites(<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buf)</pre>
-<div class="block">Deserialize a <a href="../../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> previously serialized by <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#putWrites(java.nio.ByteBuffer, org.jsimpledb.kv.mvcc.Writes)"><code>putWrites()</code></a> from the buffer.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - source for encoded data</dd>
-<dt><span class="strong">Returns:</span></dt><dd>decoded value, never null</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/BufferUnderflowException.html?is-external=true" title="class or interface in java.nio">BufferUnderflowException</a></code> - if <code>buf</code> underflows</dd></dl>
 </li>
 </ul>
 </li>

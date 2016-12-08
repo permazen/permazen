@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Util (JSimpleDB 2.4.5 API)</title>
+<title>Util (JSimpleDB 2.4.6 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Util (JSimpleDB 2.4.5 API)";
+        parent.document.title="Util (JSimpleDB 2.4.6 API)";
     }
 //-->
 </script>
@@ -126,6 +126,18 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <td class="colFirst"><code>static <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Util.html#findLowestCommonAncestorOfClasses(java.lang.Iterable)">findLowestCommonAncestorOfClasses</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;types)</code>
 <div class="block">Find the narrowest type that is a supertype of all of the given types.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Util.html#findLowestCommonAncestors(java.lang.Iterable)">findLowestCommonAncestors</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;types)</code>
+<div class="block">Find the narrowest type(s) each of which is a supertype of all of the given types.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Util.html#findLowestCommonAncestorsOfClasses(java.lang.Iterable)">findLowestCommonAncestorsOfClasses</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;types)</code>
+<div class="block">Find the narrowest type(s) each of which is a supertype of all of the given types.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -352,6 +364,24 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any type in <code>types</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/Util.html#findLowestCommonAncestor(java.lang.Iterable)"><code>findLowestCommonAncestor()</code></a></dd></dl>
 </li>
 </ul>
+<a name="findLowestCommonAncestorsOfClasses(java.lang.Iterable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findLowestCommonAncestorsOfClasses</h4>
+<pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;findLowestCommonAncestorsOfClasses(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;types)</pre>
+<div class="block">Find the narrowest type(s) each of which is a supertype of all of the given types.
+
+ <p>
+ This method delegates to <a href="../../org/jsimpledb/Util.html#findLowestCommonAncestors(java.lang.Iterable)"><code>findLowestCommonAncestors()</code></a>
+ after converting the <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang"><code>Class</code></a> instances to <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect"><code>TypeToken</code></a>s.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>types</code> - sub-types</dd>
+<dt><span class="strong">Returns:</span></dt><dd>maximally narrow common supertype(s)</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any type in <code>types</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/Util.html#findLowestCommonAncestors(java.lang.Iterable)"><code>findLowestCommonAncestors()</code></a></dd></dl>
+</li>
+</ul>
 <a name="findLowestCommonAncestor(java.lang.Iterable)">
 <!--   -->
 </a>
@@ -362,10 +392,27 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Find the narrowest type that is a supertype of all of the given types.
 
  <p>
+ Note that there may be more than one such type. The returned type will always be as narrow
+ as possible, but it's possible there for there to be multiple such types for which none
+ is a sub-type of any other.
+
+ <p>
  When there is more than one choice, heuristics are used. For example, we prefer
  non-interface types, and <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> over other interface types.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>types</code> - sub-types</dd>
 <dt><span class="strong">Returns:</span></dt><dd>narrowest common super-type</dd></dl>
+</li>
+</ul>
+<a name="findLowestCommonAncestors(java.lang.Iterable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findLowestCommonAncestors</h4>
+<pre>public static&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;findLowestCommonAncestors(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;types)</pre>
+<div class="block">Find the narrowest type(s) each of which is a supertype of all of the given types.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>types</code> - sub-types</dd>
+<dt><span class="strong">Returns:</span></dt><dd>maximally narrow common supertype(s)</dd></dl>
 </li>
 </ul>
 <a name="getWildcardedType(java.lang.Class)">

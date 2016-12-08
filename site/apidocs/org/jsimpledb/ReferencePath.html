@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ReferencePath (JSimpleDB 2.4.5 API)</title>
+<title>ReferencePath (JSimpleDB 2.4.6 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ReferencePath (JSimpleDB 2.4.5 API)";
+        parent.document.title="ReferencePath (JSimpleDB 2.4.6 API)";
     }
 //-->
 </script>
@@ -203,20 +203,34 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/ReferencePath.html#getTargetFieldType()">getTargetFieldType</a></strong>()</code>
-<div class="block">Get the Java type corresponding to the field at which this path ends.</div>
+<div class="block"><strong>Deprecated.</strong>&nbsp;
+<div class="block"><i>The semantics of this method are not well-defined; use <a href="../../org/jsimpledb/ReferencePath.html#getTargetFieldTypes()"><code>getTargetFieldTypes()</code></a> instead</i></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/ReferencePath.html#getTargetFieldTypes()">getTargetFieldTypes</a></strong>()</code>
+<div class="block">Get the Java type(s) corresponding to the field at which this path ends.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/ReferencePath.html#getTargetSuperField()">getTargetSuperField</a></strong>()</code>
 <div class="block">Get the storage ID associated with the complex field containing the <a href="../../org/jsimpledb/ReferencePath.html#getTargetField()">target field</a>
  a sub-field, in the case that the target field is a sub-field of a complex field.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/ReferencePath.html#getTargetType()">getTargetType</a></strong>()</code>
 <div class="block">Get the Java type of the object at which this path ends.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/ReferencePath.html#getTargetTypes()">getTargetTypes</a></strong>()</code>
+<div class="block">Get the possible Java types of the object at which this path ends.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -273,10 +287,32 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Get the Java type of the object at which this path ends.
 
  <p>
- If there are zero <a href="../../org/jsimpledb/ReferencePath.html#getReferenceFields()">reference fields</a> in this path, then this will
- equal the Java type of the <a href="../../org/jsimpledb/ReferencePath.html#getStartType()">starting object type</a>, or possibly a sub-type
- if the target field exists only in a sub-type.</div>
+ The returned type will be as narrow as possible while still including all possibilities, but note that it's
+ possible for there to be multiple candidates for the "target type", none of which is a sub-type of any other.
+ To retrieve all such target types, use <a href="../../org/jsimpledb/ReferencePath.html#getTargetTypes()"><code>getTargetTypes()</code></a>; this method just invokes
+ <a href="../../org/jsimpledb/Util.html#findLowestCommonAncestorOfClasses(java.lang.Iterable)"><code>Util.findLowestCommonAncestorOfClasses()</code></a> on the result.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the Java type at which this reference path ends</dd></dl>
+</li>
+</ul>
+<a name="getTargetTypes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTargetTypes</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;getTargetTypes()</pre>
+<div class="block">Get the possible Java types of the object at which this path ends.
+
+ <p>
+ If there are zero <a href="../../org/jsimpledb/ReferencePath.html#getReferenceFields()">reference fields</a> in this path, then this method will
+ return only the Java type of the <a href="../../org/jsimpledb/ReferencePath.html#getStartType()">starting object type</a>, or possibly a sub-type
+ if the target field exists only in a sub-type.
+
+ <p>
+ The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
+ type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
+ at which this path ends.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the Java type(s) at which this reference path ends</dd></dl>
 </li>
 </ul>
 <a name="getTargetFieldType()">
@@ -285,8 +321,30 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>getTargetFieldType</h4>
-<pre>public&nbsp;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;getTargetFieldType()</pre>
-<div class="block">Get the Java type corresponding to the field at which this path ends.</div>
+<pre><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;getTargetFieldType()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;<i>The semantics of this method are not well-defined; use <a href="../../org/jsimpledb/ReferencePath.html#getTargetFieldTypes()"><code>getTargetFieldTypes()</code></a> instead</i></div>
+<div class="block">Get the Java type corresponding to the field at which this path ends.
+
+ <p>
+ This just returns the first element in the set returned by <a href="../../org/jsimpledb/ReferencePath.html#getTargetFieldTypes()"><code>getTargetFieldTypes()</code></a>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the type of the field at which this reference path ends</dd></dl>
+</li>
+</ul>
+<a name="getTargetFieldTypes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTargetFieldTypes</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;getTargetFieldTypes()</pre>
+<div class="block">Get the Java type(s) corresponding to the field at which this path ends.
+
+ <p>
+ The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
+ type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
+ at which this path ends. The latter case can only occur when the field is a reference field, and there
+ are multiple Java model classes compatible with the field's type.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the type of the field at which this reference path ends</dd></dl>
 </li>
 </ul>
