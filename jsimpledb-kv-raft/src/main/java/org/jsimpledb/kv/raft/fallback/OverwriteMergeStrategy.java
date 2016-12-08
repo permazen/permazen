@@ -32,6 +32,9 @@ public class OverwriteMergeStrategy implements MergeStrategy {
      *
      * <p>
      * Does not commit {@code src} or {@code dst}.
+     *
+     * @param src database to copy from
+     * @param dst database to copy {@code src} onto
      */
     protected void overwrite(KVTransaction src, KVTransaction dst) {
         dst.removeRange(null, null);

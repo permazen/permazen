@@ -1958,6 +1958,7 @@ public class Transaction {
      * Get a description of the given object's type.
      *
      * @param id object ID
+     * @return textual description of the specified object's type
      * @throws IllegalArgumentException if {@code id} is null
      */
     public String getTypeDescription(ObjId id) {
@@ -3037,6 +3038,7 @@ public class Transaction {
      * <p>
      * The snapshot can be applied to other transactions having compatible schemas via {@link #setListeners setListeners()}.
      *
+     * @return snapshot of listeners associated with this instance
      * @see #setListeners setListeners()
      */
     public synchronized ListenerSet snapshotListeners() {

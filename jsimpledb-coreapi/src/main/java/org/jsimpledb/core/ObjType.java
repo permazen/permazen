@@ -111,17 +111,18 @@ public class ObjType extends SchemaItem {
     }
 
     /**
-     * Get the {@link Field} in this instance with the given storage ID, including sub-fields.
+     * Get the {@link Field} in this instance with the given storage ID, optionally searching sub-fields.
      *
      * @param storageId storage ID
+     * @param searchSubFields whether to search in sub-fields as well
      * @return the {@link Field} with storage ID {@code storageID}
      * @throws UnknownFieldException if no {@link Field} with storage ID {@code storageId} exists
      */
-    public Field<?> getField(int storageId, boolean includeSubFields) {
+    public Field<?> getField(int storageId, boolean searchSubFields) {
         final Field<?> field = this.fields.get(storageId);
         if (field != null)
             return field;
-        if (includeSubFields) {
+        if (searchSubFields) {
             for (Field<?> parent : this.fields.values()) {
                 if (!(parent instanceof ComplexField))
                     continue;

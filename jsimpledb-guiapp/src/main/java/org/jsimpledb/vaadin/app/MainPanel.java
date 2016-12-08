@@ -85,6 +85,8 @@ public class MainPanel extends VerticalLayout {
 
     /**
      * Constructor.
+     *
+     * @param guiConfig GUI configuration
      */
     public MainPanel(final GUIConfig guiConfig) {
         this(new GUISession(guiConfig));
@@ -92,6 +94,8 @@ public class MainPanel extends VerticalLayout {
 
     /**
      * Constructor.
+     *
+     * @param session parse session for expression parsing
      */
     public MainPanel(ParseSession session) {
         Preconditions.checkArgument(session != null, "null session");

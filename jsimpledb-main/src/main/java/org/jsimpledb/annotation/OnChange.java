@@ -120,7 +120,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * A method with zero parameters is delivered all possible notifications, which is equivalent to having an ignored
- * parameter of type {@link org.jsimpledb.change.FieldChange FieldChange<?>}.
+ * parameter of type {@link org.jsimpledb.change.FieldChange FieldChange&lt;?&gt;}.
  *
  * <p>
  * The method may have any level of access, including {@code private}, and multiple independent {@link OnChange &#64;OnChange}

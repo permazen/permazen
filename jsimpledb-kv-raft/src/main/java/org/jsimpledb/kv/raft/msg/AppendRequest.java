@@ -124,6 +124,8 @@ public class AppendRequest extends Message {
      *
      * <p>
      * For {@linkplain #isProbe probe} requests, this value is limited to the value returned by {@link #getPrevLogIndex}.
+     *
+     * @return leader's commit index
      */
     public long getLeaderCommit() {
         return this.leaderCommit;

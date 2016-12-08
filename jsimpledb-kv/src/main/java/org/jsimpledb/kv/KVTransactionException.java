@@ -55,6 +55,7 @@ public class KVTransactionException extends KVDatabaseException {
      * This allows the "same" exception to be thrown multiple times from different locations
      * with different outer stack frames.
      *
+     * @return duplicate of this exception with the current thread's stack frame context
      * @see org.jsimpledb.util.ThrowableUtil#prependCurrentStackTrace
      */
     public KVTransactionException duplicate() {
@@ -80,6 +81,9 @@ public class KVTransactionException extends KVDatabaseException {
      * The implementation in {@link KVTransactionException} requires that this instance's class contains
      * a public constructor in the form of {@link #KVTransactionException(KVTransaction, String, Throwable)};
      * subclasses that don't have such a constructor must override this method.
+     *
+     * @param frames stack frames to use
+     * @return duplicate of this exception, but with the given stack frames
      */
     protected KVTransactionException duplicate(StackTraceElement[] frames) {
         final KVTransactionException e;

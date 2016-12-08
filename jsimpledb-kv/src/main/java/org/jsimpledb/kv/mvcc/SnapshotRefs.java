@@ -45,6 +45,7 @@ public class SnapshotRefs {
     /**
      * Get the underlying database snapshot as a {@link KVStore} (which should not be closed).
      *
+     * @return the underlying {@link CloseableKVStore}
      * @throws IllegalStateException if reference count is already zeroed
      */
     public KVStore getKVStore() {
@@ -75,6 +76,8 @@ public class SnapshotRefs {
 
     /**
      * Get current reference count.
+     *
+     * @return the current number of references to this instance
      */
     public int refs() {
         return this.refs.get();

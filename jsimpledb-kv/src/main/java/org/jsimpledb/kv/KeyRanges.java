@@ -173,6 +173,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
 
     /**
      * Create an empty instance containing zero ranges.
+     *
+     * @return empty instance
      */
     public static KeyRanges empty() {
         return new KeyRanges();
@@ -180,6 +182,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
 
     /**
      * Create a "full" instance containing a single {@link KeyRange} that contains all keys.
+     *
+     * @return instance spanning all keys
      */
     public static KeyRanges full() {
         return new KeyRanges(KeyRange.FULL);

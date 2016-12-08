@@ -72,6 +72,7 @@ public class CopyState implements Cloneable {
     /**
      * Determine if an object has been marked as copied.
      *
+     * @param id object id
      * @return true if {@code id} has been marked copied, otherwise false
      * @throws IllegalArgumentException if {@code id} is null
      */

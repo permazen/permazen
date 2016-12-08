@@ -380,6 +380,7 @@ public class Console {
      * Get the {@link Terminal} instance appropriate for this operating system.
      *
      * @return JLine {@link Terminal} to use
+     * @throws IOException if an I/O error occurs
      */
     public static Terminal getTerminal() throws IOException {
 

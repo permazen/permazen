@@ -227,6 +227,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options
+     * @return newly created {@link JTransaction}
      * @throws DatabaseException if an error occurs
      */
     protected JTransaction createTransaction(Map<String, Object> options) {
