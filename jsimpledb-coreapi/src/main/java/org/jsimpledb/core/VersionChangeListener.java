@@ -26,7 +26,7 @@ public interface VersionChangeListener {
      * @param id the ID of the updated object
      * @param oldVersion previous object schema version
      * @param newVersion new object schema version
-     * @param oldFieldValues the values of all fields in the old schema version keyed by storage ID
+     * @param oldFieldValues read-only mapping of the values of all fields in the old schema version keyed by storage ID
      */
     void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues);
 }
