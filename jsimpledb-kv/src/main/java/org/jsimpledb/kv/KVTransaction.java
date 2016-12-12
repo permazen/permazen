@@ -105,7 +105,8 @@ public interface KVTransaction extends KVStore {
      * <p>
      * Note: many {@link KVDatabase} implementations actually return a
      * {@link com.google.common.util.concurrent.ListenableFuture}. However, listeners must not perform any
-     * long running or blocking operations.
+     * long running or blocking operations. Also, because the semantics of {@link RetryTransactionException} allow for
+     * the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
      *
      * <p>
      * Key watch {@link Future}s that have not completed yet, but are no longer needed, must be {@link Future#cancel cancel()}'ed
