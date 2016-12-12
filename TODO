@@ -2,6 +2,12 @@
 SHORT TERM
 ==========
 
+- Add SnapshotKVDatabase.getCurrentVersion()
+
+- Fix bug in jsimpledb-kv-array/src/main/java/org/jsimpledb/kv/array/AtomicArrayKVStore.java where compactMaxDelay is ignored
+
+- Add ObjType.indexedSimpleFields to optimize copy() operation
+
 - Implement Spliterators in AbstractIterationSet to avoid unfortunate use of size():
 
     @Override
