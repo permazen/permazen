@@ -35,6 +35,7 @@ public class ObjType extends SchemaItem {
     final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
     final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
+    final ArrayList<SimpleField<?>> indexedSimpleFields = new ArrayList<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
     final TreeMap<Integer, ReferenceField> referenceFields = new TreeMap<>();           // includes sub-fields too
@@ -58,6 +59,11 @@ public class ObjType extends SchemaItem {
         this.buildMap(this.simpleFields, SimpleField.class);
         this.buildMap(this.complexFields, ComplexField.class);
         this.buildMap(this.counterFields, CounterField.class);
+        for (SimpleField<?> simpleField : this.simpleFields.values()) {
+            if (simpleField.indexed)
+                this.indexedSimpleFields.add(simpleField);
+        }
+        this.indexedSimpleFields.trimToSize();
 
         // Build list of all fields including sub-fields
         this.fieldsAndSubFields.addAll(this.fields.values());

@@ -2,8 +2,6 @@
 SHORT TERM
 ==========
 
-- Add ObjType.indexedSimpleFields to optimize copy() operation
-
 - Implement Spliterators in AbstractIterationSet to avoid unfortunate use of size():
 
     @Override

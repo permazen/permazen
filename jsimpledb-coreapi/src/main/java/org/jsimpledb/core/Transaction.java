@@ -773,10 +773,8 @@ public class Transaction {
         }
 
         // Write simple field index entries
-        for (SimpleField<?> field : objType.simpleFields.values()) {
-            if (field.indexed)
-                this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
-        }
+        for (SimpleField<?> field : objType.indexedSimpleFields)
+            this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
 
         // Write composite index entries
         for (CompositeIndex index : objType.compositeIndexes.values())
@@ -934,10 +932,8 @@ public class Transaction {
         // Delete object's simple field index entries
         final ObjId id = info.getId();
         final ObjType type = info.getObjType();
-        for (SimpleField<?> field : type.simpleFields.values()) {
-            if (field.indexed)
-                this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, this.kvt.get(field.buildKey(id))));
-        }
+        for (SimpleField<?> field : type.indexedSimpleFields)
+            this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, this.kvt.get(field.buildKey(id))));
 
         // Delete object's composite index entries
         for (CompositeIndex index : type.compositeIndexes.values())
@@ -1225,12 +1221,10 @@ public class Transaction {
             Database.closeIfPossible(i);
 
             // Create object's simple field index entries
-            for (SimpleField<?> field : dstType.simpleFields.values()) {
-                if (field.indexed) {
-                    final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
-                    final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
-                    dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
-                }
+            for (SimpleField<?> field : dstType.indexedSimpleFields) {
+                final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
+                final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
+                dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
             }
 
             // Create object's composite index entries
