@@ -121,7 +121,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     /**
      * Default compaction maximum delay in seconds ({@value #DEFAULT_COMPACTION_MAX_DELAY} seconds).
      */
-    public static final int DEFAULT_COMPACTION_MAX_DELAY = 90;
+    public static final int DEFAULT_COMPACTION_MAX_DELAY = 24 * 60 * 60;
 
     /**
      * Default compaction space low-water mark in bytes ({@value #DEFAULT_COMPACTION_LOW_WATER} bytes).
@@ -1081,6 +1081,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         if (this.compaction == null || (this.compaction.getDelay() > millis && this.compaction.cancel())) {
             assert this.compaction == null;
             this.compaction = new Compaction(millis);
+            if (this.log.isTraceEnabled())
+                this.log.trace("scheduling compaction for " + millis + "ms from now");
         }
 
         // Done
@@ -1110,7 +1112,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         // Check maximum compaction delay
         if (this.firstModTimestamp != 0) {
             final long firstModAgeMillis = (System.nanoTime() - this.firstModTimestamp) / 1000000L;     // convert ns -> ms
-            this.scheduleCompaction(firstModAgeMillis);
+            final long remainingDelay = Math.max(0, this.compactMaxDelay * 1000L - firstModAgeMillis);
+            if (this.log.isTraceEnabled())
+                this.log.trace("first modification was " + firstModAgeMillis + "ms ago, remainingDelay = " + remainingDelay);
+            this.scheduleCompaction(remainingDelay);
             return;
         }
     }
@@ -1349,6 +1354,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         this.modsFileSyncPoint = newModsFileSyncPoint;
                         this.kvstore = new ArrayKVStore(this.indx, this.keys, this.vals);
                         this.mods = new MutableView(this.kvstore, null, this.mods.getWrites());
+                        if (additionalModsLength == 0)
+                            this.firstModTimestamp = 0;
+                        else {
+                            this.firstModTimestamp = System.nanoTime() | 1;
+                            this.scheduleCompactionIfNecessary();
+                        }
 
                         // Sync directory prior to deleting files
                         if (this.directoryChannel != null) {
@@ -1375,7 +1386,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         if (this.log.isDebugEnabled()) {
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
                             this.log.debug("compaction for generation " + (newGeneration - 1) + " -> " + newGeneration
-                              + (success ? " succeeded" : " failed") + " in " + String.format("%.4f", duration) + " seconds");
+                              + (success ? " successfully compacted " + previousModsFileLength + " bytes" : " failed")
+                              + " in " + String.format("%.4f", duration) + " seconds");
                         }
 
                         // Cleanup/undo on failure
