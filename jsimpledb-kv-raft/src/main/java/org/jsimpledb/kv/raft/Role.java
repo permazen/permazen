@@ -51,6 +51,8 @@ public abstract class Role {
             Role.this.checkWaitingTransactions();
         }
     };
+
+    // NOTE: use of this service requires that 'checkWaitingTransactionsService' be scheduled first!
     final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
         @Override
         public void run() {
@@ -124,6 +126,9 @@ public abstract class Role {
     /**
      * Apply committed but unapplied log entries to the state machine.
      * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.
+     *
+     * <p>
+     * Note: checkWaitingTransactions() must have been invoked already when this method is invoked.
      */
     void applyCommittedLogEntries() {
         assert Thread.holdsLock(this.raft);

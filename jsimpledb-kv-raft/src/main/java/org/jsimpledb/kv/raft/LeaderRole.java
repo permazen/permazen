@@ -277,6 +277,7 @@ public class LeaderRole extends Role {
     // We have to periodically check if we can apply log entries, because the condition is time-dependent
     private void checkApplyEntries() {
         assert Thread.holdsLock(this.raft);
+        this.raft.requestService(this.checkWaitingTransactionsService);
         this.raft.requestService(this.applyCommittedLogEntriesService);
         if (!this.raft.raftLog.isEmpty())
             this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
