@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KVTransaction (JSimpleDB 2.4.6 API)</title>
+<title>KVTransaction (JSimpleDB 2.4.7 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KVTransaction (JSimpleDB 2.4.6 API)";
+        parent.document.title="KVTransaction (JSimpleDB 2.4.7 API)";
     }
 //-->
 </script>
@@ -282,7 +282,8 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
  <p>
  Note: many <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations actually return a
  <a href="http://google.github.io/guava/releases/19.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>. However, listeners must not perform any
- long running or blocking operations.
+ long running or blocking operations. Also, because the semantics of <a href="../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a> allow for
+ the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
 
  <p>
  Key watch <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a>s that have not completed yet, but are no longer needed, must be <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true#cancel(boolean)" title="class or interface in java.util.concurrent"><code>cancel()</code></a>'ed

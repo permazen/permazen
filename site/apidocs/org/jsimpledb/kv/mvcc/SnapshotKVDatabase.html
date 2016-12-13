@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SnapshotKVDatabase (JSimpleDB 2.4.6 API)</title>
+<title>SnapshotKVDatabase (JSimpleDB 2.4.7 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SnapshotKVDatabase (JSimpleDB 2.4.6 API)";
+        parent.document.title="SnapshotKVDatabase (JSimpleDB 2.4.7 API)";
     }
 //-->
 </script>
@@ -213,40 +213,46 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#getCurrentVersion()">getCurrentVersion</a></strong>()</code>
+<div class="block">Get the current MVCC version number.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#getKVStore()">getKVStore</a></strong>()</code>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#logException(org.jsimpledb.kv.KVTransactionException)">logException</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;e)</code>
 <div class="block">Log specified exception.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#setKVStore(org.jsimpledb.kv.mvcc.AtomicKVStore)">setKVStore</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>
 <div class="block">Configure the underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#wrapException(org.jsimpledb.kv.mvcc.SnapshotKVTransaction, java.lang.RuntimeException)">wrapException</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>&nbsp;tx,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</a>&nbsp;e)</code>
@@ -349,6 +355,17 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvstore</code> - underlying key/value store</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is already started</dd></dl>
+</li>
+</ul>
+<a name="getCurrentVersion()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCurrentVersion</h4>
+<pre>public&nbsp;long&nbsp;getCurrentVersion()</pre>
+<div class="block">Get the current MVCC version number.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>MVCC database version number</dd></dl>
 </li>
 </ul>
 <a name="start()">

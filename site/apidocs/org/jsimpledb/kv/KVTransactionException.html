@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KVTransactionException (JSimpleDB 2.4.6 API)</title>
+<title>KVTransactionException (JSimpleDB 2.4.7 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KVTransactionException (JSimpleDB 2.4.6 API)";
+        parent.document.title="KVTransactionException (JSimpleDB 2.4.7 API)";
     }
 //-->
 </script>
@@ -300,7 +300,7 @@ extends <a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="clas
  <p>
  This allows the "same" exception to be thrown multiple times from different locations
  with different outer stack frames.</div>
-<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/util/ThrowableUtil.html#prependCurrentStackTrace(java.lang.Throwable)"><code>ThrowableUtil.prependCurrentStackTrace(java.lang.Throwable)</code></a></dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>duplicate of this exception with the current thread's stack frame context</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/util/ThrowableUtil.html#prependCurrentStackTrace(java.lang.Throwable)"><code>ThrowableUtil.prependCurrentStackTrace(java.lang.Throwable)</code></a></dd></dl>
 </li>
 </ul>
 <a name="duplicate(java.lang.StackTraceElement[])">
@@ -316,6 +316,8 @@ extends <a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="clas
  The implementation in <a href="../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a> requires that this instance's class contains
  a public constructor in the form of <a href="../../../org/jsimpledb/kv/KVTransactionException.html#KVTransactionException(org.jsimpledb.kv.KVTransaction, java.lang.String, java.lang.Throwable)"><code>KVTransactionException(KVTransaction, String, Throwable)</code></a>;
  subclasses that don't have such a constructor must override this method.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>frames</code> - stack frames to use</dd>
+<dt><span class="strong">Returns:</span></dt><dd>duplicate of this exception, but with the given stack frames</dd></dl>
 </li>
 </ul>
 </li>

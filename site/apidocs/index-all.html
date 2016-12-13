@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.4.6 API)</title>
+<title>Index (JSimpleDB 2.4.7 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.4.6 API)";
+        parent.document.title="Index (JSimpleDB 2.4.7 API)";
     }
 //-->
 </script>
@@ -2498,7 +2498,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean, org.jsimpledb.core.util.ObjIdMap)">copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap&lt;ReferenceField&gt;)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
-<div class="block">Variant of <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments,
+<div class="block">Variant of <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean, boolean)</code></a> that allows, but tracks, deleted assignments,
  and supports disabling create and change notifications.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn(String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
@@ -3058,7 +3058,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#DEFAULT_COMPACTION_MAX_DELAY">DEFAULT_COMPACTION_MAX_DELAY</a></span> - Static variable in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>
-<div class="block">Default compaction maximum delay in seconds (90 seconds).</div>
+<div class="block">Default compaction maximum delay in seconds (86400 seconds).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#DEFAULT_DATABASE_NAME">DEFAULT_DATABASE_NAME</a></span> - Static variable in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
@@ -3643,7 +3643,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">EvalCommand.EvalAction</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
 <dd>
-<div class="block">Special transactional <code>org.jsimpledb.CliSession.Action</code> used by the <a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
+<div class="block">Special transactional <a href="./org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><code>CliSession.Action</code></a> used by the <a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
  <a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><span class="strong">EvalException</span></a> - Exception in <a href="./org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></dt>
@@ -4690,6 +4690,10 @@
 <dd>
 <div class="block">Get the time at which this instance's current term advanced to its current value.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#getCurrentVersion()">getCurrentVersion()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
+<dd>
+<div class="block">Get the current MVCC version number.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/InstallSnapshot.html#getData()">getData()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/InstallSnapshot.html" title="class in org.jsimpledb.kv.raft.msg">InstallSnapshot</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#getDatabase()">getDatabase()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
@@ -4898,7 +4902,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/ObjType.html#getField(int, boolean)">getField(int, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/ObjType.html" title="class in org.jsimpledb.core">ObjType</a></dt>
 <dd>
-<div class="block">Get the <a href="./org/jsimpledb/core/Field.html" title="class in org.jsimpledb.core"><code>Field</code></a> in this instance with the given storage ID, including sub-fields.</div>
+<div class="block">Get the <a href="./org/jsimpledb/core/Field.html" title="class in org.jsimpledb.core"><code>Field</code></a> in this instance with the given storage ID, optionally searching sub-fields.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/IndexedFieldParser.Result.html#getField()">getField()</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/IndexedFieldParser.Result.html" title="class in org.jsimpledb.parse">IndexedFieldParser.Result</a></dt>
 <dd>
@@ -5588,6 +5592,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html#getLastChangeTime()">getLastChangeTime()</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a></dt>
 <dd>
 <div class="block">Get the time of the last change in availability of this target, if known.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#getLastInternalError()">getLastInternalError()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>
+<div class="block">Get the exception most recently thrown by the internal service thread, if any.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html#getLastLogIndex()">getLastLogIndex()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html" title="class in org.jsimpledb.kv.raft.msg">AppendResponse</a></dt>
 <dd>
