@@ -241,6 +241,8 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     public void teardown() throws Exception {
         super.teardown();
         if (this.rafts != null) {
+
+            // Shut them down
             for (RaftKVDatabase raft : this.rafts)
                 raft.stop();
             for (TestNetwork network : this.raftNetworks)
@@ -257,6 +259,13 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                     return FileVisitResult.CONTINUE;
                 }
             });
+
+            // Check for exceptions
+            for (RaftKVDatabase raft : this.rafts) {
+                final Throwable t = raft.getLastInternalError();
+                if (t != null)
+                    throw new Exception("internal error in " + raft, t);
+            }
         }
     }
 

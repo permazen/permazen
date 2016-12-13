@@ -430,6 +430,7 @@ public class RaftKVDatabase implements KVDatabase {
     KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
     boolean performingService;                                          // true when serviceExecutor does not need to be woken up
     boolean shuttingDown;                                               // prevents new transactions from being created
+    Throwable lastInternalError;                                        // most recent exception in service executor
 
 // Configuration
 
@@ -1189,6 +1190,16 @@ public class RaftKVDatabase implements KVDatabase {
         this.info("completed shutdown of " + this);
     }
 
+    /**
+     * Get the exception most recently thrown by the internal service thread, if any.
+     * This is used mainly during testing.
+     *
+     * @return most recent service exception, or null if none
+     */
+    public synchronized Throwable getLastInternalError() {
+        return this.lastInternalError;
+    }
+
     private void cleanup() {
         assert Thread.holdsLock(this);
         assert this.openTransactions.isEmpty();
@@ -1626,8 +1637,10 @@ public class RaftKVDatabase implements KVDatabase {
                 }
             });
         } catch (RejectedExecutionException e) {
-            if (!this.shuttingDown)
+            if (!this.shuttingDown) {
                 this.warn("service executor task rejected, skipping", e);
+                this.lastInternalError = e;
+            }
         }
     }
 
@@ -1652,6 +1665,7 @@ public class RaftKVDatabase implements KVDatabase {
                     service.run();
                 } catch (Throwable t) {
                     RaftKVDatabase.this.error("exception in " + service, t);
+                    this.lastInternalError = t;
                 }
             }
         } finally {
