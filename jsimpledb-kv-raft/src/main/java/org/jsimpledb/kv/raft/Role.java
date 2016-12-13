@@ -107,7 +107,7 @@ public abstract class Role {
      */
     void checkReadyTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : this.raft.openTransactions.values())
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values()))
             new CheckReadyTransactionService(this, tx).run();
     }
 
@@ -117,7 +117,7 @@ public abstract class Role {
      */
     void checkWaitingTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : this.raft.openTransactions.values())
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values()))
             new CheckWaitingTransactionService(this, tx).run();
     }
 
