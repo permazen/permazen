@@ -24,7 +24,7 @@ public class Follower {
     public static final Comparator<Follower> SORT_BY_IDENTITY = new Comparator<Follower>() {
         @Override
         public int compare(Follower f1, Follower f2) {
-            return f1.getIdentity().compareTo(f1.getIdentity());
+            return f1.getIdentity().compareTo(f2.getIdentity());
         }
     };
 
