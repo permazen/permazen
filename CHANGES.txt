@@ -1,4 +1,4 @@
-Version Next
+Version 2.4.7 Released December 13, 2016
 
     - Added method SnapshotKVDatabase.getCurrentVersion()
     - Fixed array k/v bugs that were causing too-frequent compactions
