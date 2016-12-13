@@ -135,6 +135,15 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         this.kvstore = kvstore;
     }
 
+    /**
+     * Get the current MVCC version number.
+     *
+     * @return MVCC database version number
+     */
+    public synchronized long getCurrentVersion() {
+        return this.currentVersion;
+    }
+
 // KVDatabase
 
     @Override

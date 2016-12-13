@@ -1,3 +1,7 @@
+Version Next
+
+    - Added method SnapshotKVDatabase.getCurrentVersion()
+
 Version 2.4.6 Released December 8, 2016
 
     - Performance improvements in Raft and MVCC key/value databases
