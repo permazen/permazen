@@ -1047,11 +1047,11 @@ public class Transaction {
     }
 
     /**
-     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean)} that allows, but tracks, deleted assignments,
+     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean, boolean)} that allows, but tracks, deleted assignments,
      * and supports disabling create and change notifications.
      *
      * <p>
-     * When multiple objects need to be copied, {@link #copy(ObjId, ObjId, Transaction, boolean) copy()} can throw a
+     * When multiple objects need to be copied, {@link #copy(ObjId, ObjId, Transaction, boolean, boolean) copy()} can throw a
      * {@link DeletedObjectException} if an object is copied before some other object that it references through a
      * {@link ReferenceField} with {@link ReferenceField#allowDeleted} set to false. If there are cycles in the
      * graph of references between objects, this situation is impossible to avoid.
