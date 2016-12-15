@@ -8,7 +8,7 @@
     <groupId>org.jsimpledb</groupId>
     <artifactId>jsimpledb</artifactId>
     <name>JSimpleDB</name>
-    <version>2.4.7</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
     <description>JSimpleDB is a better persistence layer for Java.</description>
     <url>https://github.com/archiecobbs/jsimpledb/</url>
@@ -69,13 +69,13 @@
     <properties>
 
         <!-- Basic stuff -->
-        <compiler.source>1.7</compiler.source>
-        <compiler.target>1.7</compiler.target>
+        <compiler.source>1.8</compiler.source>
+        <compiler.target>1.8</compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- An already existing version (needed to avoid cycles during build) -->
-        <previous.version>2.4.6</previous.version>
+        <previous.version>2.4.7</previous.version>
 
         <!-- Dependency versions -->
         <ant.version>1.9.7</ant.version>
@@ -554,7 +554,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.7.0</version>
+                                    <version>1.8.0</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>

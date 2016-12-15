@@ -1,3 +1,9 @@
+Version 3.0.0
+
+    - Upgraded minimum supported Java version to Java 8 (*)
+
+    (*) Backwards-imcompatible change
+
 Version 2.4.7 Released December 13, 2016
 
     - Added method SnapshotKVDatabase.getCurrentVersion()
