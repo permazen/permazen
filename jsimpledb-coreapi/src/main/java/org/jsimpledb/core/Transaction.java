@@ -880,8 +880,7 @@ public class Transaction {
         }
 
         // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
-        for (ReferenceField field : Iterables.filter(
-          Iterables.filter(info.getObjType().referenceFields.values(), ReferenceField.class), new HasCascadeDelete())) {
+        for (ReferenceField field : Iterables.filter(info.getObjType().referenceFields.values(), new HasCascadeDelete())) {
             final Iterable<ObjId> refs = field.parent != null ?
               field.parent.iterateSubField(this, id, field) : Collections.singleton(field.getValue(this, id));
             for (ObjId ref : refs) {
