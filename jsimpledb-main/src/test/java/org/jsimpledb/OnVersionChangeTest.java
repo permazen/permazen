@@ -14,6 +14,7 @@ import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.test.TestSupport;
@@ -318,7 +319,7 @@ public class OnVersionChangeTest extends TestSupport {
             // Verify enum old value
             final int index = this.getIndex();
             final Enum1 oldEnumValue = Enum1.values()[index - 1];
-            Assert.assertEquals(oldValues.get(98), oldEnumValue, "wrong enum for index " + index);
+            Assert.assertEquals(oldValues.get(98), new EnumValue(oldEnumValue), "wrong enum for index " + index);
 
             // Update enum value
             switch (oldEnumValue) {
@@ -360,17 +361,17 @@ public class OnVersionChangeTest extends TestSupport {
             case 1:
                 Assert.assertEquals(oldValues.get("name"), "Smith, Joe");
                 Assert.assertEquals(((Person2)oldValues.get("friend")).getLastName(), "Jones");
-                Assert.assertEquals(oldValues.get("enum1"), Enum1.AAA);
+                Assert.assertEquals(oldValues.get("enum1"), new EnumValue(Enum1.AAA));
                 break;
             case 2:
                 Assert.assertEquals(oldValues.get("name"), "Jones, Fred");
                 Assert.assertEquals(((Person2)oldValues.get("friend")).getLastName(), "Brown");
-                Assert.assertEquals(oldValues.get("enum1"), Enum1.BBB);
+                Assert.assertEquals(oldValues.get("enum1"), new EnumValue(Enum1.BBB));
                 break;
             case 3:
                 Assert.assertEquals(oldValues.get("name"), "Brown, Kelly");
                 Assert.assertEquals(oldValues.get("friend"), null);
-                Assert.assertEquals(oldValues.get("enum1"), Enum1.CCC);
+                Assert.assertEquals(oldValues.get("enum1"), new EnumValue(Enum1.CCC));
                 break;
             default:
                 break;

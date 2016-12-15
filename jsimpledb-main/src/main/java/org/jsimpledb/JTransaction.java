@@ -6,7 +6,6 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
@@ -1779,23 +1778,13 @@ public class JTransaction {
         // The object that was upgraded
         JObject jobj = null;
 
-        // Convert old field values from core API objects to JDB layer objects
+        // Convert old field values from core API objects to JDB layer objects, but do not convert EnumValue objects
         final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
-          new Maps.EntryTransformer<Integer, Object, Object>() {
-            @Override
-            public Object transformEntry(Integer storageId, Object oldValue) {
-                return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
-            }
-        });
+          (storageId, oldValue) -> this.convertCoreValue(objType.getField(storageId), oldValue, false));
 
         // Build alternate version of old values map that is keyed by field name instead of storage ID
         final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
-          new Function<Field<?>, Object>() {
-            @Override
-            public Object apply(Field<?> field) {
-                return oldValuesByStorageId.get(field.getStorageId());
-            }
-        });
+          field -> oldValuesByStorageId.get(field.getStorageId()));
 
         // Invoke listener methods
         for (OnVersionChangeScanner<?>.MethodInfo info0 : jclass.onVersionChangeMethods) {
@@ -1822,7 +1811,11 @@ public class JTransaction {
      * corresponding {@link JSimpleDB} value, to the extent possible.
      */
     Object convertCoreValue(Field<?> field, Object value) {
-        return value != null ? this.convert(field.visit(new CoreValueConverterBuilder()), value) : null;
+        return this.convertCoreValue(field, value, true);
+    }
+
+    private Object convertCoreValue(Field<?> field, Object value, boolean convertEnum) {
+        return value != null ? this.convert(field.visit(new CoreValueConverterBuilder(convertEnum)), value) : null;
     }
 
 // CoreValueConverterBuilder
@@ -1837,11 +1830,19 @@ public class JTransaction {
      * Returns null if no conversion is necessary.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    class CoreValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
+    private class CoreValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
+
+        private final boolean convertEnum;
+
+        CoreValueConverterBuilder(boolean convertEnum) {
+            this.convertEnum = convertEnum;
+        }
 
         // We can only convert EnumValue -> Enum if the Enum type is known and matches the old field's original type
         @Override
         public Converter<?, ?> caseEnumField(EnumField field) {
+            if (!this.convertEnum)
+                return null;
             final Class<? extends Enum<?>> enumType = field.getFieldType().getEnumType();
             return enumType != null ? EnumConverter.createEnumConverter(enumType).reverse() : null;
         }

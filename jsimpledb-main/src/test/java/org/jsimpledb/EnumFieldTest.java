@@ -165,7 +165,7 @@ public class EnumFieldTest extends TestSupport {
 
         @OnVersionChange
         private void versionChange(int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
-            Assert.assertEquals(oldValues.get(2), MyEnum.FOO);
+            Assert.assertEquals(oldValues.get(2), new EnumValue(MyEnum.FOO));
             Assert.assertEquals(oldValues.get(3), new EnumValue("BAR", 1));
         }
     }
