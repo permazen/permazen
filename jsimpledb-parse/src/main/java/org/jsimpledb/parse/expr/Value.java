@@ -5,9 +5,6 @@
 
 package org.jsimpledb.parse.expr;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -267,23 +264,5 @@ public interface Value {
      * @throws EvalException if this instance is not an {@link LValue}
      */
     LValue asLValue(String operation);
-
-    /**
-     * Function that evaluates (i.e., invokes {@link #get Value.get()}) on its argument.
-     */
-    class GetFunction implements Function<Value, Object> {
-
-        private final ParseSession session;
-
-        public GetFunction(ParseSession session) {
-            Preconditions.checkArgument(session != null, "null session");
-            this.session = session;
-        }
-
-        @Override
-        public Object apply(Value item) {
-            return item.get(this.session);
-        }
-    }
 }
 

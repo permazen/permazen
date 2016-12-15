@@ -5,13 +5,12 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.dellroad.stuff.java.EnumUtil;
 
@@ -161,15 +160,14 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
         return identifierMap;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({
+        "unchecked",
+        "rawtypes"      // https://bugs.openjdk.java.net/browse/JDK-8012685
+    })
     private static <T extends Enum<T>> List<String> getIdentifiers(Class<T> enumType) {
-        return Lists.transform(EnumUtil.getValues(enumType), new Function<T, String>() {
-            @Override
-            public String apply(T value) {
-                assert value != null;
-                return value.name();
-            }
-        });
+        return EnumUtil.getValues(enumType).stream()
+          .map(Enum::name)
+          .collect(Collectors.toList());
     }
 }
 

@@ -5,9 +5,7 @@
 
 package org.jsimpledb.kv;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.UnmodifiableIterator;
 
 import java.io.IOException;
@@ -21,6 +19,7 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
@@ -62,6 +61,26 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
             Preconditions.checkArgument(range != null, "null range");
             this.add(range);
         }
+        assert this.checkMinimal();
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Creates an instance that contains all keys contained by any of the {@link KeyRange}s in {@code ranges}.
+     * The given {@code ranges} may be empty, adjacent, overlap, and/or be listed in any order; this constructor
+     * will normalize them.
+     *
+     * @param ranges individual key ranges
+     * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
+     */
+    public KeyRanges(Stream<? extends KeyRange> ranges) {
+        Preconditions.checkArgument(ranges != null, "null ranges");
+        this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
+        ranges
+          .peek(range -> Preconditions.checkArgument(range != null, "null range"))
+          .forEach(this::add);
         assert this.checkMinimal();
     }
 
@@ -286,12 +305,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
     public KeyRanges prefixedBy(final byte[] prefix) {
         assert this.checkMinimal();
         Preconditions.checkArgument(prefix != null, "null prefix");
-        return new KeyRanges(Iterables.transform(this.ranges, new Function<KeyRange, KeyRange>() {
-            @Override
-            public KeyRange apply(KeyRange keyRange) {
-                return keyRange.prefixedBy(prefix);
-            }
-        }));
+        return new KeyRanges(this.ranges.stream().map(range -> range.prefixedBy(prefix)));
     }
 
     /**

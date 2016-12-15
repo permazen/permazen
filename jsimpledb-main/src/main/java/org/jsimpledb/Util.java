@@ -5,7 +5,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
@@ -327,14 +326,11 @@ public final class Util {
      * @see #findLowestCommonAncestor findLowestCommonAncestor()
      */
     public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
-        return Util.findLowestCommonAncestor(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
-            @Override
-            public TypeToken<?> apply(Class<?> type) {
-                if (type == null)
-                    throw new IllegalArgumentException("null type");
-                return TypeToken.of(type);
-            }
-        }));
+        types.forEach(type -> {
+            if (type == null)
+                throw new IllegalArgumentException("null type");
+        });
+        return Util.findLowestCommonAncestor(Iterables.transform(types, TypeToken::of));
     }
 
     /**
@@ -350,14 +346,11 @@ public final class Util {
      * @see #findLowestCommonAncestors findLowestCommonAncestors()
      */
     public static Set<TypeToken<?>> findLowestCommonAncestorsOfClasses(Iterable<Class<?>> types) {
-        return Util.findLowestCommonAncestors(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
-            @Override
-            public TypeToken<?> apply(Class<?> type) {
-                if (type == null)
-                    throw new IllegalArgumentException("null type");
-                return TypeToken.of(type);
-            }
-        }));
+        types.forEach(type -> {
+            if (type == null)
+                throw new IllegalArgumentException("null type");
+        });
+        return Util.findLowestCommonAncestors(Iterables.transform(types, TypeToken::of));
     }
 
     /**

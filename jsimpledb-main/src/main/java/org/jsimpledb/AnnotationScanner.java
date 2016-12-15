@@ -5,14 +5,12 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -181,12 +179,7 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
      * @return method parameter types
      */
     protected List<TypeToken<?>> getParameterTypeTokens(Method method) {
-        return Lists.transform(Arrays.asList(method.getGenericParameterTypes()), new Function<Type, TypeToken<?>>() {
-            @Override
-            public TypeToken<?> apply(Type type) {
-                return TypeToken.of(type);
-            }
-        });
+        return Lists.transform(Arrays.asList(method.getGenericParameterTypes()), TypeToken::of);
     }
 
     /**

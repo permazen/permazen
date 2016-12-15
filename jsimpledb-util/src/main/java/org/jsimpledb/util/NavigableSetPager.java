@@ -6,12 +6,12 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.function.Predicate;
 
 /**
  * Allows efficient paging through a {@link NavigableSet}.
@@ -249,7 +249,7 @@ public abstract class NavigableSetPager<E> {
         this.limit = null;
         List<E> page = new ArrayList<>(this.pageSize);
         for (E item : anchorSet) {
-            if (this.filter != null && !this.filter.apply(item))
+            if (this.filter != null && !this.filter.test(item))
                 continue;
             if (this.backwards)
                 page.add(item);

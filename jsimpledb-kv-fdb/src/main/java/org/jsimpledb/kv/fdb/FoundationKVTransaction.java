@@ -12,7 +12,6 @@ import com.foundationdb.Range;
 import com.foundationdb.ReadTransaction;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
@@ -130,13 +129,9 @@ public class FoundationKVTransaction implements KVTransaction {
             maxKey = null;
         Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
         try {
-            return Iterators.transform(this.tx.getRange(this.addPrefix(minKey, maxKey),
-              ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator(), new Function<KeyValue, KVPair>() {
-                @Override
-                public KVPair apply(KeyValue kv) {
-                    return new KVPair(FoundationKVTransaction.this.removePrefix(kv.getKey()), kv.getValue());
-                }
-            });
+            return Iterators.transform(
+              this.tx.getRange(this.addPrefix(minKey, maxKey), ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator(),
+              kv -> new KVPair(this.removePrefix(kv.getKey()), kv.getValue()));
         } catch (FDBException e) {
             throw this.wrapException(e);
         }

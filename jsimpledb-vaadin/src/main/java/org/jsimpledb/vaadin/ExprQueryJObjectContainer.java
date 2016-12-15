@@ -96,7 +96,7 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
         }
 
         // Reload container with results of expression
-        return Iterators.transform(iterator, new CastFunction<JObject>(JObject.class));
+        return Iterators.transform(iterator, new CastFunction<JObject>(JObject.class).toGuava());
     }
 }
 

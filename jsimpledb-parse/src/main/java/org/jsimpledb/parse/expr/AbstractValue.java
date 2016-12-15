@@ -5,9 +5,7 @@
 
 package org.jsimpledb.parse.expr;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -19,7 +17,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.util.InstancePredicate;
 import org.jsimpledb.util.NavigableSets;
 
 /**
@@ -495,21 +492,16 @@ public abstract class AbstractValue implements Value {
         if (args.length > 0) {
             final ArrayList<Number> nums = new ArrayList<>(1 + args.length);
             nums.add(num);
-            nums.addAll(Lists.transform(Arrays.asList(args), new Function<Object, Number>() {
-                @Override
-                public Number apply(Object value) {
-                    return AbstractValue.promoteNumeric(session, value, operation);
-                }
-            }));
-            if (Iterables.find(nums, new InstancePredicate(BigDecimal.class), null) != null)
+            nums.addAll(Lists.transform(Arrays.asList(args), value -> AbstractValue.promoteNumeric(session, value, operation)));
+            if (nums.stream().anyMatch(n -> n instanceof BigDecimal))
                 num = AbstractValue.toBigDecimal(num);
-            else if (Iterables.find(nums, new InstancePredicate(Double.class), null) != null)
+            else if (nums.stream().anyMatch(n -> n instanceof Double))
                 num = num.doubleValue();
-            else if (Iterables.find(nums, new InstancePredicate(Float.class), null) != null)
+            else if (nums.stream().anyMatch(n -> n instanceof Float))
                 num = num.floatValue();
-            else if (Iterables.find(nums, new InstancePredicate(BigInteger.class), null) != null)
+            else if (nums.stream().anyMatch(n -> n instanceof BigInteger))
                 num = AbstractValue.toBigInteger(num);
-            else if (Iterables.find(nums, new InstancePredicate(Long.class), null) != null)
+            else if (nums.stream().anyMatch(n -> n instanceof Long))
                 num = num.longValue();
             else
                 num = num.intValue();

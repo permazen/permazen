@@ -38,7 +38,7 @@ public class ListFunction extends SimpleFunction {
 
     @Override
     protected Value apply(final ParseSession session, Value[] params) {
-        return new ConstValue(Lists.transform(Arrays.asList(params), new Value.GetFunction(session)));
+        return new ConstValue(Lists.transform(Arrays.asList(params), item -> item.get(session)));
     }
 }
 

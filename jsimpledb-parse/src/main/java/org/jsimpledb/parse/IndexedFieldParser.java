@@ -5,10 +5,7 @@
 
 package org.jsimpledb.parse;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
-import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.core.ComplexField;
@@ -32,59 +29,82 @@ import org.jsimpledb.util.ParseContext;
 public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
 
     private final SpaceParser spaceParser = new SpaceParser();
+    private final Predicate<Field<?>> hasIndexedPredicate;
+
+    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
+    public IndexedFieldParser() {
+        this.hasIndexedPredicate = field ->
+          field instanceof SimpleField ? ((SimpleField<?>)field).isIndexed() :
+          field instanceof ComplexField ? ((ComplexField<?>)field).getSubFields().stream().anyMatch(SimpleField::isIndexed) :
+          false;
+    }
 
     @Override
+    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
     public Result parse(final ParseSession session, final ParseContext ctx, final boolean complete) {
 
         // Get object type
         final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
 
-        // Get indexed field
+        // Get indexed field name
         ctx.skipWhitespace();
         if (!ctx.tryLiteral("."))
             throw new ParseException(ctx, "expected field name").addCompletion(".");
         ctx.skipWhitespace();
         final Matcher fieldMatcher = ctx.tryPattern("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
         if (fieldMatcher == null) {
-            throw new ParseException(ctx, "expected field name").addCompletions(Iterables.transform(Iterables.filter(
-               objType.getFields().values(), new HasIndexedPredicate()), new FieldNameFunction()));
+            throw new ParseException(ctx, "expected field name").addCompletions(
+              objType.getFields().values().stream().filter(this.hasIndexedPredicate).map(Field::getName));
         }
         final String fieldName = fieldMatcher.group();
-        final Field<?> field;
-        try {
-            field = Iterables.find(this.filterFields(objType.getFields().values()), new ParseUtil.HasNamePredicate(fieldName));
-        } catch (NoSuchElementException e) {
-            throw new ParseException(ctx, "error accessing field `" + fieldName + "': there is no such indexed field in " + objType)
-              .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-                this.filterFields(objType.getFields().values()), new HasIndexedPredicate()), new FieldNameFunction()), fieldName));
-        }
+
+        // Get indexed field
+        final Field<?> field = objType.getFields().values().stream()
+          .filter(f -> f.getName().equals(fieldName))
+          .filter(this.getFieldFilter())
+          .findAny().orElseThrow(() ->
+            new ParseException(ctx, "error accessing field `" + fieldName + "': there is no such indexed field in " + objType)
+              .addCompletions(ParseUtil.complete(
+                objType.getFields().values().stream()
+                  .filter(this.getFieldFilter())
+                  .filter(this.hasIndexedPredicate)
+                  .map(Field::getName),
+                fieldName)));
 
         // Get sub-field if field is a complex field
         return field.visit(new FieldSwitchAdapter<Result>() {
 
             @Override
             protected <T> Result caseComplexField(ComplexField<T> field) {
+
+                // Get sub-field name
                 ctx.skipWhitespace();
                 if (!ctx.tryLiteral(".")) {
                     throw new ParseException(ctx, "expected sub-field name").addCompletion(".");
                 }
                 final Matcher subfieldMatcher = ctx.tryPattern("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
                 if (subfieldMatcher == null) {
-                    throw new ParseException(ctx, "expected sub-field name").addCompletions(Iterables.transform(Iterables.filter(
-                       field.getSubFields(), new IsIndexedPredicate()), new FieldNameFunction()));
+                    throw new ParseException(ctx, "expected sub-field name").addCompletions(field.getSubFields().stream()
+                      .filter(SimpleField::isIndexed)
+                      .map(Field::getName));
                 }
-                final String subName = subfieldMatcher.group();
-                final SimpleField<?> subField;
-                try {
-                    subField = Iterables.find(IndexedFieldParser.this.filterSubFields(field.getSubFields()),
-                      new ParseUtil.HasNamePredicate(subName));
-                } catch (NoSuchElementException e) {
-                    throw new ParseException(ctx, "unknown sub-field `" + subName + "' of complex field `" + fieldName + "'")
-                      .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-                         IndexedFieldParser.this.filterSubFields(field.getSubFields()), new IsIndexedPredicate()),
-                        new FieldNameFunction()), fieldName));
-                }
-                return new Result(fieldName + "." + subName, this.verifyIndexedSimple(subField), field);
+                final String subFieldName = subfieldMatcher.group();
+
+                // Get sub-field
+                final SimpleField<?> subField = field.getSubFields().stream()
+                  .filter(f -> f.getName().equals(subFieldName))
+                  .filter(IndexedFieldParser.this.getSubFieldFilter())
+                  .findAny().orElseThrow(() ->
+                    new ParseException(ctx, "unknown sub-field `" + subFieldName + "' of complex field `" + fieldName + "'")
+                    .addCompletions(ParseUtil.complete(
+                      field.getSubFields().stream()
+                        .filter(IndexedFieldParser.this.getSubFieldFilter())
+                        .filter(SimpleField::isIndexed)
+                        .map(Field::getName),
+                      fieldName)));
+
+                // Done
+                return new Result(fieldName + "." + subFieldName, this.verifyIndexedSimple(subField), field);
             }
 
             @Override
@@ -100,12 +120,12 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
         });
     }
 
-    protected Iterable<? extends Field<?>> filterFields(Iterable<? extends Field<?>> fields) {
-        return fields;
+    protected Predicate<? super Field<?>> getFieldFilter() {
+        return field -> true;
     }
 
-    protected Iterable<? extends SimpleField<?>> filterSubFields(Iterable<? extends SimpleField<?>> subFields) {
-        return subFields;
+    protected Predicate<? super SimpleField<?>> getSubFieldFilter() {
+        return subField -> true;
     }
 
 // Return type
@@ -156,30 +176,4 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
             return this.parentField;
         }
     }
-
-// Functions and Predicates
-
-    private static class FieldNameFunction implements com.google.common.base.Function<Field<?>, String> {
-        @Override
-        public String apply(Field<?> field) {
-            return field.getName();
-        }
-    }
-
-    private static class IsIndexedPredicate implements Predicate<SimpleField<?>> {
-        @Override
-        public boolean apply(SimpleField<?> field) {
-            return field.isIndexed();
-        }
-    }
-
-    private static class HasIndexedPredicate implements Predicate<Field<?>> {
-        @Override
-        public boolean apply(Field<?> field) {
-            return field instanceof SimpleField ? ((SimpleField<?>)field).isIndexed() :
-              field instanceof ComplexField ? Iterables.any(((ComplexField<?>)field).getSubFields(), new IsIndexedPredicate()) :
-              false;
-        }
-    }
 }
-

@@ -5,9 +5,6 @@
 
 package org.jsimpledb.kv.raft;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -17,7 +14,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import net.jcip.annotations.GuardedBy;
@@ -616,18 +612,13 @@ public class FollowerRole extends NonLeaderRole {
                     // If message contains no data, we expect to get the data from the corresponding transaction
                     if (newLogEntry == null) {
 
-                        // Find the matching pending commit write
-                        final PendingWrite pendingWrite;
-                        try {
-                            pendingWrite = Iterables.find(this.pendingWrites.values(), new Predicate<PendingWrite>() {
-                                @Override
-                                public boolean apply(PendingWrite pendingWrite) {
-                                    final RaftKVTransaction tx = pendingWrite.getTx();
-                                    return tx.getState().equals(TxState.COMMIT_WAITING)
-                                      && tx.getCommitTerm() == logTerm && tx.getCommitIndex() == logIndex;
-                                }
-                            });
-                        } catch (NoSuchElementException e) {
+                        // Find the matching pending commit write, if any
+                        final PendingWrite pendingWrite = this.pendingWrites.values().stream().filter(pw -> {
+                            final RaftKVTransaction tx = pw.getTx();
+                            return tx.getState().equals(TxState.COMMIT_WAITING)
+                              && tx.getCommitTerm() == logTerm && tx.getCommitIndex() == logIndex;
+                          }).findAny().orElse(null);
+                        if (pendingWrite == null) {
                             if (this.log.isDebugEnabled()) {
                                 this.debug("rec'd " + msg + " but no read-write transaction matching commit "
                                   + logIndex + "t" + logTerm + " found; rejecting");

@@ -56,13 +56,9 @@ public class FilterFunction extends ApplyExprFunction {
             public Object get(final ParseSession session) {
 
                 // Build predicate
-                final Predicate<Object> predicate = new Predicate<Object>() {
-                    @Override
-                    public boolean apply(Object item) {
-                        return FilterFunction.this.evaluate(session, params.getVariable(),
-                          new ConstValue(item), params.getExpr()).checkBoolean(session, "filter()");
-                    }
-                };
+                final Predicate<Object> predicate = item ->
+                  FilterFunction.this.evaluate(session, params.getVariable(), new ConstValue(item), params.getExpr())
+                  .checkBoolean(session, "filter()");
 
                 // Evaluate items
                 Object items = params.getItems().evaluate(session).checkNotNull(session, "filter()");

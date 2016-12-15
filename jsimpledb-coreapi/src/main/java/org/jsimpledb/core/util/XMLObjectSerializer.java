@@ -10,7 +10,6 @@ import com.google.common.collect.Iterables;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +45,6 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.Schema;
-import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.SnapshotTransaction;
@@ -551,7 +549,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
     /**
-     * Export the given objects from the {@link Transaction} associated with this instance to the given XML output.
+     * Export the specified objects from the {@link Transaction} associated with this instance to the given XML output.
      *
      * <p>
      * This method writes a start element as its first action, allowing the output to be embedded into a larger XML document.
@@ -563,12 +561,11 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @param objIds object IDs
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
-     * @throws IllegalArgumentException if {@code writer} is null
+     * @throws IllegalArgumentException if {@code writer} or {@code objIds} is null
      */
     public int write(XMLStreamWriter writer, boolean nameFormat, Iterable<? extends ObjId> objIds) throws XMLStreamException {
         Preconditions.checkArgument(writer != null, "null writer");
         Preconditions.checkArgument(objIds != null, "null objIds");
-        final NameComparator nameComparator = new NameComparator();
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
         int count = 0;
@@ -588,7 +585,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             boolean tagOutput = false;
             ArrayList<Field<?>> fieldList = new ArrayList<>(objType.getFields().values());
             if (nameFormat)
-                Collections.sort(fieldList, nameComparator);
+                Collections.sort(fieldList, Comparator.comparing(Field::getName));
             for (Field<?> field : fieldList) {
 
                 // Determine if field equals its default value; if so, skip it
@@ -828,18 +825,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 return null;
             if (eventType == XMLStreamConstants.START_ELEMENT)
                 return reader.getName();
-        }
-    }
-
-// NameComparator
-
-    private static class NameComparator implements Comparator<SchemaItem>, Serializable {
-
-        private static final long serialVersionUID = 2149002751789000360L;
-
-        @Override
-        public int compare(SchemaItem item1, SchemaItem item2) {
-            return item1.getName().compareTo(item2.getName());
         }
     }
 }

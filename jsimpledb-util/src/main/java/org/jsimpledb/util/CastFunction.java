@@ -5,8 +5,9 @@
 
 package org.jsimpledb.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+
+import java.util.function.Function;
 
 /**
  * A {@link Function} that casts objects to some type.
@@ -35,6 +36,10 @@ public class CastFunction<T> implements Function<Object, T> {
         } catch (ClassCastException e) {
             throw this.handleFailure(obj, e);
         }
+    }
+
+    public com.google.common.base.Function<Object, T> toGuava() {
+        return this::apply;
     }
 
     /**

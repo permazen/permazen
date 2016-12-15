@@ -6,7 +6,6 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.EnumHashBiMap;
 import com.google.common.collect.Maps;
@@ -33,12 +32,7 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
         Preconditions.checkArgument(enumType != null, "null enumType");
         enumType.asSubclass(Enum.class);                            // verify it's really an Enum
         this.enumType = enumType;
-        this.valueMap = EnumHashBiMap.<T, EnumValue>create(Maps.asMap(EnumSet.allOf(this.enumType), new Function<T, EnumValue>() {
-            @Override
-            public EnumValue apply(T value) {
-                return new EnumValue(value);
-            }
-        }));
+        this.valueMap = EnumHashBiMap.<T, EnumValue>create(Maps.asMap(EnumSet.allOf(this.enumType), EnumValue::new));
     }
 
     @Override

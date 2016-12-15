@@ -26,12 +26,7 @@ public class KVPairIteratorTest extends KeyRangeTestSupport {
             results = data;
 
         // Fill KV store with data
-        final Function<byte[], KVPair> pairer = new Function<byte[], KVPair>() {
-            @Override
-            public KVPair apply(byte[] value) {
-                return new KVPair(value, value);
-            }
-        };
+        final Function<byte[], KVPair> pairer = value -> new KVPair(value, value);
         final NavigableMapKVStore kv = new NavigableMapKVStore();
         for (byte[] ba : data)
             kv.put(ba, ba);

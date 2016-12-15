@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,11 +133,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         writer.writeStartElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
         this.writeAttributes(writer);
         final ArrayList<SchemaField> fieldList = new ArrayList<>(this.schemaFields.values());
-        Collections.sort(fieldList, new AbstractSchemaItem.NameComparator());
+        Collections.sort(fieldList, Comparator.comparing(SchemaField::getName));
         for (SchemaField schemaField : fieldList)
             schemaField.writeXML(writer);
         final ArrayList<SchemaCompositeIndex> indexList = new ArrayList<>(this.schemaCompositeIndexes.values());
-        Collections.sort(indexList, new AbstractSchemaItem.NameComparator());
+        Collections.sort(indexList, Comparator.comparing(SchemaCompositeIndex::getName));
         for (SchemaCompositeIndex schemaCompositeIndex : indexList)
             schemaCompositeIndex.writeXML(writer);
         writer.writeEndElement();

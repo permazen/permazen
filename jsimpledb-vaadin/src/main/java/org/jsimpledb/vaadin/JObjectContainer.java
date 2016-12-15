@@ -5,9 +5,7 @@
 
 package org.jsimpledb.vaadin;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -21,7 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 import org.dellroad.stuff.vaadin7.PropertyDef;
@@ -176,13 +173,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         this.type = type;
         this.propertyScanner = this.type != null ? new ProvidesPropertyScanner<T>(/*this.*/type) : null;
         final ArrayList<PropertyDef<?>> propertyDefs = new ArrayList<>(this.buildPropertyDefs());
-        this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs,
-          new Function<PropertyDef<?>, String>() {
-            @Override
-            public String apply(PropertyDef<?> propertyDef) {
-                return propertyDef.getName();
-            }
-        }));
+        this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs, PropertyDef::getName));
         this.setProperties(propertyDefs);
         this.fireContainerPropertySetChange();
     }
@@ -228,31 +219,15 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     public void load(Iterator<? extends JObject> jobjs) {
 
         // Filter out any instances of the wrong type
-        if (JObjectContainer.this.type != null) {
-            jobjs = Iterators.filter(jobjs, new Predicate<JObject>() {
-                @Override
-                public boolean apply(JObject jobj) {
-                    return JObjectContainer.this.type.isInstance(jobj);
-                }
-            });
-        }
+        if (this.type != null)
+            jobjs = Iterators.filter(jobjs, this.type::isInstance);
 
         // Filter out nulls and duplicates
-        jobjs = this.filterNullsAndDuplicates(jobjs);
+        final ObjIdSet seenIds = new ObjIdSet();
+        jobjs = Iterators.filter(jobjs, jobj -> jobj != null && seenIds.add(jobj.getObjId()));
 
         // Proceed
         super.load(jobjs);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <T extends JObject> Iterator<T> filterNullsAndDuplicates(final Iterator<T> jobjs) {
-        final ObjIdSet seenIds = new ObjIdSet();
-        return Iterators.filter(jobjs, new Predicate<T>() {
-            @Override
-            public boolean apply(T jobj) {
-                return jobj != null && seenIds.add(jobj.getObjId());
-            }
-        });
     }
 
     /**
@@ -480,18 +455,16 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
                     @Override
                     public Component caseJMapField(JMapField field) {
-                        return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(field.getValue(jobj).entrySet(),
-                          new Function<Map.Entry<?, ?>, Component>() {
-                            @Override
-                            public Component apply(Map.Entry<?, ?> entry) {
-                                final HorizontalLayout layout = new HorizontalLayout();
-                                layout.setMargin(false);
-                                layout.setSpacing(false);
-                                layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getKey()));
-                                layout.addComponent(new SizedLabel(" \u21d2 "));        // RIGHTWARDS DOUBLE ARROW
-                                layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getValue()));
-                                return layout;
-                            }
+                        return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(
+                          field.getValue(jobj).entrySet(),
+                          entry -> {
+                            final HorizontalLayout layout = new HorizontalLayout();
+                            layout.setMargin(false);
+                            layout.setSpacing(false);
+                            layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getKey()));
+                            layout.addComponent(new SizedLabel(" \u21d2 "));        // RIGHTWARDS DOUBLE ARROW
+                            layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getValue()));
+                            return layout;
                         }));
                     }
                 });
@@ -516,12 +489,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         }
 
         private Component handleCollectionField(Collection<?> col) {
-            return this.handleMultiple(Iterables.transform(col, new Function<Object, Component>() {
-                @Override
-                public Component apply(Object item) {
-                    return ObjFieldPropertyDef.this.handleValue(item);
-                }
-            }));
+            return this.handleMultiple(Iterables.transform(col, this::handleValue));
         }
 
         private Component handleMultiple(Iterable<Component> components) {

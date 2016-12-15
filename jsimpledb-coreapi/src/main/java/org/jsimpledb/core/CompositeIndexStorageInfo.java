@@ -5,11 +5,8 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class CompositeIndexStorageInfo extends StorageInfo {
 
@@ -17,12 +14,9 @@ class CompositeIndexStorageInfo extends StorageInfo {
 
     CompositeIndexStorageInfo(CompositeIndex index) {
         super(index.storageId);
-        this.fields = new ArrayList<>(Lists.transform(index.fields, new Function<SimpleField<?>, SimpleFieldStorageInfo<?>>() {
-            @Override
-            public SimpleFieldStorageInfo<?> apply(SimpleField<?> field) {
-                return field.toStorageInfo();
-            }
-        }));
+        this.fields = index.fields.stream()
+          .map(SimpleField::toStorageInfo)
+          .collect(Collectors.toList());
     }
 
     Object getIndex(Transaction tx) {
@@ -80,12 +74,7 @@ class CompositeIndexStorageInfo extends StorageInfo {
 
     @Override
     public String toString() {
-        return "composite index on fields " + Lists.transform(this.fields, new Function<SimpleFieldStorageInfo<?>, String>() {
-            @Override
-            public String apply(SimpleFieldStorageInfo<?> field) {
-                return field.toString();
-            }
-        });
+        return "composite index on fields " + this.fields;
     }
 
     @Override

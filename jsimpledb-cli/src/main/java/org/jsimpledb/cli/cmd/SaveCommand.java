@@ -101,7 +101,7 @@ public class SaveCommand extends AbstractCommand {
                     public ObjId apply(Object obj) {
                         return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);
                     }
-                  }));
+                  }.toGuava()));
                 success = true;
             } finally {
                 if (success) {

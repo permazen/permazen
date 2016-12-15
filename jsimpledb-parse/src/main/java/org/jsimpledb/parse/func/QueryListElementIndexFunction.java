@@ -5,7 +5,7 @@
 
 package org.jsimpledb.parse.func;
 
-import com.google.common.collect.Iterables;
+import java.util.function.Predicate;
 
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.Field;
@@ -14,7 +14,6 @@ import org.jsimpledb.parse.IndexedFieldParser;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.util.InstancePredicate;
 import org.jsimpledb.util.ParseContext;
 
 public class QueryListElementIndexFunction extends AbstractQueryFunction {
@@ -52,8 +51,8 @@ public class QueryListElementIndexFunction extends AbstractQueryFunction {
     protected int parseName(ParseSession session, ParseContext ctx, boolean complete) {
         return new IndexedFieldParser() {
             @Override
-            protected Iterable<? extends Field<?>> filterFields(Iterable<? extends Field<?>> fields) {
-                return Iterables.filter(fields, new InstancePredicate(ListField.class));
+            protected Predicate<Field<?>> getFieldFilter() {
+                return field -> field instanceof ListField;
             }
         }.parse(session, ctx, complete).getField().getStorageId();
     }

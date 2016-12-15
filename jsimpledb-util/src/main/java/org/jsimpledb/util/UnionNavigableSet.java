@@ -5,7 +5,6 @@
 
 package org.jsimpledb.util;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
@@ -56,15 +55,12 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
     public Iterator<E> iterator() {
         final Comparator<? super E> comparator = this.getComparator(false);
-        return new UniqueIterator<E>(Iterators.mergeSorted(Lists.transform(this.list,
-          new Function<NavigableSet<E>, Iterator<E>>() {
-            @Override
-            public Iterator<E> apply(NavigableSet<E> set) {
-                return set.iterator();
-            }
-        }), comparator), comparator);
+        return new UniqueIterator<E>(
+          Iterators.mergeSorted(Lists.transform(this.list, NavigableSet::iterator), comparator),
+          comparator);
     }
 }
 

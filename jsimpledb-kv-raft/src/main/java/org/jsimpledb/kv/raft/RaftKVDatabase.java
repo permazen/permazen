@@ -1153,19 +1153,12 @@ public class RaftKVDatabase implements KVDatabase {
             }
 
             // Sleep while we wait for transactions to clean themselves up
-            boolean done = false;
             try {
-                done = TimedWait.wait(this, 5000, new org.dellroad.stuff.java.Predicate() {
-                    @Override
-                    public boolean test() {
-                        return RaftKVDatabase.this.openTransactions.isEmpty();
-                    }
-                });
+                if (!TimedWait.wait(this, 5000, this.openTransactions::isEmpty))
+                    this.warn("open transactions not cleaned up during shutdown");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            if (!done)
-                this.warn("open transactions not cleaned up during shutdown");
         }
 
         // Shut down the service executor and wait for pending tasks to finish

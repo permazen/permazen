@@ -19,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -244,17 +244,17 @@ public abstract class TestSupport {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Set buildSet(Object... items) {
-        return Arrays.stream(items).collect(Collectors.toSet());
+        return Stream.of(items).collect(Collectors.toSet());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static SortedSet buildSortedSet(Object... items) {
-        return Arrays.stream(items).collect(Collectors.toCollection(TreeSet::new));
+        return Stream.of(items).collect(Collectors.toCollection(TreeSet::new));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static List buildList(Object... items) {
-        return Arrays.stream(items).collect(Collectors.toList());
+        return Stream.of(items).collect(Collectors.toList());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

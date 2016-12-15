@@ -5,7 +5,6 @@
 
 package org.jsimpledb.vaadin;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -96,12 +95,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
         // Copy objects (and their related object friends) into a snapshot transaction
         final SnapshotJTransaction snapshotTx = JTransaction.getCurrent().createSnapshotTransaction(ValidationMode.DISABLED);
         final CopyState copyState = new CopyState();
-        jobjs = Iterators.transform(jobjs, new Function<JObject, JObject>() {
-            @Override
-            public JObject apply(JObject jobj) {
-                return QueryJObjectContainer.this.copyWithRelated(jobj, snapshotTx, copyState);
-            }
-        });
+        jobjs = Iterators.transform(jobjs, jobj -> this.copyWithRelated(jobj, snapshotTx, copyState));
 
         // Now actually load the objects
         this.load(jobjs);

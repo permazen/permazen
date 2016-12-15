@@ -5,7 +5,6 @@
 
 package org.jsimpledb.kv.simple;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -13,7 +12,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -266,13 +264,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
                 }
                 @Override
                 public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-                    return Iterables.transform(Iterables.filter(mutations, Put.class),
-                      new Function<Put, Map.Entry<byte[], byte[]>>() {
-                        @Override
-                        public Map.Entry<byte[], byte[]> apply(Put put) {
-                            return new AbstractMap.SimpleEntry<>(put.getKey(), put.getValue());
-                        }
-                    });
+                    return Iterables.transform(Iterables.filter(mutations, Put.class), Put::toMapEntry);
                 }
                 @Override
                 public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {

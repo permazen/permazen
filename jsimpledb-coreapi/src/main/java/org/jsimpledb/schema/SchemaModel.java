@@ -5,10 +5,7 @@
 
 package org.jsimpledb.schema;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +15,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -53,20 +51,12 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         FIELD_TAG_MAP.put(SET_FIELD_TAG, SetSchemaField.class);
         FIELD_TAG_MAP.put(SIMPLE_FIELD_TAG, SimpleSchemaField.class);
     }
-    static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = Maps.transformValues(
-      Maps.filterValues(SchemaModel.FIELD_TAG_MAP,
-      new Predicate<Class<? extends SchemaField>>() {
-        @Override
-        public boolean apply(Class<? extends SchemaField> type) {
-            return SimpleSchemaField.class.isAssignableFrom(type);
-        }
-      }), new Function<Class<? extends SchemaField>, Class<? extends SimpleSchemaField>>() {
-        @Override
-        public Class<? extends SimpleSchemaField> apply(Class<? extends SchemaField> type) {
-            assert type != null;
-            return type.asSubclass(SimpleSchemaField.class);
-        }
-      });
+    static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = new HashMap<>();
+    static {
+        SchemaModel.FIELD_TAG_MAP.entrySet().stream()
+          .filter(entry -> SimpleSchemaField.class.isAssignableFrom(entry.getValue()))
+          .forEach(entry -> SIMPLE_FIELD_TAG_MAP.put(entry.getKey(), entry.getValue().asSubclass(SimpleSchemaField.class)));
+    }
     static final Map<QName, Class<? extends AbstractSchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
     static {
         FIELD_OR_COMPOSITE_INDEX_TAG_MAP.putAll(FIELD_TAG_MAP);
@@ -293,7 +283,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
           FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
-        Collections.sort(typeList, new AbstractSchemaItem.NameComparator());
+        Collections.sort(typeList, Comparator.comparing(SchemaObjectType::getName));
         for (SchemaObjectType schemaObjectType : typeList)
             schemaObjectType.writeXML(writer);
         writer.writeEndElement();

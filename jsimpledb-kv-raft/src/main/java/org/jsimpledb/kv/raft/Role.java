@@ -6,8 +6,10 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Bytes;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -171,19 +173,21 @@ public abstract class Role {
 
                 @Override
                 public Iterable<KeyRange> getRemoveRanges() {
-                    return Iterables.transform(logWrites.getRemoveRanges(), new PrefixKeyRangeFunction(stateMachinePrefix));
+                    return Iterables.transform(logWrites.getRemoveRanges(), range -> range.prefixedBy(stateMachinePrefix));
                 }
 
                 @Override
                 public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
                     return Iterables.concat(
-                      Iterables.transform(logWrites.getPutPairs(), new PrefixPutFunction(stateMachinePrefix)),
+                      Iterables.transform(logWrites.getPutPairs(),
+                        entry -> new AbstractMap.SimpleEntry<>(Bytes.concat(stateMachinePrefix, entry.getKey()), entry.getValue())),
                       myWrites.getPutPairs());
                 }
 
                 @Override
                 public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-                    return Iterables.transform(logWrites.getAdjustPairs(), new PrefixAdjustFunction(stateMachinePrefix));
+                    return Iterables.transform(logWrites.getAdjustPairs(),
+                      entry -> new AbstractMap.SimpleEntry<>(Bytes.concat(stateMachinePrefix, entry.getKey()), entry.getValue()));
                 }
             };
 

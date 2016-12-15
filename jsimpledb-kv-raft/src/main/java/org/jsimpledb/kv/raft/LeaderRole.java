@@ -6,8 +6,6 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,6 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.function.Predicate;
 
 import net.jcip.annotations.GuardedBy;
 
@@ -497,12 +496,8 @@ public class LeaderRole extends Role {
 
             // Find the most recent log entry containing a config change in which the follower was removed
             final String node = follower.getIdentity();
-            final long index = this.findMostRecentConfigChangeMatching(new Predicate<String[]>() {
-                @Override
-                public boolean apply(String[] configChange) {
-                    return configChange[0].equals(node) && configChange[1] == null;
-                }
-            });
+            final long index = this.findMostRecentConfigChangeMatching(
+              configChange -> configChange[0].equals(node) && configChange[1] == null);
 
             // If follower has not received that log entry yet, keep on updating them until they do
             if (follower.getMatchIndex() < index)
@@ -1069,7 +1064,7 @@ public class LeaderRole extends Role {
      * @return most recent config change log entry, or zero if none found
      */
     private long findMostRecentConfigChange() {
-        return this.findMostRecentConfigChangeMatching(Predicates.<String[]>alwaysTrue());
+        return this.findMostRecentConfigChangeMatching(configChange -> true);
     }
 
     /**
@@ -1081,7 +1076,7 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         for (long index = this.raft.getLastLogIndex(); index > this.raft.lastAppliedIndex; index--) {
             final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();
-            if (configChange != null && predicate.apply(configChange))
+            if (configChange != null && predicate.test(configChange))
                 return index;
         }
         return 0;

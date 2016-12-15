@@ -74,7 +74,8 @@ public class ObjIdParser implements Parser<ObjId> {
         session.performParseSessionAction(finder);
 
         // Throw exception with completions
-        throw new ParseException(ctx, "invalid object ID").addCompletions(ParseUtil.complete(finder.getCompletions(), param));
+        throw new ParseException(ctx, "invalid object ID")
+          .addCompletions(ParseUtil.complete(finder.getCompletions(), param));
     }
 
     private static class CompletionFinder implements ParseSession.Action, Session.RetryableAction {

@@ -114,7 +114,7 @@ public class InvertFunction extends AbstractFunction {
 
                 // Evaluate expression
                 final Iterable<?> items = info.getExpr().evaluate(session).checkType(session, "invert()", Iterable.class);
-                final Iterable<JObject> jobjs = Iterables.transform(items, new ParseCastFunction<JObject>(JObject.class));
+                final Iterable<JObject> jobjs = Iterables.transform(items, new ParseCastFunction<JObject>(JObject.class).toGuava());
 
                 // Invert references to iterated objects
                 try {

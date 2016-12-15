@@ -5,7 +5,6 @@
 
 package org.jsimpledb.kv.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -261,6 +260,7 @@ public class KeyWatchTracker implements Closeable {
      * @return true if any watches were triggered, otherwise false
      * @throws IllegalArgumentException if {@code mutations} is null
      */
+    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
     public boolean trigger(Mutations mutations) {
 
         // Sanity check
@@ -270,17 +270,11 @@ public class KeyWatchTracker implements Closeable {
         boolean result = false;
         for (KeyRange range : mutations.getRemoveRanges())
             result |= this.trigger(range);
-        final EntryKeyFunction keyFunction = new EntryKeyFunction();
-        result |= this.trigger(this.applyEntryKeyFunction(mutations.getPutPairs(), keyFunction));
-        result |= this.trigger(this.applyEntryKeyFunction(mutations.getAdjustPairs(), keyFunction));
+        result |= this.trigger(Iterables.transform(mutations.getPutPairs(), Map.Entry::getKey));
+        result |= this.trigger(Iterables.transform(mutations.getAdjustPairs(), Map.Entry::getKey));
 
         // Done
         return result;
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <E extends Map.Entry<byte[], ?>> Iterable<byte[]> applyEntryKeyFunction(Iterable<E> i, EntryKeyFunction keyFunction) {
-        return Iterables.<E, byte[]>transform(i, keyFunction);
     }
 
     /**
@@ -500,16 +494,6 @@ public class KeyWatchTracker implements Closeable {
         }
         void setOwner(Cache<KeyFuture, KeyInfo> futureMap) {
             this.futureMap = futureMap;
-        }
-    }
-
-// EntryKeyFunction
-
-    private static class EntryKeyFunction implements Function<Map.Entry<byte[], ?>, byte[]> {
-
-        @Override
-        public byte[] apply(Map.Entry<byte[], ?> entry) {
-            return entry.getKey();
         }
     }
 }

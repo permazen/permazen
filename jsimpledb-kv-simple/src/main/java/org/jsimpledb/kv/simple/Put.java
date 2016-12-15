@@ -7,7 +7,9 @@ package org.jsimpledb.kv.simple;
 
 import com.google.common.base.Preconditions;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.KeyWatchTracker;
@@ -34,6 +36,10 @@ class Put extends Mutation {
 
     public byte[] getValue() {
         return this.value.clone();
+    }
+
+    public Map.Entry<byte[], byte[]> toMapEntry() {
+        return new AbstractMap.SimpleEntry<>(this.getKey(), this.getValue());
     }
 
     @Override

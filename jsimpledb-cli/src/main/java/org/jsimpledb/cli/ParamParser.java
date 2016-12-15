@@ -5,10 +5,7 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,6 +142,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
         // First parse options
         boolean needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
         while (true) {
+
+            // Get next option
             new SpaceParser(needSpace).parse(ctx, complete);
             needSpace = false;
             if (ctx.getInput().matches("(?s)^--([\\s;].*)?$")) {
@@ -155,22 +154,15 @@ public class ParamParser implements Parser<Map<String, Object>> {
             final Matcher matcher = ctx.tryPattern("(-[^\\s;]+)");
             if (matcher == null)
                 break;
+
+            // Find matching Param
             final String option = matcher.group(1);
-            final Param param = Iterables.find(this.optionFlags, new Predicate<Param>() {
-                @Override
-                public boolean apply(Param param) {
-                    return option.equals(param.getOptionFlag());
-                }
-            }, null);
-            if (param == null) {
-                throw new ParseException(ctx, "unrecognized option `" + option + "'").addCompletions(
-                  ParseUtil.complete(Iterables.transform(this.optionFlags, new Function<Param, String>() {
-                    @Override
-                    public String apply(Param param) {
-                        return param.getOptionFlag();
-                    }
-                }), option));
-            }
+            final Param param = this.optionFlags.stream()
+              .filter(p -> option.equals(p.getOptionFlag()))
+              .findAny().orElseThrow(() -> new ParseException(ctx, "unrecognized option `" + option + "'")
+                .addCompletions(ParseUtil.complete(this.optionFlags.stream().map(Param::getOptionFlag), option)));
+
+            // Parse argument, if any
             final Parser<?> parser = param.getParser();
             if (parser != null) {
                 new SpaceParser(true).parse(ctx, complete);

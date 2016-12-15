@@ -8,6 +8,7 @@ package org.jsimpledb.parse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.util.ParseContext;
@@ -50,12 +51,17 @@ public class ParseException extends RuntimeException {
     }
 
     public ParseException addCompletions(String... completions) {
-        return this.addCompletions(Arrays.asList(completions));
+        return this.addCompletions(Stream.of(completions));
     }
 
     public ParseException addCompletions(Iterable<String> completions) {
         for (String completion : completions)
             this.completions.add(completion);
+        return this;
+    }
+
+    public ParseException addCompletions(Stream<String> completions) {
+        completions.forEach(this.completions::add);
         return this;
     }
 }

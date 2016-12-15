@@ -5,7 +5,6 @@
 
 package org.jsimpledb.kv.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
@@ -115,12 +114,8 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
             rangeMap = rangeMap.headMap(maxKey, false);
         if (reverse)
             rangeMap = rangeMap.descendingMap();
-        return Iterators.transform(rangeMap.entrySet().iterator(), new Function<Map.Entry<byte[], byte[]>, KVPair>() {
-            @Override
-            public KVPair apply(Map.Entry<byte[], byte[]> entry) {
-                return new KVPair(entry.getKey().clone(), entry.getValue().clone());
-            }
-        });
+        return Iterators.transform(rangeMap.entrySet().iterator(),
+          entry -> new KVPair(entry.getKey().clone(), entry.getValue().clone()));
     }
 
     @Override

@@ -6,10 +6,9 @@
 package org.jsimpledb.parse;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
-import java.util.NoSuchElementException;
+import java.util.Collection;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.JClass;
@@ -17,10 +16,7 @@ import org.jsimpledb.JField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
-import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.core.UnknownTypeException;
-import org.jsimpledb.parse.util.PrefixPredicate;
-import org.jsimpledb.parse.util.StripPrefixFunction;
 
 /**
  * Parsing utility routines.
@@ -42,8 +38,21 @@ public final class ParseUtil {
      * @param prefix prefix input so far
      * @return possible completions
      */
-    public static Iterable<String> complete(Iterable<String> choices, String prefix) {
-        return Iterables.transform(Iterables.filter(choices, new PrefixPredicate(prefix)), new StripPrefixFunction(prefix));
+    public static Stream<String> complete(Collection<String> choices, String prefix) {
+        return ParseUtil.complete(choices.stream(), prefix);
+    }
+
+    /**
+     * Generate completions based on a set of possibilities and the provided input prefix.
+     *
+     * @param choices possible choices
+     * @param prefix prefix input so far
+     * @return possible completions
+     */
+    public static Stream<String> complete(Stream<String> choices, String prefix) {
+        return choices
+          .filter(choice -> choice.startsWith(prefix))
+          .map(choice -> choice.substring(prefix.length()));
     }
 
     /**
@@ -93,31 +102,30 @@ public final class ParseUtil {
      *
      * @param session current session
      * @param id object ID
-     * @param name field name
+     * @param fieldName field name
      * @return the specified field
      * @throws IllegalArgumentException if object does not exist
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null
      */
-    public static Field<?> resolveField(ParseSession session, ObjId id, String name) {
+    public static Field<?> resolveField(ParseSession session, ObjId id, String fieldName) {
 
         // Sanity check
         Preconditions.checkArgument(session != null, "null session");
         Preconditions.checkArgument(id != null, "null id");
-        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
         if (info == null)
-            throw new IllegalArgumentException("error accessing field `" + name + "': object " + id + " does not exist");
+            throw new IllegalArgumentException("error accessing field `" + fieldName + "': object " + id + " does not exist");
         final ObjType objType = info.getObjType();
 
         // Find the field
-        try {
-            return Iterables.find(objType.getFields().values(), new HasNamePredicate(name));
-        } catch (NoSuchElementException e) {
-            throw new IllegalArgumentException("error accessing field `" + name + "': there is no such field in " + objType);
-        }
+        return objType.getFields().values().stream()
+          .filter(field -> field.getName().equals(fieldName))
+          .findAny().orElseThrow(() ->
+            new IllegalArgumentException("error accessing field `" + fieldName + "': there is no such field in " + objType));
     }
 
     /**
@@ -148,30 +156,6 @@ public final class ParseUtil {
             return Class.forName(className, false, base.getClassLoader());
         } catch (Exception e) {
             throw new RuntimeException("error loading array class `" + className + "'");
-        }
-    }
-
-// HasNamePredicate
-
-    /**
-     * Predicate matching {@link SchemaItem}s by name.
-     */
-    public static class HasNamePredicate implements Predicate<SchemaItem> {
-
-        private final String name;
-
-        /**
-         * Constructor.
-         *
-         * @param name item name
-         */
-        public HasNamePredicate(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean apply(SchemaItem item) {
-            return item.getName().equals(this.name);
         }
     }
 }

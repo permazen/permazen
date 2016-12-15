@@ -880,7 +880,7 @@ public class Transaction {
         }
 
         // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
-        for (ReferenceField field : Iterables.filter(info.getObjType().referenceFields.values(), new HasCascadeDelete())) {
+        for (ReferenceField field : Iterables.filter(info.getObjType().referenceFields.values(), field -> field.cascadeDelete)) {
             final Iterable<ObjId> refs = field.parent != null ?
               field.parent.iterateSubField(this, id, field) : Collections.singleton(field.getValue(this, id));
             for (ObjId ref : refs) {
@@ -3229,7 +3229,7 @@ public class Transaction {
         }
     }
 
-// Predicates & Functions
+// MonitoredPredicate
 
     // Matches FieldMonitors who monitor the specified field in the specified object type
     private static final class MonitoredPredicate implements Predicate<FieldMonitor> {
@@ -3247,16 +3247,6 @@ public class Transaction {
         public boolean apply(FieldMonitor monitor) {
             assert monitor != null;
             return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.idBytes));
-        }
-    }
-
-    // Matches ReferenceFields that have cascadeDelete = true
-    private static final class HasCascadeDelete implements Predicate<ReferenceField> {
-
-        @Override
-        public boolean apply(ReferenceField field) {
-            assert field != null;
-            return field.cascadeDelete;
         }
     }
 }

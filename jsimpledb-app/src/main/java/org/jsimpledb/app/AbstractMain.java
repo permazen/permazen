@@ -5,8 +5,6 @@
 
 package org.jsimpledb.app;
 
-import com.google.common.base.Function;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -209,8 +207,8 @@ public abstract class AbstractMain extends MainClass {
         final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
         emptyPackages.addAll(modelPackages);
         emptyPackages.addAll(typePackages);
-        modelPackages.stream().filter(packageName -> this.scanModelClasses(packageName) > 0).forEach(emptyPackages::remove);
-        typePackages.stream().filter(packageName -> this.scanTypeClasses(packageName) > 0).forEach(emptyPackages::remove);
+        modelPackages.stream().filter(this::scanModelClasses).forEach(emptyPackages::remove);
+        typePackages.stream().filter(this::scanTypeClasses).forEach(emptyPackages::remove);
 
         // Warn if we didn't find anything
         for (String packageName : emptyPackages) {
@@ -290,45 +288,37 @@ public abstract class AbstractMain extends MainClass {
         }
     }
 
-    private int scanModelClasses(String pkgname) {
+    private boolean scanModelClasses(String pkgname) {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
-        int count = 0;
-        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
-            this.log.debug("loading Java model class " + className);
-            this.schemaClasses.add(this.loadClass(className));
-            count++;
-        }
-        return count;
+        final boolean[] foundAny = new boolean[1];
+        new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+          .peek(name -> this.log.debug("loading Java model class " + name))
+          .map(this::loadClass)
+          .peek(cl -> foundAny[0] = true)
+          .forEach(this.schemaClasses::add);
+        return foundAny[0];
     }
 
-    private int scanTypeClasses(String pkgname) {
-
-        // Check types of annotated classes as we scan them
-        final Function<Class<?>, Class<? extends FieldType<?>>> checkFunction
-          = new Function<Class<?>, Class<? extends FieldType<?>>>() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public Class<? extends FieldType<?>> apply(Class<?> type) {
-                try {
-                    return (Class<? extends FieldType<?>>)type.asSubclass(FieldType.class);
-                } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "
-                      + type + ": type is not a subclass of " + FieldType.class);
-                }
-            }
-        };
-
-        // Scan classes
+    @SuppressWarnings("unchecked")
+    private boolean scanTypeClasses(String pkgname) {
         if (this.fieldTypeClasses == null)
             this.fieldTypeClasses = new HashSet<>();
-        int count = 0;
-        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]"))) {
-            this.log.debug("loading custom FieldType class " + className);
-            this.fieldTypeClasses.add(checkFunction.apply(this.loadClass(className)));
-            count++;
-        }
-        return count;
+        final boolean[] foundAny = new boolean[1];
+        new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+          .peek(name -> this.log.debug("loading custom FieldType class " + name))
+          .map(this::loadClass)
+          .peek(cl -> foundAny[0] = true)
+          .map(cl -> {
+            try {
+                return (Class<? extends FieldType<?>>)cl.asSubclass(FieldType.class);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName()
+                  + " annotation on " + cl + ": type is not a subclass of " + FieldType.class);
+            }
+          })
+          .forEach(this.fieldTypeClasses::add);
+        return foundAny[0];
     }
 
     private boolean createDirectory(File dir) {

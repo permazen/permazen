@@ -5,10 +5,6 @@
 
 package org.jsimpledb.core.util;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -66,7 +62,9 @@ public class ObjIdBiMultiMapTest extends CoreAPITestSupport {
                     set.add(target);
                 }
                 actual = map.addAll(source, set);
-                expected = edges.addAll(Sets.newHashSet(Iterables.transform(set, new EdgeWithSourceFunction(source))));
+                expected = edges.addAll(set.stream()
+                  .map(t -> new Edge(source, t))
+                  .collect(Collectors.toList()));
             } else if (choice < 40) {
                 ObjIdSet set = map.getSources(source);
                 if (set == null) {
@@ -74,7 +72,9 @@ public class ObjIdBiMultiMapTest extends CoreAPITestSupport {
                     set.add(target);
                 }
                 actual = map.removeAll(source, set);
-                expected = edges.removeAll(Sets.newHashSet(Iterables.transform(set, new EdgeWithSourceFunction(source))));
+                expected = edges.removeAll(set.stream()
+                  .map(t -> new Edge(source, t))
+                  .collect(Collectors.toList()));
             } else {
                 map.clear();
                 edges.clear();
@@ -195,22 +195,6 @@ public class ObjIdBiMultiMapTest extends CoreAPITestSupport {
             if (diff != 0)
                 return diff;
             return this.target.compareTo(that.target);
-        }
-    }
-
-// EdgeWithSourceFunction
-
-    public static class EdgeWithSourceFunction implements Function<ObjId, Edge> {
-
-        private final ObjId source;
-
-        public EdgeWithSourceFunction(ObjId source) {
-            this.source = source;
-        }
-
-        @Override
-        public Edge apply(ObjId target) {
-            return new Edge(this.source, target);
         }
     }
 }

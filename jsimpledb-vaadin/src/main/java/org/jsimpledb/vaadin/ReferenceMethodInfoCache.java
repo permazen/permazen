@@ -6,7 +6,6 @@
 package org.jsimpledb.vaadin;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -61,12 +60,8 @@ final class ReferenceMethodInfoCache {
     private <T> PropertyInfo<T> findReferenceLablePropertyInfo(Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
         final ProvidesPropertyScanner<T> scanner = new ProvidesPropertyScanner<T>(type);
-        final PropertyDef<?> propertyDef = Iterables.find(scanner.getPropertyDefs(), new Predicate<PropertyDef<?>>() {
-            @Override
-            public boolean apply(PropertyDef<?> propertyDef) {
-                return propertyDef.getName().equals(JObjectContainer.REFERENCE_LABEL_PROPERTY);
-            }
-        }, null);
+        final PropertyDef<?> propertyDef = Iterables.find(scanner.getPropertyDefs(),
+          pdef -> pdef.getName().equals(JObjectContainer.REFERENCE_LABEL_PROPERTY), null);
         return propertyDef != null ? new PropertyInfo<T>(propertyDef, scanner.getPropertyExtractor()) : (PropertyInfo<T>)NOT_FOUND;
     }
 

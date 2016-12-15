@@ -5,9 +5,7 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
@@ -22,6 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
@@ -240,27 +239,27 @@ public class FieldTypeRegistry {
      * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class
      * @throws RuntimeException if instantiation of a class fails
      */
+    @SuppressWarnings("unchecked")
     public void addNamedClasses(Iterable<String> classNames) {
         Preconditions.checkArgument(classNames != null, "null classNames");
-        this.addClasses(Iterables.transform(classNames, new Function<String, Class<? extends FieldType<?>>>() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public Class<? extends FieldType<?>> apply(String name) {
-                final Class<?> c;
-                try {
-                    c = Class.forName(name, false, Thread.currentThread().getContextClassLoader());
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    return (Class<? extends FieldType<?>>)(Object)c.asSubclass(FieldType.class);
-                } catch (ClassCastException e) {
-                    throw new IllegalArgumentException("class `" + name + "' does not implement " + FieldType.class, e);
-                }
+        this.addClasses(StreamSupport.stream(classNames.spliterator(), false)
+          .map(className -> {
+            try {
+                return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        }));
+          })
+          .map(cl -> {
+            try {
+                return (Class<? extends FieldType<?>>)(Object)cl.asSubclass(FieldType.class);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(cl + " does not implement " + FieldType.class, e);
+            }
+          })
+          .collect(Collectors.toList()));
     }
 
     /**

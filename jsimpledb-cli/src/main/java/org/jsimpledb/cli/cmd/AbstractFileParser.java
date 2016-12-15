@@ -5,8 +5,6 @@
 
 package org.jsimpledb.cli.cmd;
 
-import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -15,7 +13,6 @@ import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.util.ParseCastFunction;
-import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.ParseContext;
 
 import jline.console.completer.FileNameCompleter;
@@ -44,8 +41,10 @@ abstract class AbstractFileParser implements Parser<File> {
             final ArrayList<CharSequence> list = new ArrayList<>();
             final int index = new FileNameCompleter().complete(path, path.length(), list);
             if (index != -1) {
-                e.addCompletions(Lists.transform(Lists.transform(list, new ParseCastFunction<String>(String.class)),
-                  new StripPrefixFunction(path.substring(index))));
+                final int suffixLength = path.length() - index;
+                e.addCompletions(list.stream()
+                  .map(new ParseCastFunction<String>(String.class))
+                  .map(string -> string.substring(suffixLength)));
             }
         }
 

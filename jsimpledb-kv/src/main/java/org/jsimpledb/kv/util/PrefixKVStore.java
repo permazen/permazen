@@ -5,7 +5,6 @@
 
 package org.jsimpledb.kv.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
@@ -89,12 +88,7 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         final Iterator<KVPair> i = this.delegate().getRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey), reverse);
-        return Iterators.transform(i, new Function<KVPair, KVPair>() {
-            @Override
-            public KVPair apply(KVPair pair) {
-                return new KVPair(PrefixKVStore.this.removePrefix(pair.getKey()), pair.getValue());
-            }
-        });
+        return Iterators.transform(i, pair -> new KVPair(this.removePrefix(pair.getKey()), pair.getValue()));
     }
 
     @Override

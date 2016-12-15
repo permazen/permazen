@@ -5,12 +5,12 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a composite index on an {@link ObjType}.
@@ -62,13 +62,9 @@ public class CompositeIndex extends SchemaItem {
 
     @Override
     public String toString() {
-        return "composite index `" + this.name + "' on fields " + Lists.transform(this.fields,
-          new Function<SimpleField<?>, String>() {
-            @Override
-            public String apply(SimpleField<?> field) {
-                return field.name;
-            }
-        });
+        return "composite index `" + this.name + "' on fields " + this.fields.stream()
+          .map(field -> field.name)
+          .collect(Collectors.toList());
     }
 
 // Non-public methods

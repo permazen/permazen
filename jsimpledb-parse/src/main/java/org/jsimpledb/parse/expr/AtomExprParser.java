@@ -15,11 +15,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
@@ -345,20 +345,20 @@ public class AtomExprParser implements Parser<Node> {
     /**
      * Get all class name completions for {@code some.class.Name...}.
      */
-    static Iterable<String> getClassNameCompletions(ParseSession session, String name) {
+    static Stream<String> getClassNameCompletions(ParseSession session, String name) {
 
         // Use a separate class to avoid exception if Spring classes are not available
         try {
             return new ClassNameCompletion(name).findCompletions(session);
         } catch (NoClassDefFoundError e) {
-            return Collections.emptySet();
+            return Stream.empty();
         }
     }
 
     /**
      * Get all public static member name completions for {@code some.class.Name.member...}.
      */
-    static Iterable<String> getStaticMemberCompletions(Class<?> cl, String name) {
+    static Stream<String> getStaticMemberCompletions(Class<?> cl, String name) {
         final TreeSet<String> names = new TreeSet<>();
         AtomExprParser.getMemberNames(cl, names, true);
         names.add("class");
@@ -368,7 +368,7 @@ public class AtomExprParser implements Parser<Node> {
     /**
      * Get all public instance member name completions, including bean property names, for {@code some.class.Name.member...}.
      */
-    static Iterable<String> getInstanceMemberCompletions(Class<?> cl, String name) {
+    static Stream<String> getInstanceMemberCompletions(Class<?> cl, String name) {
         final TreeSet<String> names = new TreeSet<>();
         AtomExprParser.getMemberNames(cl, names, false);
         AtomExprParser.getBeanPropertyNames(cl, names);
@@ -455,7 +455,7 @@ public class AtomExprParser implements Parser<Node> {
             this.hasDot = prefix.indexOf('.') != -1;
         }
 
-        public Iterable<String> findCompletions(ParseSession session) {
+        public Stream<String> findCompletions(ParseSession session) {
 
             // Create search patterns
             final HashSet<String> patterns = new HashSet<>();

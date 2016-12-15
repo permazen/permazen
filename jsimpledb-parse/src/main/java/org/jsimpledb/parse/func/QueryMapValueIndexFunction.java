@@ -5,7 +5,7 @@
 
 package org.jsimpledb.parse.func;
 
-import com.google.common.collect.Iterables;
+import java.util.function.Predicate;
 
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.Field;
@@ -13,10 +13,8 @@ import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.parse.IndexedFieldParser;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.util.InstancePredicate;
 import org.jsimpledb.util.ParseContext;
 
 public class QueryMapValueIndexFunction extends AbstractQueryFunction {
@@ -53,12 +51,12 @@ public class QueryMapValueIndexFunction extends AbstractQueryFunction {
     protected int parseName(ParseSession session, ParseContext ctx, boolean complete) {
         return new IndexedFieldParser() {
             @Override
-            protected Iterable<? extends Field<?>> filterFields(Iterable<? extends Field<?>> fields) {
-                return Iterables.filter(fields, new InstancePredicate(MapField.class));
+            protected Predicate<Field<?>> getFieldFilter() {
+                return field -> field instanceof MapField;
             }
             @Override
-            protected Iterable<? extends SimpleField<?>> filterSubFields(Iterable<? extends SimpleField<?>> subFields) {
-                return Iterables.filter(subFields, new ParseUtil.HasNamePredicate(MapField.VALUE_FIELD_NAME));
+            protected Predicate<SimpleField<?>> getSubFieldFilter() {
+                return field -> field.getName().equals(MapField.VALUE_FIELD_NAME);
             }
         }.parse(session, ctx, complete).getField().getStorageId();
     }

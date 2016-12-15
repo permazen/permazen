@@ -26,7 +26,6 @@ import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.ParseException;
-import org.jsimpledb.parse.util.AddPrefixFunction;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -422,7 +421,8 @@ public class Console {
                 int index = ctx.getIndex();
                 while (index > 0 && Character.isJavaIdentifierPart(ctx.getOriginalInput().charAt(index - 1)))
                     prefix = ctx.getOriginalInput().charAt(--index) + prefix;
-                candidates.addAll(Lists.transform(e.getCompletions(), new AddPrefixFunction(prefix)));
+                final String prefix0 = prefix;
+                candidates.addAll(Lists.transform(e.getCompletions(), string -> prefix0 + string));
                 return index;
             } catch (Exception e) {
                 try {

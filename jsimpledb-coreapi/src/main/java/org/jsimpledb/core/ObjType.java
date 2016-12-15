@@ -5,11 +5,7 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
@@ -71,8 +67,9 @@ public class ObjType extends SchemaItem {
             this.fieldsAndSubFields.addAll(field.getSubFields());
 
         // Build mappings for reference fields
-        for (ReferenceField referenceField : Iterables.filter(this.fieldsAndSubFields, ReferenceField.class))
-            this.referenceFields.put(referenceField.storageId, referenceField);
+        this.fieldsAndSubFields.stream()
+          .filter(field -> field instanceof ReferenceField)
+          .forEach(field -> this.referenceFields.put(field.storageId, (ReferenceField)field));
 
         // Build composite indexes
         for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
@@ -194,19 +191,11 @@ public class ObjType extends SchemaItem {
 
 // Internal methods
 
+    @SuppressWarnings("unchecked")
     private <T extends Field<?>> void buildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
-        map.putAll(Maps.transformValues(Maps.filterValues(this.fields, new Predicate<Field<?>>() {
-            @Override
-            public boolean apply(Field<?> field) {
-                return type.isInstance(field);
-            }
-        }), new Function<Field<?>, T>() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public T apply(Field<?> field) {
-                return (T)type.cast(field);
-            }
-        }));
+        this.fields.values().stream()
+          .filter(field -> type.isInstance(field))
+          .forEach(field -> map.put(field.storageId, (T)type.cast(field)));
     }
 
     private <T extends SchemaItem> void addSchemaItem(Map<Integer, T> byStorageId, Map<String, T> byName, T item) {
