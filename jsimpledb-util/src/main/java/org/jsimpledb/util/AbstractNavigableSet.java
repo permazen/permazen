@@ -11,6 +11,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 
 /**
  * Support superclass for {@link NavigableSet} implementations for which calculating {@link #size size()} requires
@@ -147,6 +150,28 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return new Spliterators.AbstractSpliterator<E>(Long.MAX_VALUE,
+          Spliterator.ORDERED | Spliterator.SORTED | Spliterator.DISTINCT) {
+
+            private final Iterator<E> iterator = AbstractNavigableSet.this.iterator();
+
+            @Override
+            public boolean tryAdvance(Consumer<? super E> action) {
+                if (!this.iterator.hasNext())
+                    return false;
+                action.accept(iterator.next());
+                return true;
+            }
+
+            @Override
+            public Comparator<? super E> getComparator() {
+                return AbstractNavigableSet.this.comparator();
+            }
+        };
     }
 
     /**

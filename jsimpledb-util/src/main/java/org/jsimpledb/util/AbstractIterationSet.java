@@ -11,6 +11,8 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 /**
  * Support superclass for {@link Set} implementations for which calculating {@link #size} requires
@@ -102,6 +104,14 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
         for (E elem : this)
             list.add(elem);
         return list.toArray(array);
+    }
+
+    /**
+     * Overridden in {@link AbstractIterationSet} to avoid the use of {@link #size}.
+     */
+    @Override
+    public Spliterator<E> spliterator() {
+        return Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.DISTINCT);
     }
 }
 

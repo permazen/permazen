@@ -2,15 +2,6 @@
 SHORT TERM
 ==========
 
-- Implement Spliterators in AbstractIterationSet to avoid unfortunate use of size():
-
-    @Override
-    public Spliterator<E> spliterator() {
-        return Spliterators.spliterator((Iterable<E>)this, Spliterator.DISTINCT);
-    }
-
-  (requires JAVA8)
-
 - Connection pooling in SQL k/v implementations
 
 - Relax requirement for consistent storage ID type if there are no indexes?
