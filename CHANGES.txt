@@ -1,6 +1,7 @@
 Version 3.0.0
 
     - Upgraded minimum supported Java version to Java 8 (*)
+    - Removed several deprecated methods (*)
     - Always use EnumValue objects for @OnVersionChange old Enum field values (*)
 
     (*) Backwards-imcompatible change

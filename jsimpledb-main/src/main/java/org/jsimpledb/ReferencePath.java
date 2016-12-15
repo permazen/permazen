@@ -291,7 +291,7 @@ public class ReferencePath {
         if (this.log.isTraceEnabled()) {
             this.log.trace("RefPath: DONE: targetTypes=" + this.targetTypes + " targetTypes=" + this.targetTypes
               + " targetFieldInfo=" + this.targetFieldInfo + " targetSuperFieldInfo=" + this.targetSuperFieldInfo
-              + " targetFieldType=" + this.getTargetFieldType() + " references=" + this.referenceFieldInfos);
+              + " targetFieldTypes=" + this.getTargetFieldTypes() + " references=" + this.referenceFieldInfos);
         }
     }
 
@@ -341,20 +341,6 @@ public class ReferencePath {
      */
     public Set<Class<?>> getTargetTypes() {
         return this.targetTypes;
-    }
-
-    /**
-     * Get the Java type corresponding to the field at which this path ends.
-     *
-     * <p>
-     * This just returns the first element in the set returned by {@link #getTargetFieldTypes getTargetFieldTypes()}.
-     *
-     * @return the type of the field at which this reference path ends
-     * @deprecated The semantics of this method are not well-defined; use {@link #getTargetFieldTypes getTargetFieldTypes()} instead
-     */
-    @Deprecated
-    public TypeToken<?> getTargetFieldType() {
-        return this.targetFieldInfo.getTypeTokens(this.getTargetType()).iterator().next();
     }
 
     /**

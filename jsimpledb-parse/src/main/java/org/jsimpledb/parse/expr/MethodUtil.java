@@ -28,33 +28,6 @@ final class MethodUtil {
     }
 
     /**
-     * Find the public method with the specified name that's compatible with the given signature info.
-     *
-     * <p>
-     * If any element in {@code paramTypes} is {@link FunctionalType}, then that parameter matches any functional type.
-     * If any element in {@code paramTypes} is {@link NullType}, then that parameter matches any non-primitive type.
-     *
-     * <p>
-     * If {@code returnType} is null, then any return type matches.
-     *
-     * <p>
-     * Note: this does not correctly handle all of the oddball corner cases as specified by the JLS.
-     *
-     * @param type class to search
-     * @param name method name
-     * @param paramTypes parameter type lower bounds; may contain {@link FunctionalType} and {@link NullType}
-     * @param returnType return type upper bound, or null for don't care
-     * @param isStatic true to search static methods, false to search instance methods
-     * @return the matching method
-     * @throws EvalException if exactly one matching method is not found
-     * @deprecated Use {@link #findMatchingMethod(Class, String, boolean, Type[], Class, boolean)} instead
-     */
-    @Deprecated
-    public static Method findMatchingMethod(Class<?> type, String name, Type[] paramTypes, Class<?> returnType, boolean isStatic) {
-        return MethodUtil.findMatchingMethod(type, name, false, paramTypes, returnType, isStatic);
-    }
-
-    /**
      * Find the method with the specified name that's compatible with the given signature info.
      *
      * <p>

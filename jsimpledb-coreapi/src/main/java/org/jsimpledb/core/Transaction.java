@@ -974,20 +974,6 @@ public class Transaction {
      * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
      *
      * <p>
-     * This method variant is deprecated, replaced by {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}.
-     * The implementation in {@link Transaction} just invokes {@code copy(source, target, dest, updateVersion, true, null)}.
-     *
-     * @deprecated Replaced by {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}
-     */
-    @Deprecated
-    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion) {
-        return this.copy(source, target, dest, updateVersion, true, null);
-    }
-
-    /**
-     * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
-     *
-     * <p>
      * If {@code updateVersion} is true, the {@code source} object is first upgraded to
      * {@linkplain #getSchema() the schema version associated with this transaction}.
      * In any case, the schema version associated with {@code source} when copied must be identical
