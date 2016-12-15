@@ -5,18 +5,17 @@
 
 package org.jsimpledb.vaadin;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
@@ -63,11 +62,10 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         this.jdb = jdb;
 
         // Get the types of all JClasses assignable to the given type, and use lowest common ancestor as the "top type"
-        final HashSet<Class<?>> types = new HashSet<>();
-        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
-            if (type == null || type.isAssignableFrom(jclass.getType()))
-                types.add(jclass.getType());
-        }
+        final HashSet<Class<?>> types = this.jdb.getJClasses().values().stream()
+          .filter(jclass -> type == null || type.isAssignableFrom(jclass.getType()))
+          .map(JClass::getType)
+          .collect(Collectors.toCollection(HashSet::new));
         this.rootType = !types.isEmpty() ? Util.findLowestCommonAncestorOfClasses(types).getRawType() : Object.class;
     }
 
@@ -106,12 +104,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
             nodes.add(new Node(this.rootType));
 
         // Sort by name
-        Collections.sort(nodes, new Comparator<Node>() {
-            @Override
-            public int compare(Node node1, Node node2) {
-                return node1.propertyName().compareTo(node2.propertyName());
-            }
-        });
+        Collections.sort(nodes, Comparator.comparing(Node::propertyName));
 
         // Determine parents by inspecting Java types
         for (Node node1 : nodes) {
@@ -128,19 +121,13 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
             }
         }
 
-        // Derive children
-        for (Node node1 : nodes) {
-            for (Node node2 : nodes) {
-                if (node2 == node1.getParent())
-                    node2.getChilds().add(node1);
-            }
-        }
-
-        // Derive roots
+        // Associate children with parents and identify roots
         this.rootList.clear();
         for (Node node : nodes) {
-            if (node.getParent() == null)
-                this.rootList.add(node);
+            if (node.getParent() != null)
+                node.getParent().getChilds().add(node);
+            else
+              this.rootList.add(node);
         }
 
         // Load container
@@ -150,13 +137,6 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 // Node
 
     public static class Node {
-
-        public static final Function<Node, Class<?>> TYPE_FUNCTION = new Function<Node, Class<?>>() {
-            @Override
-            public Class<?> apply(Node node) {
-                return node != null ? node.getType() : null;
-            }
-        };
 
         private final Class<?> type;
         private final JClass<?> jclass;
@@ -212,9 +192,11 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 // Container.Hierarchical methods
 
     @Override
-    public Collection<Class<?>> getChildren(Object itemId) {
+    public Set<Class<?>> getChildren(Object itemId) {
         final Node node = this.getJavaObject(itemId);
-        return node != null ? Lists.transform(node.getChilds(), Node.TYPE_FUNCTION) : Collections.<Class<?>>emptySet();
+        return node != null ?
+          node.getChilds().stream().map(Node::getType).collect(Collectors.toSet()) :
+          Collections.<Class<?>>emptySet();
     }
 
     @Override
@@ -229,8 +211,10 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
     }
 
     @Override
-    public Collection<Class<?>> rootItemIds() {
-        return Lists.transform(this.rootList, Node.TYPE_FUNCTION);
+    public Set<Class<?>> rootItemIds() {
+        return this.rootList.stream()
+          .map(Node::getType)
+          .collect(Collectors.toSet());
     }
 
     @Override

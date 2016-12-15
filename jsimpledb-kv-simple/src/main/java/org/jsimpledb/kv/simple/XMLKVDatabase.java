@@ -321,15 +321,13 @@ public class XMLKVDatabase extends SimpleKVDatabase {
                 if (!successful && output instanceof AtomicUpdateFileOutputStream)
                     ((AtomicUpdateFileOutputStream)output).cancel();
             }
-        } catch (IOException e) {
-            throw new KVDatabaseException(this, "error writing XML content", e);
-        } catch (XMLStreamException e) {
+        } catch (IOException | XMLStreamException e) {
             throw new KVDatabaseException(this, "error writing XML content", e);
         }
     }
 
     private static boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 
     // Windows workaround crap

@@ -202,7 +202,7 @@ class JObjectCache {
         // Set flag indicating that the object is being instantiated by this thread
         ObjIdMap<JObject> threadInstantiations = this.instantiations.get();
         if (threadInstantiations == null) {
-            threadInstantiations = new ObjIdMap<JObject>(1);
+            threadInstantiations = new ObjIdMap<>(1);
             this.instantiations.set(threadInstantiations);
         }
         threadInstantiations.put(id, null);

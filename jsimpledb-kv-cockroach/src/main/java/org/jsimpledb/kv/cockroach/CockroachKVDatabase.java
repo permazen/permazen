@@ -85,7 +85,7 @@ public class CockroachKVDatabase extends SQLKVDatabase {
         case "CR000":                                   // See https://groups.google.com/forum/#!topic/cockroach-db/FpBemFJM4w8
             return new RetryTransactionException(tx, e);
         default:
-            if (e.getMessage().indexOf("restart transaction") != -1)
+            if (e.getMessage().contains("restart transaction"))
                 return new RetryTransactionException(tx, e);
             return super.wrapException(tx, e);
         }

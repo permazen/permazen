@@ -22,14 +22,11 @@ public class SetAllowNewSchemaCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean allowed = (Boolean)params.get("allowed");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                session.setAllowNewSchema(allowed);
-                session.getWriter().println("Set allow new schema to " + allowed);
-            }
+        return session -> {
+            session.setAllowNewSchema(allowed);
+            session.getWriter().println("Set allow new schema to " + allowed);
         };
     }
 }

@@ -22,14 +22,11 @@ public class SetVerboseCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean verbose = (Boolean)params.get("verbose");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                session.setVerbose(verbose);
-                session.getWriter().println((verbose ? "En" : "Dis") + "abled verbose mode.");
-            }
+        return session -> {
+            session.setVerbose(verbose);
+            session.getWriter().println((verbose ? "En" : "Dis") + "abled verbose mode.");
         };
     }
 }

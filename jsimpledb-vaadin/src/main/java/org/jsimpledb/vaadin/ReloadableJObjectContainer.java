@@ -74,12 +74,9 @@ public abstract class ReloadableJObjectContainer extends JObjectContainer {
             public void afterCommit() {
                 if (ReloadableJObjectContainer.this.vaadinSession == null)
                     return;
-                ReloadableJObjectContainer.this.vaadinSession.access(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (ReloadableJObjectContainer.this.vaadinSession != null)
-                            ReloadableJObjectContainer.this.reload();
-                    }
+                ReloadableJObjectContainer.this.vaadinSession.access(() -> {
+                    if (ReloadableJObjectContainer.this.vaadinSession != null)
+                        ReloadableJObjectContainer.this.reload();
                 });
             }
         });

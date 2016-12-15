@@ -198,8 +198,7 @@ public class ObjId implements Comparable<ObjId>, Serializable {
         final byte[] buf = writer.getBytes();
         final char[] result = new char[NUM_BYTES * 2];
         int off = 0;
-        for (int i = 0; i < buf.length; i++) {
-            int b = buf[i];
+        for (byte b : buf) {
             result[off++] = Character.forDigit((b >> 4) & 0x0f, 16);
             result[off++] = Character.forDigit(b & 0x0f, 16);
         }
@@ -225,7 +224,7 @@ public class ObjId implements Comparable<ObjId>, Serializable {
      */
     @Override
     public int hashCode() {
-        return (int)(this.value >> 32) ^ (int)this.value;           // JAVA8: use Long.hashCode(this.value) instead
+        return Long.hashCode(this.value);
     }
 
 // Comparable

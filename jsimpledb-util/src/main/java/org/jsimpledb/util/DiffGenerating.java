@@ -10,6 +10,7 @@ package org.jsimpledb.util;
  *
  * @param <T> the type being compared
  */
+@FunctionalInterface
 public interface DiffGenerating<T> {
 
     /**

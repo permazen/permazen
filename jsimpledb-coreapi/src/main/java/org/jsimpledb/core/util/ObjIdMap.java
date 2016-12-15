@@ -253,8 +253,7 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Ser
     ObjId[] toKeysArray() {
         final ObjId[] array = new ObjId[this.size];
         int index = 0;
-        for (int slot = 0; slot < this.keys.length; slot++) {
-            final long value = this.keys[slot];
+        for (final long value : this.keys) {
             if (value != 0)
                 array[index++] = new ObjId(value);
         }
@@ -433,7 +432,7 @@ loop:   while (true) {
             final V actualValue = ObjIdMap.this.get(key);
             if (actualValue == null && !ObjIdMap.this.containsKey(key))
                 return false;
-            return entry.equals(new AbstractMap.SimpleEntry<ObjId, V>((ObjId)key, actualValue));
+            return entry.equals(new AbstractMap.SimpleEntry<>((ObjId)key, actualValue));
         }
 
         @Override

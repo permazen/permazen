@@ -118,7 +118,7 @@ class JMapFieldInfo extends JComplexFieldInfo {
     // This method exists solely to bind the generic type parameters
     private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
       Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
-        return new NavigableMapConverter<K, V, WK, WV>(keyConverter, valueConverter);
+        return new NavigableMapConverter<>(keyConverter, valueConverter);
     }
 
     @Override

@@ -72,81 +72,81 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     @Override
     public <T> ObjectCreate<T> caseObjectCreate(ObjectCreate<T> change) {
-        return new ObjectCreate<T>(this.copyIfReference(change.getObject()));
+        return new ObjectCreate<>(this.copyIfReference(change.getObject()));
     }
 
     @Override
     public <T> ObjectDelete<T> caseObjectDelete(ObjectDelete<T> change) {
-        return new ObjectDelete<T>(this.copyIfReference(change.getObject()));
+        return new ObjectDelete<>(this.copyIfReference(change.getObject()));
     }
 
     @Override
     public <T, E> ListFieldAdd<T, E> caseListFieldAdd(ListFieldAdd<T, E> change) {
-        return new ListFieldAdd<T, E>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new ListFieldAdd<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           change.getIndex(), this.copyIfReference(change.getElement()));
     }
 
     @Override
     public <T> ListFieldClear<T> caseListFieldClear(ListFieldClear<T> change) {
-        return new ListFieldClear<T>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
+        return new ListFieldClear<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
     }
 
     @Override
     public <T, E> ListFieldRemove<T, E> caseListFieldRemove(ListFieldRemove<T, E> change) {
-        return new ListFieldRemove<T, E>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new ListFieldRemove<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           change.getIndex(), this.copyIfReference(change.getElement()));
     }
 
     @Override
     public <T, E> ListFieldReplace<T, E> caseListFieldReplace(ListFieldReplace<T, E> change) {
-        return new ListFieldReplace<T, E>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new ListFieldReplace<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           change.getIndex(), this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));
     }
 
     @Override
     public <T, K, V> MapFieldAdd<T, K, V> caseMapFieldAdd(MapFieldAdd<T, K, V> change) {
-        return new MapFieldAdd<T, K, V>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new MapFieldAdd<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));
     }
 
     @Override
     public <T> MapFieldClear<T> caseMapFieldClear(MapFieldClear<T> change) {
-        return new MapFieldClear<T>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
+        return new MapFieldClear<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
     }
 
     @Override
     public <T, K, V> MapFieldRemove<T, K, V> caseMapFieldRemove(MapFieldRemove<T, K, V> change) {
-        return new MapFieldRemove<T, K, V>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new MapFieldRemove<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));
     }
 
     @Override
     public <T, K, V> MapFieldReplace<T, K, V> caseMapFieldReplace(MapFieldReplace<T, K, V> change) {
-        return new MapFieldReplace<T, K, V>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new MapFieldReplace<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getKey()), this.copyIfReference(change.getOldValue()),
           this.copyIfReference(change.getNewValue()));
     }
 
     @Override
     public <T, E> SetFieldAdd<T, E> caseSetFieldAdd(SetFieldAdd<T, E> change) {
-        return new SetFieldAdd<T, E>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new SetFieldAdd<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getElement()));
     }
 
     @Override
     public <T> SetFieldClear<T> caseSetFieldClear(SetFieldClear<T> change) {
-        return new SetFieldClear<T>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
+        return new SetFieldClear<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());
     }
 
     @Override
     public <T, E> SetFieldRemove<T, E> caseSetFieldRemove(SetFieldRemove<T, E> change) {
-        return new SetFieldRemove<T, E>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new SetFieldRemove<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getElement()));
     }
 
     @Override
     public <T, V> SimpleFieldChange<T, V> caseSimpleFieldChange(SimpleFieldChange<T, V> change) {
-        return new SimpleFieldChange<T, V>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
+        return new SimpleFieldChange<>(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),
           this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));
     }
 

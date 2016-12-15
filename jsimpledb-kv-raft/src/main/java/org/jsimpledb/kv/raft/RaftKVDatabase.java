@@ -39,7 +39,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -852,7 +851,7 @@ public class RaftKVDatabase implements KVDatabase {
      *  or empty if this node is not started or unconfigured
      */
     public synchronized Map<String, String> getCurrentConfig() {
-        return this.currentConfig != null ? new TreeMap<String, String>(this.currentConfig) : new TreeMap<String, String>();
+        return this.currentConfig != null ? new TreeMap<>(this.currentConfig) : new TreeMap<>();
     }
 
     /**
@@ -1034,13 +1033,10 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Start up service executor thread
             assert this.serviceExecutor == null;
-            this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable action) {
-                    final Thread thread = new Thread(action);
-                    thread.setName("RaftKVDatabase Service");
-                    return thread;
-                }
+            this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(action -> {
+                final Thread thread = new Thread(action);
+                thread.setName("RaftKVDatabase Service");
+                return thread;
             });
 
             // Start network
@@ -1630,12 +1626,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (!this.pendingService.add(service) || this.performingService)
             return;
         try {
-            this.serviceExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    RaftKVDatabase.this.handlePendingService();
-                }
-            });
+            this.serviceExecutor.submit(this::handlePendingService);
         } catch (RejectedExecutionException e) {
             if (!this.shuttingDown) {
                 this.warn("service executor task rejected, skipping", e);
@@ -1702,7 +1693,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.log.isDebugEnabled())
             this.debug("performing state machine flip-flop to " + index + "t" + term + " with config " + config);
         if (config == null)
-            config = new HashMap<String, String>(0);
+            config = new HashMap<>(0);
 
         // Prepare updates
         final Writes writes = new Writes();
@@ -2411,7 +2402,7 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     private boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 }
 

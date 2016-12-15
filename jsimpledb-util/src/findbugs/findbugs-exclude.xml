@@ -5,7 +5,7 @@
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.util.ByteUtil$2"/>
+        <Class name="org.jsimpledb.util.ByteUtil$1"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>

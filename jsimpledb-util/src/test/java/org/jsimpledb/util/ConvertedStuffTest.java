@@ -130,15 +130,15 @@ public class ConvertedStuffTest extends TestSupport {
         Assert.assertEquals(Arrays.asList(smap.descendingMap().values().toArray()), buildList(obj789, obj123, obj45, objM1));
 
         Assert.assertEquals(Arrays.asList(smap.entrySet().toArray()), buildList(
-          new AbstractMap.SimpleEntry<String, Object>("-1", objM1),
-          new AbstractMap.SimpleEntry<String, Object>("45", obj45),
-          new AbstractMap.SimpleEntry<String, Object>("123", obj123),
-          new AbstractMap.SimpleEntry<String, Object>("789", obj789)));
+          new AbstractMap.SimpleEntry<>("-1", objM1),
+          new AbstractMap.SimpleEntry<>("45", obj45),
+          new AbstractMap.SimpleEntry<>("123", obj123),
+          new AbstractMap.SimpleEntry<>("789", obj789)));
         Assert.assertEquals(Arrays.asList(smap.descendingMap().entrySet().toArray()), buildList(
-          new AbstractMap.SimpleEntry<String, Object>("789", obj789),
-          new AbstractMap.SimpleEntry<String, Object>("123", obj123),
-          new AbstractMap.SimpleEntry<String, Object>("45", obj45),
-          new AbstractMap.SimpleEntry<String, Object>("-1", objM1)));
+          new AbstractMap.SimpleEntry<>("789", obj789),
+          new AbstractMap.SimpleEntry<>("123", obj123),
+          new AbstractMap.SimpleEntry<>("45", obj45),
+          new AbstractMap.SimpleEntry<>("-1", objM1)));
 
         Assert.assertEquals(smap, new ConvertedNavigableMap<String, Object, Integer, Object>(
           new ConvertedNavigableMap<Integer, Object, String, Object>(smap, this.i2s, identity), this.s2i, identity));

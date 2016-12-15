@@ -56,10 +56,9 @@ public class UnsignedIntEncoderTest extends TestSupport {
     }
 
     private int decode(String string) {
-        byte[] b = ByteUtil.parse(string);
         int value = 0;
-        for (int i = 0; i < b.length; i++)
-            value = (value << 8) | (b[i] & 0xff);
+        for (byte b : ByteUtil.parse(string))
+            value = (value << 8) | (b & 0xff);
         return value;
     }
 
@@ -76,7 +75,7 @@ public class UnsignedIntEncoderTest extends TestSupport {
 
     @DataProvider(name = "randomEncodings")
     public String[][] genRandomEncodings() {
-        final ArrayList<String[]> values = new ArrayList<String[]>();
+        final ArrayList<String[]> values = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             final int maskBytes = this.random.nextInt(4) + 1;
             int value = this.random.nextInt() & 0x7fffffff;

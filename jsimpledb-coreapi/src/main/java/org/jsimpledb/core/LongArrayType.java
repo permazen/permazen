@@ -40,8 +40,8 @@ class LongArrayType extends IntegralArrayType<long[], Long> {
 
     @Override
     protected void encode(long[] array, DataOutputStream output) throws IOException {
-        for (int i = 0; i < array.length; i++)
-            output.writeLong(array[i]);
+        for (long value : array)
+            output.writeLong(value);
     }
 
     @Override

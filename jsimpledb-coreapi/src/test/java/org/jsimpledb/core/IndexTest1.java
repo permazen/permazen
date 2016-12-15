@@ -76,10 +76,10 @@ public class IndexTest1 extends CoreAPITestSupport {
         //this.showKV(tx, "testSimpleFieldIndexes: 1");
 
         // Build mapping of references
-        final TreeMap<ObjId, ObjId> refMap = new TreeMap<ObjId, ObjId>();
-        for (int i = 0; i < ids.length; i++) {
+        final TreeMap<ObjId, ObjId> refMap = new TreeMap<>();
+        for (ObjId id : ids) {
             final int r = this.random.nextInt(refMax + 1);
-            refMap.put(ids[i], r < refMax ? ids[r] : null);
+            refMap.put(id, r < refMax ? ids[r] : null);
         }
 
         // Set object fields
@@ -100,7 +100,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                 final Object value = fieldValues[j];
 
                 // Build set of objects that should have value #j in field #i
-                final TreeSet<ObjId> expected = new TreeSet<ObjId>();
+                final TreeSet<ObjId> expected = new TreeSet<>();
                 for (int k = j; k < ids.length; k += fieldValues.length)
                     expected.add(ids[k]);
 
@@ -115,11 +115,11 @@ public class IndexTest1 extends CoreAPITestSupport {
 
             // Build set of objects referring to object #i
             final ObjId ref = i < refMax ? ids[i] : null;
-            final TreeSet<ObjId> expected = new TreeSet<ObjId>();
-            for (int j = 0; j < ids.length; j++) {
-                final ObjId jref = refMap.get(ids[j]);
+            final TreeSet<ObjId> expected = new TreeSet<>();
+            for (ObjId id : ids) {
+                final ObjId jref = refMap.get(id);
                 if (ref != null ? ref.equals(jref) : jref == null)
-                    expected.add(ids[j]);
+                    expected.add(id);
             }
 
             // Query index
@@ -134,7 +134,7 @@ public class IndexTest1 extends CoreAPITestSupport {
             this.verifyValues(tx, 10 + i, this.valueMatrix[i][0].getClass(), numObjs, this.valueMatrix[i]);
 
         // Verify reference index - values
-        this.verifyValues(tx, 19, ObjId.class, numObjs, new HashSet<ObjId>(refMap.values()).toArray());
+        this.verifyValues(tx, 19, ObjId.class, numObjs, new HashSet<>(refMap.values()).toArray());
 
         tx.commit();
     }
@@ -203,7 +203,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                 Array.set(array, 0, value);
 
                 // Build set of objects that should have array { value #j } in field #i
-                final TreeSet<ObjId> expected = new TreeSet<ObjId>();
+                final TreeSet<ObjId> expected = new TreeSet<>();
                 for (int k = j; k < ids.length; k += fieldValues.length)
                     expected.add(ids[k]);
 
@@ -222,11 +222,11 @@ public class IndexTest1 extends CoreAPITestSupport {
     private <T extends Comparable<T>> void verifyValues(Transaction tx, int storageId, Class<?> type0, int max, Object[] values) {
         final FieldType<T> fieldType = ((SimpleField<T>)tx.getSchema().getObjType(1).getField(storageId)).getFieldType();
         final Class<T> type = (Class<T>)type0;
-        final ArrayList<T> actual = new ArrayList<T>((NavigableSet<T>)tx.queryIndex(storageId).asMap().navigableKeySet());
-        final ArrayList<T> sorted = new ArrayList<T>(actual);
+        final ArrayList<T> actual = new ArrayList<>((NavigableSet<T>)tx.queryIndex(storageId).asMap().navigableKeySet());
+        final ArrayList<T> sorted = new ArrayList<>(actual);
         Collections.sort(sorted, fieldType);
         Assert.assertEquals(actual, sorted, "actual = " + actual + ", sorted = " + sorted);
-        final ArrayList<T> expected = new ArrayList<T>();
+        final ArrayList<T> expected = new ArrayList<>();
         int count = 0;
         for (Object value : values) {
             if (count++ >= max)
@@ -338,15 +338,15 @@ public class IndexTest1 extends CoreAPITestSupport {
           ids[3], buildSet(2)));
 
         TestSupport.checkSet(tx.queryListElementIndex(11).asSet(), buildSet(
-          new Tuple3<String, ObjId, Integer>("foo1", ids[1], 0),
-          new Tuple3<String, ObjId, Integer>("foo2", ids[2], 0),
-          new Tuple3<String, ObjId, Integer>("foo3", ids[3], 0),
-          new Tuple3<String, ObjId, Integer>("bar1", ids[1], 1),
-          new Tuple3<String, ObjId, Integer>("bar2", ids[2], 1),
-          new Tuple3<String, ObjId, Integer>("bar3", ids[3], 1),
-          new Tuple3<String, ObjId, Integer>("jam",  ids[1], 2),
-          new Tuple3<String, ObjId, Integer>("jam",  ids[2], 2),
-          new Tuple3<String, ObjId, Integer>("jam",  ids[3], 2)));
+          new Tuple3<>("foo1", ids[1], 0),
+          new Tuple3<>("foo2", ids[2], 0),
+          new Tuple3<>("foo3", ids[3], 0),
+          new Tuple3<>("bar1", ids[1], 1),
+          new Tuple3<>("bar2", ids[2], 1),
+          new Tuple3<>("bar3", ids[3], 1),
+          new Tuple3<>("jam", ids[1], 2),
+          new Tuple3<>("jam", ids[2], 2),
+          new Tuple3<>("jam", ids[3], 2)));
 
     // Map Keys
 
@@ -420,53 +420,53 @@ public class IndexTest1 extends CoreAPITestSupport {
 
         Assert.assertEquals(tx.queryMapValueIndex(12).asMapOfIndex().get("blah"), null);
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA1").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[1], 1001)));
+          buildSet(new Tuple2<>(ids[1], 1001)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA2").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[2], 1002)));
+          buildSet(new Tuple2<>(ids[2], 1002)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA3").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[3], 1003)));
+          buildSet(new Tuple2<>(ids[3], 1003)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueB").asSet(), buildSet(
-          new Tuple2<ObjId, Integer>(ids[1], 2001),
-          new Tuple2<ObjId, Integer>(ids[2], 2002),
-          new Tuple2<ObjId, Integer>(ids[3], 2003)));
+          new Tuple2<>(ids[1], 2001),
+          new Tuple2<>(ids[2], 2002),
+          new Tuple2<>(ids[3], 2003)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC1").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[1], 3000)));
+          buildSet(new Tuple2<>(ids[1], 3000)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC2").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[2], 3000)));
+          buildSet(new Tuple2<>(ids[2], 3000)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC3").asSet(),
-          buildSet(new Tuple2<ObjId, Integer>(ids[3], 3000)));
+          buildSet(new Tuple2<>(ids[3], 3000)));
         TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueD").asSet(), buildSet(
-          new Tuple2<ObjId, Integer>(ids[1], 4000),
-          new Tuple2<ObjId, Integer>(ids[2], 4000),
-          new Tuple2<ObjId, Integer>(ids[3], 4000)));
+          new Tuple2<>(ids[1], 4000),
+          new Tuple2<>(ids[2], 4000),
+          new Tuple2<>(ids[3], 4000)));
 
         TestSupport.checkSet(tx.queryMapValueIndex(12).asSet(), buildSet(
-          new Tuple3<String, ObjId, Integer>("valueA1", ids[1], 1001),
-          new Tuple3<String, ObjId, Integer>("valueA2", ids[2], 1002),
-          new Tuple3<String, ObjId, Integer>("valueA3", ids[3], 1003),
-          new Tuple3<String, ObjId, Integer>("valueB", ids[1], 2001),
-          new Tuple3<String, ObjId, Integer>("valueB", ids[2], 2002),
-          new Tuple3<String, ObjId, Integer>("valueB", ids[3], 2003),
-          new Tuple3<String, ObjId, Integer>("valueC1", ids[1], 3000),
-          new Tuple3<String, ObjId, Integer>("valueC2", ids[2], 3000),
-          new Tuple3<String, ObjId, Integer>("valueC3", ids[3], 3000),
-          new Tuple3<String, ObjId, Integer>("valueD", ids[1], 4000),
-          new Tuple3<String, ObjId, Integer>("valueD", ids[2], 4000),
-          new Tuple3<String, ObjId, Integer>("valueD", ids[3], 4000)));
+          new Tuple3<>("valueA1", ids[1], 1001),
+          new Tuple3<>("valueA2", ids[2], 1002),
+          new Tuple3<>("valueA3", ids[3], 1003),
+          new Tuple3<>("valueB", ids[1], 2001),
+          new Tuple3<>("valueB", ids[2], 2002),
+          new Tuple3<>("valueB", ids[3], 2003),
+          new Tuple3<>("valueC1", ids[1], 3000),
+          new Tuple3<>("valueC2", ids[2], 3000),
+          new Tuple3<>("valueC3", ids[3], 3000),
+          new Tuple3<>("valueD", ids[1], 4000),
+          new Tuple3<>("valueD", ids[2], 4000),
+          new Tuple3<>("valueD", ids[3], 4000)));
 
         TestSupport.checkMap(tx.queryMapValueIndex(12).asMap(), buildMap(
-          new Tuple2<String, ObjId>("valueA1", ids[1]), buildSet(1001),
-          new Tuple2<String, ObjId>("valueA2", ids[2]), buildSet(1002),
-          new Tuple2<String, ObjId>("valueA3", ids[3]), buildSet(1003),
-          new Tuple2<String, ObjId>("valueB", ids[1]), buildSet(2001),
-          new Tuple2<String, ObjId>("valueB", ids[2]), buildSet(2002),
-          new Tuple2<String, ObjId>("valueB", ids[3]), buildSet(2003),
-          new Tuple2<String, ObjId>("valueC1", ids[1]), buildSet(3000),
-          new Tuple2<String, ObjId>("valueC2", ids[2]), buildSet(3000),
-          new Tuple2<String, ObjId>("valueC3", ids[3]), buildSet(3000),
-          new Tuple2<String, ObjId>("valueD", ids[1]), buildSet(4000),
-          new Tuple2<String, ObjId>("valueD", ids[2]), buildSet(4000),
-          new Tuple2<String, ObjId>("valueD", ids[3]), buildSet(4000)));
+          new Tuple2<>("valueA1", ids[1]), buildSet(1001),
+          new Tuple2<>("valueA2", ids[2]), buildSet(1002),
+          new Tuple2<>("valueA3", ids[3]), buildSet(1003),
+          new Tuple2<>("valueB", ids[1]), buildSet(2001),
+          new Tuple2<>("valueB", ids[2]), buildSet(2002),
+          new Tuple2<>("valueB", ids[3]), buildSet(2003),
+          new Tuple2<>("valueC1", ids[1]), buildSet(3000),
+          new Tuple2<>("valueC2", ids[2]), buildSet(3000),
+          new Tuple2<>("valueC3", ids[3]), buildSet(3000),
+          new Tuple2<>("valueD", ids[1]), buildSet(4000),
+          new Tuple2<>("valueD", ids[2]), buildSet(4000),
+          new Tuple2<>("valueD", ids[3]), buildSet(4000)));
 
         TestSupport.checkMap(tx.queryMapValueIndex(12).asIndex().asMap(), buildSortedMap(
           "valueA1",    buildSet(ids[1]),

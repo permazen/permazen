@@ -96,8 +96,8 @@ public abstract class Role {
 
     void shutdown() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : this.raft.openTransactions.values())
-            this.cleanupForTransaction(tx);
+        this.raft.openTransactions.values()
+          .forEach(this::cleanupForTransaction);
     }
 
 // Service
@@ -453,18 +453,18 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
 
         // Rebase all rebasable transactions
-        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
-            if (this.shouldRebase(tx)) {
-                try {
-                    this.rebaseTransaction(tx);
-                } catch (KVTransactionException e) {
-                    this.raft.fail(tx, e);
-                } catch (Exception | Error e) {
-                    this.raft.error("error rebasing transaction " + tx, e);
-                    this.raft.fail(tx, new KVTransactionException(tx, e));
-                }
+        new ArrayList<>(this.raft.openTransactions.values()).stream()
+          .filter(this::shouldRebase)
+          .forEach(tx -> {
+            try {
+                this.rebaseTransaction(tx);
+            } catch (KVTransactionException e) {
+                this.raft.fail(tx, e);
+            } catch (Exception | Error e) {
+                this.raft.error("error rebasing transaction " + tx, e);
+                this.raft.fail(tx, new KVTransactionException(tx, e));
             }
-        }
+        });
     }
 
     /**

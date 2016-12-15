@@ -44,7 +44,7 @@ public class OnChangeTest extends TestSupport {
     private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = new ThreadLocal<ArrayList<FieldChange<?>>>() {
         @Override
         protected ArrayList<FieldChange<?>> initialValue() {
-            return new ArrayList<FieldChange<?>>();
+            return new ArrayList<>();
         }
     };
 
@@ -66,7 +66,7 @@ public class OnChangeTest extends TestSupport {
             this.verify();
 
             p1.setName("Person #1");
-            this.verify(new SimpleFieldChange<Person, String>(p1, 101, "name", null, "Person #1"));
+            this.verify(new SimpleFieldChange<>(p1, 101, "name", null, "Person #1"));
 
             n1.setAge(10);      // no path to n1 yet
             this.verify();
@@ -87,16 +87,16 @@ public class OnChangeTest extends TestSupport {
             this.verify();
 
             p1.getKnownPeople().set(3, p1);
-            this.verify(new ListFieldReplace<Person, Person>(p1, 103, "knownPeople", 3, n2, p1));
+            this.verify(new ListFieldReplace<>(p1, 103, "knownPeople", 3, n2, p1));
 
             p1.getKnownPeople().remove(3);
-            this.verify(new ListFieldRemove<Person, Person>(p1, 103, "knownPeople", 3, p1));
+            this.verify(new ListFieldRemove<>(p1, 103, "knownPeople", 3, p1));
 
             n1.setAge(10);      // no path to n1 yet
             this.verify();
 
             m1.getEnemies().put(n1, 0.5f);
-            this.verify(new MapFieldAdd<MeanPerson, NicePerson, Float>(m1, 201, "enemies", n1, 0.5f));
+            this.verify(new MapFieldAdd<>(m1, 201, "enemies", n1, 0.5f));
 
             // Now there exists a path p1.knownPeople.element -> m1.enemies.key -> n1
             n1.setAge(20);
@@ -106,13 +106,13 @@ public class OnChangeTest extends TestSupport {
             this.verify();
 
             m1.getEnemies().put(n1, 2.5f);
-            this.verify(new MapFieldReplace<MeanPerson, NicePerson, Float>(m1, 201, "enemies", n1, 0.5f, 2.5f));
+            this.verify(new MapFieldReplace<>(m1, 201, "enemies", n1, 0.5f, 2.5f));
 
             m1.getEnemies().remove(n2);
             this.verify();
 
             m1.getEnemies().remove(n1);
-            this.verify(new MapFieldRemove<MeanPerson, NicePerson, Float>(m1, 201, "enemies", n1, 2.5f));
+            this.verify(new MapFieldRemove<>(m1, 201, "enemies", n1, 2.5f));
 
             m1.getEnemies().remove(n1);
             this.verify();
@@ -124,7 +124,7 @@ public class OnChangeTest extends TestSupport {
             this.verify(new MapFieldAdd<MeanPerson, NicePerson, Float>(m1, 201, "enemies", null, 2.5f));
 
             m1.getEnemies().clear();
-            this.verify(new MapFieldClear<MeanPerson>(m1, 201, "enemies"));
+            this.verify(new MapFieldClear<>(m1, 201, "enemies"));
 
         } finally {
             JTransaction.setCurrent(null);

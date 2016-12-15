@@ -158,10 +158,9 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
     public int hashCode() {
         final long[] keyArray = this.map.getKeys();
         int hash = 0;
-        for (int i = 0; i < keyArray.length; i++) {
-            final long key = keyArray[i];
+        for (final long key : keyArray) {
             if (key != 0)
-                hash += (int)(key >>> 32) ^ (int)key;
+                hash += Long.hashCode(key);
         }
         return hash;
     }

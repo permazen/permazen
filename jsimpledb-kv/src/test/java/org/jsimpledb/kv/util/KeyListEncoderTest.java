@@ -63,7 +63,7 @@ public class KeyListEncoderTest extends TestSupport {
         if (byteMap == null)
             return null;
         final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, converter, converter);
+        return new ConvertedNavigableMap<>(byteMap, converter, converter);
     }
 }
 

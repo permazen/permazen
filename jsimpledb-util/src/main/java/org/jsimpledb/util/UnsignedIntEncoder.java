@@ -311,9 +311,7 @@ public final class UnsignedIntEncoder {
                     final long value = UnsignedIntEncoder.decode(bytes);
                     System.out.println("0x" + ByteUtil.toString(bytes)
                       + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
-                } catch (IndexOutOfBoundsException e) {
-                    System.out.println("Error decoding " + ByteUtil.toString(bytes) + ": " + e);
-                } catch (IllegalArgumentException e) {
+                } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
                     System.out.println("Error decoding " + ByteUtil.toString(bytes) + ": " + e);
                 }
             }
@@ -323,7 +321,7 @@ public final class UnsignedIntEncoder {
             } catch (IllegalArgumentException e) {
                 // ignore
             }
-            if (value != null && value.intValue() >= 0) {
+            if (value != null && value >= 0) {
                 System.out.println("Encoding value " + value);
                 final ByteWriter writer = new ByteWriter();
                 UnsignedIntEncoder.write(writer, value);

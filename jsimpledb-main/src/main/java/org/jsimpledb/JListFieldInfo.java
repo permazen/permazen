@@ -62,7 +62,7 @@ class JListFieldInfo extends JCollectionFieldInfo {
 
     // This method exists solely to bind the generic type parameters
     private <X, Y> ListConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
-        return new ListConverter<X, Y>(elementConverter);
+        return new ListConverter<>(elementConverter);
     }
 
     @Override

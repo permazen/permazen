@@ -325,10 +325,9 @@ class ClassGenerator<T> {
             if (needClassInitializer) {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
                 mv.visitCode();
-                for (JField jfield : this.jclass.jfields.values()) {
-                    if (jfield.hasClassInitializerBytecode())
-                        jfield.outputClassInitializerBytecode(this, mv);
-                }
+                this.jclass.jfields.values().stream()
+                  .filter(JField::hasClassInitializerBytecode)
+                  .forEach(jfield -> jfield.outputClassInitializerBytecode(this, mv));
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(0, 0);
                 mv.visitEnd();
@@ -571,7 +570,7 @@ class ClassGenerator<T> {
      * Get list of exception types for method.
      */
     String[] getExceptionNames(Method method) {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         for (Class<?> type : method.getExceptionTypes())
             list.add(Type.getType(type).getInternalName());
         return list.toArray(new String[list.size()]);

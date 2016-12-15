@@ -24,35 +24,17 @@ class Lock extends KeyRange {
      * Sorts locks by min value, then read locks before write locks.
      * Note: the comparison does not include the {@linkplain #getOwner owner} in the comparison.
      */
-    public static final Comparator<Lock> MIN_COMPARATOR = new Comparator<Lock>() {
-        @Override
-        public int compare(Lock lock1, Lock lock2) {
-            int diff = KeyRange.compare(lock1.min, lock2.min);
-            if (diff != 0)
-                return diff;
-            diff = Boolean.compare(lock1.write, lock2.write);
-            if (diff != 0)
-                return diff;
-            return 0;
-        }
-    };
+    public static final Comparator<Lock> MIN_COMPARATOR = Comparator
+      .comparing(Lock::getMin, KeyRange::compare)
+      .thenComparing(Lock::isWrite, Boolean::compare);
 
     /**
      * Sorts locks by max value, then read locks before write locks.
      * Note: the comparison does not include the {@linkplain #getOwner owner} in the comparison.
      */
-    public static final Comparator<Lock> MAX_COMPARATOR = new Comparator<Lock>() {
-        @Override
-        public int compare(Lock lock1, Lock lock2) {
-            int diff = KeyRange.compare(lock1.max, lock2.max);
-            if (diff != 0)
-                return diff;
-            diff = Boolean.compare(lock1.write, lock2.write);
-            if (diff != 0)
-                return diff;
-            return 0;
-        }
-    };
+    public static final Comparator<Lock> MAX_COMPARATOR = Comparator
+      .comparing(Lock::getMax, KeyRange::compare)
+      .thenComparing(Lock::isWrite, Boolean::compare);
 
     private static final LockOwner DUMMY_OWNER = new LockOwner();
 

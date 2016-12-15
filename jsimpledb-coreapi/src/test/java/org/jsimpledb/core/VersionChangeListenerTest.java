@@ -72,16 +72,12 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
         tx = db.createTransaction(schema2, 2, true);
 
         final boolean[] notified = new boolean[1];
-        tx.addVersionChangeListener(new VersionChangeListener() {
-            @Override
-            public void onVersionChange(Transaction tx, ObjId id,
-              int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-                Assert.assertEquals(oldVersion, 1);
-                Assert.assertEquals(newVersion, 2);
-                Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101));
-                Assert.assertEquals(oldFieldValues.get(101), 100);
-                notified[0] = true;
-            }
+        tx.addVersionChangeListener((tx12, id, oldVersion, newVersion, oldFieldValues) -> {
+            Assert.assertEquals(oldVersion, 1);
+            Assert.assertEquals(newVersion, 2);
+            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101));
+            Assert.assertEquals(oldFieldValues.get(101), 100);
+            notified[0] = true;
         });
 
         Assert.assertEquals(tx.getSchemaVersion(id1), 1);
@@ -117,18 +113,14 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
         tx = db.createTransaction(schema3, 3, true);
 
         notified[0] = false;
-        tx.addVersionChangeListener(new VersionChangeListener() {
-            @Override
-            public void onVersionChange(Transaction tx, ObjId id,
-              int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-                Assert.assertEquals(oldVersion, 2);
-                Assert.assertEquals(newVersion, 3);
-                Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101, 102, 103));
-                Assert.assertEquals(oldFieldValues.get(101), 100);
-                Assert.assertEquals(oldFieldValues.get(102), "foobar");
-                Assert.assertEquals(oldFieldValues.get(103), Sets.<Integer>newHashSet(123, 456, 789));
-                notified[0] = true;
-            }
+        tx.addVersionChangeListener((tx1, id, oldVersion, newVersion, oldFieldValues) -> {
+            Assert.assertEquals(oldVersion, 2);
+            Assert.assertEquals(newVersion, 3);
+            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101, 102, 103));
+            Assert.assertEquals(oldFieldValues.get(101), 100);
+            Assert.assertEquals(oldFieldValues.get(102), "foobar");
+            Assert.assertEquals(oldFieldValues.get(103), Sets.<Integer>newHashSet(123, 456, 789));
+            notified[0] = true;
         });
 
         Assert.assertEquals(tx.getSchemaVersion(id1), 2);

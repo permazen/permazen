@@ -10,6 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.ObjId;
@@ -52,7 +53,7 @@ public class JReferenceField extends JSimpleField {
 
     @Override
     public Converter<ObjId, JObject> getConverter(JTransaction jtx) {
-        return new ReferenceConverter<JObject>(jtx, JObject.class).reverse();
+        return new ReferenceConverter<>(jtx, JObject.class).reverse();
     }
 
     /**
@@ -93,10 +94,10 @@ public class JReferenceField extends JSimpleField {
         schemaField.setCascadeDelete(this.cascadeDelete);
         schemaField.setAllowDeleted(this.allowDeleted);
         schemaField.setAllowDeletedSnapshot(this.allowDeletedSnapshot);
-        final TreeSet<Integer> objectTypes = new TreeSet<>();
-        for (JClass<?> jclass : jdb.getJClasses(this.typeToken.getRawType()))
-            objectTypes.add(jclass.storageId);
-        schemaField.setObjectTypes(objectTypes);
+        schemaField.setObjectTypes(
+          jdb.getJClasses(this.typeToken.getRawType()).stream()
+           .map(jclass -> jclass.storageId)
+           .collect(Collectors.toCollection(TreeSet::new)));
         return schemaField;
     }
 

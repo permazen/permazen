@@ -10,6 +10,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.jsimpledb.core.CoreAPITestSupport;
 import org.jsimpledb.core.ObjId;
@@ -142,9 +143,9 @@ public class ObjIdBiMultiMapTest extends CoreAPITestSupport {
     }
 
     private TreeSet<Edge> invert(TreeSet<Edge> edges) {
-        final TreeSet<Edge> inverse = new TreeSet<>();
-        for (Edge edge : edges)
-            inverse.add(new Edge(edge.getTarget(), edge.getSource()));
+        final TreeSet<Edge> inverse = edges.stream()
+          .map(edge -> new Edge(edge.getTarget(), edge.getSource()))
+          .collect(Collectors.toCollection(TreeSet::new));
         return inverse;
     }
 

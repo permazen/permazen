@@ -125,7 +125,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     NavigableMap<K, V> getValueInternal(Transaction tx, ObjId id) {
-        return new JSMap<K, V>(tx, this, id);
+        return new JSMap<>(tx, this, id);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     MapFieldStorageInfo<K, V> toStorageInfo() {
-        return new MapFieldStorageInfo<K, V>(this);
+        return new MapFieldStorageInfo<>(this);
     }
 
     @Override

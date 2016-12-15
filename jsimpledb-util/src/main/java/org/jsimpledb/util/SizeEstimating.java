@@ -8,6 +8,7 @@ package org.jsimpledb.util;
 /**
  * Implemented by classes that are capable of estimating their memory usage.
  */
+@FunctionalInterface
 public interface SizeEstimating {
 
     /**

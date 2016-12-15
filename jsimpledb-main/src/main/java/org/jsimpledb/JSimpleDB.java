@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
@@ -266,10 +267,10 @@ public class JSimpleDB {
         }
 
         // Inventory class generators
-        this.classGenerators = new ArrayList<>(this.jclasses.size() + 1);
-        for (JClass<?> jclass : this.jclasses.values())
-            this.classGenerators.add(jclass.classGenerator);
-        this.untypedClassGenerator = new ClassGenerator<UntypedJObject>(this, UntypedJObject.class);
+        this.classGenerators = this.jclasses.values().stream()
+          .map(jclass -> jclass.classGenerator)
+          .collect(Collectors.toCollection(ArrayList::new));
+        this.untypedClassGenerator = new ClassGenerator<>(this, UntypedJObject.class);
         this.classGenerators.add(this.untypedClassGenerator);
 
         // Create fields
@@ -339,12 +340,12 @@ public class JSimpleDB {
         }
 
         // Scan for other method-level annotations
-        for (JClass<?> jclass : this.jclasses.values())
-            jclass.scanAnnotations();
+        this.jclasses.values()
+          .forEach(JClass::scanAnnotations);
 
         // Determine which JClass's have validation requirement(s) on creation
-        for (JClass<?> jclass : this.jclasses.values())
-            jclass.calculateValidationRequirement();
+        this.jclasses.values()
+          .forEach(JClass::calculateValidationRequirement);
         boolean anyDefaultValidation = false;
         AnnotatedElement someElementRequiringJSR303Validation = null;
         for (JClass<?> jclass : this.jclasses.values()) {
@@ -379,7 +380,7 @@ public class JSimpleDB {
 
     // This method exists solely to bind the generic type parameters
     private <T> JClass<T> createJClass(String name, int storageId, Class<T> type) {
-        return new JClass<T>(this, name, storageId, type);
+        return new JClass<>(this, name, storageId, type);
     }
 
     StorageIdGenerator getStorageIdGenerator(Annotation annotation, AnnotatedElement target) {
@@ -449,7 +450,7 @@ public class JSimpleDB {
     public static Class<?> getModelClass(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
         for (Class<?> type = jobj.getClass(); type != null; type = type.getSuperclass()) {
-            if (type.getName().indexOf(GENERATED_CLASS_NAME_SUFFIX) == -1)
+            if (!type.getName().contains(GENERATED_CLASS_NAME_SUFFIX))
                 return type;
         }
         return null;
@@ -715,12 +716,10 @@ public class JSimpleDB {
      */
     @SuppressWarnings("unchecked")
     public <T> List<JClass<? extends T>> getJClasses(Class<T> type) {
-        final ArrayList<JClass<? extends T>> list = new ArrayList<>();
-        for (JClass<?> jclass : this.jclasses.values()) {
-            if (type == null || type.isAssignableFrom(jclass.type))
-                list.add((JClass<? extends T>)jclass);
-        }
-        return list;
+        return this.jclasses.values().stream()
+          .filter(jclass -> type == null || type.isAssignableFrom(jclass.type))
+          .map(jclass -> (JClass<? extends T>)jclass)
+          .collect(Collectors.toList());
     }
 
     /**
@@ -738,8 +737,9 @@ public class JSimpleDB {
             type = null;
             invert = true;
         }
-        for (JClass<?> jclass : this.getJClasses(type))
-            list.add(ObjId.getKeyRange(jclass.storageId));
+        this.getJClasses(type).stream()
+          .map(jclass -> ObjId.getKeyRange(jclass.storageId))
+          .forEach(list::add);
         final KeyRanges keyRanges = new KeyRanges(list);
         return invert ? keyRanges.inverse() : keyRanges;
     }

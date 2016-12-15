@@ -87,16 +87,16 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
 
         final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.queryIndex(11);
         TestSupport.checkSet(index.asSet(), buildSet(
-          new Tuple2<String, ObjId>("aaa", id1),
-          new Tuple2<String, ObjId>("aaa", id2),
-          new Tuple2<String, ObjId>("bbb", id3)));
+          new Tuple2<>("aaa", id1),
+          new Tuple2<>("aaa", id2),
+          new Tuple2<>("bbb", id3)));
         TestSupport.checkMap(index.asMap(), buildMap(
           "aaa", buildSet(id1, id2),
           "bbb", buildSet(id3)));
 
         final CoreIndex<String, ObjId> index2 = index.filter(1, new KeyRanges(b("0a20"), b("0a30")));
         TestSupport.checkSet(index2.asSet(), buildSet(
-          new Tuple2<String, ObjId>("aaa", id2)));
+          new Tuple2<>("aaa", id2)));
         TestSupport.checkMap(index2.asMap(), buildMap(
           "aaa", buildSet(id2)));
 

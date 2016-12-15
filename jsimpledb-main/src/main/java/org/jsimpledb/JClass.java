@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
@@ -76,7 +77,7 @@ public class JClass<T> extends JSchemaObject {
         super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
         Preconditions.checkArgument(name != null, "null name");
         this.type = type;
-        this.classGenerator = new ClassGenerator<T>(this);
+        this.classGenerator = new ClassGenerator<>(this);
     }
 
     // Get class generator
@@ -144,7 +145,7 @@ public class JClass<T> extends JSchemaObject {
         final JSimpleClass jsimpleClass = this.type.getAnnotation(JSimpleClass.class);
 
         // Scan for Simple and Counter fields
-        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, jsimpleClass);
+        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<>(this, jsimpleClass);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -202,7 +203,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Set fields
-        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, jsimpleClass);
+        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<>(this, jsimpleClass);
         for (JSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -242,7 +243,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for List fields
-        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, jsimpleClass);
+        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<>(this, jsimpleClass);
         for (JListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -282,7 +283,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Map fields
-        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, jsimpleClass);
+        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<>(this, jsimpleClass);
         for (JMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -344,16 +345,14 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Calculate which fields require default validation
-        for (JField jfield : this.jfields.values())
-            jfield.calculateRequiresDefaultValidation();
+        this.jfields.values()
+          .forEach(JField::calculateRequiresDefaultValidation);
 
         // Gather simple field storage ID's
-        final ArrayList<Integer> simpleFieldStorageIdList = new ArrayList<>(this.jfields.size());
-        for (JField jfield : this.jfields.values()) {
-            if (jfield instanceof JSimpleField)
-                simpleFieldStorageIdList.add(jfield.storageId);
-        }
-        this.simpleFieldStorageIds = Ints.toArray(simpleFieldStorageIdList);
+        this.simpleFieldStorageIds = Ints.toArray(this.jfields.values().stream()
+          .filter(jfield -> jfield instanceof JSimpleField)
+          .map(jfield -> jfield.storageId)
+          .collect(Collectors.toList()));
     }
 
     void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
@@ -365,7 +364,7 @@ public class JClass<T> extends JSchemaObject {
         final String[] fieldNames = annotation.fields();
         final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];
         final int[] indexFieldStorageIds = new int[fieldNames.length];
-        final HashSet<String> seenFieldNames = new HashSet<String>();
+        final HashSet<String> seenFieldNames = new HashSet<>();
         for (int i = 0; i < fieldNames.length; i++) {
             final String fieldName = fieldNames[i];
             if (!seenFieldNames.add(fieldName))
@@ -395,11 +394,11 @@ public class JClass<T> extends JSchemaObject {
     }
 
     void scanAnnotations() {
-        this.onCreateMethods = new OnCreateScanner<T>(this).findAnnotatedMethods();
-        this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
-        this.onChangeMethods = new OnChangeScanner<T>(this).findAnnotatedMethods();
-        this.onValidateMethods = new OnValidateScanner<T>(this).findAnnotatedMethods();
-        final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
+        this.onCreateMethods = new OnCreateScanner<>(this).findAnnotatedMethods();
+        this.onDeleteMethods = new OnDeleteScanner<>(this).findAnnotatedMethods();
+        this.onChangeMethods = new OnChangeScanner<>(this).findAnnotatedMethods();
+        this.onValidateMethods = new OnValidateScanner<>(this).findAnnotatedMethods();
+        final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
 

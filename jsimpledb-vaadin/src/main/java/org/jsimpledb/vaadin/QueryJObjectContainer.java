@@ -84,12 +84,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      */
     @Override
     public void reload() {
-        this.doInTransaction(new Runnable() {
-            @Override
-            public void run() {
-                QueryJObjectContainer.this.reloadInTransaction();
-            }
-        });
+        this.doInTransaction(this::reloadInTransaction);
     }
 
     // This method runs within a transaction

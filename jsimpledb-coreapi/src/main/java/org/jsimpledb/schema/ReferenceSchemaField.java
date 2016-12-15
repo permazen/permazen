@@ -280,7 +280,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public ReferenceSchemaField clone() {
         final ReferenceSchemaField clone = (ReferenceSchemaField)super.clone();
         if (clone.objectTypes != null)
-            clone.objectTypes = new TreeSet<Integer>(clone.objectTypes);
+            clone.objectTypes = new TreeSet<>(clone.objectTypes);
         return clone;
     }
 }

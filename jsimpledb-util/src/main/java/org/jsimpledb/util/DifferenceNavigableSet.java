@@ -46,7 +46,7 @@ class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     @Override
     protected NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds, List<NavigableSet<E>> newList) {
         final Comparator<? super E> newComparator = this.getComparator(reverse);
-        return new DifferenceNavigableSet<E>(newList.get(0), newList.get(1), newComparator, newBounds);
+        return new DifferenceNavigableSet<>(newList.get(0), newList.get(1), newComparator, newBounds);
     }
 
     @Override

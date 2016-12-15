@@ -270,7 +270,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
                       new Function<Put, Map.Entry<byte[], byte[]>>() {
                         @Override
                         public Map.Entry<byte[], byte[]> apply(Put put) {
-                            return new AbstractMap.SimpleEntry<byte[], byte[]>(put.getKey(), put.getValue());
+                            return new AbstractMap.SimpleEntry<>(put.getKey(), put.getValue());
                         }
                     });
                 }

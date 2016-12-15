@@ -175,7 +175,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference paths
             boolean anyFieldsFound = false;
-            this.paths = new HashMap<ReferencePath, HashSet<Integer>>(expandedPathList.size());
+            this.paths = new HashMap<>(expandedPathList.size());
             for (int i = 0; i < expandedPathList.size(); i++) {
                 final String stringPath = expandedPathList.get(i);
                 final boolean wildcard = expandedPathWasWildcard.contains(i);           // path was auto-generated from a wildcard
@@ -191,12 +191,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 // Get the actual types and storage ID's of all model classes in the path that actually contain the target field
                 final HashSet<Class<?>> targetTypes = new HashSet<>();
                 final HashSet<Integer> storageIds = new HashSet<>();
-                for (JClass<?> jclass : jdb.getJClasses(path.targetTypes.iterator().next())) {
-                    if (jclass.jfields.containsKey(path.targetFieldInfo.storageId)) {
-                        targetTypes.add(jclass.getType());
-                        storageIds.add(jclass.storageId);
-                    }
-                }
+                jdb.getJClasses(path.targetTypes.iterator().next()).stream()
+                  .filter(jclass -> jclass.jfields.containsKey(path.targetFieldInfo.storageId))
+                  .forEach(jclass -> {
+                    targetTypes.add(jclass.getType());
+                    storageIds.add(jclass.storageId);
+                });
 
                 // Validate the parameter type against the types of possible change events
                 if (rawParameterType != null) {
@@ -352,7 +352,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SetFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, field.getStorageId(), field.getName()));
         }
 
     // ListFieldChangeListener
@@ -421,7 +421,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, field.getStorageId(), field.getName()));
         }
 
     // MapFieldChangeListener
@@ -493,7 +493,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, MapFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, field.getStorageId(), field.getName()));
         }
 
     // Internal methods

@@ -92,8 +92,8 @@ class FloatArrayType extends Base64ArrayType<float[], Float> {
 
     @Override
     protected void encode(float[] array, DataOutputStream output) throws IOException {
-        for (int i = 0; i < array.length; i++)
-            output.writeFloat(array[i]);
+        for (float value : array)
+            output.writeFloat(value);
     }
 
     @Override

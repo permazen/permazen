@@ -36,14 +36,11 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
-                    throw new Exception("key/value store is not Raft fallback");
-                RaftFallbackStatusCommand.printStatus(session.getWriter(), (FallbackKVDatabase)session.getKVDatabase());
-            }
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
+        return session -> {
+            if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
+                throw new Exception("key/value store is not Raft fallback");
+            RaftFallbackStatusCommand.printStatus(session.getWriter(), (FallbackKVDatabase)session.getKVDatabase());
         };
     }
 

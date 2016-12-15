@@ -40,7 +40,7 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      * Convenience constructor for the case where there are no lower or upper bounds.
      */
     protected AbstractNavigableSet() {
-        this(new Bounds<E>());
+        this(new Bounds<>());
     }
 
     /**

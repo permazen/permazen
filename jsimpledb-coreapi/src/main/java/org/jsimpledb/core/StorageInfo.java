@@ -16,12 +16,7 @@ import java.util.Comparator;
  */
 abstract class StorageInfo {
 
-    public static final Comparator<StorageInfo> SORT_BY_STORAGE_ID = new Comparator<StorageInfo>() {
-        @Override
-        public int compare(StorageInfo info1, StorageInfo info2) {
-            return Integer.compare(info1.getStorageId(), info2.getStorageId());
-        }
-    };
+    public static final Comparator<StorageInfo> SORT_BY_STORAGE_ID = Comparator.comparingInt(i -> i.storageId);
 
     final int storageId;
 

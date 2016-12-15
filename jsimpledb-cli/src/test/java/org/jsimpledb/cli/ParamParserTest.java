@@ -30,7 +30,7 @@ public class ParamParserTest extends TestSupport {
                 return fieldType != null ? this.createFieldTypeParser(fieldType) : super.getParser(typeName);
             }
             private <T> FieldTypeParser<T> createFieldTypeParser(FieldType<T> fieldType) {
-                return new FieldTypeParser<T>(fieldType);
+                return new FieldTypeParser<>(fieldType);
             }
         };
         //this.log.info("*** ParamParserTest: optionFlags=" + parser.getOptionFlags());

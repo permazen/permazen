@@ -40,7 +40,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
 
     @Override
     public Map<String, SimpleSchemaField> getSubFields() {
-        final LinkedHashMap<String, SimpleSchemaField> map = new LinkedHashMap<String, SimpleSchemaField>(2);
+        final LinkedHashMap<String, SimpleSchemaField> map = new LinkedHashMap<>(2);
         map.put(MapField.KEY_FIELD_NAME, this.keyField);
         map.put(MapField.VALUE_FIELD_NAME, this.valueField);
         return map;

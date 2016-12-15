@@ -43,7 +43,7 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     FieldTypeSet(Transaction tx, FieldType<E> fieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, fieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<E>());
+        this(tx, fieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
     }
 
     /**

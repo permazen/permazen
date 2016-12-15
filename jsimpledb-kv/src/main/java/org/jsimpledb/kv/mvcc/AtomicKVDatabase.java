@@ -54,32 +54,17 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
     @Override
     public byte[] get(final byte[] key) {
-        return this.doInTransaction(new Action<byte[]>() {
-            @Override
-            public byte[] apply(KVStore kv) {
-                return kv.get(key);
-            }
-        });
+        return this.doInTransaction(kv -> kv.get(key));
     }
 
     @Override
     public KVPair getAtLeast(final byte[] minKey) {
-        return this.doInTransaction(new Action<KVPair>() {
-            @Override
-            public KVPair apply(KVStore kv) {
-                return kv.getAtLeast(minKey);
-            }
-        });
+        return this.doInTransaction(kv -> kv.getAtLeast(minKey));
     }
 
     @Override
     public KVPair getAtMost(final byte[] maxKey) {
-        return this.doInTransaction(new Action<KVPair>() {
-            @Override
-            public KVPair apply(KVStore kv) {
-                return kv.getAtMost(maxKey);
-            }
-        });
+        return this.doInTransaction(kv -> kv.getAtMost(maxKey));
     }
 
     @Override
@@ -133,22 +118,12 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
     @Override
     public byte[] encodeCounter(final long value) {
-        return this.doInTransaction(new Action<byte[]>() {
-            @Override
-            public byte[] apply(KVStore kv) {
-                return kv.encodeCounter(value);
-            }
-        });
+        return this.doInTransaction(kv -> kv.encodeCounter(value));
     }
 
     @Override
     public long decodeCounter(final byte[] bytes) {
-        return this.doInTransaction(new Action<Long>() {
-            @Override
-            public Long apply(KVStore kv) {
-                return kv.decodeCounter(bytes);
-            }
-        });
+        return this.doInTransaction(kv -> kv.decodeCounter(bytes));
     }
 
 // AtomicKVStore

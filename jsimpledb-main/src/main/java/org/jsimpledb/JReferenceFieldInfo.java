@@ -17,7 +17,7 @@ class JReferenceFieldInfo extends JSimpleFieldInfo {
 
     @Override
     public Converter<ObjId, JObject> getConverter(JTransaction jtx) {
-        return new ReferenceConverter<JObject>(jtx, JObject.class).reverse();
+        return new ReferenceConverter<>(jtx, JObject.class).reverse();
     }
 }
 

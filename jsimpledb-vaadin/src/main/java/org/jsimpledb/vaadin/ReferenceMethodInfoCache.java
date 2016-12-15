@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 final class ReferenceMethodInfoCache {
 
-    static final PropertyInfo<Void> NOT_FOUND = new PropertyInfo<Void>(null, null);
+    static final PropertyInfo<Void> NOT_FOUND = new PropertyInfo<>(null, null);
 
     private static final ReferenceMethodInfoCache INSTANCE = new ReferenceMethodInfoCache();
 

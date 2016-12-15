@@ -101,12 +101,12 @@ public class SimpleFieldFieldBuilder {
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(FieldType<T> fieldType) {
-        return new SimpleFieldConverter<T>(fieldType);
+        return new SimpleFieldConverter<>(fieldType);
     }
 
     // This method exists solely to bind the generic type parameters
     private <T> NullableField<T> addNullButton(Field<T> field) {
-        return new NullableField<T>(field);
+        return new NullableField<>(field);
     }
 }
 

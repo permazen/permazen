@@ -41,9 +41,9 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
             throw new InvalidSchemaException("invalid " + this + ": between 2 and "
               + Database.MAX_INDEXED_FIELDS + " fields must be specified");
         }
-        final HashSet<Integer> idsSeen = new HashSet<Integer>();
-        for (int i = 0; i < this.indexedFields.size(); i++) {
-            final int storageId = this.indexedFields.get(i);
+        final HashSet<Integer> idsSeen = new HashSet<>();
+        for (Integer indexedField : this.indexedFields) {
+            final int storageId = indexedField;
             if (!idsSeen.add(storageId))
                 throw new InvalidSchemaException("invalid " + this + ": duplicate field in composite index: " + storageId);
         }

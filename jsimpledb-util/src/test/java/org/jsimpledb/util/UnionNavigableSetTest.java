@@ -39,9 +39,9 @@ public class UnionNavigableSetTest extends TestSupport {
 
             // Generate sets
             final int numSets = this.random.nextInt(9) + 1;
-            final ArrayList<NavigableSet<Integer>> sets = new ArrayList<NavigableSet<Integer>>(numSets);
+            final ArrayList<NavigableSet<Integer>> sets = new ArrayList<>(numSets);
             for (int i = 0; i < numSets; i++) {
-                final TreeSet<Integer> set = new TreeSet<Integer>();
+                final TreeSet<Integer> set = new TreeSet<>();
                 final int numValues = this.random.nextInt(33);
                 for (int j = 0; j < numValues; j++)
                     set.add(this.random.nextInt(100));
@@ -57,7 +57,7 @@ public class UnionNavigableSetTest extends TestSupport {
             while (maxValue >= minValue) {
 
                 // Get subsets
-                final ArrayList<NavigableSet<Integer>> subSets = new ArrayList<NavigableSet<Integer>>(numSets);
+                final ArrayList<NavigableSet<Integer>> subSets = new ArrayList<>(numSets);
                 for (int i = 0; i < numSets; i++)
                     subSets.add(sets.get(i).subSet(minValue, true, maxValue, false));
 
@@ -79,9 +79,8 @@ public class UnionNavigableSetTest extends TestSupport {
     }
 
     private NavigableSet<Integer> calculateUnion(List<NavigableSet<Integer>> sets) {
-        final TreeSet<Integer> unionSet = new TreeSet<Integer>();
-        for (NavigableSet<Integer> set : sets)
-            unionSet.addAll(set);
+        final TreeSet<Integer> unionSet = new TreeSet<>();
+        sets.forEach(unionSet::addAll);
         return unionSet;
     }
 }

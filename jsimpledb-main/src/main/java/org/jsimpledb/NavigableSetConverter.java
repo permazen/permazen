@@ -38,7 +38,7 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
     protected NavigableSet<E> doBackward(NavigableSet<W> set) {
         if (set == null)
             return null;
-        return new ConvertedNavigableSet<E, W>(set, this.elementConverter);
+        return new ConvertedNavigableSet<>(set, this.elementConverter);
     }
 
 // Object

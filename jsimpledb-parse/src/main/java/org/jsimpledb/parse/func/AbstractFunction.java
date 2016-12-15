@@ -96,7 +96,7 @@ public abstract class AbstractFunction implements Function {
       int skippedArgs, int minArgs, int maxArgs) {
 
         // Parse parameters
-        final ArrayList<Node> params = new ArrayList<Node>(Math.min(maxArgs, minArgs * 2));
+        final ArrayList<Node> params = new ArrayList<>(Math.min(maxArgs, minArgs * 2));
         while (true) {
             if (ctx.isEOF()) {
                 final ParseException e = new ParseException(ctx, "truncated input");

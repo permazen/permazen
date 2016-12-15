@@ -58,7 +58,7 @@ public class FieldTypeParser<T> implements Parser<T> {
      */
     public static FieldTypeParser<?> getFieldTypeParser(String typeName) {
         Preconditions.checkArgument(typeName != null, "null typeName");
-        return new FieldTypeParser<Object>(null, typeName);
+        return new FieldTypeParser<>(null, typeName);
     }
 }
 

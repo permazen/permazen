@@ -23,6 +23,7 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -540,10 +541,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         for (Schema schema : this.tx.getSchemas().getVersions().values())
             storageIds.addAll(schema.getSchemaModel().getSchemaObjectTypes().keySet());
 
-        // Get corresponding iterators
-        final ArrayList<NavigableSet<ObjId>> sets = new ArrayList<>(storageIds.size());
-        for (int storageId : storageIds)
-            sets.add(this.tx.getAll(storageId));
+        // Get corresponding object sets
+        final ArrayList<NavigableSet<ObjId>> sets = storageIds.stream()
+          .map(this.tx::getAll)
+          .collect(Collectors.toCollection(() -> new ArrayList<>(storageIds.size())));
 
         // Output all objects
         return this.write(writer, nameFormat, Iterables.concat(sets));

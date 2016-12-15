@@ -29,14 +29,14 @@ class MapFieldStorageInfo<K, V> extends ComplexFieldStorageInfo<NavigableMap<K, 
     }
 
     CoreIndex<K, ObjId> getKeyFieldIndex(Transaction tx) {
-        return new CoreIndex<K, ObjId>(tx,
-          new IndexView<K, ObjId>(this.keyField.storageId, this.keyField.fieldType, FieldTypeRegistry.OBJ_ID));
+        return new CoreIndex<>(tx,
+          new IndexView<>(this.keyField.storageId, this.keyField.fieldType, FieldTypeRegistry.OBJ_ID));
     }
 
     CoreIndex2<V, ObjId, K> getValueFieldIndex(Transaction tx) {
-        return new CoreIndex2<V, ObjId, K>(tx,
-          new Index2View<V, ObjId, K>(this.valueField.storageId,
-           this.valueField.fieldType, FieldTypeRegistry.OBJ_ID, this.keyField.fieldType));
+        return new CoreIndex2<>(tx,
+          new Index2View<>(this.valueField.storageId,
+            this.valueField.fieldType, FieldTypeRegistry.OBJ_ID, this.keyField.fieldType));
     }
 
     @Override

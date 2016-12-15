@@ -16,7 +16,7 @@ import org.jsimpledb.parse.ParseSession;
 /**
  * {@link Node} that invokes a Java method when evaluated.
  */
-public class MethodInvokeNode extends AbstractInvokeNode<MethodExecutable> {
+public class MethodInvokeNode extends AbstractInvokeNode<Method> {
 
     private final Class<?> klass;
     private final Node targetNode;
@@ -67,13 +67,12 @@ public class MethodInvokeNode extends AbstractInvokeNode<MethodExecutable> {
         // Find matching method
         final Method method = MethodUtil.findMatchingMethod(
           target != null ? target.getClass() : this.klass, this.name, true, paramInfo.getParamTypes(), null, this.klass != null);
-        final MethodExecutable executable = new MethodExecutable(method);
 
         // Fixup varargs
-        this.fixupVarArgs(paramInfo, executable);
+        this.fixupVarArgs(paramInfo, method);
 
         // Fixup type-inferring nodes
-        this.fixupTypeInferringNodes(session, paramInfo, executable);
+        this.fixupTypeInferringNodes(session, paramInfo, method);
 
         // Invoke method
         final Object result;

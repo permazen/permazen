@@ -146,8 +146,8 @@ public class ParseSession extends Session {
         paramLists.add(new Object[] { this });
         paramLists.add(new Object[0]);
         reader.setConstructorParameterLists(paramLists);
-        for (Function function : reader.findImplementations(Function.class, PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE))
-            this.registerFunction(function);
+        reader.findImplementations(Function.class, PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE)
+          .forEach(this::registerFunction);
     }
 
     /**
@@ -375,6 +375,7 @@ public class ParseSession extends Session {
      * and {@link ParseSession#performParseSessionActionWithCurrentTransaction
      *  ParseSession.performParseSessionActionWithCurrentTransaction()}.
      */
+    @FunctionalInterface
     public interface Action {
 
         /**

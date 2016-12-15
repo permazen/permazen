@@ -409,7 +409,7 @@ public class AtomExprParser implements Parser<Node> {
 
     // Parse method parameters; we assume opening `(' has just been parsed
     static List<Node> parseParams(ParseSession session, ParseContext ctx, boolean complete) {
-        final ArrayList<Node> params = new ArrayList<Node>();
+        final ArrayList<Node> params = new ArrayList<>();
         final SpaceParser spaceParser = new SpaceParser();
         spaceParser.parse(ctx, complete);
         if (ctx.tryLiteral(")"))

@@ -61,22 +61,17 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         if (commonFields != null) {
             for (JField jfield : commonFields.values()) {
                 if (jfield instanceof JComplexField) {
-                    for (JSimpleField subField : ((JComplexField)jfield).getSubFields()) {
-                        if (subField.isIndexed())
-                            sortKeys.add(new FieldSortKey(subField));
-                    }
+                    ((JComplexField)jfield).getSubFields().stream()
+                      .filter(subField -> subField.isIndexed())
+                      .map(FieldSortKey::new)
+                      .forEach(sortKeys::add);
                 } else if (jfield instanceof JSimpleField && ((JSimpleField)jfield).isIndexed())
                     sortKeys.add(new FieldSortKey((JSimpleField)jfield));
             }
         }
 
         // Sort indexed field sort keys
-        Collections.sort(sortKeys.subList(2, sortKeys.size()), new Comparator<SortKey>() {
-            @Override
-            public int compare(SortKey key1, SortKey key2) {
-                return key1.getDescription().compareTo(key2.getDescription());
-            }
-        });
+        Collections.sort(sortKeys.subList(2, sortKeys.size()), Comparator.comparing(SortKey::getDescription));
 
         // Load container
         this.load(sortKeys);

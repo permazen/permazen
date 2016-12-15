@@ -38,18 +38,15 @@ public class SetValidationModeCommand extends AbstractCommand {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        return "mode".equals(typeName) ? new EnumNameParser<ValidationMode>(ValidationMode.class) : super.getParser(typeName);
+        return "mode".equals(typeName) ? new EnumNameParser<>(ValidationMode.class) : super.getParser(typeName);
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final ValidationMode mode = (ValidationMode)params.get("mode");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                session.setValidationMode(mode);
-                session.getWriter().println("Setting validation mode to " + mode);
-            }
+        return session -> {
+            session.setValidationMode(mode);
+            session.getWriter().println("Setting validation mode to " + mode);
         };
     }
 }

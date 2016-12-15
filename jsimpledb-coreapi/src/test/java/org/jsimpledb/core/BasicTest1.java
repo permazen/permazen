@@ -131,14 +131,10 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(tx.getSchemaVersion(id), 1);
 
         final int[] oldValue = new int[1];
-        tx.addVersionChangeListener(new VersionChangeListener() {
-            @Override
-            public void onVersionChange(Transaction tx, ObjId id,
-              int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-                //log.info("version change: " + oldVersion + " -> " + newVersion + " oldFields=" + oldFieldValues);
-                oldValue[0] = (Integer)oldFieldValues.get(2);
-                tx.writeSimpleField(id, 6, (short)4444, true);
-            }
+        tx.addVersionChangeListener((tx1, id1, oldVersion, newVersion, oldFieldValues) -> {
+            //log.info("version change: " + oldVersion + " -> " + newVersion + " oldFields=" + oldFieldValues);
+            oldValue[0] = (Integer)oldFieldValues.get(2);
+            tx1.writeSimpleField(id1, 6, (short)4444, true);
         });
 
         Assert.assertEquals(tx.readSimpleField(id, 3, true), false);
@@ -955,10 +951,10 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertFalse(map.keySet().contains("candles"));
         Assert.assertFalse(map.keySet().contains(null));
 
-        Assert.assertTrue(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(-1, "negone")));
-        Assert.assertTrue(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(16, "candles")));
-        Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(16, "fandles")));
-        Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(-1, "negtwo")));
+        Assert.assertTrue(map.entrySet().contains(new AbstractMap.SimpleEntry<>(-1, "negone")));
+        Assert.assertTrue(map.entrySet().contains(new AbstractMap.SimpleEntry<>(16, "candles")));
+        Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<>(16, "fandles")));
+        Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<>(-1, "negtwo")));
         Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(-1, null)));
         Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(null, null)));
         Assert.assertFalse(map.entrySet().contains(new AbstractMap.SimpleEntry<Integer, String>(null, "candles")));
@@ -1017,7 +1013,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         this.checkMap(map, 32, "degrees", 0, null);
 
         try {
-            map.entrySet().add(new AbstractMap.SimpleEntry<Integer, String>(-1, "negone"));
+            map.entrySet().add(new AbstractMap.SimpleEntry<>(-1, "negone"));
             assert false;
         } catch (UnsupportedOperationException e) {
             // expected
@@ -1274,7 +1270,7 @@ public class BasicTest1 extends CoreAPITestSupport {
     }
 
     private NavigableMap<Object, Object> buildNavigableMap(Object... kvs) {
-        final TreeMap<Object, Object> map = new TreeMap<Object, Object>();
+        final TreeMap<Object, Object> map = new TreeMap<>();
         int i = 0;
         while (i < kvs.length - 1) {
             final Object key = kvs[i++];

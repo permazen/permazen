@@ -21,12 +21,7 @@ public class Follower {
     /**
      * Sorts instances by their {@linkplain Follower#getIdentity identities}.
      */
-    public static final Comparator<Follower> SORT_BY_IDENTITY = new Comparator<Follower>() {
-        @Override
-        public int compare(Follower f1, Follower f2) {
-            return f1.getIdentity().compareTo(f2.getIdentity());
-        }
-    };
+    public static final Comparator<Follower> SORT_BY_IDENTITY = Comparator.comparing(Follower::getIdentity);
 
     private final RaftKVDatabase raft;
     private final String identity;                      // follower's unique identity

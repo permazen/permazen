@@ -164,8 +164,7 @@ public class CliSession extends ParseSession {
         paramLists.add(new Object[] { this });
         paramLists.add(new Object[0]);
         reader.setConstructorParameterLists(paramLists);
-        for (Command command : reader.findImplementations(Command.class, CLI_COMMANDS_DESCRIPTOR_RESOURCE))
-            this.registerCommand(command);
+        reader.findImplementations(Command.class, CLI_COMMANDS_DESCRIPTOR_RESOURCE).forEach(this::registerCommand);
     }
 
     /**
@@ -306,6 +305,7 @@ public class CliSession extends ParseSession {
      * and {@link CliSession#performCliSessionActionWithCurrentTransaction
      *  CliSession.performCliSessionActionWithCurrentTransaction()}.
      */
+    @FunctionalInterface
     public interface Action {
 
         /**

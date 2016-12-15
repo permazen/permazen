@@ -34,34 +34,16 @@ public class KeyRange implements SizeEstimating {
     /**
      * Sorts instances by {@linkplain KeyRange#getMin min value}, then {@linkplain KeyRange#getMax max value}.
      */
-    public static final Comparator<KeyRange> SORT_BY_MIN = new Comparator<KeyRange>() {
-        @Override
-        public int compare(KeyRange keyRange1, KeyRange keyRange2) {
-            int diff = ByteUtil.compare(keyRange1.min, keyRange2.min);
-            if (diff != 0)
-                return diff;
-            diff = KeyRange.compare(keyRange1.max, keyRange2.max);
-            if (diff != 0)
-                return diff;
-            return 0;
-        }
-    };
+    public static final Comparator<KeyRange> SORT_BY_MIN = Comparator
+      .comparing(KeyRange::getMin, ByteUtil::compare)
+      .thenComparing(KeyRange::getMax, KeyRange::compare);
 
     /**
      * Sorts instances by {@linkplain KeyRange#getMax max value}, then {@linkplain KeyRange#getMin min value}.
      */
-    public static final Comparator<KeyRange> SORT_BY_MAX = new Comparator<KeyRange>() {
-        @Override
-        public int compare(KeyRange keyRange1, KeyRange keyRange2) {
-            int diff = KeyRange.compare(keyRange1.max, keyRange2.max);
-            if (diff != 0)
-                return diff;
-            diff = ByteUtil.compare(keyRange1.min, keyRange2.min);
-            if (diff != 0)
-                return diff;
-            return 0;
-        }
-    };
+    public static final Comparator<KeyRange> SORT_BY_MAX = Comparator
+      .comparing(KeyRange::getMax, KeyRange::compare)
+      .thenComparing(KeyRange::getMin, ByteUtil::compare);
 
     /**
      * Lower bound (inclusive), or null for no minimum. Subclasses must <b>not</b> modify the array (to preserve immutability).

@@ -15,7 +15,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -210,14 +209,8 @@ public abstract class AbstractMain extends MainClass {
         final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
         emptyPackages.addAll(modelPackages);
         emptyPackages.addAll(typePackages);
-        for (String packageName : modelPackages) {
-            if (this.scanModelClasses(packageName) > 0)
-                emptyPackages.remove(packageName);
-        }
-        for (String packageName : typePackages) {
-            if (this.scanTypeClasses(packageName) > 0)
-                emptyPackages.remove(packageName);
-        }
+        modelPackages.stream().filter(packageName -> this.scanModelClasses(packageName) > 0).forEach(emptyPackages::remove);
+        typePackages.stream().filter(packageName -> this.scanTypeClasses(packageName) > 0).forEach(emptyPackages::remove);
 
         // Warn if we didn't find anything
         for (String packageName : emptyPackages) {
@@ -438,12 +431,7 @@ public abstract class AbstractMain extends MainClass {
             optionList.addAll(Arrays.<String[]>asList(subclassOpts));
 
         // Sort options
-        Collections.sort(optionList, new Comparator<String[]>() {
-            @Override
-            public int compare(String[] opt1, String[] opt2) {
-                return opt1[0].compareTo(opt2[0]);
-            }
-        });
+        Collections.sort(optionList, (opt1, opt2) -> opt1[0].compareTo(opt2[0]));
 
         // Display all supported options
         int width = 0;

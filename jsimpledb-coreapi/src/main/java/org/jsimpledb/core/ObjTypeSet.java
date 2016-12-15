@@ -26,7 +26,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      */
     ObjTypeSet(Transaction tx, int storageId) {
         super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY,
-          ObjId.getKeyRange(storageId), null, new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
+          ObjId.getKeyRange(storageId), null, new Bounds<>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
     }
 
     /**
@@ -35,7 +35,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param tx transaction
      */
     ObjTypeSet(Transaction tx) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<ObjId>());
+        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<>());
     }
 
     /**

@@ -350,7 +350,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
             assert (this.environment == null) == (this.database == null);
             oldEnvironment = this.environment;
             oldDatabase = this.database;
-            oldTransactions = new ArrayList<BerkeleyKVTransaction>(this.openTransactions);
+            oldTransactions = new ArrayList<>(this.openTransactions);
             this.environment = null;
             this.database = null;
             this.openTransactions.clear();

@@ -33,7 +33,7 @@ public class ObjIdMapTest extends CoreAPITestSupport {
                 shift++;
             final ObjId id = new ObjId(0x0100000000000000L | this.random.nextInt(3 << shift));
             final int action = this.random.nextInt(100);
-            final Integer value = new Integer(this.random.nextInt(4));
+            final Integer value = this.random.nextInt(4);
             boolean expectedResult = false;
             boolean actualResult = false;
             if (action < 3) {
@@ -117,11 +117,11 @@ public class ObjIdMapTest extends CoreAPITestSupport {
         Assert.assertEquals(Sets.newHashSet(map.values()), Sets.newHashSet("aaa", "bbb", "ccc"));
         Assert.assertEquals(map.get(id3), "ccc");
 
-        map.entrySet().remove(new AbstractMap.SimpleEntry<ObjId, String>(id2, "foo"));
+        map.entrySet().remove(new AbstractMap.SimpleEntry<>(id2, "foo"));
 
         Assert.assertEquals(map, copy);
 
-        map.entrySet().remove(new AbstractMap.SimpleEntry<ObjId, String>(id2, "bbb"));
+        map.entrySet().remove(new AbstractMap.SimpleEntry<>(id2, "bbb"));
 
         TestSupport.checkSet(map.keySet(), Sets.newHashSet(id1, id3));
 

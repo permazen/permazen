@@ -210,8 +210,9 @@ public class ReferencePath {
 
             // Get types containing the field
             currentTypes.clear();
-            for (JClass<?> jclass : matchingFields.keySet())
-                currentTypes.add(jclass.type);
+            matchingFields.keySet().stream()
+              .map(jclass -> jclass.type)
+              .forEach(currentTypes::add);
 
             // Logging
             if (this.log.isTraceEnabled())

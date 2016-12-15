@@ -55,10 +55,10 @@ class ObjectArrayType<E> extends ArrayType<E[], E> {
 
     @Override
     public void write(ByteWriter writer, E[] array) {
-        for (int i = 0; i < array.length; i++) {
+        for (E obj : array) {
             if (!this.inline)
                 writer.writeByte(VALUE);
-            this.elementType.write(writer, array[i]);
+            this.elementType.write(writer, obj);
         }
         writer.writeByte(END);
     }

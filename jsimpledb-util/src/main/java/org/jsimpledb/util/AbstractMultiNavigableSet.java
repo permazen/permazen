@@ -33,7 +33,7 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      */
     protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
-        this(sets, AbstractMultiNavigableSet.getComparator(sets), new Bounds<E>());
+        this(sets, AbstractMultiNavigableSet.getComparator(sets), new Bounds<>());
     }
 
     /**
@@ -85,7 +85,7 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
         // Apply bounds to all sets
         final Comparator<? super E> nonNullComparator = NavigableSets.getComparator(this.comparator(), false);
-        final ArrayList<NavigableSet<E>> newList = new ArrayList<NavigableSet<E>>(this.list.size());
+        final ArrayList<NavigableSet<E>> newList = new ArrayList<>(this.list.size());
         for (NavigableSet<E> set : this.list) {
 
             // Reverse set if needed
@@ -100,15 +100,15 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
                     // Bound is out of range; it must be either too low or too high
                     if (set.isEmpty())
-                        set = new EmptyNavigableSet<E>(this.comparator());
+                        set = new EmptyNavigableSet<>(this.comparator());
                     else {
                         final int diff = nonNullComparator.compare(newBounds.getLowerBound(), set.last());
                         if (diff > 0)
-                            set = new EmptyNavigableSet<E>(this.comparator());
+                            set = new EmptyNavigableSet<>(this.comparator());
                         else if (diff == 0) {
                             if (newBounds.getLowerBoundType().isInclusive())
                                 throw e;                            // this indicates faulty logic in the underlying set
-                            set = new EmptyNavigableSet<E>(this.comparator());
+                            set = new EmptyNavigableSet<>(this.comparator());
                         }
                     }
                 }
@@ -122,15 +122,15 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
                     // Bound is out of range; it must be either too low or too high
                     if (set.isEmpty())
-                        set = new EmptyNavigableSet<E>(this.comparator());
+                        set = new EmptyNavigableSet<>(this.comparator());
                     else {
                         final int diff = nonNullComparator.compare(newBounds.getUpperBound(), set.first());
                         if (diff < 0)
-                            set = new EmptyNavigableSet<E>(this.comparator());
+                            set = new EmptyNavigableSet<>(this.comparator());
                         else if (diff == 0) {
                             if (newBounds.getUpperBoundType().isInclusive())
                                 throw e;                            // this indicates faulty logic in the underlying set
-                            set = new EmptyNavigableSet<E>(this.comparator());
+                            set = new EmptyNavigableSet<>(this.comparator());
                         }
                     }
                 }

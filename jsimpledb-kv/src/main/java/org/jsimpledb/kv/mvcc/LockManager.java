@@ -347,10 +347,9 @@ public class LockManager {
             //+ "   overlaps = " + overlaps + "\n");
 
             // Find overlaps we can merge with
-            for (Lock other : overlaps) {
-                if (lock.mergeWith(other) != null)
-                    mergers.add(other);
-            }
+            overlaps.stream()
+              .filter(other -> lock.mergeWith(other) != null)
+              .forEach(mergers::add);
 
             //System.out.println(Thread.currentThread().getName() + ": LockChecker: AFTER: lock = " + lock + "\n"
             //+ "  lockByMin = " + this.locksByMin + "\n"

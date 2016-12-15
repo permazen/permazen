@@ -305,7 +305,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
       ListFieldChangeListener, MapFieldChangeListener {
 
         private final Transaction tx;
-        private final ArrayList<Notify> notifys = new ArrayList<Notify>();
+        private final ArrayList<Notify> notifys = new ArrayList<>();
 
         TestListener(Transaction tx) {
             this.tx = tx;
@@ -417,7 +417,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
             this.id = id;
             this.storageId = storageId;
             this.path = path;
-            this.referrers = new ArrayList<ObjId>(referrers);
+            this.referrers = new ArrayList<>(referrers);
             this.args = args;
         }
 

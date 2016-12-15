@@ -61,7 +61,7 @@ class IndexView<V, T> extends AbstractIndexView {
 
     @Override
     protected IndexView<V, T> copy() {
-        return new IndexView<V, T>(this);
+        return new IndexView<>(this);
     }
 }
 

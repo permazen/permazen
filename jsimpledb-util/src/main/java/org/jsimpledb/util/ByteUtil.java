@@ -22,12 +22,7 @@ public final class ByteUtil {
     /**
      * {@link Comparator} that compares two byte arrays lexicographically using unsigned values.
      */
-    public static final Comparator<byte[]> COMPARATOR = new Comparator<byte[]>() {
-        @Override
-        public int compare(byte[] b1, byte[] b2) {
-            return ByteUtil.compare(b1, b2);
-        }
-    };
+    public static final Comparator<byte[]> COMPARATOR = ByteUtil::compare;
 
     /**
      * A {@link Converter} that converts between {@code byte[]} arrays and hexadecimal {@link String}s.
@@ -188,8 +183,7 @@ public final class ByteUtil {
             return "null";
         final char[] result = new char[buf.length * 2];
         int off = 0;
-        for (int i = 0; i < buf.length; i++) {
-            int value = buf[i];
+        for (byte value : buf) {
             result[off++] = Character.forDigit((value >> 4) & 0x0f, 16);
             result[off++] = Character.forDigit(value & 0x0f, 16);
         }

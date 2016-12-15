@@ -45,32 +45,44 @@ public class Main extends AbstractMain {
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
-        if (option.equals("--schema-file")) {
+        switch (option) {
+        case "--schema-file":
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
-        } else if (option.equals("--command") || option.equals("-c")) {
+            break;
+        case "--command":
+        case "-c":
             if (params.isEmpty())
                 this.usageError();
             this.execCommands.add(params.removeFirst());
-        } else if (option.equals("--history-file")) {
+            break;
+        case "--history-file":
             if (params.isEmpty())
                 this.usageError();
             this.historyFile = new File(params.removeFirst());
-        } else if (option.equals("--file") || option.equals("-f")) {
+            break;
+        case "--file":
+        case "-f":
             if (params.isEmpty())
                 this.usageError();
             this.execFiles.add(params.removeFirst());
-        } else if (option.equals("--core-mode"))
+            break;
+        case "--core-mode":
             this.mode = SessionMode.CORE_API;
-        else if (option.equals("--kv-mode"))
+            break;
+        case "--kv-mode":
             this.mode = SessionMode.KEY_VALUE;
-        else if (option.equals("--batch") || option.equals("-n")) {
+            break;
+        case "--batch":
+        case "-n":
             this.batchMode = true;
             if (Main.isWindows())
                 keyboardInput = false;
-        } else
+            break;
+        default:
             return false;
+        }
         return true;
     }
 
@@ -78,7 +90,7 @@ public class Main extends AbstractMain {
     public int run(String[] args) throws Exception {
 
         // Parse command line
-        final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
+        final ArrayDeque<String> params = new ArrayDeque<>(Arrays.asList(args));
         final int result = this.parseOptions(params);
         if (result != -1)
             return result;
@@ -94,11 +106,8 @@ public class Main extends AbstractMain {
         SchemaModel schemaModel = null;
         if (this.schemaFile != null) {
             try {
-                final InputStream input = new BufferedInputStream(new FileInputStream(this.schemaFile));
-                try {
+                try (InputStream input = new BufferedInputStream(new FileInputStream(this.schemaFile))) {
                     schemaModel = SchemaModel.fromXML(input);
-                } finally {
-                    input.close();
                 }
             } catch (Exception e) {
                 System.err.println(this.getName() + ": can't load schema from `" + this.schemaFile + "': " + e.getMessage());
@@ -234,6 +243,6 @@ public class Main extends AbstractMain {
     }
 
     private static boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 }

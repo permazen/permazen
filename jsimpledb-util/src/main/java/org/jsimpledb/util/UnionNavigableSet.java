@@ -43,7 +43,7 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     @Override
     protected NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds, List<NavigableSet<E>> newList) {
         final Comparator<? super E> newComparator = this.getComparator(reverse);
-        return new UnionNavigableSet<E>(newList, newComparator, newBounds);
+        return new UnionNavigableSet<>(newList, newComparator, newBounds);
     }
 
     @Override

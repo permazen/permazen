@@ -92,8 +92,8 @@ class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     @Override
     protected void encode(double[] array, DataOutputStream output) throws IOException {
-        for (int i = 0; i < array.length; i++)
-            output.writeDouble(array[i]);
+        for (double value : array)
+            output.writeDouble(value);
     }
 
     @Override

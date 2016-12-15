@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSetField;
@@ -126,17 +127,15 @@ public class TypeSafetyTest extends TestSupport {
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class).asMap();
-            for (Bar key : friendIndex.keySet()) {
-                if (key != null)
-                    key.dummy();
-            }
+            friendIndex.keySet().stream()
+              .filter(key -> key != null)
+              .forEach(Bar::dummy);
 
             // Verify index on Bar.set.element does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.queryIndex(Bar.class, "set.element", Bar.class).asMap();
-            for (Bar key : setIndex.keySet()) {
-                if (key != null)
-                    key.dummy();
-            }
+            setIndex.keySet().stream()
+              .filter(key -> key != null)
+              .forEach(Bar::dummy);
 
             // Verify bar1 has wrongly type'd field prior to upgrade
             Assert.assertEquals(jtx.getTransaction().readSimpleField(b1, 21, false), f1);
@@ -176,9 +175,9 @@ public class TypeSafetyTest extends TestSupport {
             final JObject ref1 = (JObject)jtx.readSimpleField(bar3.getObjId(), 21, false);         // ref1 = bar3.getFriend()
             Assert.assertTrue(ref1 instanceof UntypedJObject);
             Assert.assertEquals(ref1.getObjId(), f2);
-            final HashSet<ObjId> ids = new HashSet<>();
-            for (Object obj : jtx.readSetField(bar3.getObjId(), 23, false))
-                ids.add(((JObject)obj).getObjId());
+            final HashSet<ObjId> ids = jtx.readSetField(bar3.getObjId(), 23, false).stream()
+              .map(obj -> ((JObject)obj).getObjId())
+              .collect(Collectors.toCollection(HashSet::new));
             TestSupport.checkSet(ids, buildSet(f1, f2, b1, b2));
 
             // Upgrade bar3 without doing any migration
@@ -190,8 +189,9 @@ public class TypeSafetyTest extends TestSupport {
             Assert.assertNull(jtx.readSimpleField(bar3.getObjId(), 21, false));                    // bar3.getFriend()
             Assert.assertEquals(ref1.getObjId(), f2);
             ids.clear();
-            for (Object obj : jtx.readSetField(bar3.getObjId(), 23, false))
-                ids.add(((JObject)obj).getObjId());
+            jtx.readSetField(bar3.getObjId(), 23, false).stream()
+              .map(obj -> ((JObject)obj).getObjId())
+              .forEach(ids::add);
             TestSupport.checkSet(ids, buildSet(b1, b2));
 
         } finally {

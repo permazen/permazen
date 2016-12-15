@@ -57,7 +57,7 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
      * @throws IllegalArgumentException if either value is negative
      */
     public ObjIdBiMultiMap(int sourceCapacity, int targetCapacity) {
-        this(null, new ObjIdMap<ObjIdSet>(sourceCapacity), new ObjIdMap<ObjIdSet>(targetCapacity));
+        this(null, new ObjIdMap<>(sourceCapacity), new ObjIdMap<>(targetCapacity));
     }
 
     // Internal constructor

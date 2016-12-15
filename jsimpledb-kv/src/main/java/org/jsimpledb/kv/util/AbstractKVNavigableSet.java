@@ -140,7 +140,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code kv} is null
      */
     protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, KeyRange keyRange) {
-        this(kv, prefixMode, false, keyRange, null, new Bounds<E>());
+        this(kv, prefixMode, false, keyRange, null, new Bounds<>());
     }
 
     /**

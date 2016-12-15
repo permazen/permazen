@@ -5,18 +5,18 @@
 
 package org.jsimpledb.kv.leveldb;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.iq80.leveldb.CompressionType;
 import org.iq80.leveldb.DB;
@@ -41,21 +41,26 @@ import org.slf4j.LoggerFactory;
  * A {@linkplain #setDirectory database directory} is the only required configuration property.
  * Instances may be stopped and (re)started multiple times.
  */
+@ThreadSafe
 public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVStore {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AtomicBoolean shutdownHookRegistered = new AtomicBoolean();
     private final DBFactory factory;
 
+    @GuardedBy("this")
     private Options options = new Options().createIfMissing(true).logger(new org.iq80.leveldb.Logger() {
         @Override
         public void log(String message) {
             LevelDBAtomicKVStore.this.log.info("[LevelDB] " + message);
         }
       });
+    @GuardedBy("this")
     private File directory;
 
+    @GuardedBy("this")
     private LevelDBKVStore kv;
+    @GuardedBy("this")
     private DB db;
 
 // Constructors
@@ -364,35 +369,24 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
                 batch.put(entry.getKey(), entry.getValue());
 
-            // Convert counter adjustments into puts
-            final Function<Map.Entry<byte[], Long>, Map.Entry<byte[], byte[]>> counterPutFunction
-              = new Function<Map.Entry<byte[], Long>, Map.Entry<byte[], byte[]>>() {
-                @Override
-                public Map.Entry<byte[], byte[]> apply(Map.Entry<byte[], Long> adjust) {
+            // Convert counter adjustments into puts and apply them
+            for (Map.Entry<byte[], Long> adjust : mutations.getAdjustPairs()) {
 
-                    // Decode old value
-                    final byte[] key = adjust.getKey();
-                    final long diff = adjust.getValue();
-                    byte[] oldBytes = LevelDBAtomicKVStore.this.kv.get(key);
-                    if (oldBytes == null)
-                        oldBytes  = new byte[8];
-                    final long oldValue;
-                    try {
-                        oldValue = LevelDBAtomicKVStore.this.kv.decodeCounter(oldBytes);
-                    } catch (IllegalArgumentException e) {
-                        return null;
-                    }
-
-                    // Add adjustment and re-encode it
-                    return new AbstractMap.SimpleEntry<byte[], byte[]>(key,
-                      LevelDBAtomicKVStore.this.kv.encodeCounter(oldValue + diff));
+                // Decode old value
+                final byte[] key = adjust.getKey();
+                final long diff = adjust.getValue();
+                byte[] oldBytes = this.kv.get(key);
+                if (oldBytes == null)
+                    oldBytes = new byte[8];
+                final long oldValue;
+                try {
+                    oldValue = this.kv.decodeCounter(oldBytes);
+                } catch (IllegalArgumentException e) {
+                    return;
                 }
-            };
 
-            // Apply counter adjustments
-            for (Map.Entry<byte[], byte[]> entry : Iterables.transform(mutations.getAdjustPairs(), counterPutFunction)) {
-                if (entry != null)
-                    batch.put(entry.getKey(), entry.getValue());
+                // Add adjustment and put new value
+                batch.put(key, this.kv.encodeCounter(oldValue + diff));
             }
 
             // Write the batch

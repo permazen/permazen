@@ -10,12 +10,13 @@ import com.google.common.reflect.TypeToken;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -54,14 +55,14 @@ final class MethodUtil {
       boolean searchNonPublic, Type[] paramTypes, Class<?> returnType, boolean isStatic) {
 
         // Find public methods
-        final ArrayList<MethodExecutable> methods = new ArrayList<>();
+        final ArrayList<Method> methods = new ArrayList<>();
         for (Method method : type.getMethods()) {
             if (((method.getModifiers() & Modifier.STATIC) != 0) == isStatic)
-                methods.add(new MethodExecutable(method));
+                methods.add(method);
         }
 
         // Find matching candidates
-        ArrayList<MethodExecutable> candidates = MethodUtil.findCandidates(type, methods, name, paramTypes, returnType);
+        ArrayList<Method> candidates = MethodUtil.findCandidates(type, methods, name, paramTypes, returnType);
 
         // Search non-public methods if no matching public methods were found
         if (candidates.isEmpty() && searchNonPublic) {
@@ -70,7 +71,7 @@ final class MethodUtil {
                 for (Method method : superType.getDeclaredMethods()) {
                     if (((method.getModifiers() & Modifier.PUBLIC) == 0)
                       && ((method.getModifiers() & Modifier.STATIC) != 0) == isStatic)
-                        methods.add(new MethodExecutable(method));
+                        methods.add(method);
                 }
             }
             candidates.addAll(MethodUtil.findCandidates(type, methods, name, paramTypes, returnType));
@@ -108,14 +109,9 @@ final class MethodUtil {
      */
     public static Constructor<?> findMatchingConstructor(Class<?> type, Type[] paramTypes) {
 
-        // Gather constructors
-        final ArrayList<ConstructorExecutable> constructors = new ArrayList<>();
-        for (Constructor<?> constructor : type.getConstructors())
-            constructors.add(new ConstructorExecutable(constructor));
-
         // Find matching candidates
-        final ArrayList<ConstructorExecutable> candidates = MethodUtil.findCandidates(type,
-          constructors, type.getName(), paramTypes, null);
+        final ArrayList<Constructor<?>> candidates = MethodUtil.findCandidates(type,
+          Arrays.asList(type.getConstructors()), type.getName(), paramTypes, null);
 
         // Select the best candidate, if any
         return MethodUtil.selectBestCandidate(candidates, type, type.getSimpleName(), "constructor");
@@ -142,7 +138,7 @@ final class MethodUtil {
      * @param description description of member
      * @return the matching members
      */
-    private static <T extends Executable<?>> ArrayList<T> findCandidates(Class<?> type,
+    private static <T extends Executable> ArrayList<T> findCandidates(Class<?> type,
       Iterable<? extends T> executables, String name, Type[] paramTypes, Class<?> returnType) {
 
         // Gather candidates
@@ -154,8 +150,8 @@ final class MethodUtil {
             if (name != null && !executable.getName().equals(name))
                 continue;
 
-            // Check return type
-            if (returnType != null && !MethodUtil.isCompatible(returnType, executable.getReturnType()))
+            // Check method return type
+            if (returnType != null && !MethodUtil.isCompatible(returnType, ((Method)executable).getReturnType()))
                 continue;
 
             // Check parameter count
@@ -207,7 +203,7 @@ final class MethodUtil {
      *
      * @throws EvalException if exactly one best candidate is not found
      */
-    private static <M extends Member> M selectBestCandidate(ArrayList<? extends Executable<M>> candidates,
+    private static <T extends Executable> T selectBestCandidate(ArrayList<? extends T> candidates,
        Class<?> type, String name, String description) {
 
         // Any matches?
@@ -222,7 +218,7 @@ final class MethodUtil {
         }
 
         // Done
-        return candidates.get(0).getMember();
+        return candidates.get(0);
     }
 
     public static boolean isCompatibleMethodParam(Class<?> to, Type from) {
@@ -381,12 +377,12 @@ final class MethodUtil {
 
 // SignatureComparator
 
-    private static class SignatureComparator implements Comparator<Executable<?>>, Serializable {
+    private static class SignatureComparator implements Comparator<Executable>, Serializable {
 
         private static final long serialVersionUID = 1169904024798638618L;
 
         @Override
-        public int compare(Executable<?> m1, Executable<?> m2) {
+        public int compare(Executable m1, Executable m2) {
             final Class<?>[] types1 = m1.getParameterTypes();
             final Class<?>[] types2 = m2.getParameterTypes();
             if (types1.length != types2.length)
@@ -400,9 +396,9 @@ final class MethodUtil {
                     m2wide = false;
             }
             if (m1wide && m2wide) {
-                if (m1 instanceof MethodExecutable && m2 instanceof MethodExecutable) {     // choose narrowest method return type
-                    final Class<?> rtype1 = ((MethodExecutable)m1).getMember().getReturnType();
-                    final Class<?> rtype2 = ((MethodExecutable)m2).getMember().getReturnType();
+                if (m1 instanceof Method && m2 instanceof Method) {                 // choose narrowest method return type
+                    final Class<?> rtype1 = ((Method)m1).getReturnType();
+                    final Class<?> rtype2 = ((Method)m2).getReturnType();
                     final boolean r1narrow = rtype2.isAssignableFrom(rtype1);
                     final boolean r2narrow = rtype1.isAssignableFrom(rtype2);
                     if (r1narrow && !r2narrow)

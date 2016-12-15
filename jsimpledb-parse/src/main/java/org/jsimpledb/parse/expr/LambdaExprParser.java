@@ -46,20 +46,17 @@ public class LambdaExprParser implements Parser<LambdaNode> {
 
         // Put parameters in scope while parsing lambda body
         final Parser<? extends Node> previousParser = session.getIdentifierParser();
-        session.setIdentifierParser(new Parser<Node>() {
-            @Override
-            public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
-                final Matcher matcher = ctx.tryPattern(ParseUtil.IDENT_PATTERN);
-                if (matcher == null)
-                    throw new ParseException(ctx);
-                final String name = matcher.group();
-                final LambdaNode.Param paramNode = paramMap.get(name);
-                if (paramNode == null) {
-                    throw new ParseException(ctx, "unknown lambda parameter `" + name + "'")
-                      .addCompletions(ParseUtil.complete(paramMap.keySet(), name));
-                }
-                return paramNode;
+        session.setIdentifierParser((session2, ctx2, complete2) -> {
+            final Matcher identMatcher = ctx2.tryPattern(ParseUtil.IDENT_PATTERN);
+            if (identMatcher == null)
+                throw new ParseException(ctx2);
+            final String name = identMatcher.group();
+            final LambdaNode.Param paramNode = paramMap.get(name);
+            if (paramNode == null) {
+                throw new ParseException(ctx2, "unknown lambda parameter `" + name + "'")
+                  .addCompletions(ParseUtil.complete(paramMap.keySet(), name));
             }
+            return paramNode;
         });
         final Node body;
         try {

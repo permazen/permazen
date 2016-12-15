@@ -68,7 +68,7 @@ class ConvertedIndex2<V1, V2, T, WV1, WV2, WT> implements Index2<V1, V2, T> {
 
     @Override
     public Index<V1, V2> asIndex() {
-        return new ConvertedIndex<V1, V2, WV1, WV2>(this.index.asIndex(), this.value1Converter, this.value2Converter);
+        return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
     }
 }
 

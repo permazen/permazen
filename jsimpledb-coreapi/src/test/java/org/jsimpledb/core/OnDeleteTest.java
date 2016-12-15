@@ -429,24 +429,24 @@ public class OnDeleteTest extends CoreAPITestSupport {
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
         TestSupport.checkSet(tx.queryListElementIndex(11).asSet(), buildSet(
-          new Tuple3<ObjId, ObjId, Integer>(target, other1, 0),
-          new Tuple3<ObjId, ObjId, Integer>(target, other1, 2),
-          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 0),
-          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 2),
-          new Tuple3<ObjId, ObjId, Integer>(other2, other1, 1),
-          new Tuple3<ObjId, ObjId, Integer>(referrers[0], referrers[0], 1),
-          new Tuple3<ObjId, ObjId, Integer>(referrers[2], referrers[2], 0)));
+          new Tuple3<>(target, other1, 0),
+          new Tuple3<>(target, other1, 2),
+          new Tuple3<>(target, referrers[0], 0),
+          new Tuple3<>(target, referrers[0], 2),
+          new Tuple3<>(other2, other1, 1),
+          new Tuple3<>(referrers[0], referrers[0], 1),
+          new Tuple3<>(referrers[2], referrers[2], 0)));
         TestSupport.checkMap(tx.queryIndex(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
         TestSupport.checkSet(tx.queryMapValueIndex(13).asSet(), buildSet(
-          new Tuple3<ObjId, ObjId, Integer>(target, other1, 789),
-          new Tuple3<ObjId, ObjId, Integer>(target, other1, 636),
-          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 452),
-          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 454),
-          new Tuple3<ObjId, ObjId, Integer>(other2, other1, 123),
-          new Tuple3<ObjId, ObjId, Integer>(referrers[0], referrers[0], 453),
-          new Tuple3<ObjId, ObjId, Integer>(referrers[2], referrers[2], 453)));
+          new Tuple3<>(target, other1, 789),
+          new Tuple3<>(target, other1, 636),
+          new Tuple3<>(target, referrers[0], 452),
+          new Tuple3<>(target, referrers[0], 454),
+          new Tuple3<>(other2, other1, 123),
+          new Tuple3<>(referrers[0], referrers[0], 453),
+          new Tuple3<>(referrers[2], referrers[2], 453)));
 
         tx.commit();
     }

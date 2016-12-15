@@ -51,7 +51,7 @@ class FloatType extends PrimitiveType<Float> {
     @Override
     public Float validate(Object obj) {
         if (obj instanceof Character)
-            return (float)((Character)obj).charValue();
+            return (float)(Character)obj;
         if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer || obj instanceof Long)
             return ((Number)obj).floatValue();
         return super.validate(obj);

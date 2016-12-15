@@ -194,10 +194,9 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param id object id
      */
     void removeIndexEntries(Transaction tx, ObjId id) {
-        for (SimpleField<?> subField : this.getSubFields()) {
-            if (subField.indexed)
-                this.removeIndexEntries(tx, id, subField);
-        }
+        this.getSubFields().stream()
+          .filter(subField -> subField.indexed)
+          .forEach(subField -> this.removeIndexEntries(tx, id, subField));
     }
 
     /**

@@ -40,8 +40,8 @@ class IntegerArrayType extends IntegralArrayType<int[], Integer> {
 
     @Override
     protected void encode(int[] array, DataOutputStream output) throws IOException {
-        for (int i = 0; i < array.length; i++)
-            output.writeInt(array[i]);
+        for (int value : array)
+            output.writeInt(value);
     }
 
     @Override

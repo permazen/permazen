@@ -123,7 +123,7 @@ public class KVSaveCommand extends AbstractCommand {
         }
 
         private boolean isWindows() {
-            return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+            return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
         }
     }
 }

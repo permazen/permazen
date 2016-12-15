@@ -149,14 +149,14 @@ public class WritesTest extends TestSupport {
         if (byteMap == null)
             return null;
         final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, converter, converter);
+        return new ConvertedNavigableMap<>(byteMap, converter, converter);
     }
 
     private NavigableMap<String, Long> stringView2(NavigableMap<byte[], Long> byteMap) {
         if (byteMap == null)
             return null;
         final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
-        return new ConvertedNavigableMap<String, Long, byte[], Long>(byteMap, converter, Converter.<Long>identity());
+        return new ConvertedNavigableMap<>(byteMap, converter, Converter.<Long>identity());
     }
 }
 

@@ -436,12 +436,12 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         // Stop periodic checks
-        for (FallbackTarget target : this.targets) {
-            if (target.future != null) {
-                target.future.cancel(true);
-                target.future = null;
-            }
-        }
+        this.targets.stream()
+          .filter(target -> target.future != null)
+          .forEach(target -> {
+            target.future.cancel(true);
+            target.future = null;
+        });
         if (this.migrationCheckFuture != null) {
             this.migrationCheckFuture.cancel(true);
             this.migrationCheckFuture = null;
@@ -821,15 +821,13 @@ public class FallbackKVDatabase implements KVDatabase {
             output.writeInt(this.targets.size());
             output.writeInt(this.currentTargetIndex);
             output.writeLong(this.lastStandaloneActiveTime != null ? this.lastStandaloneActiveTime.getTime() : 0);
-            for (int i = 0; i < this.targets.size(); i++) {
-                final FallbackTarget target = this.targets.get(i);
+            for (final FallbackTarget target : this.targets)
                 output.writeLong(target.lastActiveTime != null ? target.lastActiveTime.getTime() : 0);
-            }
         }
     }
 
     private boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 
 // FallbackFuture
@@ -885,12 +883,7 @@ public class FallbackKVDatabase implements KVDatabase {
             }
             if (notifyExecutor == null)                             // small shutdown race window here
                 return;
-            notifyExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    FallbackFuture.this.notify(t);
-                }
-            });
+            notifyExecutor.submit(() -> this.notify(t));
         }
 
         private void notify(Throwable t) {

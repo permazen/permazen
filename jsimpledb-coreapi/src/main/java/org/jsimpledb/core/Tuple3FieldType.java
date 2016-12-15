@@ -27,7 +27,7 @@ class Tuple3FieldType<V1, V2, V3> extends TupleFieldType<Tuple3<V1, V2, V3>> {
     @SuppressWarnings("unchecked")
     protected Tuple3<V1, V2, V3> createTuple(Object[] values) {
         assert values.length == 3;
-        return new Tuple3<V1, V2, V3>((V1)values[0], (V2)values[1], (V3)values[2]);
+        return new Tuple3<>((V1)values[0], (V2)values[1], (V3)values[2]);
     }
 }
 

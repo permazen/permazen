@@ -24,7 +24,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import net.jcip.annotations.GuardedBy;
@@ -124,13 +123,10 @@ public class KeyWatchTracker implements Closeable {
         if (weakReferences)
             cacheBuilder = cacheBuilder.weakKeys();
         this.futureMap = cacheBuilder.build();
-        this.notifyExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable action) {
-                final Thread thread = new Thread(action);
-                thread.setName("Key Watch Notify");
-                return thread;
-            }
+        this.notifyExecutor = Executors.newSingleThreadExecutor(action -> {
+            final Thread thread = new Thread(action);
+            thread.setName("Key Watch Notify");
+            return thread;
         });
     }
 
@@ -225,8 +221,7 @@ public class KeyWatchTracker implements Closeable {
             return false;
 
         // Trigger all associated futures
-        for (KeyInfo keyInfo : triggerList)
-            keyInfo.triggerAll();
+        triggerList.forEach(KeyInfo::triggerAll);
         return true;
     }
 
@@ -255,8 +250,7 @@ public class KeyWatchTracker implements Closeable {
             return false;
 
         // Trigger all associated futures
-        for (KeyInfo keyInfo : triggerList)
-            keyInfo.triggerAll();
+        triggerList.forEach(KeyInfo::triggerAll);
         return true;
     }
 

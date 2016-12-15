@@ -54,7 +54,7 @@ class Index3Converter<V1, V2, V3, T, WV1, WV2, WV3, WT> extends Converter<Index3
     protected Index3<V1, V2, V3, T> doBackward(Index3<WV1, WV2, WV3, WT> index) {
         if (index == null)
             return null;
-        return new ConvertedIndex3<V1, V2, V3, T, WV1, WV2, WV3, WT>(index,
+        return new ConvertedIndex3<>(index,
           this.value1Converter, this.value2Converter, this.value3Converter, this.targetConverter);
     }
 

@@ -79,7 +79,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
 
     @Override
     protected Index3View<V1, V2, V3, T> copy() {
-        return new Index3View<V1, V2, V3, T>(this);
+        return new Index3View<>(this);
     }
 
 // Tuple views
@@ -87,8 +87,8 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
     public IndexView<Tuple3<V1, V2, V3>, T> asTuple3IndexView() {
 
         // Create new IndexView
-        IndexView<Tuple3<V1, V2, V3>, T> indexView = new IndexView<Tuple3<V1, V2, V3>, T>(this.prefix, this.prefixMode,
-          new Tuple3FieldType<V1, V2, V3>(this.getValue1Type(), this.getValue2Type(), this.getValue3Type()), this.getTargetType());
+        IndexView<Tuple3<V1, V2, V3>, T> indexView = new IndexView<>(this.prefix, this.prefixMode,
+          new Tuple3FieldType<>(this.getValue1Type(), this.getValue2Type(), this.getValue3Type()), this.getTargetType());
 
         // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -120,8 +120,8 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
     public Index2View<Tuple2<V1, V2>, V3, T> asTuple2Index2View() {
 
         // Create new IndexView
-        Index2View<Tuple2<V1, V2>, V3, T> indexView = new Index2View<Tuple2<V1, V2>, V3, T>(this.prefix, this.prefixMode,
-          new Tuple2FieldType<V1, V2>(this.getValue1Type(), this.getValue2Type()), this.getValue3Type(), this.getTargetType());
+        Index2View<Tuple2<V1, V2>, V3, T> indexView = new Index2View<>(this.prefix, this.prefixMode,
+          new Tuple2FieldType<>(this.getValue1Type(), this.getValue2Type()), this.getValue3Type(), this.getTargetType());
 
         // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -156,7 +156,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
     public Index2View<V1, V2, V3> asIndex2View() {
 
         // Create IndexView
-        Index2View<V1, V2, V3> indexView = new Index2View<V1, V2, V3>(this.prefix,
+        Index2View<V1, V2, V3> indexView = new Index2View<>(this.prefix,
           true, this.getValue1Type(), this.getValue2Type(), this.getValue3Type());
 
         // Get filters
@@ -181,7 +181,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
     public Index2View<V2, V3, T> asIndex2View(byte[] keyPrefix) {
 
         // Create IndexView
-        Index2View<V2, V3, T> indexView = new Index2View<V2, V3, T>(keyPrefix,
+        Index2View<V2, V3, T> indexView = new Index2View<>(keyPrefix,
           this.prefixMode, this.getValue2Type(), this.getValue3Type(), this.getTargetType());
 
         // Get filters

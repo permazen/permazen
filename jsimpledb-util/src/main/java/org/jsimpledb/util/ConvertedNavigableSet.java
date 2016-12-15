@@ -33,7 +33,7 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if either parameter is null
      */
     public ConvertedNavigableSet(NavigableSet<W> set, Converter<E, W> converter) {
-        this(set, converter, new Bounds<E>());
+        this(set, converter, new Bounds<>());
     }
 
     /**
@@ -158,7 +158,7 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
             subSet = subSet.tailSet(wlower, newBounds.getLowerBoundType().isInclusive());
         else if (newBounds.getUpperBoundType() != BoundType.NONE)
             subSet = subSet.headSet(wupper, newBounds.getUpperBoundType().isInclusive());
-        return new ConvertedNavigableSet<E, W>(subSet, this.converter, newBounds);
+        return new ConvertedNavigableSet<>(subSet, this.converter, newBounds);
     }
 }
 

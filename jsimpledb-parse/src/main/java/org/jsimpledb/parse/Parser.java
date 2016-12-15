@@ -12,6 +12,7 @@ import org.jsimpledb.util.ParseContext;
  *
  * @param <T> parsed value type
  */
+@FunctionalInterface
 public interface Parser<T> {
 
     /**

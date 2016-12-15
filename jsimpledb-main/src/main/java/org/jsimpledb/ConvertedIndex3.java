@@ -88,13 +88,13 @@ class ConvertedIndex3<V1, V2, V3, T, WV1, WV2, WV3, WT> implements Index3<V1, V2
 
     @Override
     public Index2<V1, V2, V3> asIndex2() {
-        return new ConvertedIndex2<V1, V2, V3, WV1, WV2, WV3>(this.index.asIndex2(),
+        return new ConvertedIndex2<>(this.index.asIndex2(),
           this.value1Converter, this.value2Converter, this.value3Converter);
     }
 
     @Override
     public Index<V1, V2> asIndex() {
-        return new ConvertedIndex<V1, V2, WV1, WV2>(this.index.asIndex(), this.value1Converter, this.value2Converter);
+        return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
     }
 }
 

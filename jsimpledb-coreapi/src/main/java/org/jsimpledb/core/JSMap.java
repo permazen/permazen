@@ -58,12 +58,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can't add invalid key/value pair to " + this.field + ": " + e.getMessage(), e);
         }
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<V>() {
-            @Override
-            public V mutate() {
-                return JSMap.this.doPut(keyObj, valueObj, key, value);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doPut(keyObj, valueObj, key, value));
     }
 
     private V doPut(final K keyObj, final V newValueObj, byte[] key, byte[] newValue) {
@@ -128,12 +123,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         if (key == null)
             return null;
         final K canonicalKey = this.keyFieldType.validate(keyObj);
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<V>() {
-            @Override
-            public V mutate() {
-                return JSMap.this.doRemove(canonicalKey, key);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalKey, key));
     }
 
     private V doRemove(final K keyObj, byte[] key) {
@@ -222,7 +212,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
     @Override
     protected NavigableMap<K, V> createSubMap(boolean newReversed,
       KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<K> newBounds) {
-        return new JSMap<K, V>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
+        return new JSMap<>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
     private byte[] encodeValue(Object obj) {

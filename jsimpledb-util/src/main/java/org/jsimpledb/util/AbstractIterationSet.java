@@ -90,7 +90,7 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
         final ArrayList<E> list = new ArrayList<>();
         for (E elem : this)
             list.add(elem);
-       return list.toArray();
+        return list.toArray();
     }
 
     /**
@@ -101,7 +101,7 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
         final ArrayList<E> list = new ArrayList<>();
         for (E elem : this)
             list.add(elem);
-       return list.toArray(array);
+        return list.toArray(array);
     }
 }
 

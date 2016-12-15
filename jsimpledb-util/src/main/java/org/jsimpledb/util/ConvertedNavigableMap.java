@@ -38,7 +38,7 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
      * @throws IllegalArgumentException if any parameter is null
      */
     public ConvertedNavigableMap(NavigableMap<WK, WV> map, Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
-        this(map, keyConverter, valueConverter, new Bounds<K>());
+        this(map, keyConverter, valueConverter, new Bounds<>());
     }
 
     /**
@@ -90,12 +90,12 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        return new ConvertedEntrySet<K, V, WK, WV>(this.map, this.keyConverter, this.valueConverter);
+        return new ConvertedEntrySet<>(this.map, this.keyConverter, this.valueConverter);
     }
 
     @Override
     public NavigableSet<K> navigableKeySet() {
-        return new ConvertedNavigableSet<K, WK>(this.map.navigableKeySet(), this.keyConverter);
+        return new ConvertedNavigableSet<>(this.map.navigableKeySet(), this.keyConverter);
     }
 
     @Override
@@ -183,7 +183,7 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
             subMap = subMap.tailMap(wlower, newBounds.getLowerBoundType().isInclusive());
         else if (newBounds.getUpperBoundType() != BoundType.NONE)
             subMap = subMap.headMap(wupper, newBounds.getUpperBoundType().isInclusive());
-        return new ConvertedNavigableMap<K, V, WK, WV>(subMap, this.keyConverter, this.valueConverter, newBounds);
+        return new ConvertedNavigableMap<>(subMap, this.keyConverter, this.valueConverter, newBounds);
     }
 }
 

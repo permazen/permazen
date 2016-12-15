@@ -45,7 +45,7 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      * Convenience constructor for the case where there are no lower or upper key bounds.
      */
     protected AbstractNavigableMap() {
-        this(new Bounds<K>());
+        this(new Bounds<>());
     }
 
     /**

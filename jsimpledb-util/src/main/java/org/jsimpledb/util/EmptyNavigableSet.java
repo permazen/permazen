@@ -22,7 +22,7 @@ class EmptyNavigableSet<E> extends AbstractNavigableSet<E> {
      * @param comparator comparator, or null for natural ordering
      */
     EmptyNavigableSet(Comparator<? super E> comparator) {
-        this(comparator, new Bounds<E>());
+        this(comparator, new Bounds<>());
     }
 
     /**
@@ -57,7 +57,7 @@ class EmptyNavigableSet<E> extends AbstractNavigableSet<E> {
 
     @Override
     protected EmptyNavigableSet<E> createSubSet(boolean reverse, Bounds<E> bounds) {
-        return new EmptyNavigableSet<E>(this.getComparator(reverse), bounds);
+        return new EmptyNavigableSet<>(this.getComparator(reverse), bounds);
     }
 }
 

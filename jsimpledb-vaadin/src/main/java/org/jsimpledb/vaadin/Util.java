@@ -32,7 +32,7 @@ final class Util {
         TreeMap<Integer, JField> jfields = null;
         for (JClass<?> jclass : jclasses) {     // TODO: keep only fields with the same name; prefer indexed (sub-)fields
             if (jfields == null)
-                jfields = new TreeMap<Integer, JField>(jclass.getJFieldsByStorageId());
+                jfields = new TreeMap<>(jclass.getJFieldsByStorageId());
             else
                 jfields.keySet().retainAll(jclass.getJFieldsByStorageId().keySet());
         }

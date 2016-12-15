@@ -43,7 +43,7 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
     protected NavigableMap<K, V> doBackward(NavigableMap<WK, WV> map) {
         if (map == null)
             return null;
-        return new ConvertedNavigableMap<K, V, WK, WV>(map, this.keyConverter, this.valueConverter);
+        return new ConvertedNavigableMap<>(map, this.keyConverter, this.valueConverter);
     }
 
 // Object

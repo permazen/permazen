@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import java.util.stream.Collectors;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteReader;
@@ -75,12 +76,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
     @Override
     public E set(final int index, final E elem) {
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<E>() {
-            @Override
-            public E mutate() {
-                return JSList.this.doSet(index, elem);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doSet(index, elem));
     }
 
     @Override
@@ -135,24 +131,14 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     public void add(final int index, final E elem) {
         if (index < 0)
             throw new IndexOutOfBoundsException("index = " + index);
-        this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
-            @Override
-            public Boolean mutate() {
-                return JSList.this.doAddAll(index, Collections.singleton(elem));
-            }
-        });
+        this.tx.mutateAndNotify(this.id, () -> this.doAddAll(index, Collections.singleton(elem)));
     }
 
     @Override
     public boolean addAll(final int index, final Collection<? extends E> elems) {
         if (index < 0)
             throw new IndexOutOfBoundsException("index = " + index);
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
-            @Override
-            public Boolean mutate() {
-                return JSList.this.doAddAll(index, elems);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doAddAll(index, elems));
     }
 
     private boolean doAddAll(int index, Collection<? extends E> elems0) {
@@ -168,9 +154,9 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         }
 
         // Encode elements
-        final ArrayList<byte[]> values = new ArrayList<>(numElems);
-        for (E elem : elems)
-            values.add(this.buildValue(elem));
+        final ArrayList<byte[]> values = elems.stream()
+          .map(this::buildValue)
+          .collect(Collectors.toCollection(() -> new ArrayList<>(numElems)));
 
         // Make room for elements
         final int size = this.size();

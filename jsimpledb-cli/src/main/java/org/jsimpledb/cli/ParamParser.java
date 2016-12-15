@@ -117,14 +117,11 @@ public class ParamParser implements Parser<Map<String, Object>> {
             return new WordParser("parameter");
         final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(typeName);
         if (fieldType != null) {
-            return new Parser<Object>() {
-                @Override
-                public Object parse(ParseSession session, ParseContext ctx, boolean complete) {
-                    try {
-                        return fieldType.fromParseableString(ctx);
-                    } catch (IllegalArgumentException e) {
-                        throw new ParseException(ctx, "invalid " + fieldType.getName() + " value", e);
-                    }
+            return (session, ctx, complete) -> {
+                try {
+                    return fieldType.fromParseableString(ctx);
+                } catch (IllegalArgumentException e) {
+                    throw new ParseException(ctx, "invalid " + fieldType.getName() + " value", e);
                 }
             };
         }
@@ -143,7 +140,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
     public Map<String, Object> parse(ParseSession session, ParseContext ctx, boolean complete) {
 
         // Store results here
-        final HashMap<String, Object> values = new HashMap<String, Object>();
+        final HashMap<String, Object> values = new HashMap<>();
 
         // First parse options
         boolean needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;

@@ -68,32 +68,32 @@ public class CompositeIndexTest extends CoreAPITestSupport {
 
         final CoreIndex2<?, ?, ObjId> index = tx.queryCompositeIndex2(20);
         TestSupport.checkSet(index.asSet(), buildSet(
-          new Tuple3<Integer, ObjId, ObjId>(555, id3, id1),
-          new Tuple3<Integer, ObjId, ObjId>(555, id4, id2),
-          new Tuple3<Integer, ObjId, ObjId>(666, id3, id3),
-          new Tuple3<Integer, ObjId, ObjId>(666, id4, id4),
-          new Tuple3<Integer, ObjId, ObjId>(666, id4, id5)));
+          new Tuple3<>(555, id3, id1),
+          new Tuple3<>(555, id4, id2),
+          new Tuple3<>(666, id3, id3),
+          new Tuple3<>(666, id4, id4),
+          new Tuple3<>(666, id4, id5)));
 
         TestSupport.checkMap(index.asMap(), buildMap(
-          new Tuple2<Integer, ObjId>(555, id3), buildSet(id1),
-          new Tuple2<Integer, ObjId>(555, id4), buildSet(id2),
-          new Tuple2<Integer, ObjId>(666, id3), buildSet(id3),
-          new Tuple2<Integer, ObjId>(666, id4), buildSet(id4, id5)));
+          new Tuple2<>(555, id3), buildSet(id1),
+          new Tuple2<>(555, id4), buildSet(id2),
+          new Tuple2<>(666, id3), buildSet(id3),
+          new Tuple2<>(666, id4), buildSet(id4, id5)));
 
         TestSupport.checkSet(index.asMapOfIndex().get(555).asSet(), buildSet(
-          new Tuple2<ObjId, ObjId>(id3, id1),
-          new Tuple2<ObjId, ObjId>(id4, id2)));
+          new Tuple2<>(id3, id1),
+          new Tuple2<>(id4, id2)));
 
         TestSupport.checkSet(index.asMapOfIndex().get(666).asSet(), buildSet(
-          new Tuple2<ObjId, ObjId>(id3, id3),
-          new Tuple2<ObjId, ObjId>(id4, id4),
-          new Tuple2<ObjId, ObjId>(id4, id5)));
+          new Tuple2<>(id3, id3),
+          new Tuple2<>(id4, id4),
+          new Tuple2<>(id4, id5)));
 
         TestSupport.checkSet(index.asIndex().asSet(), buildSet(
-          new Tuple2<Integer, ObjId>(555, id3),
-          new Tuple2<Integer, ObjId>(555, id4),
-          new Tuple2<Integer, ObjId>(666, id3),
-          new Tuple2<Integer, ObjId>(666, id4)));
+          new Tuple2<>(555, id3),
+          new Tuple2<>(555, id4),
+          new Tuple2<>(666, id3),
+          new Tuple2<>(666, id4)));
 
         tx.rollback();
     }

@@ -7,6 +7,7 @@ package org.jsimpledb.kv.array;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.jsimpledb.kv.KVDatabase;
@@ -62,8 +63,8 @@ public class ArrayKVDatabaseTest extends KVDatabaseTest {
             threads[i] = new BigWriter(this.arrayKV);
             threads[i].start();
         }
-        for (int i = 0; i < threads.length; i++)
-            threads[i].join();
+        for (Thread thread : threads)
+            thread.join();
     }
 
     private static class BigWriter extends Thread {

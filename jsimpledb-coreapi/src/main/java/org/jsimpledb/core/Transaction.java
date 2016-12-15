@@ -773,8 +773,8 @@ public class Transaction {
         }
 
         // Write simple field index entries
-        for (SimpleField<?> field : objType.indexedSimpleFields)
-            this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
+        objType.indexedSimpleFields
+          .forEach(field -> this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY));
 
         // Write composite index entries
         for (CompositeIndex index : objType.compositeIndexes.values())
@@ -909,8 +909,7 @@ public class Transaction {
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
-        for (ObjId referrer : this.findReferrers(id, DeleteAction.DELETE, -1))
-            deletables.add(referrer);
+        deletables.addAll(this.findReferrers(id, DeleteAction.DELETE, -1));
 
         // Done
         return true;
@@ -931,8 +930,8 @@ public class Transaction {
         // Delete object's simple field index entries
         final ObjId id = info.getId();
         final ObjType type = info.getObjType();
-        for (SimpleField<?> field : type.indexedSimpleFields)
-            this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, this.kvt.get(field.buildKey(id))));
+        type.indexedSimpleFields
+          .forEach(field -> this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, this.kvt.get(field.buildKey(id)))));
 
         // Delete object's composite index entries
         for (CompositeIndex index : type.compositeIndexes.values())
@@ -1092,19 +1091,16 @@ public class Transaction {
                 throw new StaleTransactionException(dest);
 
             // Copy fields
-            return dest.mutateAndNotify(new Mutation<Boolean>() {
-                @Override
-                public Boolean mutate() {
-                    final ObjIdMap<ReferenceField> previousCopyDeletedAssignments = dest.deletedAssignments;
-                    dest.deletedAssignments = deletedAssignments;
-                    final boolean previousDisableListenerNotifications = dest.disableListenerNotifications;
-                    dest.disableListenerNotifications = !notifyListeners;
-                    try {
-                        return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
-                    } finally {
-                        dest.deletedAssignments = previousCopyDeletedAssignments;
-                        dest.disableListenerNotifications = previousDisableListenerNotifications;
-                    }
+            return dest.mutateAndNotify(() -> {
+                final ObjIdMap<ReferenceField> previousCopyDeletedAssignments = dest.deletedAssignments;
+                dest.deletedAssignments = deletedAssignments;
+                final boolean previousDisableListenerNotifications = dest.disableListenerNotifications;
+                dest.disableListenerNotifications = !notifyListeners;
+                try {
+                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
+                } finally {
+                    dest.deletedAssignments = previousCopyDeletedAssignments;
+                    dest.disableListenerNotifications = previousDisableListenerNotifications;
                 }
             });
         }
@@ -1206,11 +1202,12 @@ public class Transaction {
             Database.closeIfPossible(i);
 
             // Create object's simple field index entries
-            for (SimpleField<?> field : dstType.indexedSimpleFields) {
+            dstType.indexedSimpleFields
+              .forEach(field -> {
                 final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
                 final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
                 dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
-            }
+            });
 
             // Create object's composite index entries
             for (CompositeIndex index : dstType.compositeIndexes.values())
@@ -1218,10 +1215,9 @@ public class Transaction {
 
             // Create object's complex field index entries
             for (ComplexField<?> field : dstType.complexFields.values()) {
-                for (SimpleField<?> subField : field.getSubFields()) {
-                    if (subField.indexed)
-                        field.addIndexEntries(dstTx, dstId, subField);
-                }
+                field.getSubFields().stream()
+                  .filter(subField -> subField.indexed)
+                  .forEach(subField -> field.addIndexEntries(dstTx, dstId, subField));
             }
         }
 
@@ -1391,16 +1387,15 @@ public class Transaction {
         }
 
         // Gather removed fields' values here for user migration if any VersionChangeListeners are registered
-        final TreeMap<Integer, Object> oldValueMap = this.versionChangeListeners != null && !this.versionChangeListeners.isEmpty() ?
-          new TreeMap<Integer, Object>() : null;
+        final TreeMap<Integer, Object> oldValueMap
+          = this.versionChangeListeners != null && !this.versionChangeListeners.isEmpty() ? new TreeMap<>() : null;
 
     //////// Remove the index entries corresponding to removed composite indexes
 
         // Remove index entries for composite indexes that are going away
-        for (CompositeIndex index : oldType.compositeIndexes.values()) {
-            if (!newType.compositeIndexes.containsKey(index.storageId))
-                this.kvt.remove(this.buildCompositeIndexEntry(id, index));
-        }
+        oldType.compositeIndexes.values().stream()
+          .filter(index -> !newType.compositeIndexes.containsKey(index.storageId))
+          .forEach(index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
 
     //////// Update counter fields
 
@@ -1468,10 +1463,9 @@ public class Transaction {
     //////// Add composite index entries for newly added composite indexes
 
         // Add index entries for composite indexes that are newly added
-        for (CompositeIndex index : newType.compositeIndexes.values()) {
-            if (!oldType.compositeIndexes.containsKey(index.storageId))
-                this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY);
-        }
+        newType.compositeIndexes.values().stream()
+          .filter(index -> !oldType.compositeIndexes.containsKey(index.storageId))
+          .forEach(index -> this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY));
 
     //////// Update complex fields and corresponding index entries
 
@@ -2563,7 +2557,7 @@ public class Transaction {
         if (monitors == null) {
             if (!create)
                 return null;
-            monitors = new HashSet<FieldMonitor>(1);
+            monitors = new HashSet<>(1);
             this.monitorMap.put(storageId, monitors);
         }
         return monitors;
@@ -2591,7 +2585,7 @@ public class Transaction {
         final TreeMap<Integer, ArrayList<FieldChangeNotifier>> pendingNotificationMap = this.pendingNotifications.get();
         ArrayList<FieldChangeNotifier> pendingNotificationList = pendingNotificationMap.get(storageId);
         if (pendingNotificationList == null) {
-            pendingNotificationList = new ArrayList<FieldChangeNotifier>(2);
+            pendingNotificationList = new ArrayList<>(2);
             pendingNotificationMap.put(storageId, pendingNotificationList);
         }
         pendingNotificationList.add(notifier);
@@ -2661,7 +2655,7 @@ public class Transaction {
             return mutation.mutate();
 
         // Set up pending report list, perform mutation, and then issue reports
-        this.pendingNotifications.set(new TreeMap<Integer, ArrayList<FieldChangeNotifier>>());
+        this.pendingNotifications.set(new TreeMap<>());
         try {
             return mutation.mutate();
         } finally {
@@ -2711,7 +2705,7 @@ public class Transaction {
             final int storageId = monitor.path[monitor.path.length - step - 1];
             ArrayList<FieldMonitor> remainingMonitors = remainingMonitorsMap.get(storageId);
             if (remainingMonitors == null) {
-                remainingMonitors = new ArrayList<FieldMonitor>();
+                remainingMonitors = new ArrayList<>();
                 remainingMonitorsMap.put(storageId, remainingMonitors);
             }
             remainingMonitors.add(monitor);
@@ -3229,8 +3223,8 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
-            this.monitorMap = tx.monitorMap != null ?                           // JAVA8: Collections.unmodifiableNavigableMap
-              Maps.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
+            this.monitorMap = tx.monitorMap != null ?
+              Collections.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
             this.schema = tx.schema;
         }
     }

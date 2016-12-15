@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import net.jcip.annotations.GuardedBy;
 
@@ -185,24 +186,23 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
-        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
-            if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
-                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
-        }
+        new ArrayList<>(this.raft.openTransactions.values()).stream()
+          .filter(tx -> tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
+          .forEach(tx -> this.raft.fail(tx,
+           new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait")));
 
         // Fail any transactions that are waiting on leader response to a commit request and not based on the last log entry
-        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
-            if (super.shouldRebase(tx)
-              && (tx.baseIndex != this.raft.getLastLogIndex() || tx.baseTerm != this.raft.getLastLogTerm())) {
-                assert tx.getState().equals(TxState.COMMIT_READY) && this.pendingRequests.contains(tx);
-                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
-            }
-        }
+        new ArrayList<>(this.raft.openTransactions.values()).stream()
+          .filter(tx -> super.shouldRebase(tx)
+            && (tx.baseIndex != this.raft.getLastLogIndex() || tx.baseTerm != this.raft.getLastLogTerm()))
+          .forEach(tx -> {
+            assert tx.getState().equals(TxState.COMMIT_READY) && this.pendingRequests.contains(tx);
+            this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
+        });
 
         // Cleanup pending requests and commit writes
         this.pendingRequests.clear();
-        for (PendingWrite pendingWrite : this.pendingWrites.values())
-            pendingWrite.cleanup();
+        this.pendingWrites.values().forEach(PendingWrite::cleanup);
         this.pendingWrites.clear();
 
         // Proceed
@@ -852,10 +852,9 @@ public class FollowerRole extends NonLeaderRole {
             this.updateElectionTimer();
 
             // Fail any rebasable transactions
-            for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
-                if (this.shouldRebase(tx))
-                    this.raft.fail(tx, new RetryTransactionException(tx, "rec'd snapshot install from leader"));
-            }
+            new ArrayList<>(this.raft.openTransactions.values()).stream()
+              .filter(this::shouldRebase)
+              .forEach(tx -> this.raft.fail(tx, new RetryTransactionException(tx, "rec'd snapshot install from leader")));
         }
     }
 
@@ -983,9 +982,9 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     public String toString() {
         synchronized (this.raft) {
-            final HashSet<Long> pendingRequestIds = new HashSet<Long>(pendingRequests.size());
-            for (RaftKVTransaction tx : pendingRequests)
-                pendingRequestIds.add(tx.txId);
+            final List<Long> pendingRequestIds = pendingRequests.stream()
+              .map(tx -> tx.txId)
+              .collect(Collectors.toList());
             return this.toStringPrefix()
               + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
               + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")

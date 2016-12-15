@@ -66,12 +66,8 @@ public class FunctionTest extends TestSupport {
 
     private void testExpression(final String expression, Object expected) {
         final Object[] actual = new Object[1];
-        this.session.performParseSessionAction(new TestAction() {
-            @Override
-            public void run(ParseSession session) throws Exception {
-                actual[0] = new ExprParser().parse(session, new ParseContext(expression), false).evaluate(session).get(session);
-            }
-        });
+        this.session.performParseSessionAction((TestAction)session2 -> actual[0]
+          = new ExprParser().parse(session2, new ParseContext(expression), false).evaluate(session2).get(session2));
         Assert.assertEquals(actual[0], expected);
     }
 

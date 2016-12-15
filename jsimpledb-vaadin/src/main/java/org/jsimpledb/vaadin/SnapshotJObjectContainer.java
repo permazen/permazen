@@ -71,20 +71,17 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
 
         // Grab KVStore snapshot
         final CloseableKVStore[] snapshotHolder = new CloseableKVStore[1];
-        this.doInTransaction(new Runnable() {
-            @Override
-            public void run() {
-                final JTransaction jtx = JTransaction.getCurrent();
-                final CloseableKVStore snapshot = jtx.getTransaction().getKVTransaction().mutableSnapshot();
-                jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
-                    @Override
-                    public void afterCompletion(boolean committed) {
-                        if (!committed)
-                            snapshot.close();
-                    }
-                });
-                snapshotHolder[0] = snapshot;
-            }
+        this.doInTransaction(() -> {
+            final JTransaction jtx = JTransaction.getCurrent();
+            final CloseableKVStore snapshot = jtx.getTransaction().getKVTransaction().mutableSnapshot();
+            jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
+                @Override
+                public void afterCompletion(boolean committed) {
+                    if (!committed)
+                        snapshot.close();
+                }
+            });
+            snapshotHolder[0] = snapshot;
         });
 
         // Replace previous KVStore snapshot (if any)
@@ -96,12 +93,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
 
         // Create snapshot transaction based on the key/value store snapshot and load container
         final SnapshotJTransaction snapshotTx = this.jdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);
-        snapshotTx.performAction(new Runnable() {
-            @Override
-            public void run() {
-                SnapshotJObjectContainer.this.load(SnapshotJObjectContainer.this.iterateObjects());
-            }
-        });
+        snapshotTx.performAction(() -> this.load(this.iterateObjects()));
     }
 
     /**

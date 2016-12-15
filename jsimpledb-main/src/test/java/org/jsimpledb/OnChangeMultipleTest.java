@@ -28,7 +28,7 @@ public class OnChangeMultipleTest extends TestSupport {
     private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = new ThreadLocal<ArrayList<FieldChange<?>>>() {
         @Override
         protected ArrayList<FieldChange<?>> initialValue() {
-            return new ArrayList<FieldChange<?>>();
+            return new ArrayList<>();
         }
     };
 
@@ -46,7 +46,7 @@ public class OnChangeMultipleTest extends TestSupport {
             this.verify();
 
             p1.setName("Person #1");
-            this.verify(new SimpleFieldChange<Person, String>(p1, 101, "name", null, "Person #1"));
+            this.verify(new SimpleFieldChange<>(p1, 101, "name", null, "Person #1"));
 
             p1.getFriends().add(p2);
             this.verify(new SetFieldAdd<Person, Person>(p1, 103, "friends", p2));

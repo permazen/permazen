@@ -43,16 +43,20 @@ public class Main extends AbstractMain implements GUIConfig {
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
-        if (option.equals("--root")) {
+        switch (option) {
+        case "--root":
             if (params.isEmpty())
                 this.usageError();
             this.root = new File(params.removeFirst()).toURI();
-        } else if (option.equals("--port")) {
+            break;
+        case "--port":
             if (params.isEmpty())
                 this.usageError();
             this.port = Integer.parseInt(params.removeFirst());
-        } else
+            break;
+        default:
             return false;
+        }
         return true;
     }
 
@@ -66,7 +70,7 @@ public class Main extends AbstractMain implements GUIConfig {
         }
 
         // Parse command line
-        final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
+        final ArrayDeque<String> params = new ArrayDeque<>(Arrays.asList(args));
         final int result = this.parseOptions(params);
         if (result != -1)
             return result;

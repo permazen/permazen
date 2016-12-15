@@ -13,6 +13,7 @@ import java.util.Map;
  *
  * @see Transaction#addVersionChangeListener Transaction.addVersionChangeListener()
  */
+@FunctionalInterface
 public interface VersionChangeListener {
 
     /**

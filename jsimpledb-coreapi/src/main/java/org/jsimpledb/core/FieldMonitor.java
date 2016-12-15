@@ -22,12 +22,7 @@ class FieldMonitor {
     /**
      * Sorts instances by length of reference path.
      */
-    public static final Comparator<FieldMonitor> SORT_BY_PATH_LENGTH = new Comparator<FieldMonitor>() {
-        @Override
-        public int compare(FieldMonitor monitor1, FieldMonitor monitor2) {
-            return Integer.compare(monitor1.path.length, monitor2.path.length);
-        }
-    };
+    public static final Comparator<FieldMonitor> SORT_BY_PATH_LENGTH = Comparator.comparingInt(m -> m.path.length);
 
     final int storageId;
     final int[] path;

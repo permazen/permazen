@@ -85,8 +85,9 @@ public class Schemas {
 
         // Gather all object type storage IDs
         for (Schema version : this.versions.values()) {
-            for (ObjType objType : version.objTypeMap.values())
-                objTypeStorageIds.add(objType.storageId);
+            version.objTypeMap.values().stream()
+              .map(objType -> objType.storageId)
+              .forEach(objTypeStorageIds::add);
         }
 
         // Calculate, for each simple field, the storage ID's of all types in which, for some schema version,

@@ -95,14 +95,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V, NavigableSet<E>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V> newBounds) {
-            return new OfValues<V, E>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfValues<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected NavigableSet<E> decodeValue(byte[] keyPrefix) {
-            IndexSet<E> indexSet = new IndexSet<E>(this.tx, this.indexView.getTargetType(), this.indexView.prefixMode, keyPrefix);
+            IndexSet<E> indexSet = new IndexSet<>(this.tx, this.indexView.getTargetType(), this.indexView.prefixMode, keyPrefix);
             final KeyFilter targetFilter = this.indexView.getFilter(1);
             if (targetFilter != null) {
                 indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, keyPrefix,
@@ -139,14 +139,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index<V2, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex<V1, V2, T>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex<V2, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex<V2, T>(this.tx, this.indexView.asIndexView(keyPrefix));
+            return new CoreIndex<>(this.tx, this.indexView.asIndexView(keyPrefix));
         }
     }
 
@@ -177,14 +177,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index2<V2, V3, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex2<V1, V2, V3, T>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex2<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex2<V2, V3, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex2<V2, V3, T>(this.tx, this.indexView.asIndex2View(keyPrefix));
+            return new CoreIndex2<>(this.tx, this.indexView.asIndex2View(keyPrefix));
         }
     }
 
@@ -215,14 +215,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index3<V2, V3, V4, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex3<V1, V2, V3, V4, T>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex3<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex3<V2, V3, V4, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex3<V2, V3, V4, T>(this.tx, this.indexView.asIndex3View(keyPrefix));
+            return new CoreIndex3<>(this.tx, this.indexView.asIndex3View(keyPrefix));
         }
     }
 }

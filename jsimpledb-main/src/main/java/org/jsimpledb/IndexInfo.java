@@ -98,8 +98,9 @@ class IndexInfo {
         }
 
         // Check values
-        for (ValueCheck check : valueChecks)
-            this.filters.add(check.checkAndGetKeyRanges(jdb, startType, "index query on field `" + fieldName + "'"));
+        valueChecks.stream()
+          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field `" + fieldName + "'"))
+          .forEach(this.filters::add);
     }
 
     // Constructor for composite index queries
@@ -132,8 +133,9 @@ class IndexInfo {
         valueChecks.add(new ValueCheck("target type", startType, startType));
 
         // Check values
-        for (ValueCheck check : valueChecks)
-            this.filters.add(check.checkAndGetKeyRanges(jdb, startType, "query on composite index `" + indexName + "'"));
+        valueChecks.stream()
+          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "query on composite index `" + indexName + "'"))
+          .forEach(this.filters::add);
     }
 
     private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {

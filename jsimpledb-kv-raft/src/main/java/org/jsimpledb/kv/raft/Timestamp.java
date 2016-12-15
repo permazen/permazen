@@ -31,14 +31,7 @@ public class Timestamp implements Comparable<Timestamp> {
      * <p>
      * All non-null {@link Timestamp}s must be contained within a single 2<sup>31</sup>-1 range; otherwise results are undefined.
      */
-    public static final Comparator<Timestamp> NULL_FIRST_SORT = new Comparator<Timestamp>() {
-        @Override
-        public int compare(Timestamp t1, Timestamp t2) {
-            return t1 == null ?
-              (t2 == null ? 0 : -1) :
-              (t2 == null ? 1 : t1.compareTo(t2));
-        }
-    };
+    public static final Comparator<Timestamp> NULL_FIRST_SORT = Comparator.nullsFirst(Comparator.naturalOrder());
 
     // Make timestamps start at zero to facilitate debugging
     private static final int TIME_BASE = Timestamp.milliTime();

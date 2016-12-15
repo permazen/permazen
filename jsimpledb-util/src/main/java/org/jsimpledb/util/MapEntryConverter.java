@@ -38,7 +38,7 @@ class MapEntryConverter<K, V, WK, WV> extends Converter<Map.Entry<K, V>, Map.Ent
     protected Map.Entry<K, V> doBackward(Map.Entry<WK, WV> wentry) {
         if (wentry == null)
             return null;
-        return new ConvertedMapEntry<K, V, WK, WV>(this.keyConverter, this.valueConverter, wentry);
+        return new ConvertedMapEntry<>(this.keyConverter, this.valueConverter, wentry);
     }
 }
 

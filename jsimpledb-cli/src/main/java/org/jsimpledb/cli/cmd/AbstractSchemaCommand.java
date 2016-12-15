@@ -37,17 +37,14 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         }
 
         // Read schema from the database
-        return AbstractSchemaCommand.runWithoutSchema(session, new SchemaAgnosticAction<SchemaModel>() {
-            @Override
-            public SchemaModel runWithoutSchema(CliSession session, Transaction tx) {
-                final Schema schema = tx.getSchemas().getVersions().get(version);
-                if (schema == null) {
-                    session.getWriter().println("Schema version " + version
-                      + " not found (known versions: " + tx.getSchemas().getVersions().keySet() + ")");
-                    return null;
-                }
-                return schema.getSchemaModel();
+        return AbstractSchemaCommand.runWithoutSchema(session, (session1, tx) -> {
+            final Schema schema = tx.getSchemas().getVersions().get(version);
+            if (schema == null) {
+                session1.getWriter().println("Schema version " + version
+                  + " not found (known versions: " + tx.getSchemas().getVersions().keySet() + ")");
+                return null;
             }
+            return schema.getSchemaModel();
         });
     }
 
@@ -73,7 +70,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         }
     }
 
-    interface SchemaAgnosticAction<R> {
+    protected interface SchemaAgnosticAction<R> {
         R runWithoutSchema(CliSession session, Transaction tx);
     }
 }

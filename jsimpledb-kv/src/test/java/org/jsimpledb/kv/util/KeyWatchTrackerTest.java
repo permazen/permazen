@@ -28,12 +28,7 @@ public class KeyWatchTrackerTest extends TestSupport {
 
         final ListenableFuture<?> f1 = tracker.register(B1);
         final AtomicBoolean flag = new AtomicBoolean();
-        f1.addListener(new Runnable() {
-            @Override
-            public void run() {
-                flag.set(true);
-            }
-        }, MoreExecutors.directExecutor());
+        f1.addListener(() -> flag.set(true), MoreExecutors.directExecutor());
 
         tracker.trigger(B2);
 
@@ -65,11 +60,11 @@ public class KeyWatchTrackerTest extends TestSupport {
 
         tracker.trigger(B1);
 
-        for (int i = 0; i < futures1.length; i++)
-            this.verifyComplete(futures1[i]);
+        for (ListenableFuture<?> future : futures1)
+            this.verifyComplete(future);
 
-        for (int i = 0; i < futures2.length; i++)
-            this.verifyNotComplete(futures2[i]);
+        for (ListenableFuture<?> future : futures2)
+            this.verifyNotComplete(future);
     }
 
     @Test

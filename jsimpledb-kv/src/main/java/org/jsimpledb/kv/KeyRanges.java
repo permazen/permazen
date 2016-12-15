@@ -8,7 +8,6 @@ package org.jsimpledb.kv;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 
 import java.io.IOException;
@@ -16,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
@@ -214,7 +214,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
      */
     public NavigableSet<KeyRange> asSet() {
         assert this.checkMinimal();
-        return Sets.unmodifiableNavigableSet(this.ranges);              // JAVA8: Collections.unmodifiableNavigableSet()
+        return Collections.unmodifiableNavigableSet(this.ranges);
     }
 
     /**
@@ -583,8 +583,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
             this.ranges = (TreeSet<KeyRange>)ranges.ranges.clone();
             return;
         }
-        for (KeyRange range : ranges.ranges)
-            this.add(range);
+        ranges.ranges.forEach(this::add);
     }
 
     /**
@@ -598,8 +597,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
         assert this.checkMinimal();
         if (this.ranges.isEmpty())
             return;
-        for (KeyRange range : ranges.ranges)
-            this.remove(range);
+        ranges.ranges.forEach(this::remove);
     }
 
     /**
@@ -630,8 +628,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
           .addObjectOverhead()                                      // this object overhead
           .addTreeSetField(this.ranges)                             // this.ranges
           .addReferenceField();                                     // this.lastContainingKeyRange (reference only)
-        for (KeyRange range : this.ranges)
-            estimator.add(range);
+        this.ranges.forEach(estimator::add);
     }
 
 // Serialization

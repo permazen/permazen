@@ -57,7 +57,7 @@ class JSetFieldInfo extends JCollectionFieldInfo {
 
     // This method exists solely to bind the generic type parameters
     private <X, Y> NavigableSetConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
-        return new NavigableSetConverter<X, Y>(elementConverter);
+        return new NavigableSetConverter<>(elementConverter);
     }
 
     @Override

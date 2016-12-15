@@ -114,7 +114,7 @@ public class Bounds<T> {
      * @return reversal of this instance
      */
     public Bounds<T> reverse() {
-        return new Bounds<T>(this.upperBound, this.upperBoundType, this.lowerBound, this.lowerBoundType);
+        return new Bounds<>(this.upperBound, this.upperBoundType, this.lowerBound, this.lowerBoundType);
     }
 
     /**
@@ -126,7 +126,7 @@ public class Bounds<T> {
      * @throws IllegalArgumentException if {@code newLowerBoundType} is null
      */
     public Bounds<T> withLowerBound(T newLowerBound, BoundType newLowerBoundType) {
-        return new Bounds<T>(newLowerBound, newLowerBoundType, this.upperBound, this.upperBoundType);
+        return new Bounds<>(newLowerBound, newLowerBoundType, this.upperBound, this.upperBoundType);
     }
 
     /**
@@ -138,7 +138,7 @@ public class Bounds<T> {
      * @throws IllegalArgumentException if {@code newUpperBoundType} is null
      */
     public Bounds<T> withUpperBound(T newUpperBound, BoundType newUpperBoundType) {
-        return new Bounds<T>(this.lowerBound, this.lowerBoundType, newUpperBound, newUpperBoundType);
+        return new Bounds<>(this.lowerBound, this.lowerBoundType, newUpperBound, newUpperBoundType);
     }
 
     /**
@@ -147,7 +147,7 @@ public class Bounds<T> {
      * @return new instance
      */
     public Bounds<T> withoutLowerBound() {
-        return new Bounds<T>(null, BoundType.NONE, this.upperBound, this.upperBoundType);
+        return new Bounds<>(null, BoundType.NONE, this.upperBound, this.upperBoundType);
     }
 
     /**
@@ -156,7 +156,7 @@ public class Bounds<T> {
      * @return new instance
      */
     public Bounds<T> withoutUpperBound() {
-        return new Bounds<T>(this.lowerBound, this.lowerBoundType, null, BoundType.NONE);
+        return new Bounds<>(this.lowerBound, this.lowerBoundType, null, BoundType.NONE);
     }
 
     /**

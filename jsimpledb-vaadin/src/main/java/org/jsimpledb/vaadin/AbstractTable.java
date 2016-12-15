@@ -66,7 +66,7 @@ public abstract class AbstractTable<C extends Container & Connectable> extends T
         this.setContainerDataSource(this.container);
 
         // Setup columns
-        this.columnIds = new ArrayList<String>();
+        this.columnIds = new ArrayList<>();
         this.configureColumns();
         this.setVisibleColumns(this.columnIds.toArray());
     }

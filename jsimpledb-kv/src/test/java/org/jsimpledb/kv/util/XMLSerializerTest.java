@@ -74,7 +74,7 @@ public class XMLSerializerTest extends TestSupport {
 
     private static NavigableMap<String, String> s(NavigableMap<byte[], byte[]> map) {
         final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(map, converter, converter);
+        return new ConvertedNavigableMap<>(map, converter, converter);
     }
 }
 

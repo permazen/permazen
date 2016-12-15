@@ -44,7 +44,7 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, keyFieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<K>());
+        this(tx, keyFieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
     }
 
     /**

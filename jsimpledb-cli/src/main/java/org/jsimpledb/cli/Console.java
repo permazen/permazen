@@ -202,12 +202,8 @@ public class Console {
             try {
 
                 // Parse next command
-                if (!this.session.performCliSessionAction(new CliSession.Action() {
-                    @Override
-                    public void run(CliSession session) {
-                        action[0] = Console.this.commandParser.parse(session, ctx, false);
-                    }
-                })) {
+                if (!this.session.performCliSessionAction(
+                  session -> action[0] = Console.this.commandParser.parse(session, ctx, false))) {
                     error = true;
                     break;
                 }
@@ -318,17 +314,14 @@ public class Console {
                 // Parse command(s)
                 final ArrayList<CliSession.Action> actions = new ArrayList<>();
                 final boolean[] needMoreInput = new boolean[1];
-                final boolean ok = this.session.performCliSessionAction(new CliSession.Action() {
-                    @Override
-                    public void run(CliSession session) {
-                        try {
-                            actions.addAll(Console.this.commandListParser.parse(session, ctx, false));
-                        } catch (ParseException e) {
-                            if (ctx.getInput().length() == 0)
-                                needMoreInput[0] = true;
-                            else
-                                throw e;
-                        }
+                final boolean ok = this.session.performCliSessionAction(session -> {
+                    try {
+                        actions.addAll(Console.this.commandListParser.parse(session, ctx, false));
+                    } catch (ParseException e) {
+                        if (ctx.getInput().length() == 0)
+                            needMoreInput[0] = true;
+                        else
+                            throw e;
                     }
                 });
                 if (needMoreInput[0]) {
@@ -368,12 +361,8 @@ public class Console {
         Preconditions.checkArgument(text != null, "null text");
         final ParseContext ctx = new ParseContext(text);
         final ArrayList<CliSession.Action> actions = new ArrayList<>();
-        return this.session.performCliSessionAction(new CliSession.Action() {
-            @Override
-            public void run(CliSession session) {
-                actions.addAll(commandListParser.parse(session, ctx, false));
-            }
-        }) ? actions : null;
+        return this.session.performCliSessionAction(session -> actions.addAll(commandListParser.parse(session, ctx, false))) ?
+          actions : null;
     }
 
     /**
@@ -385,7 +374,7 @@ public class Console {
     public static Terminal getTerminal() throws IOException {
 
         // Are we running on Windows under Cygwin? If so use UNIX flavor instead of Windows
-        final boolean windows = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        final boolean windows = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
         while (windows) {
             final ProcessRunner runner;
             try {

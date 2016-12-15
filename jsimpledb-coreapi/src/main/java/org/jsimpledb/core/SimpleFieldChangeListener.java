@@ -12,6 +12,7 @@ import java.util.NavigableSet;
  *
  * @see Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()
  */
+@FunctionalInterface
 public interface SimpleFieldChangeListener {
 
     /**

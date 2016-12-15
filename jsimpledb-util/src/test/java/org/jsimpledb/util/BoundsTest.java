@@ -129,7 +129,7 @@ public class BoundsTest extends TestSupport {
 
     @DataProvider(name = "cases")
     public Object[][] genCases() {
-        final ArrayList<Object[]> list = new ArrayList<Object[]>();
+        final ArrayList<Object[]> list = new ArrayList<>();
         final int upperBound = 17;
         for (int lowerBound = 12; lowerBound <= upperBound; lowerBound++) {
             for (BoundType lowerBoundType : BoundType.values()) {

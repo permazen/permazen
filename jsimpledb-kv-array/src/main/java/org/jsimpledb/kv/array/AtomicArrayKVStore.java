@@ -35,7 +35,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -369,13 +368,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Create executor if needed
             this.createdExecutorService = this.scheduledExecutorService == null;
             if (this.createdExecutorService) {
-                this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable action) {
-                        final Thread thread = new Thread(action);
-                        thread.setName("Compactor for " + AtomicArrayKVStore.this);
-                        return thread;
-                    }
+                this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(action -> {
+                    final Thread thread = new Thread(action);
+                    thread.setName("Compactor for " + this);
+                    return thread;
                 });
             }
 
@@ -1428,7 +1424,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     private boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 
     private void deleteWarnException(File file) {

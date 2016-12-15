@@ -10,6 +10,7 @@ package org.jsimpledb.core;
  *
  * @see Transaction#addDeleteListener Transaction.addDeleteListener()
  */
+@FunctionalInterface
 public interface DeleteListener {
 
     /**

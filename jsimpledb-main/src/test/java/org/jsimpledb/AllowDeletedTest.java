@@ -71,8 +71,7 @@ public class AllowDeletedTest extends TestSupport {
             }
 
             // copyIn() of one object and one other object it refers to
-            for (Person p : jtx.getAll(Person.class))
-                p.delete();
+            jtx.getAll(Person.class).forEach(JObject::delete);
             try {
                 p1.copyIn("definitelyExistsFriend");
                 assert false;
@@ -81,14 +80,12 @@ public class AllowDeletedTest extends TestSupport {
             }
 
             // copyIn() of all three objects through reference paths from first object
-            for (Person p : jtx.getAll(Person.class))
-                p.delete();
+            jtx.getAll(Person.class).forEach(JObject::delete);
             p1.copyIn("definitelyExistsFriend", "definitelyExistsFriend.definitelyExistsFriend");
             Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
 
             // copyTo() of 2/3 objects
-            for (Person p : jtx.getAll(Person.class))
-                p.delete();
+            jtx.getAll(Person.class).forEach(JObject::delete);
             try {
                 stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2));
                 assert false;
@@ -98,8 +95,7 @@ public class AllowDeletedTest extends TestSupport {
             }
 
             // copyTo() of all 3/3 objects
-            for (Person p : jtx.getAll(Person.class))
-                p.delete();
+            jtx.getAll(Person.class).forEach(JObject::delete);
             stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2, p3));
             Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
 

@@ -65,17 +65,17 @@ public class ListField<E> extends CollectionField<List<E>, E> {
 
     @Override
     List<E> getValueInternal(Transaction tx, ObjId id) {
-        return new JSList<E>(tx, this, id);
+        return new JSList<>(tx, this, id);
     }
 
     @Override
     List<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
-        return Collections.unmodifiableList(new ArrayList<E>(this.getValueInternal(tx, id)));
+        return Collections.unmodifiableList(new ArrayList<>(this.getValueInternal(tx, id)));
     }
 
     @Override
     ListFieldStorageInfo<E> toStorageInfo() {
-        return new ListFieldStorageInfo<E>(this);
+        return new ListFieldStorageInfo<>(this);
     }
 
     @Override

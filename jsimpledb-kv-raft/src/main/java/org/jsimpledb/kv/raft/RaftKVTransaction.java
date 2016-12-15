@@ -99,12 +99,7 @@ public class RaftKVTransaction implements KVTransaction {
 
 */
 
-    static final Comparator<RaftKVTransaction> SORT_BY_ID = new Comparator<RaftKVTransaction>() {
-        @Override
-        public int compare(RaftKVTransaction tx1, RaftKVTransaction tx2) {
-            return Long.compare(tx1.txId, tx2.txId);
-        }
-    };
+    static final Comparator<RaftKVTransaction> SORT_BY_ID = Comparator.comparingLong(tx -> tx.txId);
 
     private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers
 

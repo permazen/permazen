@@ -164,12 +164,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Check stale access
         this.log.info("testSimpleStuff() on " + store + ": checking stale access");
-        final KVTransaction tx = this.tryNtimes(store, new Transactional<KVTransaction>() {
-            @Override
-            public KVTransaction transact(KVTransaction tx) {
-                return tx;
-            }
-        });
+        final KVTransaction tx = this.tryNtimes(store, tx1 -> tx1);
         try {
             tx.get(b("01"));
             assert false;
@@ -198,54 +193,33 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Set up the modifications we want to test
         final ArrayList<Transactional<Void>> mods = new ArrayList<>();
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.put(b("0123"), b("4567"));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.put(b("0123"), b("4567"));
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.put(b("0123"), b("89ab"));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.put(b("0123"), b("89ab"));
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.put(b("0123"), tx.encodeCounter(1234));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.put(b("0123"), tx.encodeCounter(1234));
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.adjustCounter(b("0123"), 99);
-                return null;
-            }
+        mods.add(tx -> {
+            tx.adjustCounter(b("0123"), 99);
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(b("01"), b("02"));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.removeRange(b("01"), b("02"));
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.put(b("0123"), b(""));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.put(b("0123"), b(""));
+            return null;
         });
-        mods.add(new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.remove(b("0123"));
-                return null;
-            }
+        mods.add(tx -> {
+            tx.remove(b("0123"));
+            return null;
         });
 
         // Set watches, perform modifications, and test notifications
@@ -253,14 +227,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
             // Set watch
             this.log.info("testKeyWatch() on " + store + ": creating key watch for " + mod);
-            final Future<Void> watch = this.tryNtimes(store, new Transactional<Future<Void>>() {
-                @Override
-                public Future<Void> transact(KVTransaction tx) {
-                    try {
-                        return tx.watchKey(b("0123"));
-                    } catch (UnsupportedOperationException e) {
-                        return null;
-                    }
+            final Future<Void> watch = this.tryNtimes(store, tx -> {
+                try {
+                    return tx.watchKey(b("0123"));
+                } catch (UnsupportedOperationException e) {
+                    return null;
                 }
             });
             if (watch == null) {
@@ -472,8 +443,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 tasks[i] = new RandomTask(i, stores[this.random.nextInt(stores.length)], this.random.nextLong());
                 tasks[i].start();
             }
-            for (int i = 0; i < tasks.length; i++)
-                tasks[i].join();
+            for (RandomTask task : tasks)
+                task.join();
             for (int i = 0; i < tasks.length; i++) {
                 final Throwable fail = tasks[i].getFail();
                 if (fail != null)
@@ -509,7 +480,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         });
 
         // Keep an in-memory record of what is in the committed database
-        final TreeMap<byte[], byte[]> committedData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
 
         // Run transactions
         for (int i = 0; i < 50; i++) {
@@ -896,7 +867,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (this.committedData != null) {
 
                 // Read actual content
-                final TreeMap<byte[], byte[]> actual = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+                final TreeMap<byte[], byte[]> actual = new TreeMap<>(ByteUtil.COMPARATOR);
                 final NavigableMap<String, String> actualView = stringView(actual);
                 actual.putAll(this.readDatabase());
 
@@ -937,16 +908,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         private TreeMap<byte[], byte[]> readDatabase() {
-            return KVDatabaseTest.this.tryNtimes(this.store, new Transactional<TreeMap<byte[], byte[]>>() {
-                @Override
-                public TreeMap<byte[], byte[]> transact(KVTransaction tx) {
-                    return RandomTask.this.readDatabase(tx);
-                }
-            });
+            return KVDatabaseTest.this.tryNtimes(this.store, RandomTask.this::readDatabase);
         }
 
         private TreeMap<byte[], byte[]> readDatabase(KVStore tx) {
-            final TreeMap<byte[], byte[]> values = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+            final TreeMap<byte[], byte[]> values = new TreeMap<>(ByteUtil.COMPARATOR);
             final Iterator<KVPair> i = tx.getRange(null, null, false);
             while (i.hasNext()) {
                 final KVPair pair = i.next();

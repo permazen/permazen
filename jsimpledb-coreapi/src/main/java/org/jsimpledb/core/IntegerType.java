@@ -26,7 +26,7 @@ class IntegerType extends IntegralType<Integer> {
     @Override
     public Integer validate(Object obj) {
         if (obj instanceof Character)
-            return (int)((Character)obj).charValue();
+            return (int)(Character)obj;
         if (obj instanceof Byte || obj instanceof Short)
             return ((Number)obj).intValue();
         return super.validate(obj);

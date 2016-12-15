@@ -31,16 +31,13 @@ public class RaftFallbackForceStandaloneCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean on = (Boolean)params.get("on");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
-                    throw new Exception("key/value store is not Raft fallback");
-                final FallbackKVDatabase fallbackKV = (FallbackKVDatabase)session.getKVDatabase();
-                fallbackKV.setMaximumTargetIndex(on ? -1 : Integer.MAX_VALUE);
-            }
+        return session -> {
+            if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
+                throw new Exception("key/value store is not Raft fallback");
+            final FallbackKVDatabase fallbackKV = (FallbackKVDatabase)session.getKVDatabase();
+            fallbackKV.setMaximumTargetIndex(on ? -1 : Integer.MAX_VALUE);
         };
     }
 }

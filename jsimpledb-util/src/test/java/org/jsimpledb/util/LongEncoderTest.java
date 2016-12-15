@@ -55,10 +55,9 @@ public class LongEncoderTest extends TestSupport {
     }
 
     private long decode(String string) {
-        byte[] b = ByteUtil.parse(string);
         long value = 0;
-        for (int i = 0; i < b.length; i++)
-            value = (value << 8) | (b[i] & 0xff);
+        for (byte b : ByteUtil.parse(string))
+            value = (value << 8) | (b & 0xff);
         return value;
     }
 
@@ -75,7 +74,7 @@ public class LongEncoderTest extends TestSupport {
 
     @DataProvider(name = "randomEncodings")
     public String[][] genRandomEncodings() {
-        final ArrayList<String[]> values = new ArrayList<String[]>();
+        final ArrayList<String[]> values = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             final int maskBytes = this.random.nextInt(8) + 1;
             long value = this.random.nextLong();

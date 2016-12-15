@@ -15,8 +15,8 @@ class SetFieldStorageInfo<E> extends CollectionFieldStorageInfo<NavigableSet<E>,
 
     @Override
     CoreIndex<E, ObjId> getElementFieldIndex(Transaction tx) {
-        return new CoreIndex<E, ObjId>(tx,
-          new IndexView<E, ObjId>(this.elementField.storageId, this.elementField.fieldType, FieldTypeRegistry.OBJ_ID));
+        return new CoreIndex<>(tx,
+          new IndexView<>(this.elementField.storageId, this.elementField.fieldType, FieldTypeRegistry.OBJ_ID));
     }
 
     @Override

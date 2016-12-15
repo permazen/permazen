@@ -63,7 +63,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     NavigableSet<E> getValueInternal(Transaction tx, ObjId id) {
-        return new JSSet<E>(tx, this, id);
+        return new JSSet<>(tx, this, id);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     SetFieldStorageInfo<E> toStorageInfo() {
-        return new SetFieldStorageInfo<E>(this);
+        return new SetFieldStorageInfo<>(this);
     }
 
     @Override

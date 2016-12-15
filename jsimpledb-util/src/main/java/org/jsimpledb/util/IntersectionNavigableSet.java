@@ -42,7 +42,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     @Override
     protected NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds, List<NavigableSet<E>> newList) {
         final Comparator<? super E> newComparator = this.getComparator(reverse);
-        return new IntersectionNavigableSet<E>(newList, newComparator, bounds);
+        return new IntersectionNavigableSet<>(newList, newComparator, bounds);
     }
 
     @Override

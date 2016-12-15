@@ -47,7 +47,7 @@ class Index2Converter<V1, V2, T, WV1, WV2, WT> extends Converter<Index2<V1, V2, 
     protected Index2<V1, V2, T> doBackward(Index2<WV1, WV2, WT> index) {
         if (index == null)
             return null;
-        return new ConvertedIndex2<V1, V2, T, WV1, WV2, WT>(index,
+        return new ConvertedIndex2<>(index,
           this.value1Converter, this.value2Converter, this.targetConverter);
     }
 

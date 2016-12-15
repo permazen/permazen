@@ -102,7 +102,7 @@ public class CompositeIndexTest extends TestSupport {
         final HashSet<Tuple3<R, String, T>> set = new HashSet<>();
         for (Top top : jtx.getAll(Top.class)) {
             try {
-                set.add(new Tuple3<R, String, T>(ref.cast(top.getRef1()), top.getString(), target.cast(top)));
+                set.add(new Tuple3<>(ref.cast(top.getRef1()), top.getString(), target.cast(top)));
             } catch (ClassCastException e) {
                 continue;
             }
@@ -114,7 +114,7 @@ public class CompositeIndexTest extends TestSupport {
         final HashSet<Tuple3<Integer, R, T>> set = new HashSet<>();
         for (Top top : jtx.getAll(Top.class)) {
             try {
-                set.add(new Tuple3<Integer, R, T>(top.getInt(), ref.cast(top.getRef2()), target.cast(top)));
+                set.add(new Tuple3<>(top.getInt(), ref.cast(top.getRef2()), target.cast(top)));
             } catch (ClassCastException e) {
                 continue;
             }

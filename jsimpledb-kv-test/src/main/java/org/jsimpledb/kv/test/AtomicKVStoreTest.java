@@ -92,7 +92,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         kv.start();
 
         // Test
-        final TreeMap<byte[], byte[]> map = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
         for (int count = 0; count < 200; count++) {
             this.log.trace("[" + count + "] next iteration");
             Writes writes;
@@ -254,7 +254,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
     }
 
     private TreeMap<byte[], byte[]> read(int count, AtomicKVStore lkv, byte[] minKey, byte[] maxKey) {
-        final TreeMap<byte[], byte[]> map = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
         this.log.trace("[" + count + "]: reading kv store");
         final KVStore kv;
         final CloseableKVStore snapshot;

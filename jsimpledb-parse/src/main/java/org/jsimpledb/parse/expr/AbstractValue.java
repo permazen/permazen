@@ -346,8 +346,8 @@ public abstract class AbstractValue implements Value {
         if (lnum instanceof BigInteger)
             return new ConstValue(((BigInteger)lnum).and((BigInteger)rnum));
         if (lnum instanceof Long)
-            return new ConstValue(((Long)lnum).longValue() & ((Long)rnum).longValue());
-        return new ConstValue(((Integer)lnum).intValue() & ((Integer)rnum).intValue());
+            return new ConstValue((Long)lnum & (Long)rnum);
+        return new ConstValue((Integer)lnum & (Integer)rnum);
     }
 
     @Override
@@ -380,8 +380,8 @@ public abstract class AbstractValue implements Value {
         if (lnum instanceof BigInteger)
             return new ConstValue(((BigInteger)lnum).or((BigInteger)rnum));
         if (lnum instanceof Long)
-            return new ConstValue(((Long)lnum).longValue() | ((Long)rnum).longValue());
-        return new ConstValue(((Integer)lnum).intValue() | ((Integer)rnum).intValue());
+            return new ConstValue((Long)lnum | (Long)rnum);
+        return new ConstValue((Integer)lnum | (Integer)rnum);
     }
 
     @Override
@@ -416,8 +416,8 @@ public abstract class AbstractValue implements Value {
         if (lnum instanceof BigInteger)
             return new ConstValue(((BigInteger)lnum).xor((BigInteger)rnum));
         if (lnum instanceof Long)
-            return new ConstValue(((Long)lnum).longValue() ^ ((Long)rnum).longValue());
-        return new ConstValue(((Integer)lnum).intValue() ^ ((Integer)rnum).intValue());
+            return new ConstValue((Long)lnum ^ (Long)rnum);
+        return new ConstValue((Integer)lnum ^ (Integer)rnum);
     }
 
     @Override
@@ -493,7 +493,7 @@ public abstract class AbstractValue implements Value {
 
         // Promote to widest type of any argument
         if (args.length > 0) {
-            final ArrayList<Number> nums = new ArrayList<Number>(1 + args.length);
+            final ArrayList<Number> nums = new ArrayList<>(1 + args.length);
             nums.add(num);
             nums.addAll(Lists.transform(Arrays.asList(args), new Function<Object, Number>() {
                 @Override

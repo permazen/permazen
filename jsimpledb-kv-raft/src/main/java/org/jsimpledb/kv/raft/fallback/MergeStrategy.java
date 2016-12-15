@@ -12,6 +12,7 @@ import org.jsimpledb.kv.KVTransaction;
 /**
  * Merge strategy used by a {@link FallbackKVDatabase} when migrating from one underlying database to another.
  */
+@FunctionalInterface
 public interface MergeStrategy {
 
     /**

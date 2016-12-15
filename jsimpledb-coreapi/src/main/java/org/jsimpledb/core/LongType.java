@@ -26,7 +26,7 @@ class LongType extends IntegralType<Long> {
     @Override
     public Long validate(Object obj) {
         if (obj instanceof Character)
-            return (long)((Character)obj).charValue();
+            return (long)(Character)obj;
         if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer)
             return ((Number)obj).longValue();
         return super.validate(obj);

@@ -10,7 +10,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.NavigableSet;
 
@@ -40,8 +39,8 @@ public final class NavigableSets {
     public static <E> NavigableSet<E> intersection(Iterable<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
         if (Iterables.find(sets, Predicates.instanceOf(EmptyNavigableSet.class), null) != null)
-            return new EmptyNavigableSet<E>(null);
-        return new IntersectionNavigableSet<E>(sets);
+            return new EmptyNavigableSet<>(null);
+        return new IntersectionNavigableSet<>(sets);
     }
 
     /**
@@ -98,8 +97,8 @@ public final class NavigableSets {
     public static <E> NavigableSet<E> union(Iterable<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
         if (!(sets = Iterables.filter(sets, Predicates.not(Predicates.instanceOf(EmptyNavigableSet.class)))).iterator().hasNext())
-            return new EmptyNavigableSet<E>(null);
-        return new UnionNavigableSet<E>(sets);
+            return new EmptyNavigableSet<>(null);
+        return new UnionNavigableSet<>(sets);
     }
 
     /**
@@ -120,7 +119,7 @@ public final class NavigableSets {
         Preconditions.checkArgument(set2 != null, "null set2");
         if (set1 instanceof EmptyNavigableSet || set2 instanceof EmptyNavigableSet)
             return set1;
-        return new DifferenceNavigableSet<E>(set1, set2);
+        return new DifferenceNavigableSet<>(set1, set2);
     }
 
     /**
@@ -170,7 +169,7 @@ public final class NavigableSets {
      *  {@code value}'s class has no natural ordering (i.e., does not implement {@link Comparable})
      */
     public static <E> NavigableSet<E> singleton(Comparator<? super E> comparator, E value) {
-        return new SingletonNavigableSet<E>(comparator, value);
+        return new SingletonNavigableSet<>(comparator, value);
     }
 
     /**
@@ -192,7 +191,7 @@ public final class NavigableSets {
      * @return empty set
      */
     public static <E> NavigableSet<E> empty(Comparator<? super E> comparator) {
-        return new EmptyNavigableSet<E>(comparator);
+        return new EmptyNavigableSet<>(comparator);
     }
 
     /**
@@ -203,33 +202,11 @@ public final class NavigableSets {
      * @param <T> compared type
      * @return a non-null {@link Comparator}
      */
+    @SuppressWarnings("unchecked")
     static <T> Comparator<T> getComparator(Comparator<T> comparator, boolean reversed) {
         if (comparator == null)
-            comparator = NaturalComparator.<T>getInstance();
-        if (!reversed)
-            return comparator;
-        return NaturalComparator.INSTANCE.equals(comparator) ?
-          Collections.<T>reverseOrder() : Collections.<T>reverseOrder(comparator);
-    }
-
-// NaturalComparator
-
-    // JAVA8: replace by Collections.naturalOrder().
-    @SuppressWarnings("rawtypes")
-    private static final class NaturalComparator<T> implements Comparator<T> {
-
-        private static final NaturalComparator<Object> INSTANCE = new NaturalComparator<>();
-
-        @SuppressWarnings("unchecked")
-        public static <T> NaturalComparator<T> getInstance() {
-            return (NaturalComparator<T>)INSTANCE;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public int compare(T e1, T e2) {
-            return ((Comparable<T>)e1).compareTo(e2);
-        }
+            comparator = (Comparator<T>)Comparator.naturalOrder();
+        return reversed ? comparator.reversed() : comparator;
     }
 }
 

@@ -240,30 +240,15 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 // Helper methods
 
     private byte[] queryBytes(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, new ResultSetFunction<byte[]>() {
-            @Override
-            public byte[] apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
-                return resultSet.next() ? resultSet.getBytes(1) : null;
-            }
-        }, true, params);
+        return this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
     }
 
     private KVPair queryKVPair(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, new ResultSetFunction<KVPair>() {
-            @Override
-            public KVPair apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
-                return resultSet.next() ? new KVPair(resultSet.getBytes(1), resultSet.getBytes(2)) : null;
-            }
-        }, true, params);
+        return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(rs.getBytes(1), rs.getBytes(2)) : null, true, params);
     }
 
     private Iterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, new ResultSetFunction<Iterator<KVPair>>() {
-            @Override
-            public Iterator<KVPair> apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
-                return new ResultSetIterator(preparedStatement, resultSet);
-            }
-        }, false, params);
+        return this.query(stmtType, ResultSetIterator::new, false, params);
     }
 
     private <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {

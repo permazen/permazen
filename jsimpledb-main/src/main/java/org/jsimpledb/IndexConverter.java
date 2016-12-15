@@ -41,7 +41,7 @@ class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>>
     protected Index<V, T> doBackward(Index<WV, WT> index) {
         if (index == null)
             return null;
-        return new ConvertedIndex<V, T, WV, WT>(index, this.valueConverter, this.targetConverter);
+        return new ConvertedIndex<>(index, this.valueConverter, this.targetConverter);
     }
 
 // Object

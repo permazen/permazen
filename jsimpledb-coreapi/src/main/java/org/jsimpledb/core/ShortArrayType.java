@@ -40,8 +40,8 @@ class ShortArrayType extends IntegralArrayType<short[], Short> {
 
     @Override
     protected void encode(short[] array, DataOutputStream output) throws IOException {
-        for (int i = 0; i < array.length; i++)
-            output.writeShort(array[i]);
+        for (short value : array)
+            output.writeShort(value);
     }
 
     @Override

@@ -59,43 +59,38 @@ public class HelpCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean all = params.containsKey("all");
         final String name = (String)params.get("command-or-function");
         final SessionMode sessionMode = session.getMode();
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final PrintWriter writer = session.getWriter();
-                if (name == null) {
-                    writer.println((all ? "All" : "Available") + " commands:");
-                    for (Command command : session.getCommands().values()) {
-                        if (all || command.getSessionModes().contains(sessionMode))
-                            writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary()));
-                    }
-                    writer.println((all ? "All" : "Available") + " functions:");
-                    for (Function function : session.getFunctions().values()) {
-                        if (all || function.getSessionModes().contains(sessionMode))
-                            writer.println(String.format("%24s - %s", function.getName(), function.getHelpSummary()));
-                    }
-                } else {
-                    final Command command = session.getCommands().get(name);
-                    if (command != null) {
-                        writer.println("Usage: " + command.getUsage());
-                        writer.println(command.getHelpDetail());
-                        writer.println("Supported session modes: "
-                          + command.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
-                    }
-                    final Function function = session.getFunctions().get(name);
-                    if (function != null) {
-                        writer.println("Usage: " + function.getUsage());
-                        writer.println(function.getHelpDetail());
-                        writer.println("Supported session modes: "
-                          + function.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
-                    }
-                    if (command == null && function == null)
-                        writer.println("No command or function named `" + name + "' exists.");
+        return session -> {
+            final PrintWriter writer = session.getWriter();
+            if (name == null) {
+                writer.println((all ? "All" : "Available") + " commands:");
+                session.getCommands().values().stream()
+                  .filter(command -> all || command.getSessionModes().contains(sessionMode))
+                  .forEach(command -> writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary())));
+                writer.println((all ? "All" : "Available") + " functions:");
+                session.getFunctions().values().stream()
+                  .filter(function -> all || function.getSessionModes().contains(sessionMode))
+                  .forEach(function -> writer.println(String.format("%24s - %s", function.getName(), function.getHelpSummary())));
+            } else {
+                final Command command = session.getCommands().get(name);
+                if (command != null) {
+                    writer.println("Usage: " + command.getUsage());
+                    writer.println(command.getHelpDetail());
+                    writer.println("Supported session modes: "
+                      + command.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
                 }
+                final Function function = session.getFunctions().get(name);
+                if (function != null) {
+                    writer.println("Usage: " + function.getUsage());
+                    writer.println(function.getHelpDetail());
+                    writer.println("Supported session modes: "
+                      + function.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
+                }
+                if (command == null && function == null)
+                    writer.println("No command or function named `" + name + "' exists.");
             }
         };
     }

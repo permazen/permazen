@@ -34,31 +34,25 @@ public class DetachedObjectTest extends TestSupport {
     public void testDetachedObject() {
 
         // Create object and assign it to variable $x
-        boolean success = this.session.performParseSessionAction(new TestAction() {
-            @Override
-            public void run(ParseSession session) {
+        boolean success = this.session.performParseSessionAction((TestAction)session2 -> {
 
-                // Create "Fred"
-                final JTransaction jtx = session.getJTransaction();
-                final Person fred = jtx.create(Person.class);
-                fred.setName("Fred");
+            // Create "Fred"
+            final JTransaction jtx = session2.getJTransaction();
+            final Person fred = jtx.create(Person.class);
+            fred.setName("Fred");
 
-                // Assign $x = fred
-                new ExprParser().parse(session, new ParseContext("$x = @" + fred.getObjId()), false).evaluate(session);
-            }
+            // Assign $x = fred
+            new ExprParser().parse(session2, new ParseContext("$x = @" + fred.getObjId()), false).evaluate(session2);
         });
         Assert.assertTrue(success);
 
         // Now dereference $x in a new transaction
-        success = this.session.performParseSessionAction(new TestAction() {
-            @Override
-            public void run(ParseSession session) {
+        success = this.session.performParseSessionAction((TestAction)session2 -> {
 
-                // Get $x.name
-                final Object name = new ExprParser().parse(session,
-                  new ParseContext("$x.name"), false).evaluate(session).get(session);
-                Assert.assertEquals(name, "Fred");
-            }
+            // Get $x.name
+            final Object name = new ExprParser().parse(session2,
+              new ParseContext("$x.name"), false).evaluate(session2).get(session2);
+            Assert.assertEquals(name, "Fred");
         });
         Assert.assertTrue(success);
     }

@@ -34,8 +34,8 @@ public class LotsOfFieldsTest extends TestSupport {
         JTransaction.setCurrent(jtx);
         try {
 
-            for (int i = 0; i < classes.length; i++) {
-                final Class<? extends JObject> cl = classes[i].asSubclass(JObject.class);
+            for (Class<?> cl0 : classes) {
+                final Class<? extends JObject> cl = cl0.asSubclass(JObject.class);
                 final JObject jobj = jtx.create(cl);
                 final int numFields = Integer.parseInt(cl.getSimpleName().substring(6));
                 this.verifyFields(jobj, numFields, 0);

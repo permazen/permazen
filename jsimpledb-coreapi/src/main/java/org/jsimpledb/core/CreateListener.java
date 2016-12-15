@@ -10,6 +10,7 @@ package org.jsimpledb.core;
  *
  * @see Transaction#addCreateListener Transaction.addCreateListener()
  */
+@FunctionalInterface
 public interface CreateListener {
 
     /**

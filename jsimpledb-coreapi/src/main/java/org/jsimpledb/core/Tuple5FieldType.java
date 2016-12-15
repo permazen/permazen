@@ -30,7 +30,7 @@ class Tuple5FieldType<V1, V2, V3, V4, V5> extends TupleFieldType<Tuple5<V1, V2, 
     @SuppressWarnings("unchecked")
     protected Tuple5<V1, V2, V3, V4, V5> createTuple(Object[] values) {
         assert values.length == 5;
-        return new Tuple5<V1, V2, V3, V4, V5>((V1)values[0], (V2)values[1], (V3)values[2], (V4)values[3], (V5)values[4]);
+        return new Tuple5<>((V1)values[0], (V2)values[1], (V3)values[2], (V4)values[3], (V5)values[4]);
     }
 }
 

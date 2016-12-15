@@ -51,12 +51,7 @@ class JSSet<E> extends FieldTypeSet<E> {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can't add invalid value to " + this.field + ": " + e.getMessage(), e);
         }
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
-            @Override
-            public Boolean mutate() {
-                return JSSet.this.doAdd(newValue, key);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doAdd(newValue, key));
     }
 
     private boolean doAdd(final E newValue, byte[] key) {
@@ -144,12 +139,7 @@ class JSSet<E> extends FieldTypeSet<E> {
         if (key == null)
             return false;
         final E canonicalElement = this.fieldType.validate(obj);                    // should never throw exception
-        return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
-            @Override
-            public Boolean mutate() {
-                return JSSet.this.doRemove(canonicalElement, key);
-            }
-        });
+        return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalElement, key));
     }
 
     private boolean doRemove(final E oldValue, byte[] key) {
@@ -179,7 +169,7 @@ class JSSet<E> extends FieldTypeSet<E> {
 
     @Override
     protected NavigableSet<E> createSubSet(boolean newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
-        return new JSSet<E>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
+        return new JSSet<>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
 // SetFieldChangeNotifier

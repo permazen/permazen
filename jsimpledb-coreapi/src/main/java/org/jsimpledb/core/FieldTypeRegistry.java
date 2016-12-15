@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
@@ -428,9 +429,9 @@ public class FieldTypeRegistry {
         // Handle array types
         final TypeToken<?> elementTypeToken = typeToken.getComponentType();
         if (elementTypeToken != null) {
-            final ArrayList<FieldType<T>> fieldTypes = new ArrayList<FieldType<T>>();
-            for (FieldType<?> elementFieldType : this.getFieldTypes(elementTypeToken))
-                fieldTypes.add((FieldType<T>)this.getArrayType(this.getFieldType(elementTypeToken)));
+            final ArrayList<FieldType<T>> fieldTypes = this.getFieldTypes(elementTypeToken).stream()
+              .map(elementFieldType -> (FieldType<T>)this.getArrayType(this.getFieldType(elementTypeToken)))
+              .collect(Collectors.toCollection(ArrayList::new));
             return Collections.unmodifiableList(fieldTypes);
         }
 
@@ -469,17 +470,17 @@ public class FieldTypeRegistry {
      * @return mapping from type name to type
      */
     public synchronized Map<String, FieldType<?>> getAll() {
-        return new HashMap<String, FieldType<?>>(this.typesByName);
+        return new HashMap<>(this.typesByName);
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> ObjectArrayType<E> createObjectArrayType(FieldType<E> elementType) {
-        return new ObjectArrayType<E>(elementType);
+        return new ObjectArrayType<>(elementType);
     }
 
     // This method exists solely to bind the generic type parameters
     private <T> NullSafeType<T> createNullSafeType(FieldType<T> notNullType) {
-        return new NullSafeType<T>(notNullType);
+        return new NullSafeType<>(notNullType);
     }
 }
 

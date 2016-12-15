@@ -37,18 +37,15 @@ public class SetSessionModeCommand extends AbstractCommand {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        return "mode".equals(typeName) ? new EnumNameParser<SessionMode>(SessionMode.class, false) : super.getParser(typeName);
+        return "mode".equals(typeName) ? new EnumNameParser<>(SessionMode.class, false) : super.getParser(typeName);
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final SessionMode mode = (SessionMode)params.get("mode");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                session.setMode(mode);
-                session.getWriter().println("Set session mode to " + mode);
-            }
+        return session -> {
+            session.setMode(mode);
+            session.getWriter().println("Set session mode to " + mode);
         };
     }
 }

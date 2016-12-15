@@ -45,7 +45,7 @@ class IndexSet<E> extends FieldTypeSet<E> {
 
     @Override
     protected NavigableSet<E> createSubSet(boolean newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
-        return new IndexSet<E>(this.tx, this.fieldType,
+        return new IndexSet<>(this.tx, this.fieldType,
           this.prefixMode, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
     }
 

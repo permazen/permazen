@@ -678,8 +678,8 @@ public class Database {
     }
 
     CoreIndex<Integer, ObjId> getVersionIndex(Transaction tx) {
-        return new CoreIndex<Integer, ObjId>(tx,
-          new IndexView<Integer, ObjId>(VERSION_INDEX_PREFIX, false, FieldTypeRegistry.UNSIGNED_INT, FieldTypeRegistry.OBJ_ID));
+        return new CoreIndex<>(tx,
+          new IndexView<>(VERSION_INDEX_PREFIX, false, FieldTypeRegistry.UNSIGNED_INT, FieldTypeRegistry.OBJ_ID));
     }
 
     /**

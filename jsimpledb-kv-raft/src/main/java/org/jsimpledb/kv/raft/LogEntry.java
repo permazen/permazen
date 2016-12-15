@@ -31,12 +31,7 @@ public class LogEntry {
     /**
      * Sorts instances by {@linkplain LogEntry#getIndex log index}.
      */
-    public static final Comparator<LogEntry> SORT_BY_INDEX = new Comparator<LogEntry>() {
-        @Override
-        public int compare(LogEntry logEntry1, LogEntry logEntry2) {
-            return Long.compare(logEntry1.getIndex(), logEntry2.getIndex());
-        }
-    };
+    public static final Comparator<LogEntry> SORT_BY_INDEX = Comparator.comparingLong(LogEntry::getIndex);
 
     static final String LOG_FILE_PREFIX = "log-";
     static final String LOG_FILE_SUFFIX = ".bin";

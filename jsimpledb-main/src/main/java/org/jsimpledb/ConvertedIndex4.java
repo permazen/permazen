@@ -105,19 +105,19 @@ class ConvertedIndex4<V1, V2, V3, V4, T, WV1, WV2, WV3, WV4, WT> implements Inde
 
     @Override
     public Index3<V1, V2, V3, V4> asIndex3() {
-        return new ConvertedIndex3<V1, V2, V3, V4, WV1, WV2, WV3, WV4>(this.index.asIndex3(),
+        return new ConvertedIndex3<>(this.index.asIndex3(),
           this.value1Converter, this.value2Converter, this.value3Converter, this.value4Converter);
     }
 
     @Override
     public Index2<V1, V2, V3> asIndex2() {
-        return new ConvertedIndex2<V1, V2, V3, WV1, WV2, WV3>(this.index.asIndex2(),
+        return new ConvertedIndex2<>(this.index.asIndex2(),
           this.value1Converter, this.value2Converter, this.value3Converter);
     }
 
     @Override
     public Index<V1, V2> asIndex() {
-        return new ConvertedIndex<V1, V2, WV1, WV2>(this.index.asIndex(), this.value1Converter, this.value2Converter);
+        return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
     }
 }
 

@@ -28,7 +28,7 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
      *  {@code value}'s class has no natural ordering (i.e., does not implement {@link Comparable})
      */
     SingletonNavigableSet(Comparator<? super E> comparator, E value) {
-        this(comparator, value, new Bounds<E>());
+        this(comparator, value, new Bounds<>());
     }
 
     /**
@@ -86,8 +86,8 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
 
         // Check bounds
         return newBounds.isWithinBounds(newComparator, this.value) ?
-          new SingletonNavigableSet<E>(newComparator, this.value, newBounds) :
-          new EmptyNavigableSet<E>(newComparator, newBounds);
+          new SingletonNavigableSet<>(newComparator, this.value, newBounds) :
+          new EmptyNavigableSet<>(newComparator, newBounds);
     }
 }
 

@@ -17,7 +17,7 @@ import org.jsimpledb.parse.ParseSession;
 /**
  * {@link Node} that invokes a Java method when evaluated.
  */
-public class ConstructorInvokeNode extends AbstractInvokeNode<ConstructorExecutable> {
+public class ConstructorInvokeNode extends AbstractInvokeNode<Constructor<?>> {
 
     private final ClassNode classNode;
 
@@ -48,13 +48,12 @@ public class ConstructorInvokeNode extends AbstractInvokeNode<ConstructorExecuta
 
         // Find matching constructor
         final Constructor<?> constructor = MethodUtil.findMatchingConstructor(cl, paramInfo.getParamTypes());
-        final ConstructorExecutable executable = new ConstructorExecutable(constructor);
 
         // Fixup varargs
-        this.fixupVarArgs(paramInfo, executable);
+        this.fixupVarArgs(paramInfo, constructor);
 
         // Fixup type-inferring nodes
-        this.fixupTypeInferringNodes(session, paramInfo, executable);
+        this.fixupTypeInferringNodes(session, paramInfo, constructor);
 
         // Invoke constructor
         final Object result;

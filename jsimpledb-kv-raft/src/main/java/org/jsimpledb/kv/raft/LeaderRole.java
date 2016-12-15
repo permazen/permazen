@@ -189,8 +189,8 @@ public class LeaderRole extends Role {
     @Override
     void shutdown() {
         assert Thread.holdsLock(this.raft);
-        for (Follower follower : this.followerMap.values())
-            follower.cleanup();
+        this.followerMap.values()
+          .forEach(Follower::cleanup);
         this.checkApplyTimer.cancel();
         this.timestampScrubTimer.cancel();
         super.shutdown();
@@ -203,13 +203,13 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
 
         // Find matching follower(s) and update them if needed
-        for (Follower follower : this.followerMap.values()) {
-            if (follower.getAddress().equals(address)) {
-                if (this.log.isTraceEnabled())
-                    this.trace("updating peer \"" + follower.getIdentity() + "\" after queue empty notification");
-                this.raft.requestService(new UpdateFollowerService(follower));
-            }
-        }
+        this.followerMap.values().stream()
+          .filter(follower -> follower.getAddress().equals(address))
+          .forEach(follower -> {
+            if (this.log.isTraceEnabled())
+                this.trace("updating peer \"" + follower.getIdentity() + "\" after queue empty notification");
+            this.raft.requestService(new UpdateFollowerService(follower));
+        });
     }
 
     @Override
@@ -696,10 +696,9 @@ public class LeaderRole extends Role {
 
     private void updateAllSynchronizedFollowersNow() {
         assert Thread.holdsLock(this.raft);
-        for (Follower follower : this.followerMap.values()) {
-            if (follower.isSynced())
-                follower.updateNow();
-        }
+        this.followerMap.values().stream()
+          .filter(Follower::isSynced)
+          .forEach(Follower::updateNow);
     }
 
     private class UpdateFollowerService extends Service {

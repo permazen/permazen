@@ -236,12 +236,8 @@ public class JObjectEditorWindow extends ConfirmWindow {
         jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
             @Override
             public void afterCommit() {
-                VaadinUtil.invoke(vaadinSession, new Runnable() {
-                    @Override
-                    public void run() {
-                        Notification.show((JObjectEditorWindow.this.create ? "Created" : "Updated") + " object " + id);
-                    }
-                });
+                VaadinUtil.invoke(vaadinSession,
+                  () -> Notification.show((JObjectEditorWindow.this.create ? "Created" : "Updated") + " object " + id));
             }
         });
         return true;
@@ -320,7 +316,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(FieldType<T> fieldType) {
-        return new SimpleFieldConverter<T>(fieldType);
+        return new SimpleFieldConverter<>(fieldType);
     }
 
     private String buildCaption(String fieldName, boolean includeColon) {
@@ -329,7 +325,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
     // This method exists solely to bind the generic type parameters
     private <T> NullableField<T> addNullButton(Field<T> field) {
-        return new NullableField<T>(field);
+        return new NullableField<>(field);
     }
 
 // CounterProperty

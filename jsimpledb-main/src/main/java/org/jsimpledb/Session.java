@@ -670,6 +670,7 @@ public class Session {
      * Callback interface used by {@link Session#performSessionAction Session.performSessionAction()}
      * and {@link Session#performSessionActionWithCurrentTransaction Session.performSessionActionWithCurrentTransaction()}.
      */
+    @FunctionalInterface
     public interface Action {
 
         /**

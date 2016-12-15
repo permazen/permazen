@@ -38,7 +38,7 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
     protected List<E> doBackward(List<W> set) {
         if (set == null)
             return null;
-        return new ConvertedList<E, W>(set, this.elementConverter);
+        return new ConvertedList<>(set, this.elementConverter);
     }
 
 // Object

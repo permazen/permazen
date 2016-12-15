@@ -87,22 +87,22 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
             throw new IllegalArgumentException("incompatible encoding signatures: field type `" + fieldType.getName()
               + "' has " + fieldType.getEncodingSignature() + " but schema is using " + field.getEncodingSignature());
         }
-        return new SimpleField<T>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
+        return new SimpleField<>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> SetField<E> buildSetField(SetSchemaField field, SimpleField<E> elementField) {
-        return new SetField<E>(field.getName(), field.getStorageId(), this.schema, elementField);
+        return new SetField<>(field.getName(), field.getStorageId(), this.schema, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> ListField<E> buildListField(ListSchemaField field, SimpleField<E> elementField) {
-        return new ListField<E>(field.getName(), field.getStorageId(), this.schema, elementField);
+        return new ListField<>(field.getName(), field.getStorageId(), this.schema, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <K, V> MapField<K, V> buildMapField(MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        return new MapField<K, V>(field.getName(), field.getStorageId(), this.schema, keyField, valueField);
+        return new MapField<>(field.getName(), field.getStorageId(), this.schema, keyField, valueField);
     }
 }
 

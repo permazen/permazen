@@ -265,10 +265,9 @@ public class JTransaction {
         // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
         if (automaticValidation) {
             final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
-            for (JFieldInfo jfieldInfo : jdb.jfieldInfos.values()) {
-                if (jfieldInfo.isRequiresDefaultValidation())
-                    jfieldInfo.registerChangeListener(tx, new int[0], null, defaultValidationListener);
-            }
+            jdb.jfieldInfos.values().stream()
+              .filter(JFieldInfo::isRequiresDefaultValidation)
+              .forEach(jfieldInfo -> jfieldInfo.registerChangeListener(tx, new int[0], null, defaultValidationListener));
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
@@ -1546,12 +1545,7 @@ public class JTransaction {
             return;
 
         // Do validation
-        this.performAction(new Runnable() {
-            @Override
-            public void run() {
-                JTransaction.this.doValidate();
-            }
-        });
+        this.performAction(JTransaction.this::doValidate);
     }
 
     /**

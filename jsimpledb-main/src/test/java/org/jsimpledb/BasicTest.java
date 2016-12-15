@@ -146,12 +146,12 @@ public class BasicTest extends TestSupport {
               new Tuple3<Integer, Person, Integer>(21, t1, 3),
               new Tuple3<Integer, Person, Integer>(22, t1, 2),
               new Tuple3<Integer, Person, Integer>(23, t1, 0),
-              new Tuple3<Integer, Person, Integer>(123, t2, 0),
-              new Tuple3<Integer, Person, Integer>(123, t3, 2),
-              new Tuple3<Integer, Person, Integer>(456, t2, 1),
-              new Tuple3<Integer, Person, Integer>(456, t3, 1),
-              new Tuple3<Integer, Person, Integer>(456, t3, 3),
-              new Tuple3<Integer, Person, Integer>(789, t3, 0)));
+              new Tuple3<>(123, t2, 0),
+              new Tuple3<>(123, t3, 2),
+              new Tuple3<>(456, t2, 1),
+              new Tuple3<>(456, t3, 1),
+              new Tuple3<>(456, t3, 3),
+              new Tuple3<>(789, t3, 0)));
             TestSupport.checkMap(BasicTest.queryRatingKeys().asMap(), buildMap(
               t1,           buildSet(t1, t3),
               t2,           buildSet(t1),
@@ -172,25 +172,25 @@ public class BasicTest extends TestSupport {
               22,           buildSet(t1),
               23,           buildSet(t1)));
             TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asSet(), buildSet(
-              new Tuple3<Integer, MeanPerson, Integer>(21, t1, 1),
-              new Tuple3<Integer, MeanPerson, Integer>(21, t1, 3),
-              new Tuple3<Integer, MeanPerson, Integer>(22, t1, 2),
-              new Tuple3<Integer, MeanPerson, Integer>(23, t1, 0)));
+              new Tuple3<>(21, t1, 1),
+              new Tuple3<>(21, t1, 3),
+              new Tuple3<>(22, t1, 2),
+              new Tuple3<>(23, t1, 0)));
             TestSupport.checkMap(BasicTest.queryScoreEntriesMean().asMap(), buildMap(
-              new Tuple2<Integer, MeanPerson>(21, t1),  buildSet(1, 3),
-              new Tuple2<Integer, MeanPerson>(22, t1),  buildSet(2),
-              new Tuple2<Integer, MeanPerson>(23, t1),  buildSet(0)));
+              new Tuple2<>(21, t1),  buildSet(1, 3),
+              new Tuple2<>(22, t1),  buildSet(2),
+              new Tuple2<>(23, t1),  buildSet(0)));
             TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asIndex().asSet(), buildSet(
-              new Tuple2<Integer, MeanPerson>(21, t1),
-              new Tuple2<Integer, MeanPerson>(22, t1),
-              new Tuple2<Integer, MeanPerson>(23, t1)));
+              new Tuple2<>(21, t1),
+              new Tuple2<>(22, t1),
+              new Tuple2<>(23, t1)));
             TestSupport.checkMap(BasicTest.queryRatingKeysMean().asMap(), buildMap(
               t1,           buildSet(t1),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
             TestSupport.checkSet(BasicTest.queryRatingValueEntriesMean().asSet(), buildSet(
               new Tuple3<Float, MeanPerson, Person>(100.0f, t1, t1),
-              new Tuple3<Float, MeanPerson, Person>(-99.0f, t1, t2),
+              new Tuple3<>(-99.0f, t1, t2),
               new Tuple3<Float, MeanPerson, Person>(-0.0f, t1, null)));
             TestSupport.checkMap(BasicTest.queryMoodsMean().asMap(), buildMap(
               Mood.HAPPY,   buildSet(t1)));

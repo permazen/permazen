@@ -163,7 +163,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code kv} is null
      */
     protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, KeyRange keyRange) {
-        this(kv, prefixMode, false, keyRange, null, new Bounds<K>());
+        this(kv, prefixMode, false, keyRange, null, new Bounds<>());
     }
 
     /**

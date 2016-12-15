@@ -44,7 +44,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      * @see org.jsimpledb.util.ByteUtil#COMPARATOR
      */
     public NavigableMapKVStore() {
-        this(new ConcurrentSkipListMap<byte[], byte[]>(ByteUtil.COMPARATOR));
+        this(new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR));
     }
 
     /**

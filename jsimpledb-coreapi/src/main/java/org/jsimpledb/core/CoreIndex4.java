@@ -42,7 +42,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
 
     @Override
     public CoreIndex4<V1, V2, V3, V4, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex4<V1, V2, V3, V4, T>(this.tx, this.getIndex4View().filter(index, filter));
+        return new CoreIndex4<>(this.tx, this.getIndex4View().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
@@ -59,11 +59,11 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
 
         // Create field type for Tuple5<V1, V2, V3, V4, T>
-        final Tuple5FieldType<V1, V2, V3, V4, T> fieldType = new Tuple5FieldType<V1, V2, V3, V4, T>(
+        final Tuple5FieldType<V1, V2, V3, V4, T> fieldType = new Tuple5FieldType<>(
           iv.getValue1Type(), iv.getValue2Type(), iv.getValue3Type(), iv.getValue4Type(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple5<V1, V2, V3, V4, T>> indexSet = new IndexSet<Tuple5<V1, V2, V3, V4, T>>(this.tx,
+        IndexSet<Tuple5<V1, V2, V3, V4, T>> indexSet = new IndexSet<>(this.tx,
           fieldType, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
             indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, iv, 5));
@@ -82,7 +82,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         final IndexView<Tuple4<V1, V2, V3, V4>, T> tupleIV = iv.asTuple4IndexView();
 
         // Build map and apply filtering
-        IndexMap<Tuple4<V1, V2, V3, V4>, NavigableSet<T>> indexMap = new IndexMap.OfValues<Tuple4<V1, V2, V3, V4>, T>(
+        IndexMap<Tuple4<V1, V2, V3, V4>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(
           this.tx, tupleIV);
         if (tupleIV.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
@@ -101,7 +101,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         final Index2View<Tuple3<V1, V2, V3>, V4, T> tupleIV = iv.asTuple3Index2View();
 
         // Build map and apply filtering
-        IndexMap<Tuple3<V1, V2, V3>, Index<V4, T>> indexMap = new IndexMap.OfIndex<Tuple3<V1, V2, V3>, V4, T>(this.tx, tupleIV);
+        IndexMap<Tuple3<V1, V2, V3>, Index<V4, T>> indexMap = new IndexMap.OfIndex<>(this.tx, tupleIV);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
 
@@ -119,7 +119,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         final Index3View<Tuple2<V1, V2>, V3, V4, T> tupleIV = iv.asTuple2Index3View();
 
         // Build map and apply filtering
-        IndexMap<Tuple2<V1, V2>, Index2<V3, V4, T>> indexMap = new IndexMap.OfIndex2<Tuple2<V1, V2>, V3, V4, T>(this.tx, tupleIV);
+        IndexMap<Tuple2<V1, V2>, Index2<V3, V4, T>> indexMap = new IndexMap.OfIndex2<>(this.tx, tupleIV);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
 
@@ -134,7 +134,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
 
         // Build map and apply filtering
-        IndexMap<V1, Index3<V2, V3, V4, T>> indexMap = new IndexMap.OfIndex3<V1, V2, V3, V4, T>(this.tx, iv);
+        IndexMap<V1, Index3<V2, V3, V4, T>> indexMap = new IndexMap.OfIndex3<>(this.tx, iv);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, iv, 1));
 
@@ -144,17 +144,17 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
 
     @Override
     public CoreIndex3<V1, V2, V3, V4> asIndex3() {
-        return new CoreIndex3<V1, V2, V3, V4>(this.tx, this.getIndex4View().asIndex3View());
+        return new CoreIndex3<>(this.tx, this.getIndex4View().asIndex3View());
     }
 
     @Override
     public CoreIndex2<V1, V2, V3> asIndex2() {
-        return new CoreIndex2<V1, V2, V3>(this.tx, this.getIndex4View().asIndex3View().asIndex2View());
+        return new CoreIndex2<>(this.tx, this.getIndex4View().asIndex3View().asIndex2View());
     }
 
     @Override
     public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<V1, V2>(this.tx, this.getIndex4View().asIndex3View().asIndex2View().asIndexView());
+        return new CoreIndex<>(this.tx, this.getIndex4View().asIndex3View().asIndex2View().asIndexView());
     }
 }
 

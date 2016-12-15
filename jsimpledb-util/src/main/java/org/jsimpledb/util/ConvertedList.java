@@ -10,10 +10,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides a transformed view of a wrapped {@link List} using a strictly invertable {@link Converter}.
@@ -75,10 +75,9 @@ public class ConvertedList<E, W> extends AbstractList<E> {
 
     @Override
     public boolean addAll(int index, Collection<? extends E> elems) {
-        final ArrayList<W> welems = new ArrayList<>();
-        for (E elem : elems)
-            welems.add(elem != null ? this.converter.convert(elem) : null);
-        return this.list.addAll(index, welems);
+        return this.list.addAll(index, elems.stream()
+          .map(elem -> elem != null ? this.converter.convert(elem) : null)
+          .collect(Collectors.toList()));
     }
 
     @Override
@@ -141,7 +140,7 @@ public class ConvertedList<E, W> extends AbstractList<E> {
 
     @Override
     public List<E> subList(int min, int max) {
-        return new ConvertedList<E, W>(this.list.subList(min, max), this.converter);
+        return new ConvertedList<>(this.list.subList(min, max), this.converter);
     }
 
     @Override

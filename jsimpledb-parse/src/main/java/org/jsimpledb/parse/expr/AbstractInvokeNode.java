@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import org.jsimpledb.parse.ParseSession;
 /**
  * Superclass of {@link Node}s that invokes a Java method or constructor.
  */
-abstract class AbstractInvokeNode<T extends Executable<?>> implements Node {
+abstract class AbstractInvokeNode<T extends Executable> implements Node {
 
     final List<Node> paramNodes;
 

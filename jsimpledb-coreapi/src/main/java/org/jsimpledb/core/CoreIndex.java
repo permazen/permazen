@@ -33,7 +33,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
 
     @Override
     public CoreIndex<V, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex<V, T>(this.tx, this.getIndexView().filter(index, filter));
+        return new CoreIndex<>(this.tx, this.getIndexView().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
@@ -50,10 +50,10 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         final IndexView<V, T> iv = this.getIndexView();
 
         // Create tuple field type
-        final Tuple2FieldType<V, T> tupleFieldType = new Tuple2FieldType<V, T>(iv.getValueType(), iv.getTargetType());
+        final Tuple2FieldType<V, T> tupleFieldType = new Tuple2FieldType<>(iv.getValueType(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<Tuple2<V, T>>(this.tx, tupleFieldType, iv.prefixMode, iv.prefix);
+        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.tx, tupleFieldType, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
             indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, iv, 2));
 
@@ -68,7 +68,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         final IndexView<V, T> iv = this.getIndexView();
 
         // Build map and apply filtering
-        IndexMap<V, NavigableSet<T>> indexMap = new IndexMap.OfValues<V, T>(this.tx, iv);
+        IndexMap<V, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.tx, iv);
         if (this.indexView.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, iv, 1));
 

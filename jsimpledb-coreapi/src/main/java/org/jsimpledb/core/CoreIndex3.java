@@ -39,7 +39,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
 
     @Override
     public CoreIndex3<V1, V2, V3, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex3<V1, V2, V3, T>(this.tx, this.getIndex3View().filter(index, filter));
+        return new CoreIndex3<>(this.tx, this.getIndex3View().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
@@ -56,11 +56,11 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
 
         // Create field type for Tuple4<V1, V2, V3, T>
-        final Tuple4FieldType<V1, V2, V3, T> fieldType = new Tuple4FieldType<V1, V2, V3, T>(
+        final Tuple4FieldType<V1, V2, V3, T> fieldType = new Tuple4FieldType<>(
           iv.getValue1Type(), iv.getValue2Type(), iv.getValue3Type(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple4<V1, V2, V3, T>> indexSet = new IndexSet<Tuple4<V1, V2, V3, T>>(this.tx,
+        IndexSet<Tuple4<V1, V2, V3, T>> indexSet = new IndexSet<>(this.tx,
           fieldType, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
             indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, iv, 4));
@@ -79,7 +79,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
         final IndexView<Tuple3<V1, V2, V3>, T> tupleIV = iv.asTuple3IndexView();
 
         // Build map and apply filtering
-        IndexMap<Tuple3<V1, V2, V3>, NavigableSet<T>> indexMap = new IndexMap.OfValues<Tuple3<V1, V2, V3>, T>(this.tx, tupleIV);
+        IndexMap<Tuple3<V1, V2, V3>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.tx, tupleIV);
         if (tupleIV.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
 
@@ -97,7 +97,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
         final Index2View<Tuple2<V1, V2>, V3, T> tupleIV = iv.asTuple2Index2View();
 
         // Build map and apply filtering
-        IndexMap<Tuple2<V1, V2>, Index<V3, T>> indexMap = new IndexMap.OfIndex<Tuple2<V1, V2>, V3, T>(this.tx, tupleIV);
+        IndexMap<Tuple2<V1, V2>, Index<V3, T>> indexMap = new IndexMap.OfIndex<>(this.tx, tupleIV);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
 
@@ -112,7 +112,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
 
         // Build map and apply filtering
-        IndexMap<V1, Index2<V2, V3, T>> indexMap = new IndexMap.OfIndex2<V1, V2, V3, T>(this.tx, iv);
+        IndexMap<V1, Index2<V2, V3, T>> indexMap = new IndexMap.OfIndex2<>(this.tx, iv);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, iv, 1));
 
@@ -122,12 +122,12 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
 
     @Override
     public CoreIndex2<V1, V2, V3> asIndex2() {
-        return new CoreIndex2<V1, V2, V3>(this.tx, this.getIndex3View().asIndex2View());
+        return new CoreIndex2<>(this.tx, this.getIndex3View().asIndex2View());
     }
 
     @Override
     public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<V1, V2>(this.tx, this.getIndex3View().asIndex2View().asIndexView());
+        return new CoreIndex<>(this.tx, this.getIndex3View().asIndex2View().asIndexView());
     }
 }
 

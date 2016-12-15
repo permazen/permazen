@@ -22,14 +22,14 @@ public class OnDeleteTest extends TestSupport {
     private static final ThreadLocal<HashSet<JObject>> CALLBACKS = new ThreadLocal<HashSet<JObject>>() {
         @Override
         protected HashSet<JObject> initialValue() {
-            return new HashSet<JObject>();
+            return new HashSet<>();
         }
     };
 
     private static final ThreadLocal<HashMap<JObject, JObject>> DELETE_TARGET = new ThreadLocal<HashMap<JObject, JObject>>() {
         @Override
         protected HashMap<JObject, JObject> initialValue() {
-            return new HashMap<JObject, JObject>();
+            return new HashMap<>();
         }
     };
 

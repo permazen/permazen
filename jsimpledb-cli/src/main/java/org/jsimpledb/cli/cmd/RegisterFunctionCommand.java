@@ -31,21 +31,18 @@ public class RegisterFunctionCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("class");
-        return new CliSession.Action() {
-            @Override
-            public void run(CliSession session) throws Exception {
-                final Object result = expr.evaluate(session).get(session);
-                if (!(result instanceof Class))
-                    throw new Exception("invalid parameter: not a " + Class.class.getName() + " instance");
-                final Class<?> cl = (Class<?>)result;
-                if (!Function.class.isAssignableFrom(cl))
-                    throw new Exception("invalid parameter: " + cl + " does not implement " + Function.class);
-                final Function function = cl.asSubclass(Function.class).getConstructor().newInstance();
-                session.registerFunction(function);
-                session.getWriter().println("Registered function `" + function.getName() + "'");
-            }
+        return session -> {
+            final Object result = expr.evaluate(session).get(session);
+            if (!(result instanceof Class))
+                throw new Exception("invalid parameter: not a " + Class.class.getName() + " instance");
+            final Class<?> cl = (Class<?>)result;
+            if (!Function.class.isAssignableFrom(cl))
+                throw new Exception("invalid parameter: " + cl + " does not implement " + Function.class);
+            final Function function = cl.asSubclass(Function.class).getConstructor().newInstance();
+            session.registerFunction(function);
+            session.getWriter().println("Registered function `" + function.getName() + "'");
         };
     }
 }

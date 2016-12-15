@@ -54,8 +54,8 @@ public abstract class AbstractKVCommand extends AbstractCommand {
         Preconditions.checkArgument(data != null, "null data");
         StringBuilder buf = new StringBuilder(data.length + 4);
         buf.append('"');
-        for (int i = 0; i < data.length; i++) {
-            final int ch = data[i] & 0xff;
+        for (byte b : data) {
+            final int ch = b & 0xff;
 
             // Handle special escapes
             switch (ch) {

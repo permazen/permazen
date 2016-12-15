@@ -47,7 +47,7 @@ class DoubleType extends PrimitiveType<Double> {
     @Override
     public Double validate(Object obj) {
         if (obj instanceof Character)
-            return (double)((Character)obj).charValue();
+            return (double)(Character)obj;
         if (obj instanceof Byte || obj instanceof Short
           || obj instanceof Integer || obj instanceof Float || obj instanceof Long)
             return ((Number)obj).doubleValue();
