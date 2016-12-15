@@ -33,7 +33,7 @@ abstract class AbstractFileParser implements Parser<File> {
 
         // Check file for validity
         final File file = new File(path);
-        if (this.validateFile(file, complete))
+        if (!complete && this.validateFile(file, complete))
             return file;
 
         // Create parse exception
