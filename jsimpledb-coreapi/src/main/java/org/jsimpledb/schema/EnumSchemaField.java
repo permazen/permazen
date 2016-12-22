@@ -42,6 +42,8 @@ public class EnumSchemaField extends SimpleSchemaField {
     @Override
     void validate() {
         super.validate();
+        if (this.getEncodingSignature() != 0)
+            throw new IllegalArgumentException("invalid " + this + ": encoding signature must be zero");
         try {
             EnumFieldType.validateIdentifiers(this.idents);
         } catch (IllegalArgumentException e) {

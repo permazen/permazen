@@ -105,6 +105,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         }
         if (!this.isIndexed())
             throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");
+        if (this.getEncodingSignature() != 0)
+            throw new IllegalArgumentException("invalid " + this + ": encoding signature must be zero");
         if (this.onDelete == null)
             throw new InvalidSchemaException("invalid " + this + ": no delete action specified");
         if (this.onDelete == DeleteAction.NOTHING && (!this.allowDeleted || !this.allowDeletedSnapshot)) {
