@@ -96,6 +96,11 @@ public class EnumSchemaField extends SimpleSchemaField {
             output.writeUTF(ident);
     }
 
+    @Override
+    boolean includeTypeInCompatibility() {
+        return false;
+    }
+
 // DiffGenerating
 
     @Override

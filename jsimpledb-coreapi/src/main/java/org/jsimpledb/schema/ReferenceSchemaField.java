@@ -265,6 +265,11 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         }
     }
 
+    @Override
+    boolean includeTypeInCompatibility() {
+        return false;
+    }
+
 // Object
 
     @Override

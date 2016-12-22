@@ -98,9 +98,14 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     void writeCompatibilityHashData(DataOutputStream output) throws IOException {
         super.writeCompatibilityHashData(output);
-        output.writeUTF(this.type);
+        if (this.includeTypeInCompatibility())
+            output.writeUTF(this.type);
         output.writeLong(this.encodingSignature);
         output.writeBoolean(this.indexed);
+    }
+
+    boolean includeTypeInCompatibility() {
+        return true;
     }
 
 // DiffGenerating
