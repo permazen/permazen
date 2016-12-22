@@ -82,8 +82,14 @@ public class JSimpleDBFactory {
      * However, if this instance has no {@link Database} configured, then an empty
      * {@link SimpleKVDatabase} is used and therefore a schema version of {@code 1} is assumed.
      *
+     * <p>
+     * A value of -1 means to {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion auto-generate}
+     * a random version number based on the {@linkplain org.jsimpledb.schema.SchemaModel#compatibilityHash compatibility hash}
+     * of the {@link org.jsimpledb.schema.SchemaModel} generated from the {@linkplain #setModelClasses configured model classes}.
+     *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
-     *  or zero to default to the highest version already recorded in the database
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion auto-generated} schema version
      * @return this instance
      */
     public JSimpleDBFactory setSchemaVersion(int schemaVersion) {

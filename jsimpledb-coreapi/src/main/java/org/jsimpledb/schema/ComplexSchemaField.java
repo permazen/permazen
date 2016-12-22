@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -61,6 +63,17 @@ public abstract class ComplexSchemaField extends SchemaField {
         for (SimpleSchemaField subField : this.getSubFields().values())
             subField.writeXML(writer, false);                               // omit (redundant) names for sub-fields
         writer.writeEndElement();
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
+            output.writeUTF(entry.getKey());
+            entry.getValue().writeCompatibilityHashData(output);
+        }
     }
 
     abstract QName getXMLTag();

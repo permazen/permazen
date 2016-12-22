@@ -195,10 +195,12 @@ public class Database {
      *  </pre></blockquote>
      *
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param version the schema version number corresponding to {@code schemaModel},
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param allowNewSchema whether creating a new schema version is allowed
      * @return newly created transaction
-     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
      *  as recorded in the database
@@ -302,11 +304,13 @@ public class Database {
      * nothing requires schema version numbers to be consecutive.
      *
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param version the schema version number corresponding to {@code schemaModel},
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param kvoptions optional {@link KVDatabase}-specific transaction options; may be null
      * @return newly created transaction
-     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
      *  as recorded in the database
@@ -348,11 +352,13 @@ public class Database {
      *
      * @param kvt already opened key/value store transaction
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param version the schema version number corresponding to {@code schemaModel},
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param allowNewSchema whether creating a new schema version is allowed
      * @return newly created transaction
      * @throws IllegalArgumentException if {@code kvt} is null
-     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
      *  as recorded in the database
@@ -394,10 +400,12 @@ public class Database {
      *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param version the schema version number corresponding to {@code schemaModel},
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
      * @return snapshot transaction based on {@code kvstore}
-     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
      *  as recorded in the database
@@ -438,9 +446,13 @@ public class Database {
 
         // Sanity check
         Preconditions.checkArgument(kvstore != null, "null kvstore");
-        Preconditions.checkArgument(version >= 0, "invalid schema version: " + version);
-        if (schemaModel != null)
+        Preconditions.checkArgument(version >= -1, "invalid schema version: " + version);
+        Preconditions.checkArgument(schemaModel != null || version >= 0, "can't auto-generate version without schema model");
+        if (schemaModel != null) {
             schemaModel.validate();
+            if (version == -1)
+                version = schemaModel.autogenerateVersion();
+        }
 
         // Debug
         if (this.log.isTraceEnabled()) {

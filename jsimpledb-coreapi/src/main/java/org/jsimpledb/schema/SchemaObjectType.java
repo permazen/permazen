@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -90,6 +92,8 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         }
     }
 
+// XML Reading
+
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.schemaFields.clear();
@@ -123,6 +127,8 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         }
     }
 
+// XML Writing
+
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         if (this.schemaFields.isEmpty() && this.schemaCompositeIndexes.isEmpty()) {
@@ -143,6 +149,8 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         writer.writeEndElement();
     }
 
+// Compatibility
+
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
         final SchemaObjectType that = (SchemaObjectType)that0;
@@ -151,6 +159,19 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         if (!AbstractSchemaItem.allAreCompatible(this.schemaCompositeIndexes, that.schemaCompositeIndexes))
             return false;
         return true;
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeInt(this.schemaFields.size());
+        for (SchemaField field : this.schemaFields.values())
+            field.writeCompatibilityHashData(output);
+        output.writeInt(this.schemaCompositeIndexes.size());
+        for (SchemaCompositeIndex index : this.schemaCompositeIndexes.values())
+            index.writeCompatibilityHashData(output);
     }
 
 // DiffGenerating

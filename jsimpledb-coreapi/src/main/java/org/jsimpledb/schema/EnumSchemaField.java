@@ -8,6 +8,8 @@ package org.jsimpledb.schema;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -80,6 +82,16 @@ public class EnumSchemaField extends SimpleSchemaField {
             writer.writeEndElement();
         }
         writer.writeEndElement();
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeInt(this.idents.size());
+        for (String ident : this.idents)
+            output.writeUTF(ident);
     }
 
 // DiffGenerating

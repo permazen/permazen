@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -245,6 +247,19 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (this.cascadeDelete) {
             writer.writeAttribute(CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(), CASCADE_DELETE_ATTRIBUTE.getLocalPart(),
               "" + this.cascadeDelete);
+        }
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeBoolean(this.objectTypes != null);
+        if (this.objectTypes != null) {
+            output.writeInt(this.objectTypes.size());
+            for (Integer storageId : this.objectTypes)
+                output.writeInt(storageId);
         }
     }
 

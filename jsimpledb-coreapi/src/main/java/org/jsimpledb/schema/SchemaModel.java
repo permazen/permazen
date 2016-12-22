@@ -7,12 +7,18 @@ package org.jsimpledb.schema;
 
 import com.google.common.base.Preconditions;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -212,6 +218,58 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         if (!AbstractSchemaItem.allAreCompatible(this.schemaObjectTypes, that.schemaObjectTypes))
             return false;
         return true;
+    }
+
+// Compatibility Hashing
+
+    /**
+     * Generate a compatibility hash value.
+     *
+     * <p>
+     * For any two instances, if they are {@linkplain #isCompatibleWith compatible} then returned value will be the same;
+     * if they are different, the returned value is very likely to be different.
+     *
+     * @return compatibility hash value
+     */
+    public long compatibilityHash() {
+        final MessageDigest sha1;
+        try {
+            sha1 = MessageDigest.getInstance("SHA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        final OutputStream discardOutputStream = new OutputStream() {
+            @Override
+            public void write(int b) {
+            }
+            @Override
+            public void write(byte[] b, int off, int len) {
+            }
+        };
+        try (DataOutputStream output = new DataOutputStream(new DigestOutputStream(discardOutputStream, sha1))) {
+            output.writeInt(this.schemaObjectTypes.size());
+            for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+                schemaObjectType.writeCompatibilityHashData(output);
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+        try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(sha1.digest()))) {
+            return input.readLong();
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+    }
+
+    /**
+     * Auto-generate a random schema version based on this instance's {@linkplain #compatibilityHash compatibility hash value}.
+     *
+     * @return schema version number, always greater than zero
+     */
+    public int autogenerateVersion() {
+        int version = (int)(this.compatibilityHash() >>> 33);                       // ensure value is non-negative
+        if (version == 0)                                                           // handle unlikely zero case
+            version = 1;
+        return version;
     }
 
 // DiffGenerating

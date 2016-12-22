@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,6 +82,16 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
             writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
         }
         writer.writeEndElement();           // </CompositeIndex>
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeInt(this.indexedFields.size());
+        for (Integer storageId : this.indexedFields)
+            output.writeInt(storageId);
     }
 
 // DiffGenerating

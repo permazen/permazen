@@ -121,10 +121,14 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 final String vstring = params.removeFirst();
+                if (vstring.trim().equalsIgnoreCase("auto")) {
+                    this.schemaVersion = -1;
+                    continue;
+                }
                 try {
                     this.schemaVersion = Integer.parseInt(vstring);
-                    if (this.schemaVersion < 0)
-                        throw new IllegalArgumentException("schema version is negative");
+                    if (this.schemaVersion < -1)
+                        throw new IllegalArgumentException("schema version is < -1");
                 } catch (Exception e) {
                     System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());
                     return 1;
@@ -403,7 +407,7 @@ public abstract class AbstractMain extends MainClass {
             { "--classpath, -cp path",          "Append to the classpath (useful with `java -jar ...')" },
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
-            { "--schema-version, -v num",       "Specify database schema version (default highest recorded)" },
+            { "--schema-version, -v num",       "Specify schema version (default highest recorded; `auto' to auto-generate)" },
             { "--model-pkg package",            "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
             { "--type-pkg package",             "Scan for @JFieldType types under Java package to register custom types" },
             { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },

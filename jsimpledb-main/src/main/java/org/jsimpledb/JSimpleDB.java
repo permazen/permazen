@@ -186,11 +186,12 @@ public class JSimpleDB {
      *
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes},
-     *  or zero to use the highest version already recorded in the database
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param storageIdGenerator generator for auto-generated storage ID's, or null to disallow auto-generation of storage ID's
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations; non-annotated classes are ignored
      * @throws IllegalArgumentException if {@code database} or {@code classes} is null
-     * @throws IllegalArgumentException if {@code version} is not greater than zero
+     * @throws IllegalArgumentException if {@code version} is less than -1
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
@@ -198,10 +199,9 @@ public class JSimpleDB {
 
         // Initialize
         Preconditions.checkArgument(database != null, "null database");
-        Preconditions.checkArgument(version >= 0, "invalid negative schema version");
+        Preconditions.checkArgument(version >= -1, "invalid schema version");
         Preconditions.checkArgument(classes != null, "null classes");
         this.db = database;
-        this.configuredVersion = version;
         this.storageIdGenerator = storageIdGenerator;
         this.loader = AccessController.doPrivileged(new PrivilegedAction<Loader>() {
             @Override
@@ -372,6 +372,9 @@ public class JSimpleDB {
         // Validate schema
         this.db.validateSchema(this.getSchemaModel());
 
+        // Auto-generate schema version if requested
+        this.configuredVersion = version == -1 ? this.schemaModel.autogenerateVersion() : version;
+
         // Eagerly load all generated Java classes so we "fail fast" if there are any loading errors
         this.untypedClassGenerator.generateClass();
         for (JClass<?> jclass : this.jclasses.values())
@@ -404,9 +407,15 @@ public class JSimpleDB {
     }
 
     /**
-     * Get the schema version that this instance was configured to use. This will either be a specific non-zero
-     * schema version number, or else zero, indicating that the highest schema version found in the database should
-     * be used.
+     * Get the schema version that this instance was configured to use.
+     *
+     * <p>
+     * This will either be a specific non-zero schema version number, or zero, indicating that the highest schema version
+     * found in the database should be used.
+     *
+     * <p>
+     * If -1 was configured, this will return the actual {@linkplain SchemaModel#autogenerateVersion auto-generated}
+     * schema version.
      *
      * @return the schema version that this instance will use when opening transactions via
      *  {@link Database#createTransaction Database.createTransaction()}

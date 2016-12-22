@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
@@ -89,6 +91,16 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         if (this.indexed != that.indexed)
             return false;
         return true;
+    }
+
+// Compatibility Hashing
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeUTF(this.type);
+        output.writeLong(this.encodingSignature);
+        output.writeBoolean(this.indexed);
     }
 
 // DiffGenerating
