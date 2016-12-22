@@ -90,7 +90,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
         final SimpleSchemaField that = (SimpleSchemaField)that0;
-        if (!this.type.equals(that.type))
+        if (this.includeTypeInCompatibility() && !this.type.equals(that.type))
             return false;
         if (this.encodingSignature != that.encodingSignature)
             return false;

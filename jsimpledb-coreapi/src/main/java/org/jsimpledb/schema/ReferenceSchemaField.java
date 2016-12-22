@@ -131,14 +131,6 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         final ReferenceSchemaField that = (ReferenceSchemaField)that0;
         if (!super.isCompatibleWithInternal(that))
             return false;
-        if (!this.onDelete.equals(that.onDelete))
-            return false;
-        if (this.cascadeDelete != that.cascadeDelete)
-            return false;
-        if (this.allowDeleted != that.allowDeleted)
-            return false;
-        if (this.allowDeletedSnapshot != that.allowDeletedSnapshot)
-            return false;
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             return false;
         return true;

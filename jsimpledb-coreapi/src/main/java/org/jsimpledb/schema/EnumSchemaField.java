@@ -62,12 +62,10 @@ public class EnumSchemaField extends SimpleSchemaField {
 
 // Compatibility
 
-    // For enum types, we don't care if the type names are different; we only care if the identifier sets are different.
-    // This allows enum types to change Java packages without creating an incompatible schema.
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
         final EnumSchemaField that = (EnumSchemaField)that0;
-        if (this.isIndexed() != that.isIndexed())
+        if (!super.isCompatibleWithInternal(that))
             return false;
         if (!this.idents.equals(that.idents))
             return false;
@@ -82,6 +80,8 @@ public class EnumSchemaField extends SimpleSchemaField {
             output.writeUTF(ident);
     }
 
+    // For enum types, we don't care if the type names are different; this allows enum types
+    // to change their Java class or packge names without creating an incompatible schema.
     @Override
     boolean includeTypeInCompatibility() {
         return false;
