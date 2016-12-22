@@ -54,6 +54,8 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         this.storageId = storageId;
     }
 
+// Validation
+
     void validate() {
         if (name == null)
             throw new InvalidSchemaException(this + " must specify a name");
@@ -62,6 +64,8 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         if (this.storageId <= 0)
             throw new InvalidSchemaException(this + " has an invalid storage ID " + this.storageId + "; must be greater than zero");
     }
+
+// Compatibility
 
     /**
      * Determine whether this instance is compatible with the given instance for use with the core API.
@@ -96,8 +100,6 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         }
         return true;
     }
-
-// Compatibility Hashing
 
     void writeCompatibilityHashData(DataOutputStream output) throws IOException {
         output.writeUTF(this.getClass().getSimpleName());

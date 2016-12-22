@@ -46,6 +46,15 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         return map;
     }
 
+// SchemaFieldSwitch
+
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseMapSchemaField(this);
+    }
+
+// XML Reading
+
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.keyField = this.readSubField(reader, formatVersion, MapField.KEY_FIELD_NAME);
@@ -53,14 +62,11 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         this.expectClose(reader);
     }
 
+// XML Writing
+
     @Override
     QName getXMLTag() {
         return MAP_FIELD_TAG;
-    }
-
-    @Override
-    public <R> R visit(SchemaFieldSwitch<R> target) {
-        return target.caseMapSchemaField(this);
     }
 
 // DiffGenerating

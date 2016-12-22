@@ -21,6 +21,10 @@ import org.jsimpledb.core.InvalidSchemaException;
  */
 public abstract class ComplexSchemaField extends SchemaField {
 
+    public abstract Map<String, SimpleSchemaField> getSubFields();
+
+// Validation
+
     @Override
     void validate() {
         super.validate();
@@ -37,7 +41,7 @@ public abstract class ComplexSchemaField extends SchemaField {
         }
     }
 
-    public abstract Map<String, SimpleSchemaField> getSubFields();
+// Compatibility
 
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
@@ -47,6 +51,17 @@ public abstract class ComplexSchemaField extends SchemaField {
         return true;
     }
 
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
+            output.writeUTF(entry.getKey());
+            entry.getValue().writeCompatibilityHashData(output);
+        }
+    }
+
+// XML Reading
+
     SimpleSchemaField readSubField(XMLStreamReader reader, int formatVersion, String name) throws XMLStreamException {
         final SimpleSchemaField field = this.readMappedType(reader, false, SchemaModel.SIMPLE_FIELD_TAG_MAP);
         field.readXML(reader, formatVersion);
@@ -54,6 +69,8 @@ public abstract class ComplexSchemaField extends SchemaField {
             field.setName(name);
         return field;
     }
+
+// XML Writing
 
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
@@ -63,17 +80,6 @@ public abstract class ComplexSchemaField extends SchemaField {
         for (SimpleSchemaField subField : this.getSubFields().values())
             subField.writeXML(writer, false);                               // omit (redundant) names for sub-fields
         writer.writeEndElement();
-    }
-
-// Compatibility Hashing
-
-    @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
-        for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
-            output.writeUTF(entry.getKey());
-            entry.getValue().writeCompatibilityHashData(output);
-        }
     }
 
     abstract QName getXMLTag();

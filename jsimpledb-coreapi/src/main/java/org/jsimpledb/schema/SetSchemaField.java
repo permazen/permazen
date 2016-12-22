@@ -15,10 +15,14 @@ import org.jsimpledb.util.Diffs;
  */
 public class SetSchemaField extends CollectionSchemaField implements DiffGenerating<SetSchemaField> {
 
+// SchemaFieldSwitch
+
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseSetSchemaField(this);
     }
+
+// XML Writing
 
     @Override
     QName getXMLTag() {

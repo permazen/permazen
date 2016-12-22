@@ -65,6 +65,8 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         this.encodingSignature = encodingSignature;
     }
 
+// Validation
+
     @Override
     void validate() {
         super.validate();
@@ -76,10 +78,14 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         }
     }
 
+// SchemaFieldSwitch
+
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseSimpleSchemaField(this);
     }
+
+// Compatibility
 
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
@@ -92,8 +98,6 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
             return false;
         return true;
     }
-
-// Compatibility Hashing
 
     @Override
     void writeCompatibilityHashData(DataOutputStream output) throws IOException {

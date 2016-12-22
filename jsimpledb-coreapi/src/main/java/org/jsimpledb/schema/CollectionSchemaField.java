@@ -28,10 +28,14 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
         this.elementField = elementField;
     }
 
+// ComplexSchemaField
+
     @Override
     public Map<String, SimpleSchemaField> getSubFields() {
         return Collections.<String, SimpleSchemaField>singletonMap(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
     }
+
+// XML Reading
 
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {

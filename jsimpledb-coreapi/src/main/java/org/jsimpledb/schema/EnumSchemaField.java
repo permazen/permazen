@@ -39,6 +39,15 @@ public class EnumSchemaField extends SimpleSchemaField {
         return this.idents;
     }
 
+// SchemaFieldSwitch
+
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseEnumSchemaField(this);
+    }
+
+// Validation
+
     @Override
     void validate() {
         super.validate();
@@ -51,10 +60,7 @@ public class EnumSchemaField extends SimpleSchemaField {
         }
     }
 
-    @Override
-    public <R> R visit(SchemaFieldSwitch<R> target) {
-        return target.caseEnumSchemaField(this);
-    }
+// Compatibility
 
     // For enum types, we don't care if the type names are different; we only care if the identifier sets are different.
     // This allows enum types to change Java packages without creating an incompatible schema.
@@ -69,10 +75,27 @@ public class EnumSchemaField extends SimpleSchemaField {
     }
 
     @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeInt(this.idents.size());
+        for (String ident : this.idents)
+            output.writeUTF(ident);
+    }
+
+    @Override
+    boolean includeTypeInCompatibility() {
+        return false;
+    }
+
+// XML Reading
+
+    @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         while (this.expect(reader, true, IDENTIFIER_TAG))
             this.idents.add(reader.getElementText());
     }
+
+// XML Writing
 
     @Override
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
@@ -84,21 +107,6 @@ public class EnumSchemaField extends SimpleSchemaField {
             writer.writeEndElement();
         }
         writer.writeEndElement();
-    }
-
-// Compatibility Hashing
-
-    @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
-        output.writeInt(this.idents.size());
-        for (String ident : this.idents)
-            output.writeUTF(ident);
-    }
-
-    @Override
-    boolean includeTypeInCompatibility() {
-        return false;
     }
 
 // DiffGenerating

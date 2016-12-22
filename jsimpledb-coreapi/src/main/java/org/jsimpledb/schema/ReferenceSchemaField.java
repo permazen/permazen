@@ -96,6 +96,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         this.objectTypes = objectTypes;
     }
 
+// Validation
+
     @Override
     void validate() {
         super.validate();
@@ -115,10 +117,14 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         }
     }
 
+// SchemaFieldSwitch
+
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseReferenceSchemaField(this);
     }
+
+// Compatibility
 
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
@@ -136,6 +142,22 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             return false;
         return true;
+    }
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeBoolean(this.objectTypes != null);
+        if (this.objectTypes != null) {
+            output.writeInt(this.objectTypes.size());
+            for (Integer storageId : this.objectTypes)
+                output.writeInt(storageId);
+        }
+    }
+
+    @Override
+    boolean includeTypeInCompatibility() {
+        return false;
     }
 
 // DiffGenerating
@@ -250,24 +272,6 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             writer.writeAttribute(CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(), CASCADE_DELETE_ATTRIBUTE.getLocalPart(),
               "" + this.cascadeDelete);
         }
-    }
-
-// Compatibility Hashing
-
-    @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
-        output.writeBoolean(this.objectTypes != null);
-        if (this.objectTypes != null) {
-            output.writeInt(this.objectTypes.size());
-            for (Integer storageId : this.objectTypes)
-                output.writeInt(storageId);
-        }
-    }
-
-    @Override
-    boolean includeTypeInCompatibility() {
-        return false;
     }
 
 // Object
