@@ -42,19 +42,19 @@ Object Version Index
 Set Field Element
 
     +------------+---------------+---------------+
-    |  Object ID |   Storage ID  |     Value     |
+    |  Object ID |   Storage ID  |    Element    |
     +------------+---------------+---------------+
 
 List Field Element
 
     +------------+---------------+---------------+    +---------------+
-    |  Object ID |   Storage ID  |  List Index   |    |     Value     |
+    |  Object ID |   Storage ID  |  List Index   |    |    Element    |
     +------------+---------------+---------------+    +---------------+
 
 Map Field Entry
 
     +------------+---------------+---------------+    +---------------+
-    |  Object ID |   Storage ID  |      Key      |    |     Value     |
+    |  Object ID |   Storage ID  |    Map Key    |    |   Map Value   |
     +------------+---------------+---------------+    +---------------+
 
 ****** SIMPLE INDEXES *******
@@ -68,30 +68,30 @@ Simple Field Index
 Set Element Field Index
 
     +------------+---------------+---------------+
-    | Storage ID |     Value     |     ObjId     |
+    | Storage ID |    Element    |     ObjId     |
     +------------+---------------+---------------+
 
 List Element Field Index
 
     +------------+---------------+---------------+---------------+
-    | Storage ID |     Value     |     ObjId     |  List Index   |
+    | Storage ID |    Element    |     ObjId     |  List Index   |
     +------------+---------------+---------------+---------------+
 
 Map Key Field Index
 
     +------------+---------------+---------------+
-    | Storage ID |      Key      |     ObjId     |
+    | Storage ID |    Map Key    |     ObjId     |
     +------------+---------------+---------------+
 
 Map Value Field Index
 
     +------------+---------------+---------------+---------------+
-    | Storage ID |     Value     |     ObjId     |      Key      |
+    | Storage ID |   Map Value   |     ObjId     |    Map Key    |
     +------------+---------------+---------------+---------------+
 
 ****** COMPOSITE INDEXES *******
 
-    +------------+---------------+---------------+...+--------------+
-    | Storage ID |    Value 1    |    Value 2    |...|     ObjId    |
-    +------------+---------------+---------------+...+--------------+
+    +------------+---------------+...+---------------+--------------+
+    | Storage ID |    Value 1    |...|    Value N    |     ObjId    |
+    +------------+---------------+...+---------------+--------------+
 
