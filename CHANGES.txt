@@ -1,4 +1,4 @@
-Version 3.0.0
+Version 3.0.0 Released January 3, 2017
 
     - Upgraded minimum supported Java version to Java 8 (*)
     - Removed several deprecated methods (*)
