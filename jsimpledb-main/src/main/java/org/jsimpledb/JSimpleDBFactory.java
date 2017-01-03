@@ -84,7 +84,7 @@ public class JSimpleDBFactory {
      *
      * <p>
      * A value of -1 means to {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion auto-generate}
-     * a random version number based on the {@linkplain org.jsimpledb.schema.SchemaModel#compatibilityHash compatibility hash}
+     * a version number based on the {@linkplain org.jsimpledb.schema.SchemaModel#compatibilityHash compatibility hash}
      * of the {@link org.jsimpledb.schema.SchemaModel} generated from the {@linkplain #setModelClasses configured model classes}.
      *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
