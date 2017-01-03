@@ -132,7 +132,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
               + "  (b) Otherwise:\n"
               + "      1. Move " + this.expectedSchemaFile + " into " + this.oldSchemasDirectory + "\n"
               + "      2. Copy " + this.actualSchemaFile + " to " + this.expectedSchemaFile + "\n"
-              + "      3. Update your project's configured JSimpleDB schema version number");
+              + "      3. Update your configured JSimpleDB schema version number (or use -1 to auto-generate)");
         }
 
         // Gather old schema files
