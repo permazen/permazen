@@ -374,7 +374,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     }
 
     /**
-     * Check schema for hard conflicts with other schema versions defined by an interation of XML files.
+     * Check schema for hard conflicts with other schema versions defined by an iteration of XML files.
      *
      * @param jdb database instance
      * @param otherVersionFiles iteration of other schema version XML files
