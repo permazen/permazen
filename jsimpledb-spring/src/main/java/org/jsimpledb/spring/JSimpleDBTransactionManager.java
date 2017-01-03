@@ -44,8 +44,9 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * existing transactions when appropriate.
  *
  * <p>
- * For some key/value stores, the {@link org.springframework.transaction.annotation.Transactional#isolation &#64;isolation()}
- * value is significant; see the documentation for the specific {@link org.jsimpledb.kv.KVDatabase}.
+ * For some key/value stores, the value of
+ * {@link org.springframework.transaction.annotation.Transactional#isolation &#64;Transactional.isolation()}
+ * is significant; see the documentation for your specific {@link org.jsimpledb.kv.KVDatabase} for details.
  *
  * @see org.jsimpledb.spring
  */
