@@ -4,9 +4,12 @@ SHORT TERM
 
 - Connection pooling in SQL k/v implementations
 
-- Relax requirement for consistent storage ID type if there are no indexes?
-    - Would complicate FieldInfo logic
-    - Make check optional for the schema verifier ant task & maven plugin
+- Relax requirement for consistent storage ID type if there are no indexes
+    - Can now migrate different field types for same storage ID automatically
+        - Usual stuff like Integer -> String, etc.
+        - Enum type #1 -> Enum type #2 for overlapping ident's, etc
+    - Add @JField and @JSimpleClass boolean automaticMigration() default true
+    - FieldInfo becomes more like "IndexInfo" or somesuch
 
 - CLI:
     - New CLI flags:
