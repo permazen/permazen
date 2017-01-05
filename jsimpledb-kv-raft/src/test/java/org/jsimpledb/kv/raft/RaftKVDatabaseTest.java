@@ -7,6 +7,7 @@ package org.jsimpledb.kv.raft;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -247,6 +248,19 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 raft.stop();
             for (TestNetwork network : this.raftNetworks)
                 network.stop();
+
+            // Check for undeleted temporary files
+            for (RaftKVDatabase raft : this.rafts) {
+                try (DirectoryStream<Path> files = Files.newDirectoryStream(raft.logDir.toPath())) {
+                    for (Path path : files) {
+                        final File file = path.toFile();
+                        if (RaftKVDatabase.TEMP_FILE_PATTERN.matcher(file.getName()).matches())
+                            throw new Exception("leftover temp file: " + file);
+                    }
+                }
+            }
+
+            // Clean up temporary files
             Files.walkFileTree(this.topRaftDir.toPath(), new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

@@ -1,3 +1,7 @@
+Version 3.0.1
+
+    - Fix Raft bug where temporary files were sometimes never deleted
+
 Version 3.0.0 Released January 3, 2017
 
     - Upgraded minimum supported Java version to Java 8 (*)

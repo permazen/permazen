@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.dellroad.stuff.java.TimedWait;
 import org.dellroad.stuff.net.Network;
 import org.dellroad.stuff.net.TCPNetwork;
@@ -1876,6 +1877,9 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.logDirChannel != null && !this.disableSync)
             this.logDirChannel.force(true);
 
+        // Temp file no longer exists, so don't try to delete it later
+        newLogEntry.resetTempFile();
+
         // Add new log entry to in-memory log
         this.raftLog.add(logEntry);
 
@@ -1968,21 +1972,17 @@ public class RaftKVDatabase implements KVDatabase {
             File tempFile = null;
             try {
 
-                // Create temporary file
+                // Write serialized mutation data into temporary file
                 tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.logDir);
-
-                // Copy data to temporary file
                 try (FileWriter output = new FileWriter(tempFile, this.disableSync)) {
-                    while (mutationData.hasRemaining())
-                        output.getFileOutputStream().getChannel().write(mutationData);
+                    final FileChannel channel = output.getFileOutputStream().getChannel();
+                    for (ByteBuffer writeBuf = mutationData.asReadOnlyBuffer(); writeBuf.hasRemaining(); )
+                        channel.write(writeBuf);
                 }
 
-                // Avoid having two copies of the data in memory at once
-                mutationData = null;
-
-                // Deserialize data into memory
-                try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(tempFile), 4080)) {
-                    newLogEntry = new NewLogEntry(this, LogEntry.readData(input));
+                // Deserialize mutation data and create new log entry instance
+                try (ByteBufferInputStream input = new ByteBufferInputStream(mutationData)) {
+                    newLogEntry = new NewLogEntry(LogEntry.readData(input), tempFile);
                 }
 
                 // Indicate success
@@ -1998,7 +1998,12 @@ public class RaftKVDatabase implements KVDatabase {
             newLogEntry = null;
 
         // Handle message
-        this.receiveMessage(sender, msg, newLogEntry);
+        try {
+            this.receiveMessage(sender, msg, newLogEntry);
+        } finally {
+            if (newLogEntry != null)
+                newLogEntry.close();
+        }
     }
 
     private synchronized void outputQueueEmpty(String address) {

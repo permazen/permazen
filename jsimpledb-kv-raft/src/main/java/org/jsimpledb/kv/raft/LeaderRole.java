@@ -802,8 +802,6 @@ public class LeaderRole extends Role {
     void caseAppendRequest(AppendRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
         this.failDuplicateLeader(msg);
-        if (newLogEntry != null)
-            newLogEntry.cancel();
     }
 
     @Override
@@ -884,11 +882,8 @@ public class LeaderRole extends Role {
 
         // Find follower
         final Follower follower = this.findFollower(msg);
-        if (follower == null) {
-            if (newLogEntry != null)
-                newLogEntry.cancel();
+        if (follower == null)
             return;
-        }
 
         // Decode reads, if any, and check for conflicts
         final ByteBuffer readsData = msg.getReadsData();
@@ -902,8 +897,6 @@ public class LeaderRole extends Role {
                 this.error("error decoding reads data in " + msg, e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
-                if (newLogEntry != null)
-                    newLogEntry.cancel();
                 return;
             }
 
@@ -915,8 +908,6 @@ public class LeaderRole extends Role {
                     this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), conflictMsg));
-                if (newLogEntry != null)
-                    newLogEntry.cancel();
                 return;
             }
         }
@@ -971,7 +962,6 @@ public class LeaderRole extends Role {
                     this.debug("error appending new log entry for " + msg + ": " + e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
-                newLogEntry.cancel();
                 return;
             }
             if (this.log.isDebugEnabled())
@@ -1093,34 +1083,24 @@ public class LeaderRole extends Role {
     private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
         assert Thread.holdsLock(this.raft);
 
-        // Create log entry
-        final LogEntry logEntry;
-        final String[] configChange;
-        boolean success = false;
-        try {
+        // Do a couple of extra checks if a config change is included
+        final String[] configChange = newLogEntry.getData().getConfigChange();
+        if (configChange != null) {
 
-            // Do a couple of extra checks if a config change is included
-            if ((configChange = newLogEntry.getData().getConfigChange()) != null) {
+            // If a config change is involved, check whether we can safely apply it
+            if (!this.mayApplyNewConfigChange())
+                throw new IllegalStateException("config change cannot be safely applied at this time");
 
-                // If a config change is involved, check whether we can safely apply it
-                if (!this.mayApplyNewConfigChange())
-                    throw new IllegalStateException("config change cannot be safely applied at this time");
-
-                // Disallow a configuration change that removes the last node in a cluster
-                if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
-                    final String lastNode = this.raft.currentConfig.keySet().iterator().next();
-                    if (configChange[0].equals(lastNode))
-                        throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
-                }
+            // Disallow a configuration change that removes the last node in a cluster
+            if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
+                final String lastNode = this.raft.currentConfig.keySet().iterator().next();
+                if (configChange[0].equals(lastNode))
+                    throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
             }
-
-            // Append new log entry to the Raft log
-            logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
-            success = true;
-        } finally {
-            if (!success)
-                newLogEntry.cancel();
         }
+
+        // Append new log entry to the Raft log
+        final LogEntry logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
 
         // Update follower list if configuration changed
         if (configChange != null)

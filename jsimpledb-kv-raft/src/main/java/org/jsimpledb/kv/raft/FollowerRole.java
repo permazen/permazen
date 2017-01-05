@@ -561,8 +561,6 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("rejecting " + msg + " because previous log entry doesn't match");
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
               this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
-            if (newLogEntry != null)
-                newLogEntry.cancel();
             return;
         }
 
@@ -661,7 +659,6 @@ public class FollowerRole extends NonLeaderRole {
                             logEntry = this.raft.appendLogEntry(logTerm, newLogEntry);
                         } catch (Exception e) {
                             this.error("error appending new log entry", e);
-                            newLogEntry.cancel();
                             break;
                         }
                     }
