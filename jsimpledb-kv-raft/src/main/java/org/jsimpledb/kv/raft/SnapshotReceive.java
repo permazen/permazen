@@ -6,13 +6,19 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.AbstractIterator;
+import com.google.common.primitives.Bytes;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
-import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
+import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.kv.raft.msg.InstallSnapshot;
 import org.jsimpledb.kv.util.KeyListEncoder;
 
@@ -24,7 +30,8 @@ import org.jsimpledb.kv.util.KeyListEncoder;
  */
 class SnapshotReceive {
 
-    private final KVStore kv;
+    private final AtomicKVStore kv;
+    private final byte[] prefix;
     private final long snapshotTerm;
     private final long snapshotIndex;
     private final Map<String, String> snapshotConfig;
@@ -34,15 +41,17 @@ class SnapshotReceive {
 
 // Constructors
 
-    SnapshotReceive(KVStore kv, long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig) {
+    SnapshotReceive(AtomicKVStore kv, byte[] prefix, long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig) {
         Preconditions.checkArgument(kv != null, "null kv");
+        Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(snapshotTerm > 0);
         Preconditions.checkArgument(snapshotIndex > 0);
         Preconditions.checkArgument(snapshotConfig != null);
+        this.kv = kv;
+        this.prefix = prefix;
         this.snapshotTerm = snapshotTerm;
         this.snapshotIndex = snapshotIndex;
         this.snapshotConfig = snapshotConfig;
-        this.kv = kv;
     }
 
 // Public methods
@@ -53,10 +62,6 @@ class SnapshotReceive {
 
     public long getSnapshotIndex() {
         return this.snapshotIndex;
-    }
-
-    public long getPairIndex() {
-        return this.pairIndex;
     }
 
     public Map<String, String> getSnapshotConfig() {
@@ -75,25 +80,14 @@ class SnapshotReceive {
         // Sanity check
         Preconditions.checkArgument(buf != null, "null buf");
 
-        // Read and apply key/value pairs
-        final ByteBufferInputStream input = new ByteBufferInputStream(buf);
-        while (buf.hasRemaining()) {
+        // Read and apply key/value pairs in a single operation
+        final PutMutations mutations = new PutMutations(buf, this.prefix, this.previousKey);
+        this.kv.mutate(mutations, false);
+        assert mutations.getEndKey() != null || (this.pairIndex == 0 && mutations.getNumPuts() == 0);
 
-            // Decode next key/value pair
-            final byte[] key;
-            final byte[] value;
-            try {
-                key = KeyListEncoder.read(input, this.previousKey);
-                value = KeyListEncoder.read(input, null);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("invalid encoded key/value data", e.getCause());
-            }
-            this.previousKey = key;
-            this.pairIndex++;
-
-            // Apply key/value pair
-            this.kv.put(key, value);
-        }
+        // Advance our installation frontier
+        this.pairIndex += mutations.getNumPuts();
+        this.previousKey = mutations.getEndKey();
     }
 
     public boolean matches(InstallSnapshot msg) {
@@ -113,5 +107,103 @@ class SnapshotReceive {
           + ",pairIndex=" + this.pairIndex
           + "]";
     }
-}
 
+// PutMutations
+
+    private static class PutMutations implements Mutations {
+
+        private final ByteBuffer buf;
+        private final byte[] prefix;
+        private final byte[] startKey;
+
+        // These fields are copied back from completed PutIterators
+        private byte[] endKey;
+        private int numPuts;
+
+        PutMutations(ByteBuffer buf, byte[] prefix, byte[] startKey) {
+            this.buf = buf;
+            this.prefix = prefix;
+            this.startKey = startKey;
+        }
+
+    // Mutations
+
+        @Override
+        public Iterable<KeyRange> getRemoveRanges() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
+            return () -> new PutIterator(this, this.buf.asReadOnlyBuffer(), this.prefix, this.startKey);
+        }
+
+        @Override
+        public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
+            return Collections.emptySet();
+        }
+
+    // Iteration completion writebacks
+
+        public byte[] getEndKey() {
+            return this.endKey;
+        }
+        public void setEndKey(byte[] endKey) {
+            this.endKey = endKey;
+        }
+
+        public int getNumPuts() {
+            return this.numPuts;
+        }
+        public void setNumPuts(int numPuts) {
+            this.numPuts = numPuts;
+        }
+    }
+
+// PutIterator
+
+    private static class PutIterator extends AbstractIterator<Map.Entry<byte[], byte[]>> {
+
+        private final PutMutations mutations;
+        private final ByteBuffer buf;
+        private final ByteBufferInputStream input;
+        private final byte[] prefix;
+
+        private byte[] previousKey;
+        private int numPuts;
+
+        PutIterator(PutMutations mutations, ByteBuffer buf, byte[] prefix, byte[] startKey) {
+            this.mutations = mutations;
+            this.buf = buf;
+            this.input = new ByteBufferInputStream(buf);
+            this.prefix = prefix;
+            this.previousKey = startKey;
+        }
+
+        @Override
+        protected Map.Entry<byte[], byte[]> computeNext() {
+
+            // Check if there's more data
+            if (!this.buf.hasRemaining()) {
+                this.mutations.setEndKey(this.previousKey);
+                this.mutations.setNumPuts(this.numPuts);
+                return this.endOfData();
+            }
+
+            // Decode next key/value pair
+            final byte[] key;
+            final byte[] value;
+            try {
+                key = KeyListEncoder.read(input, this.previousKey);
+                value = KeyListEncoder.read(input, null);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("invalid encoded key/value data", e.getCause());
+            }
+            this.previousKey = key;
+            this.numPuts++;
+
+            // Done
+            return new AbstractMap.SimpleImmutableEntry<>(Bytes.concat(this.prefix, key), value);
+        }
+    }
+}

@@ -33,7 +33,6 @@ import org.jsimpledb.kv.raft.msg.Message;
 import org.jsimpledb.kv.raft.msg.PingRequest;
 import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
-import org.jsimpledb.kv.util.PrefixKVStore;
 
 /**
  * Raft follower role.
@@ -804,8 +803,8 @@ public class FollowerRole extends NonLeaderRole {
             if (this.raft.discardFlipFloppedStateMachine())
                 this.warn("detected left-over content in flip-flopped state machine; discarding");
             this.updateElectionTimer();
-            this.snapshotReceive = new SnapshotReceive(PrefixKVStore.create(this.raft.kv,
-              this.raft.getFlipFloppedStateMachinePrefix()), term, index, msg.getSnapshotConfig());
+            this.snapshotReceive = new SnapshotReceive(this.raft.kv,
+              this.raft.getFlipFloppedStateMachinePrefix(), term, index, msg.getSnapshotConfig());
             if (this.log.isDebugEnabled()) {
                 this.debug("starting new snapshot install from \"" + msg.getSenderId()
                   + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
