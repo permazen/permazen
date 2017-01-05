@@ -197,6 +197,26 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         throw new RuntimeException("internal error: didn't find " + reader.getName() + " in tagMap");
     }
 
+    /**
+     * Read an {@link Enum} attribute.
+     *
+     * @param reader XML reader
+     * @param type {@link Enum} type
+     * @param name attribute name
+     * @param defaultValue default value, or null if value is required
+     */
+    <T extends Enum<T>> T readAttr(XMLStreamReader reader, Class<T> type, QName name, T defaultValue) throws XMLStreamException {
+        final String text = this.getAttr(reader, name, defaultValue == null);
+        if (text == null)
+            return defaultValue;
+        try {
+            return Enum.valueOf(type, text);
+        } catch (IllegalArgumentException e) {
+            throw new XMLStreamException("invalid value `" + text
+              + " for \"" + name.getLocalPart() + "\" attribute in " + this, reader.getLocation());
+        }
+    }
+
 // XML Writing
 
     abstract void writeXML(XMLStreamWriter writer) throws XMLStreamException;

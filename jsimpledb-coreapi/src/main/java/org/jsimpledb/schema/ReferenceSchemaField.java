@@ -182,22 +182,11 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        final String text = this.getAttr(reader, ON_DELETE_ATTRIBUTE, false);
-        final DeleteAction action;
-        if (text != null) {
-            try {
-                action = Enum.valueOf(DeleteAction.class, text);
-            } catch (IllegalArgumentException e) {
-                throw new XMLStreamException("invalid value `" + text
-                  + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this, reader.getLocation());
-            }
-        } else
-            action = DeleteAction.EXCEPTION;
-        this.setOnDelete(action);
+        this.setOnDelete(this.readAttr(reader, DeleteAction.class, ON_DELETE_ATTRIBUTE, DeleteAction.EXCEPTION));
         final Boolean cascadeDeleteAttr = this.getBooleanAttr(reader, CASCADE_DELETE_ATTRIBUTE, false);
         if (cascadeDeleteAttr != null)
             this.setCascadeDelete(cascadeDeleteAttr);
-        this.setAllowDeleted(action == DeleteAction.NOTHING);                   // defaults to false unless DeleteAction.NOTHING
+        this.setAllowDeleted(this.getOnDelete() == DeleteAction.NOTHING);       // defaults to false unless DeleteAction.NOTHING
         final Boolean allowDeletedAttr = this.getBooleanAttr(reader, ALLOW_DELETED_ATTRIBUTE, false);
         if (allowDeletedAttr != null)
             this.setAllowDeleted(allowDeletedAttr);
