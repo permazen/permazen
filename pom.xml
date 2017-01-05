@@ -75,7 +75,7 @@
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- An already existing version (needed to avoid cycles during build) -->
-        <previous.version>2.4.7</previous.version>
+        <previous.version>3.0.0</previous.version>
 
         <!-- Dependency versions -->
         <ant.version>1.9.7</ant.version>
