@@ -1,4 +1,4 @@
-Version 3.0.1
+Version 3.0.1 Released January 5, 2017
 
     - Fix Raft bug where temporary files were sometimes never deleted
 
