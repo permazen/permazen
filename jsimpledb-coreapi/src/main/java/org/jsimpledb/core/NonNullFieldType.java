@@ -12,7 +12,7 @@ import com.google.common.reflect.TypeToken;
  * Support superclass for {@link FieldType}'s that don't support null values.
  *
  * <p>
- * Such types may not be used standalone, but only within an outer type such as {@link NullSafeType}.
+ * Except for primitive types, such types may not be used standalone, but only within an outer type such as {@link NullSafeType}.
  */
 abstract class NonNullFieldType<T> extends FieldType<T> {
 

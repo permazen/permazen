@@ -45,7 +45,7 @@ public class Schemas {
         // Sanity check
         Preconditions.checkArgument(versions != null, "null versions");
 
-        // Verify Versions have the right version numbers
+        // Verify versions have the right version numbers
         for (Map.Entry<Integer, Schema> entry : versions.entrySet()) {
             final int versionNumber = entry.getKey();
             final Schema schema = entry.getValue();

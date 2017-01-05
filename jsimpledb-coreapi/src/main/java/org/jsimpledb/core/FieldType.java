@@ -33,13 +33,14 @@ import org.jsimpledb.util.ParseContext;
  *  <li>They have a unique {@linkplain #getName name}; typically the same as their {@linkplain #getTypeToken supported type}.</li>
  *  <li>All possible values can be represented in Java as an instance of the associated Java type (possibly including null).</li>
  *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
- *      then the two orderings do not necessarily have to match, but they should if possible.</li>
+ *      then the two orderings do not necessarily have to agree, but they should if possible.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
- *      sort consistently with the total ordering of the corresponding Java values defined by {@link #compare compare()}.</li>
+ *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
  *      with both a {@linkplain #toString(Object) regular string form} for non-null values and a
- *      {@linkplain #toParseableString self-delimiting string form} for any value (these may be the same).</li>
+ *      {@linkplain #toParseableString self-delimiting string form} for any value including null
+ *      (these two forms may be the same).</li>
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare compare()} (typically
  *      null values sort last) and have binary and string encodings just like any other value.</li>
  *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.</li>
