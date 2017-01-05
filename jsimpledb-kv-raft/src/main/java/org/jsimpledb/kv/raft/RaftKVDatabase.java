@@ -24,13 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -426,7 +426,7 @@ public class RaftKVDatabase implements KVDatabase {
     ScheduledExecutorService serviceExecutor;                           // does stuff for us asynchronously
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
     final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();  // transactions open on this instance
-    final ArrayDeque<Service> pendingService = new ArrayDeque<>();      // pending work for serviceExecutor
+    final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();        // pending work for serviceExecutor
     KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
     boolean performingService;                                          // true when serviceExecutor does not need to be woken up
     boolean shuttingDown;                                               // prevents new transactions from being created
@@ -1641,7 +1641,9 @@ public class RaftKVDatabase implements KVDatabase {
         this.performingService = true;
         try {
             while (!this.pendingService.isEmpty()) {
-                final Service service = this.pendingService.removeFirst();
+                final Iterator<Service> i = this.pendingService.iterator();
+                final Service service = i.next();
+                i.remove();
                 assert service != null;
                 assert service.getRole() == null || service.getRole() == this.role;
                 if (this.log.isTraceEnabled())
