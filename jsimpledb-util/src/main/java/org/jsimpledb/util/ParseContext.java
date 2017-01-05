@@ -282,6 +282,8 @@ public class ParseContext implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final ParseContext that = (ParseContext)obj;
