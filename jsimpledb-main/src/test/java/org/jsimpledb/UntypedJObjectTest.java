@@ -5,10 +5,13 @@
 
 package org.jsimpledb;
 
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 
+import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
@@ -19,10 +22,12 @@ public class UntypedJObjectTest extends TestSupport {
     @Test
     public void testUntypedJObject() throws Exception {
 
+    // Create a Foo and Bar in schema version 1
+
         final Database db = new Database(new SimpleKVDatabase());
 
-        final Foo foo;
-        final Bar bar;
+        final ObjId fooId;
+        final ObjId barId;
 
         final JSimpleDBFactory factory1 = new JSimpleDBFactory();
         factory1.setDatabase(db);
@@ -33,13 +38,20 @@ public class UntypedJObjectTest extends TestSupport {
         JTransaction.setCurrent(jtx1);
         try {
 
-            foo = jtx1.create(Foo.class);
-            bar = jtx1.create(Bar.class);
+            final Foo foo = jtx1.create(Foo.class);
+            foo.setName("foo");
+            final Bar bar = jtx1.create(Bar.class);
+            bar.setName("bar");
+
+            fooId = foo.getObjId();
+            barId = bar.getObjId();
 
             jtx1.commit();
         } finally {
             JTransaction.setCurrent(null);
         }
+
+    // Query getAll() in schema version 2 transaction
 
         final JSimpleDBFactory factory2 = new JSimpleDBFactory();
         factory2.setDatabase(db);
@@ -56,24 +68,64 @@ public class UntypedJObjectTest extends TestSupport {
             Assert.assertEquals(jobjs.size(), 1);
             Assert.assertEquals(nobjs.size(), 1);
 
-            Assert.assertEquals(jobjs.iterator().next().getObjId(), foo.getObjId());
-            Assert.assertEquals(nobjs.iterator().next().getObjId(), bar.getObjId());
+            Assert.assertEquals(jobjs.iterator().next().getObjId(), fooId);
+            Assert.assertEquals(nobjs.iterator().next().getObjId(), barId);
 
             jtx2.commit();
         } finally {
             JTransaction.setCurrent(null);
         }
+
+    // Query HasName index in schema version 2 transaction
+
+        final JTransaction jtx3 = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx3);
+        try {
+
+            final NavigableMap<String, NavigableSet<Foo>> fobjs = jtx3.queryIndex(Foo.class, "name", String.class).asMap();
+            final NavigableMap<String, NavigableSet<HasName>> hobjs = jtx3.queryIndex(HasName.class, "name", String.class).asMap();
+            final NavigableMap<String, NavigableSet<JObject>> jobjs = jtx3.queryIndex(JObject.class, "name", String.class).asMap();
+
+            final Foo foo = jtx3.get(fooId, Foo.class);
+            final JObject bar = jtx3.get(barId);
+
+            Assert.assertTrue(foo.exists());
+            Assert.assertTrue(bar.exists());
+            Assert.assertTrue(bar instanceof UntypedJObject);
+
+            TestSupport.checkMap(fobjs, buildMap(
+              "foo",     buildSet(foo)));
+
+            TestSupport.checkMap(hobjs, buildMap(
+              "foo",     buildSet(foo)));
+
+            TestSupport.checkMap(jobjs, buildMap(
+              "foo",     buildSet(foo),
+              "bar",     buildSet(bar)));
+
+            jtx3.commit();
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
     }
 
 // Model Classes
 
+    public interface HasName extends JObject {
+
+        @JField(indexed = true)
+        String getName();
+        void setName(String name);
+    }
+
     @JSimpleClass
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements HasName {
         // this class exists in schema versions 1 and 2
     }
 
     @JSimpleClass
-    public abstract static class Bar implements JObject {
+    public abstract static class Bar implements HasName {
         // this class exists in schema versions 1 only
     }
 }
