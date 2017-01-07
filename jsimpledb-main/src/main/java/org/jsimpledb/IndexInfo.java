@@ -83,7 +83,7 @@ class IndexInfo {
 
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
-        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(path.getTargetFieldTypes()), this.fieldInfo, true));
+        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(path.getTargetFieldTypes()), this.fieldInfo));
 
         // Verify target type
         valueChecks.add(new ValueCheck("target type", startType, path.targetTypes));
@@ -94,7 +94,7 @@ class IndexInfo {
             final JSimpleFieldInfo keyInfo = mapInfo.getKeyFieldInfo();
             assert this.fieldInfo.equals(mapInfo.getValueFieldInfo());
             valueChecks.add(new ValueCheck("map key type", keyType,
-              this.wrapRaw(keyInfo.getTypeTokens(this.startType)), keyInfo, true));
+              this.wrapRaw(keyInfo.getTypeTokens(this.startType)), keyInfo));
         }
 
         // Check values
@@ -126,7 +126,7 @@ class IndexInfo {
             final Class<?> valueType = valueTypes[i];
             final JSimpleFieldInfo jfieldInfo = indexInfo.jfieldInfos.get(i);
             valueChecks.add(new ValueCheck("value type #" + (i + 1), valueType,
-              this.wrapRaw(jfieldInfo.getTypeTokens(this.startType)), jfieldInfo instanceof JReferenceFieldInfo, true));
+              this.wrapRaw(jfieldInfo.getTypeTokens(this.startType)), jfieldInfo));
         }
 
         // Verify target type
@@ -239,9 +239,8 @@ class IndexInfo {
         }
 
         // Constructor for indexed fields
-        ValueCheck(String description,
-          Class<?> actualType, Set<Class<?>> expectedTypes, JSimpleFieldInfo fieldInfo, boolean matchNull) {
-            this(description, actualType, expectedTypes, fieldInfo instanceof JReferenceFieldInfo, matchNull);
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, JSimpleFieldInfo fieldInfo) {
+            this(description, actualType, expectedTypes, fieldInfo instanceof JReferenceFieldInfo, true);
         }
 
         // Constructor for target type (simple index)
