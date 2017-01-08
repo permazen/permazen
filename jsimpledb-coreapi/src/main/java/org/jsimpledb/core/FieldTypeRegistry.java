@@ -45,6 +45,8 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  * <p>
  * Arrays of references are not currently supported.
  *
+ * <p><b>Built-in Types</b></p>
+ *
  * <p>
  * The following types are automatically registered (or generated on demand):
  * <ul>
