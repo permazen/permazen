@@ -13,7 +13,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * {@link Double} type.
  */
-class DoubleType extends PrimitiveType<Double> {
+class DoubleType extends NumberType<Double> {
 
     private static final long serialVersionUID = 7124114664265270273L;
 

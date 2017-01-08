@@ -13,7 +13,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * {@link Float} type.
  */
-class FloatType extends PrimitiveType<Float> {
+class FloatType extends NumberType<Float> {
 
     private static final long serialVersionUID = 4726406311612739536L;
 
