@@ -50,5 +50,12 @@ class BooleanType extends PrimitiveType<Boolean> {
     public boolean hasPrefix0xff() {
         return false;
     }
+
+// Conversion
+
+    @Override
+    protected Boolean convertNumber(Number value) {
+        return value.doubleValue() != 0;
+    }
 }
 

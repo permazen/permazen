@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -115,23 +116,29 @@ public class FieldTypeTest extends CoreAPITestSupport {
     }
 
     private <T> void assertEquals(FieldType<T> fieldType, T actual, T expected) {
-        Assert.assertEquals(fieldType.compare(actual, expected), 0);
+        FieldTypeTest.assertEquals(fieldType, actual, expected, "equals check failed");
+    }
+
+    public static <T> void assertEquals(FieldType<T> fieldType, T actual, T expected, String message) {
+        Assert.assertEquals(fieldType.compare(actual, expected), 0, message);
         if (actual instanceof boolean[])
-            Assert.assertEquals((boolean[])expected, (boolean[])actual);
+            Assert.assertEquals((boolean[])expected, (boolean[])actual, message);
         else if (actual instanceof byte[])
-            Assert.assertEquals((byte[])expected, (byte[])actual);
+            Assert.assertEquals((byte[])expected, (byte[])actual, message);
         else if (actual instanceof char[])
-            Assert.assertEquals((char[])expected, (char[])actual);
+            Assert.assertEquals((char[])expected, (char[])actual, message);
         else if (actual instanceof short[])
-            Assert.assertEquals((short[])expected, (short[])actual);
+            Assert.assertEquals((short[])expected, (short[])actual, message);
         else if (actual instanceof int[])
-            Assert.assertEquals((int[])expected, (int[])actual);
+            Assert.assertEquals((int[])expected, (int[])actual, message);
         else if (actual instanceof float[])
-            Assert.assertEquals((float[])expected, (float[])actual);
+            Assert.assertEquals((float[])expected, (float[])actual, message);
         else if (actual instanceof long[])
-            Assert.assertEquals((long[])expected, (long[])actual);
+            Assert.assertEquals((long[])expected, (long[])actual, message);
         else if (actual instanceof double[])
-            Assert.assertEquals((double[])expected, (double[])actual);
+            Assert.assertEquals((double[])expected, (double[])actual, message);
+        else if (actual instanceof Object[])
+            Assert.assertTrue(Arrays.deepEquals((Object[])expected, (Object[])actual), message);
     }
 
     @DataProvider(name = "cases")

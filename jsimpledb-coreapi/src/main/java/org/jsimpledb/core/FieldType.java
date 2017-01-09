@@ -284,6 +284,36 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
     public abstract T fromParseableString(ParseContext context);
 
     /**
+     * Attempt to convert a value from the given {@link FieldType} into a value of this {@link FieldType}.
+     *
+     * <p>
+     * For a non-null {@code value}, the implementation in {@link FieldType} first invokes {@code type.}{@link #toString(Object)
+     * toString(value)} to convert {@code value} into a {@link String}, then attempts to parse that string via {@code this.}{@link
+     * #fromString fromString()}; if the parse fails, an {@link IllegalArgumentException} is thrown. If {@code value} is null,
+     * then null is returned, unless this type does not support null values, in which case an {@link IllegalArgumentException}
+     * is thrown.
+     *
+     * <p>
+     * Special handling also exists for certain conversions between built-in types:
+     * <ul>
+     *  <li>Primitive types other than Boolean convert as if by a Java cast</li>
+     *  <li>Non-Boolean primitive types convert to Boolean as if by {@code value != 0}</li>
+     *  <li>Boolean converts to non-Boolean primitive types by first converting to zero (if false) or one (if true)</li>
+     *  <li>A {@code char} and a {@link String} of length one are convertible (other {@link String}s are not)</li>
+     *  <li>A {@code char[]} array and a {@link String} are convertible</li>
+     *  <li>Arrays are converted by converting each array element individually</li>
+     * </ul>
+     *
+     * @param type the {@link FieldType} of {@code value}
+     * @param value the value to convert
+     * @throws IllegalArgumentException if the conversion fails
+     */
+    public <S> T convert(FieldType<S> type, S value) {
+        Preconditions.checkArgument(type != null, "null type");
+        return value == null || type.equals(this) ? this.validate(value) : this.fromString(type.toString(value));
+    }
+
+    /**
      * Verify the given object is a valid instance of this {@link FieldType}'s Java type and cast it to that type.
      *
      * <p>

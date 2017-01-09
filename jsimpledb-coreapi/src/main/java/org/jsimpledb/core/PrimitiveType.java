@@ -57,6 +57,36 @@ abstract class PrimitiveType<T> extends NonNullFieldType<T> {
         return this.primitive.compare(value1, value2);
     }
 
+// Conversion
+
+    @Override
+    public <S> T convert(FieldType<S> type, S value) {
+
+        // Unwrap primitive wrapper types
+        if (type instanceof PrimitiveWrapperType) {
+            if (value == null)
+                throw new IllegalArgumentException("can't convert null value into primitive type " + this.primitive);
+            type = ((PrimitiveWrapperType<S>)type).inner;
+        }
+
+        // Handle primitive types
+        if (type instanceof PrimitiveType) {
+            final PrimitiveType<S> primitiveType = (PrimitiveType<S>)type;
+            if (primitiveType instanceof NumberType)
+                return this.convertNumber((Number)value);
+            if (primitiveType instanceof BooleanType)
+                return this.convertNumber((Boolean)value ? 1 : 0);
+            if (primitiveType instanceof CharacterType)
+                return this.convertNumber((int)(Character)value);
+            throw new RuntimeException("internal error: " + primitiveType);
+        }
+
+        // Handle non-primitive types the regular way
+        return super.convert(type, value);
+    }
+
+    protected abstract T convertNumber(Number value);
+
 // Object
 
     @Override

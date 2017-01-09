@@ -19,6 +19,11 @@ class LongType extends IntegralType<Long> {
     }
 
     @Override
+    protected Long convertNumber(Number value) {
+        return value.longValue();
+    }
+
+    @Override
     protected Long downCast(long value) {
         return value;
     }

@@ -19,6 +19,11 @@ class ShortType extends IntegralType<Short> {
     }
 
     @Override
+    protected Short convertNumber(Number value) {
+        return value.shortValue();
+    }
+
+    @Override
     protected Short downCast(long value) {
         return (short)value;
     }

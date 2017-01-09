@@ -19,6 +19,11 @@ class IntegerType extends IntegralType<Integer> {
     }
 
     @Override
+    protected Integer convertNumber(Number value) {
+        return value.intValue();
+    }
+
+    @Override
     protected Integer downCast(long value) {
         return (int)value;
     }

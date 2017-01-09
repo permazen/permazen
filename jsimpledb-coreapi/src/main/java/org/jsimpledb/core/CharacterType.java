@@ -70,5 +70,23 @@ class CharacterType extends PrimitiveType<Character> {
             throw new IllegalArgumentException("more than one character found within quotation marks");
         return s.charAt(0);
     }
+
+// Conversion
+
+    @Override
+    public <S> Character convert(FieldType<S> type, S value) {
+
+        // Special case for a string of length one
+        if (value instanceof String && ((String)value).length() == 1)
+            return ((String)value).charAt(0);
+
+        // Defer to superclass
+        return super.convert(type, value);
+    }
+
+    @Override
+    protected Character convertNumber(Number value) {
+        return (char)value.intValue();
+    }
 }
 

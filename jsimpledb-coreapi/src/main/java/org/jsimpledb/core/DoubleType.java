@@ -53,5 +53,12 @@ class DoubleType extends NumberType<Double> {
             return ((Number)obj).doubleValue();
         return super.validate(obj);
     }
+
+// Conversion
+
+    @Override
+    protected Double convertNumber(Number value) {
+        return value.doubleValue();
+    }
 }
 

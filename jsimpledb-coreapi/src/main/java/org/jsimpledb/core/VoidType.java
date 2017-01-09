@@ -34,5 +34,10 @@ class VoidType extends PrimitiveType<Void> {
     public void skip(ByteReader reader) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    protected Void convertNumber(Number value) {
+        throw new UnsupportedOperationException();
+    }
 }
 

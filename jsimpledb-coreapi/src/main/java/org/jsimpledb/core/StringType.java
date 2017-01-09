@@ -123,5 +123,30 @@ class StringType extends NonNullFieldType<String> {
     public int compare(String string1, String string2) {
         return string1.compareTo(string2);
     }
+
+// Conversion
+
+    @Override
+    public <S> String convert(FieldType<S> type, S value) {
+
+        // Handle null
+        if (value == null)
+            return null;
+
+        // Unwrap nullable types
+        if (type instanceof NullSafeType)
+            type = ((NullSafeType<S>)type).inner;
+
+        // Special case for character
+        if (value instanceof Character)
+            return new String(new char[] { (Character)value });
+
+        // Special case for character array
+        if (type instanceof CharacterArrayType)
+            return new String((char[])value);
+
+        // Defer to superclass
+        return super.convert(type, value);
+    }
 }
 

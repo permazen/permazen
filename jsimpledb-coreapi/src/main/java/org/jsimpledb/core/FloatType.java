@@ -56,5 +56,12 @@ class FloatType extends NumberType<Float> {
             return ((Number)obj).floatValue();
         return super.validate(obj);
     }
+
+// Conversion
+
+    @Override
+    protected Float convertNumber(Number value) {
+        return value.floatValue();
+    }
 }
 

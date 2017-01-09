@@ -150,6 +150,12 @@ public class NullSafeType<T> extends FieldType<T> {
     }
 
     @Override
+    public <S> T convert(FieldType<S> type, S value) {
+        Preconditions.checkArgument(type != null, "null type");
+        return value == null ? null : this.inner.convert(type, value);
+    }
+
+    @Override
     public int compare(T value1, T value2) {
         if (value1 == null)
             return value2 == null ? 0 : 1;

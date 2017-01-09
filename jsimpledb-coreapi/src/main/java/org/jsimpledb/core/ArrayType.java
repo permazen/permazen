@@ -134,6 +134,35 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
         return this.elementType.equals(that.elementType) && this.dimensions == that.dimensions;
     }
 
+// Conversion
+
+    @Override
+    public <S> T convert(FieldType<S> type, S value) {
+
+        // Handle null
+        if (value == null)
+            throw new IllegalArgumentException("invalid null value");
+
+        // Unwrap nullable types
+        if (type instanceof NullSafeType)
+            type = ((NullSafeType<S>)type).inner;
+
+        // For array types, try to convert element-by-element
+        if (type instanceof ArrayType)
+            return this.convertArray((ArrayType<S, ?>)type, value);
+
+        // Defer to superclass
+        return super.convert(type, value);
+    }
+
+    private <S, F> T convertArray(ArrayType<S, F> that, S value) {
+        final int length = that.getArrayLength(value);
+        final ArrayList<E> list = new ArrayList<>(length);
+        for (int i = 0; i < length; i++)
+            list.add(this.elementType.convert(that.elementType, that.getArrayElement(value, i)));
+        return this.createArray(list);
+    }
+
 // Subclass overrides
 
     /**

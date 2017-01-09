@@ -69,5 +69,18 @@ class CharacterArrayType extends ArrayType<char[], Character> {
     protected char[] createArray(List<Character> elements) {
         return Chars.toArray(elements);
     }
+
+// Conversion
+
+    @Override
+    public <S> char[] convert(FieldType<S> type, S value) {
+
+        // Special case for String
+        if (value instanceof String)
+            return ((String)value).toCharArray();
+
+        // Defer to superclass
+        return super.convert(type, value);
+    }
 }
 

@@ -19,6 +19,11 @@ class ByteType extends IntegralType<Byte> {
     }
 
     @Override
+    protected Byte convertNumber(Number value) {
+        return value.byteValue();
+    }
+
+    @Override
     protected Byte downCast(long value) {
         return (byte)value;
     }
