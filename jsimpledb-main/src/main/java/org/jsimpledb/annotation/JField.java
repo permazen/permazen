@@ -11,6 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jsimpledb.TypeConversionPolicy;
 import org.jsimpledb.core.DeleteAction;
 
 /**
@@ -290,5 +291,20 @@ public @interface JField {
      * @see JSimpleClass#autogenAllowDeletedSnapshot
      */
     boolean allowDeletedSnapshot() default true;
+
+    /**
+     * Specify the {@link TypeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
+     *
+     * <p>
+     * With some restrictions, JSimpleDB supports schema changes that alter a simple field's type, and can automatically
+     * convert field values from the old to the new type (for example, from the {@code int} value {@code 1234} to the
+     * {@link String} value {@code "1234"}).
+     *
+     * <p>
+     * This property defines the {@link TypeConversionPolicy} for the annotated field when upgrading an object from some
+     * other schema version to the current schema version. Note custom conversion logic is also possible using
+     * {@link OnVersionChange &#64;OnVersionChange} methods.
+     */
+    TypeConversionPolicy conversionPolicy() default TypeConversionPolicy.REQUIRE;
 }
 

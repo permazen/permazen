@@ -122,5 +122,9 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         public boolean allowDeletedSnapshot() {
             return this.jsimpleClass.autogenAllowDeletedSnapshot();
         }
+        @Override
+        public TypeConversionPolicy conversionPolicy() {
+            return this.jsimpleClass.autogenConversionPolicy();
+        }
     };
 }

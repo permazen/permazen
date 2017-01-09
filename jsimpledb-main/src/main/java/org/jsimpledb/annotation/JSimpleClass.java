@@ -11,6 +11,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jsimpledb.TypeConversionPolicy;
+
 /**
  * Java annotation for Java classes that are {@link org.jsimpledb.JSimpleDB} object model types.
  *
@@ -146,5 +148,19 @@ public @interface JSimpleClass {
      * @see JField#allowDeletedSnapshot
      */
     boolean autogenAllowDeletedSnapshot() default true;
+
+    /**
+     * Configure the default for the {@link JField#conversionPolicy &#64;JField.conversionPolicy()} property
+     * for auto-generated reference fields.
+     *
+     * <p>
+     * If {@link #autogenFields} is false, this property is ignored. Otherwise, any auto-generated fields will
+     * have the specified {@link TypeConversionPolicy} applied when upgrading an object from some other schema
+     * version to the current schema version.
+     *
+     * @return type conversion policy for auto-generated fields
+     * @see JField#conversionPolicy
+     */
+    TypeConversionPolicy autogenConversionPolicy() default TypeConversionPolicy.REQUIRE;
 }
 
