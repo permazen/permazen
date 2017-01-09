@@ -346,6 +346,8 @@ public class FieldTypeRegistry {
         // Handle array types
         if (name.endsWith(ArrayType.ARRAY_SUFFIX)) {
             final FieldType<?> elementType = this.getFieldType(name.substring(0, name.length() - ArrayType.ARRAY_SUFFIX.length()));
+            if (elementType == null)
+                return null;
             return this.getArrayType(elementType);
         }
 
