@@ -79,6 +79,17 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
         return id;
     }
 
+    /**
+     * Attempt to convert a value from the given {@link FieldType} into a value of this {@link FieldType}.
+     *
+     * <p>
+     * The only conversion supported by {@link ReferenceFieldType} is to/from {@link ObjId}.
+     */
+    @Override
+    public <S> ObjId convert(FieldType<S> type, S value) {
+        return this.validate(value);
+    }
+
 // Object
 
     @Override
