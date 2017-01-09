@@ -32,7 +32,6 @@ public class Schemas {
 
     final TreeMap<Integer, Schema> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
-    final TreeMap<Integer, TreeSet<Integer>> indexedFieldToContainingTypesMap = new TreeMap<>();
     final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
     KeyRanges objTypesKeyRanges;
 
@@ -59,7 +58,6 @@ public class Schemas {
         // Reset state
         this.versions.clear();
         this.storageInfos.clear();
-        this.indexedFieldToContainingTypesMap.clear();
         this.objTypeStorageIds.clear();
 
         // Copy versions
@@ -86,23 +84,6 @@ public class Schemas {
             version.objTypeMap.values().stream()
               .map(objType -> objType.storageId)
               .forEach(objTypeStorageIds::add);
-        }
-
-        // Calculate, for each simple field, the storage ID's of all types in which, for some schema version,
-        // the field exists and is indexed.
-        for (Schema version : this.versions.values()) {
-            for (ObjType objType : version.objTypeMap.values()) {
-                for (SimpleField<?> field : Iterables.filter(objType.fieldsAndSubFields, SimpleField.class)) {
-                    if (!field.indexed)
-                        continue;
-                    TreeSet<Integer> containingTypes = this.indexedFieldToContainingTypesMap.get(field.storageId);
-                    if (containingTypes == null) {
-                        containingTypes = new TreeSet<>();
-                        this.indexedFieldToContainingTypesMap.put(field.storageId, containingTypes);
-                    }
-                    containingTypes.add(objType.storageId);
-                }
-            }
         }
 
         // Calculate the KeyRanges containing all object types
