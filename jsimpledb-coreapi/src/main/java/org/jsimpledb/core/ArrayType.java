@@ -131,7 +131,7 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
         if (!super.equals(obj))
             return false;
         final ArrayType<?, ?> that = (ArrayType<?, ?>)obj;
-        return this.elementType.equals(that.elementType) && this.dimensions == that.dimensions;
+        return this.dimensions == that.dimensions && this.elementType.equals(that.elementType);
     }
 
 // Conversion
