@@ -36,7 +36,7 @@ abstract class ComplexFieldStorageInfo<T> extends FieldStorageInfo {
     void unreferenceAll(Transaction tx, int storageId, ObjId target, NavigableSet<ObjId> referrers) {
 
         // Construct index entry prefix common to all referrers
-        final ByteWriter writer = new ByteWriter(1 + ObjId.NUM_BYTES * 2);      // common case for storage ID's < 0xfb
+        final ByteWriter writer = new ByteWriter(3 + ObjId.NUM_BYTES * 2);      // common case for three byte storage ID's
         UnsignedIntEncoder.write(writer, storageId);
         target.writeTo(writer);
         final int mark = writer.mark();

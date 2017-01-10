@@ -682,7 +682,7 @@ public class Database {
     }
 
     static byte[] buildVersionIndexKey(ObjId id, int version) {
-        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + 1 + ObjId.NUM_BYTES);
+        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + 5 + ObjId.NUM_BYTES);
         writer.write(VERSION_INDEX_PREFIX);
         UnsignedIntEncoder.write(writer, version);
         id.writeTo(writer);
