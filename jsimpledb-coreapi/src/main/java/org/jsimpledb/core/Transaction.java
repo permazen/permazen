@@ -2952,15 +2952,15 @@ public class Transaction {
      */
     private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
         final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
-        for (Schema schemaVersion : this.schemas.versions.values()) {
+        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.queryVersion().asMap().entrySet()) {
 
-            // Check whether any object of this version exist; if not, skip
-            final NavigableSet<ObjId> versionObjects = this.queryVersion().asMap().get(schemaVersion.versionNumber);
-            if (versionObjects == null)
-                continue;
+            // Get corresponding Schema object
+            final Schema schemaVersion = this.schemas.versions.get(entry.getKey());
+            if (schemaVersion == null)
+                throw new InconsistentDatabaseException("encountered objects with unknown schema version " + entry.getKey());
 
-            // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them.
-            // Do this separately for each such field in each object type because the fields may have different DeleteAction's.
+            // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them. Do this separately
+            // for each such field in each object type and version, because the fields may have different DeleteAction's.
             for (ObjType objType : schemaVersion.objTypeMap.values()) {
                 for (ReferenceField field : Iterables.filter(objType.fieldsAndSubFields, ReferenceField.class)) {
 
@@ -2975,7 +2975,7 @@ public class Transaction {
                         continue;
 
                     // Restrict further to the specific schema version
-                    refSets.add(NavigableSets.intersection(versionObjects, refs));
+                    refSets.add(NavigableSets.intersection(entry.getValue(), refs));
                 }
             }
         }
