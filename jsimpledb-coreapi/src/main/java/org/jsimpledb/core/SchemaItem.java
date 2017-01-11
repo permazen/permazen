@@ -8,7 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 
 /**
- * Superclass for the {@link ObjType} and {@link Field} classes which make up a {@link Schema} version.
+ * Superclass for the {@link ObjType}, {@link CompositeIndex}, and {@link Field} classes which make up a {@link Schema} version.
  *
  * <p>
  * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.

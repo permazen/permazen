@@ -17,10 +17,10 @@ public class UnknownIndexException extends DatabaseException {
      * Constructor.
      *
      * @param storageId unknown index storage ID
-     * @param description description of the unknown index
+     * @param description description of the problem
      */
     public UnknownIndexException(int storageId, String description) {
-        super("no " + description + " with storage ID " + storageId + " exists");
+        super(description);
         this.storageId = storageId;
     }
 

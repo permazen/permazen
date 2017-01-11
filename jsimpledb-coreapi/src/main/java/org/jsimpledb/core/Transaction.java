@@ -2164,7 +2164,7 @@ public class Transaction {
      * Notes:
      * <ul>
      *  <li>This method does not check whether {@code id} is valid, the object exists,
-     *      or the field actually exists in the object.</li>
+     *      or the field actually exists in the object's current schema version.</li>
      *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
@@ -2787,10 +2787,6 @@ public class Transaction {
      *
      * <p>
      * The returned index contains objects from all recorded schema versions for which the field is indexed;
-     * this method does not check whether any such schema versions exist.
-     *
-     * <p>
-     * Only objects having schema versions in which the field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      *
      * @param storageId {@link SimpleField}'s storage ID

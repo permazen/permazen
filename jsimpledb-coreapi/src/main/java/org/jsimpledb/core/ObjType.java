@@ -166,7 +166,7 @@ public class ObjType extends SchemaItem {
     public CompositeIndex getCompositeIndex(int storageId) {
         final CompositeIndex index = this.compositeIndexes.get(storageId);
         if (index == null)
-            throw new UnknownIndexException(storageId, "composite index");
+            throw new UnknownIndexException(storageId, "no composite index with storage ID " + storageId + " exists");
         return index;
     }
 
