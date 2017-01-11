@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  * number of key bytes consumed by {@link #decodePair decodePair()}.
  * When not in prefix mode, {@link #decodePair decodePair()} <b>must</b> consume the entire key to preserve correct semantics.
+ * If it fails to do so, an error is logged and, if assertions are enabled, an {@link AssertionError} is thrown.
  *
  * <p><b>Key Restrictions</b></p>
  *
@@ -153,9 +154,11 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
         final ByteReader keyReader = new ByteReader(pair.getKey());
         final E value = this.decodePair(pair, keyReader);
         if (!this.prefixMode && keyReader.remain() > 0) {
-            LoggerFactory.getLogger(this.getClass()).error(this.getClass().getName() + "@"
+            final String msg = this.getClass().getName() + "@"
               + Integer.toHexString(System.identityHashCode(this)) + ": " + keyReader.remain() + " undecoded bytes remain in key "
-              + ByteUtil.toString(pair.getKey()) + ", value " + ByteUtil.toString(pair.getValue()) + " -> " + value);
+              + ByteUtil.toString(pair.getKey()) + ", value " + ByteUtil.toString(pair.getValue()) + " -> " + value;
+            LoggerFactory.getLogger(this.getClass()).error(msg);
+            assert false : msg;
         }
 
         // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
