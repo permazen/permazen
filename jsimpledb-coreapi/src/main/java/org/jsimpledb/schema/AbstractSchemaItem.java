@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -67,35 +68,14 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
 // Compatibility
 
-    /**
-     * Determine whether this instance is compatible with the given instance for use with the core API.
-     * Two instances are compatible if they are identical in all respects except for object and field names
-     * (to also include object and field names in the comparison, use {@link #equals equals()}).
-     * The core API uses storage IDs, not names, to identify objects and fields.
-     *
-     * @param that other schema object
-     * @return true if this and {@code that} are compatible
-     * @throws IllegalArgumentException if {@code that} is null
-     */
-    public final boolean isCompatibleWith(AbstractSchemaItem that) {
-        Preconditions.checkArgument(that != null, "null that");
-        if (this.storageId != that.storageId)
-            return false;
-        if (this.getClass() != that.getClass())
-            return false;
-        return this.isCompatibleWithInternal(that);
-    }
-
-    abstract boolean isCompatibleWithInternal(AbstractSchemaItem that);
-
-    static <K> boolean allAreCompatible(Map<K, ? extends AbstractSchemaItem> map1, Map<K, ? extends AbstractSchemaItem> map2) {
+    static <K, V> boolean isAll(Map<K, V> map1, Map<K, V> map2, BiPredicate<V, V> checker) {
         if (!map1.keySet().equals(map2.keySet()))
             return false;
-        for (Map.Entry<K, ? extends AbstractSchemaItem> entry : map1.entrySet()) {
+        for (Map.Entry<K, V> entry : map1.entrySet()) {
             final K key = entry.getKey();
-            final AbstractSchemaItem item1 = entry.getValue();
-            final AbstractSchemaItem item2 = map2.get(key);
-            if (!item1.isCompatibleWith(item2))
+            final V value1 = entry.getValue();
+            final V value2 = map2.get(key);
+            if (value1 == null || value2 == null || !checker.test(value1, value2))
                 return false;
         }
         return true;

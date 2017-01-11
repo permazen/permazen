@@ -200,36 +200,48 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         }
         itemsByStorageId.put(storageId, item);
     }
+// Compatibility
 
     /**
-     * Determine whether this schema is compatible with the given schema for use with the core API.
-     * Two instances are compatible if they are identical in all respects except for object and field names
-     * (to also include object and field names in the comparison, use {@link #equals equals()}).
-     * The core API uses storage IDs, not names, to identify objects and fields.
+     * Determine whether this instance is compatible with the given instance for use with the core API
+     * and the same version number.
      *
-     * @param that other schema
-     * @return true if this and {@code that} are compatible
+     * <p>
+     * Two instances are "same version" compatible if and only if they can be used to successfully
+     * {@linkplain org.jsimpledb.core.Database#createTransaction(SchemaModel, int, boolean) open a transaction}
+     * against the same {@link org.jsimpledb.core.Database} using the same schema version.
+     *
+     * <p>
+     * Such compatibility implies the instances are mostly identical, with these notable exceptions:
+     * <ul>
+     *  <li>Object and field names (the core API identifies types and fields using only storage ID's)</li>
+     *  <li>Attributes affecting behavior but not structure, such as
+     *      {@linkplain ReferenceSchemaField#isCascadeDelete delete cascades}</li>
+     * </ul>
+     *
+     * <p>
+     * To determine whether two instances are truly identical, use {@link #equals equals()}.
+     *
+     * @param that other schema model
+     * @return true if this and {@code that} are "same version" compatible
+     * @throws InvalidSchemaException if either this or {@code that} instance is invalid
      * @throws IllegalArgumentException if {@code that} is null
      */
     public boolean isCompatibleWith(SchemaModel that) {
         Preconditions.checkArgument(that != null, "null that");
         if (this == that)
             return true;
-        if (!AbstractSchemaItem.allAreCompatible(this.schemaObjectTypes, that.schemaObjectTypes))
-            return false;
-        return true;
+        return AbstractSchemaItem.isAll(this.schemaObjectTypes, that.schemaObjectTypes, SchemaObjectType::isCompatibleWith);
     }
 
-// Compatibility Hashing
-
     /**
-     * Generate a compatibility hash value.
+     * Generate a "same version" compatibility hash value.
      *
      * <p>
-     * For any two instances, if they are {@linkplain #isCompatibleWith compatible} then returned value will be the same;
-     * if they are different, the returned value is very likely to be different.
+     * For any two instances, if they are {@linkplain #isCompatibleWith "same version" compatible} then
+     * the returned value will be the same; if they are different, the returned value is very likely to be different.
      *
-     * @return compatibility hash value
+     * @return "same version" compatibility hash value
      */
     public long compatibilityHash() {
         final MessageDigest sha1;
@@ -246,10 +258,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             public void write(byte[] b, int off, int len) {
             }
         };
-        try (DataOutputStream output = new DataOutputStream(new DigestOutputStream(discardOutputStream, sha1))) {
-            output.writeInt(this.schemaObjectTypes.size());
-            for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
-                schemaObjectType.writeCompatibilityHashData(output);
+        try (DigestOutputStream output = new DigestOutputStream(discardOutputStream, sha1)) {
+            this.writeCompatibilityHashData(output);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }
@@ -260,8 +270,17 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         }
     }
 
+    private void writeCompatibilityHashData(OutputStream stream) throws IOException {
+        try (DataOutputStream output = new DataOutputStream(stream)) {
+            output.writeInt(this.schemaObjectTypes.size());
+            for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+                schemaObjectType.writeCompatibilityHashData(output);
+        }
+    }
+
     /**
-     * Auto-generate a random schema version based on this instance's {@linkplain #compatibilityHash compatibility hash value}.
+     * Auto-generate a random schema version based on this instance's
+     * {@linkplain #compatibilityHash "same version" compatibility hash value}.
      *
      * @return schema version number, always greater than zero
      */

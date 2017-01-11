@@ -342,11 +342,12 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     }
 
     /**
-     * Verify that the provided schema matches the schema defined by the specified XML file.
+     * Verify that the provided schema is {@linkplain SchemaModel#isCompatibleWith "same version" compatible}
+     * with the schema defined by the specified XML file.
      *
      * @param schema actual schema
      * @param file expected schema XML file
-     * @param matchNames whether names must match, or only storage ID's
+     * @param matchNames whether schema must match exactly, or only be compatible with
      * @return true if verification succeeded, otherwise false
      * @throws MojoExecutionException if an unexpected error occurs
      */
@@ -374,7 +375,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     }
 
     /**
-     * Check schema for hard conflicts with other schema versions defined by an iteration of XML files.
+     * Check schema for structural conflicts with other schema versions defined by an iteration of XML files.
      *
      * @param jdb database instance
      * @param otherVersionFiles iteration of other schema version XML files
@@ -384,6 +385,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected boolean verify(JSimpleDB jdb, Iterator<? extends File> otherVersionFiles) throws MojoExecutionException {
         boolean success = true;
         while (otherVersionFiles.hasNext()) {
+
+            // Read next file
             final File file = otherVersionFiles.next();
             this.getLog().info("checking schema for conflicts with " + file);
             final SchemaModel otherSchema;
@@ -392,6 +395,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             } catch (IOException | InvalidSchemaException e) {
                 throw new MojoExecutionException("error reading schema from `" + file + "': " + e, e);
             }
+
+            // Check compatible
             try {
                 jdb.getDatabase().createTransaction(otherSchema, 2, true).rollback();
             } catch (Exception e) {

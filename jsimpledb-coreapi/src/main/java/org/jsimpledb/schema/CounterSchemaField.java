@@ -31,7 +31,9 @@ public class CounterSchemaField extends SchemaField {
 // Compatibility
 
     @Override
-    boolean isCompatibleWithInternal(AbstractSchemaItem that) {
+    boolean isCompatibleWith(SchemaField field) {
+        if (field.getClass() != this.getClass())
+            return false;
         return true;
     }
 

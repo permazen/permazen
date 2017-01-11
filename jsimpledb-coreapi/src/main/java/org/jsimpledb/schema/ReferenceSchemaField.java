@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -126,30 +127,21 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 
 // Compatibility
 
+    // Reference fields are differentiated only by what types they can refer to
     @Override
-    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
-        final ReferenceSchemaField that = (ReferenceSchemaField)that0;
-        if (!super.isCompatibleWithInternal(that))
-            return false;
-        if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
-            return false;
-        return true;
+    boolean isCompatibleType(SimpleSchemaField field) {
+        final ReferenceSchemaField that = (ReferenceSchemaField)field;
+        return Objects.equals(this.objectTypes, that.objectTypes);
     }
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
+    void writeFieldTypeCompatibilityHashData(DataOutputStream output) throws IOException {
         output.writeBoolean(this.objectTypes != null);
         if (this.objectTypes != null) {
             output.writeInt(this.objectTypes.size());
             for (Integer storageId : this.objectTypes)
                 output.writeInt(storageId);
         }
-    }
-
-    @Override
-    boolean includeTypeInCompatibility() {
-        return false;
     }
 
 // DiffGenerating

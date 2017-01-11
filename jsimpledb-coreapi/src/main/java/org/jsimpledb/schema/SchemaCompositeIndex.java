@@ -51,14 +51,6 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
         }
     }
 
-    @Override
-    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
-        final SchemaCompositeIndex that = (SchemaCompositeIndex)that0;
-        if (!this.indexedFields.equals(that.indexedFields))
-            return false;
-        return true;
-    }
-
 // XML Reading
 
     @Override
@@ -84,7 +76,11 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
         writer.writeEndElement();           // </CompositeIndex>
     }
 
-// Compatibility Hashing
+// Compatibility
+
+    boolean isCompatibleWith(SchemaCompositeIndex that) {
+        return this.indexedFields.equals(that.indexedFields);
+    }
 
     @Override
     void writeCompatibilityHashData(DataOutputStream output) throws IOException {

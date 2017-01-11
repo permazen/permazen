@@ -39,19 +39,19 @@ import org.jsimpledb.JSimpleDB;
  * </ul>
  *
  * <p>
- * The first case is detected by having an expected schema XML file. This file corresponds to the project's
- * currently configured JSimpleDB schema version number (which is used to configure JSimpleDB at runtime).
- * It is used to verify that the schema auto-generated from the project's current model classes has not changed
- * in an incompatible way, which would cause an error at runtime.
- * In other words, the actual schema generated from the compiled classes is verified to match
- * what is expected, which is recorded in this file.
+ * The first case is detected by having an expected schema XML file.
+ * This file should correspond to the project's current schema version, and is
+ * is used to verify that the schema auto-generated from the project's model classes is still
+ * {@linkplain SchemaModel#isCompatibleWith "same version" compatible} with this schema version, ensuring
+ * no mismatch error will occur at runtime. In other words, the actual schema generated from the compiled classes
+ * is verified to match what is expected, which is recorded in this file.
  * The current expected schema XML file location is configured by {@code <expectedSchemaFile>};
  *
  * <p>
  * The second case it detected by supplying XML files containing any old schema versions that are still active
  * in the old schema files directory. All files ending in {@code .xml} found anywhere under this
- * directory are checked for incompatibilities with the current schema version.
- * The old schema XML files directory is configured by {@code <oldSchemasDirectory>}.
+ * directory are checked for "different version" incompatibilities
+ * with the current schema version. The old schema XML files directory is configured by {@code <oldSchemasDirectory>}.
  *
  * <p>
  * If this goal fails due to an incompatibility of the first type:
@@ -59,12 +59,12 @@ import org.jsimpledb.JSimpleDB;
  *  <li>The old expected schema XML file should be moved into the old schemas directory;</li>
  *  <li>the new expected schema XML file (found in the location configured by {@code <actualSchemaFile>})
  *      should be copied to the current expected schema XML file;</li>
- *  <li>The project's configured JSimpleDB schema version number should be incremented.</li>
+ *  <li>Any manually configured JSimpleDB schema version number should be incremented.</li>
  * </ul>
  *
  * <p>
  * If this goal fails due to an incompatibility of the second type, you must adjust your model classes to make
- * them compatible again. For example, manually reassign the conflicting field a different
+ * them compatible again. For example, manually reassign a conflicting field a different
  * {@link org.jsimpledb.annotation.JField#name name()} or {@link org.jsimpledb.annotation.JField#storageId storageId()}
  * using the {@link org.jsimpledb.annotation.JField} annotation.
  */

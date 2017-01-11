@@ -90,14 +90,16 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Whether to verify not only schema compatibility but also that the two schemas are identical, i.e.,
- *      the same names are used for object types, fields, and composite indexes.
+ *      Whether to verify not only {@link org.jsimpledb.schema.ScheamModel#isCompatibleWith "same version"
+ *      schema compatibility} but also that the two schemas are actually identical, i.e.,
+ *      the same names are used for object types, fields, and composite indexes, and non-structural
+ *      attributes such as delete cascades have not changed.
  *      </p>
  *
  *      <p>
- *      Two schemas that are equivalent except for names are considered compatible, because the core API uses
- *      storage ID's, not names. However, if names change then some JSimpleDB layer operations, such as index
- *      queries and reference path inversion, may need to be updated.
+ *      Two schemas that are equivalent except for names are compatible, because the core API uses storage ID's,
+ *      not names. However, if names change then some JSimpleDB layer operations, such as index queries
+ *      and reference path inversion, may need to be updated.
  *      </p>
  *
  *      <p>

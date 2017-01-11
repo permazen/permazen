@@ -20,6 +20,10 @@ public abstract class SchemaField extends AbstractSchemaItem {
      */
     public abstract <R> R visit(SchemaFieldSwitch<R> target);
 
+// Compatibility
+
+    abstract boolean isCompatibleWith(SchemaField that);
+
 // Object
 
     @Override

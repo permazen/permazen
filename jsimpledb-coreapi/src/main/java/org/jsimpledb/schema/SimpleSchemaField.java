@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
@@ -88,28 +89,29 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 // Compatibility
 
     @Override
-    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
-        final SimpleSchemaField that = (SimpleSchemaField)that0;
-        if (this.includeTypeInCompatibility() && !this.type.equals(that.type))
+    final boolean isCompatibleWith(SchemaField field) {
+        if (field.getClass() != this.getClass())
             return false;
-        if (this.encodingSignature != that.encodingSignature)
-            return false;
-        if (this.indexed != that.indexed)
-            return false;
-        return true;
+        final SimpleSchemaField that = (SimpleSchemaField)field;
+        return this.isCompatibleType(that)
+          && this.encodingSignature == that.encodingSignature
+          && this.indexed == that.indexed;
+    }
+
+    boolean isCompatibleType(SimpleSchemaField that) {
+        return Objects.equals(this.type, that.type);
     }
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+    final void writeCompatibilityHashData(DataOutputStream output) throws IOException {
         super.writeCompatibilityHashData(output);
-        if (this.includeTypeInCompatibility())
-            output.writeUTF(this.type);
+        this.writeFieldTypeCompatibilityHashData(output);
         output.writeLong(this.encodingSignature);
         output.writeBoolean(this.indexed);
     }
 
-    boolean includeTypeInCompatibility() {
-        return true;
+    void writeFieldTypeCompatibilityHashData(DataOutputStream output) throws IOException {
+        output.writeUTF(this.type);
     }
 
 // DiffGenerating

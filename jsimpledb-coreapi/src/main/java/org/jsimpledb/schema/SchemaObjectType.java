@@ -151,17 +151,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 
 // Compatibility
 
-    @Override
-    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
-        final SchemaObjectType that = (SchemaObjectType)that0;
-        if (!AbstractSchemaItem.allAreCompatible(this.schemaFields, that.schemaFields))
-            return false;
-        if (!AbstractSchemaItem.allAreCompatible(this.schemaCompositeIndexes, that.schemaCompositeIndexes))
-            return false;
-        return true;
+    boolean isCompatibleWith(SchemaObjectType that) {
+        return AbstractSchemaItem.isAll(this.schemaFields, that.schemaFields, SchemaField::isCompatibleWith)
+          && AbstractSchemaItem.isAll(this.schemaCompositeIndexes,
+           that.schemaCompositeIndexes, SchemaCompositeIndex::isCompatibleWith);
     }
-
-// Compatibility Hashing
 
     @Override
     void writeCompatibilityHashData(DataOutputStream output) throws IOException {
