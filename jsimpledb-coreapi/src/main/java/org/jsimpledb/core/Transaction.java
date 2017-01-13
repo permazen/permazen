@@ -1422,6 +1422,10 @@ public class Transaction {
             // Remove old value if field has disappeared, otherwise leave alone
             if (newField == null)
                 this.kvt.remove(key);
+
+            // For newly created counter fields, we must initialize them to zero
+            if (oldField == null)
+                this.kvt.put(newField.buildKey(id), this.kvt.encodeCounter(0));
         }
 
     //////// Update simple fields and corresponding index entries
