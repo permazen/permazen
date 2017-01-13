@@ -115,12 +115,12 @@ public class Schema {
         return "schema version " + this.versionNumber;
     }
 
-    // Add new StorageInfo, checking for conflicts
+    // Add new StorageInfo, checking for storage conflicts
     private void addStorageInfo(SchemaItem schemaItem, Map<Integer, String> descriptionMap) {
         final StorageInfo storageInfo = schemaItem.toStorageInfo();
         final StorageInfo previous = this.storageInfoMap.put(storageInfo.storageId, storageInfo);
         if (previous != null && !previous.equals(storageInfo)) {
-            throw new IllegalArgumentException("invalid duplicate use of storage ID " + storageInfo.storageId
+            throw new IllegalArgumentException("incompatible use of storage ID " + storageInfo.storageId
               + " for both " + descriptionMap.get(storageInfo.storageId) + " and " + schemaItem);
         }
         descriptionMap.put(storageInfo.storageId, "" + schemaItem);

@@ -97,7 +97,7 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @return storage IDs of allowed object types, or null if there is no restriction
      */
     public SortedSet<Integer> getObjectTypes() {
-        return ((ReferenceFieldType)this.getFieldType()).getObjectTypes();
+        return ((ReferenceFieldType)this.fieldType).getObjectTypes();
     }
 
     @Override

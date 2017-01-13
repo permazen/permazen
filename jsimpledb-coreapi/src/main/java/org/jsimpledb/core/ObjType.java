@@ -25,9 +25,9 @@ import org.jsimpledb.schema.SchemaObjectType;
 public class ObjType extends SchemaItem {
 
     final FieldTypeRegistry fieldTypeRegistry;
-    final TreeMap<Integer, Field<?>> fields = new TreeMap<>();
+    final TreeMap<Integer, Field<?>> fields = new TreeMap<>();                          // does not include sub-fields
     final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
-    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();
+    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();                   // includes sub-fields
     final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
     final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
