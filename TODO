@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Maven/ant task that produces the auto-generated schema version number
+
 - Connection pooling in SQL k/v implementations
 
 - Relax requirement for consistent storage ID type if there are no indexes
