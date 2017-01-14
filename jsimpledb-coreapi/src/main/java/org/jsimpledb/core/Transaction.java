@@ -1802,7 +1802,7 @@ public class Transaction {
         // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
         if (field.indexed || field.compositeIndexMap != null
-          || (!this.disableListenerNotifications && this.hasFieldMonitor(id, field))) {
+          || (!this.disableListenerNotifications && this.hasFieldMonitor(id, field.storageId))) {
 
             // Get old value
             oldValue = this.kvt.get(key);
@@ -2457,7 +2457,7 @@ public class Transaction {
     public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
         this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2479,7 +2479,7 @@ public class Transaction {
     public synchronized void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2501,7 +2501,7 @@ public class Transaction {
     public synchronized void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2523,7 +2523,7 @@ public class Transaction {
     public synchronized void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2549,6 +2549,10 @@ public class Transaction {
         // Verify all fields in the path are reference fields
         for (int pathStorageId : path)
             this.schemas.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
+    }
+
+    private HashSet<FieldMonitor> getMonitorsForField(int storageId) {
+        return this.getMonitorsForField(storageId, false);
     }
 
     private synchronized HashSet<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
@@ -2581,30 +2585,26 @@ public class Transaction {
         assert Thread.holdsLock(this);
         assert !this.disableListenerNotifications;
 
+        // Get info
+        final ObjId id = notifier.getId();
+        final int fieldStorageId = notifier.getStorageId();
+
         // Does anybody care?
-        final int storageId = notifier.getStorageId();
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
-        if (monitors == null || !monitors.stream().anyMatch(new MonitoredPredicate(notifier.getId(), storageId)))
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
+        if (monitors == null || !monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId)))
             return;
 
         // Add a pending field monitor notification for the specified field
-        final TreeMap<Integer, ArrayList<FieldChangeNotifier>> pendingNotificationMap = this.pendingNotifications.get();
-        ArrayList<FieldChangeNotifier> pendingNotificationList = pendingNotificationMap.get(storageId);
-        if (pendingNotificationList == null) {
-            pendingNotificationList = new ArrayList<>(2);
-            pendingNotificationMap.put(storageId, pendingNotificationList);
-        }
-        pendingNotificationList.add(notifier);
+        this.pendingNotifications.get().computeIfAbsent(fieldStorageId, i -> new ArrayList<>(2)).add(notifier);
     }
 
     /**
-     * Determine if there are any monitors watching the specified field.
+     * Determine if there are any monitors watching the specified field in the specified object.
      */
-    boolean hasFieldMonitor(ObjId id, Field<?> field) {
+    boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
         assert Thread.holdsLock(this);
-        final int storageId = field.storageId;
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
-        return monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(id, storageId));
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
+        return monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId));
     }
 
     /**
@@ -2676,7 +2676,7 @@ public class Transaction {
                     // For all pending notifications, back-track references and notify all field monitors for the field
                     for (FieldChangeNotifier notifier : entry.getValue()) {
                         assert notifier.getStorageId() == storageId;
-                        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+                        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
                             continue;
                         this.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), new ArrayList<>(monitors), 0);
@@ -2709,12 +2709,7 @@ public class Transaction {
 
             // Sort the unfinished monitors by their next (i.e., previous) reference field
             final int storageId = monitor.path[monitor.path.length - step - 1];
-            ArrayList<FieldMonitor> remainingMonitors = remainingMonitorsMap.get(storageId);
-            if (remainingMonitors == null) {
-                remainingMonitors = new ArrayList<>();
-                remainingMonitorsMap.put(storageId, remainingMonitors);
-            }
-            remainingMonitors.add(monitor);
+            remainingMonitorsMap.computeIfAbsent(storageId, i -> new ArrayList<>()).add(monitor);
         }
 
         // Invert references for each group of remaining monitors and recurse
