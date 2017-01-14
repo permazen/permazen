@@ -6,7 +6,6 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
@@ -25,6 +24,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
@@ -880,7 +880,9 @@ public class Transaction {
         }
 
         // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
-        for (ReferenceField field : Iterables.filter(info.getObjType().referenceFields.values(), field -> field.cascadeDelete)) {
+        for (ReferenceField field : info.getObjType().referenceFieldsAndSubFields.values()) {
+            if (!field.cascadeDelete)
+                continue;
             final Iterable<ObjId> refs = field.parent != null ?
               field.parent.iterateSubField(this, id, field) : Collections.singleton(field.getValue(this, id));
             for (ObjId ref : refs) {
@@ -1169,7 +1171,7 @@ public class Transaction {
             assert srcType.schema.versionNumber == dstType.schema.versionNumber;
 
             // Check for any deleted reference assignments
-            for (ReferenceField field : dstType.referenceFields.values())
+            for (ReferenceField field : dstType.referenceFieldsAndSubFields.values())
                 field.findAnyDeletedAssignments(srcTx, dstTx, dstId);
 
             // We can short circuit here if source and target are the same object in the same transaction
@@ -1586,8 +1588,8 @@ public class Transaction {
         final ObjType newType = newVersion.getObjType(info.getId().getStorageId());
 
         // Get old and new reference fields having specified storage ID
-        final ReferenceField oldField = oldType.referenceFields.get(storageId);
-        final ReferenceField newField = newType.referenceFields.get(storageId);
+        final ReferenceField oldField = oldType.referenceFieldsAndSubFields.get(storageId);
+        final ReferenceField newField = newType.referenceFieldsAndSubFields.get(storageId);
         if (oldField == null || newField == null)
             return null;
 
@@ -2581,8 +2583,8 @@ public class Transaction {
 
         // Does anybody care?
         final int storageId = notifier.getStorageId();
-        HashSet<FieldMonitor> monitors = this.monitorMap != null ? this.monitorMap.get(storageId) : null;
-        if (monitors == null || !Iterables.any(monitors, new MonitoredPredicate(notifier.getId(), storageId)))
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        if (monitors == null || !monitors.stream().anyMatch(new MonitoredPredicate(notifier.getId(), storageId)))
             return;
 
         // Add a pending field monitor notification for the specified field
@@ -2600,10 +2602,9 @@ public class Transaction {
      */
     boolean hasFieldMonitor(ObjId id, Field<?> field) {
         assert Thread.holdsLock(this);
-        if (this.monitorMap == null)
-            return false;
-        final HashSet<FieldMonitor> monitors = this.monitorMap.get(field.storageId);
-        return monitors != null && Iterables.any(monitors, new MonitoredPredicate(id, field.storageId));
+        final int storageId = field.storageId;
+        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId, false);
+        return monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(id, storageId));
     }
 
     /**
@@ -2613,8 +2614,9 @@ public class Transaction {
         assert Thread.holdsLock(this);
         if (this.monitorMap == null)
             return false;
+        final ObjId minId = ObjId.getMin(objType.storageId);
         for (int storageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
-            if (Iterables.any(this.monitorMap.get(storageId), new MonitoredPredicate(ObjId.getMin(objType.storageId), storageId)))
+            if (this.monitorMap.get(storageId).stream().anyMatch(new MonitoredPredicate(minId, storageId)))
                 return true;
         }
         return false;
@@ -2962,7 +2964,7 @@ public class Transaction {
             // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them. Do this separately
             // for each such field in each object type and version, because the fields may have different DeleteAction's.
             for (ObjType objType : schemaVersion.objTypeMap.values()) {
-                for (ReferenceField field : Iterables.filter(objType.fieldsAndSubFields, ReferenceField.class)) {
+                for (ReferenceField field : objType.referenceFieldsAndSubFields.values()) {
 
                     // Check delete action and field
                     if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
@@ -3244,7 +3246,7 @@ public class Transaction {
         }
 
         @Override
-        public boolean apply(FieldMonitor monitor) {
+        public boolean test(FieldMonitor monitor) {
             assert monitor != null;
             return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.idBytes));
         }

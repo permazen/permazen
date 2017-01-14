@@ -25,16 +25,16 @@ import org.jsimpledb.schema.SchemaObjectType;
 public class ObjType extends SchemaItem {
 
     final FieldTypeRegistry fieldTypeRegistry;
-    final TreeMap<Integer, Field<?>> fields = new TreeMap<>();                          // does not include sub-fields
+    final TreeMap<Integer, Field<?>> fields = new TreeMap<>();                              // does not include sub-fields
     final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
-    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();                   // includes sub-fields
+    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();                       // includes sub-fields
     final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
     final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
     final ArrayList<SimpleField<?>> indexedSimpleFields = new ArrayList<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
-    final TreeMap<Integer, ReferenceField> referenceFields = new TreeMap<>();           // includes sub-fields too
+    final TreeMap<Integer, ReferenceField> referenceFieldsAndSubFields = new TreeMap<>();   // includes sub-fields
 
     /**
      * Constructor.
@@ -69,7 +69,7 @@ public class ObjType extends SchemaItem {
         // Build mappings for reference fields
         this.fieldsAndSubFields.stream()
           .filter(field -> field instanceof ReferenceField)
-          .forEach(field -> this.referenceFields.put(field.storageId, (ReferenceField)field));
+          .forEach(field -> this.referenceFieldsAndSubFields.put(field.storageId, (ReferenceField)field));
 
         // Build composite indexes
         for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
