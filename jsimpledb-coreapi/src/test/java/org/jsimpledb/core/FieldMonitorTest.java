@@ -403,6 +403,68 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         }
     }
 
+    @Test
+    public void testListenerSet() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        final String schemaXML =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
+          + "    <SimpleField name=\"i\" type=\"int\" storageId=\"105\"/>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n";
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+
+        final Transaction tx1 = db.createTransaction(schema, 1, true);
+
+        final boolean[] flag = new boolean[1];
+        tx1.addSimpleFieldChangeListener(105, new int[0], null, new SimpleFieldChangeListener() {
+            @Override
+            public <V> void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField<V> field,
+              int[] path, NavigableSet<ObjId> referrers, V oldValue, V newValue) {
+                flag[0] = true;
+            }
+        });
+
+        final ObjId id = tx1.create(100);
+        tx1.writeSimpleField(id, 105, 1234, false);
+
+        Assert.assertTrue(flag[0]);
+
+        final Transaction.ListenerSet listenerSet = tx1.snapshotListeners();
+
+        tx1.commit();
+
+        final Transaction tx2 = db.createTransaction(schema, 1, true);
+
+        tx2.setListeners(listenerSet);
+
+        flag[0] = false;
+        tx2.writeSimpleField(id, 105, 5678, false);
+
+        Assert.assertTrue(flag[0]);
+
+        try {
+            tx2.addSimpleFieldChangeListener(105, new int[0], null, new SimpleFieldChangeListener() {
+                @Override
+                public <V> void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField<V> field,
+                  int[] path, NavigableSet<ObjId> referrers, V oldValue, V newValue) {
+                    // nothing
+                }
+            });
+            assert false : "should not have been able to add new listener";
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+
+        tx2.commit();
+    }
+
+// Notify
+
     static class Notify {
 
         private final String kind;

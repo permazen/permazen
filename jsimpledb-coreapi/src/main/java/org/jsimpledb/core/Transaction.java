@@ -218,7 +218,7 @@ public class Transaction {
     @GuardedBy("this")
     private Set<DeleteListener> deleteListeners;
     @GuardedBy("this")
-    private NavigableMap<Integer, HashSet<FieldMonitor>> monitorMap;                // key is field's storage ID
+    private NavigableMap<Integer, Set<FieldMonitor>> monitorMap;                    // key is field's storage ID
 
     // Callbacks
     @GuardedBy("this")
@@ -2457,7 +2457,7 @@ public class Transaction {
     public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
         this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2479,7 +2479,7 @@ public class Transaction {
     public synchronized void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2501,7 +2501,7 @@ public class Transaction {
     public synchronized void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2523,7 +2523,7 @@ public class Transaction {
     public synchronized void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
@@ -2551,12 +2551,12 @@ public class Transaction {
             this.schemas.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
     }
 
-    private HashSet<FieldMonitor> getMonitorsForField(int storageId) {
+    private Set<FieldMonitor> getMonitorsForField(int storageId) {
         return this.getMonitorsForField(storageId, false);
     }
 
-    private synchronized HashSet<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
-        HashSet<FieldMonitor> monitors;
+    private synchronized Set<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
+        Set<FieldMonitor> monitors;
         if (this.monitorMap == null) {
             if (!create)
                 return null;
@@ -2590,7 +2590,7 @@ public class Transaction {
         final int fieldStorageId = notifier.getStorageId();
 
         // Does anybody care?
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
         if (monitors == null || !monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId)))
             return;
 
@@ -2603,7 +2603,7 @@ public class Transaction {
      */
     boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
         assert Thread.holdsLock(this);
-        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
+        final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
         return monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId));
     }
 
@@ -2676,7 +2676,7 @@ public class Transaction {
                     // For all pending notifications, back-track references and notify all field monitors for the field
                     for (FieldChangeNotifier notifier : entry.getValue()) {
                         assert notifier.getStorageId() == storageId;
-                        final HashSet<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+                        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
                             continue;
                         this.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), new ArrayList<>(monitors), 0);
@@ -3208,7 +3208,7 @@ public class Transaction {
         final Set<VersionChangeListener> versionChangeListeners;
         final Set<CreateListener> createListeners;
         final Set<DeleteListener> deleteListeners;
-        final NavigableMap<Integer, HashSet<FieldMonitor>> monitorMap;
+        final NavigableMap<Integer, Set<FieldMonitor>> monitorMap;
 
         final Schema schema;
 
@@ -3220,8 +3220,13 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
-            this.monitorMap = tx.monitorMap != null ?
-              Collections.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
+            if (tx.monitorMap != null) {
+                final TreeMap<Integer, Set<FieldMonitor>> readOnlyMonitorsMap = new TreeMap<>();
+                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.monitorMap.entrySet())
+                    readOnlyMonitorsMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
+                this.monitorMap = Collections.unmodifiableNavigableMap(readOnlyMonitorsMap);
+            } else
+                this.monitorMap = null;
             this.schema = tx.schema;
         }
     }
