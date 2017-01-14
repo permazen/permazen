@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +74,16 @@ class FieldMonitor {
           && Arrays.equals(this.path, that.path)
           && (this.types != null ? this.types.equals(that.types) : that.types == null)
           && this.listener.equals(that.listener);
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+          + "[storageId=" + this.storageId
+          + ",path=" + Ints.asList(this.path)
+          + ",types=" + this.types
+          + ",listener=" + this.listener
+          + "]";
     }
 }
 
