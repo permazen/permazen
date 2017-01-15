@@ -49,6 +49,12 @@
     </Match>
     <Match>
         <Class name="org.jsimpledb.core.Transaction"/>
+        <!-- <Method name="hasFieldMonitor"/> -->
+        <Field name="hasFieldMonitorCache"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.core.Transaction"/>
         <!-- <Method name="doCopyFields, changeVersion"/> -->
         <Field name="versionChangeListeners"/>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>

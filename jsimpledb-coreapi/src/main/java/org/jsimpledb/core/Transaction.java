@@ -220,6 +220,8 @@ public class Transaction {
     @GuardedBy("this")
     private NavigableMap<Integer, Set<FieldMonitor>> monitorMap;                    // key is field's storage ID
     @GuardedBy("this")
+    private NavigableSet<Long> hasFieldMonitorCache;                                // optimization for hasFieldMonitor()
+    @GuardedBy("this")
     private boolean listenerSetInstalled;
 
     // Callbacks
@@ -2606,8 +2608,7 @@ public class Transaction {
         final int fieldStorageId = notifier.getStorageId();
 
         // Does anybody care?
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
-        if (monitors == null || !monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId)))
+        if (!this.hasFieldMonitor(id, fieldStorageId))
             return;
 
         // Add a pending field monitor notification for the specified field
@@ -2619,8 +2620,19 @@ public class Transaction {
      */
     boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
         assert Thread.holdsLock(this);
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId, false);
-        return monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(id, fieldStorageId));
+
+        // Do quick check, if possible
+        if (this.monitorMap == null)
+            return false;
+        final int objTypeStorageId = id.getStorageId();
+        if (this.hasFieldMonitorCache != null)
+            return this.hasFieldMonitorCache.contains(this.buildHasFieldMonitorCacheKey(objTypeStorageId, fieldStorageId));
+
+        // Do slow check
+        final Set<FieldMonitor> monitorsForField = this.getMonitorsForField(fieldStorageId);
+        if (monitorsForField == null)
+            return false;
+        return monitorsForField.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId));
     }
 
     /**
@@ -2628,14 +2640,50 @@ public class Transaction {
      */
     boolean hasFieldMonitor(ObjType objType) {
         assert Thread.holdsLock(this);
+
+        // Do quick check, if possible
         if (this.monitorMap == null)
             return false;
-        final ObjId minId = ObjId.getMin(objType.storageId);
-        for (int storageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
-            if (this.monitorMap.get(storageId).stream().anyMatch(new MonitoredPredicate(minId, storageId)))
+        final int objTypeStorageId = objType.storageId;
+        if (this.hasFieldMonitorCache != null) {
+            final long minKey = this.buildHasFieldMonitorCacheKey(objTypeStorageId, 0);
+            if (objTypeStorageId == Integer.MAX_VALUE)
+                return this.hasFieldMonitorCache.ceiling(minKey) != null;
+            final long maxKey = this.buildHasFieldMonitorCacheKey(objTypeStorageId + 1, 0);
+            return !this.hasFieldMonitorCache.subSet(minKey, maxKey).isEmpty();
+        }
+
+        // Do slow check
+        for (int fieldStorageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
+            if (this.monitorMap.get(fieldStorageId).stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
                 return true;
         }
         return false;
+    }
+
+    private long buildHasFieldMonitorCacheKey(int objTypeStorageId, int fieldStorageId) {
+        return ((long)objTypeStorageId << 32) | (long)fieldStorageId & 0xffffffffL;
+    }
+
+    /**
+     * Build a data structure that to optimize checking whether a field in an object type is being monitored.
+     */
+    private synchronized NavigableSet<Long> buildHasFieldMonitorCache() {
+        if (this.monitorMap == null)
+            return Collections.emptyNavigableSet();
+        final TreeSet<Long> set = new TreeSet<>();
+        for (Schema otherSchema : this.schemas.versions.values()) {
+            for (ObjType objType : otherSchema.objTypeMap.values()) {
+                final int objTypeStorageId = objType.storageId;
+                for (Field<?> field : objType.fieldsAndSubFields) {
+                    final int fieldStorageId = field.storageId;
+                    final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId);
+                    if (monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
+                        set.add(this.buildHasFieldMonitorCacheKey(objTypeStorageId, fieldStorageId));
+                }
+            }
+        }
+        return set;
     }
 
     /**
@@ -3023,6 +3071,7 @@ public class Transaction {
      *
      * <p>
      * The snapshot can be applied to other transactions having compatible schemas via {@link #setListeners setListeners()}.
+     * Use of a {@link ListenerSet} also allows certain internal optimizations.
      *
      * @return snapshot of listeners associated with this instance
      * @see #setListeners setListeners()
@@ -3066,6 +3115,7 @@ public class Transaction {
         this.createListeners = listeners.createListeners;
         this.deleteListeners = listeners.deleteListeners;
         this.monitorMap = listeners.monitorMap;
+        this.hasFieldMonitorCache = listeners.hasFieldMonitorCache;
         this.listenerSetInstalled = true;
     }
 
@@ -3226,6 +3276,7 @@ public class Transaction {
         final Set<CreateListener> createListeners;
         final Set<DeleteListener> deleteListeners;
         final NavigableMap<Integer, Set<FieldMonitor>> monitorMap;
+        final NavigableSet<Long> hasFieldMonitorCache;
 
         final Schema schema;
 
@@ -3244,6 +3295,7 @@ public class Transaction {
                 this.monitorMap = Collections.unmodifiableNavigableMap(monitorMapSnapshot);
             } else
                 this.monitorMap = null;
+            this.hasFieldMonitorCache = tx.buildHasFieldMonitorCache();
             this.schema = tx.schema;
         }
     }
@@ -3253,19 +3305,18 @@ public class Transaction {
     // Matches FieldMonitors who monitor the specified field in the specified object type
     private static final class MonitoredPredicate implements Predicate<FieldMonitor> {
 
-        private final byte[] idBytes;
-        private final int storageId;
+        private final byte[] objTypeBytes;
+        private final int fieldStorageId;
 
-        MonitoredPredicate(ObjId id, int storageId) {
-            assert id != null;
-            this.idBytes = id.getBytes();
-            this.storageId = storageId;
+        MonitoredPredicate(int objTypeStorageId, int fieldStorageId) {
+            this.objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+            this.fieldStorageId = fieldStorageId;
         }
 
         @Override
         public boolean test(FieldMonitor monitor) {
             assert monitor != null;
-            return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.idBytes));
+            return monitor.storageId == this.fieldStorageId && (monitor.types == null || monitor.types.contains(this.objTypeBytes));
         }
     }
 }
