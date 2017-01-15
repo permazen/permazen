@@ -3237,8 +3237,13 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
-            this.monitorMap = tx.monitorMap != null ?
-              Collections.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
+            if (tx.monitorMap != null) {
+                final TreeMap<Integer, Set<FieldMonitor>> monitorMapSnapshot = new TreeMap<>();
+                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.monitorMap.entrySet())
+                    monitorMapSnapshot.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
+                this.monitorMap = Collections.unmodifiableNavigableMap(monitorMapSnapshot);
+            } else
+                this.monitorMap = null;
             this.schema = tx.schema;
         }
     }
