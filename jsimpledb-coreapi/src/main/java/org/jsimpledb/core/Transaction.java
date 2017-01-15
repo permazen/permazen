@@ -219,6 +219,8 @@ public class Transaction {
     private Set<DeleteListener> deleteListeners;
     @GuardedBy("this")
     private NavigableMap<Integer, Set<FieldMonitor>> monitorMap;                    // key is field's storage ID
+    @GuardedBy("this")
+    private boolean listenerSetInstalled;
 
     // Callbacks
     @GuardedBy("this")
@@ -1239,6 +1241,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.createListeners == null)
             this.createListeners = new HashSet<>(1);
         this.createListeners.add(listener);
@@ -1256,6 +1260,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.createListeners == null)
             return;
         this.createListeners.remove(listener);
@@ -1273,6 +1279,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.deleteListeners == null)
             this.deleteListeners = new HashSet<>(1);
         this.deleteListeners.add(listener);
@@ -1290,6 +1298,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.deleteListeners == null)
             return;
         this.deleteListeners.remove(listener);
@@ -1631,6 +1641,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.versionChangeListeners == null)
             this.versionChangeListeners = new HashSet<>(1);
         this.versionChangeListeners.add(listener);
@@ -1648,6 +1660,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
         if (this.versionChangeListeners == null)
             return;
         this.versionChangeListeners.remove(listener);
@@ -2536,6 +2550,8 @@ public class Transaction {
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
+        if (this.listenerSetInstalled)
+            throw new UnsupportedOperationException("ListenerSet installed");
 
         // Get target field info
         final FieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, SchemaItem.infoTypeFor(expectedFieldType));
@@ -3050,6 +3066,7 @@ public class Transaction {
         this.createListeners = listeners.createListeners;
         this.deleteListeners = listeners.deleteListeners;
         this.monitorMap = listeners.monitorMap;
+        this.listenerSetInstalled = true;
     }
 
 // User Object
@@ -3220,13 +3237,8 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
-            if (tx.monitorMap != null) {
-                final TreeMap<Integer, Set<FieldMonitor>> readOnlyMonitorsMap = new TreeMap<>();
-                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.monitorMap.entrySet())
-                    readOnlyMonitorsMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
-                this.monitorMap = Collections.unmodifiableNavigableMap(readOnlyMonitorsMap);
-            } else
-                this.monitorMap = null;
+            this.monitorMap = tx.monitorMap != null ?
+              Collections.unmodifiableNavigableMap(new TreeMap<>(tx.monitorMap)) : null;
             this.schema = tx.schema;
         }
     }
