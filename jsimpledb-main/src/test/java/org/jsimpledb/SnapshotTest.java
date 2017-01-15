@@ -19,6 +19,7 @@ import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.annotation.OnChange;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
@@ -29,14 +30,15 @@ import org.jsimpledb.index.Index;
 import org.jsimpledb.test.TestSupport;
 import org.jsimpledb.util.NavigableSets;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class SnapshotTest extends TestSupport {
 
-    @Test
-    public void testSnapshot1() throws Exception {
+    @Test(dataProvider = "shapshotCases")
+    public void testSnapshot1(Class<? extends Person> personClass) throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(personClass);
 
         Person p1;
         Person p2;
@@ -49,9 +51,9 @@ public class SnapshotTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            p1 = tx.create(Person.class);
-            p2 = tx.create(Person.class);
-            p3 = tx.create(Person.class);
+            p1 = tx.create(personClass);
+            p2 = tx.create(personClass);
+            p3 = tx.create(personClass);
 
             p1.setName("Person #1");
             p1.setAge(123);
@@ -75,8 +77,8 @@ public class SnapshotTest extends TestSupport {
             Assert.assertSame(p1, tx.get(p1.getObjId()));
             Assert.assertSame(p1a, stx.get(p1.getObjId()));
 
-            TestSupport.checkSet(tx.getAll(Person.class), buildSet(p1, p2, p3));
-            TestSupport.checkSet(stx.getAll(Person.class), buildSet(p1a));
+            TestSupport.checkSet(tx.getAll(personClass), buildSet(p1, p2, p3));
+            TestSupport.checkSet(stx.getAll(personClass), buildSet(p1a));
 
             Person p2a = p1a.getSet().iterator().next();
 
@@ -162,26 +164,6 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1.getAge(), 19);
             Assert.assertEquals(p1.getSet().size(), 0);
 
-            // Add change listener to force slower field-by-field copy
-            final boolean[] flag = new boolean[1];
-            tx2.getTransaction().addSetFieldChangeListener(103, new int[0], null, new SetFieldChangeListener() {
-                @Override
-                public <E> void onSetFieldAdd(Transaction tx, ObjId id,
-                  SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-                    flag[0] = true;
-                }
-                @Override
-                public <E> void onSetFieldRemove(Transaction tx, ObjId id,
-                  SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-                    flag[0] = true;
-                }
-                @Override
-                public void onSetFieldClear(Transaction tx, ObjId id,
-                  SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-                    flag[0] = true;
-                }
-            });
-
             p1.getSet().add(p1);
             p1.getSet().add(p2);
             snapshot.setName("Another Name");
@@ -203,13 +185,22 @@ public class SnapshotTest extends TestSupport {
             TestSupport.checkSet(p1.getSet(), buildSet(p2, p3));
             TestSupport.checkMap(p1.getMap1(), buildMap(p1, 123123f, p3, null));
             TestSupport.checkMap(p1.getMap2(), buildMap(64f, p1, 33.33f, p2, null, p3));
-            Assert.assertTrue(flag[0]);
+            if (p1 instanceof Person2)
+                Assert.assertTrue(((Person2)p1).getFlag());
 
             tx2.commit();
 
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
+
+    @DataProvider(name = "shapshotCases")
+    public Object[][] genShapshotCases() {
+        return new Object[][] {
+            { Person.class  },
+            { Person2.class }
+        };
     }
 
     @Test
@@ -362,6 +353,22 @@ public class SnapshotTest extends TestSupport {
           key = @JField(storageId = 111),
           value = @JField(storageId = 112))
         public abstract Map<Float, Person> getMap2();
+    }
+
+    @JSimpleClass(storageId = 150)
+    public abstract static class Person2 extends Person {
+
+        private boolean flag;
+
+        public boolean getFlag() {
+            return this.flag;
+        }
+
+        // @OnChange forces registration of change listener, and slower field-by-field copy
+        @OnChange("set")
+        private void onSetChange() {
+            this.flag = true;
+        }
     }
 
     @JSimpleClass(storageId = 200)
