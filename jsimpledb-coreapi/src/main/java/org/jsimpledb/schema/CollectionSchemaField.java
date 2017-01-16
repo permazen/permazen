@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -67,12 +68,12 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
         if (!super.equals(obj))
             return false;
         final CollectionSchemaField that = (CollectionSchemaField)obj;
-        return this.elementField != null ? this.elementField.equals(that.elementField) : that.elementField == null;
+        return Objects.equals(this.elementField, that.elementField);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.elementField != null ? this.elementField.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.elementField);
     }
 
 // Cloneable

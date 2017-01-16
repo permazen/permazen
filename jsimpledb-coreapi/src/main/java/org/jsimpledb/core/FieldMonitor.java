@@ -11,6 +11,7 @@ import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
@@ -59,7 +60,7 @@ class FieldMonitor {
     public int hashCode() {
         return this.storageId
           ^ Arrays.hashCode(this.path)
-          ^ (this.types != null ? this.types.hashCode() : 0)
+          ^ Objects.hashCode(this.types)
           ^ this.listener.hashCode();
     }
 
@@ -72,7 +73,7 @@ class FieldMonitor {
         final FieldMonitor that = (FieldMonitor)obj;
         return this.storageId == that.storageId
           && Arrays.equals(this.path, that.path)
-          && (this.types != null ? this.types.equals(that.types) : that.types == null)
+          && Objects.equals(this.types, that.types)
           && this.listener.equals(that.listener);
     }
 

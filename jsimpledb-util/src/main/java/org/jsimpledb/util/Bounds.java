@@ -8,6 +8,7 @@ package org.jsimpledb.util;
 import com.google.common.base.Preconditions;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Utility class used by {@link AbstractNavigableSet} and {@link AbstractNavigableMap} to define
@@ -267,16 +268,16 @@ public class Bounds<T> {
         final Bounds<?> that = (Bounds<?>)obj;
         return this.lowerBoundType == that.lowerBoundType
           && this.upperBoundType == that.upperBoundType
-          && (this.lowerBound != null ?  this.lowerBound.equals(that.lowerBound) : that.lowerBound == null)
-          && (this.upperBound != null ?  this.upperBound.equals(that.upperBound) : that.upperBound == null);
+          && Objects.equals(this.lowerBound, that.lowerBound)
+          && Objects.equals(this.upperBound, that.upperBound);
     }
 
     @Override
     public int hashCode() {
         return this.lowerBoundType.hashCode()
           ^ this.upperBoundType.hashCode()
-          ^ (this.lowerBound != null ?  this.lowerBound.hashCode() : 0)
-          ^ (this.upperBound != null ?  this.upperBound.hashCode() : 0);
+          ^ Objects.hashCode(this.lowerBound)
+          ^ Objects.hashCode(this.upperBound);
     }
 }
 

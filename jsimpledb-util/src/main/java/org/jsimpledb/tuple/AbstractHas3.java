@@ -8,6 +8,7 @@ package org.jsimpledb.tuple;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 class AbstractHas3<V1, V2, V3> extends AbstractHas2<V1, V2> implements Has3<V1, V2, V3> {
 
@@ -35,7 +36,7 @@ class AbstractHas3<V1, V2, V3> extends AbstractHas2<V1, V2> implements Has3<V1, 
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.v3 != null ? this.v3.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.v3);
     }
 
     @Override
@@ -48,7 +49,7 @@ class AbstractHas3<V1, V2, V3> extends AbstractHas2<V1, V2> implements Has3<V1, 
     @Override
     boolean compareValues(Object obj) {
         final AbstractHas3<?, ?, ?> that = (AbstractHas3<?, ?, ?>)obj;
-        return super.compareValues(that) && (this.v3 != null ? this.v3.equals(that.v3) : that.v3 == null);
+        return super.compareValues(that) && Objects.equals(this.v3, that.v3);
     }
 }
 

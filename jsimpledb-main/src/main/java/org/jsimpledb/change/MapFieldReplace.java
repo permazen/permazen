@@ -6,6 +6,7 @@
 package org.jsimpledb.change;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
@@ -89,17 +90,14 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
         if (!super.equals(obj))
             return false;
         final MapFieldReplace<?, ?, ?> that = (MapFieldReplace<?, ?, ?>)obj;
-        return (this.key != null ? this.key.equals(that.key) : that.key == null)
-          && (this.oldValue != null ? this.oldValue.equals(that.oldValue) : that.oldValue == null)
-          && (this.newValue != null ? this.newValue.equals(that.newValue) : that.newValue == null);
+        return Objects.equals(this.key, that.key)
+          && Objects.equals(this.oldValue, that.oldValue)
+          && Objects.equals(this.newValue, that.newValue);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode()
-          ^ (this.key != null ? this.key.hashCode() : 0)
-          ^ (this.oldValue != null ? this.oldValue.hashCode() : 0)
-          ^ (this.newValue != null ? this.newValue.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.key) ^ Objects.hashCode(this.oldValue) ^ Objects.hashCode(this.newValue);
     }
 
     @Override

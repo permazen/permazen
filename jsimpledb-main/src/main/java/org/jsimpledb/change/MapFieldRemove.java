@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import java.util.Objects;
+
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 
@@ -74,13 +76,13 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
         if (!super.equals(obj))
             return false;
         final MapFieldRemove<?, ?, ?> that = (MapFieldRemove<?, ?, ?>)obj;
-        return (this.key != null ? this.key.equals(that.key) : that.key == null)
-          && (this.value != null ? this.value.equals(that.value) : that.value == null);
+        return Objects.equals(this.key, that.key)
+          && Objects.equals(this.value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.key != null ? this.key.hashCode() : 0) ^ (this.value != null ? this.value.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.key) ^ Objects.hashCode(this.value);
     }
 
     @Override

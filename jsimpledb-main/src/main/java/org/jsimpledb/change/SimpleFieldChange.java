@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import java.util.Objects;
+
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 
@@ -73,15 +75,15 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
         if (!super.equals(obj))
             return false;
         final SimpleFieldChange<?, ?> that = (SimpleFieldChange<?, ?>)obj;
-        return (this.oldValue != null ? this.oldValue.equals(that.oldValue) : that.oldValue == null)
-          && (this.newValue != null ? this.newValue.equals(that.newValue) : that.newValue == null);
+        return Objects.equals(this.oldValue, that.oldValue)
+          && Objects.equals(this.newValue, that.newValue);
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
-          ^ (this.oldValue != null ? this.oldValue.hashCode() : 0)
-          ^ (this.newValue != null ? this.newValue.hashCode() : 0);
+          ^ Objects.hashCode(this.oldValue)
+          ^ Objects.hashCode(this.newValue);
     }
 
     @Override

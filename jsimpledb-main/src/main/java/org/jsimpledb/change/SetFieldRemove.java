@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import java.util.Objects;
+
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 
@@ -61,12 +63,12 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
         if (!super.equals(obj))
             return false;
         final SetFieldRemove<?, ?> that = (SetFieldRemove<?, ?>)obj;
-        return this.element != null ? this.element.equals(that.element) : that.element == null;
+        return Objects.equals(this.element, that.element);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.element != null ? this.element.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.element);
     }
 
     @Override

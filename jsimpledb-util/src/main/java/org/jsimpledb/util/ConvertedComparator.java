@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Comparator that compares using converted values.
@@ -43,13 +44,13 @@ class ConvertedComparator<E, W> implements Comparator<E> {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final ConvertedComparator<?, ?> that = (ConvertedComparator<?, ?>)obj;
-        return (this.comparator != null ? this.comparator.equals(that.comparator) : that.comparator == null)
+        return Objects.equals(this.comparator, that.comparator)
           && this.converter.equals(that.converter);
     }
 
     @Override
     public int hashCode() {
-        return (this.comparator != null ? this.comparator.hashCode() : 0) ^ this.converter.hashCode();
+        return Objects.hashCode(this.comparator) ^ this.converter.hashCode();
     }
 
     @Override

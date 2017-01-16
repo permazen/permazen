@@ -7,6 +7,8 @@ package org.jsimpledb.parse.expr;
 
 import org.jsimpledb.parse.ParseSession;
 
+import java.util.Objects;
+
 /**
  * A constant, read-only {@link Value}.
  */
@@ -45,12 +47,12 @@ public final class ConstValue extends AbstractValue {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final ConstValue that = (ConstValue)obj;
-        return this.value != null ? this.value.equals(that.value) : that.value == null;
+        return Objects.equals(this.value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return this.value != null ? this.value.hashCode() : 0;
+        return Objects.hashCode(this.value);
     }
 }
 

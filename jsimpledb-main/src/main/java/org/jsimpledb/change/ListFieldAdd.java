@@ -6,6 +6,7 @@
 package org.jsimpledb.change;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
@@ -76,12 +77,12 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
         if (!super.equals(obj))
             return false;
         final ListFieldAdd<?, ?> that = (ListFieldAdd<?, ?>)obj;
-        return this.index == that.index && (this.element != null ? this.element.equals(that.element) : that.element == null);
+        return this.index == that.index && Objects.equals(this.element, that.element);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.index ^ (this.element != null ? this.element.hashCode() : 0);
+        return super.hashCode() ^ this.index ^ Objects.hashCode(this.element);
     }
 
     @Override

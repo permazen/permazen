@@ -8,6 +8,7 @@ package org.jsimpledb.tuple;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 class AbstractHas1<V1> implements Tuple, Has1<V1> {
 
@@ -54,7 +55,7 @@ class AbstractHas1<V1> implements Tuple, Has1<V1> {
 
     @Override
     public int hashCode() {
-        return this.v1 != null ? this.v1.hashCode() : 0;
+        return Objects.hashCode(this.v1);
     }
 
     /**
@@ -74,7 +75,7 @@ class AbstractHas1<V1> implements Tuple, Has1<V1> {
      */
     boolean compareValues(Object obj) {
         final AbstractHas1<?> that = (AbstractHas1<?>)obj;
-        return this.v1 != null ? this.v1.equals(that.v1) : that.v1 == null;
+        return Objects.equals(this.v1, that.v1);
     }
 }
 

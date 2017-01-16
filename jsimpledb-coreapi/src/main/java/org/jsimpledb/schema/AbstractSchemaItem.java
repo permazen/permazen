@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 
 import javax.xml.namespace.QName;
@@ -225,12 +226,12 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final AbstractSchemaItem that = (AbstractSchemaItem)obj;
-        return (this.name != null ? this.name.equals(that.name) : that.name == null) && this.storageId == that.storageId;
+        return Objects.equals(this.name, that.name) && this.storageId == that.storageId;
     }
 
     @Override
     public int hashCode() {
-        return (this.name != null ? this.name.hashCode() : 0) ^ this.storageId;
+        return Objects.hashCode(this.name) ^ this.storageId;
     }
 
 // Cloneable

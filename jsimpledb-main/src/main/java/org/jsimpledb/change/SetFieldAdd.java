@@ -5,6 +5,7 @@
 
 package org.jsimpledb.change;
 
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsimpledb.JObject;
@@ -64,12 +65,12 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
         if (!super.equals(obj))
             return false;
         final SetFieldAdd<?, ?> that = (SetFieldAdd<?, ?>)obj;
-        return this.element != null ? this.element.equals(that.element) : that.element == null;
+        return Objects.equals(this.element, that.element);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.element != null ? this.element.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.element);
     }
 
     @Override

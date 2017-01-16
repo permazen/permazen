@@ -12,6 +12,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -92,14 +93,14 @@ class ReferencePathCache {
             final Key that = (Key)obj;
             return this.startType.equals(that.startType)
               && this.path.equals(that.path)
-              && (this.lastIsSubField != null ? this.lastIsSubField.equals(that.lastIsSubField) : that.lastIsSubField == null);
+              && Objects.equals(this.lastIsSubField, that.lastIsSubField);
         }
 
         @Override
         public int hashCode() {
             return this.startType.hashCode()
               ^ this.path.hashCode()
-              ^ (this.lastIsSubField != null ? this.lastIsSubField.hashCode() : -1);
+              ^ Objects.hashCode(this.lastIsSubField);
         }
     }
 }

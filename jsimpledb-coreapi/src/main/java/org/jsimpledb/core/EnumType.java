@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,7 +131,7 @@ class EnumType extends NonNullFieldType<EnumValue> {
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.enumType != null ? this.enumType.hashCode() : 0) ^ this.enumValueList.hashCode();
+        return super.hashCode() ^ Objects.hashCode(this.enumType) ^ this.enumValueList.hashCode();
     }
 
     @Override

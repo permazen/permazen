@@ -189,7 +189,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         if (!super.equals(obj))
             return false;
         final SimpleSchemaField that = (SimpleSchemaField)obj;
-        return (this.type != null ? this.type.equals(that.type) : that.type == null)
+        return Objects.equals(this.type, that.type)
           && this.encodingSignature == that.encodingSignature
           && this.indexed == that.indexed;
     }
@@ -197,7 +197,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     public int hashCode() {
         return super.hashCode()
-          ^ (this.type != null ? this.type.hashCode() : 0)
+          ^ Objects.hashCode(this.type)
           ^ ((Long)this.encodingSignature).hashCode()
           ^ (this.indexed ? 1 : 0);
     }

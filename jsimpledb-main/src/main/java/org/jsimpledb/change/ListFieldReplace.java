@@ -6,6 +6,7 @@
 package org.jsimpledb.change;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
@@ -89,16 +90,16 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
             return false;
         final ListFieldReplace<?, ?> that = (ListFieldReplace<?, ?>)obj;
         return this.index == that.index
-          && (this.oldValue != null ? this.oldValue.equals(that.oldValue) : that.oldValue == null)
-          && (this.newValue != null ? this.newValue.equals(that.newValue) : that.newValue == null);
+          && Objects.equals(this.oldValue, that.oldValue)
+          && Objects.equals(this.newValue, that.newValue);
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
           ^ this.index
-          ^ (this.oldValue != null ? this.oldValue.hashCode() : 0)
-          ^ (this.newValue != null ? this.newValue.hashCode() : 0);
+          ^ Objects.hashCode(this.oldValue)
+          ^ Objects.hashCode(this.newValue);
     }
 
     @Override

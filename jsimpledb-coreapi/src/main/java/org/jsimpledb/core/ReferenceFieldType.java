@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -95,12 +96,12 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
         if (!super.equals(obj))
             return false;
         final ReferenceFieldType that = (ReferenceFieldType)obj;
-        return this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null;
+        return Objects.equals(this.objectTypes, that.objectTypes);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.objectTypes != null ? this.objectTypes.hashCode() : 0);
+        return super.hashCode() ^ Objects.hashCode(this.objectTypes);
     }
 }
 

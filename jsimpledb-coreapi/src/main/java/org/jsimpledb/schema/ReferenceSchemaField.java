@@ -260,7 +260,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
           && this.cascadeDelete == that.cascadeDelete
           && this.allowDeleted == that.allowDeleted
           && this.allowDeletedSnapshot == that.allowDeletedSnapshot
-          && (this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
+          && Objects.equals(this.objectTypes, that.objectTypes);
     }
 
     @Override
@@ -269,8 +269,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
           ^ (this.cascadeDelete ? 1 : 0)
           ^ (this.allowDeleted ? 2 : 0)
           ^ (this.allowDeletedSnapshot ? 4 : 0)
-          ^ (this.onDelete != null ? this.onDelete.hashCode() : 0)
-          ^ (this.objectTypes != null ? this.objectTypes.hashCode() : 0);
+          ^ Objects.hashCode(this.onDelete)
+          ^ Objects.hashCode(this.objectTypes);
     }
 
 // Cloneable

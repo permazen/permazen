@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -97,15 +98,15 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         if (!super.equals(obj))
             return false;
         final MapSchemaField that = (MapSchemaField)obj;
-        return (this.keyField != null ? this.keyField.equals(that.keyField) : that.keyField == null)
-          && (this.valueField != null ? this.valueField.equals(that.valueField) : that.valueField == null);
+        return Objects.equals(this.keyField, that.keyField)
+          && Objects.equals(this.valueField, that.valueField);
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
-          ^ (this.keyField != null ? this.keyField.hashCode() : 0)
-          ^ (this.valueField != null ? this.valueField.hashCode() : 0);
+          ^ Objects.hashCode(this.keyField)
+          ^ Objects.hashCode(this.valueField);
     }
 
 // Cloneable
