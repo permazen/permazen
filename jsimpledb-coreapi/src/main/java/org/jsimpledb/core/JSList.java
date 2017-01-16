@@ -117,8 +117,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         if (!this.tx.disableListenerNotifications) {
             this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
                 @Override
-                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldReplace(tx, this.getId(), JSList.this.field, path, referrers, index, oldElem, newElem);
+                public void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onListFieldReplace(tx, this.id, JSList.this.field, path, referrers, index, oldElem, newElem);
                 }
             });
         }
@@ -180,8 +180,9 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 final int index2 = index;
                 this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
                     @Override
-                    void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                        listener.onListFieldAdd(tx, this.getId(), JSList.this.field, path, referrers, index2, elem);
+                    public void notify(Transaction tx,
+                      ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                        listener.onListFieldAdd(tx, this.id, JSList.this.field, path, referrers, index2, elem);
                     }
                 });
             }
@@ -222,8 +223,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         if (!this.tx.disableListenerNotifications) {
             this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
                 @Override
-                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldClear(tx, this.getId(), JSList.this.field, path, referrers);
+                public void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onListFieldClear(tx, this.id, JSList.this.field, path, referrers);
                 }
             });
         }
@@ -277,12 +278,13 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                     private E elem;
 
                     @Override
-                    void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    public void notify(Transaction tx,
+                      ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
                         if (!this.decoded) {
                             this.elem = JSList.this.elementType.read(new ByteReader(value));
                             this.decoded = true;
                         }
-                        listener.onListFieldRemove(tx, this.getId(), JSList.this.field, path, referrers, i2, elem);
+                        listener.onListFieldRemove(tx, this.id, JSList.this.field, path, referrers, i2, elem);
                     }
                 });
             }
@@ -426,24 +428,11 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
 // ListFieldChangeNotifier
 
-    private abstract class ListFieldChangeNotifier implements FieldChangeNotifier {
+    private abstract class ListFieldChangeNotifier extends FieldChangeNotifier<ListFieldChangeListener> {
 
-        @Override
-        public int getStorageId() {
-            return JSList.this.field.storageId;
+        ListFieldChangeNotifier() {
+            super(ListFieldChangeListener.class, JSList.this.field.storageId, JSList.this.id);
         }
-
-        @Override
-        public ObjId getId() {
-            return JSList.this.id;
-        }
-
-        @Override
-        public void notify(Transaction tx, Object listener, int[] path, NavigableSet<ObjId> referrers) {
-            this.notify(tx, (ListFieldChangeListener)listener, path, referrers);
-        }
-
-        abstract void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers);
     }
 }
 

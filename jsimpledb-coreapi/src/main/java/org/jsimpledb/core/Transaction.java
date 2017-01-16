@@ -230,7 +230,7 @@ public class Transaction {
 
     // Misc
     @GuardedBy("this")
-    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier>>> pendingNotifications = new ThreadLocal<>();
+    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>>> pendingNotifications = new ThreadLocal<>();
     @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
     @GuardedBy("this")
@@ -2599,7 +2599,7 @@ public class Transaction {
      * <p>
      * This method should only be invoked if this.disableListenerNotifications is false.
      */
-    void addFieldChangeNotification(FieldChangeNotifier notifier) {
+    void addFieldChangeNotification(FieldChangeNotifier<?> notifier) {
         assert Thread.holdsLock(this);
         assert !this.disableListenerNotifications;
 
@@ -2730,15 +2730,15 @@ public class Transaction {
             return mutation.mutate();
         } finally {
             try {
-                final TreeMap<Integer, ArrayList<FieldChangeNotifier>> pendingNotificationMap = this.pendingNotifications.get();
+                final TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>> pendingNotificationMap = this.pendingNotifications.get();
                 while (!pendingNotificationMap.isEmpty()) {
 
                     // Get the next field with pending notifications
-                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier>> entry = pendingNotificationMap.pollFirstEntry();
+                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier<?>>> entry = pendingNotificationMap.pollFirstEntry();
                     final int storageId = entry.getKey();
 
                     // For all pending notifications, back-track references and notify all field monitors for the field
-                    for (FieldChangeNotifier notifier : entry.getValue()) {
+                    for (FieldChangeNotifier<?> notifier : entry.getValue()) {
                         assert notifier.getStorageId() == storageId;
                         final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
@@ -2753,7 +2753,7 @@ public class Transaction {
     }
 
     // Recursively back-track references along monitor paths and notify monitors when we reach the end (i.e., beginning)
-    private void notifyFieldMonitors(FieldChangeNotifier notifier,
+    private void notifyFieldMonitors(FieldChangeNotifier<?> notifier,
       NavigableSet<ObjId> objects, ArrayList<FieldMonitor> monitorList, int step) {
 
         // Find the monitors for whom we have completed all the steps in their (inverse) path,
@@ -2767,7 +2767,7 @@ public class Transaction {
 
             // Issue notification callback if we have back-tracked through the whole path
             if (monitor.path.length == step) {
-                notifier.notify(this, monitor.listener, monitor.path, objects);
+                this.notifyFieldChangeListener(notifier, monitor, objects);
                 continue;
             }
 
@@ -2792,6 +2792,12 @@ public class Transaction {
             if (!refsList.isEmpty())
                 this.notifyFieldMonitors(notifier, NavigableSets.union(refsList), entry.getValue(), step + 1);
         }
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <T> void notifyFieldChangeListener(FieldChangeNotifier<T> notifier, FieldMonitor monitor, NavigableSet<ObjId> objects) {
+        final T listener = notifier.getListenerType().cast(monitor.listener);
+        notifier.notify(this, listener, monitor.path, objects);
     }
 
 // Reference Path Queries
@@ -3147,32 +3153,11 @@ public class Transaction {
 
 // SimpleFieldChangeNotifier
 
-    private abstract static class SimpleFieldChangeNotifier implements FieldChangeNotifier {
-
-        final int storageId;
-        final ObjId id;
+    private abstract static class SimpleFieldChangeNotifier extends FieldChangeNotifier<SimpleFieldChangeListener> {
 
         SimpleFieldChangeNotifier(SimpleField<?> field, ObjId id) {
-            this.storageId = field.storageId;
-            this.id = id;
+            super(SimpleFieldChangeListener.class, field.storageId, id);
         }
-
-        @Override
-        public int getStorageId() {
-            return this.storageId;
-        }
-
-        @Override
-        public ObjId getId() {
-            return this.id;
-        }
-
-        @Override
-        public void notify(Transaction tx, Object listener, int[] path, NavigableSet<ObjId> referrers) {
-            this.notify(tx, (SimpleFieldChangeListener)listener, path, referrers);
-        }
-
-        abstract void notify(Transaction tx, SimpleFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers);
     }
 
 // Callback

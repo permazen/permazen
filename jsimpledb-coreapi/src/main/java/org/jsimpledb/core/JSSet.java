@@ -73,8 +73,8 @@ class JSSet<E> extends FieldTypeSet<E> {
         if (!this.tx.disableListenerNotifications) {
             this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
                 @Override
-                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldAdd(tx, this.getId(), JSSet.this.field, path, referrers, newValue);
+                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldAdd(tx, this.id, JSSet.this.field, path, referrers, newValue);
                 }
             });
         }
@@ -126,8 +126,8 @@ class JSSet<E> extends FieldTypeSet<E> {
         if (!this.tx.disableListenerNotifications) {
             this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
                 @Override
-                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldClear(tx, this.getId(), JSSet.this.field, path, referrers);
+                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldClear(tx, this.id, JSSet.this.field, path, referrers);
                 }
             });
         }
@@ -157,8 +157,8 @@ class JSSet<E> extends FieldTypeSet<E> {
         if (!this.tx.disableListenerNotifications) {
             this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
                 @Override
-                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldRemove(tx, this.getId(), JSSet.this.field, path, referrers, oldValue);
+                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldRemove(tx, this.id, JSSet.this.field, path, referrers, oldValue);
                 }
             });
         }
@@ -174,24 +174,11 @@ class JSSet<E> extends FieldTypeSet<E> {
 
 // SetFieldChangeNotifier
 
-    private abstract class SetFieldChangeNotifier implements FieldChangeNotifier {
+    private abstract class SetFieldChangeNotifier extends FieldChangeNotifier<SetFieldChangeListener> {
 
-        @Override
-        public int getStorageId() {
-            return JSSet.this.field.storageId;
+        SetFieldChangeNotifier() {
+            super(SetFieldChangeListener.class, JSSet.this.field.storageId, JSSet.this.id);
         }
-
-        @Override
-        public ObjId getId() {
-            return JSSet.this.id;
-        }
-
-        @Override
-        public void notify(Transaction tx, Object listener, int[] path, NavigableSet<ObjId> referrers) {
-            this.notify(tx, (SetFieldChangeListener)listener, path, referrers);
-        }
-
-        abstract void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers);
     }
 }
 
