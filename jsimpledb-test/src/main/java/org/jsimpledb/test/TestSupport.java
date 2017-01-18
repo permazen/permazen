@@ -177,6 +177,7 @@ public abstract class TestSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static void checkSet(Set actual, Set expected) {
         TestSupport.checkSet(actual, expected, true);
+        TestSupport.checkSet(expected, actual, true);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -206,6 +207,7 @@ public abstract class TestSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static void checkMap(Map actual, Map expected) {
         TestSupport.checkMap(actual, expected, true);
+        TestSupport.checkMap(expected, actual, true);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
