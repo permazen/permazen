@@ -90,6 +90,11 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
         return this.validate(value);
     }
 
+    @Override
+    ReferenceFieldType genericizeForIndex() {
+        return this.objectTypes != null ? new ReferenceFieldType() : this;
+    }
+
 // Object
 
     @Override

@@ -65,25 +65,15 @@ public abstract class SchemaItem {
     }
 
     /**
-     * Create corresponding {@link StorageInfo} object.
+     * Create the corresponding {@link StorageInfo} object, if any.
+     *
+     * <p>
+     * This should only return a non-null value if this instance's storage ID is used as the prefix
+     * of some key in the database. In the case of simple fields, this implies the field must be indexed.
      */
     abstract StorageInfo toStorageInfo();
 
     @Override
     public abstract String toString();
-
-    static Class<? extends FieldStorageInfo> infoTypeFor(Class<? extends Field<?>> type) {
-        if (ReferenceField.class.isAssignableFrom(type))
-            return ReferenceFieldStorageInfo.class;
-        if (SimpleField.class.isAssignableFrom(type))
-            return SimpleFieldStorageInfo.class;
-        if (MapField.class.isAssignableFrom(type))
-            return MapFieldStorageInfo.class;
-        if (ListField.class.isAssignableFrom(type))
-            return ListFieldStorageInfo.class;
-        if (SetField.class.isAssignableFrom(type))
-            return SetFieldStorageInfo.class;
-        throw new IllegalArgumentException("no StorageInfo type known for " + type);
-    }
 }
 

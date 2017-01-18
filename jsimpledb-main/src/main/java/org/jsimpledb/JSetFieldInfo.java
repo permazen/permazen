@@ -16,7 +16,6 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.Transaction;
 
 class JSetFieldInfo extends JCollectionFieldInfo {
 
@@ -28,11 +27,6 @@ class JSetFieldInfo extends JCollectionFieldInfo {
     @SuppressWarnings("serial")
     <E> TypeToken<NavigableSet<E>> buildTypeToken(TypeToken<E> elementType) {
         return new TypeToken<NavigableSet<E>>() { }.where(new TypeParameter<E>() { }, elementType);
-    }
-
-    @Override
-    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
-        tx.addSetFieldChangeListener(this.storageId, path, types, listener);
     }
 
     // This method exists solely to bind the generic type parameters

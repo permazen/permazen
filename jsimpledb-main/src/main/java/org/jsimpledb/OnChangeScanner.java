@@ -266,7 +266,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             for (Map.Entry<ReferencePath, HashSet<Integer>> entry : this.paths.entrySet()) {
                 final ReferencePath path = entry.getKey();
                 final HashSet<Integer> objectTypeStorageIds = entry.getValue();
-                path.targetFieldInfo.registerChangeListener(tx, path.getReferenceFields(), objectTypeStorageIds, this);
+                tx.addFieldChangeListener(path.targetFieldInfo.storageId, path.getReferenceFields(), objectTypeStorageIds, this);
             }
         }
 

@@ -74,8 +74,13 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     abstract <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField);
 
+    // Complex fields are never indexed; only their sub-fields are
     @Override
-    abstract ComplexFieldStorageInfo<T> toStorageInfo();
+    final StorageInfo toStorageInfo() {
+        return null;
+    }
+
+    abstract ComplexSubFieldStorageInfo<?> toStorageInfo(SimpleField<?> subField);
 
     /**
      * Delete all content (but not index entries) for the given object.
@@ -147,27 +152,6 @@ public abstract class ComplexField<T> extends Field<T> {
     abstract void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer);
 
     /**
-     * Add or remove index entries for the given object as appropriate after a schema version change
-     * which changed only whether some or all sub-field(s) are indexed.
-     *
-     * @param kvt KV store
-     * @param oldField compatible field in older schema
-     * @param id object id
-     */
-    void updateSubFieldIndexes(Transaction tx, ComplexField<?> oldField, ObjId id) {
-        final Iterator<? extends SimpleField<?>> oldSubFields = oldField.getSubFields().iterator();
-        final Iterator<? extends SimpleField<?>> newSubFields = this.getSubFields().iterator();
-        while (oldSubFields.hasNext() || newSubFields.hasNext()) {
-            final SimpleField<?> oldSubField = oldSubFields.next();
-            final SimpleField<?> newSubField = newSubFields.next();
-            if (!oldSubField.indexed && newSubField.indexed)
-                this.addIndexEntries(tx, id, newSubField);
-            else if (oldSubField.indexed && !newSubField.indexed)
-                oldField.removeIndexEntries(tx, id, oldSubField);
-        }
-    }
-
-    /**
      * Add all index entries for the given object and sub-field.
      *
      * @param tx transaction
@@ -233,7 +217,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * Remove all field entries in which the specified reference sub-field refers to an object
      * type that is in the specified set of newly disallowed object types.
      */
-    abstract void unreferenceRemovedObjectTypes(Transaction tx,
+    abstract void unreferenceRemovedTypes(Transaction tx,
       ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds);
 }
 

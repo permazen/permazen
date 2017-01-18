@@ -20,7 +20,6 @@ import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.Transaction;
 
 class JMapFieldInfo extends JComplexFieldInfo {
 
@@ -67,11 +66,6 @@ class JMapFieldInfo extends JComplexFieldInfo {
         return new TypeToken<NavigableMap<K, V>>() { }
           .where(new TypeParameter<K>() { }, keyType)
           .where(new TypeParameter<V>() { }, valueType);
-    }
-
-    @Override
-    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
-        tx.addMapFieldChangeListener(this.storageId, path, types, listener);
     }
 
     @Override

@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ public class Schemas {
 
     final TreeMap<Integer, Schema> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
+    final ArrayList<SimpleFieldStorageInfo<?>> referenceFieldIndexStorageInfos = new ArrayList<>();
     final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
     KeyRanges objTypesKeyRanges;
 
@@ -71,7 +73,7 @@ public class Schemas {
                 final StorageInfo current = entry.getValue();
                 final StorageInfo previous = this.storageInfos.put(storageId, current);
                 if (previous != null && !previous.equals(current)) {
-                    throw new InvalidSchemaException("incompatible use of storage ID " + storageId + " for both "
+                    throw new InvalidSchemaException("incompatible use of storage ID " + storageId + " by both "
                       + previous + " in schema version " + versionMap.get(previous) + " and "
                       + current + " in schema version " + version.versionNumber);
                 }
@@ -84,6 +86,16 @@ public class Schemas {
             version.objTypeMap.values().stream()
               .map(objType -> objType.storageId)
               .forEach(objTypeStorageIds::add);
+        }
+
+        // Gather all reference field storage infos
+        for (StorageInfo info : this.storageInfos.values()) {
+            if (!(info instanceof SimpleFieldStorageInfo))
+                continue;
+            final SimpleFieldStorageInfo<?> simpleInfo = (SimpleFieldStorageInfo<?>)info;
+            if (!(simpleInfo.fieldType instanceof ReferenceFieldType))
+                continue;
+            this.referenceFieldIndexStorageInfos.add(simpleInfo);
         }
 
         // Calculate the KeyRanges containing all object types
@@ -107,11 +119,11 @@ public class Schemas {
         String message = "no " + this.getDescription(expectedType) + " with storage ID " + storageId + " exists";
         if (storageInfo != null)
             message += " (found " + storageInfo + " instead)";
-        if (FieldStorageInfo.class.isAssignableFrom(expectedType))
+        if (SimpleFieldStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownFieldException(storageId, message);
         if (ObjTypeStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownTypeException(storageId, 0, message);
-        if (CompositeIndexStorageInfo.class.isAssignableFrom(expectedType))
+        if (IndexStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownIndexException(storageId, message);
         throw new IllegalArgumentException(message);                        // should never get here
     }
@@ -125,8 +137,12 @@ public class Schemas {
     }
 
     private String getDescription(Class<? extends StorageInfo> type) {
-        if (FieldStorageInfo.class.isAssignableFrom(type))
-            return type.getSimpleName().replaceAll("^(.*)Field.*$", "$1").toLowerCase() + " field";
+        if (SimpleFieldStorageInfo.class.isAssignableFrom(type)) {
+            return type.getSimpleName()
+              .replaceAll("^(.*)StorageInfo$", "$1")
+              .replaceAll("([a-z])([A-Z])", "$1 $2")
+              .toLowerCase() + " index";
+        }
         if (ObjTypeStorageInfo.class.isAssignableFrom(type))
             return "object type";
         if (CompositeIndexStorageInfo.class.isAssignableFrom(type))

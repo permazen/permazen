@@ -118,8 +118,10 @@ public class SimpleField<T> extends Field<T> {
 // Non-public methods
 
     @Override
-    SimpleFieldStorageInfo<T> toStorageInfo() {
-        return new SimpleFieldStorageInfo<>(this, this.parent != null ? this.parent.storageId : 0);
+    SimpleFieldStorageInfo<?> toStorageInfo() {
+        if (!this.indexed)
+            return null;
+        return this.parent != null ? this.parent.toStorageInfo(this) : new RegularSimpleFieldStorageInfo<T>(this);
     }
 
     @Override
@@ -145,6 +147,14 @@ public class SimpleField<T> extends Field<T> {
         this.fieldType.write(writer, value);
         final byte[] result = writer.getBytes();
         return Arrays.equals(result, this.fieldType.getDefaultValue()) ? null : result;
+    }
+
+    @Override
+    boolean isUpgradeCompatible(Field<?> field) {
+        if (field.getClass() != this.getClass())
+            return false;
+        final SimpleField<?> that = (SimpleField<?>)field;
+        return this.fieldType.equals(that.fieldType);
     }
 }
 

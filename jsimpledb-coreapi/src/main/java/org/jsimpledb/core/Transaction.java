@@ -157,9 +157,10 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryIndex queryIndex()} - Query the index associated with a {@link SimpleField}
  *      to identify all values and all objects having those values</li>
  *  <li>{@link #queryListElementIndex queryListElementIndex()} - Query the index associated with a {@link ListField}
- *      to identify all list elements, all objects having those elements in the list, and thier corresponding indicies</li>
+ *      element sub-field to identify all list elements, all objects having those elements in the list,
+ *      and thier corresponding indicies</li>
  *  <li>{@link #queryMapValueIndex queryMapValueIndex()} - Query the index associated with a {@link MapField}
- *      to identify all map values, all objects having those values in the map, and the corresponding keys</li>
+ *      value sub-field to identify all map values, all objects having those values in the map, and the corresponding keys</li>
  *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
  *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
  *  <li>{@link #queryCompositeIndex3 queryCompositeIndex3()} - Query a composite index on three fields</li>
@@ -901,15 +902,8 @@ public class Transaction {
         for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.UNREFERENCE).entrySet()) {
             final int storageId = entry.getKey();
             final NavigableSet<ObjId> referrers = entry.getValue();
-            final ReferenceFieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
-            if (fieldInfo.isSubField()) {
-                final ComplexFieldStorageInfo<?> superFieldInfo = this.schemas.verifyStorageInfo(
-                  fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
-                superFieldInfo.unreferenceAll(this, storageId, id, referrers);
-            } else {
-                for (ObjId referrer : referrers)
-                    this.writeSimpleField(referrer, storageId, null, false);
-            }
+            final SimpleFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+            fieldInfo.unreferenceAll(this, id, referrers);
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
@@ -1409,71 +1403,163 @@ public class Transaction {
           .filter(index -> !newType.compositeIndexes.containsKey(index.storageId))
           .forEach(index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
 
-    //////// Update counter fields
+    //////// Process old fields
 
-        // Get counter field storage IDs (old or new)
-        final TreeSet<Integer> counterFieldStorageIds = new TreeSet<>();
-        counterFieldStorageIds.addAll(oldType.counterFields.keySet());
-        counterFieldStorageIds.addAll(newType.counterFields.keySet());
+        // Iterate over all the fields that existed in the old schema version
+        for (Field<?> oldField0 : oldType.fields.values()) {
+            final byte[] key = Field.buildKey(id, oldField0.storageId);
+            final Field<?> newField0 = newType.fields.get(oldField0.storageId);
 
-        // Update counter fields
-        for (int storageId : counterFieldStorageIds) {
+            // Determine whether we should reset the old field's value - because there is no new field, or it's not compatible
+            final boolean resetField = newField0 == null || !newField0.isUpgradeCompatible(oldField0);
 
-            // Get old and new counter fields having this storage ID
-            final CounterField oldField = oldType.counterFields.get(storageId);
-            final CounterField newField = newType.counterFields.get(storageId);
+            // Copy the old field's original value for the version change notification, if any
+            if (oldValueMap != null) {
+                oldField0.visit(new FieldSwitchAdapter<Void>() {
 
-            // Save old field values for version change notification
-            final byte[] key = Field.buildKey(id, storageId);
-            if (oldField != null && oldValueMap != null) {
-                final byte[] oldValue = this.kvt.get(key);
-                final long value = oldValue != null ? this.kvt.decodeCounter(oldValue) : 0;
-                oldValueMap.put(storageId, value);
+                    @Override
+                    public <T> Void caseSimpleField(SimpleField<T> oldField) {
+                        final byte[] oldValue = Transaction.this.kvt.get(key);
+                        oldValueMap.put(oldField.storageId, oldValue != null ?
+                          oldField.fieldType.read(new ByteReader(oldValue)) : oldField.fieldType.getDefaultValueObject());
+                        return null;
+                    }
+
+                    @Override
+                    public <T> Void caseComplexField(ComplexField<T> oldField) {
+                        oldValueMap.put(oldField.storageId, oldField.getValueReadOnlyCopy(Transaction.this, id));
+                        return null;
+                    }
+
+                    @Override
+                    public Void caseCounterField(CounterField oldField) {
+                        final byte[] oldValue = Transaction.this.kvt.get(key);
+                        oldValueMap.put(oldField.storageId, oldValue != null ? Transaction.this.kvt.decodeCounter(oldValue) : 0L);
+                        return null;
+                    }
+                });
             }
 
-            // Remove old value if field has disappeared, otherwise leave alone
-            if (newField == null)
-                this.kvt.remove(key);
+            // Reset the field's value and add/remove index entries as needed
+            oldField0.visit(new FieldSwitchAdapter<Void>() {
 
-            // For newly created counter fields, we must initialize them to zero
-            if (oldField == null)
-                this.kvt.put(newField.buildKey(id), this.kvt.encodeCounter(0));
+                @Override
+                public <T> Void caseSimpleField(SimpleField<T> oldField) {
+                    this.updateSimpleField(oldField, resetField);
+                    return null;
+                }
+
+                @Override
+                public Void caseReferenceField(ReferenceField oldField) {
+
+                    // We must also reset a reference to an object type that is no longer allowed by the new reference field
+                    boolean doReset = resetField;
+                    if (!doReset) {
+                        final ReferenceField newField = (ReferenceField)newField0;
+                        final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldField, newField);
+                        if (!xtypes.isEmpty()) {
+                            final ObjId ref = oldField.getValue(Transaction.this, id);
+                            doReset = ref != null && xtypes.contains(ref.getStorageId());
+                        }
+                    }
+
+                    // Proceed
+                    this.updateSimpleField(oldField, doReset);
+                    return null;
+                }
+
+                private void updateSimpleField(SimpleField<?> oldField, boolean doReset) {
+                    final SimpleField<?> newField = (SimpleField<?>)newField0;
+
+                    // Add/remove indexes as needed
+                    if (oldField.indexed && (doReset || !newField.indexed)) {
+                        final byte[] value = Transaction.this.kvt.get(key);
+                        Transaction.this.kvt.remove(Transaction.buildSimpleIndexEntry(oldField, id, value));
+                    }
+                    if (newField != null && newField.indexed && (doReset || !oldField.indexed)) {
+                        final byte[] value = !doReset ? Transaction.this.kvt.get(key) : null;
+                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, value), ByteUtil.EMPTY);
+                    }
+
+                    // Reset field value if needed
+                    if (doReset)
+                        Transaction.this.kvt.remove(key);
+                }
+
+                @Override
+                public <E> Void caseComplexField(ComplexField<E> oldField) {
+                    final ComplexField<?> newField = (ComplexField<?>)newField0;
+
+                    // Add/remove indexes as needed. Note, for complex fields, a "reset" is equivalent to removing the field.
+                    final List<? extends SimpleField<?>> oldSubFields = oldField.getSubFields();
+                    final List<? extends SimpleField<?>> newSubFields = !resetField ? newField.getSubFields() : null;
+                    for (int i = 0; i < oldSubFields.size(); i++) {
+                        final SimpleField<?> oldSubField = oldSubFields.get(i);
+                        final SimpleField<?> newSubField = !resetField ? newSubFields.get(i) : null;
+
+                        // We must also reset references to object types that are no longer allowed by the new reference field
+                        if (!resetField && oldSubField instanceof ReferenceField) {
+                            final ReferenceField oldRefField = (ReferenceField)oldSubField;
+                            final ReferenceField newRefField = (ReferenceField)newSubField;
+                            final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldRefField, newRefField);
+                            if (!xtypes.isEmpty())
+                                oldField.unreferenceRemovedTypes(Transaction.this, id, oldRefField, xtypes);
+                        }
+
+                        // Add/remove sub-field indexes
+                        if (oldSubField.indexed && (resetField || !newSubField.indexed))
+                            oldField.removeIndexEntries(Transaction.this, id, oldSubField);
+                        if (!oldSubField.indexed && !resetField && newSubField.indexed)
+                            newField.addIndexEntries(Transaction.this, id, newSubField);
+                    }
+
+                    // Reset field value if needed
+                    if (resetField)
+                        oldField.deleteContent(Transaction.this, id);
+                    return null;
+                }
+
+                @Override
+                public Void caseCounterField(CounterField oldField) {
+
+                    // Reset field value if needed
+                    if (resetField)
+                        Transaction.this.kvt.remove(key);
+                    return null;
+                }
+            });
         }
 
-    //////// Update simple fields and corresponding index entries
+    //////// Initialize values and add index entries for new fields that did not exist before
 
-        // Get simple field storage IDs (old or new)
-        final TreeSet<Integer> simpleFieldStorageIds = new TreeSet<>();
-        simpleFieldStorageIds.addAll(oldType.simpleFields.keySet());
-        simpleFieldStorageIds.addAll(newType.simpleFields.keySet());
+        // Iterate over the new fields that did not exist in the old schema version
+        for (Field<?> newField : newType.fields.values()) {
+            final Field<?> oldField = oldType.fields.get(newField.storageId);
 
-        // Update simple fields
-        for (int storageId : simpleFieldStorageIds) {
+            // Add new index entries as needed
+            if (oldField == null) {
+                newField.visit(new FieldSwitchAdapter<Void>() {
 
-            // Get old and new simple fields having this storage ID
-            final SimpleField<?> oldField = oldType.simpleFields.get(storageId);
-            final SimpleField<?> newField = newType.simpleFields.get(storageId);
+                    @Override
+                    public <T> Void caseSimpleField(SimpleField<T> field) {
+                        if (field.indexed)
+                            Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
+                        return null;
+                    }
 
-            // Save old field values for version change notification
-            final byte[] key = Field.buildKey(id, storageId);
-            final byte[] oldValue = oldField != null ? this.kvt.get(key) : null;
-            if (oldField != null && oldValueMap != null) {
-                final Object value = oldValue != null ?
-                  oldField.fieldType.read(new ByteReader(oldValue)) : oldField.fieldType.getDefaultValueObject();
-                oldValueMap.put(storageId, value);
+                    @Override
+                    public <E> Void caseComplexField(ComplexField<E> field) {
+                        return null;
+                    }
+
+                    @Override
+                    public Void caseCounterField(CounterField field) {
+                        final byte[] key = Field.buildKey(id, field.storageId);
+                        Transaction.this.kvt.put(key, Transaction.this.kvt.encodeCounter(0L));
+                        return null;
+                    }
+                });
             }
-
-            // If field is being removed, discard the old value
-            if (newField == null && oldValue != null)
-                this.kvt.remove(key);
-
-            // Remove old index entry if index removed in new version
-            if (oldField != null && oldField.indexed && (newField == null || !newField.indexed))
-                this.kvt.remove(Transaction.buildSimpleIndexEntry(oldField, id, oldValue));
-
-            // Add new index entry if index added in new version
-            if (newField != null && newField.indexed && (oldField == null || !oldField.indexed))
-                this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, oldValue), ByteUtil.EMPTY);
         }
 
     //////// Add composite index entries for newly added composite indexes
@@ -1482,87 +1568,6 @@ public class Transaction {
         newType.compositeIndexes.values().stream()
           .filter(index -> !oldType.compositeIndexes.containsKey(index.storageId))
           .forEach(index -> this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY));
-
-    //////// Update complex fields and corresponding index entries
-
-        // Get complex field storage IDs (old or new)
-        final TreeSet<Integer> complexFieldStorageIds = new TreeSet<>();
-        complexFieldStorageIds.addAll(oldType.complexFields.keySet());
-        complexFieldStorageIds.addAll(newType.complexFields.keySet());
-
-        // Notes:
-        //
-        // - The only changes we support are sub-field changes that don't affect the corresponding StorageInfo's
-        // - New complex fields do not need to be explicitly initialized because their initial state is to have zero KV pairs
-        //
-        for (int storageId : complexFieldStorageIds) {
-
-            // Get old and new complex fields having this storage ID
-            final ComplexField<?> oldField = oldType.complexFields.get(storageId);
-            final ComplexField<?> newField = newType.complexFields.get(storageId);
-
-            // If there is no old field, new field and any associated indexes are already initialized (i.e., they're empty)
-            if (oldField == null)
-                continue;
-
-            // Save old field's value
-            if (oldValueMap != null)
-                oldValueMap.put(storageId, oldField.getValueReadOnlyCopy(this, id));
-
-            // If field is being removed, delete old field content, otherwise check if index entries should be added/removed
-            if (newField == null) {
-                oldField.removeIndexEntries(this, id);
-                oldField.deleteContent(this, id);
-            } else
-                newField.updateSubFieldIndexes(this, oldField, id);
-        }
-
-    //////// Remove references that are no longer valid
-
-        // Unreference any reference fields that refer to no-longer-valid object types
-        for (int storageId : simpleFieldStorageIds) {
-
-            // Get storage IDs that are no longer allowed, if any
-            final TreeSet<Integer> removedObjectTypes = this.findRemovedObjectTypes(info, targetVersion, storageId);
-            if (removedObjectTypes == null)
-                continue;
-
-            // Unreference field if needed
-            final ReferenceField oldField = (ReferenceField)oldType.simpleFields.get(storageId);
-            final ObjId ref = oldField.getValue(this, id);
-            if (ref != null && removedObjectTypes.contains(ref.getStorageId()))
-                this.writeSimpleField(id, oldField.storageId, null, false);
-        }
-
-        // Unreference any reference sub-fields of complex fields that refer to no-longer-valid object types
-        for (int storageId : complexFieldStorageIds) {
-
-            // Get old and new complex fields having this storage ID
-            final ComplexField<?> oldField = oldType.complexFields.get(storageId);
-            final ComplexField<?> newField = newType.complexFields.get(storageId);
-            if (oldField == null || newField == null)
-                continue;
-            final List<? extends SimpleField<?>> oldSubFields = oldField.getSubFields();
-            final List<? extends SimpleField<?>> newSubFields = newField.getSubFields();
-            final int numSubFields = oldSubFields.size();
-            assert numSubFields == newSubFields.size();
-
-            // Iterate over subfields
-            for (int i = 0; i < numSubFields; i++) {
-                final SimpleField<?> oldSubField = oldSubFields.get(i);
-                final SimpleField<?> newSubField = newSubFields.get(i);
-                assert oldSubField.storageId == newSubField.storageId;
-                final int subStorageId = oldSubField.storageId;
-
-                // Get storage IDs that are no longer allowed, if any
-                final TreeSet<Integer> removedObjectTypes = this.findRemovedObjectTypes(info, targetVersion, subStorageId);
-                if (removedObjectTypes == null)
-                    continue;
-
-                // Unreference sub-fields as needed
-                oldField.unreferenceRemovedObjectTypes(this, id, (ReferenceField)oldSubField, removedObjectTypes);
-            }
-        }
 
     //////// Update object version and corresponding index entry
 
@@ -1591,17 +1596,7 @@ public class Transaction {
      * Find storage ID's which are no longer allowed by a reference field when upgrading to the specified
      * schema version and therefore need to be scrubbed during the upgrade.
      */
-    private TreeSet<Integer> findRemovedObjectTypes(ObjInfo info, Schema newVersion, int storageId) {
-
-        // Get old and new object types
-        final ObjType oldType = info.getObjType();
-        final ObjType newType = newVersion.getObjType(info.getId().getStorageId());
-
-        // Get old and new reference fields having specified storage ID
-        final ReferenceField oldField = oldType.referenceFieldsAndSubFields.get(storageId);
-        final ReferenceField newField = newType.referenceFieldsAndSubFields.get(storageId);
-        if (oldField == null || newField == null)
-            return null;
+    private TreeSet<Integer> findRemovedTypes(ReferenceField oldField, ReferenceField newField) {
 
         // Check allowed storage IDs
         final SortedSet<Integer> newObjectTypes = newField.getObjectTypes();
@@ -1614,7 +1609,7 @@ public class Transaction {
         // Identify storage IDs which are were allowed by old field but are no longer allowed by new field
         final TreeSet<Integer> removedObjectTypes = new TreeSet<>(oldObjectTypes);
         removedObjectTypes.removeAll(newObjectTypes);
-        return !removedObjectTypes.isEmpty() ? removedObjectTypes : null;
+        return removedObjectTypes;
     }
 
     /**
@@ -2194,8 +2189,6 @@ public class Transaction {
      * @param id object ID
      * @param storageId field storage ID
      * @return the {@link org.jsimpledb.kv.KVDatabase} key of the field in the specified object
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code storageId} corresponds to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code storageId} is less than or equal to zero
      * @throws IllegalArgumentException if {@code id} is null
      * @see org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject, String) JTransaction.getKey()
@@ -2206,9 +2199,6 @@ public class Transaction {
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(storageId > 0, "non-positive storageId");
-        final FieldStorageInfo info = this.schemas.verifyStorageInfo(storageId, FieldStorageInfo.class);
-        if (info.isSubField())
-            throw new IllegalArgumentException("field is a sub-field of a complex field");
 
         // Build key
         final ByteWriter writer = new ByteWriter();
@@ -2339,10 +2329,10 @@ public class Transaction {
      * Monitor for changes within this transaction of the value of the given field, as seen through a path of references.
      *
      * <p>
-     * When the specified field is changed, a listener notification will be delivered for each referring object that
-     * refers to the object containing the changed field through the specified path of references. Notifications are
-     * delivered at the end of the mutation operation just prior to returning to the caller. If the listener method
-     * performs additional mutation(s) which are themselves being listened for, those notifications will also be delivered
+     * When the specified field is changed in some object T, a listener notification will be delivered for each object R
+     * that refers to object T through the specified path of reference fields (if {@code path} is empty, then R = T).
+     * Notifications are delivered at the end of the mutation operation just prior to returning to the caller. If the listener
+     * method performs additional mutation(s) which are themselves being listened for, those notifications will also be delivered
      * prior to the returning to the original caller. Therefore, care must be taken to avoid change notification dependency
      * loops when listeners can themselves mutate fields, to avoid infinite loops.
      *
@@ -2351,8 +2341,8 @@ public class Transaction {
      * will trigger notifications to {@code listener}.
      *
      * <p>
-     * A referring object may refer to the changed object through more than one actual path of references matching {@code path};
-     * if so, it will still appear only once in the {@link NavigableSet} provided to the listener (this is of course required
+     * A referring object R may refer to the changed object T through more than one sequence of objects matching {@code path};
+     * if so, R will still appear only once in the {@link NavigableSet} provided to the listener (this is of course required
      * by set semantics).
      *
      * <p>
@@ -2370,21 +2360,24 @@ public class Transaction {
      * Therefore, for consistency, avoid changing any {@link ReferenceField} from within a listener callback when that
      * field is also in some other listener's reference path, and both listeners are watching the same field.
      *
+     * <p>
+     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * which the field associated with {@code storageId} is not a {@link SimpleField}. In such cases, {@code listener}
+     * will receive notifications about those changes if it also happens to implement the other listener interface.
+     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+    public void addSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
-        this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
+        this.addFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
@@ -2393,21 +2386,23 @@ public class Transaction {
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
+     * <p>
+     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * which the field associated with {@code storageId} is not a {@link SetField}. In such cases, {@code listener}
+     * will receive notifications about those changes if it also happens to implement the other listener interface.
+     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      SetFieldChangeListener listener) {
-        this.validateChangeListener(SetField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
+    public void addSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, SetFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
@@ -2416,21 +2411,23 @@ public class Transaction {
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
+     * <p>
+     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * which the field associated with {@code storageId} is not a {@link ListField}. In such cases, {@code listener}
+     * will receive notifications about those changes if it also happens to implement the other listener interface.
+     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      ListFieldChangeListener listener) {
-        this.validateChangeListener(ListField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
+    public void addListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, ListFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
@@ -2439,134 +2436,154 @@ public class Transaction {
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
+     * <p>
+     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * which the field associated with {@code storageId} is not a {@link MapField}. In such cases, {@code listener}
+     * will receive notifications about those changes if it also happens to implement the other listener interface.
+     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      MapFieldChangeListener listener) {
-        this.validateChangeListener(MapField.class, storageId, path, listener);
+    public void addMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, MapFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, types, listener);
+    }
+
+    /**
+     * Monitor for changes within this transaction to the specified {@link Field} as seen through a path of references.
+     *
+     * <p>
+     * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
+     *
+     * <p>
+     * JSimpleDB allows a field's type to change across schema versions, therefore in different schema versions the
+     * specified field may have different types. The {@code listener} will receive notifications about a field change
+     * if it implements the interface appropriate for the field's current type (i.e., {@link SimpleFieldChangeListener},
+     * {@link ListFieldChangeListener}, {@link SetFieldChangeListener}, or {@link MapFieldChangeListener}) at the time
+     * of the change.
+     *
+     * @param storageId storage ID of the field to monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     */
+    public synchronized void addFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, Object listener) {
+        this.validateChangeListener(path, listener);
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
-     * Remove a monitor previously added via {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()}.
+     * Remove a field monitor previously added via {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()}
+     * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+    public void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       SimpleFieldChangeListener listener) {
-        this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
-        if (monitors != null)
-            monitors.remove(new FieldMonitor(storageId, path, types, listener));
+        this.removeFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
-     * Remove a monitor previously added via {@link #addSetFieldChangeListener addSetFieldChangeListener()}.
+     * Remove a field monitor previously added via {@link #addSetFieldChangeListener addSetFieldChangeListener()}
+     * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      SetFieldChangeListener listener) {
-        this.validateChangeListener(SetField.class, storageId, path, listener);
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
-        if (monitors != null)
-            monitors.remove(new FieldMonitor(storageId, path, types, listener));
+    public void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, SetFieldChangeListener listener) {
+        this.removeFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
-     * Remove a monitor previously added via {@link #addListFieldChangeListener addListFieldChangeListener()}.
+     * Remove a field monitor previously added via {@link #addListFieldChangeListener addListFieldChangeListener()}
+     * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+    public void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
       ListFieldChangeListener listener) {
-        this.validateChangeListener(ListField.class, storageId, path, listener);
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
-        if (monitors != null)
-            monitors.remove(new FieldMonitor(storageId, path, types, listener));
+        this.removeFieldChangeListener(storageId, path, types, listener);
     }
 
     /**
-     * Remove a monitor previously added via {@link #addMapFieldChangeListener addMapFieldChangeListener()}.
+     * Remove a field monitor previously added via {@link #addMapFieldChangeListener addMapFieldChangeListener()}
+     * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      MapFieldChangeListener listener) {
-        this.validateChangeListener(MapField.class, storageId, path, listener);
+    public void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, MapFieldChangeListener listener) {
+        this.removeFieldChangeListener(storageId, path, types, listener);
+    }
+
+    /**
+     * Remove a field monitor previously added via {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()},
+     * {@link #addSetFieldChangeListener addSetFieldChangeListener()},
+     * {@link #addListFieldChangeListener addListFieldChangeListener()},
+     * {@link #addMapFieldChangeListener addMapFieldChangeListener()},
+     * or {@link #addFieldChangeListener addFieldChangeListener()}.
+     *
+     * @param storageId storage ID of the field to no longer monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     */
+    public synchronized void removeFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, Object listener) {
+        this.validateChangeListener(path, listener);
         final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, types, listener));
     }
 
-    private <T extends Field<?>> void validateChangeListener(Class<T> expectedFieldType,
-      int storageId, int[] path, Object listener) {
-
-        // Sanity check
+    private void validateChangeListener(int[] path, Object listener) {
+        assert Thread.holdsLock(this);
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
         if (this.listenerSetInstalled)
             throw new UnsupportedOperationException("ListenerSet installed");
-
-        // Get target field info
-        final FieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, SchemaItem.infoTypeFor(expectedFieldType));
-
-        // Get object parent of target field, and make sure the field is not a sub-field
-        if (fieldInfo.isSubField()) {
-            throw new IllegalArgumentException("the field with storage ID "
-              + storageId + " is a sub-field of a complex field; listeners can only be registered on regular object fields");
-        }
-
-        // Verify all fields in the path are reference fields
-        for (int pathStorageId : path)
-            this.schemas.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
+        this.verifyReferencePath(path);
     }
 
     private Set<FieldMonitor> getMonitorsForField(int storageId) {
@@ -2794,9 +2811,14 @@ public class Transaction {
         }
     }
 
-    // This method exists solely to bind the generic type parameters
+    // Notify listener, if it has the appropriate type
     private <T> void notifyFieldChangeListener(FieldChangeNotifier<T> notifier, FieldMonitor monitor, NavigableSet<ObjId> objects) {
-        final T listener = notifier.getListenerType().cast(monitor.listener);
+        final T listener;
+        try {
+            listener = notifier.getListenerType().cast(monitor.listener);
+        } catch (ClassCastException e) {
+            return;
+        }
         notifier.notify(this, listener, monitor.path, objects);
     }
 
@@ -2820,8 +2842,7 @@ public class Transaction {
         Preconditions.checkArgument(path != null && path.length > 0, "null/empty path");
 
         // Verify all fields in the path are reference fields
-        for (int storageId : path)
-            this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
+        this.verifyReferencePath(path);
 
         // Invert references in reverse order
         NavigableSet<ObjId> result = null;
@@ -2846,6 +2867,15 @@ public class Transaction {
         return result;
     }
 
+    // Verify all fields in the path are reference fields
+    private void verifyReferencePath(int[] path) {
+        for (int storageId : path) {
+            final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+            if (!(info.fieldType instanceof ReferenceFieldType))
+                throw new IllegalArgumentException(info + " is not a reference field");
+        }
+    }
+
 // Index Queries
 
     /**
@@ -2868,12 +2898,8 @@ public class Transaction {
     public synchronized CoreIndex<?, ObjId> queryIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final SimpleFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        if (fieldInfo.superFieldStorageId == 0)
-            return fieldInfo.getSimpleFieldIndex(this);
-        final ComplexFieldStorageInfo<?> superFieldInfo
-          = this.schemas.verifyStorageInfo(fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
-        return superFieldInfo.getSimpleSubFieldIndex(this, fieldInfo);
+        final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+        return info.getIndex(this);
     }
 
     /**
@@ -2884,16 +2910,16 @@ public class Transaction {
      * The returned index contains objects from all recorded schema versions for which the list element field is indexed;
      * this method does not check whether any such schema versions exist.
      *
-     * @param storageId {@link ListField}'s storage ID
+     * @param storageId {@link ListField}'s element sub-field storage ID
      * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies
-     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link ListField} element sub-field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized CoreIndex2<?, ObjId, Integer> queryListElementIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ListFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return fieldInfo.getElementFieldIndex(this);
+        final ListElementStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, ListElementStorageInfo.class);
+        return info.getElementIndex(this);
     }
 
     /**
@@ -2904,16 +2930,16 @@ public class Transaction {
      * The returned index contains objects from all recorded schema versions for which the map value field is indexed;
      * this method does not check whether any such schema versions exist.
      *
-     * @param storageId {@link MapField}'s storage ID
+     * @param storageId {@link MapField}'s value sub-field storage ID
      * @return read-only, real-time view of map values, objects with the value in the map, and corresponding keys
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link MapField} value sub-field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized CoreIndex2<?, ObjId, ?> queryMapValueIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final MapFieldStorageInfo<?, ?> fieldInfo = this.schemas.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return fieldInfo.getValueFieldIndex(this);
+        final MapValueStorageInfo<?, ?> info = this.schemas.verifyStorageInfo(storageId, MapValueStorageInfo.class);
+        return info.getValueIndex(this);
     }
 
     /**
@@ -2933,7 +2959,7 @@ public class Transaction {
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex2)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.fields.size() + " != 2 fields");
+              + " is on " + indexInfo.storageIds.size() + " != 2 fields");
         }
         return (CoreIndex2<?, ?, ObjId>)index;
     }
@@ -2955,7 +2981,7 @@ public class Transaction {
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex3)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.fields.size() + " != 3 fields");
+              + " is on " + indexInfo.storageIds.size() + " != 3 fields");
         }
         return (CoreIndex3<?, ?, ?, ObjId>)index;
     }
@@ -2977,7 +3003,7 @@ public class Transaction {
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex4)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.fields.size() + " != 4 fields");
+              + " is on " + indexInfo.storageIds.size() + " != 4 fields");
         }
         return (CoreIndex4<?, ?, ?, ?, ObjId>)index;
     }
@@ -3001,7 +3027,7 @@ public class Transaction {
     // Query an index on a reference field for referring objects
     @SuppressWarnings("unchecked")
     private NavigableMap<ObjId, NavigableSet<ObjId>> queryReferences(int storageId) {
-        assert this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
+        assert this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class).fieldType instanceof ReferenceFieldType;
         return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.queryIndex(storageId).asMap();
     }
 
@@ -3145,7 +3171,7 @@ public class Transaction {
     public synchronized void setListeners(ListenerSet listeners) {
         Preconditions.checkArgument(listeners != null, "null listeners");
 
-        // Verify listeners are compatible with this transaction
+        // Verify field change listeners are compatible with this transaction
         while (listeners.monitorMap != null) {
 
             // Do a quick check

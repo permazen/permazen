@@ -38,6 +38,14 @@ class EnumType extends NonNullFieldType<EnumValue> {
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));
     }
 
+    // Used internally by genericizeForIndex()
+    private EnumType(EnumType original) {
+        super(original.name, original.typeToken, original.signature);
+        this.enumType = null;
+        this.identifierMap = original.identifierMap;
+        this.enumValueList = original.enumValueList;
+    }
+
     List<String> getIdentifiers() {
         return Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.keySet()));
     }
@@ -125,6 +133,11 @@ class EnumType extends NonNullFieldType<EnumValue> {
               + ordinal + " != " + sameName.getOrdinal());
         }
         throw new IllegalArgumentException("unknown enum value " + value);
+    }
+
+    @Override
+    EnumType genericizeForIndex() {
+        return new EnumType(this);
     }
 
 // Object

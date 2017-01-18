@@ -2,6 +2,7 @@ Version Next
 
     - Added FieldType.convert() for converting values between two FieldType's
     - Fixed bug where new counter fields were not initialized on upgrade
+    - Allow more flexibility for fields to change types across schema versions.
 
 Version 3.0.1 Released January 5, 2017
 

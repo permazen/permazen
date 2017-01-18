@@ -44,21 +44,27 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     @Test(dataProvider = "upgradeCases")
-    private void testUpgradeSchema(boolean valid, String xml1, String xml2) throws Exception {
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+    private void testUpgradeSchema(boolean valid, String a, String b) throws Exception {
+        final String[] xmls = new String[] { a, b };
+        for (int i = 0; i < xmls.length; i++) {
+            String xml1 = xmls[i];
+            String xml2 = xmls[1 - i];
 
-        xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml1 + "</Schema>\n";
-        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
-        db.createTransaction(schema1, 1, true).commit();
+            final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+            final Database db = new Database(kvstore);
 
-        xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml2 + "</Schema>\n";
-        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
-        try {
-            db.createTransaction(schema2, 2, true);
-            assert valid : "upgrade schema was supposed to be invalid";
-        } catch (InvalidSchemaException e) {
-            assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
+            xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml1 + "</Schema>\n";
+            final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+            db.createTransaction(schema1, 1, true).commit();
+
+            xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml2 + "</Schema>\n";
+            final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+            try {
+                db.createTransaction(schema2, 2, true);
+                assert valid : "upgrade schema was supposed to be invalid";
+            } catch (InvalidSchemaException e) {
+                assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
+            }
         }
     }
 
@@ -212,7 +218,49 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Allow different types for the same field if not both indexed
+          { true,
+            "<!-- test 18a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "</ObjectType>\n"
+          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\"/>\n"
+          + "</ObjectType>\n"
+          },
+
+          { true,
+            "<!-- test 18b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n"
+          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\"/>\n"
+          + "</ObjectType>\n"
+          },
+
+          { true,
+            "<!-- test 18c -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "</ObjectType>\n"
+          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n"
+          },
+
           { false,
+            "<!-- test 18d -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n"
+          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n"
+          },
+
+          // Disallow different types for the same field if indexed
+          { true,
             "<!-- test 18 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
@@ -440,7 +488,8 @@ public class SchemaTest extends CoreAPITestSupport {
     public Object[][] upgradeCases() {
         return new Object[][] {
 
-          { false,
+          // Change a field's type, not both indexed
+          { true,
             "<!-- test 1a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <CounterField name=\"counter\" storageId=\"20\"/>\n"
@@ -449,6 +498,51 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 1b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n",
+          },
+
+          { true,
+            "<!-- test 1.1a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField type=\"int\" name=\"dummy\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 1.1b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n",
+          },
+
+          { true,
+            "<!-- test 1.2a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "  </SetField>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 1.2b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"20\" indexed=\"true\"/>\n"
+          + "</ObjectType>\n",
+          },
+
+          { true,
+            "<!-- test 1.3a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "  </SetField>\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"30\"/>\n"
+          + "  <SimpleField type=\"int\" name=\"i\" storageId=\"31\"/>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 1.3b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
+          + "  <SetField name=\"set\" storageId=\"30\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"31\" indexed=\"true\"/>\n"
+          + "  </SetField>\n"
           + "</ObjectType>\n",
           },
 
@@ -479,6 +573,44 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
           + "  <ReferenceField name=\"ref1\" storageId=\"11\"/>\n"
+          + "</ObjectType>\n",
+          },
+
+          // Change sub-field types - compatible indexing
+          { true,
+            "<!-- test 4a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "    <SimpleField type=\"java.lang.String\" storageId=\"22\"/>\n"
+          + "  </MapField>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 4b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"java.lang.String\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField type=\"int\" storageId=\"22\" indexed=\"true\"/>\n"
+          + "  </MapField>\n"
+          + "</ObjectType>\n",
+          },
+
+          // Change sub-field types - incompatible indexing
+          { false,
+            "<!-- test 5a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField type=\"java.lang.String\" storageId=\"22\"/>\n"
+          + "  </MapField>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 5b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"java.lang.String\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "  </MapField>\n"
           + "</ObjectType>\n",
           },
 

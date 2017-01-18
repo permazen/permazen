@@ -325,19 +325,19 @@ public class IndexTest1 extends CoreAPITestSupport {
           "bar3",   buildSortedSet(ids[3]),
           "jam",    buildSortedSet(ids[1], ids[2], ids[3])));
 
-        Assert.assertEquals(tx.queryListElementIndex(11).asMapOfIndex().get("blah"), null);
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("foo1").asMap(), buildMap(ids[1], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("foo2").asMap(), buildMap(ids[2], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("foo3").asMap(), buildMap(ids[3], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("bar1").asMap(), buildMap(ids[1], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("bar2").asMap(), buildMap(ids[2], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("bar3").asMap(), buildMap(ids[3], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(11).asMapOfIndex().get("jam").asMap(),  buildMap(
+        Assert.assertEquals(tx.queryListElementIndex(21).asMapOfIndex().get("blah"), null);
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo1").asMap(), buildMap(ids[1], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo2").asMap(), buildMap(ids[2], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo3").asMap(), buildMap(ids[3], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar1").asMap(), buildMap(ids[1], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar2").asMap(), buildMap(ids[2], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar3").asMap(), buildMap(ids[3], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("jam").asMap(),  buildMap(
           ids[1], buildSet(2),
           ids[2], buildSet(2),
           ids[3], buildSet(2)));
 
-        TestSupport.checkSet(tx.queryListElementIndex(11).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryListElementIndex(21).asSet(), buildSet(
           new Tuple3<>("foo1", ids[1], 0),
           new Tuple3<>("foo2", ids[2], 0),
           new Tuple3<>("foo3", ids[3], 0),
@@ -418,29 +418,29 @@ public class IndexTest1 extends CoreAPITestSupport {
           "valueC3",    buildSortedSet(ids[3]),
           "valueD",     buildSortedSet(ids[1], ids[2], ids[3])));
 
-        Assert.assertEquals(tx.queryMapValueIndex(12).asMapOfIndex().get("blah"), null);
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA1").asSet(),
+        Assert.assertEquals(tx.queryMapValueIndex(23).asMapOfIndex().get("blah"), null);
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA1").asSet(),
           buildSet(new Tuple2<>(ids[1], 1001)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA2").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA2").asSet(),
           buildSet(new Tuple2<>(ids[2], 1002)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueA3").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA3").asSet(),
           buildSet(new Tuple2<>(ids[3], 1003)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueB").asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueB").asSet(), buildSet(
           new Tuple2<>(ids[1], 2001),
           new Tuple2<>(ids[2], 2002),
           new Tuple2<>(ids[3], 2003)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC1").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC1").asSet(),
           buildSet(new Tuple2<>(ids[1], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC2").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC2").asSet(),
           buildSet(new Tuple2<>(ids[2], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueC3").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC3").asSet(),
           buildSet(new Tuple2<>(ids[3], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asMapOfIndex().get("valueD").asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueD").asSet(), buildSet(
           new Tuple2<>(ids[1], 4000),
           new Tuple2<>(ids[2], 4000),
           new Tuple2<>(ids[3], 4000)));
 
-        TestSupport.checkSet(tx.queryMapValueIndex(12).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asSet(), buildSet(
           new Tuple3<>("valueA1", ids[1], 1001),
           new Tuple3<>("valueA2", ids[2], 1002),
           new Tuple3<>("valueA3", ids[3], 1003),
@@ -454,7 +454,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           new Tuple3<>("valueD", ids[2], 4000),
           new Tuple3<>("valueD", ids[3], 4000)));
 
-        TestSupport.checkMap(tx.queryMapValueIndex(12).asMap(), buildMap(
+        TestSupport.checkMap(tx.queryMapValueIndex(23).asMap(), buildMap(
           new Tuple2<>("valueA1", ids[1]), buildSet(1001),
           new Tuple2<>("valueA2", ids[2]), buildSet(1002),
           new Tuple2<>("valueA3", ids[3]), buildSet(1003),
@@ -468,7 +468,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           new Tuple2<>("valueD", ids[2]), buildSet(4000),
           new Tuple2<>("valueD", ids[3]), buildSet(4000)));
 
-        TestSupport.checkMap(tx.queryMapValueIndex(12).asIndex().asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapValueIndex(23).asIndex().asMap(), buildSortedMap(
           "valueA1",    buildSet(ids[1]),
           "valueA2",    buildSet(ids[2]),
           "valueA3",    buildSet(ids[3]),

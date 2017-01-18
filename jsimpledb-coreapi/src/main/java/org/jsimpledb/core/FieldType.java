@@ -408,6 +408,14 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
         this.write(writer, this.validate(obj));
     }
 
+    /**
+     * Remove any information that can differ between instances of this field in the same schema.
+     * Required when used for index queries.
+     */
+    FieldType<T> genericizeForIndex() {
+        return this;
+    }
+
 // Object
 
     @Override

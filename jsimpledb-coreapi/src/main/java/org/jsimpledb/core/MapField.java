@@ -134,8 +134,12 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    MapFieldStorageInfo<K, V> toStorageInfo() {
-        return new MapFieldStorageInfo<>(this);
+    ComplexSubFieldStorageInfo<?> toStorageInfo(SimpleField<?> subField) {
+        if (subField == this.keyField)
+            return new MapKeyStorageInfo<K>(this);
+        if (subField == this.valueField)
+            return new MapValueStorageInfo<K, V>(this);
+        throw new IllegalArgumentException("unknown sub-field");
     }
 
     @Override
@@ -198,7 +202,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    void unreferenceRemovedObjectTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
         assert subField == this.keyField || subField == this.valueField;
         for (Iterator<Map.Entry<K, V>> i = this.getValueInternal(tx, id).entrySet().iterator(); i.hasNext(); ) {
             final Map.Entry<K, V> entry = i.next();
@@ -206,6 +210,15 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
             if (ref != null && removedStorageIds.contains(ref.getStorageId()))
                 i.remove();
         }
+    }
+
+    @Override
+    boolean isUpgradeCompatible(Field<?> field) {
+        if (field.getClass() != this.getClass())
+            return false;
+        final MapField<?, ?> that = (MapField<?, ?>)field;
+        return this.keyField.isUpgradeCompatible(that.keyField)
+          && this.valueField.isUpgradeCompatible(that.valueField);
     }
 }
 

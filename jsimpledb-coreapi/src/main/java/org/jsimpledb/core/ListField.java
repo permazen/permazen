@@ -74,8 +74,9 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
-    ListFieldStorageInfo<E> toStorageInfo() {
-        return new ListFieldStorageInfo<>(this);
+    ListElementStorageInfo<E> toStorageInfo(SimpleField<?> subField) {
+        assert subField == this.elementField;
+        return new ListElementStorageInfo<>(this);
     }
 
     @Override

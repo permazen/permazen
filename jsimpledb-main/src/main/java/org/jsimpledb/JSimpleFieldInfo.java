@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsimpledb.change.SimpleFieldChange;
-import org.jsimpledb.core.Transaction;
 
 class JSimpleFieldInfo extends JFieldInfo {
 
@@ -74,11 +73,6 @@ class JSimpleFieldInfo extends JFieldInfo {
      */
     public boolean isIndexed() {
         return this.indexed;
-    }
-
-    @Override
-    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
-        tx.addSimpleFieldChangeListener(this.storageId, path, types, listener);
     }
 
     @Override

@@ -80,16 +80,21 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
     }
 
     @Override
-    abstract CollectionFieldStorageInfo<C, E> toStorageInfo();
-
-    @Override
-    void unreferenceRemovedObjectTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
         assert subField == this.elementField;
         for (Iterator<?> i = this.getValueInternal(tx, id).iterator(); i.hasNext(); ) {
             final ObjId ref = (ObjId)i.next();
             if (ref != null && removedStorageIds.contains(ref.getStorageId()))
                 i.remove();
         }
+    }
+
+    @Override
+    boolean isUpgradeCompatible(Field<?> field) {
+        if (field.getClass() != this.getClass())
+            return false;
+        final CollectionField<?, ?> that = (CollectionField<?, ?>)field;
+        return this.elementField.isUpgradeCompatible(that.elementField);
     }
 }
 

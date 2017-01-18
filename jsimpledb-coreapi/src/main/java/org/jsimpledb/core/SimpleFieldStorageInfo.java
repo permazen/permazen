@@ -5,60 +5,52 @@
 
 package org.jsimpledb.core;
 
-class SimpleFieldStorageInfo<T> extends FieldStorageInfo {
+import java.util.NavigableSet;
+
+/**
+ * Represents an index on a simple field, either a regular simple field or a sub-field of a complex field.
+ */
+abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
 
     final FieldType<T> fieldType;
-    final int superFieldStorageId;
 
-    SimpleFieldStorageInfo(SimpleField<T> field, int superFieldStorageId) {
-        this(field, field.fieldType, superFieldStorageId);
+    SimpleFieldStorageInfo(SimpleField<T> field) {
+        super(field.storageId);
+        this.fieldType = field.fieldType.genericizeForIndex();
     }
 
-    SimpleFieldStorageInfo(SimpleField<T> field, FieldType<T> fieldType, int superFieldStorageId) {
-        super(field);
-        this.fieldType = fieldType;
-        this.superFieldStorageId = superFieldStorageId;
-    }
-
-    @Override
-    public boolean isSubField() {
-        return this.superFieldStorageId != 0;
-    }
-
-    CoreIndex<T, ObjId> getSimpleFieldIndex(Transaction tx) {
-        if (this.superFieldStorageId != 0)
-            throw new RuntimeException("internal error");
+    CoreIndex<T, ObjId> getIndex(Transaction tx) {
         return new CoreIndex<>(tx, new IndexView<>(this.storageId, this.fieldType, FieldTypeRegistry.OBJ_ID));
     }
+
+    /**
+     * Remove all references from objects in the specified referrers set to the specified target through
+     * the reference field associated with this instance. Used to implement {@link DeleteAction#UNREFERENCE}.
+     *
+     * <p>
+     * This method may assume that this instance's {@link FieldType} is reference.
+     *
+     * @param tx transaction
+     * @param target referenced object being deleted
+     * @param referrers objects that refer to {@code target} via this reference field
+     */
+    abstract void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers);
 
 // Object
 
     @Override
-    public String toString() {
-        return "simple field with " + this.fieldType;
-    }
-
-    @Override
-    public final boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if (obj == this)
             return true;
         if (!super.equals(obj))
             return false;
         final SimpleFieldStorageInfo<?> that = (SimpleFieldStorageInfo<?>)obj;
-        return this.fieldTypeEquals(that) && this.superFieldStorageId == that.superFieldStorageId;
+        return this.fieldType.equals(that.fieldType);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fieldTypeHashCode() ^ this.superFieldStorageId;
-    }
-
-    protected boolean fieldTypeEquals(SimpleFieldStorageInfo<?> that) {
-        return this.fieldType.equals(that.fieldType);
-    }
-
-    protected int fieldTypeHashCode() {
-        return this.fieldType.hashCode();
+        return super.hashCode() ^ this.fieldType.hashCode();
     }
 }
 

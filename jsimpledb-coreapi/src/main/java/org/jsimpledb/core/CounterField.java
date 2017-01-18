@@ -35,11 +35,6 @@ public class CounterField extends Field<Long> {
         super(name, storageId, schema, TypeToken.of(Long.class));
     }
 
-    @Override
-    CounterFieldStorageInfo toStorageInfo() {
-        return new CounterFieldStorageInfo(this);
-    }
-
 // Public methods
 
     @Override
@@ -68,6 +63,19 @@ public class CounterField extends Field<Long> {
     @Override
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
         dstTx.writeCounterField(dstId, this.storageId, srcTx.readCounterField(srcId, this.storageId, false), false);
+    }
+
+    // Counter fields are never indexed
+    @Override
+    StorageInfo toStorageInfo() {
+        return null;
+    }
+
+    @Override
+    boolean isUpgradeCompatible(Field<?> field) {
+        if (field.getClass() != this.getClass())
+            return false;
+        return true;
     }
 }
 

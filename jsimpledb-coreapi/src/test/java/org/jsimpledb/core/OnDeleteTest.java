@@ -428,7 +428,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
         TestSupport.checkMap(tx.queryIndex(20).asMap(), buildMap(
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
-        TestSupport.checkSet(tx.queryListElementIndex(11).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryListElementIndex(21).asSet(), buildSet(
           new Tuple3<>(target, other1, 0),
           new Tuple3<>(target, other1, 2),
           new Tuple3<>(target, referrers[0], 0),
@@ -439,7 +439,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
         TestSupport.checkMap(tx.queryIndex(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
-        TestSupport.checkSet(tx.queryMapValueIndex(13).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(25).asSet(), buildSet(
           new Tuple3<>(target, other1, 789),
           new Tuple3<>(target, other1, 636),
           new Tuple3<>(target, referrers[0], 452),

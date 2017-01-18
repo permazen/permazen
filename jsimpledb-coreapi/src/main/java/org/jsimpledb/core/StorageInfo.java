@@ -7,16 +7,15 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Comparator;
-
 /**
- * Class that holds information about the {@link SchemaItem}s associated with a storage ID,
- * independent of any specific schema version. This is exactly the information that must
- * be consistent across schema versions.
+ * Class that describes what information is stored under a storage ID.
+ *
+ * <p>
+ * This information is schema-wide and independent of any particular field, etc. The {@link StorageInfo}'s
+ * associated with any particular storage ID in a schema, or between schemas, must be identical.
+ * This ensures we don't have conflicting data encoded under the same key prefix.
  */
 abstract class StorageInfo {
-
-    public static final Comparator<StorageInfo> SORT_BY_STORAGE_ID = Comparator.comparingInt(i -> i.storageId);
 
     final int storageId;
 

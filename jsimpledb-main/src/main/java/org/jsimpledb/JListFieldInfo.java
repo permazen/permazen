@@ -16,7 +16,6 @@ import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.Transaction;
 
 class JListFieldInfo extends JCollectionFieldInfo {
 
@@ -30,11 +29,6 @@ class JListFieldInfo extends JCollectionFieldInfo {
     @SuppressWarnings("serial")
     <E> TypeToken<List<E>> buildTypeToken(TypeToken<E> elementType) {
         return new TypeToken<List<E>>() { }.where(new TypeParameter<E>() { }, elementType);
-    }
-
-    @Override
-    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
-        tx.addListFieldChangeListener(this.storageId, path, types, listener);
     }
 
     // This method exists solely to bind the generic type parameters

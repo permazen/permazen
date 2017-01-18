@@ -267,7 +267,7 @@ public class JTransaction {
             final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
             jdb.jfieldInfos.values().stream()
               .filter(JFieldInfo::isRequiresDefaultValidation)
-              .forEach(jfieldInfo -> jfieldInfo.registerChangeListener(tx, new int[0], null, defaultValidationListener));
+              .forEach(jfieldInfo -> tx.addFieldChangeListener(jfieldInfo.storageId, new int[0], null, defaultValidationListener));
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
@@ -1243,7 +1243,7 @@ public class JTransaction {
         final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
         if (!(info.superFieldInfo instanceof JListFieldInfo))
             throw new IllegalArgumentException("`" + fieldName + "' is not a list element sub-field");
-        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(info.superFieldInfo.storageId));
+        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(info.fieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, valueConverter, targetConverter, Converter.<Integer>identity());
@@ -1273,7 +1273,7 @@ public class JTransaction {
         final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)info.superFieldInfo;
         if (!info.fieldInfo.equals(mapFieldInfo.getValueFieldInfo()))
             throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
-        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(mapFieldInfo.storageId));
+        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(info.fieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<?, ?> keyConverter = this.getReverseConverter(mapFieldInfo.getKeyFieldInfo());
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);

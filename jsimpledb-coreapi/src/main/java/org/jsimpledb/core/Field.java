@@ -92,9 +92,6 @@ public abstract class Field<T> extends SchemaItem {
 
 // Non-public methods
 
-    @Override
-    abstract FieldStorageInfo toStorageInfo();
-
     /**
      * Copy field value between transactions.
      *
@@ -122,5 +119,10 @@ public abstract class Field<T> extends SchemaItem {
         UnsignedIntEncoder.write(writer, storageId);
         return writer.getBytes();
     }
+
+    /**
+     * Determine if the given {@link Field} is equivalent to this one, or should be reset on an upgrade.
+     */
+    abstract boolean isUpgradeCompatible(Field<?> field);
 }
 

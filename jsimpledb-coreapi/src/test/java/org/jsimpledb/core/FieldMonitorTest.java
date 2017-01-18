@@ -168,9 +168,9 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         }
         try {   // unknown target field
             tx.addSimpleFieldChangeListener(999, new int[0], null, listener);
-            assert false;
+            // expected - we allow this now
         } catch (UnknownFieldException e) {
-            // expected
+            assert false;
         }
         try {   // unknown path element
             tx.addSimpleFieldChangeListener(101, new int[] { 999 }, null, listener);
@@ -192,9 +192,9 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         }
         try {   // sub-field target field
             tx.addSimpleFieldChangeListener(121, new int[0], null, listener);
+            // expected - we allow this now
+        } catch (UnknownFieldException e) {
             assert false;
-        } catch (IllegalArgumentException e) {
-            // expected
         }
 
     // SimpleField

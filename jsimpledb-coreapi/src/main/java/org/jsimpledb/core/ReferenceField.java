@@ -112,11 +112,6 @@ public class ReferenceField extends SimpleField<ObjId> {
 
 // Non-public methods
 
-    @Override
-    ReferenceFieldStorageInfo toStorageInfo() {
-        return new ReferenceFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);
-    }
-
     /**
      * Find any object referenced by this field in the source transaction that don't exist in the destination transaction.
      * This should work for both normal fields and sub-fields of complex fields.
@@ -140,6 +135,13 @@ public class ReferenceField extends SimpleField<ObjId> {
         if (value == null)
             return;
         dstTx.checkDeletedAssignment(id, this, this.fieldType.read(new ByteReader(value)));
+    }
+
+    @Override
+    boolean isUpgradeCompatible(Field<?> field) {
+        if (field.getClass() != this.getClass())
+            return false;
+        return true;
     }
 }
 

@@ -5,29 +5,43 @@
 
 package org.jsimpledb.core;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-class CompositeIndexStorageInfo extends StorageInfo {
+/**
+ * Represents a composite index.
+ */
+class CompositeIndexStorageInfo extends IndexStorageInfo {
 
-    final List<SimpleFieldStorageInfo<?>> fields;
+    final List<Integer> storageIds;
+    final List<FieldType<?>> fieldTypes;
 
     CompositeIndexStorageInfo(CompositeIndex index) {
         super(index.storageId);
-        this.fields = index.fields.stream()
-          .map(SimpleField::toStorageInfo)
-          .collect(Collectors.toList());
+
+        // Gather field storage ID's
+        this.storageIds = new ArrayList<>(index.fields.size());
+        index.fields.stream()
+          .map(SimpleField::getStorageId)
+          .forEach(this.storageIds::add);
+
+        // Gather field types, genericized for indexing
+        this.fieldTypes = new ArrayList<>(index.fields.size());
+        index.fields.stream()
+          .map(SimpleField::getFieldType)
+          .map(FieldType::genericizeForIndex)
+          .forEach(this.fieldTypes::add);
     }
 
     Object getIndex(Transaction tx) {
-        switch (fields.size()) {
+        switch (this.storageIds.size()) {
         case 2:
-            return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType);
+            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1));
         case 3:
-            return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType, this.fields.get(2).fieldType);
+            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1), this.fieldTypes.get(2));
         case 4:
-            return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType,
-              this.fields.get(2).fieldType, this.fields.get(3).fieldType);
+            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1), this.fieldTypes.get(2),
+              this.fieldTypes.get(3));
         // COMPOSITE-INDEX
         default:
             throw new RuntimeException("internal error");
@@ -74,7 +88,7 @@ class CompositeIndexStorageInfo extends StorageInfo {
 
     @Override
     public String toString() {
-        return "composite index on fields " + this.fields;
+        return "composite index on fields " + this.fieldTypes;
     }
 
     @Override
@@ -84,12 +98,12 @@ class CompositeIndexStorageInfo extends StorageInfo {
         if (!super.equals(obj))
             return false;
         final CompositeIndexStorageInfo that = (CompositeIndexStorageInfo)obj;
-        return this.fields.equals(that.fields);
+        return this.storageIds.equals(that.storageIds) && this.fieldTypes.equals(that.fieldTypes);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fields.hashCode();
+        return super.hashCode() ^ this.storageIds.hashCode() ^ this.fieldTypes.hashCode();
     }
 }
 

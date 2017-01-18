@@ -13,8 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jsimpledb.core.Transaction;
-
 /**
  * Schema-wide information common to all {@link JField}s sharing a storage ID.
  *
@@ -85,11 +83,6 @@ abstract class JFieldInfo {
      * @throws IllegalArgumentException if {@code targetType} does not contain this field
      */
     abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType);
-
-    /**
-     * Register the given listener as a change listener for this field.
-     */
-    abstract void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener);
 
     void witness(JField jfield) {
         assert jfield.storageId == this.storageId;
