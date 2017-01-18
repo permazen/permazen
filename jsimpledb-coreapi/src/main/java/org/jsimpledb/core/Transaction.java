@@ -6,7 +6,6 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
@@ -860,11 +859,10 @@ public class Transaction {
             }
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
-            for (ReferenceFieldStorageInfo fieldInfo :
-              Iterables.filter(this.schemas.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
-                for (ObjId referrer : this.findReferrers(id, DeleteAction.EXCEPTION, fieldInfo.storageId)) {
+            for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.EXCEPTION).entrySet()) {
+                for (ObjId referrer : entry.getValue()) {
                     if (!referrer.equals(id))
-                        throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
+                        throw new ReferencedObjectException(id, referrer, entry.getKey());
                 }
             }
 
@@ -900,22 +898,22 @@ public class Transaction {
         deletables.remove(id);
 
         // Find all UNREFERENCE references and unreference them
-        for (ReferenceFieldStorageInfo fieldInfo :
-          Iterables.filter(this.schemas.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
-            final NavigableSet<ObjId> referrers = this.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);
+        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.UNREFERENCE).entrySet()) {
+            final int storageId = entry.getKey();
+            final NavigableSet<ObjId> referrers = entry.getValue();
+            final ReferenceFieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
             if (fieldInfo.isSubField()) {
                 final ComplexFieldStorageInfo<?> superFieldInfo = this.schemas.verifyStorageInfo(
                   fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
-                superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
+                superFieldInfo.unreferenceAll(this, storageId, id, referrers);
             } else {
-                final int storageId = fieldInfo.storageId;
                 for (ObjId referrer : referrers)
                     this.writeSimpleField(referrer, storageId, null, false);
             }
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
-        deletables.addAll(this.findReferrers(id, DeleteAction.DELETE, -1));
+        this.findReferrers(id, DeleteAction.DELETE).values().forEach(deletables::addAll);
 
         // Done
         return true;
@@ -1942,9 +1940,11 @@ public class Transaction {
      * @return index key
      */
     private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
-        final ByteWriter writer = new ByteWriter();
+        if (value == null)
+            value = field.fieldType.getDefaultValue();
+        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(field.storageId) + value.length + ObjId.NUM_BYTES);
         UnsignedIntEncoder.write(writer, field.storageId);
-        writer.write(value != null ? value : field.fieldType.getDefaultValue());
+        writer.write(value);
         id.writeTo(writer);
         return writer.getBytes();
     }
@@ -3015,38 +3015,82 @@ public class Transaction {
      *
      * @param target referred-to object
      * @param onDelete {@link DeleteAction} to match
-     * @param fieldStorageId reference field storage ID, or -1 to match any reference field
+     * @return mapping from reference field storage ID to set of objects referring to {@code target} through a field whose
+     *  {@link DeleteAction} matches {@code onDelete}
      */
-    private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
-        final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
-        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.queryVersion().asMap().entrySet()) {
+    @SuppressWarnings("unchecked")
+    private TreeMap<Integer, NavigableSet<ObjId>> findReferrers(ObjId target, DeleteAction onDelete) {
+        assert Thread.holdsLock(this);
+
+        // Get target object type storage ID
+        final int targetStorageId = target.getStorageId();
+
+        // Determine which schema versions actually have objects that exist; if there's only one we can slightly optimize below
+        final ArrayList<Map.Entry<Integer, NavigableSet<ObjId>>> versionList = new ArrayList<>(5);
+        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.queryVersion().asMap().entrySet())
+            versionList.add(entry);
+        final boolean multipleVersions = versionList.size() > 1;
+
+        // Search for objects one schema version at a time, and group them by reference field
+        final TreeMap<Integer, Object> result = new TreeMap<>();
+        for (Map.Entry<Integer, NavigableSet<ObjId>> versionListEntry : versionList) {
+            final int schemaVersionNumber = versionListEntry.getKey();
+            final NavigableSet<ObjId> schemaVersionRefs = versionListEntry.getValue();
 
             // Get corresponding Schema object
-            final Schema schemaVersion = this.schemas.versions.get(entry.getKey());
+            final Schema schemaVersion = this.schemas.versions.get(schemaVersionNumber);
             if (schemaVersion == null)
-                throw new InconsistentDatabaseException("encountered objects with unknown schema version " + entry.getKey());
+                throw new InconsistentDatabaseException("encountered objects with unknown schema version " + schemaVersionNumber);
 
-            // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them. Do this separately
-            // for each such field in each object type and version, because the fields may have different DeleteAction's.
-            for (ObjType objType : schemaVersion.objTypeMap.values()) {
-                for (ReferenceField field : objType.referenceFieldsAndSubFields.values()) {
+            // Iterate over reference fields in this schema version that have the configured DeleteAction in some object type
+            for (Map.Entry<ReferenceField, KeyRanges> fieldRangeEntry :
+              schemaVersion.deleteActionKeyRanges.get(onDelete.ordinal()).entrySet()) {
+                final ReferenceField field = fieldRangeEntry.getKey();
+                final KeyRanges keyRanges = fieldRangeEntry.getValue();
 
-                    // Check delete action and field
-                    if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
-                        continue;
+                // Do a quick check to see whether this field can possibly refer to the target object
+                final SortedSet<Integer> targetTypes = field.getObjectTypes();
+                if (targetTypes != null && !targetTypes.contains(targetStorageId))
+                    continue;
 
-                    // Query index on this field, restricting to those only references coming from objType objects
-                    final NavigableSet<ObjId> refs = this.queryIndex(field.storageId)
-                      .filter(1, new KeyRanges(ObjId.getKeyRange(objType.storageId))).asMap().get(target);
-                    if (refs == null)
-                        continue;
+                // Build the key prefix for the target object ID in this field's index
+                final int fieldStorageId = field.storageId;
+                final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(fieldStorageId) + ObjId.NUM_BYTES);
+                UnsignedIntEncoder.write(writer, fieldStorageId);
+                target.writeTo(writer);
+                final byte[] prefix = writer.getBytes();
 
-                    // Restrict further to the specific schema version
-                    refSets.add(NavigableSets.intersection(entry.getValue(), refs));
-                }
+                // Query the index to get all objects referring to the target object through this field (in any schema version)
+                final IndexSet<ObjId> indexSet = new IndexSet<>(this, FieldTypeRegistry.OBJ_ID, true, prefix);
+
+                // Now restrict those referrers to only those object types where the field's DeleteAction matches (if necessary)
+                NavigableSet<ObjId> referrers = keyRanges != null ? indexSet.filterKeys(keyRanges) : indexSet;
+
+                // Anything there?
+                if (referrers.isEmpty())
+                    continue;
+
+                // Add these referrers, restricted to the current schema version, to our list of referrers for this field
+                if (multipleVersions) {
+                    ((ArrayList<NavigableSet<ObjId>>)result
+                      .computeIfAbsent(fieldStorageId, i -> new ArrayList<NavigableSet<ObjId>>(versionList.size())))
+                      .add(NavigableSets.intersection(schemaVersionRefs, referrers));
+                } else
+                    result.put(fieldStorageId, referrers);              // no schema version restriction necessary; no list needed
             }
         }
-        return !refSets.isEmpty() ? NavigableSets.union(refSets) : NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
+
+        // If there were multiple schema versions, for each reference field, take the union of the sets from each schema version
+        if (multipleVersions) {
+            for (Map.Entry<Integer, Object> entry : result.entrySet()) {
+                final ArrayList<NavigableSet<ObjId>> list = (ArrayList<NavigableSet<ObjId>>)entry.getValue();
+                final NavigableSet<ObjId> union = list.size() == 1 ? list.get(0) : NavigableSets.union(list);
+                entry.setValue(union);
+            }
+        }
+
+        // Return referrer sets grouped by reference field
+        return (TreeMap<Integer, NavigableSet<ObjId>>)(Object)result;
     }
 
     private byte[] buildCompositeIndexEntry(ObjId id, CompositeIndex index) {

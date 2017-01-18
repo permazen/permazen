@@ -7,12 +7,15 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.schema.SchemaObjectType;
 
@@ -26,6 +29,7 @@ public class Schema {
     final SchemaModel schemaModel;
     final TreeMap<Integer, ObjType> objTypeMap = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfoMap = new TreeMap<>();
+    final ArrayList<HashMap<ReferenceField, KeyRanges>> deleteActionKeyRanges = new ArrayList<>(DeleteAction.values().length);
 
     /**
      * Constructor.
@@ -66,6 +70,44 @@ public class Schema {
             }
             for (CompositeIndex index : objType.compositeIndexes.values())
                 this.addStorageInfo(index, descriptionMap);
+        }
+
+        // This is an optimization for handling DeleteAction. Because the same reference field can be configured with a
+        // different DeleteAction in different object types, which can come from the same or a different schema version,
+        // when an object is deleted, we have to be careful to only apply DeleteAction's matching the schema version and
+        // object type of the referring fields. What follows builds a data structure to optimize finding them at runtime...
+
+        // First calculate, for each reference field, the KeyRanges covering all object types that contain the field
+        final HashMap<ReferenceField, KeyRanges> allObjTypesKeyRangesMap = new HashMap<>();
+        for (ObjType objType : this.objTypeMap.values()) {
+            final KeyRange objTypeKeyRange = ObjId.getKeyRange(objType.storageId);
+            for (ReferenceField field : objType.referenceFieldsAndSubFields.values())
+                allObjTypesKeyRangesMap.computeIfAbsent(field, f -> KeyRanges.empty()).add(objTypeKeyRange);
+        }
+
+        // Now do the same thing again, but broken out by the reference fields' configured DeleteAction
+        for (DeleteAction deleteAction : DeleteAction.values()) {
+
+            // Find reference fields matching the DeleteAction
+            final HashMap<ReferenceField, KeyRanges> fieldKeyRanges = new HashMap<>();
+            for (ObjType objType : this.objTypeMap.values()) {
+                final KeyRange objTypeKeyRange = ObjId.getKeyRange(objType.storageId);
+                for (ReferenceField field : objType.referenceFieldsAndSubFields.values()) {
+                    if (field.onDelete.equals(deleteAction))
+                        fieldKeyRanges.computeIfAbsent(field, i -> KeyRanges.empty()).add(objTypeKeyRange);
+                }
+            }
+
+            // If for any field, the field is configured the same way in every object type, then no need to restrict by object type
+            for (Map.Entry<ReferenceField, KeyRanges> entry : fieldKeyRanges.entrySet()) {
+                final ReferenceField field = entry.getKey();
+                final KeyRanges keyRanges = entry.getValue();
+                if (keyRanges.equals(allObjTypesKeyRangesMap.get(field)))
+                    entry.setValue(null);
+            }
+
+            // Done
+            this.deleteActionKeyRanges.add(fieldKeyRanges);
         }
     }
 
