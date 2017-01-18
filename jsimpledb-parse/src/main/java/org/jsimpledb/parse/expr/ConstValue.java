@@ -5,9 +5,9 @@
 
 package org.jsimpledb.parse.expr;
 
-import org.jsimpledb.parse.ParseSession;
-
 import java.util.Objects;
+
+import org.jsimpledb.parse.ParseSession;
 
 /**
  * A constant, read-only {@link Value}.
