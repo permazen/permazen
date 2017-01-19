@@ -75,7 +75,7 @@ public class KeyWatchTracker implements Closeable {
     public static final long DEFAULT_MAXIMUM_LIFETIME = 2592000;        // 30 days
 
     /**
-     * Default for the weak reference option ({@value DEFAULT_MAXIMUM_LIFETIME}).
+     * Default for the weak reference option ({@value #DEFAULT_WEAK_REFERENCE}).
      */
     public static final boolean DEFAULT_WEAK_REFERENCE = false;
 
