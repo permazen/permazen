@@ -11,7 +11,6 @@ import com.google.common.reflect.TypeToken;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,31 +26,17 @@ class EnumType extends NonNullFieldType<EnumValue> {
 
     private static final long serialVersionUID = -5645700883023141035L;
 
-    final Class<? extends Enum<?>> enumType;
     final Map<String, EnumValue> identifierMap;
     final List<EnumValue> enumValueList;
 
-    EnumType(Class<? extends Enum<?>> enumType, String typeName, List<String> idents) {
+    EnumType(String typeName, List<String> idents) {
         super(typeName, TypeToken.of(EnumValue.class), 0);
-        this.enumType = enumType;
         this.identifierMap = Collections.unmodifiableMap(EnumFieldType.validateIdentifiers(idents));
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));
     }
 
-    // Used internally by genericizeForIndex()
-    private EnumType(EnumType original) {
-        super(original.name, original.typeToken, original.signature);
-        this.enumType = null;
-        this.identifierMap = original.identifierMap;
-        this.enumValueList = original.enumValueList;
-    }
-
     List<String> getIdentifiers() {
         return Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.keySet()));
-    }
-
-    Class<? extends Enum<?>> getEnumType() {
-        return this.enumType;
     }
 
 // FieldType
@@ -135,16 +120,11 @@ class EnumType extends NonNullFieldType<EnumValue> {
         throw new IllegalArgumentException("unknown enum value " + value);
     }
 
-    @Override
-    EnumType genericizeForIndex() {
-        return new EnumType(this);
-    }
-
 // Object
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.enumType) ^ this.enumValueList.hashCode();
+        return super.hashCode() ^ this.enumValueList.hashCode();
     }
 
     @Override
@@ -154,7 +134,7 @@ class EnumType extends NonNullFieldType<EnumValue> {
         if (!super.equals(obj))
             return false;
         final EnumType that = (EnumType)obj;
-        return this.enumType == that.enumType && this.enumValueList.equals(that.enumValueList);
+        return this.enumValueList.equals(that.enumValueList);
     }
 }
 

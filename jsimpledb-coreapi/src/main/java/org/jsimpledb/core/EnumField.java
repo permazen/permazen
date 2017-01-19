@@ -30,7 +30,7 @@ public class EnumField extends SimpleField<EnumValue> {
      * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier
      */
     EnumField(String name, int storageId, Schema schema, boolean indexed, String typeName, List<String> idents) {
-        super(name, storageId, schema, EnumFieldType.create(typeName, idents), indexed);
+        super(name, storageId, schema, new EnumFieldType(typeName, idents), indexed);
     }
 
 // Public methods

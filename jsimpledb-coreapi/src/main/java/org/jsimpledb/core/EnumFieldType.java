@@ -31,20 +31,18 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
     private static final long serialVersionUID = -968533056184967301L;
 
     /**
-     * Constructor to use when there is an associated {@link Enum} type;
-     * {@link #getEnumType} will return {@code enumType}.
+     * Constructor that derives the type name and identifier list from the given {@link Enum} type.
      *
-     * @param enumType Java {@link Enum} type from which to derive the ordered identifier list
+     * @param enumType Java {@link Enum} type from which to derive type name and ordered identifier list
      * @param <T> enum type
      * @throws NullPointerException if {@code enumType} is null
      */
     public <T extends Enum<T>> EnumFieldType(Class<T> enumType) {
-        super(new EnumType(enumType, enumType.getName(), EnumFieldType.getIdentifiers(enumType)));
+        this(enumType.getName(), EnumFieldType.getIdentifiers(enumType));
     }
 
     /**
-     * Constructor to use when there is no corresponding {@link Enum} type;
-     * {@link #getEnumType} will return null.
+     * Primary constructor.
      *
      * @param name name of this type
      * @param idents ordered list of identifiers
@@ -52,7 +50,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
     public EnumFieldType(String name, List<String> idents) {
-        super(new EnumType(null, name, idents));
+        super(new EnumType(name, idents));
     }
 
     /**
@@ -62,76 +60,6 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      */
     public List<String> getIdentifiers() {
         return ((EnumType)this.inner).getIdentifiers();
-    }
-
-    /**
-     * Get the {@link Enum} type associated with this instance, if known.
-     *
-     * @return associated {@link Enum} type, or null if actual {@link Enum} type is unknown
-     */
-    public Class<? extends Enum<?>> getEnumType() {
-        return ((EnumType)this.inner).getEnumType();
-    }
-
-    /**
-     * Create an {@link EnumFieldType} instance suitable for use with the given {@link Enum} type.
-     *
-     * @param enumType Java {@link Enum} type from which to derive the ordered identifier list
-     * @return an {@link EnumFieldType} based on {@code enumType}
-     * @throws ClassCastException if {@code enumType} does not subclass {@link Enum}
-     * @throws NullPointerException if {@code enumType} is null
-     */
-    public static EnumFieldType create(Class<?> enumType) {
-        return EnumFieldType.doCreate(enumType);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private static <T extends Enum<T>> EnumFieldType doCreate(Class<?> enumType) {
-        return new EnumFieldType((Class<T>)enumType.asSubclass(Enum.class));
-    }
-
-    /**
-     * Create an {@link EnumFieldType} instance suitable for use with the given identifier list.
-     *
-     * <p>
-     * If {@code name} is the name of an {@link Enum} class with matching identifiers, then it will
-     * associated with the created instance and returned by its {@link #getEnumType} method.
-     *
-     * @param name name of the type
-     * @param idents ordered list of identifiers
-     * @return an {@link EnumFieldType} based on the specified {@code idents}
-     * @throws IllegalArgumentException if {@code name} is null or invalid
-     * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
-     */
-    public static EnumFieldType create(String name, List<String> idents) {
-        return EnumFieldType.doCreate(name, idents);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private static <T extends Enum<T>> EnumFieldType doCreate(String name, List<String> idents) {
-        do {
-
-            // Search for Enum type
-            final Class<T> enumType;
-            try {
-                enumType = (Class<T>)Class.forName(name, false,
-                  Thread.currentThread().getContextClassLoader()).asSubclass(Enum.class);
-            } catch (Exception e) {
-                break;
-            }
-
-            // Validate it has the expected identifier list
-            if (!EnumFieldType.getIdentifiers(enumType).equals(idents))
-                break;
-
-            // We're good
-            return new EnumFieldType(enumType);
-        } while (false);
-
-        // Enum type not found or has incompatible identifier list
-        return new EnumFieldType(name, idents);
     }
 
     /**
