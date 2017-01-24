@@ -71,6 +71,10 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     void validate() {
         super.validate();
+        this.validateType();
+    }
+
+    void validateType() {
         if (this.type == null)
             throw new InvalidSchemaException("invalid " + this + ": no type specified");
         if (!Pattern.compile(FieldType.NAME_PATTERN).matcher(this.type).matches()) {
@@ -167,10 +171,14 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     }
 
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        if (this.type != null)
-            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);
+        this.writeTypeAttribute(writer);
         if (this.indexed)
             writer.writeAttribute(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
+    }
+
+    void writeTypeAttribute(XMLStreamWriter writer) throws XMLStreamException {
+        if (this.type != null)
+            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);
     }
 
 // Object

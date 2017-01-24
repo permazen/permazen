@@ -60,6 +60,11 @@ public class EnumSchemaField extends SimpleSchemaField {
         }
     }
 
+    @Override
+    void validateType() {
+        // we ignore the type
+    }
+
 // Compatibility
 
     // For enum types, we don't care if the type names are different; this allows enum types
@@ -97,6 +102,11 @@ public class EnumSchemaField extends SimpleSchemaField {
             writer.writeEndElement();
         }
         writer.writeEndElement();
+    }
+
+    @Override
+    void writeTypeAttribute(XMLStreamWriter writer) throws XMLStreamException {
+        // we ignore the type
     }
 
 // DiffGenerating

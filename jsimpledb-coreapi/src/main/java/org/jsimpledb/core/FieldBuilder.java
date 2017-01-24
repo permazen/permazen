@@ -70,8 +70,7 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
         Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
-        return new EnumField(field.getName(), field.getStorageId(), this.schema,
-          field.isIndexed(), field.getType(), field.getIdentifiers());
+        return new EnumField(field.getName(), field.getStorageId(), this.schema, field.isIndexed(), field.getIdentifiers());
     }
 
     @Override

@@ -29,8 +29,8 @@ class EnumType extends NonNullFieldType<EnumValue> {
     final Map<String, EnumValue> identifierMap;
     final List<EnumValue> enumValueList;
 
-    EnumType(String typeName, List<String> idents) {
-        super(typeName, TypeToken.of(EnumValue.class), 0);
+    EnumType(List<String> idents) {
+        super("enum", TypeToken.of(EnumValue.class), 0);
         this.identifierMap = Collections.unmodifiableMap(EnumFieldType.validateIdentifiers(idents));
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));
     }

@@ -38,7 +38,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws NullPointerException if {@code enumType} is null
      */
     public <T extends Enum<T>> EnumFieldType(Class<T> enumType) {
-        this(enumType.getName(), EnumFieldType.getIdentifiers(enumType));
+        this(EnumFieldType.getIdentifiers(enumType));
     }
 
     /**
@@ -49,8 +49,8 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
-    public EnumFieldType(String name, List<String> idents) {
-        super(new EnumType(name, idents));
+    public EnumFieldType(List<String> idents) {
+        super(new EnumType(idents));
     }
 
     /**

@@ -21,7 +21,6 @@ public class EnumField extends SimpleField<EnumValue> {
      * @param name the name of the field
      * @param storageId field storage ID
      * @param schema schema version
-     * @param typeName {@link Enum} class type name
      * @param idents the unique enum identifiers
      * @param indexed whether this field is indexed
      * @throws IllegalArgumentException if any parameter is null
@@ -29,8 +28,8 @@ public class EnumField extends SimpleField<EnumValue> {
      * @throws IllegalArgumentException if {@code storageId} is invalid
      * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier
      */
-    EnumField(String name, int storageId, Schema schema, boolean indexed, String typeName, List<String> idents) {
-        super(name, storageId, schema, new EnumFieldType(typeName, idents), indexed);
+    EnumField(String name, int storageId, Schema schema, boolean indexed, List<String> idents) {
+        super(name, storageId, schema, new EnumFieldType(idents), indexed);
     }
 
 // Public methods
