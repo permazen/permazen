@@ -175,7 +175,7 @@ public class NullSafeType<T> extends FieldType<T> {
     }
 
     @Override
-    NullSafeType<T> genericizeForIndex() {
+    public NullSafeType<T> genericizeForIndex() {
         return new NullSafeType<>(this.inner.genericizeForIndex());
     }
 

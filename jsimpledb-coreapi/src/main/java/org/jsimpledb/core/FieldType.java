@@ -409,10 +409,12 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
     }
 
     /**
-     * Remove any information that can differ between instances of this field in the same schema.
-     * Required when used for index queries.
+     * Remove any information that may differ between instances associated with the same indexed field in the same schema.
+     *
+     * <p>
+     * This operation should be applied before using this instance with index queries.
      */
-    FieldType<T> genericizeForIndex() {
+    public FieldType<T> genericizeForIndex() {
         return this;
     }
 
