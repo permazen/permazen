@@ -46,8 +46,8 @@ public class JClass<T> extends JSchemaObject {
 
     final Class<T> type;
     final ClassGenerator<T> classGenerator;
-    final TreeMap<Integer, JField> jfields = new TreeMap<>();
-    final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
+    final TreeMap<Integer, JField> jfields = new TreeMap<>();                           // does not include sub-fields
+    final TreeMap<String, JField> jfieldsByName = new TreeMap<>();                      // does not include sub-fields
     final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
@@ -174,7 +174,6 @@ public class JClass<T> extends JSchemaObject {
                 // Create counter field
                 final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId,
                   "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
-                jfield.parent = this;
 
                 // Add field
                 this.addField(jfield);
@@ -192,7 +191,6 @@ public class JClass<T> extends JSchemaObject {
             // Create simple field
             final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,
               fieldName, storageId, annotation, getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
-            jfield.parent = this;
 
             // Add field
             this.addField(jfield);
@@ -485,6 +483,7 @@ public class JClass<T> extends JSchemaObject {
         if ((other = this.jfieldsByName.get(jfield.name)) != null)
             throw new IllegalArgumentException("illegal duplicate use of field name `" + jfield.name + "' in " + this);
         this.jfieldsByName.put(jfield.name, jfield);
+        jfield.parent = this;
 
         // Logging
         if (this.log.isTraceEnabled())
