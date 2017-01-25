@@ -74,6 +74,7 @@ public class JEnumField extends JSimpleField {
     void initialize(JSimpleDB jdb, SimpleSchemaField schemaField0) {
         super.initialize(jdb, schemaField0);
         final EnumSchemaField schemaField = (EnumSchemaField)schemaField0;
+        schemaField.setType(null);                                          // core API ignores "type" of Enum fields
         schemaField.getIdentifiers().clear();
         for (Enum<?> value : EnumUtil.getValues((Class<Enum<?>>)this.getTypeToken().getRawType()))
             schemaField.getIdentifiers().add(value.name());
