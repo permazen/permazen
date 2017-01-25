@@ -5,11 +5,18 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.jsimpledb.change.ListFieldAdd;
+import org.jsimpledb.change.ListFieldClear;
+import org.jsimpledb.change.ListFieldRemove;
+import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.schema.ListSchemaField;
 
 /**
@@ -40,8 +47,43 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    JListFieldInfo toJFieldInfo() {
-        return new JListFieldInfo(this);
+    ListElementIndexInfo toIndexInfo(JSimpleField subField) {
+        assert subField == this.elementField;
+        return new ListElementIndexInfo(this);
+    }
+
+    @Override
+    @SuppressWarnings("serial")
+    <E> TypeToken<List<E>> buildTypeToken(TypeToken<E> elementType) {
+        return new TypeToken<List<E>>() { }.where(new TypeParameter<E>() { }, elementType);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @Override
+    @SuppressWarnings("serial")
+    <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType) {
+        types.add(new TypeToken<ListFieldAdd<T, E>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<E>() { }, elementType.wrap()));
+        types.add(new TypeToken<ListFieldClear<T>>() { }
+          .where(new TypeParameter<T>() { }, targetType));
+        types.add(new TypeToken<ListFieldRemove<T, E>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<E>() { }, elementType.wrap()));
+        types.add(new TypeToken<ListFieldReplace<T, E>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<E>() { }, elementType.wrap()));
+    }
+
+    @Override
+    public ListConverter<?, ?> getConverter(JTransaction jtx) {
+        final Converter<?, ?> elementConverter = this.elementField.getConverter(jtx);
+        return elementConverter != null ? this.createConverter(elementConverter) : null;
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <X, Y> ListConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
+        return new ListConverter<>(elementConverter);
     }
 
 // Bytecode generation

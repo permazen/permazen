@@ -15,7 +15,8 @@ package org.jsimpledb;
  * JSimpleDB fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
  * With some restrictions<super>*</super>, the type of a simple field may change between schema versions;
- * this includes sub-fields of complex fields, e.g., changing a field from {@link List<Integer>} to {@link List<Float>}.
+ * this includes sub-fields of complex fields, e.g., changing a field from {@link List List&lt;Integer&gt;}
+ * to {@link List List&lt;Float&gt;}.
  *
  * <p>
  * When upgrading such objects, JSimpleDB supports optional automatic conversion of field values from the old type

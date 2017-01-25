@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -33,12 +34,15 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.change.SimpleFieldChange;
+import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.TypeNotInSchemaVersionException;
+import org.jsimpledb.core.UnknownFieldException;
 
 /**
  * Scans for {@link OnChange &#64;OnChange} annotations.
@@ -96,7 +100,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (unexpandedPathList.isEmpty())
                 unexpandedPathList.add("*");
 
-            // Replace paths ending in "*" them with an iteration of all fields in the corresponding type
+            // Replace paths ending in "*" them with an iteration of all fields in the corresponding type(s)
             final List<String> expandedPathList = new ArrayList<>(unexpandedPathList.size());
             final HashSet<Integer> expandedPathWasWildcard = new HashSet<>();
             for (String unexpandedPath : unexpandedPathList) {
@@ -114,7 +118,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     continue;
                 }
 
-                // Check for reference path with wildcard: "foo.bar.*"
+                // Check for a reference path ending with wildcard: "foo.bar.*"
                 if (unexpandedPath.length() > 2 && unexpandedPath.endsWith(".*")) {
 
                     // Parse the reference path up to the wildcard
@@ -126,17 +130,27 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                     }
 
-                    // The target field of the prefix reference path must be a reference field
-                    if (!(prefixReferencePath.targetFieldInfo instanceof JReferenceFieldInfo)) {
+                    // Dereference all of the target fields that are reference fields
+                    final HashSet<ReferencePath.Cursor> dereferencedCursors = new HashSet<>(prefixReferencePath.cursors.size());
+                    for (ReferencePath.Cursor cursor : prefixReferencePath.cursors) {
+                        try {
+                            dereferencedCursors.addAll(cursor.stepThroughReference(jdb));
+                        } catch (IllegalArgumentException e) {
+                            continue;
+                        }
+                    }
+                    if (dereferencedCursors.isEmpty()) {
                         final String targetFieldName = prefixPath.replaceAll("^.*\\.([^.]+)$", "$1");
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "field `"
-                          + targetFieldName + "' in " + prefixReferencePath.getTargetType() + " is not a reference field");
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
+                          + "field `" + targetFieldName + "' is not a reference field");
                     }
 
-                    // Replace path with list of non-wildcard paths for every field in the target field type
-                    for (JClass<?> jclass : jdb.getJClasses(
-                      prefixReferencePath.getTargetFieldTypes().iterator().next().getRawType())) {
-                        for (JField jfield : jclass.jfields.values()) {
+                    // Create a new non-wildcard path from each field in the dereferenced object types
+                    final HashSet<ReferencePath.Cursor> expandedCursors = new HashSet<>(dereferencedCursors.size() * 2);
+                    for (ReferencePath.Cursor dereferencedCursor : dereferencedCursors) {
+                        for (JField jfield : dereferencedCursor.getJClass().jfields.values()) {
+                            if (!jfield.supportsChangeNotifications())
+                                continue;
                             expandedPathWasWildcard.add(expandedPathList.size());
                             expandedPathList.add(prefixPath + "." + jfield.name + "#" + jfield.storageId);
                         }
@@ -189,30 +203,29 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 }
 
                 // Get the actual types and storage ID's of all model classes in the path that actually contain the target field
-                final HashSet<Class<?>> targetTypes = new HashSet<>();
-                final HashSet<Integer> storageIds = new HashSet<>();
-                jdb.getJClasses(path.targetTypes.iterator().next()).stream()
-                  .filter(jclass -> jclass.jfields.containsKey(path.targetFieldInfo.storageId))
-                  .forEach(jclass -> {
-                    targetTypes.add(jclass.getType());
+                final HashSet<Integer> storageIds = new HashSet<>(path.cursors.size());
+                for (ReferencePath.Cursor cursor : path.cursors) {
+                    final JClass<?> jclass = cursor.getJClass();
                     storageIds.add(jclass.storageId);
-                });
+                }
 
                 // Validate the parameter type against the types of possible change events
                 if (rawParameterType != null) {
 
                     // Get all possible (concrete) change types emitted by the target field
                     final ArrayList<TypeToken<?>> possibleChangeTypes = new ArrayList<TypeToken<?>>();
-                    for (Class<?> targetType : targetTypes) {
+                    for (ReferencePath.Cursor cursor : path.cursors) {
                         try {
-                            path.targetFieldInfo.addChangeParameterTypes(possibleChangeTypes, targetType);
+                            cursor.getField().addChangeParameterTypes(possibleChangeTypes, cursor.getJClass().getType());
                         } catch (UnsupportedOperationException e) {
                             if (wildcard)
                                 continue;
-                            throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                              + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
                         }
                         anyFieldsFound = true;
+                    }
+                    if (possibleChangeTypes.isEmpty() && !wildcard) {
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
+                          + "' is invalid because change notifications are not supported for any target field");
                     }
 
                     // Check whether method parameter type accepts as least one of them; it must do so consistently raw vs. generic
@@ -240,7 +253,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         if (wildcard)
                             continue;
                         throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                          + "' is invalid because no changes emitted by " + path.targetFieldInfo + " match the method's"
+                          + "' is invalid because no changes emitted by the target field match the method's"
                           + " parameter type " + genericParameterType + "; the emitted change type is "
                           + (possibleChangeTypes.size() != 1 ? "one of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                     }
@@ -266,7 +279,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             for (Map.Entry<ReferencePath, HashSet<Integer>> entry : this.paths.entrySet()) {
                 final ReferencePath path = entry.getKey();
                 final HashSet<Integer> objectTypeStorageIds = entry.getValue();
-                tx.addFieldChangeListener(path.targetFieldInfo.storageId, path.getReferenceFields(), objectTypeStorageIds, this);
+                tx.addFieldChangeListener(path.targetFieldStorageId, path.getReferenceFields(), objectTypeStorageIds, this);
             }
         }
 
@@ -293,12 +306,15 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JSimpleField jfield = this.getJField(jtx, id, field, JSimpleField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object joldValue = jtx.convertCoreValue(field, oldValue);
-            final Object jnewValue = jtx.convertCoreValue(field, newValue);
+            final Object joldValue = this.convertCoreValue(jtx, jfield, oldValue);
+            final Object jnewValue = this.convertCoreValue(jtx, jfield, newValue);
             final JObject jobj = this.checkTypes(jtx, SimpleFieldChange.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
@@ -313,15 +329,18 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jvalue = jtx.convertCoreValue(field.getElementField(), value);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, SetFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldAdd(jobj, field.getStorageId(), field.getName(), jvalue));
+            this.invoke(jtx, referrers, new SetFieldAdd(jobj, jfield.storageId, jfield.name, jvalue));
         }
 
         @Override
@@ -330,21 +349,27 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jvalue = jtx.convertCoreValue(field.getElementField(), value);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, SetFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldRemove(jobj, field.getStorageId(), field.getName(), jvalue));
+            this.invoke(jtx, referrers, new SetFieldRemove(jobj, jfield.storageId, jfield.name, jvalue));
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
@@ -352,7 +377,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SetFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, jfield.storageId, jfield.name));
         }
 
     // ListFieldChangeListener
@@ -363,15 +388,18 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jvalue = jtx.convertCoreValue(field.getElementField(), value);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, ListFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldAdd(jobj, field.getStorageId(), field.getName(), index, jvalue));
+            this.invoke(jtx, referrers, new ListFieldAdd(jobj, jfield.storageId, jfield.name, index, jvalue));
         }
 
         @Override
@@ -380,15 +408,18 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jvalue = jtx.convertCoreValue(field.getElementField(), value);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, ListFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldRemove(jobj, field.getStorageId(), field.getName(), index, jvalue));
+            this.invoke(jtx, referrers, new ListFieldRemove(jobj, jfield.storageId, jfield.name, index, jvalue));
         }
 
         @Override
@@ -397,23 +428,29 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object joldValue = jtx.convertCoreValue(field.getElementField(), oldValue);
-            final Object jnewValue = jtx.convertCoreValue(field.getElementField(), newValue);
+            final Object joldValue = this.convertCoreValue(jtx, jfield.elementField, oldValue);
+            final Object jnewValue = this.convertCoreValue(jtx, jfield.elementField, newValue);
             final JObject jobj = this.checkTypes(jtx, ListFieldReplace.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
             this.invoke(jtx, referrers,
-              new ListFieldReplace(jobj, field.getStorageId(), field.getName(), index, joldValue, jnewValue));
+              new ListFieldReplace(jobj, jfield.storageId, jfield.name, index, joldValue, jnewValue));
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
@@ -421,7 +458,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, jfield.storageId, jfield.name));
         }
 
     // MapFieldChangeListener
@@ -432,16 +469,19 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jkey = jtx.convertCoreValue(field.getKeyField(), key);
-            final Object jvalue = jtx.convertCoreValue(field.getValueField(), value);
+            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
             final JObject jobj = this.checkTypes(jtx, MapFieldAdd.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldAdd(jobj, field.getStorageId(), field.getName(), jkey, jvalue));
+            this.invoke(jtx, referrers, new MapFieldAdd(jobj, jfield.storageId, jfield.name, jkey, jvalue));
         }
 
         @Override
@@ -450,16 +490,19 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jkey = jtx.convertCoreValue(field.getKeyField(), key);
-            final Object jvalue = jtx.convertCoreValue(field.getValueField(), value);
+            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
+            final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
             final JObject jobj = this.checkTypes(jtx, MapFieldRemove.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldRemove(jobj, field.getStorageId(), field.getName(), jkey, jvalue));
+            this.invoke(jtx, referrers, new MapFieldRemove(jobj, jfield.storageId, jfield.name, jkey, jvalue));
         }
 
         @Override
@@ -468,24 +511,30 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
             }
-            final Object jkey = jtx.convertCoreValue(field.getKeyField(), key);
-            final Object joldValue = jtx.convertCoreValue(field.getValueField(), oldValue);
-            final Object jnewValue = jtx.convertCoreValue(field.getValueField(), newValue);
+            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
+            final Object joldValue = this.convertCoreValue(jtx, jfield.valueField, oldValue);
+            final Object jnewValue = this.convertCoreValue(jtx, jfield.valueField, newValue);
             final JObject jobj = this.checkTypes(jtx, MapFieldReplace.class, id, jkey, joldValue, jnewValue);
             if (jobj == null)
                 return;
             this.invoke(jtx, referrers,
-              new MapFieldReplace(jobj, field.getStorageId(), field.getName(), jkey, joldValue, jnewValue));
+              new MapFieldReplace(jobj, jfield.storageId, jfield.name, jkey, joldValue, jnewValue));
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
+            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
+            if (jfield == null)
+                return;
             if (this.genericTypes == null) {
                 this.invoke(jtx, referrers);
                 return;
@@ -493,10 +542,24 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, MapFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, field.getStorageId(), field.getName()));
+            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, jfield.storageId, jfield.name));
         }
 
     // Internal methods
+
+        private <T extends JField> T getJField(JTransaction jtx, ObjId id, Field<?> field, Class<T> type) {
+            try {
+                return jtx.jdb.getJField(id, field.getStorageId(), type);
+            } catch (TypeNotInSchemaVersionException | UnknownFieldException e) {
+                return null;        // somebody changed the field directly via the core API without first upgrading the object
+            }
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        private Object convertCoreValue(JTransaction jtx, JSimpleField jfield, Object value) {
+            final Converter converter = jfield.getConverter(jtx);
+            return converter != null ? converter.convert(value) : value;
+        }
 
         private JObject checkTypes(JTransaction jtx, Class<? /*extends FieldChange<?>*/> changeType, ObjId id, Object... values) {
 

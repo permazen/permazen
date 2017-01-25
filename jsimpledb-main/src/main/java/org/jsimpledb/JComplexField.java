@@ -63,6 +63,13 @@ public abstract class JComplexField extends JField {
      */
     abstract String getSubFieldName(JSimpleField subField);
 
+    abstract SimpleFieldIndexInfo toIndexInfo(JSimpleField subField);
+
+    @Override
+    boolean supportsChangeNotifications() {
+        return true;
+    }
+
 // Bytecode generation
 
     @Override

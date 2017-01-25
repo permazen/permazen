@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -39,10 +38,10 @@ import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CoreIndex3;
 import org.jsimpledb.core.CoreIndex4;
+import org.jsimpledb.core.CounterField;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
-import org.jsimpledb.core.EnumField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
@@ -56,7 +55,6 @@ import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
-import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.index.Index;
@@ -197,12 +195,12 @@ public class JTransaction {
 
     final JSimpleDB jdb;
     final Transaction tx;
+    final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<>(this, JObject.class);
 
     private final ValidationMode validationMode;
     @GuardedBy("this")
     private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();  // maps object -> groups for pending validation
     private final JObjectCache jobjectCache = new JObjectCache(this);
-    private final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<>(this, JObject.class);
 
     @GuardedBy("this")
     private SnapshotJTransaction snapshotTransaction;
@@ -265,9 +263,8 @@ public class JTransaction {
         // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
         if (automaticValidation) {
             final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
-            jdb.jfieldInfos.values().stream()
-              .filter(JFieldInfo::isRequiresDefaultValidation)
-              .forEach(jfieldInfo -> tx.addFieldChangeListener(jfieldInfo.storageId, new int[0], null, defaultValidationListener));
+            jdb.fieldsRequiringDefaultValidation
+              .forEach(storageId -> tx.addFieldChangeListener(storageId, new int[0], null, defaultValidationListener));
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
@@ -424,7 +421,7 @@ public class JTransaction {
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
         assert refPath.targetTypes.iterator().next().isInstance(jobj);
-        return this.tx.getKey(jobj.getObjId(), refPath.targetFieldInfo.storageId);
+        return this.tx.getKey(jobj.getObjId(), refPath.targetFieldStorageId);
     }
 
 // Snapshots
@@ -543,53 +540,36 @@ public class JTransaction {
         if (dstId == null)
             dstId = srcId;
 
-        // Parse paths
+        // Parse paths and convert each into an array of reference fields (including the target reference field at the end)
         final Class<?> startType = this.jdb.getJClass(srcId).type;
-        final LinkedHashSet<ReferencePath> paths = new LinkedHashSet<>(refPaths.length);
+        final ArrayList<int[]> pathReferencesList = new ArrayList<>(refPaths.length);
         for (String refPath : refPaths) {
 
             // Parse reference path
             Preconditions.checkArgument(refPath != null, "null refPath");
-            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, null);
+            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, true);
 
-            // Verify target field is a reference field; convert a complex target field into its reference sub-field(s)
-            final String lastFieldName = refPath.substring(refPath.lastIndexOf('.') + 1);
-            final JFieldInfo targetFieldInfo = this.jdb.jfieldInfos.get(path.getTargetField());
-            if (targetFieldInfo instanceof JComplexFieldInfo) {
-                final JComplexFieldInfo superFieldInfo = (JComplexFieldInfo)targetFieldInfo;
-                boolean foundReferenceSubFieldInfo = false;
-                for (JSimpleFieldInfo subFieldInfo : superFieldInfo.getSubFieldInfos()) {
-                    if (subFieldInfo instanceof JReferenceFieldInfo) {
-                        paths.add(this.jdb.parseReferencePath(startType,
-                          refPath + "." + superFieldInfo.getSubFieldInfoName(subFieldInfo), true));
-                        foundReferenceSubFieldInfo = true;
-                    }
-                }
-                if (!foundReferenceSubFieldInfo) {
-                    throw new IllegalArgumentException("the last field `" + lastFieldName
-                      + "' of path `" + refPath + "' does not contain any reference sub-fields");
-                }
-            } else {
-                if (!(targetFieldInfo instanceof JReferenceFieldInfo)) {
-                    throw new IllegalArgumentException("the last field `" + lastFieldName
-                      + "' of path `" + path + "' is not a reference field");
-                }
-                paths.add(path);
-            }
+            // Verify that the target field is a reference field
+            if (!this.jdb.isReferenceField(path.targetFieldStorageId))
+                throw new IllegalArgumentException("the last field of path `" + path + "' is not a reference field");
+
+            // Append target reference field to array of reference fields and add to our list
+            final int[] pathReferences = new int[path.referenceFieldStorageIds.length + 1];
+            System.arraycopy(path.referenceFieldStorageIds, 0, pathReferences, 0, path.referenceFieldStorageIds.length);
+            pathReferences[path.referenceFieldStorageIds.length] = path.targetFieldStorageId;
+            pathReferencesList.add(pathReferences);
         }
 
         // Reset deleted assignments
         copyState.deletedAssignments.clear();
 
         // Ensure object is copied even when there are zero reference paths
-        if (paths.isEmpty())
+        if (pathReferencesList.isEmpty())
             this.copyTo(copyState, dest, srcId, dstId, true, 0, new int[0]);
 
         // Recurse over each reference path
-        for (ReferencePath path : paths) {
-            this.copyTo(copyState, dest, srcId, dstId, false/*doesn't matter*/,
-              0, Ints.concat(path.getReferenceFields(), new int[] { path.getTargetField() }));
-        }
+        for (int[] pathReferences : pathReferencesList)
+            this.copyTo(copyState, dest, srcId, dstId, false/*doesn't matter*/, 0, pathReferences);
 
         // Check for any remining deleted assignments
         copyState.checkDeletedAssignments(this);
@@ -721,11 +701,10 @@ public class JTransaction {
 
         // Recurse through the next reference field in the path
         final int storageId = fields[fieldIndex++];
-        final JReferenceFieldInfo referenceFieldInfo = this.jdb.getJFieldInfo(storageId, JReferenceFieldInfo.class);
-        final int parentStorageId = referenceFieldInfo.getParentStorageId();
-        if (parentStorageId != 0) {
-            final JComplexFieldInfo parentInfo = this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class);
-            parentInfo.copyRecurse(copyState, this, dest, srcId, storageId, fieldIndex, fields);
+        final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(storageId);
+        if (info instanceof ComplexSubFieldIndexInfo) {
+            final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
+            subFieldInfo.copyRecurse(copyState, this, dest, srcId, fieldIndex, fields);
         } else {
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
@@ -1046,7 +1025,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this),
+        return this.convert(this.jdb.getJField(id, storageId, JSimpleField.class).getConverter(this),
           this.tx.readSimpleField(id, storageId, updateVersion));
     }
 
@@ -1072,10 +1051,11 @@ public class JTransaction {
      */
     public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
         JTransaction.registerJObject(jobj);                                    // handle possible re-entrant object cache load
-        final Converter<?, ?> converter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
+        final ObjId id = jobj.getObjId();
+        final Converter<?, ?> converter = this.jdb.getJField(id, storageId, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
-        this.tx.writeSimpleField(jobj.getObjId(), storageId, value, updateVersion);
+        this.tx.writeSimpleField(id, storageId, value, updateVersion);
     }
 
     /**
@@ -1097,7 +1077,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
-        this.jdb.getJFieldInfo(storageId, JCounterFieldInfo.class);         // validate field type
+        this.jdb.getJField(id, storageId, JCounterField.class);                 // validate field type
         if (updateVersion)
             this.tx.updateSchemaVersion(id);
         return new Counter(this.tx, id, storageId, updateVersion);
@@ -1123,7 +1103,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJFieldInfo(storageId, JSetFieldInfo.class).getConverter(this),
+        return this.convert(this.jdb.getJField(id, storageId, JSetField.class).getConverter(this),
           this.tx.readSetField(id, storageId, updateVersion));
     }
 
@@ -1147,7 +1127,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).getConverter(this),
+        return this.convert(this.jdb.getJField(id, storageId, JListField.class).getConverter(this),
           this.tx.readListField(id, storageId, updateVersion));
     }
 
@@ -1171,7 +1151,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class).getConverter(this),
+        return this.convert(this.jdb.getJField(id, storageId, JMapField.class).getConverter(this),
           this.tx.readMapField(id, storageId, updateVersion));
     }
 
@@ -1192,14 +1172,9 @@ public class JTransaction {
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
         Preconditions.checkArgument(targetObjects != null, "null targetObjects");
         final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, true);
-        final int targetField = refPath.getTargetField();
-        try {
-            this.jdb.getJFieldInfo(targetField, JReferenceFieldInfo.class);
-        } catch (UnknownFieldException e) {
-            final String fieldName = path.substring(path.lastIndexOf('.') + 1);
-            throw new IllegalArgumentException("last field `" + fieldName + "' of path `" + path + "' is not a reference field", e);
-        }
-        final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
+        if (!this.jdb.isReferenceField(refPath.targetFieldStorageId))
+            throw new IllegalArgumentException("the last field of path `" + path + "' is not a reference field");
+        final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { refPath.targetFieldStorageId });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
           Iterables.transform(targetObjects, this.referenceConverter));
         return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, startType));
@@ -1223,9 +1198,11 @@ public class JTransaction {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T> Index<V, T> queryIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
-        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(info.fieldInfo.storageId));
-        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
+        assert info.indexInfo instanceof SimpleFieldIndexInfo;          // otherwise getIndexQueryInfo() would have failed...
+        final SimpleFieldIndexInfo indexInfo = (SimpleFieldIndexInfo)info.indexInfo;
+        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(indexInfo.storageId));
+        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex(index, valueConverter, targetConverter);
     }
@@ -1245,11 +1222,12 @@ public class JTransaction {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
-        if (!(info.superFieldInfo instanceof JListFieldInfo))
-            throw new IllegalArgumentException("`" + fieldName + "' is not a list element sub-field");
-        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(info.fieldInfo.storageId));
-        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
+        if (!(info.indexInfo instanceof ListElementIndexInfo))
+            throw new IllegalArgumentException("field `" + fieldName + "' is not a list element sub-field");
+        final ListElementIndexInfo indexInfo = (ListElementIndexInfo)info.indexInfo;
+        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(indexInfo.storageId));
+        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, valueConverter, targetConverter, Converter.<Integer>identity());
     }
@@ -1272,15 +1250,14 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T, K> Index2<V, T, K> queryMapValueIndex(Class<T> targetType,
       String fieldName, Class<V> valueType, Class<K> keyType) {
-        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType, keyType));
-        if (!(info.superFieldInfo instanceof JMapFieldInfo))
-            throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
-        final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)info.superFieldInfo;
-        if (!info.fieldInfo.equals(mapFieldInfo.getValueFieldInfo()))
-            throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
-        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(info.fieldInfo.storageId));
-        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
-        final Converter<?, ?> keyConverter = this.getReverseConverter(mapFieldInfo.getKeyFieldInfo());
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
+          new IndexQueryInfoKey(fieldName, false, targetType, valueType, keyType));
+        if (!(info.indexInfo instanceof MapValueIndexInfo))
+            throw new IllegalArgumentException("field `" + fieldName + "' is not a map value sub-field");
+        final MapValueIndexInfo indexInfo = (MapValueIndexInfo)info.indexInfo;
+        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(indexInfo.storageId));
+        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
+        final Converter<?, ?> keyConverter = indexInfo.getKeyConverter(this).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, valueConverter, targetConverter, keyConverter);
     }
@@ -1302,10 +1279,12 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, T> Index2<V1, V2, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type) {
-        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type));
-        final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(info.indexInfo.storageId));
-        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
-        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
+          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type));
+        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
+        final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(indexInfo.storageId));
+        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
+        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, value1Converter, value2Converter, targetConverter);
     }
@@ -1329,12 +1308,13 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, T> Index3<V1, V2, V3, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type) {
-        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(indexName,
-          true, targetType, value1Type, value2Type, value3Type));
-        final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(info.indexInfo.storageId));
-        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
-        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
-        final Converter<?, ?> value3Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(2));
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
+          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type));
+        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
+        final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(indexInfo.storageId));
+        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
+        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
+        final Converter<?, ?> value3Converter = indexInfo.getConverter(this, 2).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex3(index, value1Converter, value2Converter, value3Converter, targetConverter);
     }
@@ -1360,13 +1340,14 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, V4, T> Index4<V1, V2, V3, V4, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type, Class<V4> value4Type) {
-        final IndexInfo info = this.jdb.getIndexInfo(
-          new IndexInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
-        final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(info.indexInfo.storageId));
-        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
-        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
-        final Converter<?, ?> value3Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(2));
-        final Converter<?, ?> value4Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(3));
+        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
+          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
+        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
+        final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(indexInfo.storageId));
+        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
+        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
+        final Converter<?, ?> value3Converter = indexInfo.getConverter(this, 2).reverse();
+        final Converter<?, ?> value4Converter = indexInfo.getConverter(this, 3).reverse();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex4(index, value1Converter, value2Converter, value3Converter, value4Converter, targetConverter);
     }
@@ -1390,31 +1371,36 @@ public class JTransaction {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Object queryIndex(int storageId) {
 
-        // Look for a composite index
-        final JCompositeIndexInfo indexInfo = this.jdb.jcompositeIndexInfos.get(storageId);
-        if (indexInfo != null) {
-            switch (indexInfo.jfieldInfos.size()) {
+        // Find index
+        final IndexInfo indexInfo = this.jdb.indexInfoMap.get(storageId);
+        if (indexInfo == null)
+            throw new IllegalArgumentException("no composite index or simple indexed field exists with storage ID " + storageId);
+
+        // Handle a composite index
+        if (indexInfo instanceof CompositeIndexInfo) {
+            final CompositeIndexInfo compositeInfo = (CompositeIndexInfo)indexInfo;
+            switch (compositeInfo.getStorageIds().size()) {
             case 2:
             {
-                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
-                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
+                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
+                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
                 return new ConvertedIndex2(this.tx.queryCompositeIndex2(indexInfo.storageId),
                   value1Converter, value2Converter, this.referenceConverter);
             }
             case 3:
             {
-                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
-                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
-                final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
+                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
+                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
+                final Converter<?, ?> value3Converter = compositeInfo.getConverter(this, 2).reverse();
                 return new ConvertedIndex3(this.tx.queryCompositeIndex3(indexInfo.storageId),
                   value1Converter, value2Converter, value3Converter, this.referenceConverter);
             }
             case 4:
             {
-                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
-                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
-                final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
-                final Converter<?, ?> value4Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(3));
+                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
+                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
+                final Converter<?, ?> value3Converter = compositeInfo.getConverter(this, 2).reverse();
+                final Converter<?, ?> value4Converter = compositeInfo.getConverter(this, 3).reverse();
                 return new ConvertedIndex4(this.tx.queryCompositeIndex4(indexInfo.storageId),
                   value1Converter, value2Converter, value3Converter, value4Converter, this.referenceConverter);
             }
@@ -1424,38 +1410,8 @@ public class JTransaction {
             }
         }
 
-        // Must be an indexed field
-        final JFieldInfo someFieldInfo = this.jdb.jfieldInfos.get(storageId);
-        if (someFieldInfo == null)
-            throw new IllegalArgumentException("no composite index or simple indexed field exists with storage ID " + storageId);
-        if (!(someFieldInfo instanceof JSimpleFieldInfo) || !((JSimpleFieldInfo)someFieldInfo).isIndexed()) {
-            throw new IllegalArgumentException("storage ID " + storageId + " does not correspond to an indexed simple field (found "
-              + someFieldInfo + " instead)");
-        }
-
-        // Build the appropriate index for the field
-        final JSimpleFieldInfo fieldInfo = (JSimpleFieldInfo)someFieldInfo;
-        final Converter<?, ?> valueConverter = this.getReverseConverter(fieldInfo);
-        final int parentStorageId = fieldInfo.getParentStorageId();
-        final JComplexFieldInfo parentInfo = parentStorageId != 0 ?
-          this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class) : null;
-        if (parentInfo instanceof JListFieldInfo) {
-            return new ConvertedIndex2(this.tx.queryListElementIndex(fieldInfo.storageId),
-              valueConverter, this.referenceConverter, Converter.identity());
-        } else if (parentInfo instanceof JMapFieldInfo
-          && ((JMapFieldInfo)parentInfo).getSubFieldInfoName(fieldInfo).equals(MapField.VALUE_FIELD_NAME)) {
-            final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)parentInfo;
-            final JSimpleFieldInfo keyFieldInfo = mapFieldInfo.getKeyFieldInfo();
-            final Converter<?, ?> keyConverter = this.getReverseConverter(keyFieldInfo);
-            return new ConvertedIndex2(this.tx.queryMapValueIndex(fieldInfo.storageId),
-              valueConverter, this.referenceConverter, keyConverter);
-        } else
-            return new ConvertedIndex(this.tx.queryIndex(fieldInfo.storageId), valueConverter, this.referenceConverter);
-    }
-
-    private Converter<?, ?> getReverseConverter(JSimpleFieldInfo fieldInfo) {
-        final Converter<?, ?> converter = fieldInfo.getConverter(this);
-        return converter != null ? converter.reverse() : Converter.identity();
+        // Must be a simple field index
+        return ((SimpleFieldIndexInfo)indexInfo).toIndex(this);
     }
 
 // Transaction Lifecycle
@@ -1648,7 +1604,7 @@ public class JTransaction {
 
                     // Query core API index to find other objects with the same value in the field, but restrict the search to
                     // only include those types having the annotated method, not some other method with the same name/storage ID.
-                    final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(jfield.name,
+                    final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(jfield.name,
                       false, jfield.getter.getDeclaringClass(), jfield.typeToken.wrap().getRawType()));
                     final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(jfield.storageId));
 
@@ -1779,7 +1735,7 @@ public class JTransaction {
 
         // Convert old field values from core API objects to JDB layer objects, but do not convert EnumValue objects
         final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
-          (storageId, oldValue) -> this.convertCoreValue(objType.getField(storageId), oldValue, false));
+          (storageId, oldValue) -> this.convertOldVersionValue(id, objType.getField(storageId), oldValue));
 
         // Build alternate version of old values map that is keyed by field name instead of storage ID
         final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
@@ -1806,49 +1762,46 @@ public class JTransaction {
     }
 
     /**
-     * Convert a value read from a core API field, possibly in an older version object, to the
-     * corresponding {@link JSimpleDB} value, to the extent possible.
+     * Convert a core API field value from a different schema version.
+     * We need to do this to convert the old field values after a schema upgrade.
+     *
+     * @param id originating object
+     * @param field originating core API field
+     * @param value field value
+     * @return converted value
      */
-    Object convertCoreValue(Field<?> field, Object value) {
-        return this.convertCoreValue(field, value, true);
+    private Object convertOldVersionValue(ObjId id, Field<?> field, Object value) {
+
+        // Null always converts to null
+        if (value == null)
+            return null;
+
+        // Convert the value
+        return this.convert(field.visit(new OldVersionValueConverterBuilder()), value);
     }
 
-    private Object convertCoreValue(Field<?> field, Object value, boolean convertEnum) {
-        return value != null ? this.convert(field.visit(new CoreValueConverterBuilder(convertEnum)), value) : null;
-    }
-
-// CoreValueConverterBuilder
+// OldVersionValueConverterBuilder
 
     /**
-     * Builds a {@link Converter} for any core API {@link Field} that converts, in the forward direction, core API values
-     * into {@link JSimpleDB} values, to the extent possible. In the case of reference and enum fields, the
-     * original Java type may no longer be available; if not, values are converted to {@link UntypedJObject}
-     * or left as {@link org.jsimpledb.core.EnumValue}s.
+     * Builds a {@link Converter} for core API {@link Field} that converts, in the forward direction, core API values
+     * into {@link JSimpleDB} values, based only on the core API {@link Field}. That means we don't convert
+     * {@link org.jsimpledb.core.EnumValue}s. In the case of reference fields, the original Java type may no
+     * longer be available; such values are converted to {@link UntypedJObject}.
      *
      * <p>
      * Returns null if no conversion is necessary.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private class CoreValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
-
-        private final boolean convertEnum;
-
-        CoreValueConverterBuilder(boolean convertEnum) {
-            this.convertEnum = convertEnum;
-        }
-
-        // We can only convert EnumValue -> Enum if the Enum type is known and matches the old field's original type
-        @Override
-        public Converter<?, ?> caseEnumField(EnumField field) {
-            if (!this.convertEnum)
-                return null;
-            final Class<? extends Enum<?>> enumType = field.getFieldType().getEnumType();
-            return enumType != null ? EnumConverter.createEnumConverter(enumType).reverse() : null;
-        }
+    private class OldVersionValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {
             return JTransaction.this.referenceConverter.reverse();
+        }
+
+        @Override
+        public Converter<?, ?> caseSimpleField(SimpleField field) {
+            return null;
         }
 
         @Override
@@ -1878,7 +1831,7 @@ public class JTransaction {
         }
 
         @Override
-        public <T> Converter caseField(Field<T> field) {
+        public Converter<?, ?> caseCounterField(CounterField field) {
             return null;
         }
     }
@@ -1969,13 +1922,7 @@ public class JTransaction {
         private void revalidateIfNeeded(Transaction tx, ObjId id, Field<?> field, NavigableSet<ObjId> referrers) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
-            final JClass<?> jclass;
-            try {
-                jclass = jtx.jdb.getJClass(id);
-            } catch (TypeNotInSchemaVersionException e) {
-                return;
-            }
-            final JField jfield = jclass.getJField(field.getStorageId(), JField.class);
+            final JField jfield = jtx.jdb.getJField(id, field.getStorageId(), JField.class);
             if (jfield.requiresDefaultValidation)
                 jtx.revalidate(referrers);
         }

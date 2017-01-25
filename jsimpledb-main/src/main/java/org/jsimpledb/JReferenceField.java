@@ -53,7 +53,7 @@ public class JReferenceField extends JSimpleField {
 
     @Override
     public Converter<ObjId, JObject> getConverter(JTransaction jtx) {
-        return new ReferenceConverter<>(jtx, JObject.class).reverse();
+        return jtx.referenceConverter.reverse();
     }
 
     /**
@@ -99,11 +99,6 @@ public class JReferenceField extends JSimpleField {
            .map(jclass -> jclass.storageId)
            .collect(Collectors.toCollection(TreeSet::new)));
         return schemaField;
-    }
-
-    @Override
-    JReferenceFieldInfo toJFieldInfo(int parentStorageId) {
-        return new JReferenceFieldInfo(this, parentStorageId);
     }
 
 // Bytecode generation

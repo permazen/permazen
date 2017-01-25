@@ -90,7 +90,7 @@ public class SnapshotTest extends TestSupport {
             p2.getMap1().put(p2, 0.0f);
             p2.getMap2().put(0.0f, p2);
 
-            Person p1b = (Person)p1.copyOut("set");
+            Person p1b = (Person)p1.copyOut("set.element");
             Assert.assertSame(p1a, p1b);
             Assert.assertTrue(p1b.exists());
 
@@ -101,7 +101,7 @@ public class SnapshotTest extends TestSupport {
             Assert.assertSame(p2a, p2b);
 
             Assert.assertFalse(p1.isSnapshot());
-            Person p1c = (Person)p1.copyOut("list.element", "map1", "map2.value");
+            Person p1c = (Person)p1.copyOut("list.element", "map1.key", "map2.value");
             Assert.assertTrue(p1c.isSnapshot());
             Assert.assertSame(p1c, p1b);
             Assert.assertTrue(p1c.getMap1().keySet().iterator().next().exists());

@@ -7,30 +7,30 @@ package org.jsimpledb;
 
 import java.util.Arrays;
 
-class IndexInfoKey {
+class IndexQueryInfoKey {
 
     private final Class<?>[] types;
     private final boolean composite;
     private final String name;
 
-    IndexInfoKey(String name, boolean composite, Class<?>... types) {
+    IndexQueryInfoKey(String name, boolean composite, Class<?>... types) {
         this.name = name;
         this.composite = composite;
         this.types = types;
     }
 
-    public IndexInfo getIndexInfo(JSimpleDB jdb) {
+    public IndexQueryInfo getIndexQueryInfo(JSimpleDB jdb) {
 
         // Handle composite index
         if (this.composite)
-            return new IndexInfo(jdb, this.types[0], this.name, Arrays.copyOfRange(this.types, 1, this.types.length));
+            return new IndexQueryInfo(jdb, this.types[0], this.name, Arrays.copyOfRange(this.types, 1, this.types.length));
 
         // Handle map value index
         if (this.types.length == 3)
-            return new IndexInfo(jdb, this.types[0], this.name, this.types[1], this.types[2]);
+            return new IndexQueryInfo(jdb, this.types[0], this.name, this.types[1], this.types[2]);
 
         // Handle all others
-        return new IndexInfo(jdb, this.types[0], this.name, this.types[1]);
+        return new IndexQueryInfo(jdb, this.types[0], this.name, this.types[1]);
     }
 
 // Object
@@ -41,7 +41,7 @@ class IndexInfoKey {
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final IndexInfoKey that = (IndexInfoKey)obj;
+        final IndexQueryInfoKey that = (IndexQueryInfoKey)obj;
         return this.name.equals(that.name)
           && this.composite == that.composite
           && Arrays.equals(this.types, that.types);
@@ -50,7 +50,7 @@ class IndexInfoKey {
     @Override
     public int hashCode() {
         return this.name.hashCode()
-          ^ (this.composite ? 1 : 0)
+          ^ (this.composite ? ~0 : 0)
           ^ Arrays.hashCode(this.types);
     }
 }

@@ -5,8 +5,13 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
+import com.google.common.reflect.TypeToken;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaField;
@@ -44,7 +49,7 @@ public abstract class JField extends JSchemaObject {
      * supertypes, but not declared in the model class itself.
      */
     boolean isSameAs(JField that) {
-        if (!(this.name != null ? this.name.equals(that.name) : that.name == null))
+        if (!Objects.equals(this.name, that.name))
             return false;
         if (this.storageId != that.storageId)
             return false;
@@ -95,9 +100,32 @@ public abstract class JField extends JSchemaObject {
     public abstract <R> R visit(JFieldSwitch<R> target);
 
     /**
-     * Create a {@link JFieldInfo} instance that corresponds to this instance.
+     * Get a {@link Converter} that converts this field's value from what the core database returns
+     * to what the Java application expects, or null if no conversion is needed.
+     *
+     * @param jtx transaction
+     * @return {@link Converter} from core API to Java, or null if no conversion is required
      */
-    abstract JFieldInfo toJFieldInfo();
+    public abstract Converter<?, ?> getConverter(JTransaction jtx);
+
+    /**
+     * Get the type of this field.
+     *
+     * @return this field's type
+     */
+    public abstract TypeToken<?> getTypeToken();
+
+    /**
+     * Add the {@link FieldChange} sub-types that are valid parameter types for
+     * @OnChange-annotated methods that watch this field as the target field.
+     *
+     * @param types place to add valid parameter types to
+     * @param targetType the type of the class containing the changed field
+     * @throws IllegalArgumentException if {@code targetType} does not contain this field
+     */
+    abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType);
+
+    abstract boolean supportsChangeNotifications();
 
 // Bytecode generation
 

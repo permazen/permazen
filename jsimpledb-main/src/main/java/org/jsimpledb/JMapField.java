@@ -5,13 +5,20 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
 
+import org.jsimpledb.change.MapFieldAdd;
+import org.jsimpledb.change.MapFieldClear;
+import org.jsimpledb.change.MapFieldRemove;
+import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.schema.MapSchemaField;
 
@@ -107,8 +114,69 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    JMapFieldInfo toJFieldInfo() {
-        return new JMapFieldInfo(this);
+    ComplexSubFieldIndexInfo toIndexInfo(JSimpleField subField) {
+        if (subField == this.keyField)
+            return new MapKeyIndexInfo(this);
+        if (subField == this.valueField)
+            return new MapValueIndexInfo(this);
+        throw new IllegalArgumentException("unknown sub-field");
+    }
+
+    @Override
+    public TypeToken<?> getTypeToken() {
+        return this.buildTypeToken(this.keyField.getTypeToken().wrap(), this.valueField.getTypeToken().wrap());
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <K, V> TypeToken<NavigableMap<K, V>> buildTypeToken(TypeToken<K> keyType, TypeToken<V> valueType) {
+        return new TypeToken<NavigableMap<K, V>>() { }
+          .where(new TypeParameter<K>() { }, keyType)
+          .where(new TypeParameter<V>() { }, valueType);
+    }
+
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
+        this.addChangeParameterTypes(types, targetType, this.keyField.getTypeToken(), this.valueField.getTypeToken());
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <T, K, V> void addChangeParameterTypes(List<TypeToken<?>> types,
+      Class<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
+        types.add(new TypeToken<MapFieldAdd<T, K, V>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<K>() { }, keyType.wrap())
+          .where(new TypeParameter<V>() { }, valueType.wrap()));
+        types.add(new TypeToken<MapFieldClear<T>>() { }
+          .where(new TypeParameter<T>() { }, targetType));
+        types.add(new TypeToken<MapFieldRemove<T, K, V>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<K>() { }, keyType.wrap())
+          .where(new TypeParameter<V>() { }, valueType.wrap()));
+        types.add(new TypeToken<MapFieldReplace<T, K, V>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<K>() { }, keyType.wrap())
+          .where(new TypeParameter<V>() { }, valueType.wrap()));
+    }
+
+    @Override
+    public NavigableMapConverter<?, ?, ?, ?> getConverter(JTransaction jtx) {
+        Converter<?, ?> keyConverter = this.keyField.getConverter(jtx);
+        Converter<?, ?> valueConverter = this.valueField.getConverter(jtx);
+        if (keyConverter == null && valueConverter == null)
+            return null;
+        if (keyConverter == null)
+           keyConverter = Converter.<Object>identity();
+        if (valueConverter == null)
+           valueConverter = Converter.<Object>identity();
+        return this.createConverter(keyConverter, valueConverter);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
+      Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
+        return new NavigableMapConverter<>(keyConverter, valueConverter);
     }
 
 // Bytecode generation

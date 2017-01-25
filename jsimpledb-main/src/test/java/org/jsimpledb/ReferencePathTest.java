@@ -35,16 +35,17 @@ public class ReferencePathTest extends TestSupport {
             path = new ReferencePath(jdb, startType, pathString, lastIsSubField);
             assert valid : "path was supposed to be invalid";
         } catch (IllegalArgumentException e) {
-            assert !valid : "path was supposed to be valid";
+            assert !valid : "path was supposed to be valid but got: " + e;
             return;
         }
 
         // Verify parse
         Assert.assertEquals(path.startType, startType);
         Assert.assertTrue(path.targetTypes.contains(targetType));
-        Assert.assertEquals(path.targetFieldInfo.storageId, targetField);
-        Assert.assertEquals(path.targetSuperFieldInfo != null ? path.targetSuperFieldInfo.storageId : 0, targetSuperField);
+        Assert.assertEquals(path.targetFieldStorageId, targetField);
+        Assert.assertEquals(path.targetSuperFieldStorageId, targetSuperField);
         Assert.assertEquals(path.getReferenceFields(), refs);
+        Assert.assertEquals(path.path, pathString);
         Assert.assertEquals(path.toString(), pathString);
     }
 
@@ -84,6 +85,29 @@ public class ReferencePathTest extends TestSupport {
         };
     }
 
+    @Test
+    public void testWackyPaths() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
+
+        // this should be OK - two hops through two reference fields: foo->element->name
+        new ReferencePath(jdb, WackyPaths1.class, "foo.element.name", null);
+
+        // this should be OK - one hop through one set element sub-field: foo.element->name
+        new ReferencePath(jdb, WackyPaths3.class, "foo.element.name", null);
+
+        // these should be OK - we are disambiguating which "foo" field by specifying the storage ID
+        new ReferencePath(jdb, JObject.class, "foo#123.element.name", null);
+        new ReferencePath(jdb, JObject.class, "foo#456.element.name", null);
+
+        // this should fail - ambiguous path of references
+        try {
+            new ReferencePath(jdb, JObject.class, "foo.element.name", null);
+            assert false : "path was supposed to be invalid";
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
 // Model Classes
 
     public interface HasFriend {
@@ -111,6 +135,33 @@ public class ReferencePathTest extends TestSupport {
 
         @JListField(storageId = 150, element = @JField(storageId = 151))
         public abstract List<Person> getEnemies();
+    }
+
+// Wacky paths
+
+    @JSimpleClass
+    public abstract static class WackyPaths1 implements JObject {
+
+        @JField(storageId = 123)
+        public abstract JObject getFoo();
+        public abstract void setFoo(JObject x);
+
+        public abstract String getName();
+        public abstract void setName(String x);
+    }
+
+    @JSimpleClass
+    public abstract static class WackyPaths2 implements JObject {
+
+        public abstract JObject getElement();
+        public abstract void setElement(JObject x);
+    }
+
+    @JSimpleClass
+    public abstract static class WackyPaths3 implements JObject {
+
+        @JListField(storageId = 456)
+        public abstract List<JObject> getFoo();
     }
 }
 

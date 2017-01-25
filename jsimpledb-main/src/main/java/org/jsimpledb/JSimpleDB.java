@@ -34,6 +34,7 @@ import javax.validation.ValidatorFactory;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ReferenceFieldType;
 import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
@@ -115,8 +116,9 @@ public class JSimpleDB {
 
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
     final HashMap<Class<?>, JClass<?>> jclassesByType = new HashMap<>();
-    final TreeMap<Integer, JFieldInfo> jfieldInfos = new TreeMap<>();
-    final TreeMap<Integer, JCompositeIndexInfo> jcompositeIndexInfos = new TreeMap<>();
+    final HashMap<Integer, IndexInfo> indexInfoMap = new HashMap<>();
+    final HashMap<Long, JField> typeFieldMap = new HashMap<>();
+    final HashSet<Integer> fieldsRequiringDefaultValidation = new HashSet<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator;
     final ArrayList<ClassGenerator<?>> classGenerators;
@@ -138,11 +140,11 @@ public class JSimpleDB {
 
     volatile int actualVersion;
 
-    private final LoadingCache<IndexInfoKey, IndexInfo> indexInfoCache = CacheBuilder.newBuilder()
-      .maximumSize(1000).build(new CacheLoader<IndexInfoKey, IndexInfo>() {
+    private final LoadingCache<IndexQueryInfoKey, IndexQueryInfo> indexQueryInfoCache = CacheBuilder.newBuilder()
+      .maximumSize(1000).build(new CacheLoader<IndexQueryInfoKey, IndexQueryInfo>() {
         @Override
-        public IndexInfo load(IndexInfoKey key) {
-            return key.getIndexInfo(JSimpleDB.this);
+        public IndexQueryInfo load(IndexQueryInfoKey key) {
+            return key.getIndexQueryInfo(JSimpleDB.this);
         }
     });
 
@@ -277,41 +279,11 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.createFields(this);
 
-        // Create canonical field info structures
-        final HashMap<Integer, String> fieldDescriptionMap = new HashMap<>();
+        // Find all fields that require default validation
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
-                if (jfield instanceof JComplexField) {
-                    final JComplexField complexField = (JComplexField)jfield;
-                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)jfield.toJFieldInfo();
-                    for (JSimpleField subField : complexField.getSubFields()) {
-                        this.addJFieldInfo(subField, subField.toJFieldInfo(jfield.storageId), fieldDescriptionMap);
-                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(subField.storageId);
-                        complexFieldInfo.getSubFieldInfos().add(subFieldInfo);
-                    }
-                    this.addJFieldInfo(complexField, complexFieldInfo, fieldDescriptionMap);
-                } else
-                    this.addJFieldInfo(jfield, jfield.toJFieldInfo(), fieldDescriptionMap);
-            }
-        }
-
-        // Witness all simple fields to corresponding simple field info's
-        for (JClass<?> jclass : this.jclasses.values()) {
-            for (JField jfield : jclass.jfields.values()) {
-                if (jfield instanceof JSimpleField) {
-                    final JSimpleField jsimpleField = (JSimpleField)jfield;
-                    final JSimpleFieldInfo jsimpleFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(jfield.storageId);
-                    jsimpleFieldInfo.witness(jsimpleField);
-                }
-                if (jfield instanceof JComplexField) {
-                    final JComplexField complexField = (JComplexField)jfield;
-                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)this.jfieldInfos.get(jfield.storageId);
-                    for (int i = 0; i < complexField.getSubFields().size(); i++) {
-                        final JSimpleField subField = complexField.getSubFields().get(i);
-                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(subField.storageId);
-                        subFieldInfo.witness(subField);
-                    }
-                }
+                if (jfield.requiresDefaultValidation)
+                    this.fieldsRequiringDefaultValidation.add(jfield.storageId);
             }
         }
 
@@ -326,16 +298,39 @@ public class JSimpleDB {
             }
         }
 
-        // Create canonical info instances for indexes
-        final HashMap<Integer, String> indexDescriptionMap = new HashMap<>();
+        // Populate this.indexInfoMap
+        final Map<Integer, String> descriptionMap = new HashMap<>();
         for (JClass<?> jclass : this.jclasses.values()) {
-            for (JCompositeIndex index : jclass.jcompositeIndexes.values()) {
-                final JCompositeIndexInfo indexInfo = index.toJCompositeIndexInfo();
-                for (JSimpleField jfield : index.jfields) {
-                    final JSimpleFieldInfo jfieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(jfield.storageId);
-                    indexInfo.getJFieldInfos().add(jfieldInfo);
+
+            // Find simple field indexes
+            for (JField jfield : jclass.jfields.values()) {
+                if (jfield instanceof JSimpleField) {
+                    final JSimpleField simpleField = (JSimpleField)jfield;
+                    if (simpleField.indexed)
+                        this.addIndexInfo(simpleField, descriptionMap);
+                } else if (jfield instanceof JComplexField) {
+                    final JComplexField parentField = (JComplexField)jfield;
+                    for (JSimpleField subField : parentField.getSubFields()) {
+                        if (subField.indexed)
+                            this.addIndexInfo(subField, descriptionMap);
+                    }
                 }
-                this.addJCompositeIndexInfo(index, indexInfo, indexDescriptionMap);
+            }
+
+            // Find composite indexes
+            for (JCompositeIndex index : jclass.jcompositeIndexes.values())
+                this.addIndexInfo(index, descriptionMap);
+        }
+
+        // Populate this.typeFieldMap
+        for (JClass<?> jclass : this.jclasses.values()) {
+            for (JField jfield : jclass.jfields.values()) {
+                this.typeFieldMap.put(this.getTypeFieldKey(jclass.storageId, jfield.storageId), jfield);
+                if (jfield instanceof JComplexField) {
+                    final JComplexField parentField = (JComplexField)jfield;
+                    for (JSimpleField subField : parentField.getSubFields())
+                        this.typeFieldMap.put(this.getTypeFieldKey(jclass.storageId, subField.storageId), subField);
+                }
             }
         }
 
@@ -732,6 +727,35 @@ public class JSimpleDB {
     }
 
     /**
+     * Quick lookup for the {@link JField} corresponding to the given object and field storage ID.
+     *
+     * @param id object ID
+     * @param storageId field storage ID
+     * @param <T> expected field type
+     * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
+     * @throws TypeNotInSchemaVersionException if {@code id} has a type that does not exist in this instance's schema version
+     * @throws UnknownFieldException if {@code storageId} does not correspond to any field in the object's type
+     */
+    @SuppressWarnings("unchecked")
+    <T extends JField> T getJField(ObjId id, int storageId, Class<T> type) {
+        final JField jfield = this.typeFieldMap.get(this.getTypeFieldKey(id.getStorageId(), storageId));
+        if (jfield == null) {
+            this.getJClass(id.getStorageId()).getJField(storageId, type);   // should always throw the appropriate exception
+            assert false;
+        }
+        try {
+            return type.cast(jfield);
+        } catch (ClassCastException e) {
+            throw new UnknownFieldException(storageId, jfield + "' is not a "
+              + type.getSimpleName().replaceAll("^J(.*)Field$", "").toLowerCase() + " field");
+        }
+    }
+
+    private long getTypeFieldKey(int typeStorageId, int fieldStorageId) {
+        return ((long)typeStorageId << 32) | (long)fieldStorageId & 0xffffffffL;
+    }
+
+    /**
      * Generate the {@link KeyRanges} restricting objects to the specified type.
      *
      * @param type any Java type, or null for no restriction
@@ -874,11 +898,11 @@ public class JSimpleDB {
         return Iterables.concat(iterables);
     }
 
-// IndexInfo Cache
+// IndexQueryInfo Cache
 
-    IndexInfo getIndexInfo(IndexInfoKey key) {
+    IndexQueryInfo getIndexQueryInfo(IndexQueryInfoKey key) {
         try {
-            return this.indexInfoCache.getUnchecked(key);
+            return this.indexQueryInfoCache.getUnchecked(key);
         } catch (UncheckedExecutionException e) {
             Throwables.propagateIfPossible(e.getCause());
             throw e;
@@ -893,25 +917,34 @@ public class JSimpleDB {
     }
 
     /**
-     * Get the {@link JFieldInfo} associated with the given storage ID.
-     *
-     * @param storageId field storage ID
-     * @param type required type
-     * @return {@link JField} instance
-     * @throws UnknownFieldException if {@code storageId} does not represent a field
+     * Determine whether the specified field is a reference field.
      */
-    <T extends JFieldInfo> T getJFieldInfo(int storageId, Class<T> type) {
+    boolean isReferenceField(int storageId) {
+        final IndexInfo info = this.indexInfoMap.get(storageId);
+        return info instanceof SimpleFieldIndexInfo && ((SimpleFieldIndexInfo)info).getFieldType() instanceof ReferenceFieldType;
+    }
+
+    /**
+     * Get the index info associated with the given storage ID.
+     *
+     * @param storageId index storage ID
+     * @param type required type
+     * @return {@link IndexInfo} instance
+     * @throws IllegalArgumentException if {@code storageId} does not represent an index
+     */
+    <T extends IndexInfo> T getIndexInfo(int storageId, Class<? extends T> type) {
         Preconditions.checkArgument(type != null, "null type");
-        final JFieldInfo jfieldInfo = this.jfieldInfos.get(storageId);
-        if (jfieldInfo == null) {
-            throw new UnknownFieldException(storageId, "no JSimpleDB field exists with storage ID "
-              + storageId + " in schema version " + this.actualVersion);
+        final IndexInfo indexInfo = this.indexInfoMap.get(storageId);
+        if (indexInfo == null) {
+            throw new IllegalArgumentException("no " + this.describe(type) + " with storage ID "
+              + storageId + " exists in schema version " + this.actualVersion);
         }
         try {
-            return type.cast(jfieldInfo);
+            return type.cast(indexInfo);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId, "no JSimpleDB fields exist with storage ID "
-              + storageId + " in schema version " + this.actualVersion + " (found field " + jfieldInfo + " instead)");
+            throw new IllegalArgumentException("no " + this.describe(type) + " with storage ID "
+              + storageId + " exists in schema version " + this.actualVersion + " (found field "
+              + this.describe(type) + " instead)");
         }
     }
 
@@ -929,26 +962,25 @@ public class JSimpleDB {
         this.jclassesByType.put(jclass.type, jclass);
     }
 
-    // Add new JFieldInfo, checking for conflicts
-    private <T extends JFieldInfo> void addJFieldInfo(JField jfield, T fieldInfo, Map<Integer, String> descriptionMap) {
-        this.addInfo(jfield, fieldInfo, this.jfieldInfos, descriptionMap);
-    }
-
-    // Add new JCompositeIndexInfo, checking for conflicts
-    private void addJCompositeIndexInfo(JCompositeIndex index, JCompositeIndexInfo indexInfo, Map<Integer, String> descriptionMap) {
-        this.addInfo(index, indexInfo, this.jcompositeIndexInfos, descriptionMap);
-    }
-
-    // Add new info, checking for storage ID conflicts
-    private <T> void addInfo(JSchemaObject item, T info, Map<Integer, T> infoMap, Map<Integer, String> descriptionMap) {
-        final T existing = infoMap.get(item.storageId);
+    // Add new index info, checking for storage ID conflicts
+    private void addIndexInfo(JSchemaObject item, Map<Integer, String> descriptionMap) {
+        final IndexInfo info = item.toIndexInfo();
+        final int storageId = info.storageId;
+        final IndexInfo existing = this.indexInfoMap.get(storageId);
         if (existing == null) {
-            infoMap.put(item.storageId, info);
-            descriptionMap.put(item.storageId, item.description);
+            this.indexInfoMap.put(storageId, info);
+            descriptionMap.put(storageId, item.description);
         } else if (!info.equals(existing)) {
             throw new IllegalArgumentException("incompatible duplicate use of storage ID " + item.storageId
-              + " for " + descriptionMap.get(item.storageId) + " and " + item.description);
+              + " for " + descriptionMap.get(storageId) + " and " + item.description);
         }
+    }
+
+    private String describe(Class<? extends IndexInfo> type) {
+        return type.getSimpleName()
+          .replaceAll("^(.*Index)Info$", "$1")
+          .replaceAll("([a-z])([A-Z])", "$1 $2")
+          .toLowerCase();
     }
 
 // Loader

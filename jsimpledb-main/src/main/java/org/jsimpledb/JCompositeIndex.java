@@ -51,11 +51,9 @@ public class JCompositeIndex extends JSchemaObject {
 
 // Package methods
 
-    /**
-     * Create a {@link JCompositeIndexInfo} instance that corresponds to this instance.
-     */
-    JCompositeIndexInfo toJCompositeIndexInfo() {
-        return new JCompositeIndexInfo(this);
+    @Override
+    IndexInfo toIndexInfo() {
+        return new CompositeIndexInfo(this);
     }
 
     @Override

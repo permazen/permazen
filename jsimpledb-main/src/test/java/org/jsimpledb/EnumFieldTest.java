@@ -36,12 +36,12 @@ public class EnumFieldTest extends TestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <EnumField name=\"enumField\" type=\"" + MyEnum.class.getName() + "\" storageId=\"2\">\n"
+          + "    <EnumField name=\"enumField\" storageId=\"2\">\n"
           + "       <Identifier>FOO</Identifier>\n"
           + "       <Identifier>BAR</Identifier>\n"
           + "       <Identifier>JAN</Identifier>\n"
           + "    </EnumField>\n"
-          + "    <EnumField name=\"missingEnumField\" type=\"non.existent\" storageId=\"3\">\n"
+          + "    <EnumField name=\"missingEnumField\" storageId=\"3\">\n"
           + "       <Identifier>FOO</Identifier>\n"
           + "       <Identifier>BAR</Identifier>\n"
           + "       <Identifier>JAN</Identifier>\n"
@@ -55,9 +55,6 @@ public class EnumFieldTest extends TestSupport {
         Transaction tx = db.createTransaction(schema1, 1, true);
 
         final ObjId id1 = tx.create(1);
-
-        Assert.assertEquals(((EnumField)tx.getSchema().getObjType(1).getField(2)).getFieldType().getEnumType(), MyEnum.class);
-        Assert.assertNull(((EnumField)tx.getSchema().getObjType(1).getField(3)).getFieldType().getEnumType());
 
     // Verify only valid values are accepted
 
@@ -111,6 +108,15 @@ public class EnumFieldTest extends TestSupport {
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
+
+    @Test
+    public void testEnumNoConflict() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        new JSimpleDB(db, 1, null, Arrays.<Class<?>>asList(EnumNoConflict1.class, EnumNoConflict2.class));
     }
 
     @Test
@@ -185,7 +191,7 @@ public class EnumFieldTest extends TestSupport {
     }
 
     @JSimpleClass(storageId = 10)
-    public abstract static class EnumConflict1 implements JObject {
+    public abstract static class EnumNoConflict1 implements JObject {
 
         @JField(storageId = 2)
         public abstract Enum1 getEnumField();
@@ -193,12 +199,27 @@ public class EnumFieldTest extends TestSupport {
     }
 
     @JSimpleClass(storageId = 20)
-    public abstract static class EnumConflict2 implements JObject {
+    public abstract static class EnumNoConflict2 implements JObject {
 
         @JField(storageId = 2)
         public abstract Enum2 getEnumField();
         public abstract void setEnumField(Enum2 value);
     }
 
+    @JSimpleClass(storageId = 10)
+    public abstract static class EnumConflict1 implements JObject {
+
+        @JField(storageId = 2, indexed = true)
+        public abstract Enum1 getEnumField();
+        public abstract void setEnumField(Enum1 value);
+    }
+
+    @JSimpleClass(storageId = 20)
+    public abstract static class EnumConflict2 implements JObject {
+
+        @JField(storageId = 2, indexed = true)
+        public abstract Enum2 getEnumField();
+        public abstract void setEnumField(Enum2 value);
+    }
 }
 

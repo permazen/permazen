@@ -80,11 +80,6 @@ public class JEnumField extends JSimpleField {
             schemaField.getIdentifiers().add(value.name());
     }
 
-    @Override
-    JEnumFieldInfo toJFieldInfo(int parentStorageId) {
-        return new JEnumFieldInfo(this, parentStorageId);
-    }
-
 // Bytecode generation
 
     @Override

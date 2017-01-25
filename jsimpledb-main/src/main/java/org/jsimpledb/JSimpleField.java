@@ -7,14 +7,17 @@ package org.jsimpledb;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SimpleSchemaField;
@@ -134,15 +137,9 @@ public class JSimpleField extends JField {
         return target.caseJSimpleField(this);
     }
 
-    /**
-     * Get a {@link Converter} that converts this field values between core API type and Java model type.
-     * Only {@link Enum} and reference types require conversion; for all other types, this returns an identity converter.
-     *
-     * @param jtx transaction
-     * @return {@link Converter} from core API field type to Java model field type
-     */
+    @Override
     public Converter<?, ?> getConverter(JTransaction jtx) {
-        return Converter.<Object>identity();
+        return null;
     }
 
     /**
@@ -188,6 +185,14 @@ public class JSimpleField extends JField {
     }
 
     @Override
+    SimpleFieldIndexInfo toIndexInfo() {
+        if (!this.indexed)
+            return null;
+        final JComplexField parentField = this.getParentField();
+        return parentField != null ? parentField.toIndexInfo(this) : new RegularSimpleFieldIndexInfo(this);
+    }
+
+    @Override
     void calculateRequiresDefaultValidation() {
         super.calculateRequiresDefaultValidation();
         this.requiresDefaultValidation |= this.unique;
@@ -197,6 +202,24 @@ public class JSimpleField extends JField {
         super.initialize(jdb, schemaField);
         schemaField.setType(this.fieldType.getName());
         schemaField.setIndexed(this.indexed);
+    }
+
+    @Override
+    boolean supportsChangeNotifications() {
+        return true;
+    }
+
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
+        this.addChangeParameterTypes(types, targetType, this.typeToken);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<V> fieldType) {
+        types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<V>() { }, fieldType.wrap()));
     }
 
 // Bytecode generation
@@ -370,15 +393,6 @@ public class JSimpleField extends JField {
         mv.visitInsn(Opcodes.SWAP);
         mv.visitInsn(Opcodes.ICONST_1);
         generator.emitInvoke(mv, ClassGenerator.TRANSACTION_WRITE_SIMPLE_FIELD_METHOD);
-    }
-
-    @Override
-    final JSimpleFieldInfo toJFieldInfo() {
-        return this.toJFieldInfo(0);
-    }
-
-    JSimpleFieldInfo toJFieldInfo(int parentStorageId) {
-        return new JSimpleFieldInfo(this, parentStorageId);
     }
 }
 

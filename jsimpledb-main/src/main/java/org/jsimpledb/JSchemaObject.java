@@ -61,6 +61,10 @@ public abstract class JSchemaObject {
 
 // Internal methods
 
+    IndexInfo toIndexInfo() {
+        throw new UnsupportedOperationException();
+    }
+
     abstract AbstractSchemaItem toSchemaItem(JSimpleDB jdb);
 
     void initialize(JSimpleDB jdb, AbstractSchemaItem schemaItem) {

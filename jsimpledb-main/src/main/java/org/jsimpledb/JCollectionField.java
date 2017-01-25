@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -77,5 +78,19 @@ public abstract class JCollectionField extends JComplexField {
         super.initialize(jdb, schemaField);
         schemaField.setElementField(this.elementField.toSchemaItem(jdb));
     }
+
+    @Override
+    public TypeToken<?> getTypeToken() {
+        return this.buildTypeToken(this.elementField.getTypeToken().wrap());
+    }
+
+    abstract <E> TypeToken<? extends Collection<E>> buildTypeToken(TypeToken<E> elementType);
+
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
+        this.addChangeParameterTypes(types, targetType, this.elementField.getTypeToken());
+    }
+
+    abstract <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType);
 }
 

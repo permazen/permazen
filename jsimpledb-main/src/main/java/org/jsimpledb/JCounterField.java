@@ -5,9 +5,12 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.jsimpledb.schema.CounterSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -42,8 +45,23 @@ public class JCounterField extends JField {
     }
 
     @Override
-    JCounterFieldInfo toJFieldInfo() {
-        return new JCounterFieldInfo(this);
+    public TypeToken<Counter> getTypeToken() {
+        return TypeToken.of(Counter.class);
+    }
+
+    @Override
+    public Converter<?, ?> getConverter(JTransaction jtx) {
+        return null;
+    }
+
+    @Override
+    boolean supportsChangeNotifications() {
+        return false;
+    }
+
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
+        throw new UnsupportedOperationException("counter fields do not support change notifications");
     }
 
 // Bytecode generation
