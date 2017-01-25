@@ -791,6 +791,11 @@ public class JTransaction {
      * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
      *
      * <p>
+     * This method can be thought of as a "refresh" operation for objects being imported from other transactions into this one.
+     * Note however that this method always returns a non-null value, even if the object does not actually exist in this
+     * transaction; you can use {@link JObject#exists} to check for existence.
+     *
+     * <p>
      * This method is equivalent to {@code get(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
      *
      * @param jobj Java model object
