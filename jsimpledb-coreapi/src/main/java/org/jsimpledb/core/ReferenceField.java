@@ -141,7 +141,7 @@ public class ReferenceField extends SimpleField<ObjId> {
     boolean isUpgradeCompatible(Field<?> field) {
         if (field.getClass() != this.getClass())
             return false;
-        return true;
+        return true;                        // we allow object type restrictions to differ
     }
 }
 

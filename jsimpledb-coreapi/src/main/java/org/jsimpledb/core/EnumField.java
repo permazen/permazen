@@ -51,13 +51,5 @@ public class EnumField extends SimpleField<EnumValue> {
     public String toString() {
         return "enum field `" + this.name + "'";
     }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final EnumField that = (EnumField)field;
-        return this.getFieldType().getIdentifiers().equals(that.getFieldType().getIdentifiers());
-    }
 }
 
