@@ -1403,22 +1403,44 @@ public class Transaction {
           .filter(index -> !newType.compositeIndexes.containsKey(index.storageId))
           .forEach(index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
 
+    //////// Determine Field Compatibility
+
+        // Build a mapping from old field to compatible new field, or null if none
+        final HashMap<Field<?>, Field<?>> compatibleFieldMap = new HashMap<>(oldType.fields.size());
+        for (Map.Entry<Integer, Field<?>> entry : oldType.fields.entrySet()) {
+            final Integer storageId = entry.getKey();
+            final Field<?> oldField = entry.getValue();
+            final Field<?> newField = newType.fields.get(storageId);
+            final boolean compatible = newField != null && newField.isUpgradeCompatible(oldField);
+            compatibleFieldMap.put(oldField, compatible ? newField : null);
+        }
+
+        // Build a list of remaining new fields not compatible with some old field
+        final ArrayList<Field<?>> incompatibleNewFields = new ArrayList<>(newType.fields.size());
+        for (Map.Entry<Integer, Field<?>> entry : newType.fields.entrySet()) {
+            final Integer storageId = entry.getKey();
+            final Field<?> newField = entry.getValue();
+            final Field<?> oldField = oldType.fields.get(storageId);
+            if (oldField == null || compatibleFieldMap.get(oldField) == null)
+                incompatibleNewFields.add(newField);
+            else
+                assert compatibleFieldMap.get(oldField) == newField;
+        }
+
     //////// Process old fields
 
         // Iterate over all the fields that existed in the old schema version
-        for (Field<?> oldField0 : oldType.fields.values()) {
-            final byte[] key = Field.buildKey(id, oldField0.storageId);
-            final Field<?> newField0 = newType.fields.get(oldField0.storageId);
-
-            // Determine whether we should reset the old field's value - because there is no new field, or it's not compatible
-            final boolean resetField = newField0 == null || !newField0.isUpgradeCompatible(oldField0);
+        for (Map.Entry<Field<?>, Field<?>> entry : compatibleFieldMap.entrySet()) {
+            final Field<?> oldField = entry.getKey();
 
             // Copy the old field's original value for the version change notification, if any
             if (oldValueMap != null) {
-                oldField0.visit(new FieldSwitchAdapter<Void>() {
+                oldField.visit(new FieldSwitchAdapter<Void>() {
 
                     @Override
+                    @SuppressWarnings("shadow")
                     public <T> Void caseSimpleField(SimpleField<T> oldField) {
+                        final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.storageId, oldValue != null ?
                           oldField.fieldType.read(new ByteReader(oldValue)) : oldField.fieldType.getDefaultValueObject());
@@ -1426,13 +1448,16 @@ public class Transaction {
                     }
 
                     @Override
+                    @SuppressWarnings("shadow")
                     public <T> Void caseComplexField(ComplexField<T> oldField) {
                         oldValueMap.put(oldField.storageId, oldField.getValueReadOnlyCopy(Transaction.this, id));
                         return null;
                     }
 
                     @Override
+                    @SuppressWarnings("shadow")
                     public Void caseCounterField(CounterField oldField) {
+                        final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.storageId, oldValue != null ? Transaction.this.kvt.decodeCounter(oldValue) : 0L);
                         return null;
@@ -1441,64 +1466,73 @@ public class Transaction {
             }
 
             // Reset the field's value and add/remove index entries as needed
-            oldField0.visit(new FieldSwitchAdapter<Void>() {
+            oldField.visit(new FieldSwitchAdapter<Void>() {
 
                 @Override
-                public <T> Void caseSimpleField(SimpleField<T> oldField) {
-                    this.updateSimpleField(oldField, resetField);
-                    return null;
-                }
-
-                @Override
+                @SuppressWarnings("shadow")
                 public Void caseReferenceField(ReferenceField oldField) {
 
-                    // We must also reset a reference to an object type that is no longer allowed by the new reference field
-                    boolean doReset = resetField;
-                    if (!doReset) {
-                        final ReferenceField newField = (ReferenceField)newField0;
+                    // We must reset a reference to an object type that is no longer allowed by the new reference field
+                    final ReferenceField newField = (ReferenceField)entry.getValue();
+                    if (newField != null) {
                         final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldField, newField);
                         if (!xtypes.isEmpty()) {
                             final ObjId ref = oldField.getValue(Transaction.this, id);
-                            doReset = ref != null && xtypes.contains(ref.getStorageId());
+                            if (ref != null && xtypes.contains(ref.getStorageId())) {
+
+                                // Change new field to be incompatible, so it will get reset
+                                entry.setValue(null);
+                                incompatibleNewFields.add(newField);
+                            }
                         }
                     }
 
                     // Proceed
-                    this.updateSimpleField(oldField, doReset);
-                    return null;
+                    return this.caseSimpleField(oldField);
                 }
 
-                private void updateSimpleField(SimpleField<?> oldField, boolean doReset) {
-                    final SimpleField<?> newField = (SimpleField<?>)newField0;
+                @Override
+                @SuppressWarnings("shadow")
+                public <T> Void caseSimpleField(SimpleField<T> oldField) {
+
+                    // Reset field?
+                    final SimpleField<?> newField = (SimpleField<?>)entry.getValue();
+                    final boolean reset = newField == null;
 
                     // Add/remove indexes as needed
-                    if (oldField.indexed && (doReset || !newField.indexed)) {
+                    final byte[] key = Field.buildKey(id, oldField.storageId);
+                    if (oldField.indexed && (reset || !newField.indexed)) {
                         final byte[] value = Transaction.this.kvt.get(key);
                         Transaction.this.kvt.remove(Transaction.buildSimpleIndexEntry(oldField, id, value));
                     }
-                    if (newField != null && newField.indexed && (doReset || !oldField.indexed)) {
-                        final byte[] value = !doReset ? Transaction.this.kvt.get(key) : null;
+                    if (newField != null && newField.indexed && (reset || !oldField.indexed)) {
+                        final byte[] value = !reset ? Transaction.this.kvt.get(key) : null;
                         Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, value), ByteUtil.EMPTY);
                     }
 
                     // Reset field value if needed
-                    if (doReset)
+                    if (reset)
                         Transaction.this.kvt.remove(key);
+                    return null;
                 }
 
                 @Override
+                @SuppressWarnings("shadow")
                 public <E> Void caseComplexField(ComplexField<E> oldField) {
-                    final ComplexField<?> newField = (ComplexField<?>)newField0;
 
-                    // Add/remove indexes as needed. Note, for complex fields, a "reset" is equivalent to removing the field.
+                    // Reset field?
+                    final ComplexField<?> newField = (ComplexField<?>)entry.getValue();
+                    final boolean reset = newField == null;
+
+                    // Add/remove index entries as needed
                     final List<? extends SimpleField<?>> oldSubFields = oldField.getSubFields();
-                    final List<? extends SimpleField<?>> newSubFields = !resetField ? newField.getSubFields() : null;
+                    final List<? extends SimpleField<?>> newSubFields = !reset ? newField.getSubFields() : null;
                     for (int i = 0; i < oldSubFields.size(); i++) {
                         final SimpleField<?> oldSubField = oldSubFields.get(i);
-                        final SimpleField<?> newSubField = !resetField ? newSubFields.get(i) : null;
+                        final SimpleField<?> newSubField = !reset ? newSubFields.get(i) : null;
 
                         // We must also reset references to object types that are no longer allowed by the new reference field
-                        if (!resetField && oldSubField instanceof ReferenceField) {
+                        if (!reset && oldSubField instanceof ReferenceField) {
                             final ReferenceField oldRefField = (ReferenceField)oldSubField;
                             final ReferenceField newRefField = (ReferenceField)newSubField;
                             final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldRefField, newRefField);
@@ -1507,59 +1541,61 @@ public class Transaction {
                         }
 
                         // Add/remove sub-field indexes
-                        if (oldSubField.indexed && (resetField || !newSubField.indexed))
+                        if (oldSubField.indexed && (reset || !newSubField.indexed))
                             oldField.removeIndexEntries(Transaction.this, id, oldSubField);
-                        if (!oldSubField.indexed && !resetField && newSubField.indexed)
+                        if (!oldSubField.indexed && !reset && newSubField.indexed)
                             newField.addIndexEntries(Transaction.this, id, newSubField);
                     }
 
-                    // Reset field value if needed
-                    if (resetField)
+                    // Reset field value if needed. For complex fields, a "reset" is equivalent to removing the field.
+                    if (reset)
                         oldField.deleteContent(Transaction.this, id);
                     return null;
                 }
 
                 @Override
+                @SuppressWarnings("shadow")
                 public Void caseCounterField(CounterField oldField) {
 
+                    // Reset field?
+                    final boolean reset = entry.getValue() == null;
+
                     // Reset field value if needed
-                    if (resetField)
-                        Transaction.this.kvt.remove(key);
+                    if (reset)
+                        Transaction.this.kvt.remove(Field.buildKey(id, oldField.storageId));
                     return null;
                 }
             });
         }
 
-    //////// Initialize values and add index entries for new fields that did not exist before
+    //////// For fields that are new or were reset, initialize values and add index entries
 
-        // Iterate over the new fields that did not exist in the old schema version
-        for (Field<?> newField : newType.fields.values()) {
-            final Field<?> oldField = oldType.fields.get(newField.storageId);
+        // Iterate over the new fields that are truly new or got reset
+        for (Field<?> newField : incompatibleNewFields) {
+            newField.visit(new FieldSwitchAdapter<Void>() {
 
-            // Add new index entries as needed
-            if (oldField == null) {
-                newField.visit(new FieldSwitchAdapter<Void>() {
+                @Override
+                @SuppressWarnings("shadow")
+                public <T> Void caseSimpleField(SimpleField<T> newField) {
+                    if (newField.indexed)
+                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, null), ByteUtil.EMPTY);
+                    return null;
+                }
 
-                    @Override
-                    public <T> Void caseSimpleField(SimpleField<T> field) {
-                        if (field.indexed)
-                            Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
-                        return null;
-                    }
+                @Override
+                @SuppressWarnings("shadow")
+                public <E> Void caseComplexField(ComplexField<E> newField) {
+                    return null;                // nothing to do!
+                }
 
-                    @Override
-                    public <E> Void caseComplexField(ComplexField<E> field) {
-                        return null;
-                    }
-
-                    @Override
-                    public Void caseCounterField(CounterField field) {
-                        final byte[] key = Field.buildKey(id, field.storageId);
-                        Transaction.this.kvt.put(key, Transaction.this.kvt.encodeCounter(0L));
-                        return null;
-                    }
-                });
-            }
+                @Override
+                @SuppressWarnings("shadow")
+                public Void caseCounterField(CounterField newField) {
+                    final byte[] key = Field.buildKey(id, newField.storageId);
+                    Transaction.this.kvt.put(key, Transaction.this.kvt.encodeCounter(0L));
+                    return null;
+                }
+            });
         }
 
     //////// Add composite index entries for newly added composite indexes
