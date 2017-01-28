@@ -35,7 +35,7 @@ import org.jsimpledb.JSimpleDB;
  *  <li>There is already a schema recorded in the database under the configured schema version,
  *      but the current schema version is not compatible with it; or
  *  <li>The current schema version conflicts with one or more other schema versions
- *      recorded in the database, e.g., because a field has changed its type.
+ *      recorded in the database, e.g., because an indexed field has changed its type.
  * </ul>
  *
  * <p>
