@@ -90,6 +90,15 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     @Parameter
     protected String storageIdGeneratorClass;
 
+    /**
+     * The name of a Maven property to set to the auto-generated schema version number. This is the schema
+     * version number that will be auto-generated when a schema version number of {@code -1} is configured.
+     * This auto-generated version number is based on
+     * {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion hashing the generated schema}.
+     */
+    @Parameter(defaultValue = "")
+    protected String schemaVersionProperty;
+
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
 
@@ -301,6 +310,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             } catch (Exception e) {
                 throw new MojoFailureException("schema generation failed: " + e, e);
             }
+            this.getLog().info("auto-generate schema version is " + schema.autogenerateVersion());
+
+            // Set auto-generated schema version property
+            if (this.schemaVersionProperty != null && this.schemaVersionProperty.length() > 0)
+                this.project.getProperties().setProperty(this.schemaVersionProperty, "" + schema.autogenerateVersion());
 
             // Record schema model in database as version 1
             db.createTransaction(schema, 1, true).commit();

@@ -138,6 +138,22 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * </td>
  * </tr>
  * <tr>
+ *  <td>{@code schemaVersionProperty}</td>
+ *  <td>No</td>
+ *  <td>
+ *      <p>
+ *      The name of an ant property to set to the auto-generated schema version number. This is the schema
+ *      version number that will be auto-generated when a schema version number of {@code -1} is configured.
+ *      This auto-generated version number is based on
+ *      {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion hashing the generated schema}.
+ *      </p>
+ *
+ *      <p>
+ *      Default is to not set any property.
+ *      </p>
+ * </td>
+ * </tr>
+ * <tr>
  *  <td>{@code classpath} or {@code classpathref}</td>
  *  <td>Yes</td>
  *  <td>
@@ -243,6 +259,7 @@ public class SchemaGeneratorTask extends Task {
     private boolean matchNames = true;
     private boolean failOnError = true;
     private String verifiedProperty;
+    private String schemaVersionProperty;
     private File file;
     private Path classPath;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
@@ -272,6 +289,10 @@ public class SchemaGeneratorTask extends Task {
 
     public void setVerifiedProperty(String verifiedProperty) {
         this.verifiedProperty = verifiedProperty;
+    }
+
+    public void setSchemaVersionProperty(String schemaVersionProperty) {
+        this.schemaVersionProperty = schemaVersionProperty;
     }
 
     public void setFile(File file) {
@@ -447,6 +468,7 @@ public class SchemaGeneratorTask extends Task {
             } catch (Exception e) {
                 throw new BuildException("schema generation failed: " + e, e);
             }
+            this.log("auto-generate schema version is " + schemaModel.autogenerateVersion());
 
             // Record schema model in database
             db.createTransaction(schemaModel, 1, true).commit();
@@ -505,9 +527,15 @@ public class SchemaGeneratorTask extends Task {
                 }
             }
 
-            // Check verification results
+            // Set verified property
             if (this.verifiedProperty != null)
                 this.getProject().setProperty(this.verifiedProperty, "" + verified);
+
+            // Set auto-generated schema version property
+            if (this.schemaVersionProperty != null)
+                this.getProject().setProperty(this.schemaVersionProperty, "" + schemaModel.autogenerateVersion());
+
+            // Check verification results
             if (!verified && this.failOnError)
                 throw new BuildException("schema verification failed");
         } finally {
