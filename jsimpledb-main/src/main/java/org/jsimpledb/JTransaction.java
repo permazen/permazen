@@ -43,6 +43,7 @@ import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.Field;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
@@ -268,7 +269,9 @@ public class JTransaction {
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
-        if (jdb.hasOnVersionChangeMethods || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
+        if (jdb.hasOnVersionChangeMethods
+          || jdb.hasUpgradeConversions
+          || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
             tx.addVersionChangeListener(new InternalVersionChangeListener());
     }
 
@@ -1701,14 +1704,14 @@ public class JTransaction {
     private static class InternalVersionChangeListener implements VersionChangeListener {
 
         @Override
-        public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+        public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
-            jtx.doOnVersionChange(id, oldVersion, newVersion, oldFieldValues);
+            jtx.doOnVersionChange(id, oldVersion, newVersion, oldValues);
         }
     }
 
-    private void doOnVersionChange(ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+    private void doOnVersionChange(ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
 
         // Get JClass, if known
         final JClass<?> jclass;
@@ -1722,23 +1725,49 @@ public class JTransaction {
         if (this.validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
             this.revalidate(Collections.singleton(id));
 
+        // Skip the rest if there are no fields to convert and no @OnChange methods
+        if (jclass.upgradeConversionFields.isEmpty() && jclass.onVersionChangeMethods.isEmpty())
+            return;
+
+        // Get old and new object type info
+        final Schema oldSchema = this.tx.getSchemas().getVersion(oldVersion);
+        final Schema newSchema = this.tx.getSchema();
+        final ObjType oldObjType = oldSchema.getObjType(id.getStorageId());
+        final ObjType newObjType = newSchema.getObjType(id.getStorageId());
+
+        // Auto-convert any upgrade-convertable fields
+        for (JSimpleField jfield : jclass.upgradeConversionFields) {
+            assert jfield.upgradeConversion.isConvertsValues();
+
+            // Find the old and new versions of the field
+            final int storageId = jfield.getStorageId();
+            final Field<?> oldField0 = oldObjType.getField(storageId);
+            final Field<?> newField0 = newObjType.getField(storageId);
+
+            // If old field is not a simple field, don't convert
+            assert newField0 instanceof SimpleField;
+            if (!(oldField0 instanceof SimpleField))
+                continue;
+            final SimpleField<?> oldField = (SimpleField<?>)oldField0;
+            final SimpleField<?> newField = (SimpleField<?>)newField0;
+
+            // Convert the old field value and update the field
+            this.convertAndSetField(id, oldField, newField, oldValues.get(storageId), jfield.upgradeConversion);
+        }
+
         // Skip the rest if there are no @OnChange methods
         if (jclass.onVersionChangeMethods.isEmpty())
             return;
-
-        // Get old object type info
-        final Schema oldSchema = this.tx.getSchemas().getVersion(oldVersion);
-        final ObjType objType = oldSchema.getObjType(id.getStorageId());
 
         // The object that was upgraded
         JObject jobj = null;
 
         // Convert old field values from core API objects to JDB layer objects, but do not convert EnumValue objects
-        final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
-          (storageId, oldValue) -> this.convertOldVersionValue(id, objType.getField(storageId), oldValue));
+        final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldValues,
+          (storageId, oldValue) -> this.convertOldVersionValue(id, oldObjType.getField(storageId), oldValue));
 
         // Build alternate version of old values map that is keyed by field name instead of storage ID
-        final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
+        final Map<String, Object> oldValuesByName = Maps.transformValues(oldObjType.getFieldsByName(),
           field -> oldValuesByStorageId.get(field.getStorageId()));
 
         // Invoke listener methods
@@ -1752,6 +1781,35 @@ public class JTransaction {
             // Invoke method
             info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
         }
+    }
+
+    private <OT, NT> void convertAndSetField(ObjId id, SimpleField<OT> oldField,
+      SimpleField<NT> newField, Object oldValue0, UpgradeConversionPolicy policy) {
+
+        // Get the old and new field types; if they are equal, there's nothing to do
+        final FieldType<OT> oldFieldType = oldField.getFieldType();
+        final FieldType<NT> newFieldType = newField.getFieldType();
+        if (newFieldType.equals(oldFieldType))
+            return;
+
+        // Validate old value
+        final OT oldValue = oldFieldType.validate(oldValue0);
+
+        // Attempt conversion
+        final NT newValue;
+        try {
+            newValue = newFieldType.convert(oldFieldType, oldValue);
+        } catch (IllegalArgumentException e) {
+            if (policy.isRequireConversion()) {
+                throw new UpgradeConversionException(id, newField.getStorageId(), "the value " + oldFieldType.toString(oldValue)
+                  + " in the previous schema version's " + oldField + " could not be converted type to the new field type "
+                  + newFieldType + ", but the upgrade conversion policy is configured as " + policy, e);
+            }
+            return;
+        }
+
+        // Update field
+        newField.setValue(this.tx, id, newValue);
     }
 
 // Convert methods

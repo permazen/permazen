@@ -51,6 +51,7 @@ public class JClass<T> extends JSchemaObject {
     final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
+    final ArrayList<JSimpleField> upgradeConversionFields = new ArrayList<>();
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
@@ -198,6 +199,10 @@ public class JClass<T> extends JSchemaObject {
             // Remember unique constraint fields
             if (jfield.unique)
                 this.uniqueConstraintFields.add(jfield);
+
+            // Remember upgrade conversion fields
+            if (annotation.upgradeConversion().isConvertsValues())
+                this.upgradeConversionFields.add(jfield);
         }
 
         // Scan for Set fields

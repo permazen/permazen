@@ -37,6 +37,7 @@ public class JSimpleField extends JField {
     final boolean indexed;
     final boolean unique;
     final ArrayList<Object> uniqueExcludes;         // note: these are core API values, sorted by this.fieldType
+    final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
     JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
@@ -57,6 +58,7 @@ public class JSimpleField extends JField {
         this.indexed = indexed;
         this.unique = annotation.unique();
         this.setter = setter;
+        this.upgradeConversion = annotation.upgradeConversion();
 
         // Parse uniqueExcludes
         final int numExcludes = annotation.uniqueExclude().length + (annotation.uniqueExcludeNull() ? 1 : 0);

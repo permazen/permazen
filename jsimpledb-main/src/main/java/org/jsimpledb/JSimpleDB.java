@@ -130,6 +130,7 @@ public class JSimpleDB {
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
+    final boolean hasUpgradeConversions;
     final boolean anyJClassRequiresDefaultValidation;
     final AnnotatedElement elementRequiringJSR303Validation;
 
@@ -355,14 +356,17 @@ public class JSimpleDB {
         boolean anyOnCreateMethods = false;
         boolean anyOnDeleteMethods = false;
         boolean anyOnVersionChangeMethods = false;
+        boolean anyUpgradeConversions = false;
         for (JClass<?> jclass : this.jclasses.values()) {
             anyOnCreateMethods |= !jclass.onCreateMethods.isEmpty();
             anyOnDeleteMethods |= !jclass.onDeleteMethods.isEmpty();
             anyOnVersionChangeMethods |= !jclass.onVersionChangeMethods.isEmpty();
+            anyUpgradeConversions |= !jclass.upgradeConversionFields.isEmpty();
         }
         this.hasOnCreateMethods = anyOnCreateMethods;
         this.hasOnDeleteMethods = anyOnDeleteMethods;
         this.hasOnVersionChangeMethods = anyOnVersionChangeMethods;
+        this.hasUpgradeConversions = anyUpgradeConversions;
 
         // Validate schema
         this.db.validateSchema(this.getSchemaModel());
