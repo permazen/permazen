@@ -14,19 +14,19 @@ package org.jsimpledb;
  * <p>
  * JSimpleDB fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
- * With some restrictions<super>*</super>, the type of a simple field may change between schema versions;
- * this includes sub-fields of complex fields, e.g., changing a field from {@link List List&lt;Integer&gt;}
- * to {@link List List&lt;Float&gt;}.
+ * With some restrictions<super>*</super>, the type of a field may change between schema versions; this includes both
+ * regular simple fields (e.g., changing from {@code int} to {@link String}) and sub-fields of complex fields
+ * (e.g., changing from {@link List List&lt;Integer&gt;} * to {@link List List&lt;String&gt;}).
  *
  * <p>
- * When upgrading such objects, JSimpleDB supports optional automatic conversion of field values from the old type
- * to the new type. For example, an {@code int} field value {@code 1234} would become the {@link String} field value
+ * When upgrading an object's schema version, JSimpleDB supports optional automatic conversion of a field's value from its
+ * old type to its new type. For example, an {@code int} field value {@code 1234} would become the {@link String} field value
  * {@code "1234"}. How exactly this conversion is performed is defined by the field's new {@link org.jsimpledb.core.FieldType};
  * see {@link org.jsimpledb.core.FieldType#convert FieldType.convert()} for details.
  *
  * <p>
- * This class specifies whether such automatic conversion should occur when a simple field's type changes, and if
- * so, whether conversion must always succeed.
+ * This class is used to {@linkplain org.jsimpledb.annotation.JField#upgradeConversion specify} whether such automatic
+ * conversion should occur when a simple field's type changes, and if so, whether the conversion must always succeed.
  *
  * <p>
  * <super>*</super>A simple field may not have different types across schema versions and be indexed in both versions.
@@ -40,25 +40,26 @@ package org.jsimpledb;
  *
  * <p>
  * Automatic conversion of reference fields also works as long as the referenced object's type is assignable
- * to the field's new Java type.
+ * to the field's new Java type (otherwise, the field is set to null).
  *
  * <p>
  * <b>Conversion Policies</b>
  *
  * <p>
- * With policy {@link #RESET}, no automatic conversion is attempted: the field is reset to the default value of the
- * new type. With policies {@link #ATTEMPT} and {@link #REQUIRE}, automatic conversion of field values is attempted.
+ * With {@link #RESET}, no automatic conversion is attempted: the field is always reset to the default value of
+ * the new type. With {@link #ATTEMPT} and {@link #REQUIRE}, automatic conversion of field values is attempted.
  *
  * <p>
- * For some types and/or field values, conversion is not possible. In this case, policy {@link #REQUIRE} generates a
- * {@link TypeConversionException}, while policy {@link #ATTEMPT} just reverts to {@link #RESET}.
+ * For some types and/or field values, conversion is not possible. In this case, {@link #REQUIRE} generates a
+ * {@link UpgradeConversionException}, while {@link #ATTEMPT} just reverts to the behavior of {@link #RESET}.
  *
  * <p>
- * Note that customized manual conversion is always possible using {@link OnVersionChange &#64;OnVersionChange} methods.
+ * Note that arbitrary conversion logic is always possible using {@link OnVersionChange &#64;OnVersionChange}.
  *
+ * @see org.jsimpledb.annotation.JField#upgradeConversion
  * @see org.jsimpledb.core.FieldType#convert FieldType.convert()
  */
-public enum TypeConversionPolicy {
+public enum UpgradeConversionPolicy {
 
     /**
      * Do not attempt to automatically convert values to the new type.
@@ -76,14 +77,14 @@ public enum TypeConversionPolicy {
 
     /**
      * Attempt automatic conversion of field values to the new type, and iIf automatic conversion fails,
-     * throw a {@link TypeConversionException}.
+     * throw a {@link UpgradeConversionException}.
      */
     REQUIRE(true, true);
 
     private final boolean convertsValues;
     private final boolean requireConversion;
 
-    TypeConversionPolicy(boolean convertsValues, boolean requireConversion) {
+    UpgradeConversionPolicy(boolean convertsValues, boolean requireConversion) {
         this.convertsValues = convertsValues;
         this.requireConversion = requireConversion;
     }
@@ -104,7 +105,7 @@ public enum TypeConversionPolicy {
      * Determine whether failed attempts to convert a field's value from the old type to the new type should be fatal.
      *
      * <p>
-     * If this is true, a failed conversion attempt results in a {@link TypeConversionException} being thrown.
+     * If this is true, a failed conversion attempt results in a {@link UpgradeConversionException} being thrown.
      * If this is false, a failed conversion attempt results in the field being set to the new type's default value.
      */
     public boolean isRequireConversion() {

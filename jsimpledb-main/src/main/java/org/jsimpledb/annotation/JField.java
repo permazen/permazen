@@ -11,7 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jsimpledb.TypeConversionPolicy;
+import org.jsimpledb.UpgradeConversionPolicy;
 import org.jsimpledb.core.DeleteAction;
 
 /**
@@ -293,7 +293,7 @@ public @interface JField {
     boolean allowDeletedSnapshot() default true;
 
     /**
-     * Specify the {@link TypeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
+     * Specify the {@link UpgradeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
      *
      * <p>
      * With some restrictions, JSimpleDB supports schema changes that alter a simple field's type, and can automatically
@@ -301,10 +301,13 @@ public @interface JField {
      * {@link String} value {@code "1234"}).
      *
      * <p>
-     * This property defines the {@link TypeConversionPolicy} for the annotated field when upgrading an object from some
+     * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some
      * other schema version to the current schema version. Note custom conversion logic is also possible using
      * {@link OnVersionChange &#64;OnVersionChange} methods.
+     *
+     * @see UpgradeConversionPolicy
+     * @see org.jsimpledb.core.FieldType#convert FieldType.convert()
      */
-    TypeConversionPolicy conversionPolicy() default TypeConversionPolicy.REQUIRE;
+    UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.RESET;
 }
 
