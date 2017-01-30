@@ -361,13 +361,13 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 
 // Internal methods
 
-    // Apply accumulated counter adjustments to the value, if any
+    // Apply accumulated counter adjustments to the value, if any. If no adjustment necessary, returns same "value" object.
     private synchronized byte[] applyCounterAdjustment(byte[] key, byte[] value) {
 
         // Is there an adjustment of this key?
         assert key != null;
         final Long adjust = this.writes.getAdjusts().get(key);
-        if (adjust == null)
+        if (adjust == null || adjust == 0)
             return value;
 
         // Decode value we just read as a counter
