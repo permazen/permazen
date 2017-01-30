@@ -489,6 +489,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
             if (this.finished)
                 return false;
 
+            // Keep track of starting range of keys read from the underlying k/v store
+            byte[] readStart;
+
             // Find the next underlying k/v pair, if we don't already have it. Whenever we access the underlying KVStore
             // we synchronize on this MutableView; this prevents it from changing out from under us while we're using it,
             // as well as avoiding races with other threads doing put(), remove(), etc.
@@ -504,6 +507,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                 }
 
                 // Advance to the next key/value pair
+                readStart = this.cursor;
                 if (this.kviter != null && this.kvnext == null) {
 
                     // Get removes
@@ -529,8 +533,17 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                         if (ranges[0] == ranges[1] && ranges[0] != null) {
                             final KeyRange removeRange = ranges[0];
 
-                            // Find the end of the remove range (if any)
+                            // If the removed range contains the starting cursor as well, we can shrink our recorded read range
                             final byte[] removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
+                            if (this.reverse) {
+                                final byte[] removeRangeStart = removeRange.getMax();
+                                if (readStart != null
+                                  && (removeRangeStart == null || ByteUtil.compare(readStart, removeRangeStart) <= 0))
+                                    readStart = removeRangeEnd;
+                            } else if (removeRange.contains(readStart))
+                                readStart = removeRangeEnd;
+
+                            // Find the end of the remove range (if any)
                             if (removeRangeEnd == null
                              || this.isPastLimit(removeRangeEnd)
                              || (this.reverse && Arrays.equals(removeRangeEnd, this.limit))) {
@@ -604,12 +617,12 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
             final byte[] skipMax;
             if (this.reverse) {
                 skipMin = this.next != null ? this.next.getKey() : this.limit;
-                skipMax = this.cursor;
+                skipMax = readStart;
             } else {
-                skipMin = this.cursor;
+                skipMin = readStart;
                 skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : this.limit;
             }
-            if (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0)
+            if (skipMin != null && (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0))
                 MutableView.this.recordReads(skipMin, skipMax);
 
             // Finished?
