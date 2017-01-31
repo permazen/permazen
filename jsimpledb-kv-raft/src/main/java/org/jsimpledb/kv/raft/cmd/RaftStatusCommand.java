@@ -65,16 +65,16 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("=============");
         writer.println();
         writer.println(String.format("%-24s: %s", "Log directory", db.getLogDirectory()));
-        writer.println(String.format("%-24s: %d.%03d sec", "Min election timeout",
-          db.getMinElectionTimeout() / 1000, db.getMinElectionTimeout() % 1000));
-        writer.println(String.format("%-24s: %d.%03d sec", "Max election timeout",
-          db.getMaxElectionTimeout() / 1000, db.getMaxElectionTimeout() % 1000));
-        writer.println(String.format("%-24s: %d.%03d sec", "Heartbeat timeout",
-          db.getHeartbeatTimeout() / 1000, db.getHeartbeatTimeout() % 1000));
-        writer.println(String.format("%-24s: %d.%03d sec", "Commit timeout",
-          db.getCommitTimeout() / 1000, db.getCommitTimeout() % 1000));
-        writer.println(String.format("%-24s: %d.%03d sec", "Max transaction duration",
-          db.getMaxTransactionDuration() / 1000, db.getMaxTransactionDuration() % 1000));
+        writer.println(String.format("%-24s: %s", "Min election timeout",
+          RaftStatusCommand.describeMillis(db.getMinElectionTimeout())));
+        writer.println(String.format("%-24s: %s", "Max election timeout",
+          RaftStatusCommand.describeMillis(db.getMaxElectionTimeout())));
+        writer.println(String.format("%-24s: %s", "Heartbeat timeout",
+          RaftStatusCommand.describeMillis(db.getHeartbeatTimeout())));
+        writer.println(String.format("%-24s: %s", "Commit timeout",
+          RaftStatusCommand.describeMillis(db.getCommitTimeout())));
+        writer.println(String.format("%-24s: %s", "Max transaction duration",
+          RaftStatusCommand.describeMillis(db.getMaxTransactionDuration())));
         writer.println(String.format("%-24s: %s", "Follower probing enabled", db.isFollowerProbingEnabled()));
 
         // Cluster info
@@ -114,7 +114,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         final long currentTermStartTime = db.getCurrentTermStartTime();
         writer.println(String.format("%-24s: %s", "Term started", currentTermStartTime != 0 ?
           new Date(currentTermStartTime)
-           + " (" + RaftStatusCommand.serializeTimeInterval(System.currentTimeMillis() - currentTermStartTime) + ")" :
+           + " (" + RaftStatusCommand.describeMillis(System.currentTimeMillis() - currentTermStartTime) + ")" :
           "Unknown"));
         final Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
@@ -126,13 +126,12 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println(String.format("%-24s: %d", "Unapplied log entries", log.size()));
         if (!log.isEmpty()) {
             writer.println();
-            writer.println(String.format("  %-10s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
-            writer.println(String.format("  %-10s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
+            writer.println(String.format("  %-13s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
+            writer.println(String.format("  %-13s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
             for (LogEntry entry : log) {
-                writer.println(String.format("  %-10s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
-                  entry.getIndex() <= db.getCommitIndex() ? "Yes" : "No",
-                  entry.getFileSize(), String.format("%d.%03ds", entry.getAge() / 1000, entry.getAge() % 1000),
-                  RaftStatusCommand.describe(entry.getConfigChange())));
+                writer.println(String.format("  %-13s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
+                  entry.getIndex() <= db.getCommitIndex() ? "Yes" : "No", entry.getFileSize(),
+                  RaftStatusCommand.describeMillis(entry.getAge()), RaftStatusCommand.describe(entry.getConfigChange())));
             }
         }
 
@@ -198,13 +197,14 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-10s %-14s %-5s %-12s %-13s %-13s %s",
-          "", "ID", "State", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-10s %-14s %-5s %-12s %-13s %-13s %s",
-          "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
+        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-12s %-13s %-13s %s",
+          "", "ID", "State", "Since", "Type", "Consistency", "Base", "Commit", "Config Change"));
+        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-12s %-13s %-13s %s",
+          "", "--", "-----", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("  %-10d %-14s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
-              tx2.getState(), tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
+            writer.println(String.format("  %-10d %-14s %-8s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
+              tx2.getState(), RaftStatusCommand.describeMillis(-tx2.getLastStateChangeTime().offsetFromNow()),
+              tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               RaftStatusCommand.describe(tx2.getConfigChange())));
         }
@@ -217,7 +217,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
           (change[1] != null ? String.format("+\"%s\"@%s", change[0], change[1]) : "-\"" + change[0] + "\"") : "";
     }
 
-    private static String serializeTimeInterval(long value) {
+    private static String describeMillis(long value) {
         StringBuilder b = new StringBuilder(32);
         if (value < 0) {
             b.append('-');

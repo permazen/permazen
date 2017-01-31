@@ -128,6 +128,8 @@ public class RaftKVTransaction implements KVTransaction {
     @GuardedBy("raft")
     private TxState state = TxState.EXECUTING;          // curent state
     @GuardedBy("raft")
+    private Timestamp lastStateChangeTime = new Timestamp();    // timestamp of most recent state change
+    @GuardedBy("raft")
     private Consistency consistency = Consistency.LINEARIZABLE;
     @GuardedBy("raft")
     private String[] configChange;                      // cluster config change associated with this transaction
@@ -190,7 +192,19 @@ public class RaftKVTransaction implements KVTransaction {
                 this.snapshotRefs = null;
             }
             this.state = state;
+            this.lastStateChangeTime = new Timestamp();
             this.executing = state.equals(TxState.EXECUTING);
+        }
+    }
+
+    /**
+     * Get the {@link Timestamp} of the most recent state change.
+     *
+     * @return timestamp of most recent state change
+     */
+    public Timestamp getLastStateChangeTime() {
+        synchronized (this.raft) {
+            return this.lastStateChangeTime;
         }
     }
 
