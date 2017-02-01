@@ -429,7 +429,7 @@ public class FollowerRole extends NonLeaderRole {
                 fileWriter.flush();
             } catch (IOException e) {
                 Util.closeIfPossible(fileWriter);
-                Util.delete(fileWriter.getFile(), "pending write temp file");
+                this.raft.deleteFile(fileWriter.getFile(), "pending write temp file");
                 throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
             }
 
@@ -439,7 +439,7 @@ public class FollowerRole extends NonLeaderRole {
                 mutationData = Util.readFile(fileWriter.getFile(), writeLength);
             } catch (IOException e) {
                 Util.closeIfPossible(fileWriter);
-                Util.delete(fileWriter.getFile(), "pending write temp file");
+                this.raft.deleteFile(fileWriter.getFile(), "pending write temp file");
                 throw new KVTransactionException(tx, "error reading transaction mutations from temporary file", e);
             }
 
@@ -584,7 +584,7 @@ public class FollowerRole extends NonLeaderRole {
                 for (LogEntry logEntry : conflictList) {
                     if (this.log.isDebugEnabled())
                         this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);
-                    Util.delete(logEntry.getFile(), "overwritten log file");
+                    this.raft.deleteFile(logEntry.getFile(), "overwritten log file");
                 }
                 try {
                     this.raft.logDirChannel.force(true);
@@ -1048,7 +1048,7 @@ public class FollowerRole extends NonLeaderRole {
 
         public void cleanup() {
             Util.closeIfPossible(this.fileWriter);
-            Util.delete(this.fileWriter.getFile(), "pending write temp file");
+            this.tx.raft.deleteFile(this.fileWriter.getFile(), "pending write temp file");
         }
     }
 }

@@ -32,7 +32,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -421,6 +423,7 @@ public class RaftKVDatabase implements KVDatabase {
     AtomicKVStore kv;
     FileChannel logDirChannel;                                          // null on Windows - no support for sync'ing directories
     String returnAddress;                                               // return address for message currently being processed
+    IOThread ioThread;                                                  // performs background I/O tasks
     ScheduledExecutorService serviceExecutor;                           // does stuff for us asynchronously
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
     final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();  // transactions open on this instance
@@ -1030,6 +1033,11 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.random == null;
             this.random = new SecureRandom();
 
+            // Start background I/O thread
+            assert this.ioThread == null;
+            this.ioThread = new IOThread(this.logDir);
+            this.ioThread.start();
+
             // Start up service executor thread
             assert this.serviceExecutor == null;
             this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(action -> {
@@ -1168,9 +1176,18 @@ public class RaftKVDatabase implements KVDatabase {
             Thread.currentThread().interrupt();
         }
 
+        // Shutdown I/O thread
+        this.ioThread.shutdown();
+        try {
+            this.ioThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         // Final cleanup
         synchronized (this) {
             this.serviceExecutor = null;
+            this.ioThread = null;
             this.cleanup();
         }
 
@@ -1203,6 +1220,15 @@ public class RaftKVDatabase implements KVDatabase {
                 Thread.currentThread().interrupt();
             }
             this.serviceExecutor = null;
+        }
+        if (this.ioThread != null) {
+            this.ioThread.shutdown();
+            try {
+                this.ioThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            this.ioThread = null;
         }
         this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
@@ -1262,7 +1288,7 @@ public class RaftKVDatabase implements KVDatabase {
                 if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
                     if (this.log.isDebugEnabled())
                         this.debug("deleting leftover temporary file " + file.getName());
-                    Util.delete(file, "leftover temporary file");
+                    this.deleteFile(file, "leftover temporary file");
                     continue;
                 }
 
@@ -1286,7 +1312,7 @@ public class RaftKVDatabase implements KVDatabase {
                 error = "index " + logEntry.getIndex() + " != expected index " + expectedIndex;
             if (error != null) {
                 this.warn("deleting bogus log file " + logEntry.getFile().getName() + ": " + error);
-                Util.delete(logEntry.getFile(), "bogus log file");
+                this.deleteFile(logEntry.getFile(), "bogus log file");
                 i.remove();
             } else {
                 expectedIndex++;
@@ -1710,7 +1736,7 @@ public class RaftKVDatabase implements KVDatabase {
             for (Path path : files) {
                 final File file = path.toFile();
                 if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches())
-                    Util.delete(file, "unapplied log file");
+                    this.deleteFile(file, "unapplied log file");
             }
         } catch (IOException e) {
             this.error("error deleting unapplied log files in " + this.logDir + " (ignoring)", e);
@@ -1973,7 +1999,7 @@ public class RaftKVDatabase implements KVDatabase {
             try {
 
                 // Write serialized mutation data into temporary file
-                tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.logDir);
+                tempFile = this.getTempFile();
                 try (FileWriter output = new FileWriter(tempFile, this.disableSync)) {
                     final FileChannel channel = output.getFileOutputStream().getChannel();
                     for (ByteBuffer writeBuf = mutationData.asReadOnlyBuffer(); writeBuf.hasRemaining(); )
@@ -1992,7 +2018,7 @@ public class RaftKVDatabase implements KVDatabase {
                 return;
             } finally {
                 if (tempFile != null)
-                    Util.delete(tempFile, "new log entry temp file");
+                    this.deleteFile(tempFile, "new log entry temp file");
             }
         } else
             newLogEntry = null;
@@ -2002,7 +2028,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.receiveMessage(sender, msg, newLogEntry);
         } finally {
             if (newLogEntry != null)
-                newLogEntry.close();
+                newLogEntry.cleanup(this);
         }
     }
 
@@ -2175,6 +2201,170 @@ public class RaftKVDatabase implements KVDatabase {
             });
         } finally {
             this.returnAddress = null;
+        }
+    }
+
+// I/O Thread
+
+    synchronized void deleteFile(File file, String description) {
+        if (this.ioThread == null) {                                    // should never happen
+            Util.delete(file, description);
+            return;
+        }
+        this.ioThread.deleteFile(file, description);
+    }
+
+    synchronized File getTempFile() throws IOException {
+        if (this.ioThread == null)
+            throw new IOException("instance is shutdown");
+        return this.ioThread.getTempFile();
+    }
+
+    private static final class IOThread extends Thread {
+
+        private static final long MAX_WAIT_SECONDS = 1;
+        private static final int MAX_TEMP_FILES = 10;
+        private static final int MAX_DELETE_FILES = 1000;
+
+        private final Logger log = LoggerFactory.getLogger(this.getClass());
+        private final File tempDir;
+        private final ArrayBlockingQueue<FileInfo> availableTempFiles = new ArrayBlockingQueue<>(MAX_TEMP_FILES);
+        private final ArrayBlockingQueue<FileInfo> filesToDelete = new ArrayBlockingQueue<>(MAX_DELETE_FILES);
+
+        private boolean shutdown;
+        private boolean didWarnDelete;
+        private boolean didWarnTempFile;
+
+        private IOThread(File tempDir) {
+            super("Raft I/O Thread");
+            Preconditions.checkArgument(tempDir != null);
+            this.tempDir = tempDir;
+        }
+
+        public synchronized void shutdown() {
+            this.shutdown = true;
+            this.notifyAll();
+        }
+
+        public synchronized void deleteFile(File file, String description) {
+            assert file != null;
+            assert description != null;
+            try {
+                this.filesToDelete.add(new FileInfo(file, description));
+            } catch (IllegalStateException e) {
+                if (!this.didWarnDelete) {
+                    this.log.error("file deletion queue is full (suppressing further warnings)", e);
+                    this.didWarnDelete = true;
+                }
+                Util.delete(file, description);
+                return;
+            }
+            this.notifyAll();
+        }
+
+        public synchronized File getTempFile() throws IOException {
+            final FileInfo fileInfo;
+            try {
+                fileInfo = this.availableTempFiles.remove();
+            } catch (NoSuchElementException e) {
+                return File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.tempDir);
+            }
+            this.notifyAll();
+            return fileInfo.getFile();
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+
+                    // Sleep until there's something to do
+                    synchronized (this) {
+
+                        // Wait for something to do
+                        while (!this.shutdown && this.filesToDelete.isEmpty() && this.availableTempFiles.remainingCapacity() == 0) {
+                            try {
+                                this.wait();
+                            } catch (InterruptedException e) {
+                                this.log.warn(this + " interrupted, ignoring", e);
+                            }
+                        }
+
+                        // Shutdown, if needed
+                        if (this.shutdown)
+                            break;
+                    }
+
+                    // Delete deletable files, if any
+                    if (!this.filesToDelete.isEmpty())
+                        this.deleteFiles(this.filesToDelete);
+
+                    // Create a new temporary file, if needed
+                    if (this.availableTempFiles.remainingCapacity() > 0) {
+                        try {
+                            this.availableTempFiles.add(new FileInfo(
+                              File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.tempDir), "ready temporary file"));
+                        } catch (IOException e) {
+                            if (!this.didWarnTempFile) {
+                                this.log.error("error creating temporary file in "
+                                  + this.tempDir + " (suppressing further warnings)", e);
+                                this.didWarnTempFile = true;
+                            }
+                        }
+                    }
+                }
+            } catch (ThreadDeath t) {
+                throw t;
+            } catch (Throwable t) {
+                this.log.error("error in " + this + ", bailing out", t);
+            } finally {
+                this.cleanup();
+            }
+        }
+
+        private void cleanup() {
+            this.deleteFiles(this.availableTempFiles);
+            this.deleteFiles(this.filesToDelete);
+        }
+
+        private void deleteFiles(ArrayBlockingQueue<FileInfo> queue) {
+            while (true) {
+
+                // Get next file
+                final FileInfo fileInfo;
+                try {
+                    fileInfo = queue.remove();
+                } catch (NoSuchElementException e) {
+                    break;
+                }
+
+                // Delete file
+                Util.delete(fileInfo.getFile(), fileInfo.getDescription());
+            }
+        }
+    }
+
+    private static class FileInfo {
+
+        private final File file;
+        private final String description;
+
+        FileInfo(File file) {
+            this(file, null);
+        }
+
+        FileInfo(File file, String description) {
+            Preconditions.checkArgument(file != null);
+            this.file = file;
+            this.description = description;
+        }
+
+        public File getFile() {
+            return this.file;
+        }
+
+        public String getDescription() {
+            return this.description;
         }
     }
 

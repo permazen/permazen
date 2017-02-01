@@ -211,7 +211,7 @@ public abstract class Role {
 
             // Delete the log entry
             this.raft.raftLog.remove(0);
-            Util.delete(logEntry.getFile(), "applied log file");
+            this.raft.deleteFile(logEntry.getFile(), "applied log file");
         }
     }
 

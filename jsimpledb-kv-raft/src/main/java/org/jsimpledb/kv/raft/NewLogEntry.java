@@ -7,7 +7,6 @@ package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
@@ -17,7 +16,7 @@ import java.io.IOException;
  * <p>
  * Instances must be {@link #close}'ed when no longer needed to ensure the temporary file is deleted if not used.
  */
-class NewLogEntry implements Closeable {
+class NewLogEntry {
 
     private final LogEntry.Data data;
     private final File tempFile;
@@ -51,7 +50,7 @@ class NewLogEntry implements Closeable {
      * @throws IOException if an I/O error occurs
      */
     NewLogEntry(RaftKVDatabase raft, LogEntry.Data data) throws IOException {
-        this(data, NewLogEntry.writeDataToFile(data, raft.logDir, raft.disableSync));
+        this(data, NewLogEntry.writeDataToFile(data, raft, raft.disableSync));
     }
 
     /**
@@ -81,21 +80,20 @@ class NewLogEntry implements Closeable {
         this.tempFileReset = true;
     }
 
-    @Override
-    public void close() {
+    public void cleanup(RaftKVDatabase raft) {
         if (!this.tempFileReset)
-            Util.delete(this.tempFile, "new log entry temp file");
+            raft.deleteFile(this.tempFile, "new log entry temp file");
     }
 
-    private static File writeDataToFile(LogEntry.Data data, File dir, boolean disableSync) throws IOException {
-        final File tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, dir);
+    private static File writeDataToFile(LogEntry.Data data, RaftKVDatabase raft, boolean disableSync) throws IOException {
+        final File tempFile = raft.getTempFile();
         boolean success = false;
         try (FileWriter output = new FileWriter(tempFile, disableSync)) {
             LogEntry.writeData(output, data);
             success = true;
         } finally {
             if (!success)
-                Util.delete(tempFile, "new log entry temp file");
+                raft.deleteFile(tempFile, "new log entry temp file");
         }
         return tempFile;
     }
