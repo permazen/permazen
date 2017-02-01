@@ -137,13 +137,13 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        final String typeAttr = this.getAttr(reader, TYPE_ATTRIBUTE, false);
+        final String typeAttr = this.getAttr(reader, XMLConstants.TYPE_ATTRIBUTE, false);
         if (typeAttr != null)
             this.setType(typeAttr);
-        final Boolean indexedAttr = this.getBooleanAttr(reader, INDEXED_ATTRIBUTE, false);
+        final Boolean indexedAttr = this.getBooleanAttr(reader, XMLConstants.INDEXED_ATTRIBUTE, false);
         if (indexedAttr != null)
             this.setIndexed(indexedAttr);
-        final Long encodingSignatureAttr = this.getLongAttr(reader, ENCODING_SIGNATURE_ATTRIBUTE, false);
+        final Long encodingSignatureAttr = this.getLongAttr(reader, XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE, false);
         if (encodingSignatureAttr != null)
             this.setEncodingSignature(encodingSignatureAttr);
     }
@@ -156,7 +156,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 // XML Writing
 
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeEmptyElement(SIMPLE_FIELD_TAG.getNamespaceURI(), SIMPLE_FIELD_TAG.getLocalPart());
+        writer.writeEmptyElement(XMLConstants.SIMPLE_FIELD_TAG.getNamespaceURI(), XMLConstants.SIMPLE_FIELD_TAG.getLocalPart());
         this.writeAttributes(writer, includeName);
     }
 
@@ -165,20 +165,24 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         super.writeAttributes(writer, includeName);
         this.writeSimpleAttributes(writer);
         if (this.encodingSignature != 0) {
-            writer.writeAttribute(ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(), ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(),
-              "" + this.encodingSignature);
+            writer.writeAttribute(XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(), "" + this.encodingSignature);
         }
     }
 
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         this.writeTypeAttribute(writer);
-        if (this.indexed)
-            writer.writeAttribute(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
+        if (this.indexed) {
+            writer.writeAttribute(XMLConstants.INDEXED_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
+        }
     }
 
     void writeTypeAttribute(XMLStreamWriter writer) throws XMLStreamException {
-        if (this.type != null)
-            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);
+        if (this.type != null) {
+            writer.writeAttribute(XMLConstants.TYPE_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.TYPE_ATTRIBUTE.getLocalPart(), this.type);
+        }
     }
 
 // Object

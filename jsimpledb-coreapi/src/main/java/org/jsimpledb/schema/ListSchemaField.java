@@ -26,7 +26,7 @@ public class ListSchemaField extends CollectionSchemaField implements DiffGenera
 
     @Override
     QName getXMLTag() {
-        return LIST_FIELD_TAG;
+        return XMLConstants.LIST_FIELD_TAG;
     }
 
 // DiffGenerating

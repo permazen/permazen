@@ -56,8 +56,8 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.indexedFields.clear();
-        while (this.expect(reader, true, INDEXED_FIELD_TAG)) {
-            this.indexedFields.add(this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE));
+        while (this.expect(reader, true, XMLConstants.INDEXED_FIELD_TAG)) {
+            this.indexedFields.add(this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE));
             this.expectClose(reader);   // </IndexedField>
         }
         this.indexedFields.trimToSize();
@@ -67,11 +67,14 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
 
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(COMPOSITE_INDEX_TAG.getNamespaceURI(), COMPOSITE_INDEX_TAG.getLocalPart());
+        writer.writeStartElement(XMLConstants.COMPOSITE_INDEX_TAG.getNamespaceURI(),
+          XMLConstants.COMPOSITE_INDEX_TAG.getLocalPart());
         this.writeAttributes(writer, true);
         for (int storageId : this.indexedFields) {
-            writer.writeEmptyElement(INDEXED_FIELD_TAG.getNamespaceURI(), INDEXED_FIELD_TAG.getLocalPart());
-            writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+            writer.writeEmptyElement(XMLConstants.INDEXED_FIELD_TAG.getNamespaceURI(),
+              XMLConstants.INDEXED_FIELD_TAG.getLocalPart());
+            writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
         }
         writer.writeEndElement();           // </CompositeIndex>
     }

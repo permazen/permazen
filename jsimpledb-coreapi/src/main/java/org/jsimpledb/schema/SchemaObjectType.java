@@ -132,11 +132,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         if (this.schemaFields.isEmpty() && this.schemaCompositeIndexes.isEmpty()) {
-            writer.writeEmptyElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
+            writer.writeEmptyElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
             this.writeAttributes(writer);
             return;
         }
-        writer.writeStartElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
+        writer.writeStartElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
         this.writeAttributes(writer);
         final ArrayList<SchemaField> fieldList = new ArrayList<>(this.schemaFields.values());
         Collections.sort(fieldList, Comparator.comparing(SchemaField::getName));

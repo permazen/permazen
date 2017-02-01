@@ -67,7 +67,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
 
     @Override
     QName getXMLTag() {
-        return MAP_FIELD_TAG;
+        return XMLConstants.MAP_FIELD_TAG;
     }
 
 // DiffGenerating

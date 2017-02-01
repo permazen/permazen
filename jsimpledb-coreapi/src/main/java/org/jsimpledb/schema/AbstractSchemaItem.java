@@ -26,7 +26,7 @@ import org.jsimpledb.util.Diffs;
 /**
  * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.
  */
-public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements XMLConstants, Cloneable {
+public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements Cloneable {
 
     private String name;
     private int storageId;
@@ -130,10 +130,10 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * Return state: same.
      */
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        final Integer storageIdAttr = this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE, false);
+        final Integer storageIdAttr = this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE, false);
         if (storageIdAttr != null)
             this.setStorageId(storageIdAttr);
-        final String nameAttr = this.getAttr(reader, NAME_ATTRIBUTE, false);
+        final String nameAttr = this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE, false);
         if (nameAttr != null)
             this.setName(nameAttr);
     }
@@ -207,9 +207,12 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
     }
 
     void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
-        if (includeName && this.name != null)
-            writer.writeAttribute(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart(), this.name);
+        writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
+          XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
+        if (includeName && this.name != null) {
+            writer.writeAttribute(XMLConstants.NAME_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.NAME_ATTRIBUTE.getLocalPart(), this.name);
+        }
     }
 
 // Object

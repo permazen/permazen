@@ -45,17 +45,17 @@ import org.jsimpledb.util.NavigableSets;
 /**
  * Models one JSimpleDB {@link org.jsimpledb.core.Database} schema version.
  */
-public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, Cloneable, DiffGenerating<SchemaModel> {
+public class SchemaModel extends AbstractXMLStreaming implements Cloneable, DiffGenerating<SchemaModel> {
 
     static final Map<QName, Class<? extends SchemaField>> FIELD_TAG_MAP = new HashMap<>();
     static {
-        FIELD_TAG_MAP.put(COUNTER_FIELD_TAG, CounterSchemaField.class);
-        FIELD_TAG_MAP.put(ENUM_FIELD_TAG, EnumSchemaField.class);
-        FIELD_TAG_MAP.put(LIST_FIELD_TAG, ListSchemaField.class);
-        FIELD_TAG_MAP.put(MAP_FIELD_TAG, MapSchemaField.class);
-        FIELD_TAG_MAP.put(REFERENCE_FIELD_TAG, ReferenceSchemaField.class);
-        FIELD_TAG_MAP.put(SET_FIELD_TAG, SetSchemaField.class);
-        FIELD_TAG_MAP.put(SIMPLE_FIELD_TAG, SimpleSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.COUNTER_FIELD_TAG, CounterSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.ENUM_FIELD_TAG, EnumSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.LIST_FIELD_TAG, ListSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.MAP_FIELD_TAG, MapSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.REFERENCE_FIELD_TAG, ReferenceSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.SET_FIELD_TAG, SetSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.SIMPLE_FIELD_TAG, SimpleSchemaField.class);
     }
     static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = new HashMap<>();
     static {
@@ -66,7 +66,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     static final Map<QName, Class<? extends AbstractSchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
     static {
         FIELD_OR_COMPOSITE_INDEX_TAG_MAP.putAll(FIELD_TAG_MAP);
-        FIELD_OR_COMPOSITE_INDEX_TAG_MAP.put(COMPOSITE_INDEX_TAG, SchemaCompositeIndex.class);
+        FIELD_OR_COMPOSITE_INDEX_TAG_MAP.put(XMLConstants.COMPOSITE_INDEX_TAG, SchemaCompositeIndex.class);
     }
 
     private static final String XML_OUTPUT_FACTORY_PROPERTY = "javax.xml.stream.XMLOutputFactory";
@@ -321,10 +321,10 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         this.schemaObjectTypes.clear();
 
         // Read opening tag
-        this.expect(reader, false, SCHEMA_MODEL_TAG);
+        this.expect(reader, false, XMLConstants.SCHEMA_MODEL_TAG);
 
         // Get and verify format version
-        final Integer formatAttr = this.getIntAttr(reader, FORMAT_VERSION_ATTRIBUTE, false);
+        final Integer formatAttr = this.getIntAttr(reader, XMLConstants.FORMAT_VERSION_ATTRIBUTE, false);
         final int formatVersion = formatAttr != null ? formatAttr : 0;
         final QName objectTypeTag;
         switch (formatVersion) {
@@ -333,7 +333,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             break;
         case 1:                                             // changed <Object> to <ObjectType>
         case 2:                                             // added <CompositeIndex>
-            objectTypeTag = OBJECT_TYPE_TAG;
+            objectTypeTag = XMLConstants.OBJECT_TYPE_TAG;
             break;
         default:
             throw new XMLStreamException("unrecognized schema format version " + formatAttr, reader.getLocation());
@@ -355,10 +355,10 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
 // XML Writing
 
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        writer.setDefaultNamespace(SCHEMA_MODEL_TAG.getNamespaceURI());
-        writer.writeStartElement(SCHEMA_MODEL_TAG.getNamespaceURI(), SCHEMA_MODEL_TAG.getLocalPart());
-        writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
-          FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
+        writer.setDefaultNamespace(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI());
+        writer.writeStartElement(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI(), XMLConstants.SCHEMA_MODEL_TAG.getLocalPart());
+        writer.writeAttribute(XMLConstants.FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
+          XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
         Collections.sort(typeList, Comparator.comparing(SchemaObjectType::getName));
         for (SchemaObjectType schemaObjectType : typeList)

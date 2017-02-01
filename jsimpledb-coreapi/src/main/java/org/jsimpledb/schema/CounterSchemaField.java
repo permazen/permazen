@@ -24,7 +24,7 @@ public class CounterSchemaField extends SchemaField {
 
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(COUNTER_FIELD_TAG.getNamespaceURI(), COUNTER_FIELD_TAG.getLocalPart());
+        writer.writeEmptyElement(XMLConstants.COUNTER_FIELD_TAG.getNamespaceURI(), XMLConstants.COUNTER_FIELD_TAG.getLocalPart());
         this.writeAttributes(writer);
     }
 

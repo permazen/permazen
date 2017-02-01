@@ -10,33 +10,36 @@ import javax.xml.namespace.QName;
 /**
  * XML tag and element names.
  */
-public interface XMLConstants {
+public final class XMLConstants {
 
     // Elements
-    QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");
-    QName COUNTER_FIELD_TAG = new QName("CounterField");
-    QName ENUM_FIELD_TAG = new QName("EnumField");
-    QName IDENTIFIER_TAG = new QName("Identifier");
-    QName INDEXED_FIELD_TAG = new QName("IndexedField");
-    QName LIST_FIELD_TAG = new QName("ListField");
-    QName MAP_FIELD_TAG = new QName("MapField");
-    QName OBJECT_TYPES_TAG = new QName("ObjectTypes");
-    QName OBJECT_TYPE_TAG = new QName("ObjectType");
-    QName REFERENCE_FIELD_TAG = new QName("ReferenceField");
-    QName SCHEMA_MODEL_TAG = new QName("Schema");
-    QName SET_FIELD_TAG = new QName("SetField");
-    QName SIMPLE_FIELD_TAG = new QName("SimpleField");
+    public static final QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");
+    public static final QName COUNTER_FIELD_TAG = new QName("CounterField");
+    public static final QName ENUM_FIELD_TAG = new QName("EnumField");
+    public static final QName IDENTIFIER_TAG = new QName("Identifier");
+    public static final QName INDEXED_FIELD_TAG = new QName("IndexedField");
+    public static final QName LIST_FIELD_TAG = new QName("ListField");
+    public static final QName MAP_FIELD_TAG = new QName("MapField");
+    public static final QName OBJECT_TYPES_TAG = new QName("ObjectTypes");
+    public static final QName OBJECT_TYPE_TAG = new QName("ObjectType");
+    public static final QName REFERENCE_FIELD_TAG = new QName("ReferenceField");
+    public static final QName SCHEMA_MODEL_TAG = new QName("Schema");
+    public static final QName SET_FIELD_TAG = new QName("SetField");
+    public static final QName SIMPLE_FIELD_TAG = new QName("SimpleField");
 
     // Attributes
-    QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
-    QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
-    QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");
-    QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");
-    QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
-    QName INDEXED_ATTRIBUTE = new QName("indexed");
-    QName NAME_ATTRIBUTE = new QName("name");
-    QName ON_DELETE_ATTRIBUTE = new QName("onDelete");
-    QName STORAGE_ID_ATTRIBUTE = new QName("storageId");
-    QName TYPE_ATTRIBUTE = new QName("type");
+    public static final QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
+    public static final QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
+    public static final QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");
+    public static final QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");
+    public static final QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
+    public static final QName INDEXED_ATTRIBUTE = new QName("indexed");
+    public static final QName NAME_ATTRIBUTE = new QName("name");
+    public static final QName ON_DELETE_ATTRIBUTE = new QName("onDelete");
+    public static final QName STORAGE_ID_ATTRIBUTE = new QName("storageId");
+    public static final QName TYPE_ATTRIBUTE = new QName("type");
+
+    private XMLConstants() {
+    }
 }
 

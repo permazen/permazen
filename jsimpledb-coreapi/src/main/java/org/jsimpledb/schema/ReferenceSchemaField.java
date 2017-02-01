@@ -174,16 +174,16 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        this.setOnDelete(this.readAttr(reader, DeleteAction.class, ON_DELETE_ATTRIBUTE, DeleteAction.EXCEPTION));
-        final Boolean cascadeDeleteAttr = this.getBooleanAttr(reader, CASCADE_DELETE_ATTRIBUTE, false);
+        this.setOnDelete(this.readAttr(reader, DeleteAction.class, XMLConstants.ON_DELETE_ATTRIBUTE, DeleteAction.EXCEPTION));
+        final Boolean cascadeDeleteAttr = this.getBooleanAttr(reader, XMLConstants.CASCADE_DELETE_ATTRIBUTE, false);
         if (cascadeDeleteAttr != null)
             this.setCascadeDelete(cascadeDeleteAttr);
         this.setAllowDeleted(this.getOnDelete() == DeleteAction.NOTHING);       // defaults to false unless DeleteAction.NOTHING
-        final Boolean allowDeletedAttr = this.getBooleanAttr(reader, ALLOW_DELETED_ATTRIBUTE, false);
+        final Boolean allowDeletedAttr = this.getBooleanAttr(reader, XMLConstants.ALLOW_DELETED_ATTRIBUTE, false);
         if (allowDeletedAttr != null)
             this.setAllowDeleted(allowDeletedAttr);
         this.setAllowDeletedSnapshot(true);                                     // defaults to true
-        final Boolean allowDeletedSnapshotAttr = this.getBooleanAttr(reader, ALLOW_DELETED_SNAPSHOT_ATTRIBUTE, false);
+        final Boolean allowDeletedSnapshotAttr = this.getBooleanAttr(reader, XMLConstants.ALLOW_DELETED_SNAPSHOT_ATTRIBUTE, false);
         if (allowDeletedSnapshotAttr != null)
             this.setAllowDeletedSnapshot(allowDeletedSnapshotAttr);
     }
@@ -192,15 +192,15 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
 
         // Any restrictions?
-        if (!this.expect(reader, true, OBJECT_TYPES_TAG)) {
+        if (!this.expect(reader, true, XMLConstants.OBJECT_TYPES_TAG)) {
             this.objectTypes = null;
             return;
         }
 
         // Read list of zero or more permitted storage ID
         this.objectTypes = new TreeSet<>();
-        while (this.expect(reader, true, OBJECT_TYPE_TAG)) {
-            this.objectTypes.add(this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE));
+        while (this.expect(reader, true, XMLConstants.OBJECT_TYPE_TAG)) {
+            this.objectTypes.add(this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE));
             this.expectClose(reader);           // </ObjectType>
         }
 
@@ -212,26 +212,33 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 
     @Override
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        if (this.objectTypes != null)
-            writer.writeStartElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
-        else
-            writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
+        if (this.objectTypes != null) {
+            writer.writeStartElement(XMLConstants.REFERENCE_FIELD_TAG.getNamespaceURI(),
+              XMLConstants.REFERENCE_FIELD_TAG.getLocalPart());
+        } else {
+            writer.writeEmptyElement(XMLConstants.REFERENCE_FIELD_TAG.getNamespaceURI(),
+              XMLConstants.REFERENCE_FIELD_TAG.getLocalPart());
+        }
         this.writeAttributes(writer, includeName);
-        if (this.onDelete != null)
-            writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
+        if (this.onDelete != null) {
+            writer.writeAttribute(XMLConstants.ON_DELETE_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
+        }
         if (this.allowDeleted != (this.onDelete == DeleteAction.NOTHING)) {
-            writer.writeAttribute(ALLOW_DELETED_ATTRIBUTE.getNamespaceURI(), ALLOW_DELETED_ATTRIBUTE.getLocalPart(),
-              "" + this.allowDeleted);
+            writer.writeAttribute(XMLConstants.ALLOW_DELETED_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.ALLOW_DELETED_ATTRIBUTE.getLocalPart(), "" + this.allowDeleted);
         }
         if (!this.allowDeletedSnapshot) {
-            writer.writeAttribute(ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getNamespaceURI(),
-              ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getLocalPart(), "" + this.allowDeletedSnapshot);
+            writer.writeAttribute(XMLConstants.ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getLocalPart(), "" + this.allowDeletedSnapshot);
         }
         if (this.objectTypes != null) {
-            writer.writeStartElement(OBJECT_TYPES_TAG.getNamespaceURI(), OBJECT_TYPES_TAG.getLocalPart());
+            writer.writeStartElement(XMLConstants.OBJECT_TYPES_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPES_TAG.getLocalPart());
             for (int storageId : this.objectTypes) {
-                writer.writeEmptyElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
-                writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+                writer.writeEmptyElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(),
+                  XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
+                writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
+                  XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
             }
             writer.writeEndElement();           // </ObjectTypes>
             writer.writeEndElement();           // </ReferenceField>
@@ -242,8 +249,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         // don't need to write type or indexed
         if (this.cascadeDelete) {
-            writer.writeAttribute(CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(), CASCADE_DELETE_ATTRIBUTE.getLocalPart(),
-              "" + this.cascadeDelete);
+            writer.writeAttribute(XMLConstants.CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.CASCADE_DELETE_ATTRIBUTE.getLocalPart(), "" + this.cascadeDelete);
         }
     }
 
