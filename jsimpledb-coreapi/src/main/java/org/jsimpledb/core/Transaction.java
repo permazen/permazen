@@ -1134,7 +1134,8 @@ public class Transaction {
         } catch (IllegalArgumentException e) {
             throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
         }
-        if (!Arrays.equals(srcSchema.encodedXML, dstSchema.encodedXML)) {
+        if (!Arrays.equals(srcSchema.encodedXML, dstSchema.encodedXML)
+          && !srcSchema.schemaModel.isCompatibleWith(dstSchema.schemaModel)) {
             throw new SchemaMismatchException("destination transaction schema version "
               + objectVersion + " does not match source schema version " + objectVersion + "\n"
               + dstSchema.schemaModel.differencesFrom(srcSchema.schemaModel));
