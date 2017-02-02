@@ -40,6 +40,20 @@ public class ConvertedList<E, W> extends AbstractList<E> {
         this.converter = converter;
     }
 
+    /**
+     * Get the wrapped {@link List}.
+     *
+     * @return the wrapped {@link List}.
+     */
+    public List<W> getWrappedList() {
+        return this.list;
+    }
+
+    /**
+     * Get the {@link Converter} associated with this instance.
+     *
+     * @return associated {@link Converter}
+     */
     public Converter<E, W> getConverter() {
         return this.converter;
     }

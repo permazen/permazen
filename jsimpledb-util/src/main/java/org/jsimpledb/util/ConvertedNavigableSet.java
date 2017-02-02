@@ -51,6 +51,20 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
         this.converter = converter;
     }
 
+    /**
+     * Get the wrapped {@link NavigableSet}.
+     *
+     * @return the wrapped {@link NavigableSet}.
+     */
+    public NavigableSet<W> getWrappedNavigableSet() {
+        return this.set;
+    }
+
+    /**
+     * Get the {@link Converter} associated with this instance.
+     *
+     * @return associated {@link Converter}
+     */
     public Converter<E, W> getConverter() {
         return this.converter;
     }

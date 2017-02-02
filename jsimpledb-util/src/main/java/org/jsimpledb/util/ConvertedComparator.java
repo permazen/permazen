@@ -25,6 +25,20 @@ class ConvertedComparator<E, W> implements Comparator<E> {
         this.converter = converter;
     }
 
+    /**
+     * Get the wrapped {@link Comparator}.
+     *
+     * @return the wrapped {@link Comparator}.
+     */
+    public Comparator<? super W> getWrappedComparator() {
+        return this.comparator;
+    }
+
+    /**
+     * Get the {@link Converter} associated with this instance.
+     *
+     * @return associated {@link Converter}
+     */
     public Converter<E, W> getConverter() {
         return this.converter;
     }

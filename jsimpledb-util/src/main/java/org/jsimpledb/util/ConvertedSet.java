@@ -37,6 +37,20 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
         this.converter = converter;
     }
 
+    /**
+     * Get the wrapped {@link Set}.
+     *
+     * @return the wrapped {@link Set}.
+     */
+    public Set<W> getWrappedSet() {
+        return this.set;
+    }
+
+    /**
+     * Get the {@link Converter} associated with this instance.
+     *
+     * @return associated {@link Converter}
+     */
     public Converter<E, W> getConverter() {
         return this.converter;
     }
