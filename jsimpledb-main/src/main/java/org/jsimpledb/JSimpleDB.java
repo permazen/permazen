@@ -616,9 +616,10 @@ public class JSimpleDB {
                 model.getSchemaObjectTypes().put(schemaObjectType.getStorageId(), schemaObjectType);
             }
             this.schemaModel = model;
+            this.schemaModel.lockDown();
             this.log.debug("JSimpleDB schema generated from annotated classes:\n{}", this.schemaModel);
         }
-        return this.schemaModel.clone();
+        return this.schemaModel;
     }
 
     /**

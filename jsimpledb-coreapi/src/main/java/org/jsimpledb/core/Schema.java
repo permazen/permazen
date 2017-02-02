@@ -43,7 +43,14 @@ public class Schema {
         Preconditions.checkArgument(schemaModel != null, "null schemaModel");
         this.versionNumber = versionNumber;
         this.encodedXML = encodedXML;
-        this.schemaModel = schemaModel.clone();
+        final SchemaModel lockedDownSchemaModel;
+        if (schemaModel.isLockedDown())
+            lockedDownSchemaModel = schemaModel;
+        else {
+            lockedDownSchemaModel = schemaModel.clone();
+            lockedDownSchemaModel.lockDown();
+        }
+        this.schemaModel = lockedDownSchemaModel;
 
         // Build object types
         for (SchemaObjectType schemaObjectType : this.schemaModel.getSchemaObjectTypes().values()) {
