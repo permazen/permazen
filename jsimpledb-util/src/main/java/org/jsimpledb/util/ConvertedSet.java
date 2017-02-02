@@ -11,6 +11,7 @@ import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Spliterator;
 
 /**
  * Provides a transformed view of a wrapped {@link Set} using a strictly invertable {@link Converter}.
@@ -72,6 +73,11 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
     @Override
     public Iterator<E> iterator() {
         return Iterators.transform(this.set.iterator(), this.converter.reverse());
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return new ConvertedSpliterator<E, W>(this.set.spliterator(), this.converter.reverse());
     }
 
     @Override

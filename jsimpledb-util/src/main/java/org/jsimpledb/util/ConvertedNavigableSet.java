@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
 
 /**
  * Provides a transformed view of a wrapped {@link NavigableSet} using a strictly invertable {@link Converter}.
@@ -91,6 +92,11 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
     @Override
     public Iterator<E> iterator() {
         return Iterators.transform(this.set.iterator(), this.converter.reverse());
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return new ConvertedSpliterator<E, W>(this.set.spliterator(), this.converter.reverse());
     }
 
     @Override

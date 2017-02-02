@@ -13,6 +13,7 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
 import java.util.stream.Collectors;
 
 /**
@@ -150,6 +151,11 @@ public class ConvertedList<E, W> extends AbstractList<E> {
     @Override
     public Iterator<E> iterator() {
         return Iterators.transform(this.list.iterator(), this.converter.reverse());
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return new ConvertedSpliterator<E, W>(this.list.spliterator(), this.converter.reverse());
     }
 
     @Override
