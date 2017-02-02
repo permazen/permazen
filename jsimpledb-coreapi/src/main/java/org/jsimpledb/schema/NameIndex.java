@@ -8,7 +8,7 @@ package org.jsimpledb.schema;
 import com.google.common.base.Preconditions;
 
 import java.util.Collections;
-import java.util.SortedSet;
+import java.util.NavigableSet;
 import java.util.TreeMap;
 
 /**
@@ -84,8 +84,8 @@ public class NameIndex {
      *
      * @return unmodifiable set of {@link SchemaObjectType} names
      */
-    public SortedSet<String> getSchemaObjectTypeNames() {
-        return Collections.unmodifiableSortedSet(this.typeMap.navigableKeySet());
+    public NavigableSet<String> getSchemaObjectTypeNames() {
+        return Collections.unmodifiableNavigableSet(this.typeMap.navigableKeySet());
     }
 
     /**
@@ -113,12 +113,12 @@ public class NameIndex {
      * @return unmodifiable set of {@link SchemaField} names in {@code type}
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
-    public SortedSet<String> getSchemaFieldNames(SchemaObjectType type) {
+    public NavigableSet<String> getSchemaFieldNames(SchemaObjectType type) {
         Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
-        return Collections.unmodifiableSortedSet(fieldMap.navigableKeySet());
+        return Collections.unmodifiableNavigableSet(fieldMap.navigableKeySet());
     }
 
     /**
@@ -146,12 +146,12 @@ public class NameIndex {
      * @return unmodifiable set of {@link SchemaCompositeIndex} names in {@code type}
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
-    public SortedSet<String> getSchemaCompositeIndexNames(SchemaObjectType type) {
+    public NavigableSet<String> getSchemaCompositeIndexNames(SchemaObjectType type) {
         Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
         if (indexMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
-        return Collections.unmodifiableSortedSet(indexMap.navigableKeySet());
+        return Collections.unmodifiableNavigableSet(indexMap.navigableKeySet());
     }
 }
 

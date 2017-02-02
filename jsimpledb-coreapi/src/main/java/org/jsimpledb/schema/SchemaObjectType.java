@@ -13,8 +13,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.xml.stream.XMLStreamException;
@@ -31,15 +31,15 @@ import org.jsimpledb.util.NavigableSets;
  */
 public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerating<SchemaObjectType> {
 
-    private /*final*/ TreeMap<Integer, SchemaField> schemaFields = new TreeMap<>();
-    private /*final*/ TreeMap<Integer, SchemaCompositeIndex> schemaCompositeIndexes = new TreeMap<>();
+    private /*final*/ NavigableMap<Integer, SchemaField> schemaFields = new TreeMap<>();
+    private /*final*/ NavigableMap<Integer, SchemaCompositeIndex> schemaCompositeIndexes = new TreeMap<>();
 
     /**
      * Get this object type's {@link SchemaField}s, indexed by storage ID.
      *
      * @return fields in this object type
      */
-    public SortedMap<Integer, SchemaField> getSchemaFields() {
+    public NavigableMap<Integer, SchemaField> getSchemaFields() {
         return this.schemaFields;
     }
 
@@ -48,7 +48,7 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
      *
      * @return composite indexes in this object type
      */
-    public SortedMap<Integer, SchemaCompositeIndex> getSchemaCompositeIndexes() {
+    public NavigableMap<Integer, SchemaCompositeIndex> getSchemaCompositeIndexes() {
         return this.schemaCompositeIndexes;
     }
 
@@ -269,10 +269,10 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
     @SuppressWarnings("unchecked")
     public SchemaObjectType clone() {
         final SchemaObjectType clone = (SchemaObjectType)super.clone();
-        clone.schemaFields = (TreeMap<Integer, SchemaField>)clone.schemaFields.clone();
+        clone.schemaFields = new TreeMap<>(clone.schemaFields);
         for (Map.Entry<Integer, SchemaField> entry : clone.schemaFields.entrySet())
             entry.setValue(entry.getValue().clone());
-        clone.schemaCompositeIndexes = (TreeMap<Integer, SchemaCompositeIndex>)clone.schemaCompositeIndexes.clone();
+        clone.schemaCompositeIndexes = new TreeMap<>(clone.schemaCompositeIndexes);
         for (Map.Entry<Integer, SchemaCompositeIndex> entry : clone.schemaCompositeIndexes.entrySet())
             entry.setValue(entry.getValue().clone());
         return clone;

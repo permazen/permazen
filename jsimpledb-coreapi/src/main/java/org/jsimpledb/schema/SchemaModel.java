@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
@@ -74,9 +74,9 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
 
     private static final int CURRENT_FORMAT_VERSION = 2;
 
-    private /*final*/ TreeMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
+    private /*final*/ NavigableMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
 
-    public SortedMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
+    public NavigableMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
         return this.schemaObjectTypes;
     }
 
@@ -200,6 +200,7 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
         }
         itemsByStorageId.put(storageId, item);
     }
+
 // Compatibility
 
     /**
@@ -403,13 +404,13 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
     @Override
     @SuppressWarnings("unchecked")
     public SchemaModel clone() {
-        SchemaModel clone;
+        final SchemaModel clone;
         try {
             clone = (SchemaModel)super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.schemaObjectTypes = (TreeMap<Integer, SchemaObjectType>)clone.schemaObjectTypes.clone();
+        clone.schemaObjectTypes = new TreeMap<>(clone.schemaObjectTypes);
         for (Map.Entry<Integer, SchemaObjectType> entry : clone.schemaObjectTypes.entrySet())
             entry.setValue(entry.getValue().clone());
         return clone;

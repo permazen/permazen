@@ -7,8 +7,8 @@ package org.jsimpledb.schema;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.NavigableSet;
 import java.util.Objects;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.xml.stream.XMLStreamException;
@@ -29,7 +29,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     private boolean cascadeDelete;
     private boolean allowDeleted;
     private boolean allowDeletedSnapshot;
-    private SortedSet<Integer> objectTypes;
+    private NavigableSet<Integer> objectTypes;
 
     public ReferenceSchemaField() {
         this.setType(FieldType.REFERENCE_TYPE_NAME);
@@ -90,10 +90,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
      *
      * @return storage IDs of allowed object types, or null if there is no restriction
      */
-    public SortedSet<Integer> getObjectTypes() {
+    public NavigableSet<Integer> getObjectTypes() {
         return this.objectTypes;
     }
-    public void setObjectTypes(SortedSet<Integer> objectTypes) {
+    public void setObjectTypes(NavigableSet<Integer> objectTypes) {
         this.objectTypes = objectTypes;
     }
 
