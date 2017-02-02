@@ -8,6 +8,7 @@ package org.jsimpledb.schema;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import org.jsimpledb.util.Diffs;
  */
 public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGenerating<SchemaCompositeIndex> {
 
-    private /*final*/ ArrayList<Integer> indexedFields = new ArrayList<>();
+    private /*final*/ List<Integer> indexedFields = new ArrayList<>();
 
     /**
      * Get the fields that comprise this index.
@@ -35,6 +36,16 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     public List<Integer> getIndexedFields() {
         return this.indexedFields;
     }
+
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        this.indexedFields = Collections.unmodifiableList(this.indexedFields);
+    }
+
+// Validation
 
     @Override
     void validate() {
@@ -60,7 +71,8 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
             this.indexedFields.add(this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE));
             this.expectClose(reader);   // </IndexedField>
         }
-        this.indexedFields.trimToSize();
+        if (this.indexedFields instanceof ArrayList)
+            ((ArrayList<?>)this.indexedFields).trimToSize();
     }
 
 // XML Writing
@@ -131,7 +143,7 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     @SuppressWarnings("unchecked")
     public SchemaCompositeIndex clone() {
         final SchemaCompositeIndex clone = (SchemaCompositeIndex)super.clone();
-        clone.indexedFields = (ArrayList<Integer>)clone.indexedFields.clone();
+        clone.indexedFields = new ArrayList<>(clone.indexedFields);
         return clone;
     }
 }

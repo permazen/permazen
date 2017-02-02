@@ -38,6 +38,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         return this.type;
     }
     public void setType(String type) {
+        this.verifyNotLockedDown();
         this.type = type;
     }
 
@@ -50,6 +51,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         return this.indexed;
     }
     public void setIndexed(boolean indexed) {
+        this.verifyNotLockedDown();
         this.indexed = indexed;
     }
 
@@ -63,6 +65,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         return this.encodingSignature;
     }
     public void setEncodingSignature(long encodingSignature) {
+        this.verifyNotLockedDown();
         this.encodingSignature = encodingSignature;
     }
 

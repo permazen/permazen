@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -37,7 +38,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.InvalidSchemaException;
-import org.jsimpledb.util.AbstractXMLStreaming;
 import org.jsimpledb.util.DiffGenerating;
 import org.jsimpledb.util.Diffs;
 import org.jsimpledb.util.NavigableSets;
@@ -45,7 +45,7 @@ import org.jsimpledb.util.NavigableSets;
 /**
  * Models one JSimpleDB {@link org.jsimpledb.core.Database} schema version.
  */
-public class SchemaModel extends AbstractXMLStreaming implements Cloneable, DiffGenerating<SchemaModel> {
+public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaModel> {
 
     static final Map<QName, Class<? extends SchemaField>> FIELD_TAG_MAP = new HashMap<>();
     static {
@@ -74,7 +74,14 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
 
     private static final int CURRENT_FORMAT_VERSION = 2;
 
+    // Keys into this.lockedDownCache
+    private static final int VALIDATION_RESULT_KEY = 1;
+    private static final int COMPATIBILITY_HASH_KEY = 2;
+
     private /*final*/ NavigableMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
+
+    // Computed information we cache after being locked down
+    private final HashMap<Integer, Object> lockedDownCache = new HashMap<>();
 
     public NavigableMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
         return this.schemaObjectTypes;
@@ -148,6 +155,29 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
         return schemaModel;
     }
 
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        this.schemaObjectTypes = Collections.unmodifiableNavigableMap(this.schemaObjectTypes);
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+            schemaObjectType.lockDown();
+    }
+
+    private <T> T calculate(Class<T> type, int key, Supplier<T> supplier) {
+        if (!this.lockedDown)
+            return supplier.get();
+        T value = type.cast(this.lockedDownCache.get(key));                 // can't use computeIfAbsent() because of null values
+        if (value == null && !this.lockedDownCache.containsKey(key)) {
+            value = supplier.get();
+            this.lockedDownCache.put(key, value);
+        }
+        return value;
+    }
+
+// Validation
+
     /**
      * Validate this instance.
      *
@@ -156,9 +186,26 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
      * {@link org.jsimpledb.core.Database} instance (for example, we don't know whether or not a custom
      * {@link SimpleSchemaField} type name is registered with the associated {@link org.jsimpledb.core.FieldTypeRegistry}).
      *
+     * <p>
+     * Note that after this instance has been {@linkplain #lockDown locked down}, repeated invocations of this
+     * method will be very fast, just returning the cached previous result.
+     *
      * @throws InvalidSchemaException if this instance is detected to be invalid
      */
     public void validate() {
+        final RuntimeException failure = this.calculate(RuntimeException.class, VALIDATION_RESULT_KEY, () -> {
+            try {
+                this.doValidate();
+            } catch (RuntimeException e) {
+                return e;
+            }
+            return null;
+        });
+        if (failure != null)
+            throw failure;
+    }
+
+    private void doValidate() {
 
         // Validate object types and verify object type names are unique
         final TreeMap<String, SchemaObjectType> schemaObjectTypesByName = new TreeMap<>();
@@ -245,6 +292,10 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
      * @return "same version" compatibility hash value
      */
     public long compatibilityHash() {
+        return this.calculate(Long.class, COMPATIBILITY_HASH_KEY, this::computeCompatibilityHash);
+    }
+
+    private long computeCompatibilityHash() {
         final MessageDigest sha1;
         try {
             sha1 = MessageDigest.getInstance("SHA");
@@ -404,12 +455,7 @@ public class SchemaModel extends AbstractXMLStreaming implements Cloneable, Diff
     @Override
     @SuppressWarnings("unchecked")
     public SchemaModel clone() {
-        final SchemaModel clone;
-        try {
-            clone = (SchemaModel)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        final SchemaModel clone = (SchemaModel)super.clone();
         clone.schemaObjectTypes = new TreeMap<>(clone.schemaObjectTypes);
         for (Map.Entry<Integer, SchemaObjectType> entry : clone.schemaObjectTypes.entrySet())
             entry.setValue(entry.getValue().clone());

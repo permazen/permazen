@@ -11,6 +11,7 @@ import com.google.common.collect.PeekingIterator;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -37,6 +38,14 @@ public class EnumSchemaField extends SimpleSchemaField {
      */
     public List<String> getIdentifiers() {
         return this.idents;
+    }
+
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        this.idents = Collections.unmodifiableList(this.idents);
     }
 
 // SchemaFieldSwitch

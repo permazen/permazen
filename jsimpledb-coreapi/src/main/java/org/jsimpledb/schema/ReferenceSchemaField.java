@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.TreeSet;
@@ -46,6 +47,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.onDelete;
     }
     public void setOnDelete(DeleteAction onDelete) {
+        this.verifyNotLockedDown();
         this.onDelete = onDelete;
     }
 
@@ -58,6 +60,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.cascadeDelete;
     }
     public void setCascadeDelete(boolean cascadeDelete) {
+        this.verifyNotLockedDown();
         this.cascadeDelete = cascadeDelete;
     }
 
@@ -70,6 +73,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.allowDeleted;
     }
     public void setAllowDeleted(boolean allowDeleted) {
+        this.verifyNotLockedDown();
         this.allowDeleted = allowDeleted;
     }
 
@@ -82,6 +86,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.allowDeletedSnapshot;
     }
     public void setAllowDeletedSnapshot(boolean allowDeletedSnapshot) {
+        this.verifyNotLockedDown();
         this.allowDeletedSnapshot = allowDeletedSnapshot;
     }
 
@@ -94,7 +99,17 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.objectTypes;
     }
     public void setObjectTypes(NavigableSet<Integer> objectTypes) {
+        this.verifyNotLockedDown();
         this.objectTypes = objectTypes;
+    }
+
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        if (this.objectTypes != null)
+            this.objectTypes = Collections.unmodifiableNavigableSet(this.objectTypes);
     }
 
 // Validation

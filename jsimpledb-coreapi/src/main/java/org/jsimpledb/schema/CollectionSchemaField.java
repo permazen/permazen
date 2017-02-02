@@ -26,7 +26,17 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
         return this.elementField;
     }
     public void setElementField(SimpleSchemaField elementField) {
+        this.verifyNotLockedDown();
         this.elementField = elementField;
+    }
+
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        if (this.elementField != null)
+            this.elementField.lockDown();
     }
 
 // ComplexSchemaField
@@ -81,7 +91,8 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
     @Override
     public CollectionSchemaField clone() {
         final CollectionSchemaField clone = (CollectionSchemaField)super.clone();
-        clone.elementField = this.elementField.clone();
+        if (clone.elementField != null)
+            clone.elementField = clone.elementField.clone();
         return clone;
     }
 }

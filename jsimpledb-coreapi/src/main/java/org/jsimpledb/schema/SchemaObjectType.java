@@ -52,6 +52,21 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         return this.schemaCompositeIndexes;
     }
 
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        this.schemaFields = Collections.unmodifiableNavigableMap(this.schemaFields);
+        for (SchemaField schemaField : this.schemaFields.values())
+            schemaField.lockDown();
+        this.schemaCompositeIndexes = Collections.unmodifiableNavigableMap(this.schemaCompositeIndexes);
+        for (SchemaCompositeIndex schemaCompositeIndex : this.schemaCompositeIndexes.values())
+            schemaCompositeIndex.lockDown();
+    }
+
+// Validation
+
     @Override
     void validate() {
         super.validate();

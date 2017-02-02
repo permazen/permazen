@@ -29,6 +29,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         return this.keyField;
     }
     public void setKeyField(SimpleSchemaField keyField) {
+        this.verifyNotLockedDown();
         this.keyField = keyField;
     }
 
@@ -36,6 +37,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         return this.valueField;
     }
     public void setValueField(SimpleSchemaField valueField) {
+        this.verifyNotLockedDown();
         this.valueField = valueField;
     }
 
@@ -45,6 +47,17 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         map.put(MapField.KEY_FIELD_NAME, this.keyField);
         map.put(MapField.VALUE_FIELD_NAME, this.valueField);
         return map;
+    }
+
+// Lockdown
+
+    @Override
+    void lockDownRecurse() {
+        super.lockDownRecurse();
+        if (this.keyField != null)
+            this.keyField.lockDown();
+        if (this.valueField != null)
+            this.valueField.lockDown();
     }
 
 // SchemaFieldSwitch
@@ -113,7 +126,12 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
 
     @Override
     public MapSchemaField clone() {
-        return (MapSchemaField)super.clone();
+        final MapSchemaField clone = (MapSchemaField)super.clone();
+        if (clone.keyField != null)
+            clone.keyField = clone.keyField.clone();
+        if (clone.valueField != null)
+            clone.valueField = clone.valueField.clone();
+        return clone;
     }
 }
 

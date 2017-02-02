@@ -20,13 +20,12 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.InvalidSchemaException;
 import org.jsimpledb.core.SchemaItem;
-import org.jsimpledb.util.AbstractXMLStreaming;
 import org.jsimpledb.util.Diffs;
 
 /**
  * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.
  */
-public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements Cloneable {
+public abstract class AbstractSchemaItem extends SchemaSupport {
 
     private String name;
     private int storageId;
@@ -40,6 +39,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         return this.name;
     }
     public void setName(String name) {
+        this.verifyNotLockedDown();
         this.name = name;
     }
 
@@ -53,6 +53,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         return this.storageId;
     }
     public void setStorageId(int storageId) {
+        this.verifyNotLockedDown();
         this.storageId = storageId;
     }
 
@@ -239,16 +240,9 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
 // Cloneable
 
-    /**
-     * Deep-clone this instance.
-     */
     @Override
-    public AbstractSchemaItem clone() {
-        try {
-            return (AbstractSchemaItem)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+    protected AbstractSchemaItem clone() {
+        return (AbstractSchemaItem)super.clone();
     }
 }
 
