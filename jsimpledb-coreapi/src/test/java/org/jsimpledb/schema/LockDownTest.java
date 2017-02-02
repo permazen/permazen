@@ -143,8 +143,6 @@ public class LockDownTest extends CoreAPITestSupport {
         Assert.assertEquals(hash4, hash1);
 
         // We should be able to modify the clone
-        schema2.getSchemaObjectTypes().get(100).getSchemaFields().remove(12);
-        schema2.getSchemaObjectTypes().remove(100);
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setType(null);
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setIndexed(false);
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingSignature(123);
@@ -153,6 +151,8 @@ public class LockDownTest extends CoreAPITestSupport {
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setCascadeDelete(true);
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setAllowDeleted(false);
         schema2.getSchemaObjectTypes().get(100).getSchemaCompositeIndexes().remove(110);
+        schema2.getSchemaObjectTypes().get(100).getSchemaFields().remove(12);
+        schema2.getSchemaObjectTypes().remove(100);
     }
 }
 
