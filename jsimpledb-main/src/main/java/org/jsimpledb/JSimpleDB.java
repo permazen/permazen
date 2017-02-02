@@ -478,12 +478,12 @@ public class JSimpleDB {
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @return the newly created transaction
-     * @throws org.jsimpledb.core.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
      *  is not recorded in the database and {@code allowNewSchema} is false
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
+     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
      *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
      *  incompatibly between schema versions)
      * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
@@ -507,12 +507,12 @@ public class JSimpleDB {
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @param kvoptions optional {@link org.jsimpledb.kv.KVDatabase}-specific transaction options; may be null
      * @return the newly created transaction
-     * @throws org.jsimpledb.core.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
      *  is not recorded in the database and {@code allowNewSchema} is false
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
+     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
      *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
      *  incompatibly between schema versions)
      * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
@@ -537,12 +537,12 @@ public class JSimpleDB {
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @return the newly created transaction
-     * @throws org.jsimpledb.core.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
      *  is not recorded in the database and {@code allowNewSchema} is false
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
+     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
      *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
      *  incompatibly between schema versions)
      * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
