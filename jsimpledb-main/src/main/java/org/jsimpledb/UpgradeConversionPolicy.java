@@ -16,7 +16,7 @@ package org.jsimpledb;
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
  * With some restrictions<sup>*</sup>, the type of a field may change between schema versions; this includes both
  * regular simple fields (e.g., changing from {@code int} to {@link String}) and sub-fields of complex fields
- * (e.g., changing from {@link java.util.List List&lt;Integer&gt;} * to {@link java.util.List List&lt;String&gt;}).
+ * (e.g., changing from {@link java.util.List List&lt;Integer&gt;} to {@link java.util.List List&lt;String&gt;}).
  *
  * <p>
  * When upgrading an object's schema version, JSimpleDB supports optional automatic conversion of a field's value from its
