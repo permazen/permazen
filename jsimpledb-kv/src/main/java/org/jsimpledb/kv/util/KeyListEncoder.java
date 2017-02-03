@@ -23,7 +23,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * Serializes a sequence of {@code byte[]} arrays, compressing consecutive common prefixes.
  *
  * <p>
- * Keys are encoded/decode by {@link #read read()} and {@link #write write()} in one of two forms:
+ * Keys are encoded/decoded by {@link #read read()} and {@link #write write()} in one of two forms:
  *  <ul>
  *  <li>{@code total-length bytes...}
  *  <li>{@code -prefix-length suffix-length suffix-bytes ...}
