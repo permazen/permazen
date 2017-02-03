@@ -42,8 +42,8 @@ import org.jsimpledb.JSimpleDB;
  * The first case is detected by having an expected schema XML file.
  * This file should correspond to the project's current schema version, and is
  * is used to verify that the schema auto-generated from the project's model classes is still
- * {@linkplain SchemaModel#isCompatibleWith "same version" compatible} with this schema version, ensuring
- * no mismatch error will occur at runtime. In other words, the actual schema generated from the compiled classes
+ * {@linkplain org.jsimpledb.schema.SchemaModel#isCompatibleWith "same version" compatible} with this schema version,
+ * ensuring no mismatch error will occur at runtime. In other words, the actual schema generated from the compiled classes
  * is verified to match what is expected, which is recorded in this file.
  * The current expected schema XML file location is configured by {@code <expectedSchemaFile>};
  *

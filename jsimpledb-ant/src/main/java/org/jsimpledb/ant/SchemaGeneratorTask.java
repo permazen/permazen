@@ -90,7 +90,7 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Whether to verify not only {@link org.jsimpledb.schema.ScheamModel#isCompatibleWith "same version"
+ *      Whether to verify not only {@link org.jsimpledb.schema.SchemaModel#isCompatibleWith "same version"
  *      schema compatibility} but also that the two schemas are actually identical, i.e.,
  *      the same names are used for object types, fields, and composite indexes, and non-structural
  *      attributes such as delete cascades have not changed.

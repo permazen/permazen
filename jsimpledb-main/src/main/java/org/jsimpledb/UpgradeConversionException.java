@@ -26,8 +26,8 @@ public class UpgradeConversionException extends DatabaseException {
      * Constructor.
      *
      * @param id ID of the object being upgraded
-     * @param the storage ID of the field
-     * @param description description of the field
+     * @param storageId the storage ID of the field
+     * @param message exception message
      */
     public UpgradeConversionException(ObjId id, int storageId, String message) {
         this(id, storageId, message, null);
@@ -37,8 +37,8 @@ public class UpgradeConversionException extends DatabaseException {
      * Constructor.
      *
      * @param id ID of the object being upgraded
-     * @param the storage ID of the field
-     * @param description description of the field
+     * @param storageId the storage ID of the field
+     * @param message exception message
      * @param cause underlying exception, or null if none
      */
     public UpgradeConversionException(ObjId id, int storageId, String message, Throwable cause) {

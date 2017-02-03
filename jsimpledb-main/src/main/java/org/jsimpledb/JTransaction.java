@@ -1022,7 +1022,7 @@ public class JTransaction {
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1046,7 +1046,7 @@ public class JTransaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
      *  that does not exist in this instance's schema version
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
@@ -1074,7 +1074,7 @@ public class JTransaction {
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1100,7 +1100,7 @@ public class JTransaction {
      * @return the set field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1124,7 +1124,7 @@ public class JTransaction {
      * @return the list field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1148,7 +1148,7 @@ public class JTransaction {
      * @return the map field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
+     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1168,7 +1168,7 @@ public class JTransaction {
      * @param targetObjects target objects
      * @param <T> starting Java type
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
-     * @throws UnknownFieldException if {@code path} contains an unknown field
+     * @throws org.jsimpledb.core.UnknownFieldException if {@code path} contains an unknown field
      * @throws IllegalArgumentException if {@code path} is invalid, e.g., does not end on a reference field
      * @throws IllegalArgumentException if any parameter is null
      */

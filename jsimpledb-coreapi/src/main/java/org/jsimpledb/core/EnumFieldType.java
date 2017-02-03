@@ -44,7 +44,6 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
     /**
      * Primary constructor.
      *
-     * @param name name of this type
      * @param idents ordered list of identifiers
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier

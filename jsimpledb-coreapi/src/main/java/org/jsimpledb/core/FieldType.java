@@ -306,6 +306,8 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      *
      * @param type the {@link FieldType} of {@code value}
      * @param value the value to convert
+     * @param <S> source field type
+     * @return {@code value} converted to this instance's type
      * @throws IllegalArgumentException if the conversion fails
      */
     public <S> T convert(FieldType<S> type, S value) {
@@ -413,6 +415,8 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      *
      * <p>
      * This operation should be applied before using this instance with index queries.
+     *
+     * @return this instance with all non-index-relevant information elided
      */
     public FieldType<T> genericizeForIndex() {
         return this;

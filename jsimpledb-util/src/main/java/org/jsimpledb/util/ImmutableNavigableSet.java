@@ -43,7 +43,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     /**
      * Constructor.
      *
-     * @param keys sorted element array
+     * @param elems sorted element array
      * @param comparator element comparator, or null for natural ordering
      * @throws IllegalArgumentException if {@code elems} is null
      */
