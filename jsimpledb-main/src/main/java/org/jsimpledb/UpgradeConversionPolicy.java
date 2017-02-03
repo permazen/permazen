@@ -14,15 +14,14 @@ package org.jsimpledb;
  * <p>
  * JSimpleDB fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
- * With some restrictions<sup>*</sup>, the type of a field may change between schema versions; this includes both
- * regular simple fields (e.g., changing from {@code int} to {@link String}) and sub-fields of complex fields
- * (e.g., changing from {@link java.util.List List&lt;Integer&gt;} to {@link java.util.List List&lt;String&gt;}).
+ * With some restrictions<sup>*</sup>, the type of a field may change arbitrarily between schema versions.
  *
  * <p>
- * When upgrading an object's schema version, JSimpleDB supports optional automatic conversion of a field's value from its
- * old type to its new type. For example, an {@code int} field value {@code 1234} would become the {@link String} field value
- * {@code "1234"}. How exactly this conversion is performed is defined by the field's new {@link org.jsimpledb.core.FieldType};
- * see {@link org.jsimpledb.core.FieldType#convert FieldType.convert()} for details.
+ * When changing an object's schema version, JSimpleDB supports optional automatic conversion of simple field
+ * values from the old type to the new type. For example, an {@code int} field value {@code 1234} can be automatically
+ * converted into {@link String} field value {@code "1234"}. How exactly this conversion is performed is defined by the
+ * field's new {@link org.jsimpledb.core.FieldType}; see {@link org.jsimpledb.core.FieldType#convert FieldType.convert()}
+ * for details.
  *
  * <p>
  * This class is used to {@linkplain org.jsimpledb.annotation.JField#upgradeConversion specify} whether such automatic
