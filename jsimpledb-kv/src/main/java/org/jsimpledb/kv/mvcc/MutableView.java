@@ -22,8 +22,6 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.SizeEstimating;
-import org.jsimpledb.util.SizeEstimator;
 
 /**
  * Provides a mutable view of an underlying, read-only {@link KVStore}.
@@ -45,7 +43,7 @@ import org.jsimpledb.util.SizeEstimator;
  * without first locking the containing instance.
  */
 @ThreadSafe
-public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
+public class MutableView extends AbstractKVStore implements Cloneable {
 
     @GuardedBy("this")
     private KVStore kv;
@@ -302,25 +300,6 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
             this.writes.getAdjusts().put(key, amount);
         else if (oldAdjust != null)
             this.writes.getAdjusts().remove(key);
-    }
-
-// SizeEstimating
-
-    /**
-     * Add the estimated size of this instance (in bytes) to the given estimator.
-     *
-     * <p>
-     * The size estimate returned by this method does not include the underlying {@link KVStore}.
-     *
-     * @param estimator size estimator
-     */
-    @Override
-    public synchronized void addTo(SizeEstimator estimator) {
-        estimator
-          .addObjectOverhead()
-          .addReferenceField()                              // kv
-          .addField(this.reads)                             // reads
-          .addField(this.writes);                           // writes
     }
 
 // Cloneable

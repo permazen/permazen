@@ -23,8 +23,6 @@ import java.util.stream.Stream;
 
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.SizeEstimating;
-import org.jsimpledb.util.SizeEstimator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -35,7 +33,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  *
  * @see KeyRange
  */
-public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating, Cloneable {
+public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
     private /*final*/ TreeSet<KeyRange> ranges;
 
@@ -632,17 +630,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating,
     @Override
     public Iterator<KeyRange> iterator() {
         return this.asSet().iterator();
-    }
-
-// SizeEstimating
-
-    @Override
-    public void addTo(SizeEstimator estimator) {
-        estimator
-          .addObjectOverhead()                                      // this object overhead
-          .addTreeSetField(this.ranges)                             // this.ranges
-          .addReferenceField();                                     // this.lastContainingKeyRange (reference only)
-        this.ranges.forEach(estimator::add);
     }
 
 // Serialization

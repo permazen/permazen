@@ -23,8 +23,6 @@ import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.LongEncoder;
-import org.jsimpledb.util.SizeEstimating;
-import org.jsimpledb.util.SizeEstimator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -37,7 +35,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * <p>
  * Instances are not thread safe.
  */
-public class Writes implements Cloneable, Mutations, SizeEstimating {
+public class Writes implements Cloneable, Mutations {
 
     private /*final*/ KeyRanges removes = KeyRanges.empty();
     private /*final*/ TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
@@ -261,28 +259,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
 
         // Done
         return writes;
-    }
-
-// SizeEstimating
-
-    @Override
-    public void addTo(SizeEstimator estimator) {
-        estimator
-          .addObjectOverhead()
-          .addField(this.removes)
-          .addTreeMapField(this.puts)
-          .addTreeMapField(this.adjusts);
-        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet()) {
-            estimator
-              .add(entry.getKey())
-              .add(entry.getValue());
-        }
-        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet()) {
-            estimator
-              .add(entry.getKey())
-              .addObjectOverhead()
-              .addLongField();
-        }
     }
 
 // Cloneable

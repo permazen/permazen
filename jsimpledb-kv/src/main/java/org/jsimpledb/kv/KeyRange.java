@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.SizeEstimating;
-import org.jsimpledb.util.SizeEstimator;
 
 /**
  * Represents a contiguous range of {@code byte[]} keys, when keys are sorted in unsigned lexical order.
@@ -24,7 +22,7 @@ import org.jsimpledb.util.SizeEstimator;
  * Instances are immutable: the minimum and maximum {@code byte[]} arrays are copied during
  * construction and when accessed by {@link #getMin} and {@link #getMax}.
  */
-public class KeyRange implements SizeEstimating {
+public class KeyRange {
 
     /**
      * The {@link KeyRange} containing the full range (i.e., all keys).
@@ -255,16 +253,6 @@ public class KeyRange implements SizeEstimating {
         if (key2 == null)
             return -1;
         return ByteUtil.compare(key1, key2);
-    }
-
-// SizeEstimating
-
-    @Override
-    public void addTo(SizeEstimator estimator) {
-        estimator
-          .addObjectOverhead()
-          .addField(this.min)
-          .addField(this.max);
     }
 
 // Object
