@@ -10,69 +10,20 @@ import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.util.ByteUtil;
 
 /**
- * Performs searches into an {@link ArrayKVStore}, caching search bounds from the previous search
- * to speed up the next search if it has a shared prefix.
+ * Performs searches into an {@link ArrayKVStore}.
  *
  * <p>
  * Instances are not thread safe.
  */
 class ArrayKVFinder {
 
-    private static final int MAX_PREFIX_LENGTH = 20;
-    private static final int END = -1;
-
     private final ByteBuffer indx;
     private final ByteBuffer keys;
     private final ByteBuffer vals;
     private final int size;
-
-/*
-    Invariant:
-
-        For all 0 < i <= this.prefixLength, all keys with prefix this.prefix[0..i-1] live at some index such that:
-
-            prefixMin[i - 1] <= index < prefixMax[i - 1]
-
-    To maintain this invariant, we apply the following logic to extend the cached search prefix.
-    At each comparison between the next search key byte and the next entry key byte, there are six cases:
-
-        1. The two bytes match.
-
-            We cannot infer anything new about the set of keys that have the new prefix byte over what we
-            know about the set of keys without the new prefix byte. Continue.
-
-        2. Search key byte < entry key byte.
-
-            Then search key < entry key, as are all keys with the prefix that includes the new search key byte.
-            We add the search key byte, copy the previous lower bound, and set the entry key index as the upper bound.
-
-        3. Search key byte > entry key byte.
-
-            Then search key > entry key, as are all keys with the prefix that includes the new search key byte.
-            We add the search key byte, copy the previous upper bound, and set the entry key index + 1 as the lower bound.
-
-        4. Both the search key and the entry key have no more bytes.
-
-            They are equal. We cannot infer anything new and do not increase the cached prefix length.
-
-        5. The search key has no more bytes, but the entry has more bytes.
-
-            Then search key < entry key. We don't infer anything new (although we could).
-
-        6. The search key has more bytes, but the entry has no more bytes.
-
-            Then search key > entry key, as are all keys with the prefix that includes the new search key byte.
-            We add the search key byte, copy the previous upper bound, and set the entry key index + 1 as the lower bound.
-
-*/
-
-    // Cached search prefix bounds
-    private final byte[] prefix = new byte[MAX_PREFIX_LENGTH];      // prefix bytes (only this.prefixLength of them are valid)
-    private final int[] prefixMin = new int[MAX_PREFIX_LENGTH];     // lower bound for keys having prefix[0..i-1]
-    private final int[] prefixMax = new int[MAX_PREFIX_LENGTH];     // upper bound for keys having prefix[0..i-1]
-    private int prefixLength;
 
     ArrayKVFinder(ByteBuffer indx, ByteBuffer keys, ByteBuffer vals) {
         Preconditions.checkArgument(indx.capacity() % 8 == 0, "index size is not a multiple of 8");
@@ -95,19 +46,10 @@ class ArrayKVFinder {
         // Initialize bounds using cached prefix
         int min = 0;
         int max = this.size;
-        for (int i = 0; i < this.prefixLength; i++) {
-            final int diff = i < searchKey.length ? (searchKey[i] & 0xff) - (this.prefix[i] & 0xff) : -1;
-            if (diff <= 0)
-                max = Math.min(max, this.prefixMax[i]);
-            if (diff >= 0)
-                min = Math.max(min, this.prefixMin[i]);
-            if (diff != 0) {
-                this.prefixLength = i;
-                break;
-            }
-        }
 
         // Perform binary search for key, starting at the point where we diverged from the previous search key
+        byte[] prevMin = null;
+        byte[] prevMax = null;
         while (min < max) {
 
             // Calculate the midpoint of the search range
@@ -115,67 +57,19 @@ class ArrayKVFinder {
 
             // Get key at midpoint
             final byte[] midKey = this.readKey(mid);
+            assert prevMin == null || ByteUtil.compare(searchKey, prevMin) > 0;
+            assert prevMax == null || ByteUtil.compare(searchKey, prevMax) < 0;
 
-            // Compare search key to the midpoint entry key
-            int len = 0;
-            boolean extendPrefix = false;
-            boolean newLowerPrefixBound = false;
-            boolean newUpperPrefixBound = false;
-            while (true) {
-
-                // Check if either key has been exhausted
-                if (len == searchKey.length) {
-                    if (len == midKey.length)
-                        return mid;
-                    max = mid;
-                    break;
-                } else if (len == midKey.length) {
-                    min = mid + 1;
-                    extendPrefix = true;
-                    newLowerPrefixBound = true;
-                    break;
-                }
-
-                // Compare the next byte
-                final int searchKeyByte = searchKey[len] & 0xff;
-                final int midKeyByte = midKey[len] & 0xff;
-                if (searchKeyByte < midKeyByte) {
-                    max = mid;
-                    extendPrefix = true;
-                    newUpperPrefixBound = true;
-                    break;
-                } else if (searchKeyByte > midKeyByte) {
-                    min = mid + 1;
-                    extendPrefix = true;
-                    newLowerPrefixBound = true;
-                    break;
-                }
-
-                // Advance to next byte
-                len++;
-            }
-
-            // Update prefix bounds after previous byte match
-            if (extendPrefix) {
-                while (this.prefixLength < len && this.prefixLength < MAX_PREFIX_LENGTH) {
-                    final int next = this.prefixLength;
-                    this.prefix[next] = searchKey[next];
-                    this.prefixMin[next] = next > 0 ? this.prefixMin[next - 1] : 0;
-                    this.prefixMax[next] = next > 0 ? this.prefixMax[next - 1] : this.size;
-                    this.prefixLength++;
-                }
-                if (this.prefixLength < MAX_PREFIX_LENGTH) {
-                    this.prefix[len] = searchKey[len];
-                    int nextMin = len > 0 ? this.prefixMin[len - 1] : 0;
-                    int nextMax = len > 0 ? this.prefixMax[len - 1] : this.size;
-                    if (newLowerPrefixBound)
-                        nextMin = Math.max(nextMin, min);
-                    if (newUpperPrefixBound)
-                        nextMax = Math.min(nextMax, max);
-                    this.prefixMin[len] = nextMin;
-                    this.prefixMax[len] = nextMax;
-                    this.prefixLength = len + 1;
-                }
+            // Compare search key to the midpoint key
+            final int diff = ByteUtil.compare(searchKey, midKey);
+            if (diff == 0)
+                return mid;
+            if (diff < 0) {
+                prevMax = midKey;
+                max = mid;
+            } else {
+                prevMin = midKey;
+                min = mid + 1;
             }
         }
 
