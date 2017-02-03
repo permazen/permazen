@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ImmutableNavigableSet;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -35,7 +36,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
-    private /*final*/ TreeSet<KeyRange> ranges;
+    private /*final*/ NavigableSet<KeyRange> ranges;
 
     private transient KeyRange lastContainingKeyRange;                      // used for optimization
 
@@ -106,7 +107,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     @SuppressWarnings("unchecked")
     public KeyRanges(KeyRanges ranges) {
         Preconditions.checkArgument(ranges != null, "null ranges");
-        this.ranges = (TreeSet<KeyRange>)ranges.ranges.clone();
+        this.ranges = new TreeSet<>(ranges.ranges);
         this.lastContainingKeyRange = ranges.lastContainingKeyRange;
         assert this.checkMinimal();
     }
@@ -150,6 +151,9 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     /**
      * Constructor to deserialize an instance created by {@link #serialize serialize()}.
      *
+     * <p>
+     * Equivalent to {@link #KeyRanges(InputStream, boolean) KeyRanges}{@code (input, false)}.
+     *
      * @param input input stream containing data from {@link #serialize serialize()}
      * @throws IOException if an I/O error occurs
      * @throws java.io.EOFException if the input ends unexpectedly
@@ -157,21 +161,41 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @throws IllegalArgumentException if {@code input} is invalid
      */
     public KeyRanges(InputStream input) throws IOException {
+        this(input, false);
+    }
+
+    /**
+     * Constructor to deserialize an instance created by {@link #serialize serialize()}.
+     *
+     * @param input input stream containing data from {@link #serialize serialize()}
+     * @param immutable whether this new instance should be immutable
+     * @throws IOException if an I/O error occurs
+     * @throws java.io.EOFException if the input ends unexpectedly
+     * @throws IllegalArgumentException if {@code input} is null
+     * @throws IllegalArgumentException if {@code input} is invalid
+     */
+    public KeyRanges(InputStream input, boolean immutable) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
-        this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
         final int count = UnsignedIntEncoder.read(input);
+        final KeyRange[] array = new KeyRange[count];
         byte[] prev = null;
         for (int i = 0; i < count; i++) {
             final byte[] min = KeyListEncoder.read(input, prev);
             final byte[] max = KeyListEncoder.read(input, min);
             Preconditions.checkArgument(prev == null || ByteUtil.compare(min, prev) > 0, "invalid input");
-            ranges.add(new KeyRange(min, Arrays.equals(min, max) ? null : max));        // map final [min, min) to [min, null]
+            array[i] = new KeyRange(min, Arrays.equals(min, max) ? null : max);         // map final [min, min) to [min, null]
             prev = max;
+        }
+        if (immutable)
+            this.ranges = new ImmutableNavigableSet<>(array, KeyRange.SORT_BY_MIN);
+        else {
+            this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
+            this.ranges.addAll(Arrays.asList(array));
         }
         assert this.checkMinimal();
     }
 
-    private KeyRanges(TreeSet<KeyRange> ranges) {
+    private KeyRanges(NavigableSet<KeyRange> ranges) {
         assert ranges != null;
         this.ranges = ranges;
         assert this.checkMinimal();
@@ -231,7 +255,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      */
     public NavigableSet<KeyRange> asSet() {
         assert this.checkMinimal();
-        return Collections.unmodifiableNavigableSet(this.ranges);
+        return this.ranges instanceof ImmutableNavigableSet ?
+          this.ranges : Collections.unmodifiableNavigableSet(this.ranges);
     }
 
     /**
@@ -591,10 +616,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     public void add(KeyRanges ranges) {
         Preconditions.checkArgument(ranges != null, "null ranges");
         assert this.checkMinimal();
-        if (this.ranges.isEmpty()) {
-            this.ranges = (TreeSet<KeyRange>)ranges.ranges.clone();
-            return;
-        }
         ranges.ranges.forEach(this::add);
     }
 
@@ -775,7 +796,27 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.ranges = (TreeSet<KeyRange>)clone.ranges.clone();
+        if (!(clone.ranges instanceof ImmutableNavigableSet))
+            clone.ranges = new TreeSet<>(clone.ranges);
+        return clone;
+    }
+
+    /**
+     * Return an immutable snapshot of this instance.
+     *
+     * @return immutable snapshot
+     */
+    public KeyRanges immutableSnapshot() {
+        if (this.ranges instanceof ImmutableNavigableSet)
+            return this;
+        final KeyRanges clone;
+        try {
+            clone = (KeyRanges)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.ranges = new ImmutableNavigableSet<>(clone.ranges);
+        assert clone.checkMinimal();
         return clone;
     }
 

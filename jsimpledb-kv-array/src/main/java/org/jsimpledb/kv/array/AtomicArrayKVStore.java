@@ -509,7 +509,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                     while (input.available() > 0) {
                         final Writes writes;
                         try {
-                            writes = Writes.deserialize(input);
+                            writes = Writes.deserialize(input, true);
                         } catch (Exception e) {
                             break;                                                      // probably a partial write
                         }
@@ -742,7 +742,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 assert compactingMods.getKVStore() == this.kvstore;
                 synchronized (compactingMods) {
                     if (!compactingMods.getWrites().isEmpty())
-                        compactingWrites = compactingMods.getWrites().clone();
+                        compactingWrites = compactingMods.getWrites().immutableSnapshot();
                 }
             }
 
@@ -751,7 +751,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             final MutableView uncompactedMods = this.mods;
             synchronized (uncompactedMods) {
                 if (!uncompactedMods.getWrites().isEmpty())
-                    outstandingWrites = uncompactedMods.getWrites().clone();
+                    outstandingWrites = uncompactedMods.getWrites().immutableSnapshot();
             }
 
             // Build snapshot by layering uncompacted modifications on top

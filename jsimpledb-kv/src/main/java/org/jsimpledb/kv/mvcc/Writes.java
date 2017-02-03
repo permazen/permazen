@@ -22,6 +22,7 @@ import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
+import org.jsimpledb.util.ImmutableNavigableMap;
 import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
@@ -37,9 +38,22 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 public class Writes implements Cloneable, Mutations {
 
-    private /*final*/ KeyRanges removes = KeyRanges.empty();
-    private /*final*/ TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
-    private /*final*/ TreeMap<byte[], Long> adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
+    private /*final*/ KeyRanges removes;
+    private /*final*/ NavigableMap<byte[], byte[]> puts;
+    private /*final*/ NavigableMap<byte[], Long> adjusts;
+    private final boolean immutable;
+
+    public Writes() {
+        this(KeyRanges.empty(), new TreeMap<>(ByteUtil.COMPARATOR), new TreeMap<>(ByteUtil.COMPARATOR), false);
+    }
+
+    private Writes(KeyRanges removes,
+      NavigableMap<byte[], byte[]> puts, NavigableMap<byte[], Long> adjusts, boolean immutable) {
+        this.removes = removes;
+        this.puts = puts;
+        this.adjusts = adjusts;
+        this.immutable = immutable;
+    }
 
 // Accessors
 
@@ -220,45 +234,77 @@ public class Writes implements Cloneable, Mutations {
     }
 
     /**
-     * Deserialize an instance created by {@link #serialize serialize()}.
+     * Deserialize a mutable instance created by {@link #serialize serialize()}.
+     *
+     * <p>
+     * Equivalent to {@link #deserialize(InputStream, boolean) deserialize}{@code (input, false)}.
      *
      * @param input input stream containing data from {@link #serialize serialize()}
-     * @return deserialized instance
+     * @return mutable deserialized instance
      * @throws IllegalArgumentException if {@code input} is null
      * @throws IllegalArgumentException if malformed input is detected
      * @throws IOException if an I/O error occurs
      */
     public static Writes deserialize(InputStream input) throws IOException {
+        return Writes.deserialize(input, false);
+    }
+
+    /**
+     * Deserialize an instance created by {@link #serialize serialize()}.
+     *
+     * @param input input stream containing data from {@link #serialize serialize()}
+     * @param immutable true for an immutable instance, otherwise false
+     * @return deserialized instance
+     * @throws IllegalArgumentException if {@code input} is null
+     * @throws IllegalArgumentException if malformed input is detected
+     * @throws IOException if an I/O error occurs
+     */
+    public static Writes deserialize(InputStream input, boolean immutable) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
 
-        // Create new instance
-        final Writes writes = new Writes();
+        // Get removes
+        final KeyRanges removes = new KeyRanges(input, immutable);
 
-        // Populate removes
-        writes.removes = new KeyRanges(input);
-
-        // Populate puts
-        int count = UnsignedIntEncoder.read(input);
+        // Get puts
+        final int putCount = UnsignedIntEncoder.read(input);
+        final byte[][] putKeys = new byte[putCount][];
+        final byte[][] putVals = new byte[putCount][];
         byte[] prev = null;
-        for (int i = 0; i < count; i++) {
-            final byte[] key = KeyListEncoder.read(input, prev);
-            final byte[] value = KeyListEncoder.read(input, null);
-            writes.puts.put(key, value);
-            prev = key;
+        for (int i = 0; i < putCount; i++) {
+            putKeys[i] = KeyListEncoder.read(input, prev);
+            putVals[i] = KeyListEncoder.read(input, null);
+            prev = putKeys[i];
+        }
+        final NavigableMap<byte[], byte[]> puts;
+        if (immutable)
+            puts = new ImmutableNavigableMap<>(putKeys, putVals, ByteUtil.COMPARATOR);
+        else {
+            puts = new TreeMap<>(ByteUtil.COMPARATOR);
+            for (int i = 0; i < putCount; i++)
+                puts.put(putKeys[i], putVals[i]);
         }
 
-        // Populate adjusts
-        count = UnsignedIntEncoder.read(input);
+        // Get adjusts
+        final int adjCount = UnsignedIntEncoder.read(input);
+        final byte[][] adjKeys = new byte[adjCount][];
+        final Long[] adjVals = new Long[adjCount];
         prev = null;
-        for (int i = 0; i < count; i++) {
-            final byte[] key = KeyListEncoder.read(input, prev);
-            final long value = LongEncoder.read(input);
-            writes.adjusts.put(key, value);
-            prev = key;
+        for (int i = 0; i < adjCount; i++) {
+            adjKeys[i] = KeyListEncoder.read(input, prev);
+            adjVals[i] = LongEncoder.read(input);
+            prev = adjKeys[i];
+        }
+        final NavigableMap<byte[], Long> adjusts;
+        if (immutable)
+            adjusts = new ImmutableNavigableMap<>(adjKeys, adjVals, ByteUtil.COMPARATOR);
+        else {
+            adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
+            for (int i = 0; i < adjCount; i++)
+                adjusts.put(adjKeys[i], adjVals[i]);
         }
 
         // Done
-        return writes;
+        return new Writes(removes, puts, adjusts, immutable);
     }
 
 // Cloneable
@@ -279,10 +325,24 @@ public class Writes implements Cloneable, Mutations {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.removes = this.removes.clone();
-        clone.puts = (TreeMap<byte[], byte[]>)this.puts.clone();
-        clone.adjusts = (TreeMap<byte[], Long>)this.adjusts.clone();
+        clone.removes = this.removes.immutableSnapshot();
+        if (!(clone.puts instanceof ImmutableNavigableMap))
+            clone.puts = new TreeMap<>(clone.puts);
+        if (!(clone.adjusts instanceof ImmutableNavigableMap))
+            clone.adjusts = new TreeMap<>(clone.adjusts);
         return clone;
+    }
+
+    /**
+     * Return an immutable snapshot of this instance.
+     *
+     * @return immutable snapshot
+     */
+    public Writes immutableSnapshot() {
+        if (this.immutable)
+            return this;
+        return new Writes(this.removes.immutableSnapshot(),
+          new ImmutableNavigableMap<>(this.puts), new ImmutableNavigableMap<>(this.adjusts), true);
     }
 
 // Object

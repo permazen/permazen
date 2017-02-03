@@ -213,7 +213,7 @@ public class LogEntry {
         // Get writes
         final Writes writes;
         try {
-            writes = Writes.deserialize(input);
+            writes = Writes.deserialize(input, true);
         } catch (IllegalArgumentException e) {
             throw new IOException("log entry input contains invalid content", e);
         }
@@ -290,7 +290,7 @@ public class LogEntry {
         Data(Writes writes, String[] configChange) {
             Preconditions.checkArgument(writes != null, "null writes");
             Preconditions.checkArgument(configChange == null || (configChange.length == 2 && configChange[0] != null));
-            this.writes = writes;
+            this.writes = writes.immutableSnapshot();
             this.configChange = configChange;
         }
 

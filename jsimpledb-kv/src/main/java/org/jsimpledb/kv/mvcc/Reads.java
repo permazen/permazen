@@ -159,5 +159,10 @@ public class Reads extends KeyRanges {
     public Reads clone() {
         return (Reads)super.clone();
     }
+
+    @Override
+    public Reads immutableSnapshot() {
+        return (Reads)super.immutableSnapshot();
+    }
 }
 
