@@ -126,13 +126,17 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     public Diffs differencesFrom(SimpleSchemaField that) {
         final Diffs diffs = new Diffs(super.differencesFrom(that));
-        if (!(this.type != null ? this.type.equals(that.type) : that.type == null))
-            diffs.add("changed field type from `" + that.type + "' to `" + this.type + "'");
+        this.addTypeDifference(diffs, that);
         if (this.encodingSignature != that.encodingSignature)
             diffs.add("changed field type encoding signature from " + that.encodingSignature + " to " + this.encodingSignature);
         if (this.indexed != that.indexed)
             diffs.add((this.indexed ? "added" : "removed") + " index on field");
         return diffs;
+    }
+
+    void addTypeDifference(Diffs diffs, SimpleSchemaField that) {
+        if (!Objects.equals(this.type, that.type))
+            diffs.add("changed field type from `" + that.type + "' to `" + this.type + "'");
     }
 
 // XML Reading

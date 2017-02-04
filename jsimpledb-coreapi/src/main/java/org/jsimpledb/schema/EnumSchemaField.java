@@ -157,6 +157,11 @@ public class EnumSchemaField extends SimpleSchemaField {
         return diffs;
     }
 
+    @Override
+    void addTypeDifference(Diffs diffs, SimpleSchemaField that) {
+        // we ignore the type
+    }
+
 // Object
 
     @Override
