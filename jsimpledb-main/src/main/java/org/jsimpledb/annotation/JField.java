@@ -305,6 +305,9 @@ public @interface JField {
      * other schema version to the current schema version. Note custom conversion logic is also possible using
      * {@link OnVersionChange &#64;OnVersionChange} methods.
      *
+     * <p>
+     * For sub-fields of complex fields, this property must be left unset.
+     *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
      * @see org.jsimpledb.core.FieldType#convert FieldType.convert()
