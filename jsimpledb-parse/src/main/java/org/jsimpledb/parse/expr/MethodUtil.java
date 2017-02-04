@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -20,12 +21,38 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.jsimpledb.JObject;
+import org.jsimpledb.JTransaction;
+
 /**
  * Method lookup utility class.
  */
 final class MethodUtil {
 
     private MethodUtil() {
+    }
+
+    /**
+     * Invoke the given method, but reattach the target object with the current transaction
+     * if it is a {@link JObject} associated with a stale transaction.
+     */
+    public static Object invokeRefreshed(Method method, Object target, Object... params)
+      throws IllegalAccessException, InvocationTargetException {
+        return method.invoke(MethodUtil.refresh(target), params);
+    }
+
+    /**
+     * Reattach the given object to the current transaction if it is a {@link JObject} associated with a stale transaction.
+     */
+    public static Object refresh(Object obj) {
+        return obj instanceof JObject ? MethodUtil.refresh((JObject)obj) : obj;
+    }
+
+    /**
+     * Reattach the given {@link JObject} to the current transaction if it's associated with a stale transaction.
+     */
+    public static JObject refresh(JObject jobj) {
+        return !jobj.getTransaction().isValid() ? JTransaction.getCurrent().get(jobj) : jobj;
     }
 
     /**

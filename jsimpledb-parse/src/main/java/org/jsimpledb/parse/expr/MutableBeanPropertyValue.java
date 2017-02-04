@@ -38,7 +38,7 @@ public class MutableBeanPropertyValue extends BeanPropertyValue implements LValu
     public void set(ParseSession session, Value value) {
         final Object obj = value.get(session);
         try {
-            this.setter.invoke(this.bean, obj);
+            MethodUtil.invokeRefreshed(this.setter, this.bean, obj);
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ?
               ((InvocationTargetException)e).getTargetException() : e;

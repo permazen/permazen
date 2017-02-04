@@ -44,7 +44,7 @@ public class BeanPropertyValue extends AbstractValue {
     @Override
     public Object get(ParseSession session) {
         try {
-            return getter.invoke(this.bean);
+            return MethodUtil.invokeRefreshed(getter, this.bean);
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ?
               ((InvocationTargetException)e).getTargetException() : e;

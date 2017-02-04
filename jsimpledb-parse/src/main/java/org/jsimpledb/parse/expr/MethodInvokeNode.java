@@ -77,7 +77,7 @@ public class MethodInvokeNode extends AbstractInvokeNode<Method> {
         // Invoke method
         final Object result;
         try {
-            result = method.invoke(target, paramInfo.getParams());
+            result = MethodUtil.invokeRefreshed(method, target, paramInfo.getParams());
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ? ((InvocationTargetException)e).getTargetException() : e;
             throw new EvalException("error invoking method `" + method.getName() + "()' on "
