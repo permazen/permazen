@@ -44,7 +44,7 @@ public class VarValue extends AbstractLValue {
         final Value value = session.getVars().get(this.name);
         if (value == null)
             throw new EvalException("variable `" + name + "' is not defined");
-        return value.get(session);
+        return MethodUtil.refresh(value.get(session));
     }
 
     @Override
