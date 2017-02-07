@@ -197,15 +197,15 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
           "", "ID", "State", "Since", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
           "", "--", "-----", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("  %-10d %-14s %-8s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
+            writer.println(String.format("  %-10d %-14s %-8s %-5s %-18s %-13s %-13s %s", tx2.getTxId(),
               tx2.getState(), RaftStatusCommand.describeMillis(-tx2.getLastStateChangeTime().offsetFromNow()),
               tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
-              tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
+              tx2.getCommitIndex() != 0 || tx2.getCommitTerm() != 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               RaftStatusCommand.describe(tx2.getConfigChange())));
         }
         writer.println();
