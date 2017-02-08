@@ -36,7 +36,7 @@ public interface StorageIdGenerator {
     int generateCompositeIndexStorageId(Class<?> type, String name, int[] fields);
 
     /**
-     * Generage a storage ID for a regular field.
+     * Generage a storage ID for a regular top-level field (i.e., a field that is not a sub-field of a complex field).
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
@@ -47,8 +47,8 @@ public interface StorageIdGenerator {
     /**
      * Generage a storage ID for a set field.
      *
-     * @param getter the field's Java bean getter method
-     * @param name the field's database name
+     * @param getter the set field's Java bean getter method
+     * @param name the set element field's database name
      * @return generated storage ID
      */
     int generateSetElementStorageId(Method getter, String name);
@@ -56,8 +56,8 @@ public interface StorageIdGenerator {
     /**
      * Generage a storage ID for a list field.
      *
-     * @param getter the field's Java bean getter method
-     * @param name the field's database name
+     * @param getter the list field's Java bean getter method
+     * @param name the list element field's database name
      * @return generated storage ID
      */
     int generateListElementStorageId(Method getter, String name);
@@ -65,8 +65,8 @@ public interface StorageIdGenerator {
     /**
      * Generage a storage ID for a map key field.
      *
-     * @param getter the field's Java bean getter method
-     * @param name the field's database name
+     * @param getter the map field's Java bean getter method
+     * @param name the map key field's database name
      * @return generated storage ID
      */
     int generateMapKeyStorageId(Method getter, String name);
@@ -74,8 +74,8 @@ public interface StorageIdGenerator {
     /**
      * Generage a storage ID for a map value field.
      *
-     * @param getter the field's Java bean getter method
-     * @param name the field's database name
+     * @param getter the map field's Java bean getter method
+     * @param name the map value field's database name
      * @return generated storage ID
      */
     int generateMapValueStorageId(Method getter, String name);
