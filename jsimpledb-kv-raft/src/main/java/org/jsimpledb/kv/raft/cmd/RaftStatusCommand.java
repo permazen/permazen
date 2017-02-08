@@ -22,7 +22,6 @@ import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.Role;
 import org.jsimpledb.kv.raft.Timestamp;
-import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.util.ParseContext;
 
 public class RaftStatusCommand extends AbstractRaftCommand {
