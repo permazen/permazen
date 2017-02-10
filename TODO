@@ -2,6 +2,29 @@
 SHORT TERM
 ==========
 
+- BUG: Raft r/w EVENTUAL_CONSISTENCY transaction can get this exception:
+
+    - Create unit test case
+    - Enforce: if consistency != LINEARIZABLE, then readOnly = true
+
+    java.lang.ArrayIndexOutOfBoundsException: -2
+        at java.util.ArrayList.elementData(ArrayList.java:418) ~[?:1.8.0_60]
+        at java.util.ArrayList.get(ArrayList.java:431) ~[?:1.8.0_60]
+        at org.jsimpledb.kv.raft.RaftKVDatabase.getLogEntryAtIndex(RaftKVDatabase.java:1943) ~[jsimpledb-3.1.0-jsimpledb-kv-raft.jar:3.1.0]
+        at org.jsimpledb.kv.raft.Role.rebaseTransaction(Role.java:504) ~[jsimpledb-3.1.0-jsimpledb-kv-raft.jar:3.1.0]
+        at org.jsimpledb.kv.raft.Role.lambda$rebaseTransactions$0(Role.java:464) ~[jsimpledb-3.1.0-jsimpledb-kv-raft.jar:3.1.0]
+        at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184) [?:1.8.0_60]
+        at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:175) [?:1.8.0_60]
+        at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1374) [?:1.8.0_60]
+        at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481) [?:1.8.0_60]
+        at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) [?:1.8.0_60]
+        at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151) [?:1.8.0_60]
+        at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174) [?:1.8.0_60]
+        at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) [?:1.8.0_60]
+        at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418) [?:1.8.0_60]
+        at org.jsimpledb.kv.raft.Role.rebaseTransactions(Role.java:462) [jsimpledb-3.1.0-jsimpledb-kv-raft.jar:3.1.0]
+        at org.jsimpledb.kv.raft.FollowerRole.caseAppendRequest(FollowerRole.java:675) [jsimpledb-3.1.0-jsimpledb-kv-raft.jar:3.1.0]
+
 - Connection pooling in SQL k/v implementations
 
 - CLI:
