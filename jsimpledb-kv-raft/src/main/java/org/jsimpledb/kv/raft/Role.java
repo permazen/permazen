@@ -549,7 +549,7 @@ public abstract class Role {
     boolean shouldRebase(RaftKVTransaction tx) {
         assert Thread.holdsLock(this.raft);
         return (tx.getState().equals(TxState.EXECUTING) || tx.getState().equals(TxState.COMMIT_READY))
-          && (tx.getConsistency().isGuaranteesUpToDateReads() || tx.addsLogEntry());
+          && tx.getConsistency().isGuaranteesUpToDateReads();
     }
 
     /**

@@ -28,7 +28,7 @@ public enum Consistency {
      * Uncommitted eventual consistency.
      *
      * <p>
-     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
+     * This level is only for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
      *
      * <p>
      * Transactions see a consistent view of the database that is either already committed or likely to be committed soon.
@@ -45,7 +45,7 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation does not wait
      * for that log entry to be committed, and up-to-date reads are not guaranteed.
      */
-    UNCOMMITTED(false, false, false) {
+    UNCOMMITTED(false, false, false, true) {
         @Override
         public boolean mayChangeTo(Consistency that) {
             Preconditions.checkArgument(that != null);
@@ -57,7 +57,7 @@ public enum Consistency {
      * Committed eventual consistency.
      *
      * <p>
-     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
+     * This level is only for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
      *
      * <p>
      * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".
@@ -79,7 +79,7 @@ public enum Consistency {
      * <p>
      * In Raft terms, transactions are based on the latest committed log entry, and up-to-date reads are not guaranteed.
      */
-    EVENTUAL_COMMITTED(true, false, false) {
+    EVENTUAL_COMMITTED(true, false, false, true) {
         @Override
         public boolean mayChangeTo(Consistency that) {
             Preconditions.checkArgument(that != null);
@@ -91,7 +91,7 @@ public enum Consistency {
      * Eventual consistency.
      *
      * <p>
-     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
+     * This level is only for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
      *
      * <p>
      * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".
@@ -113,7 +113,7 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
      * for that log entry to be committed, and up-to-date reads are not guaranteed.
      */
-    EVENTUAL(false, true, false) {
+    EVENTUAL(false, true, false, true) {
         @Override
         public boolean mayChangeTo(Consistency that) {
             Preconditions.checkArgument(that != null);
@@ -136,7 +136,7 @@ public enum Consistency {
      * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
      * for that log entry to be committed, and up-to-date reads are guaranteed.
      */
-    LINEARIZABLE(false, true, true) {
+    LINEARIZABLE(false, true, true, false) {
         @Override
         public boolean mayChangeTo(Consistency that) {
             Preconditions.checkArgument(that != null);
@@ -147,11 +147,14 @@ public enum Consistency {
     private final boolean basedOnCommittedLogEntry;
     private final boolean waitsForLogEntryToBeCommitted;
     private final boolean guaranteesUpToDateReads;
+    private final boolean readOnly;
 
-    Consistency(boolean basedOnCommittedLogEntry, boolean waitsForLogEntryToBeCommitted, boolean guaranteesUpToDateReads) {
+    Consistency(boolean basedOnCommittedLogEntry,
+      boolean waitsForLogEntryToBeCommitted, boolean guaranteesUpToDateReads, boolean readOnly) {
         this.basedOnCommittedLogEntry = basedOnCommittedLogEntry;
         this.waitsForLogEntryToBeCommitted = waitsForLogEntryToBeCommitted;
         this.guaranteesUpToDateReads = guaranteesUpToDateReads;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -222,5 +225,17 @@ public enum Consistency {
      * @throws IllegalArgumentException if {@code newConsistency} is null
      */
     public abstract boolean mayChangeTo(Consistency newConsistency);
+
+    /**
+     * Determines whether transactions at this level are always read-only.
+     *
+     * <p>
+     * This is true for all levels except {@link #LINEARIZABLE}.
+     *
+     * @return true if transactions at this level are always read-only
+     */
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
 }
 

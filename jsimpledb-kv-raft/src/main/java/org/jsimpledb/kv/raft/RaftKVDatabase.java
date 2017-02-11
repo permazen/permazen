@@ -147,7 +147,8 @@ import org.slf4j.LoggerFactory;
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
  *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see
- *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()}.</li>
+ *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()}. Setting the consistency to any level
+ *      other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction to read-only.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>

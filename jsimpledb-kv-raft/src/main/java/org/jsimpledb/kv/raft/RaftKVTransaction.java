@@ -284,6 +284,10 @@ public class RaftKVTransaction implements KVTransaction {
      * of the transaction after {@link #commit} is invoked. However, only {@linkplain Consistency#mayChangeTo certain transitions}
      * between consistency levels are allowed.
      *
+     * <p>
+     * Setting the consistency to any level other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction
+     * to read-only.
+     *
      * @param consistency desired consistency level
      * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
      * @throws IllegalStateException if {@code consistency} is different from the {@linkplain #getConsistency currently configured
@@ -300,6 +304,8 @@ public class RaftKVTransaction implements KVTransaction {
             Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
             Preconditions.checkArgument(this.consistency.mayChangeTo(consistency), "illegal consistency level change");
             this.consistency = consistency;
+            if (this.consistency.isReadOnly())
+                this.readOnly = true;
         }
     }
 
@@ -322,10 +328,13 @@ public class RaftKVTransaction implements KVTransaction {
      * when read back, but they are discarded on {@link #commit commit()}.
      *
      * @param readOnly true to discard mutations on commit, false to apply mutations on commit
+     * @throws IllegalArgumentException if {@code readOnly} is false and
+     *  {@linkplain #getConsistency this transaction's consistency} is not {@link Consistency#LINEARIZABLE}
      * @throws StaleTransactionException if this transaction is no longer open
      */
     public void setReadOnly(boolean readOnly) {
         synchronized (this.raft) {
+            Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE));
             if (readOnly == this.readOnly)
                 return;
             this.verifyExecuting();
@@ -360,12 +369,14 @@ public class RaftKVTransaction implements KVTransaction {
      * @param identity the identity of the node to add or remove
      * @param address the network address of the node if adding, or null if removing
      * @throws IllegalStateException if this method has been invoked previously on this instance
+     * @throws IllegalStateException if this transaction is read-only
      * @throws IllegalArgumentException if {@code identity} is null
      */
     public void configChange(String identity, String address) {
         Preconditions.checkArgument(identity != null, "null identity");
         synchronized (this.raft) {
             Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");
+            Preconditions.checkState(!this.readOnly, "transaction is read-only");
             this.verifyExecuting();
             this.configChange = new String[] { identity, address };
         }
@@ -650,12 +661,16 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.commitIndex == 0;
             assert this.snapshotRefs != null;
             assert this.failure == null;
+            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
+            assert !this.readOnly || this.configChange == null;
             break;
         case COMMIT_READY:
             assert this.commitTerm == 0;
             assert this.commitIndex == 0;
             assert this.snapshotRefs == null;
             assert this.failure == null;
+            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
+            assert !this.readOnly || this.configChange == null;
             break;
         case COMMIT_WAITING:
             assert this.commitTerm >= this.baseTerm;
@@ -663,12 +678,16 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.commitIndex >= this.baseIndex;                                      // equal implies a read-only tx
             assert this.commitIndex > this.baseIndex || !this.addsLogEntry();
             assert this.failure == null;
+            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
+            assert !this.readOnly || this.configChange == null;
             break;
         case COMPLETED:
             assert this.commitFuture.isDone();
             assert this.commitTerm == 0 || this.commitTerm >= this.baseTerm;
             assert this.commitIndex == 0 || this.commitIndex >= this.baseIndex;
             assert this.commitTerm <= currentTerm;
+            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
+            assert !this.readOnly || this.configChange == null;
             assert this.failure == null;
             break;
         case CLOSED:
