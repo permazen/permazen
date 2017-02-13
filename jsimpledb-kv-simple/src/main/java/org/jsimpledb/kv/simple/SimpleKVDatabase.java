@@ -365,8 +365,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         while (true) {
 
             // Get the next mutation and kvstore entry >= minKey (if they exist)
-            if (minKey != null)
-                mutations = mutations.tailSet(Mutation.key(minKey));
+            assert minKey != null;
+            mutations = mutations.tailSet(Mutation.key(minKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.first() : null;
             final KVPair entry = this.kv.getAtLeast(minKey);
 
