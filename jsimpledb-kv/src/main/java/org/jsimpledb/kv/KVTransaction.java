@@ -31,10 +31,10 @@ import java.util.concurrent.Future;
  * Any subsequent operation other than {@link #rollback} should throw {@link StaleTransactionException}.
  *
  * <p>
- * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already
- * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,
- * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction
- * that has been held open past some maximum allowed time limit.
+ * Except for {@link #rollback} and methods that just query status, implementations must throw {@link StaleTransactionException}
+ * if {@link #commit} or {@link #rollback} has already been invoked, or if the {@link KVTransaction} instance is no longer usable
+ * for some other reason. In particular, implementations should throw {@link TransactionTimeoutException} if an operation
+ * is attempted on a transaction that has been held open past some maximum allowed time limit.
  *
  * <p>
  * Implementations are responsible for ensuring modifications to {@code byte[]} arrays after method
@@ -43,6 +43,10 @@ import java.util.concurrent.Future;
  * <p>
  * Implementations are not required to support accessing keys that start with {@code 0xff},
  * and if not may throw {@link IllegalArgumentException} if such keys are accessed.
+ *
+ * <p>
+ * Note: for some implementations, the data read from a transaction that is never {@link #commit}'ed is
+ * not guaranteed to be up to date.
  */
 public interface KVTransaction extends KVStore {
 
@@ -62,6 +66,33 @@ public interface KVTransaction extends KVStore {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     void setTimeout(long timeout);
+
+    /**
+     * Determine whether this transaction is read-only.
+     *
+     * @return true if this instance is read-only
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    boolean isReadOnly();
+
+    /**
+     * Enable or disable read-only mode.
+     *
+     * <p>
+     * Read-only transactions allow mutations, but all changes are discarded on {@link #commit}.
+     *
+     * <p>
+     * Some implementations may require that this operation be performed prior to accessing data.
+     *
+     * <p>
+     * Note: for some implementations, the data read from a transaction that is never {@link #commit}'ed is
+     * not guaranteed to be up to date, even if that transaction is read-only.
+     *
+     * @param readOnly read-only setting
+     * @throws IllegalStateException if the implementation doesn't support changing read-only status at this time
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    void setReadOnly(boolean readOnly);
 
     /**
      * Watch a key to monitor for changes in its value.
@@ -132,6 +163,10 @@ public interface KVTransaction extends KVStore {
      * the transaction was either successfully committed or rolled back. In either case,
      * this instance is no longer usable.
      *
+     * <p>
+     * Note also for some implementations, even read-only transactions must be {@link #commit}'ed in order for the
+     * data accessed during the transaction to be guaranteed to be up to date.
+     *
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws RetryTransactionException if this transaction must be retried and is no longer usable
      */
@@ -142,6 +177,10 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * After this method returns, this instance is no longer usable.
+     *
+     * <p>
+     * Note: for some implementations, rolling back a transaction invalidates guarantees about the the data read
+     * during the transaction being up to date, even if the transaction was {@link #setReadOnly setReadOnly()}.
      *
      * <p>
      * This method may be invoked at any time, even after a previous invocation of

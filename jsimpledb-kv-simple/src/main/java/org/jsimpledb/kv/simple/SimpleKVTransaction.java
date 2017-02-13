@@ -43,6 +43,8 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     boolean stale;
     long waitTimeout;
 
+    private volatile boolean readOnly;
+
     /**
      * Constructor.
      *
@@ -111,8 +113,18 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     }
 
     @Override
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    @Override
     public void commit() {
-        this.kvdb.commit(this);
+        this.kvdb.commit(this, this.readOnly);
     }
 
     @Override

@@ -191,6 +191,16 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void commit() {
         if (this.stale)
             throw new StaleTransactionException(this);

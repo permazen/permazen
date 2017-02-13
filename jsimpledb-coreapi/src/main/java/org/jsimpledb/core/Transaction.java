@@ -204,8 +204,6 @@ public class Transaction {
     @GuardedBy("this")
     boolean ending;
     @GuardedBy("this")
-    boolean readOnly;
-    @GuardedBy("this")
     boolean rollbackOnly;
     @GuardedBy("this")
     boolean disableListenerNotifications;
@@ -362,7 +360,7 @@ public class Transaction {
 
         // Do beforeCommit() and beforeCompletion() callbacks
         if (this.log.isTraceEnabled())
-            this.log.trace("commit() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
+            this.log.trace("commit() invoked on" + (this.isReadOnly() ? " read-only" : "") + " transaction " + this);
         Callback failedCallback = null;
         try {
             if (this.callbacks != null) {
@@ -370,7 +368,7 @@ public class Transaction {
                     failedCallback = callback;
                     if (this.log.isTraceEnabled())
                         this.log.trace("commit() invoking beforeCommit() on transaction " + this + " callback " + callback);
-                    callback.beforeCommit(this.readOnly);
+                    callback.beforeCommit(this.isReadOnly());
                 }
                 failedCallback = null;
             }
@@ -402,10 +400,7 @@ public class Transaction {
 
         // Commit KVTransaction and trigger after completion callbacks
         try {
-            if (this.readOnly)
-                this.kvt.rollback();
-            else
-                this.kvt.commit();
+            this.kvt.commit();
             if (this.callbacks != null) {
                 for (Callback callback : this.callbacks) {
                     failedCallback = callback;
@@ -444,7 +439,7 @@ public class Transaction {
         }
         this.ending = true;
         if (this.log.isTraceEnabled())
-            this.log.trace("rollback() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
+            this.log.trace("rollback() invoked on" + (this.isReadOnly() ? " read-only" : "") + " transaction " + this);
 
         // Do before completion callbacks
         try {
@@ -506,21 +501,27 @@ public class Transaction {
     /**
      * Determine whether this transaction is read-only.
      *
+     * <p>
+     * This method just invokes {@link KVTransaction#isReadOnly} on the wrapped key/value transaction.
+     *
      * @return true if this instance is read-only
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized boolean isReadOnly() {
         if (this.stale)
             throw new StaleTransactionException(this);
-        return this.readOnly;
+        return this.kvt.isReadOnly();
     }
 
     /**
-     * Enable or disaable read-only mode.
+     * Enable or disable read-only mode.
      *
      * <p>
-     * Read-only transactions allow mutations, but all changes are discarded on {@link #commit},
-     * as if {@link #rollback} were invoked. Registered {@link Callback}s are still processed normally.
+     * Read-only transactions allow mutations, but all changes are discarded on {@link #commit}.
+     * Registered {@link Callback}s are still processed normally.
+     *
+     * <p>
+     * This method just invokes {@link KVTransaction#setReadOnly} on the wrapped key/value transaction.
      *
      * @param readOnly read-only setting
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -528,7 +529,7 @@ public class Transaction {
     public synchronized void setReadOnly(boolean readOnly) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        this.readOnly = readOnly;
+        this.kvt.setReadOnly(readOnly);
     }
 
     /**

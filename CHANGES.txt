@@ -1,3 +1,8 @@
+Version 3.2.0
+
+    - Fixed bug where certain k/v read-only transactions could return stale data
+    - Added explicit setReadOnly() method to key/value transaction API
+
 Version 3.1.0 Released February 3, 2017
 
     - Added FieldType.convert() for converting values between two FieldType's

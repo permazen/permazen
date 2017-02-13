@@ -314,6 +314,7 @@ public class RaftKVTransaction implements KVTransaction {
      *
      * @return true if this transaction is configured read-only
      */
+    @Override
     public boolean isReadOnly() {
         synchronized (this.raft) {
             return this.readOnly;
@@ -327,11 +328,15 @@ public class RaftKVTransaction implements KVTransaction {
      * Read-only transactions support modifications during the transaction, and these modifications will be visible
      * when read back, but they are discarded on {@link #commit commit()}.
      *
+     * <p>
+     * {@link RaftKVTransaction} allows changing read-only status at any time prior to {@link #commit}.
+     *
      * @param readOnly true to discard mutations on commit, false to apply mutations on commit
      * @throws IllegalArgumentException if {@code readOnly} is false and
      *  {@linkplain #getConsistency this transaction's consistency} is not {@link Consistency#LINEARIZABLE}
      * @throws StaleTransactionException if this transaction is no longer open
      */
+    @Override
     public void setReadOnly(boolean readOnly) {
         synchronized (this.raft) {
             Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE));

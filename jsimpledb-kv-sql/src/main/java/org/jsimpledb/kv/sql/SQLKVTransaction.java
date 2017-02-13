@@ -19,9 +19,12 @@ import java.util.concurrent.Future;
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.mvcc.MutableView;
+import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * {@link SQLKVDatabase} transaction.
  */
-public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
+public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -37,6 +40,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     protected final Connection connection;
 
     private long timeout;
+    private boolean readOnly;
+    private KVStore view;
     private boolean closed;
     private boolean stale;
 
@@ -85,32 +90,28 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public synchronized byte[] get(byte[] key) {
+    private synchronized byte[] getSQL(byte[] key) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(key != null, "null key");
         return this.queryBytes(StmtType.GET, key);
     }
 
-    @Override
-    public synchronized KVPair getAtLeast(byte[] minKey) {
+    private synchronized KVPair getAtLeastSQL(byte[] minKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         return minKey != null ?
           this.queryKVPair(StmtType.GET_AT_LEAST_SINGLE, minKey) : this.queryKVPair(StmtType.GET_FIRST);
     }
 
-    @Override
-    public synchronized KVPair getAtMost(byte[] maxKey) {
+    private synchronized KVPair getAtMostSQL(byte[] maxKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         return maxKey != null ?
           this.queryKVPair(StmtType.GET_AT_MOST_SINGLE, maxKey) : this.queryKVPair(StmtType.GET_LAST);
     }
 
-    @Override
-    public synchronized Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    private synchronized Iterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey != null && minKey.length == 0)
@@ -125,8 +126,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
             return this.queryIterator(reverse ? StmtType.GET_RANGE_REVERSE : StmtType.GET_RANGE_FORWARD, minKey, maxKey);
     }
 
-    @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    private synchronized void putSQL(byte[] key, byte[] value) {
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
         if (this.stale)
@@ -134,16 +134,14 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
         this.update(StmtType.PUT, key, value, value);
     }
 
-    @Override
-    public synchronized void remove(byte[] key) {
+    private synchronized void removeSQL(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.stale)
             throw new StaleTransactionException(this);
         this.update(StmtType.REMOVE, key);
     }
 
-    @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+    private synchronized void removeRangeSQL(byte[] minKey, byte[] maxKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey == null && maxKey == null)
@@ -157,12 +155,36 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     }
 
     @Override
+    public synchronized boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public synchronized void setReadOnly(boolean readOnly) {
+        Preconditions.checkState(this.view == null || readOnly == this.readOnly, "data already accessed");
+        this.readOnly = readOnly;
+    }
+
+    @Override
+    protected synchronized KVStore delegate() {
+        if (this.view == null) {
+            this.view = new SQLView();
+            if (this.readOnly && !this.database.rollbackForReadOnly)
+                this.view = new MutableView(this.view);
+        }
+        return this.view;
+    }
+
+    @Override
     public synchronized void commit() {
         if (this.stale)
             throw new StaleTransactionException(this);
         this.stale = true;
         try {
-            this.connection.commit();
+            if (this.readOnly && !(this.view instanceof MutableView))
+                this.connection.rollback();
+            else
+                this.connection.commit();
         } catch (SQLException e) {
             throw this.handleException(e);
         } finally {
@@ -289,6 +311,46 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw this.handleException(e);
+        }
+    }
+
+// SQLView
+
+    private class SQLView extends AbstractKVStore {
+
+        @Override
+        public byte[] get(byte[] key) {
+            return SQLKVTransaction.this.getSQL(key);
+        }
+
+        @Override
+        public KVPair getAtLeast(byte[] minKey) {
+            return SQLKVTransaction.this.getAtLeastSQL(minKey);
+        }
+
+        @Override
+        public KVPair getAtMost(byte[] maxKey) {
+            return SQLKVTransaction.this.getAtMostSQL(maxKey);
+        }
+
+        @Override
+        public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+            return SQLKVTransaction.this.getRangeSQL(minKey, maxKey, reverse);
+        }
+
+        @Override
+        public void put(byte[] key, byte[] value) {
+            SQLKVTransaction.this.putSQL(key, value);
+        }
+
+        @Override
+        public void remove(byte[] key) {
+            SQLKVTransaction.this.removeSQL(key);
+        }
+
+        @Override
+        public void removeRange(byte[] minKey, byte[] maxKey) {
+            SQLKVTransaction.this.removeRangeSQL(minKey, maxKey);
         }
     }
 

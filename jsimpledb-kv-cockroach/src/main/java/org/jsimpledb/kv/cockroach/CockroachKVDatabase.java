@@ -25,6 +25,11 @@ import org.jsimpledb.kv.sql.SQLKVTransaction;
  */
 public class CockroachKVDatabase extends SQLKVDatabase {
 
+    public CockroachKVDatabase() {
+        // https://forum.cockroachlabs.com/t/read-only-transactions-consistency-and-rollback/452
+        this.setRollbackForReadOnly(false);
+    }
+
     @Override
     protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
         final String sql = "CREATE TABLE IF NOT EXISTS " + this.quote(this.getTableName()) + " (\n"

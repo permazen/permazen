@@ -553,7 +553,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         tx.mutations.add(new Del(minKey, maxKey));
     }
 
-    synchronized void commit(SimpleKVTransaction tx) {
+    synchronized void commit(SimpleKVTransaction tx, boolean readOnly) {
 
         // Prevent use after commit() or rollback() invoked
         if (tx.stale)
@@ -583,8 +583,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         // Check subclass state
         this.checkState(tx);
 
-        // If there are no mutations, there's no need to write anything
-        if (tx.mutations.isEmpty())
+        // If transaction is read-only, or there are no mutations, there's no need to write anything
+        if (readOnly || tx.mutations.isEmpty())
             return;
 
         // Commit mutations

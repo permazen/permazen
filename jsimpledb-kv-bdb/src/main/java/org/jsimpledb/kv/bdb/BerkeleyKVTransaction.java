@@ -48,6 +48,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     private final CursorConfig cursorConfig = new CursorConfig().setNonSticky(true);
     private final CloseableTracker cursorTracker = new CloseableTracker();  // unclosed Cursors are tracked here
 
+    private boolean readOnly;
     private boolean closed;
 
     /**
@@ -189,12 +190,25 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
 // More KVTransaction
 
     @Override
+    public synchronized boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public synchronized void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    @Override
     public synchronized void commit() {
         if (this.closed)
             throw new StaleTransactionException(this);
         this.close();
         try {
-            this.tx.commit();
+            if (this.readOnly)
+                this.tx.abort();
+            else
+                this.tx.commit();
         } catch (DatabaseException e) {
             throw this.wrapException(e);
         }

@@ -77,6 +77,8 @@ public class SQLKVDatabase implements KVDatabase {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    volatile boolean rollbackForReadOnly = true;
+
     /**
      * Get the {@link DataSource} used with this instance.
      *
@@ -191,6 +193,33 @@ public class SQLKVDatabase implements KVDatabase {
     public void setIsolationLevel(IsolationLevel isolationLevel) {
         Preconditions.checkArgument(isolationLevel != null, "null isolationLevel");
         this.isolationLevel = isolationLevel;
+    }
+
+    /**
+     * Get whether to rollback read-only transactions.
+     *
+     * <p>
+     * If true, read-only transactions will be rolled back on commit. If false, mutations during read-only transactions
+     * will be captured in memory and not written to the database, and the underlying SQL transaction committed on commit.
+     * Some implementations require the latter in order to guarantee up-to-date reads within the transaction.
+     *
+     * <p>
+     * Default value is true.
+     *
+     * @return whether to use rollback when committing a read-only transaction
+     */
+    public boolean isRollbackForReadOnly() {
+        return this.rollbackForReadOnly;
+    }
+
+    /**
+     * Configure whether to rollback read-only transactions.
+     *
+     * @param rollbackForReadOnly true to use rollback when committing a read-only transaction.
+     * @see #isRollbackForReadOnly
+     */
+    public void setRollbackForReadOnly(boolean rollbackForReadOnly) {
+        this.rollbackForReadOnly = rollbackForReadOnly;
     }
 
     @Override

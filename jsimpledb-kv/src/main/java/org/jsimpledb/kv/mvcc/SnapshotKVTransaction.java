@@ -47,6 +47,8 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @GuardedBy("this")
+    private boolean readOnly;
+    @GuardedBy("this")
     private boolean closed;                                 // used to detect whether commit() or rollback() has been invoked
     @GuardedBy("this")
     private long timeout;
@@ -136,10 +138,20 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
+    public synchronized boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public synchronized void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    @Override
     public synchronized void commit() {
         this.checkAlive();
         this.closed = true;
-        this.kvdb.commit(this);
+        this.kvdb.commit(this, this.readOnly);
     }
 
     @Override

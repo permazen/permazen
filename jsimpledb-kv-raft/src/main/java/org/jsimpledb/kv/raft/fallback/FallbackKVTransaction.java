@@ -104,6 +104,16 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
+    public boolean isReadOnly() {
+        return this.kvt.isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        this.kvt.setReadOnly(readOnly);
+    }
+
+    @Override
     public void commit() {
 
         // Check freshness

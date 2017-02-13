@@ -25,6 +25,8 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
 
     private final KVStore kvstore;
 
+    private volatile boolean readOnly;
+
     /**
      * Constructor.
      *
@@ -68,6 +70,16 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
     @Override
     public Future<Void> watchKey(byte[] key) {
         throw new UnsupportedOperationException("snapshot transaction");
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     /**

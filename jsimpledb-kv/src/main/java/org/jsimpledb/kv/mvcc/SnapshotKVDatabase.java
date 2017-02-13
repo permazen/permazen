@@ -300,10 +300,10 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     /**
      * Commit a transaction.
      */
-    synchronized void commit(SnapshotKVTransaction tx) {
+    synchronized void commit(SnapshotKVTransaction tx, boolean readOnly) {
         assert Thread.holdsLock(tx);
         try {
-            this.doCommit(tx);
+            this.doCommit(tx, readOnly);
         } finally {
             tx.error = null;                                // from this point on, throw a StaleTransactionException if accessed
             this.cleanupTransaction(tx);
@@ -332,7 +332,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
 // Internal methods
 
-    private synchronized void doCommit(SnapshotKVTransaction tx) {
+    private synchronized void doCommit(SnapshotKVTransaction tx, boolean readOnly) {
 
         // Sanity checks
         assert Thread.holdsLock(tx);
@@ -360,8 +360,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             tx.view.setReadOnly();
         }
 
-        // If transaction is read-only, no need to create a new version
-        if (txWrites.isEmpty()) {
+        // If transaction is (effectively) read-only, no need to create a new version
+        if (readOnly || txWrites.isEmpty()) {
             if (this.log.isTraceEnabled())
                 this.log.trace("no mutations in " + tx + ", staying at version " + this.currentVersion);
             return;

@@ -172,6 +172,49 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // expected
         }
         this.log.info("finished testSimpleStuff() on " + store);
+
+        // Check read-only transaction (part 1)
+        this.log.info("testSimpleStuff() on " + store + ": starting tx4");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.setReadOnly(false);
+                tx.put(b("10"), b("dd"));
+                final byte[] x = tx.get(b("10"));
+                Assert.assertEquals(x, b("dd"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx4");
+
+        // Check read-only transaction (part 2)
+        this.log.info("testSimpleStuff() on " + store + ": starting tx5");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.setReadOnly(true);
+                final byte[] x = tx.get(b("10"));
+                Assert.assertEquals(x, b("dd"));
+                tx.put(b("10"), b("ee"));
+                final byte[] y = tx.get(b("10"));
+                Assert.assertEquals(y, b("ee"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx5");
+
+        // Check read-only transaction (part 3)
+        this.log.info("testSimpleStuff() on " + store + ": starting tx6");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.setReadOnly(true);
+                final byte[] x = tx.get(b("10"));
+                Assert.assertEquals(x, b("dd"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
 
     @Test(dataProvider = "kvdbs")
@@ -625,6 +668,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             final KVTransaction tx = KVDatabaseTest.this.createKVTransaction(this.store);
             KVDatabaseTest.this.log.debug("*** CREATED TX " + tx);
 
+            // Every now and then, do transaction read-only
+            boolean readOnly = false;
+            assert !tx.isReadOnly();
+            if (this.r(200) == 123) {
+                tx.setReadOnly(true);
+                assert tx.isReadOnly();
+                readOnly = true;
+            }
+
             // Load actual committed database contents (if known) into "known values" tracker
             if (this.committedData != null)
                 knownValues.putAll(this.committedData);
@@ -830,7 +882,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
                 // Maybe commit
                 final boolean rollback = this.r(5) == 3;
-                KVDatabaseTest.this.log.debug("*** " + (rollback ? "ROLLING BACK" : "COMMITTING") + " TX " + tx);
+                KVDatabaseTest.this.log.debug("*** " + (rollback ? "ROLLING BACK" : "COMMITTING")
+                  + (readOnly ? " R/O" : " R/W") + " TX " + tx);
                 this.log("about to " + (rollback ? "rollback" : "commit") + ":"
                   + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView + "\n  emptys=" + knownEmpty
                   + "\n  committed: " + committedDataView);
@@ -872,18 +925,19 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 actual.putAll(this.readDatabase());
 
                 // Update what we think is in the database and then compare to actual content
-                if (Boolean.TRUE.equals(committed)) {
+                if (Boolean.TRUE.equals(committed) && !readOnly) {
 
                     // Verify
                     this.log("tx was definitely committed");
                     assert actualView.equals(knownValuesView) :
                       this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + knownValuesView + "\n";
-                } else if (Boolean.FALSE.equals(committed)) {
+                } else if (Boolean.FALSE.equals(committed) || readOnly) {
 
                     // Verify
-                    this.log("tx was definitely rolled back");
+                    this.log("tx was definitely rolled back (committed=" + committed + ", readOnly=" + readOnly + ")");
                     assert actualView.equals(committedDataView) :
                       this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + committedDataView + "\n";
+                    committed = false;
                 } else {
 
                     // We don't know whether transaction got committed or not .. check both possibilities

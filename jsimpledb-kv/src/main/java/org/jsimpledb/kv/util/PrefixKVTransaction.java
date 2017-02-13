@@ -90,6 +90,16 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
     }
 
     @Override
+    public boolean isReadOnly() {
+        return this.delegate().isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        this.delegate().setReadOnly(readOnly);
+    }
+
+    @Override
     public void commit() {
         this.delegate().commit();
     }
