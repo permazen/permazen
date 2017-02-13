@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.util.ByteUtil;
 
 /**
  * A simple read-only {@link org.jsimpledb.kv.KVStore} based on a sorted array of key/value pairs.
@@ -35,13 +36,7 @@ public class ArrayKVStore extends AbstractKVStore {
     private final ByteBuffer keys;
     private final ByteBuffer vals;
     private final int size;
-
-    private final ThreadLocal<ArrayKVFinder> finderThreadLocal = new ThreadLocal<ArrayKVFinder>() {
-        @Override
-        protected ArrayKVFinder initialValue() {
-            return new ArrayKVFinder(ArrayKVStore.this.indx, ArrayKVStore.this.keys, ArrayKVStore.this.vals);
-        }
-    };
+    private final ArrayKVFinder finder;
 
     /**
      * Constructor.
@@ -61,63 +56,61 @@ public class ArrayKVStore extends AbstractKVStore {
         this.keys = keys;
         this.vals = vals;
         this.size = this.indx.capacity() / 8;
+        this.finder = new ArrayKVFinder(this.indx, this.keys, this.vals);
     }
 
     @Override
     public byte[] get(byte[] key) {
-        final ArrayKVFinder finder = this.finderThreadLocal.get();
-        final int index = finder.find(key);
+        final int index = this.finder.find(key);
         if (index < 0)
             return null;
-        return finder.readValue(index);
+        return this.finder.readValue(index);
     }
 
     @Override
     public KVPair getAtLeast(byte[] minKey) {
-        final ArrayKVFinder finder = this.finderThreadLocal.get();
-        int index = finder.find(minKey);
-        if (index < 0) {
+        int index;
+        if (minKey == null || minKey.length == 0)
+            index = 0;
+        else if ((index = this.finder.find(minKey)) < 0)
             index = ~index;
-            if (index == this.size)
-                return null;
-        }
-        return finder.readKV(index);
+        if (index == this.size)
+            return null;
+        final KVPair pair = this.finder.readKV(index);
+        assert ByteUtil.compare(pair.getKey(), minKey) >= 0;
+        return pair;
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
-        final ArrayKVFinder finder = this.finderThreadLocal.get();
-        int index = finder.find(maxKey);
-        if (index < 0)
+        int index;
+        if (maxKey == null)
+            index = this.size;
+        else if ((index = this.finder.find(maxKey)) < 0)
             index = ~index;
         if (index == 0)
             return null;
-        return finder.readKV(index - 1);
+        final KVPair pair = this.finder.readKV(index - 1);
+        assert ByteUtil.compare(pair.getKey(), maxKey) < 0;
+        return pair;
     }
 
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, final boolean reverse) {
 
         // Find min index
-        final ArrayKVFinder finder = this.finderThreadLocal.get();
         int index;
         if (minKey == null || minKey.length == 0)
             index = 0;
-        else {
-            index = finder.find(minKey);
-            if (index < 0)
-                index = ~index;
-        }
+        else if ((index = this.finder.find(minKey)) < 0)
+            index = ~index;
         final int minIndex = index;
 
         // Find max index
         if (maxKey == null)
             index = this.size;
-        else {
-            index = finder.find(maxKey);
-            if (index < 0)
-                index = ~index;
-        }
+        else if ((index = this.finder.find(maxKey)) < 0)
+            index = ~index;
         final int maxIndex = index;
 
         // Return iterator over array indexes
@@ -134,12 +127,7 @@ public class ArrayKVStore extends AbstractKVStore {
             public KVPair next() {
                 if (!this.hasNext())
                     throw new NoSuchElementException();
-                if (reverse)
-                    this.index--;
-                final KVPair kv = ArrayKVStore.this.finderThreadLocal.get().readKV(this.index);
-                if (!reverse)
-                    this.index++;
-                return kv;
+                return ArrayKVStore.this.finder.readKV(reverse ? --this.index : this.index++);
             }
         };
     }

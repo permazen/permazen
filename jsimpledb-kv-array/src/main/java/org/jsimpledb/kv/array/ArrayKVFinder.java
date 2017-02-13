@@ -16,10 +16,11 @@ import org.jsimpledb.util.ByteUtil;
  * Performs searches into an {@link ArrayKVStore}.
  *
  * <p>
- * Instances are not thread safe.
+ * Instances are thread safe.
  */
 class ArrayKVFinder {
 
+    // Note: for thread safety, perform only absolute gets
     private final ByteBuffer indx;
     private final ByteBuffer keys;
     private final ByteBuffer vals;
@@ -92,10 +93,7 @@ class ArrayKVFinder {
         if (index == baseIndex) {
             final int length = (index + 1) < this.size ?
               this.indx.getInt((index + 1) * 8) & 0x00ffffff : this.keys.capacity() - baseKeyOffset;
-            final byte[] data = new byte[length];
-            this.keys.position(baseKeyOffset);
-            this.keys.get(data);
-            return data;
+            return this.get(this.keys, baseKeyOffset, new byte[length], 0, length);
         }
 
         // Read the base key absolute offset, then encoded key prefix length and relative suffix offset
@@ -116,14 +114,10 @@ class ArrayKVFinder {
 
         // Fetch the key in two parts, prefix then suffix
         final byte[] key = new byte[prefixLen + suffixLen];
-        if (prefixLen > 0) {
-            this.keys.position(baseKeyOffset);
-            this.keys.get(key, 0, prefixLen);
-        }
+        if (prefixLen > 0)
+            this.get(this.keys, baseKeyOffset, key, 0, prefixLen);
         assert suffixLen > 0;
-        this.keys.position(suffixOffset);
-        this.keys.get(key, prefixLen, suffixLen);
-        return key;
+        return this.get(this.keys, suffixOffset, key, prefixLen, suffixLen);
     }
 
     /**
@@ -135,10 +129,7 @@ class ArrayKVFinder {
         final int dataOffset = this.indx.getInt(index * 8 + 4);
         final int nextOffset = (index + 1) < this.size ? this.indx.getInt((index + 1) * 8 + 4) : this.vals.capacity();
         final int length = nextOffset - dataOffset;
-        final byte[] data = new byte[length];
-        this.vals.position(dataOffset);
-        this.vals.get(data);
-        return data;
+        return this.get(this.vals, dataOffset, new byte[length], 0, length);
     }
 
     /**
@@ -146,6 +137,18 @@ class ArrayKVFinder {
      */
     public KVPair readKV(int index) {
         return new KVPair(this.readKey(index), this.readValue(index));
+    }
+
+    // Perform a bulk get() that doesn't modify the buffer
+    protected byte[] get(ByteBuffer buf, int position, byte[] dest, int off, int len) {
+        if (buf.hasArray())
+            System.arraycopy(buf.array(), buf.arrayOffset() + position, dest, off, len);
+        else if (len < 3) {                                              // 256 is a wild guess TODO: performance testing
+            while (len-- > 0)
+                dest[off++] = buf.get(position++);
+        } else
+            ((ByteBuffer)buf.duplicate().position(position)).get(dest, off, len);
+        return dest;
     }
 }
 
