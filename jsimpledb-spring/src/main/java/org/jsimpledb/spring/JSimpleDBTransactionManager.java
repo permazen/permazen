@@ -290,7 +290,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         //jtx.setName(txDef.getName());
 
         // Set read-only
-        jtx.getTransaction().setReadOnly(txDef.isReadOnly());
+        if (txDef.isReadOnly())
+            jtx.getTransaction().setReadOnly(true);
 
         // Set lock timeout
         final int timeout = this.determineTimeout(txDef);

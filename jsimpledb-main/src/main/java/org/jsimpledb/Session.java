@@ -593,7 +593,8 @@ public class Session {
                 final Schema schema = this.tx.getSchema();
                 this.setSchemaModel(schema.getSchemaModel());
                 this.setSchemaVersion(schema.getVersionNumber());
-                this.tx.setReadOnly(this.readOnly);
+                if (this.readOnly)
+                    this.tx.setReadOnly(true);
             }
 
             // Done
