@@ -532,8 +532,6 @@ public class JClass<T> extends JSchemaObject {
         // Sanity check annotation
         if (isSubField && annotation.unique())
             throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");
-        if (isSubField && annotation.upgradeConversion().isConvertsValues())
-            throw new IllegalArgumentException("invalid " + description + ": upgradeConversion() not allowed on complex sub-field");
         if (annotation.uniqueExclude().length > 0 && !annotation.unique())
             throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");
         if (annotation.uniqueExcludeNull() && !annotation.unique())

@@ -161,6 +161,6 @@ public @interface JSimpleClass {
      * @return type conversion policy for auto-generated fields
      * @see JField#upgradeConversion
      */
-    UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.RESET;
+    UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }
 

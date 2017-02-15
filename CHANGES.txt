@@ -1,3 +1,9 @@
+Version Next
+
+    - Set the default UpgradeConversionPolicy to ATTEMPT (*)
+
+    (*) Backwards-incompatible change
+
 Version 3.2.0 Released February 13, 2017
 
     - Fixed bug where certain k/v read-only transactions could return stale data

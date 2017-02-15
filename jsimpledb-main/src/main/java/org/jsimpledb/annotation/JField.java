@@ -306,12 +306,12 @@ public @interface JField {
      * {@link OnVersionChange &#64;OnVersionChange} methods.
      *
      * <p>
-     * For sub-fields of complex fields, this property must be left unset.
+     * For sub-fields of complex fields, this property is ignored.
      *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
      * @see org.jsimpledb.core.FieldType#convert FieldType.convert()
      */
-    UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.RESET;
+    UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }
 
