@@ -664,17 +664,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Keep track of known empty ranges
             final KeyRanges knownEmpty = new KeyRanges();
 
-            // Create transaction
+            // Create transaction; every now and then, do transaction read-only
             final KVTransaction tx = KVDatabaseTest.this.createKVTransaction(this.store);
-            KVDatabaseTest.this.log.debug("*** CREATED TX " + tx);
-
-            // Every now and then, do transaction read-only
-            boolean readOnly = false;
+            final boolean readOnly = this.r(100) < 3;
+            KVDatabaseTest.this.log.debug("*** CREATED " + (readOnly ? "R/O" : "R/W") + " TX " + tx);
             assert !tx.isReadOnly();
-            if (this.r(200) == 123) {
+            if (readOnly) {
                 tx.setReadOnly(true);
                 assert tx.isReadOnly();
-                readOnly = true;
             }
 
             // Load actual committed database contents (if known) into "known values" tracker
