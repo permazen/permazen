@@ -22,7 +22,7 @@ Version 3.0.0 Released January 3, 2017
     - Always use EnumValue objects for @OnVersionChange old Enum field values (*)
     - Added support for auto-generating a version number for a schema model
 
-    (*) Backwards-imcompatible change
+    (*) Backwards-incompatible change
 
 Version 2.4.7 Released December 13, 2016
 
