@@ -339,7 +339,8 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void setReadOnly(boolean readOnly) {
         synchronized (this.raft) {
-            Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE));
+            Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE),
+              this.consistency + " transactions must be read-only");
             if (readOnly == this.readOnly)
                 return;
             this.verifyExecuting();
