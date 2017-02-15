@@ -70,6 +70,9 @@ public interface KVTransaction extends KVStore {
     /**
      * Determine whether this transaction is read-only.
      *
+     * <p>
+     * Default is false.
+     *
      * @return true if this instance is read-only
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -87,6 +90,9 @@ public interface KVTransaction extends KVStore {
      * <p>
      * Note: for some implementations, the data read from a transaction that is never {@link #commit}'ed is
      * not guaranteed to be up to date, even if that transaction is read-only.
+     *
+     * <p>
+     * Default is false.
      *
      * @param readOnly read-only setting
      * @throws IllegalStateException if the implementation doesn't support changing read-only status at this time
