@@ -11,6 +11,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
+import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
+import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.index.Index;
@@ -1022,7 +1024,7 @@ public class JTransaction {
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1046,7 +1048,7 @@ public class JTransaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
      *  that does not exist in this instance's schema version
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
@@ -1074,7 +1076,7 @@ public class JTransaction {
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1100,7 +1102,7 @@ public class JTransaction {
      * @return the set field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1124,7 +1126,7 @@ public class JTransaction {
      * @return the list field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1148,7 +1150,7 @@ public class JTransaction {
      * @return the map field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code id} is null
@@ -1168,7 +1170,7 @@ public class JTransaction {
      * @param targetObjects target objects
      * @param <T> starting Java type
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
-     * @throws org.jsimpledb.core.UnknownFieldException if {@code path} contains an unknown field
+     * @throws UnknownFieldException if {@code path} contains an unknown field
      * @throws IllegalArgumentException if {@code path} is invalid, e.g., does not end on a reference field
      * @throws IllegalArgumentException if any parameter is null
      */
@@ -1736,23 +1738,72 @@ public class JTransaction {
         final ObjType newObjType = newSchema.getObjType(id.getStorageId());
 
         // Auto-convert any upgrade-convertable fields
-        for (JSimpleField jfield : jclass.upgradeConversionFields) {
+        for (JField jfield0 : jclass.upgradeConversionFields) {
+            final int storageId = jfield0.getStorageId();
+
+            // Find the old version of the field, if any
+            final Field<?> oldField0;
+            try {
+                oldField0 = oldObjType.getField(storageId);
+            } catch (UnknownFieldException e) {
+                continue;
+            }
+
+            // Get old field value
+            final Object oldValue = oldValues.get(storageId);
+
+            // Handle conversion to counter field from counter field or simple numeric field
+            if (jfield0 instanceof JCounterField) {
+
+                // Get new counter field
+                final JCounterField jfield = (JCounterField)jfield0;
+                assert jfield.upgradeConversion.isConvertsValues();
+
+                // Handle trivial conversion from counter -> counter
+                if (oldField0 instanceof CounterField)
+                    continue;
+
+                // Handle conversion from numeric simple -> counter
+                if (oldField0 instanceof SimpleField) {
+                    final SimpleField<?> oldField = (SimpleField)oldField0;
+                    final FieldType<?> oldFieldType = oldField.getFieldType();
+                    if (Number.class.isAssignableFrom(oldFieldType.getTypeToken().wrap().getRawType())) {
+                        final Number value = (Number)oldValue;
+                        if (value != null)
+                            this.tx.writeCounterField(id, storageId, value.longValue(), false);
+                        continue;
+                    }
+                }
+
+                // Conversion is not possible
+                if (jfield.upgradeConversion.isRequireConversion()) {
+                    throw new UpgradeConversionException(id, storageId, "conversion from the previous schema version's "
+                      + (oldValue != null ? "non-numeric " : "null ") + oldField0 + " to " + jfield
+                      + " is not supported, but the upgrade conversion policy is configured as " + jfield.upgradeConversion);
+                }
+                continue;
+            }
+
+            // Get new field, which must be simple
+            final JSimpleField jfield = (JSimpleField)jfield0;
             assert jfield.upgradeConversion.isConvertsValues();
+            final SimpleField<?> newField = (SimpleField)newObjType.getField(storageId);
 
-            // Find the old and new versions of the field
-            final int storageId = jfield.getStorageId();
-            final Field<?> oldField0 = oldObjType.getField(storageId);
-            final Field<?> newField0 = newObjType.getField(storageId);
+            // Handle conversion from counter field to numeric simple field
+            if (oldField0 instanceof CounterField) {
+                this.doConvertAndSetField(id, oldField0,
+                  this.tx.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(long.class)),
+                  newField, oldValue, jfield.upgradeConversion);
+                continue;
+            }
 
-            // If old field is not a simple field, don't convert
-            assert newField0 instanceof SimpleField;
+            // If the old field is not a simple field, we can't convert
             if (!(oldField0 instanceof SimpleField))
                 continue;
             final SimpleField<?> oldField = (SimpleField<?>)oldField0;
-            final SimpleField<?> newField = (SimpleField<?>)newField0;
 
             // Convert the old field value and update the field
-            this.convertAndSetField(id, oldField, newField, oldValues.get(storageId), jfield.upgradeConversion);
+            this.convertAndSetField(id, oldField, newField, oldValue, jfield.upgradeConversion);
         }
 
         // Skip the rest if there are no @OnChange methods
@@ -1784,16 +1835,27 @@ public class JTransaction {
     }
 
     private <OT, NT> void convertAndSetField(ObjId id, SimpleField<OT> oldField,
-      SimpleField<NT> newField, Object oldValue0, UpgradeConversionPolicy policy) {
+      SimpleField<NT> newField, Object oldValue, UpgradeConversionPolicy policy) {
+        assert policy.isConvertsValues();
 
-        // Get the old and new field types; if they are equal, there's nothing to do
+        // If the old and new field types are equal, there's nothing to do
         final FieldType<OT> oldFieldType = oldField.getFieldType();
         final FieldType<NT> newFieldType = newField.getFieldType();
         if (newFieldType.equals(oldFieldType))
             return;
 
+        // Perform conversion
+        this.doConvertAndSetField(id, oldField, oldFieldType, newField, oldValue, policy);
+    }
+
+    private <OT, NT> void doConvertAndSetField(ObjId id, Field<?> oldField,
+      FieldType<OT> oldFieldType, SimpleField<NT> newField, Object oldValue0, UpgradeConversionPolicy policy) {
+
         // Validate old value
         final OT oldValue = oldFieldType.validate(oldValue0);
+
+        // Get the new field type
+        final FieldType<NT> newFieldType = newField.getFieldType();
 
         // Attempt conversion
         final NT newValue;

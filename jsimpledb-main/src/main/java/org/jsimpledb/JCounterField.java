@@ -22,8 +22,12 @@ import org.objectweb.asm.ClassWriter;
  */
 public class JCounterField extends JField {
 
-    JCounterField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+    final UpgradeConversionPolicy upgradeConversion;
+
+    JCounterField(JSimpleDB jdb, String name, int storageId,
+      org.jsimpledb.annotation.JField annotation, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
+        this.upgradeConversion = annotation.upgradeConversion();
     }
 
     @Override

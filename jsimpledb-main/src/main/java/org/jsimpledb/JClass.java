@@ -51,7 +51,7 @@ public class JClass<T> extends JSchemaObject {
     final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
-    final ArrayList<JSimpleField> upgradeConversionFields = new ArrayList<>();
+    final ArrayList<JField> upgradeConversionFields = new ArrayList<>();                // contains only simple and counter fields
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
@@ -173,8 +173,12 @@ public class JClass<T> extends JSchemaObject {
                     throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
 
                 // Create counter field
-                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId,
+                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId, annotation,
                   "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
+
+                // Remember upgrade conversion fields
+                if (annotation.upgradeConversion().isConvertsValues())
+                    this.upgradeConversionFields.add(jfield);
 
                 // Add field
                 this.addField(jfield);

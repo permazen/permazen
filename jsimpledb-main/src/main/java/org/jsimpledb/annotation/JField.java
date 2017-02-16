@@ -15,12 +15,14 @@ import org.jsimpledb.UpgradeConversionPolicy;
 import org.jsimpledb.core.DeleteAction;
 
 /**
- * Java annotation for defining simple fields, including reference fields that refer to other Java model object types.
+ * Java annotation for defining fields, including reference fields that refer to other Java model object types,
+ * and {@link org.jsimpledb.Counter} fields.
  *
  * <p>
  * This annotation is used in two scenarios:
  * <ul>
- *  <li>To describe a <b>simple</b> database field by annotating the corresponding abstract Java bean property `getter' method</li>
+ *  <li>To describe a <b>simple</b> or <b>counter</b> database field by annotating the corresponding abstract Java bean
+ *      property `getter' method</li>
  *  <li>To describe the <b>sub-field(s)</b> of a <b>complex</b> database field (i.e., set, list, or map),
  *      that is, the collection element or map key and value. In this case this annotation nests within the corresponding
  *      {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField}, or {@link JMapField &#64;JMapField} annotation.</li>
@@ -45,6 +47,7 @@ import org.jsimpledb.core.DeleteAction;
  *
  * <p>
  * Simple fields may be {@link #indexed}; see {@link org.jsimpledb.index} for information on querying indexes.
+ * {@link org.jsimpledb.Counter} fields may not be indexed.
  *
  * <p><b>Reference Fields</b></p>
  *
@@ -298,7 +301,12 @@ public @interface JField {
      * <p>
      * With some restrictions, JSimpleDB supports schema changes that alter a simple field's type, and can automatically
      * convert field values from the old to the new type (for example, from the {@code int} value {@code 1234} to the
-     * {@link String} value {@code "1234"}).
+     * {@link String} value {@code "1234"}). See {@link org.jsimpledb.core.FieldType#convert} for details about conversions
+     * between simple field types.
+     *
+     * <p>
+     * Aside from simple field conversions, JSimpleDB also supports conversion between fields having a Java numeric type
+     * (i.e., {@link Number} subtypes and their primitive variants) and {@link org.jsimpledb.Counter}.
      *
      * <p>
      * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some

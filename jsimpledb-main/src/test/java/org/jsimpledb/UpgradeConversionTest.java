@@ -51,6 +51,9 @@ public class UpgradeConversionTest extends TestSupport {
         final char[][] f15 = new char[][] { { 'x', 'y', 'z' }, null, { } };
         final Enum1 f16 = Enum1.RIGHT;
         final Enum1 f17 = Enum1.LEFT;
+        final long f18 = 0x73456789abL;
+        final int f19 = -12345678;
+        final long f21 = 0x3373373373L;
 
         JSimpleDB jdb = new JSimpleDB(db, 1, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person1.class));
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
@@ -78,6 +81,10 @@ public class UpgradeConversionTest extends TestSupport {
             jobj1.setField14(f14);
             jobj1.setField15(f15);
             jobj1.setField16(f16);
+
+            jobj1.getField18().set(f18);
+            jobj1.setField19(f19);
+            jobj1.getField21().set(f21);
 
             jobj2.setField17(Enum1.LEFT);
 
@@ -116,6 +123,10 @@ public class UpgradeConversionTest extends TestSupport {
             Assert.assertTrue(Arrays.deepEquals(jobj1.getField15(),
               new byte[][] { { (byte)'x', (byte)'y', (byte)'z' }, null, { } }));
             Assert.assertEquals(jobj1.getField16(), null);
+            Assert.assertEquals(jobj1.getField18(), (byte)f18);
+            Assert.assertEquals(jobj1.getField19().get(), (long)f19);
+            Assert.assertEquals(jobj1.getField20(), 0);                 // field did not exist before
+            Assert.assertEquals(jobj1.getField21().get(), f21);
 
         // Failed conversion
 
@@ -195,6 +206,15 @@ public class UpgradeConversionTest extends TestSupport {
 
         public abstract Enum1 getField17();
         public abstract void setField17(Enum1 x);
+
+        public abstract Counter getField18();
+
+        public abstract int getField19();
+        public abstract void setField19(int x);
+
+        // No field20 exists
+
+        public abstract Counter getField21();
     }
 
 // Version 2
@@ -274,6 +294,20 @@ public class UpgradeConversionTest extends TestSupport {
         @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract Enum2 getField17();
         public abstract void setField17(Enum2 x);
+
+        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        public abstract byte getField18();
+        public abstract void setField18(byte x);
+
+        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        public abstract Counter getField19();
+
+        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        public abstract int getField20();
+        public abstract void setField20(int x);
+
+        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        public abstract Counter getField21();
     }
 }
 

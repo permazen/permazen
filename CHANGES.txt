@@ -1,6 +1,7 @@
 Version Next
 
     - Added limit parameters to KVStore.getAtLeast() and KVStore.getAtMost()
+    - Fixed upgrade conversion exception if field did not previously exist
     - Set the default UpgradeConversionPolicy to ATTEMPT (*)
 
     (*) Backwards-incompatible change
