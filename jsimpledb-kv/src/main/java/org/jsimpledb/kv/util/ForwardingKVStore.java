@@ -30,13 +30,13 @@ public abstract class ForwardingKVStore implements KVStore {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
-        return this.delegate().getAtLeast(minKey);
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+        return this.delegate().getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
-        return this.delegate().getAtMost(maxKey);
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+        return this.delegate().getAtMost(maxKey, minKey);
     }
 
     @Override

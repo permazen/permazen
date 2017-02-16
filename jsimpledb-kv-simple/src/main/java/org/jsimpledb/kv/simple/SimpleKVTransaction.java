@@ -81,13 +81,13 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     }
 
     @Override
-    public KVPair getAtLeast(byte[] key) {
-        return this.kvdb.getAtLeast(this, key);
+    public KVPair getAtLeast(byte[] min, byte[] max) {
+        return this.kvdb.getAtLeast(this, min, max);
     }
 
     @Override
-    public KVPair getAtMost(byte[] key) {
-        return this.kvdb.getAtMost(this, key);
+    public KVPair getAtMost(byte[] max, byte[] min) {
+        return this.kvdb.getAtMost(this, max, min);
     }
 
     @Override

@@ -238,7 +238,9 @@ public class KVPairIterator implements Iterator<KVPair> {
         while (true) {
 
             // Find next key/value pair
-            if ((pair = this.reverse ? this.kv.getAtMost(this.nextKey) : this.kv.getAtLeast(this.nextKey)) == null) {
+            if ((pair = this.reverse ?
+              this.kv.getAtMost(this.nextKey, this.keyRange != null ? this.keyRange.getMin() : null) :
+              this.kv.getAtLeast(this.nextKey, this.keyRange != null ? this.keyRange.getMax() : null)) == null) {
                 this.finished = true;
                 return false;
             }

@@ -44,13 +44,15 @@ public abstract class AbstractKVStore implements KVStore {
 
     @Override
     public byte[] get(byte[] key) {
-        final KVPair pair = this.getAtLeast(key);
+        final KVPair pair = this.getAtLeast(key, ByteUtil.getNextKey(key));
         return pair != null && Arrays.equals(pair.getKey(), key) ? pair.getValue() : null;
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
-        final Iterator<KVPair> i = this.getRange(minKey, null, false);
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+            return null;
+        final Iterator<KVPair> i = this.getRange(minKey, maxKey, false);
         try {
             return i.hasNext() ? i.next() : null;
         } finally {
@@ -59,8 +61,10 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
-        final Iterator<KVPair> i = this.getRange(null, maxKey, true);
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+            return null;
+        final Iterator<KVPair> i = this.getRange(minKey, maxKey, true);
         try {
             return i.hasNext() ? i.next() : null;
         } finally {

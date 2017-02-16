@@ -108,9 +108,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
-                KVPair p = tx.getAtLeast(null);
+                KVPair p = tx.getAtLeast(null, null);
                 Assert.assertNull(p);
-                p = tx.getAtMost(null);
+                p = tx.getAtMost(null, null);
                 Assert.assertNull(p);
                 Iterator<KVPair> it = tx.getRange(null, null, false);
                 Assert.assertFalse(it.hasNext());
@@ -737,51 +737,63 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         knownValuesChanged = true;
                     } else if (option < 30) {                                       // getAtLeast
                         min = this.rb(1, true);
-                        pair = tx.getAtLeast(min);
-                        this.log("getAtLeast: " + s(min) + " -> " + s(pair));
+                        do {
+                            max = this.rb2(this.r(2) + 1, 20);
+                        } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                        pair = tx.getAtLeast(min, max);
+                        assert pair == null || ByteUtil.compare(pair.getKey(), min) >= 0;
+                        assert pair == null || max == null || ByteUtil.compare(pair.getKey(), max) < 0;
+                        this.log("getAtLeast: " + s(min) + "," + s(max) + " -> " + s(pair));
                         if (pair == null) {
-                            assert knownValues.tailMap(min).isEmpty() :
-                              this + ": getAtLeast(" + s(min) + ") returned " + null + " but"
+                            assert (max != null ? knownValues.subMap(min, max) : knownValues.tailMap(min)).isEmpty() :
+                              this + ": getAtLeast(" + s(min) + "," + s(max) + ") returned " + null + " but"
                               + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                               + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        } else if (knownValues.containsKey(pair.getKey()))
+                        } else if (knownValues.containsKey(pair.getKey())) {
                             assert s(knownValues.get(pair.getKey())).equals(s(pair.getValue())) :
-                              this + ": getAtLeast(" + s(min) + ") returned " + pair + " but"
+                              this + ": getAtLeast(" + s(min) + "," + s(max) + ") returned " + pair + " but"
                               + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                               + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        else
+                        } else
                             knownValues.put(pair.getKey(), pair.getValue());
                         assert pair == null || !knownEmpty.contains(pair.getKey()) :
-                          this + ": getAtLeast(" + s(min) + ") returned " + pair + " but"
+                          this + ": getAtLeast(" + s(min) + "," + s(max) + ") returned " + pair + " but"
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        knownEmpty.add(new KeyRange(min, pair != null ? pair.getKey() : null));
+                        knownEmpty.add(new KeyRange(min, pair != null ? pair.getKey() : max));
                         knownValuesChanged = true;
                     } else if (option < 40) {                                       // getAtMost
                         max = this.rb(1, true);
-                        pair = tx.getAtMost(max);
-                        this.log("getAtMost: " + s(max) + " -> " + s(pair));
+                        do {
+                            min = this.rb2(this.r(2) + 1, 20);
+                        } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                        pair = tx.getAtMost(max, min);
+                        assert pair == null || min == null || ByteUtil.compare(pair.getKey(), min) >= 0;
+                        assert pair == null || ByteUtil.compare(pair.getKey(), max) < 0;
+                        this.log("getAtMost: " + s(max) + "," + s(min) + " -> " + s(pair));
                         if (pair == null) {
-                            assert knownValues.headMap(max).isEmpty() :
-                              this + ": getAtMost(" + s(max) + ") returned " + null + " but"
+                            assert (min != null ? knownValues.subMap(min, max) : knownValues.headMap(max)).isEmpty() :
+                              this + ": getAtMost(" + s(max) + "," + s(min) + ") returned " + null + " but"
                               + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                               + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        } else if (knownValues.containsKey(pair.getKey()))
+                        } else if (knownValues.containsKey(pair.getKey())) {
                             assert s(knownValues.get(pair.getKey())).equals(s(pair.getValue())) :
-                              this + ": getAtMost(" + s(max) + ") returned " + pair + " but"
+                              this + ": getAtMost(" + s(max) + "," + s(min) + ") returned " + pair + " but"
                               + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                               + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        else
+                        } else
                             knownValues.put(pair.getKey(), pair.getValue());
                         assert pair == null || !knownEmpty.contains(pair.getKey()) :
-                          this + ": getAtMost(" + s(max) + ") returned " + pair + " but"
+                          this + ": getAtMost(" + s(max) + "," + s(min) + ") returned " + pair + " but"
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
-                        knownEmpty.add(new KeyRange(pair != null ? ByteUtil.getNextKey(pair.getKey()) : ByteUtil.EMPTY, max));
+                        knownEmpty.add(new KeyRange(
+                          pair != null ? ByteUtil.getNextKey(pair.getKey()) : min != null ? min : ByteUtil.EMPTY,
+                          max));
                         knownValuesChanged = true;
                     } else if (option < 50) {                                       // remove
                         key = this.rb(1, false);
-                        if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false))) != null)
+                        if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false), null)) != null)
                             key = pair.getKey();
                         this.log("remove: " + s(key));
                         tx.remove(key);
@@ -1062,7 +1074,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (this.range) {
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace("reading at least " + s(this.key) + " in " + this.tx);
-                final KVPair pair = this.tx.getAtLeast(this.key);
+                final KVPair pair = this.tx.getAtLeast(this.key, null);
                 KVDatabaseTest.this.log.info("finished reading at least " + s(this.key) + " -> " + pair + " in " + this.tx);
                 return pair != null ? pair.getValue() : null;
             } else {

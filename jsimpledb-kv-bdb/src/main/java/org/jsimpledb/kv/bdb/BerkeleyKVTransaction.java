@@ -124,15 +124,15 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
-        try (CursorIterator i = this.getRange(minKey, null, false)) {
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+        try (CursorIterator i = this.getRange(minKey, maxKey, false)) {
             return i.hasNext() ? i.next() : null;
         }
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
-        try (CursorIterator i = this.getRange(null, maxKey, true)) {
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+        try (CursorIterator i = this.getRange(minKey, maxKey, true)) {
             return i.hasNext() ? i.next() : null;
         }
     }

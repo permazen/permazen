@@ -56,6 +56,10 @@ public interface KVStore {
      * Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
      *
      * <p>
+     * An optional (exclusive) maximum key may also be specified; if {@code maxKey} is null, there is no upper bound;
+     * if {@code maxKey <= minKey}, null is always returned.
+     *
+     * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
      * then this method returns null.
      *
@@ -63,14 +67,19 @@ public interface KVStore {
      * Modifications to the returned {@code byte[]} arrays do not affect this instance.
      *
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
-     * @return smallest key/value pair with {@code key >= minKey}, or null if none exists
+     * @param maxKey maximum key (exclusive), or null for no maximum (no upper bound)
+     * @return smallest key/value pair with {@code key >= minKey} and {@code key < maxKey}, or null if none exists
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    KVPair getAtLeast(byte[] minKey);
+    KVPair getAtLeast(byte[] minKey, byte[] maxKey);
 
     /**
      * Get the key/value pair having the largest key strictly less than the given maximum, if any.
+     *
+     * <p>
+     * An optional (inclusive) minimum key may also be specified; if {@code minKey} is null, there is no lower bound
+     * (equivalent to a lower bound of the empty byte array); if {@code minKey >= maxKey}, null is always returned.
      *
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
@@ -80,11 +89,12 @@ public interface KVStore {
      * Modifications to the returned {@code byte[]} arrays do not affect this instance.
      *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
+     * @param minKey minimum key (inclusive), or null for no minimum (no lower bound)
      * @return largest key/value pair with {@code key < maxKey}, or null if none exists
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    KVPair getAtMost(byte[] maxKey);
+    KVPair getAtMost(byte[] maxKey, byte[] minKey);
 
     /**
      * Iterate the key/value pairs in the specified range. The returned {@link Iterator}'s {@link Iterator#remove remove()}

@@ -180,8 +180,16 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         // Find key, or some longer key with the same prefix in prefix mode
         final KVPair pair;
         if (this.prefixMode) {
-            pair = this.kv.getAtLeast(key);
-            return pair != null && ByteUtil.isPrefixOf(key, pair.getKey());
+            byte[] maxKey;
+            try {
+                maxKey = ByteUtil.getKeyAfterPrefix(key);
+            } catch (IllegalArgumentException e) {
+                maxKey = null;
+            }
+            if ((pair = this.kv.getAtLeast(key, maxKey)) == null)
+                return false;
+            assert ByteUtil.isPrefixOf(key, pair.getKey());
+            return true;
         } else
             return this.kv.get(key) != null;
     }

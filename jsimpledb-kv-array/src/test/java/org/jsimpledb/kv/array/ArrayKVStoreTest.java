@@ -86,13 +86,14 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
             // Perform a bunch of queries and verify we get the same thing from both
             for (int j = 0; j < 100; j++) {
                 key = this.randomKey(maxKeyLen);
+                final byte[] key2 = this.random.nextInt(100) < 75 ? null : this.randomKey(maxKeyLen);
                 int option = this.random.nextInt(40);
                 if (option < 10)
                     this.verify(kvstore.get(key), reference.get(key));
                 else if (option < 20)
-                    this.verify(kvstore.getAtLeast(key), reference.getAtLeast(key));
+                    this.verify(kvstore.getAtLeast(key, key2), reference.getAtLeast(key, key2));
                 else if (option < 30)
-                    this.verify(kvstore.getAtMost(key), reference.getAtMost(key));
+                    this.verify(kvstore.getAtMost(key, key2), reference.getAtMost(key, key2));
                 else {
                     byte[] minKey = this.random.nextInt(5) == 3 ? null : key;
                     byte[] maxKey = this.random.nextInt(5) == 3 ? null : this.randomKey(maxKeyLen * 2);

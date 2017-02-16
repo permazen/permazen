@@ -196,8 +196,8 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL3)));
 
-        Assert.assertEquals(view.getAtLeast(KEY3), new KVPair(KEY2, VAL3));
-        Assert.assertEquals(kvstore.getAtLeast(KEY3), null);
+        Assert.assertEquals(view.getAtLeast(KEY3, null), new KVPair(KEY2, VAL3));
+        Assert.assertEquals(kvstore.getAtLeast(KEY3, null), null);
 
         // Done
 

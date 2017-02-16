@@ -102,21 +102,21 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
             return null;
-        return this.getFirstInRange(minKey, null, false);
+        return this.getFirstInRange(minKey, maxKey, false);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
-        return this.getFirstInRange(null, maxKey, true);
+        return this.getFirstInRange(minKey, maxKey, true);
     }
 
     @Override

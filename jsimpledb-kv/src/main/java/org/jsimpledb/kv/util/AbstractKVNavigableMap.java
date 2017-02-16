@@ -202,9 +202,15 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         // Find key, or some longer key with the same prefix in prefix mode
         final KVPair pair;
         if (this.prefixMode) {
-            pair = this.kv.getAtLeast(key);
-            if (pair == null || !ByteUtil.isPrefixOf(key, pair.getKey()))
+            byte[] maxKey;
+            try {
+                maxKey = ByteUtil.getKeyAfterPrefix(key);
+            } catch (IllegalArgumentException e) {
+                maxKey = null;
+            }
+            if ((pair = this.kv.getAtLeast(key, maxKey)) == null)
                 return null;
+            assert ByteUtil.isPrefixOf(key, pair.getKey());
         } else {
             final byte[] value = this.kv.get(key);
             if (value == null)

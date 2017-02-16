@@ -58,13 +58,13 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
     }
 
     @Override
-    public KVPair getAtLeast(final byte[] minKey) {
-        return this.doInTransaction(kv -> kv.getAtLeast(minKey));
+    public KVPair getAtLeast(final byte[] minKey, final byte[] maxKey) {
+        return this.doInTransaction(kv -> kv.getAtLeast(minKey, maxKey));
     }
 
     @Override
-    public KVPair getAtMost(final byte[] maxKey) {
-        return this.doInTransaction(kv -> kv.getAtMost(maxKey));
+    public KVPair getAtMost(final byte[] maxKey, final byte[] minKey) {
+        return this.doInTransaction(kv -> kv.getAtMost(maxKey, minKey));
     }
 
     @Override

@@ -68,7 +68,7 @@ public class ArrayKVStore extends AbstractKVStore {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         int index;
         if (minKey == null || minKey.length == 0)
             index = 0;
@@ -78,11 +78,11 @@ public class ArrayKVStore extends AbstractKVStore {
             return null;
         final KVPair pair = this.finder.readKV(index);
         assert ByteUtil.compare(pair.getKey(), minKey) >= 0;
-        return pair;
+        return maxKey == null || ByteUtil.compare(pair.getKey(), maxKey) < 0 ? pair : null;
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         int index;
         if (maxKey == null)
             index = this.size;
@@ -92,7 +92,7 @@ public class ArrayKVStore extends AbstractKVStore {
             return null;
         final KVPair pair = this.finder.readKV(index - 1);
         assert ByteUtil.compare(pair.getKey(), maxKey) < 0;
-        return pair;
+        return minKey == null || ByteUtil.compare(pair.getKey(), minKey) >= 0 ? pair : null;
     }
 
     @Override

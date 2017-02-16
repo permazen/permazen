@@ -319,7 +319,7 @@ public class FallbackTarget implements Cloneable {
         final KVTransaction tx = this.raft.createTransaction();
         try {
             tx.setTimeout(this.transactionTimeout);
-            tx.getAtLeast(ByteUtil.EMPTY);
+            tx.get(ByteUtil.EMPTY);
             tx.commit();
             success = true;
         } finally {

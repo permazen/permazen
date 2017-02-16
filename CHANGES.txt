@@ -1,5 +1,6 @@
 Version Next
 
+    - Added limit parameters to KVStore.getAtLeast() and KVStore.getAtMost()
     - Set the default UpgradeConversionPolicy to ATTEMPT (*)
 
     (*) Backwards-incompatible change

@@ -415,15 +415,15 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         this.fastVerifyExecuting();
-        return this.view.getAtLeast(minKey);
+        return this.view.getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         this.fastVerifyExecuting();
-        return this.view.getAtMost(maxKey);
+        return this.view.getAtMost(maxKey, minKey);
     }
 
     @Override

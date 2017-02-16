@@ -644,22 +644,22 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey) {
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
-            return this.mods.getAtLeast(minKey);
+            return this.mods.getAtLeast(minKey, maxKey);
         } finally {
             this.readLock.unlock();
         }
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey) {
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
-            return this.mods.getAtMost(maxKey);
+            return this.mods.getAtMost(maxKey, minKey);
         } finally {
             this.readLock.unlock();
         }

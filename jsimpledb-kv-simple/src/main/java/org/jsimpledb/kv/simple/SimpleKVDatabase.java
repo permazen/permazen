@@ -327,7 +327,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         return this.kv.get(key);
     }
 
-    synchronized KVPair getAtLeast(SimpleKVTransaction tx, byte[] minKey) {
+    synchronized KVPair getAtLeast(SimpleKVTransaction tx, byte[] minKey, final byte[] maxKey) {
 
         // Realize minKey
         if (minKey == null)
@@ -336,6 +336,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         // Sanity check
         this.checkUsable(tx);
         this.checkState(tx);
+        if (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+            return null;
 
         // Save original min key for locking purposes
         final byte[] originalMinKey = minKey;
@@ -351,24 +353,26 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
                 }
                 assert overlap instanceof Del;
                 final byte[] max = overlap.getMax();
-                if (max == null)
+                if (max == null || (maxKey != null && ByteUtil.compare(max, maxKey) >= 0))
                     return null;
                 minKey = max;
             }
         }
 
         // Get read lock
-        this.getLock(tx, originalMinKey, null, false);
+        this.getLock(tx, originalMinKey, maxKey, false);
 
         // Find whichever is first: a transaction Put, or an underlying store entry not covered by a transaction Delete
-        SortedSet<Mutation> mutations = tx.mutations;
+        SortedSet<Mutation> mutations = maxKey != null ? tx.mutations.headSet(Mutation.key(maxKey)) : tx.mutations;
         while (true) {
 
             // Get the next mutation and kvstore entry >= minKey (if they exist)
             assert minKey != null;
             mutations = mutations.tailSet(Mutation.key(minKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.first() : null;
-            final KVPair entry = this.kv.getAtLeast(minKey);
+            final KVPair entry = this.kv.getAtLeast(minKey, maxKey);
+            assert entry == null || ByteUtil.compare(entry.getKey(), minKey) >= 0;
+            assert entry == null || maxKey == null || ByteUtil.compare(entry.getKey(), maxKey) < 0;
 
             // Handle the case where neither is found
             if (mutation == null && entry == null)
@@ -377,7 +381,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) <= 0)) {
                 if (mutation instanceof Del) {
-                    if ((minKey = mutation.getMax()) == null)
+                    if ((minKey = mutation.getMax()) == null || (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0))
                         return null;
                     continue;
                 }
@@ -388,14 +392,20 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
     }
 
-    synchronized KVPair getAtMost(SimpleKVTransaction tx, byte[] maxKey) {
+    synchronized KVPair getAtMost(SimpleKVTransaction tx, byte[] maxKey, byte[] minKey) {
+
+        // Realize minKey
+        if (minKey == null)
+            minKey = ByteUtil.EMPTY;
 
         // Sanity check
         this.checkUsable(tx);
         this.checkState(tx);
+        if (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+            return null;
 
         // Get read lock
-        this.getLock(tx, ByteUtil.EMPTY, maxKey, false);
+        this.getLock(tx, minKey, maxKey, false);
 
         // Find whichever is first: a transaction addition, or an underlying store entry not covered by a transaction deletion
         SortedSet<Mutation> mutations = tx.mutations;
@@ -405,7 +415,9 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             if (maxKey != null)
                 mutations = mutations.headSet(Mutation.key(maxKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.last() : null;
-            final KVPair entry = this.kv.getAtMost(maxKey);
+            final KVPair entry = this.kv.getAtMost(maxKey, minKey);
+            assert entry == null || ByteUtil.compare(entry.getKey(), minKey) >= 0;
+            assert entry == null || maxKey == null || ByteUtil.compare(entry.getKey(), maxKey) < 0;
 
             // Handle the case where neither is found
             if (mutation == null && entry == null)
@@ -414,11 +426,15 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) >= 0)) {
                 if (mutation instanceof Del) {
-                    if ((maxKey = mutation.getMin()) == null)
+                    if ((maxKey = mutation.getMin()) == null || ByteUtil.compare(minKey, maxKey) >= 0)
                         return null;
                     continue;
                 }
                 final Put put = (Put)mutation;
+                if (ByteUtil.compare(put.getKey(), minKey) < 0) {
+                    assert entry == null;       // because otherwise minKey > mutation >= entry so entry should not have been found
+                    return null;
+                }
                 return new KVPair(put.getKey(), put.getValue());
             } else
                 return entry;

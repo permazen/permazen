@@ -66,9 +66,10 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     public int size() {
 
         // Find the last entry, if it exists
-        final KVPair pair = this.tx.kvt.getAtMost(ByteUtil.getKeyAfterPrefix(this.contentPrefix));
-        if (pair == null || !ByteUtil.isPrefixOf(this.contentPrefix, pair.getKey()))
+        final KVPair pair = this.tx.kvt.getAtMost(ByteUtil.getKeyAfterPrefix(this.contentPrefix), this.contentPrefix);
+        if (pair == null)
             return 0;
+        assert ByteUtil.isPrefixOf(this.contentPrefix, pair.getKey());
 
         // Decode index from key to get size
         return UnsignedIntEncoder.read(new ByteReader(pair.getKey(), this.contentPrefix.length)) + 1;

@@ -481,9 +481,9 @@ public class Database {
         if (uninitialized) {
 
             // Sanity checks
-            if (kvstore.getAtLeast(new byte[0]) != null)
+            if (kvstore.getAtLeast(new byte[0], null) != null)
                 throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-            if (kvstore.getAtMost(new byte[] { (byte)0xff }) != null)
+            if (kvstore.getAtMost(new byte[] { (byte)0xff }, null) != null)
                 throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
             final Iterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff }, false);
             if (testIterator.hasNext())
@@ -502,10 +502,10 @@ public class Database {
             formatVersionBytes = kvstore.get(FORMAT_VERSION_KEY.clone());
             if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
                 throw new InconsistentDatabaseException("database failed basic read/write test");
-            final KVPair lower = kvstore.getAtLeast(new byte[0]);
+            final KVPair lower = kvstore.getAtLeast(new byte[0], null);
             if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
                 throw new InconsistentDatabaseException("database failed basic read/write test");
-            final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff });
+            final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
             if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
                 throw new InconsistentDatabaseException("database failed basic read/write test");
         } else {

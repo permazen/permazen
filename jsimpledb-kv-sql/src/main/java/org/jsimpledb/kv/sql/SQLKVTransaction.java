@@ -97,18 +97,28 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         return this.queryBytes(StmtType.GET, key);
     }
 
-    private synchronized KVPair getAtLeastSQL(byte[] minKey) {
+    private synchronized KVPair getAtLeastSQL(byte[] minKey, byte[] maxKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        return minKey != null ?
-          this.queryKVPair(StmtType.GET_AT_LEAST_SINGLE, minKey) : this.queryKVPair(StmtType.GET_FIRST);
+        return minKey != null && minKey.length > 0 ?
+          (maxKey != null ?
+           this.queryKVPair(StmtType.GET_RANGE_FORWARD_SINGLE, minKey, maxKey) :
+           this.queryKVPair(StmtType.GET_AT_LEAST_FORWARD_SINGLE, minKey)) :
+          (maxKey != null ?
+           this.queryKVPair(StmtType.GET_AT_MOST_FORWARD_SINGLE, maxKey) :
+           this.queryKVPair(StmtType.GET_FIRST));
     }
 
-    private synchronized KVPair getAtMostSQL(byte[] maxKey) {
+    private synchronized KVPair getAtMostSQL(byte[] maxKey, byte[] minKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
         return maxKey != null ?
-          this.queryKVPair(StmtType.GET_AT_MOST_SINGLE, maxKey) : this.queryKVPair(StmtType.GET_LAST);
+          (minKey != null && minKey.length > 0 ?
+           this.queryKVPair(StmtType.GET_RANGE_REVERSE_SINGLE, minKey, maxKey) :
+           this.queryKVPair(StmtType.GET_AT_MOST_REVERSE_SINGLE, maxKey)) :
+          (minKey != null && minKey.length > 0 ?
+           this.queryKVPair(StmtType.GET_AT_LEAST_REVERSE_SINGLE, minKey) :
+           this.queryKVPair(StmtType.GET_LAST));
     }
 
     private synchronized Iterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
@@ -144,6 +154,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     private synchronized void removeRangeSQL(byte[] minKey, byte[] maxKey) {
         if (this.stale)
             throw new StaleTransactionException(this);
+        if (minKey != null && minKey.length == 0)
+            minKey = null;
         if (minKey == null && maxKey == null)
             this.update(StmtType.REMOVE_ALL);
         else if (minKey == null)
@@ -324,13 +336,13 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
 
         @Override
-        public KVPair getAtLeast(byte[] minKey) {
-            return SQLKVTransaction.this.getAtLeastSQL(minKey);
+        public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+            return SQLKVTransaction.this.getAtLeastSQL(minKey, maxKey);
         }
 
         @Override
-        public KVPair getAtMost(byte[] maxKey) {
-            return SQLKVTransaction.this.getAtMostSQL(maxKey);
+        public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+            return SQLKVTransaction.this.getAtMostSQL(maxKey, minKey);
         }
 
         @Override
@@ -463,18 +475,6 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 return this.prepare(c, db.createGetStatement(), log);
             };
         };
-        static final StmtType GET_AT_LEAST_SINGLE = new StmtType() {
-            @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
-                return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(false)), log);
-            };
-        };
-        static final StmtType GET_AT_MOST_SINGLE = new StmtType() {
-            @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
-                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(true)), log);
-            };
-        };
         static final StmtType GET_FIRST = new StmtType() {
             @Override
             PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
@@ -493,10 +493,22 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 return this.prepare(c, db.createGetAtLeastStatement(false), log);
             };
         };
+        static final StmtType GET_AT_LEAST_FORWARD_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(false)), log);
+            };
+        };
         static final StmtType GET_AT_LEAST_REVERSE = new StmtType() {
             @Override
             PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtLeastStatement(true), log);
+            };
+        };
+        static final StmtType GET_AT_LEAST_REVERSE_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(true)), log);
             };
         };
         static final StmtType GET_AT_MOST_FORWARD = new StmtType() {
@@ -505,10 +517,22 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 return this.prepare(c, db.createGetAtMostStatement(false), log);
             };
         };
+        static final StmtType GET_AT_MOST_FORWARD_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(false)), log);
+            };
+        };
         static final StmtType GET_AT_MOST_REVERSE = new StmtType() {
             @Override
             PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtMostStatement(true), log);
+            };
+        };
+        static final StmtType GET_AT_MOST_REVERSE_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(true)), log);
             };
         };
         static final StmtType GET_RANGE_FORWARD = new StmtType() {
@@ -517,10 +541,22 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 return this.prepare(c, db.createGetRangeStatement(false), log);
             };
         };
+        static final StmtType GET_RANGE_FORWARD_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(false)), log);
+            };
+        };
         static final StmtType GET_RANGE_REVERSE = new StmtType() {
             @Override
             PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetRangeStatement(true), log);
+            };
+        };
+        static final StmtType GET_RANGE_REVERSE_SINGLE = new StmtType() {
+            @Override
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(true)), log);
             };
         };
         static final StmtType GET_ALL_FORWARD = new StmtType() {

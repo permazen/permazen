@@ -134,12 +134,12 @@ public class SimpleLockTest extends KVTestSupport {
             SimpleLockTest.this.waitForStep(2);
             SimpleLockTest.this.log.debug("Thread2 performing step 2");
             SimpleLockTest.this.step++;
-            KVPair pair1 = this.tx.getAtLeast(ByteUtil.parse("01"));
+            KVPair pair1 = this.tx.getAtLeast(ByteUtil.parse("01"), null);
 
             // Do second query
             SimpleLockTest.this.waitForStep(4);
             SimpleLockTest.this.log.debug("Thread2 performing step 4");
-            KVPair pair2 = this.tx.getAtLeast(ByteUtil.parse("01"));
+            KVPair pair2 = this.tx.getAtLeast(ByteUtil.parse("01"), null);
             SimpleLockTest.this.step++;
 
             // They should return the same result!

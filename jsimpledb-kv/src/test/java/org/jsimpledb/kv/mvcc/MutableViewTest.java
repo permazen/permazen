@@ -113,12 +113,12 @@ public class MutableViewTest extends TestSupport {
                 byte[] evalue = expected.get(minKey);
                 Assert.assertEquals(value, evalue);
             } else if (choice < 20) {
-                KVPair pair = mv.getAtLeast(minKey);
-                KVPair epair = expected.getAtLeast(minKey);
+                KVPair pair = mv.getAtLeast(minKey, maxKey);
+                KVPair epair = expected.getAtLeast(minKey, maxKey);
                 Assert.assertEquals(pair, epair);
             } else if (choice < 30) {
-                KVPair pair = mv.getAtMost(minKey);
-                KVPair epair = expected.getAtMost(minKey);
+                KVPair pair = mv.getAtMost(maxKey, minKey);
+                KVPair epair = expected.getAtMost(maxKey, minKey);
                 Assert.assertEquals(pair, epair);
             } else if (choice < 40) {
                 final boolean reverse = this.random.nextBoolean();
@@ -387,20 +387,20 @@ public class MutableViewTest extends TestSupport {
         };
     }
 
-    private static Access getAtLeast(final byte[] min) {
-        return new Access("GETAL", min) {
+    private static Access getAtLeast(final byte[] min, final byte[] max) {
+        return new Access("GETAL", min, max) {
             @Override
             public void apply(KVStore kv) {
-                kv.getAtLeast(min);
+                kv.getAtLeast(min, max);
             }
         };
     }
 
-    private static Access getAtMost(final byte[] max) {
-        return new Access("GETAM", max) {
+    private static Access getAtMost(final byte[] max, final byte[] min) {
+        return new Access("GETAM", max, min) {
             @Override
             public void apply(KVStore kv) {
-                kv.getAtMost(max);
+                kv.getAtMost(max, min);
             }
         };
     }
