@@ -39,6 +39,9 @@ import org.jsimpledb.util.ByteUtil;
  * In all cases, the underlying {@link KVStore} is never modified.
  *
  * <p>
+ * Instances ensure that counter adjustment mutations never overlap put or remove mutations.
+ *
+ * <p>
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
  * without first locking the containing instance.
  */
