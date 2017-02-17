@@ -741,9 +741,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             max = this.rb2(this.r(2) + 1, 20);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
                         pair = tx.getAtLeast(min, max);
+                        this.log("getAtLeast: " + s(min) + "," + s(max) + " -> " + s(pair));
                         assert pair == null || ByteUtil.compare(pair.getKey(), min) >= 0;
                         assert pair == null || max == null || ByteUtil.compare(pair.getKey(), max) < 0;
-                        this.log("getAtLeast: " + s(min) + "," + s(max) + " -> " + s(pair));
                         if (pair == null) {
                             assert (max != null ? knownValues.subMap(min, max) : knownValues.tailMap(min)).isEmpty() :
                               this + ": getAtLeast(" + s(min) + "," + s(max) + ") returned " + null + " but"
@@ -768,9 +768,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             min = this.rb2(this.r(2) + 1, 20);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
                         pair = tx.getAtMost(max, min);
+                        this.log("getAtMost: " + s(max) + "," + s(min) + " -> " + s(pair));
                         assert pair == null || min == null || ByteUtil.compare(pair.getKey(), min) >= 0;
                         assert pair == null || ByteUtil.compare(pair.getKey(), max) < 0;
-                        this.log("getAtMost: " + s(max) + "," + s(min) + " -> " + s(pair));
                         if (pair == null) {
                             assert (min != null ? knownValues.subMap(min, max) : knownValues.headMap(max)).isEmpty() :
                               this + ": getAtMost(" + s(max) + "," + s(min) + ") returned " + null + " but"
@@ -997,7 +997,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             final Iterator<KVPair> i = kv.getRange(null, null, false);
             while (i.hasNext()) {
                 final KVPair pair = i.next();
-                if (buf.length() > 8)
+                if (buf.length() > 1)
                     buf.append(", ");
                 buf.append(ByteUtil.toString(pair.getKey())).append('=').append(ByteUtil.toString(pair.getValue()));
             }
