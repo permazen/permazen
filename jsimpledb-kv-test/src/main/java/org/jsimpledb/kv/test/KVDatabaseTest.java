@@ -423,7 +423,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Multiple concurrent transactions with overlapping read ranges and non-intersecting write ranges
         int done = 0;
-        KVTransaction[] txs = new KVTransaction[10];
+        KVTransaction[] txs = new KVTransaction[this.getNonconflictingTransactionCount()];
         for (int i = 0; i < txs.length; i++)
             txs[i] = this.createKVTransaction(store);
         while (true) {
@@ -465,6 +465,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("finished testNonconflictingTransactions() on " + store);
     }
 
+    protected int getNonconflictingTransactionCount() {
+        return 10;
+    }
+
     /**
      * This test runs transactions in parallel and verifies there is no "leakage" between them.
      * Database must be configured for linearizable isolation.
@@ -479,9 +483,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     public void testParallelTransactions(KVDatabase[] stores) throws Exception {
         this.log.info("starting testParallelTransactions() on " + Arrays.asList(stores));
-        for (int count = 0; count < 25; count++) {
+        for (int count = 0; count < this.getParallelTransactionLoopCount(); count++) {
             this.log.info("starting testParallelTransactions() iteration " + count);
-            final RandomTask[] tasks = new RandomTask[25];
+            final RandomTask[] tasks = new RandomTask[this.getParallelTransactionTaskCount()];
             for (int i = 0; i < tasks.length; i++) {
                 tasks[i] = new RandomTask(i, stores[this.random.nextInt(stores.length)], this.random.nextLong());
                 tasks[i].start();
@@ -500,6 +504,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (store instanceof Closeable)
                 ((Closeable)store).close();
         }
+    }
+
+    protected int getParallelTransactionLoopCount() {
+        return 25;
+    }
+
+    protected int getParallelTransactionTaskCount() {
+        return 25;
     }
 
     /**
@@ -526,7 +538,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
 
         // Run transactions
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < this.getSequentialTransactionLoopCount(); i++) {
             final RandomTask task = new RandomTask(i, store, committedData, this.random.nextLong());
             task.run();
             final Throwable fail = task.getFail();
@@ -534,6 +546,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
         }
         this.log.info("finished testSequentialTransactions() on " + store);
+    }
+
+    protected int getSequentialTransactionLoopCount() {
+        return 50;
     }
 
     protected <V> V tryNtimes(KVDatabase kvdb, Transactional<V> transactional) {
@@ -613,7 +629,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private final Random random;
         private final TreeMap<byte[], byte[]> committedData;            // tracks actual committed data, if known
         private final NavigableMap<String, String> committedDataView;
-        private final ArrayList<String> log = new ArrayList<>(1000);
+        private final ArrayList<String> log = new ArrayList<>(KVDatabaseTest.this.getRandomTaskMaxIterations());
 
         private Throwable fail;
 
@@ -693,7 +709,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Make a bunch of random changes
             Boolean committed = null;
             try {
-                final int limit = this.r(1000);
+                final int limit = this.r(KVDatabaseTest.this.getRandomTaskMaxIterations());
                 for (int j = 0; j < limit; j++) {
                     byte[] key;
                     byte[] val;
@@ -1049,6 +1065,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         public String toString() {
             return "Random[" + this.id + "]";
         }
+    }
+
+    protected int getRandomTaskMaxIterations() {
+        return 1000;
     }
 
 // Reader
