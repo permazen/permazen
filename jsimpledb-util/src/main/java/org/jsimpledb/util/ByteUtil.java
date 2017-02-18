@@ -52,9 +52,9 @@ public final class ByteUtil {
      * @throws NullPointerException if {@code b1} or {@code b2} is null
      */
     public static int compare(byte[] b1, byte[] b2) {
-        if (b1 == b2 && b1 != null)
-            return 0;
         final int sharedLength = Math.min(b1.length, b2.length);
+        if (b1 == b2)
+            return 0;
         for (int i = 0; i < sharedLength; i++) {
             final int v1 = b1[i] & 0xff;
             final int v2 = b2[i] & 0xff;
