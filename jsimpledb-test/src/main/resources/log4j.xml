@@ -14,8 +14,12 @@
         </layout>
     </appender>
 
+    <logger name="org.jsimpledb">
+        <level value="debug"/>
+    </logger>
+
     <root>
-        <priority value="debug"/>
+        <priority value="info"/>
         <appender-ref ref="console"/>
     </root>
 
