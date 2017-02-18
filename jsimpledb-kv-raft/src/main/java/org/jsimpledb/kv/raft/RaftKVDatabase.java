@@ -267,23 +267,23 @@ import org.slf4j.LoggerFactory;
  *  <th align="left">{@link RaftKVDatabase} consistency level</th>
  * </tr>
  * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT DEFAULT}</td>
  *  <td>{@link Consistency#LINEARIZABLE}</td>
  * </tr>
  * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#SERIALIZABLE}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#SERIALIZABLE SERIALIZABLE}</td>
  *  <td>{@link Consistency#LINEARIZABLE}</td>
  * </tr>
  * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#REPEATABLE_READ}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#REPEATABLE_READ REPEATABLE_READ}</td>
  *  <td>{@link Consistency#EVENTUAL}</td>
  * </tr>
  * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_COMMITTED}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_COMMITTED READ_COMMITTED}</td>
  *  <td>{@link Consistency#EVENTUAL_COMMITTED}</td>
  * </tr>
  * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_UNCOMMITTED}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_UNCOMMITTED READ_UNCOMMITTED}</td>
  *  <td>{@link Consistency#UNCOMMITTED}</td>
  * </tr>
  * </table>
