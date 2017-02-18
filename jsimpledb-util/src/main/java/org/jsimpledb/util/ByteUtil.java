@@ -6,7 +6,9 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -278,6 +280,75 @@ public final class ByteUtil {
         writer.writeByte((int)(value >> 16));
         writer.writeByte((int)(value >> 8));
         writer.writeByte((int)value);
+    }
+
+    /**
+     * Map a {@code byte[]} array into the range {@code [0.0, 1.0)} in a way
+     * that preserves order.
+     *
+     * <p>
+     * This allows calculations that require a notion of "distance"
+     * between two keys.
+     *
+     * <p>
+     * This method simply maps the first 6.5 bytes of {@code key} into the 52 mantissa bits
+     * of a {@code double} value. Obviously, the mapping is not reversible: some keys will
+     * map equal {@code double} values, but otherwise the mapping is order-preserving.
+     *
+     * @param key input key
+     * @return nearest corresponding value between zero (inclusive) and one (exclusive)
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    public static double toDouble(byte[] key) {
+        Preconditions.checkArgument(key != null, "null key");
+        long bits = 0x3ff0000000000000L;
+        final int length6 = Math.min(key.length, 6);
+        for (int i = 0; i < length6; i++)
+            bits |= (long)(key[i] & 0xff) << (44 - i * 8);
+        if (key.length > 6)
+            bits |= (long)(key[6] & 0xff) >> 4;
+        return Double.longBitsToDouble(bits) - 1.0;
+    }
+
+    /**
+     * Performs the inverse of {@link #toDouble toDouble()}.
+     *
+     * <p>
+     * The mapping of {@link #toDouble toDouble()} is not reversible: some keys will map to the same
+     * {@code double} value, so this method does not always return the original {@code byte[]} key.
+     *
+     * @param value input value; must be &gt;= 0.0 and &lt; 1.0
+     * @return a {@code byte[]} key that maps to {@code value}
+     * @throws IllegalArgumentException if {@code value} is not a number
+     *  between zero (inclusive) and one (exclusive)
+     */
+    public static byte[] fromDouble(double value) {
+        Preconditions.checkArgument(Double.isFinite(value) && value >= 0.0 && value < 1.0, "invalid value");
+
+        // Extract bytes
+        final long bits = Double.doubleToLongBits(value + 1.0);
+        final byte[] bytes = new byte[] {
+            (byte)(bits >> 44),
+            (byte)(bits >> 36),
+            (byte)(bits >> 28),
+            (byte)(bits >> 20),
+            (byte)(bits >> 12),
+            (byte)(bits >>  4),
+            (byte)(bits <<  4)
+        };
+
+        // Trim trailing zero bytes
+        int length = bytes.length;
+        while (length > 0 && bytes[length - 1] == 0)
+            length--;
+        switch (length) {
+        case 0:
+            return EMPTY;
+        case 7:
+            return bytes;
+        default:
+            return Arrays.copyOfRange(bytes, 0, length);
+        }
     }
 }
 
