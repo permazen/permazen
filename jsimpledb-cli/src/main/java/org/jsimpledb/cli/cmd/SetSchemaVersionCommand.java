@@ -32,7 +32,7 @@ public class SetSchemaVersionCommand extends AbstractCommand {
     @Override
     public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final int version = (Integer)params.get("version");
-        if (version < 0)
+        if (version < -1)
             throw new ParseException(ctx, "invalid negative schema version");
         return session -> {
             session.setSchemaVersion(version);
