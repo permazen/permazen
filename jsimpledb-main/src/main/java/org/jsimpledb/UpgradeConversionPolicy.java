@@ -6,7 +6,7 @@
 package org.jsimpledb;
 
 /**
- * Policies to apply when a simple field's type changes during a schema update.
+ * Policies to apply when a simple or counter field's type changes during a schema update.
  *
  * <p>
  * <b>Type Changes</b>
@@ -14,14 +14,16 @@ package org.jsimpledb;
  * <p>
  * JSimpleDB fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
- * With some restrictions<sup>*</sup>, the type of a field may change arbitrarily between schema versions.
+ * With one restriction<sup>*</sup>, the type of a field may change arbitrarily between schema versions.
  *
  * <p>
  * When changing an object's schema version, JSimpleDB supports optional automatic conversion of simple field
  * values from the old type to the new type. For example, an {@code int} field value {@code 1234} can be automatically
- * converted into {@link String} field value {@code "1234"}. How exactly this conversion is performed is defined by the
- * field's new {@link org.jsimpledb.core.FieldType}; see {@link org.jsimpledb.core.FieldType#convert FieldType.convert()}
- * for details.
+ * converted into {@link String} field value {@code "1234"}.
+ *
+ * <p>
+ * See {@link org.jsimpledb.core.FieldType#convert} for details about conversions between simple field types. In addition,
+ * {@link org.jsimpledb.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
  *
  * <p>
  * This class is used to {@linkplain org.jsimpledb.annotation.JField#upgradeConversion specify} whether such automatic

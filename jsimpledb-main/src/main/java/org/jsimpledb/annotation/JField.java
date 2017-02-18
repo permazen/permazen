@@ -299,14 +299,13 @@ public @interface JField {
      * Specify the {@link UpgradeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
      *
      * <p>
-     * With some restrictions, JSimpleDB supports schema changes that alter a simple field's type, and can automatically
-     * convert field values from the old to the new type (for example, from the {@code int} value {@code 1234} to the
-     * {@link String} value {@code "1234"}). See {@link org.jsimpledb.core.FieldType#convert} for details about conversions
-     * between simple field types.
+     * With one restriction<sup>*</sup>, JSimpleDB supports schema changes that alter a field's type, and in some cases
+     * can automatically convert field values from the old to the new type (for example, from the {@code int} value {@code 1234}
+     * to the {@link String} value {@code "1234"}).
      *
      * <p>
-     * Aside from simple field conversions, JSimpleDB also supports conversion between fields having a Java numeric type
-     * (i.e., {@link Number} subtypes and their primitive variants) and {@link org.jsimpledb.Counter}.
+     * See {@link org.jsimpledb.core.FieldType#convert} for details about conversions between simple field types. In addition,
+     * {@link org.jsimpledb.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
      *
      * <p>
      * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some
@@ -315,6 +314,9 @@ public @interface JField {
      *
      * <p>
      * For sub-fields of complex fields, this property is ignored.
+     *
+     * <p>
+     * <sup>*</sup>A simple field may not have different types across schema versions and be indexed in both versions.
      *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
