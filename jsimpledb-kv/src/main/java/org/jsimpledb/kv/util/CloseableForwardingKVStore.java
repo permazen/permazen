@@ -64,7 +64,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         this.kvstore = kvstore;
         this.closeable = resource;
-        this.allocation = CloseableForwardingKVStore.TRACK_ALLOCATIONS ? new Throwable("allocated was here") : null;
+        this.allocation = CloseableForwardingKVStore.TRACK_ALLOCATIONS ? new Throwable("allocated here") : null;
     }
 
     @Override
