@@ -288,6 +288,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             return super.get(key);
         } catch (SpannerException e) {
+            this.rollback();
             throw this.wrapException(e);
         }
     }
@@ -297,6 +298,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             return super.getAtLeast(minKey, maxKey);
         } catch (SpannerException e) {
+            this.rollback();
             throw this.wrapException(e);
         }
     }
@@ -306,6 +308,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             return super.getAtMost(maxKey, minKey);
         } catch (SpannerException e) {
+            this.rollback();
             throw this.wrapException(e);
         }
     }
@@ -315,6 +318,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             return super.getRange(minKey, maxKey, reverse);
         } catch (SpannerException e) {
+            this.rollback();
             throw this.wrapException(e);
         }
     }
