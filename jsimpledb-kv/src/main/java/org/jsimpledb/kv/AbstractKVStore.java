@@ -45,7 +45,10 @@ public abstract class AbstractKVStore implements KVStore {
     @Override
     public byte[] get(byte[] key) {
         final KVPair pair = this.getAtLeast(key, ByteUtil.getNextKey(key));
-        return pair != null && Arrays.equals(pair.getKey(), key) ? pair.getValue() : null;
+        if (pair == null)
+            return null;
+        assert Arrays.equals(pair.getKey(), key);
+        return pair.getValue();
     }
 
     @Override
