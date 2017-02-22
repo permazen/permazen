@@ -201,17 +201,10 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
                     this.log.trace("committing transaction " + this.context);
                 Access.invoke(Access.TRANSACTION_CONTEXT_COMMIT_METHOD, this.context);
             }
-            this.view.close();
         } catch (SpannerException e) {
             throw this.wrapException(e);
         } finally {
-            try {
-                this.view.close();
-            } finally {
-                this.view = null;
-                this.context = null;
-                this.state = State.CLOSED;
-            }
+            this.cleanup();
         }
     }
 
@@ -244,13 +237,17 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
             if (this.log.isDebugEnabled())
                 this.log.debug("got exception during rollback (ignoring)", e);
         } finally {
-            try {
-                this.view.close();
-            } finally  {
-                this.view = null;
-                this.context = null;
-                this.state = State.CLOSED;
-            }
+            this.cleanup();
+        }
+    }
+
+    private void cleanup() {
+        try {
+            this.view.close();
+        } finally {
+            this.view = null;
+            this.context = null;
+            this.state = State.CLOSED;
         }
     }
 
