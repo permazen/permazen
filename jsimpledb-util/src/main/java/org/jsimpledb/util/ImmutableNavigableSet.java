@@ -41,35 +41,46 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     }
 
     /**
-     * Constructor.
+     * Convenience constructor.
+     *
+     * <p>
+     * Equivalent to: {@code ImmutableNavigableSet(elems, 0, elems.length, comparator)}.
      *
      * @param elems sorted element array
      * @param comparator element comparator, or null for natural ordering
      * @throws IllegalArgumentException if {@code elems} is null
      */
     public ImmutableNavigableSet(E[] elems, Comparator<? super E> comparator) {
-        this(new Bounds<>(), elems, comparator);
+        this(new Bounds<>(), elems, 0, elems.length, comparator);
     }
 
-    ImmutableNavigableSet(Bounds<E> bounds, E[] elems, Comparator<? super E> comparator) {
-        this(bounds, elems, 0, -1, comparator);
+    /**
+     * Primary constructor.
+     *
+     * @param elems sorted element array
+     * @param minIndex minimum index into array (inclusive)
+     * @param maxIndex maximum index into array (exclusive)
+     * @param comparator element comparator, or null for natural ordering
+     * @throws IllegalArgumentException if {@code elems} is null
+     * @throws IllegalArgumentException if {@code elems} has length less than {@code maxIndex}
+     * @throws IllegalArgumentException if {@code minIndex > maxIndex}
+     */
+    ImmutableNavigableSet(E[] elems, int minIndex, int maxIndex, Comparator<? super E> comparator) {
+        this(new Bounds<>(), elems, minIndex, maxIndex, comparator);
     }
 
     @SuppressWarnings("unchecked")
     ImmutableNavigableSet(Bounds<E> bounds, E[] elems, int minIndex, int maxIndex, Comparator<? super E> comparator) {
         super(bounds);
         Preconditions.checkArgument(elems != null);
+        Preconditions.checkArgument(minIndex >= 0 && maxIndex >= minIndex);
+        Preconditions.checkArgument(elems.length >= maxIndex);
         this.elems = elems;
-        if (maxIndex == -1)
-            maxIndex = this.elems.length;
-        assert minIndex >= 0;
-        assert maxIndex <= this.elems.length;
-        assert minIndex <= maxIndex;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
         this.comparator = comparator;
         this.actualComparator = this.comparator != null ? this.comparator : (Comparator<E>)Comparator.naturalOrder();
-        for (int i = 1; i < this.elems.length; i++)
+        for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.elems[i - 1], this.elems[i]) < 0;
     }
 
@@ -192,9 +203,10 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
 
         // Create new instance
         if (reverse) {
+            final int newSize = newMaxIndex - newMinIndex;
             return new ImmutableNavigableSet<E>(newBounds,
               ImmutableNavigableSet.reverseArray(Arrays.copyOfRange(this.elems, newMinIndex, newMaxIndex)),
-              ImmutableNavigableSet.reversedComparator(this.comparator));
+              0, newSize, ImmutableNavigableSet.reversedComparator(this.comparator));
         } else
             return new ImmutableNavigableSet<E>(newBounds, this.elems, newMinIndex, newMaxIndex, this.comparator);
     }

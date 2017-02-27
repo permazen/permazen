@@ -46,7 +46,10 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
     }
 
     /**
-     * Constructor.
+     * Convenience constructor.
+     *
+     * <p>
+     * Equivalent to: {@code ImmutableNavigableMap(keys, vals, 0, Math.min(keys.length, vals.length), comparator)}.
      *
      * @param keys sorted key array
      * @param vals value array corresponding to {@code keys}
@@ -55,11 +58,23 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code keys} and {@code vals} have different lengths
      */
     public ImmutableNavigableMap(K[] keys, V[] vals, Comparator<? super K> comparator) {
-        this(new Bounds<>(), keys, vals, comparator);
+        this(new Bounds<>(), keys, vals, 0, Math.min(keys.length, vals.length), comparator);
     }
 
-    private ImmutableNavigableMap(Bounds<K> bounds, K[] keys, V[] vals, Comparator<? super K> comparator) {
-        this(bounds, keys, vals, 0, -1, comparator);
+    /**
+     * Primary constructor.
+     *
+     * @param keys sorted key array
+     * @param vals value array corresponding to {@code keys}
+     * @param minIndex minimum index into arrays (inclusive)
+     * @param maxIndex maximum index into arrays (exclusive)
+     * @param comparator key comparator, or null for natural ordering
+     * @throws IllegalArgumentException if {@code keys} or {@code vals} is null
+     * @throws IllegalArgumentException if {@code keys} and {@code vals} has length less than {@code maxIndex}
+     * @throws IllegalArgumentException if {@code minIndex > maxIndex}
+     */
+    public ImmutableNavigableMap(K[] keys, V[] vals, int minIndex, int maxIndex, Comparator<? super K> comparator) {
+        this(new Bounds<>(), keys, vals, minIndex, maxIndex, comparator);
     }
 
     @SuppressWarnings("unchecked")
@@ -68,19 +83,16 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
         super(bounds);
         Preconditions.checkArgument(keys != null);
         Preconditions.checkArgument(vals != null);
-        Preconditions.checkArgument(keys.length == vals.length);
+        Preconditions.checkArgument(minIndex >= 0 && maxIndex >= minIndex);
+        Preconditions.checkArgument(keys.length >= maxIndex);
+        Preconditions.checkArgument(vals.length >= maxIndex);
         this.keys = keys;
         this.vals = vals;
-        if (maxIndex == -1)
-            maxIndex = this.keys.length;
-        assert minIndex >= 0;
-        assert maxIndex <= this.keys.length;
-        assert minIndex <= maxIndex;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
         this.comparator = comparator;
         this.actualComparator = this.comparator != null ? this.comparator : (Comparator<K>)Comparator.naturalOrder();
-        for (int i = 1; i < this.keys.length; i++)
+        for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.keys[i - 1], this.keys[i]) < 0;
     }
 
@@ -213,7 +225,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
           = (AbstractMap.SimpleImmutableEntry<K, V>[])new AbstractMap.SimpleImmutableEntry<?, ?>[size];
         for (int i = this.minIndex; i < this.maxIndex; i++)
             entries[i - this.minIndex] = this.createEntry(i);
-        return new ImmutableNavigableSet<>(new Bounds<>(), entries, Comparator.comparing(Map.Entry::getKey, this.actualComparator));
+        return new ImmutableNavigableSet<>(entries, Comparator.comparing(Map.Entry::getKey, this.actualComparator));
     }
 
     @Override
@@ -257,10 +269,11 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
 
         // Create new instance
         if (reverse) {
+            final int newSize = newMaxIndex - newMinIndex;
             return new ImmutableNavigableMap<K, V>(newBounds,
               ImmutableNavigableSet.reverseArray(Arrays.copyOfRange(this.keys, newMinIndex, newMaxIndex)),
               ImmutableNavigableSet.reverseArray(Arrays.copyOfRange(this.vals, newMinIndex, newMaxIndex)),
-              ImmutableNavigableSet.reversedComparator(this.comparator));
+              0, newSize, ImmutableNavigableSet.reversedComparator(this.comparator));
         } else
             return new ImmutableNavigableMap<K, V>(newBounds, this.keys, this.vals, newMinIndex, newMaxIndex, this.comparator);
     }
