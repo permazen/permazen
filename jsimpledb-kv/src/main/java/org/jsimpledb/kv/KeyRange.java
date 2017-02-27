@@ -261,6 +261,16 @@ public class KeyRange {
         return ByteUtil.compare(key1, key2);
     }
 
+    /**
+     * Create an empty key range at the specified key.
+     *
+     * @param key the minimum and maximum key
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    public static KeyRange empty(byte[] key) {
+        return new KeyRange(key, key);
+    }
+
 // Object
 
     @Override
