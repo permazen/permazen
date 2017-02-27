@@ -209,7 +209,8 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
     @SuppressWarnings("unchecked")
     public ImmutableNavigableSet<Map.Entry<K, V>> entrySet() {
         final int size = this.size();
-        final Entry<K, V>[] entries = (Entry<K, V>[])new Entry<?, ?>[size];
+        final AbstractMap.SimpleImmutableEntry<K, V>[] entries
+          = (AbstractMap.SimpleImmutableEntry<K, V>[])new AbstractMap.SimpleImmutableEntry<?, ?>[size];
         for (int i = this.minIndex; i < this.maxIndex; i++)
             entries[i - this.minIndex] = this.createEntry(i);
         return new ImmutableNavigableSet<>(new Bounds<>(), entries, Comparator.comparing(Map.Entry::getKey, this.actualComparator));
@@ -294,23 +295,9 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
         return index;
     }
 
-    private Entry<K, V> createEntry(int index) {
+    private AbstractMap.SimpleImmutableEntry<K, V> createEntry(int index) {
         assert index >= this.minIndex && index < this.maxIndex;
-        return new Entry<>(this.keys[index], this.vals[index]);
-    }
-
-// Entry
-
-    private static class Entry<K, V> extends AbstractMap.SimpleEntry<K, V> {
-
-        Entry(K key, V value) {
-            super(key, value);
-        }
-
-        @Override
-        public V setValue(V value) {
-            throw new UnsupportedOperationException();
-        }
+        return new AbstractMap.SimpleImmutableEntry<>(this.keys[index], this.vals[index]);
     }
 }
 
