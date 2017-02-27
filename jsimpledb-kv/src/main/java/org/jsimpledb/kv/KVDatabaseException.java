@@ -9,7 +9,7 @@ package org.jsimpledb.kv;
  * Superclass of all unchecked exceptions thrown by a {@link KVDatabase}.
  */
 @SuppressWarnings("serial")
-public class KVDatabaseException extends RuntimeException {
+public class KVDatabaseException extends KVException {
 
     private final KVDatabase store;
 
