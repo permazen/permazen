@@ -108,6 +108,9 @@ public class KeyRange {
     /**
      * Get range minimum (inclusive).
      *
+     * <p>
+     * This method returns a copy of the minimum, so changes do not affect this instance.
+     *
      * @return inclusivie minimum, never null
      */
     public byte[] getMin() {
@@ -116,6 +119,9 @@ public class KeyRange {
 
     /**
      * Get range maximum (exclusive), or null if there is no upper bound.
+     *
+     * <p>
+     * This method returns a copy of the maximum, so changes do not affect this instance.
      *
      * @return exclusivie maximum, or null for none
      */
