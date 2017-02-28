@@ -18,11 +18,14 @@ import com.google.common.base.Preconditions;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import org.jsimpledb.kv.CloseableKVStore;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Writes;
+import org.jsimpledb.kv.util.BatchingKVStore;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -33,9 +36,13 @@ import org.slf4j.LoggerFactory;
  * Provides a mutable {@link KVStore} view of a {@link ReadContext}.
  *
  * <p>
+ * For best performance, supply an {@link ExecutorService} for asynchronous batch loading.
+ *
+ * <p>
  * Use {@link #bufferMutations bufferMutations()} to transfer outstanding mutations into a {@link TransactionContext}.
  *
  * @see ReadOnlySpannerView
+ * @see org.jsimpledb.kv.util.BatchingKVStore
  */
 public class ReadWriteSpannerView extends MutableView implements CloseableKVStore {
 
@@ -44,7 +51,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
     protected final Function<? super SpannerException, RuntimeException> exceptionMapper;
 
     /**
-     * Primary constructor.
+     * Constructor for when no batching is desired.
      *
      * @param tableName name of the Spanner database table
      * @param context read context
@@ -53,23 +60,29 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      */
     public ReadWriteSpannerView(String tableName, ReadContext context,
       Function<? super SpannerException, RuntimeException> exceptionMapper) {
-        super(new ReadOnlySpannerView(tableName, context, exceptionMapper), null, new Writes());
-        this.tableName = tableName;
-        this.exceptionMapper = exceptionMapper;
+        this(tableName, new ReadOnlySpannerView(tableName, context, exceptionMapper), exceptionMapper);
     }
 
     /**
-     * Convenience constructor.
-     *
-     * <p>
-     * Equivalent to {@code ReadWriteSpannerView(tableName, context, null)}.
+     * Constructor for when batching is desired.
      *
      * @param tableName name of the Spanner database table
      * @param context read context
-     * @throws IllegalArgumentException if {@code tableName} or {@code context} is null
+     * @param executor asynchronous load task executor
+     * @param rttEstimate initial RTT estimate in milliseconds
+     * @throws IllegalArgumentException if {@code tableName}, {@code context} or {@code executor} is null
      */
-    public ReadWriteSpannerView(String tableName, ReadContext context) {
-        this(tableName, context, null);
+    public ReadWriteSpannerView(String tableName, ReadContext context,
+      Function<? super SpannerException, RuntimeException> exceptionMapper, ExecutorService executor, int rttEstimate) {
+        this(tableName,
+          new BatchingKVStore(new ReadOnlySpannerView(tableName, context, exceptionMapper), executor, rttEstimate), null);
+    }
+
+    private ReadWriteSpannerView(String tableName, KVStore view,
+      Function<? super SpannerException, RuntimeException> exceptionMapper) {
+        super(view, null, new Writes());
+        this.tableName = tableName;
+        this.exceptionMapper = exceptionMapper;
     }
 
     /**
@@ -157,7 +170,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      */
     @Override
     public void close() {
-        ((ReadOnlySpannerView)this.getKVStore()).close();
+        ((CloseableKVStore)this.getKVStore()).close();
     }
 }
 

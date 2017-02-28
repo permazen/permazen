@@ -21,7 +21,10 @@ import com.google.common.base.Preconditions;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
@@ -49,6 +52,12 @@ import org.slf4j.LoggerFactory;
  * {@linkplain #setSpannerOptions Configure} a {@link SpannerOptions} to override the default project ID associated
  * with your environment. The default database ID ({@value #DEFAULT_DATABASE_ID}) and table name ({@value #DEFAULT_TABLE_NAME})
  * may also be overridden.
+ *
+ * <p><b>Batch Loading</b></p>
+ *
+ * <p>
+ * Because Spanner has relatively high latency vs. throughput, instances utilize a {@link org.jsimpledb.kv.util.BatchingKVStore}
+ * for batch loading and read-ahead.
  *
  * <p><b>Consistency Levels</b></p>
  *
@@ -133,6 +142,8 @@ public class SpannerKVDatabase implements KVDatabase {
     private Spanner spanner;
     @GuardedBy("this")
     private DatabaseClient client;
+    @GuardedBy("this")
+    private ExecutorService executor;
 
     @GuardedBy("this")
     private SpannerOptions spannerOptions;
@@ -142,6 +153,8 @@ public class SpannerKVDatabase implements KVDatabase {
     private String databaseId = DEFAULT_DATABASE_ID;
     @GuardedBy("this")
     private String tableName = DEFAULT_TABLE_NAME;
+    @GuardedBy("this")
+    private int threadPoolSize = 10;                // TODO: make configurable
 
     /**
      * Configure {@link SpannerOptions}.
@@ -247,6 +260,14 @@ public class SpannerKVDatabase implements KVDatabase {
             final DatabaseId did = DatabaseId.of(instance.getId(), this.databaseId);
             this.client = this.spanner.getDatabaseClient(did);
 
+            // Create thread pool
+            final AtomicInteger threadCounter = new AtomicInteger();
+            this.executor = Executors.newFixedThreadPool(this.threadPoolSize, r -> {
+                final Thread thread = new Thread(r);
+                thread.setName(this.getClass().getSimpleName() + "-" + threadCounter.incrementAndGet());
+                return thread;
+            });
+
             // Done
             success = true;
         } finally {
@@ -271,6 +292,15 @@ public class SpannerKVDatabase implements KVDatabase {
         if (this.spanner != null) {
             this.spanner.closeAsync();
             this.spanner = null;
+        }
+        if (this.executor != null) {
+            this.executor.shutdownNow();
+            try {
+                this.executor.awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            this.executor = null;
         }
         this.client = null;
     }
@@ -397,6 +427,10 @@ public class SpannerKVDatabase implements KVDatabase {
 
         // Create transaction
         return new SpannerKVTransaction(this, this.client, this.tableName, consistency);
+    }
+
+    protected synchronized ExecutorService getExecutorService() {
+        return this.executor;
     }
 
 // Snapshots

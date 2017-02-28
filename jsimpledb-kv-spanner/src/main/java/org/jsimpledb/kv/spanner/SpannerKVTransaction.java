@@ -29,6 +29,7 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.util.BatchingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         CLOSED                      // transaction is closed
     };
 
+    private static final int INITIAL_RTT_ESTIMATE = 50;                                 // 50 ms
+
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final SpannerKVDatabase kvdb;
     protected final DatabaseClient client;
@@ -57,6 +60,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     private ReadContext context;
     @GuardedBy("this")
     private ReadWriteSpannerView view;
+    @GuardedBy("this")
+    private BatchingKVStore batcher;
     @GuardedBy("this")
     private State state = State.INITIAL;
 
@@ -179,6 +184,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         switch (this.state) {
         case INITIAL:
             assert this.view == null;
+            assert this.batcher == null;
             assert this.context == null;
             this.state = State.CLOSED;
             return;
@@ -245,9 +251,15 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             this.view.close();
         } finally {
-            this.view = null;
-            this.context = null;
-            this.state = State.CLOSED;
+            try {
+                if (this.batcher != null)
+                    this.batcher.close();
+            } finally {
+                this.view = null;
+                this.batcher = null;
+                this.context = null;
+                this.state = State.CLOSED;
+            }
         }
     }
 
@@ -348,7 +360,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
           this.client.readOnlyTransaction(this.consistency) : this.readWriteTransaction();
         if (this.log.isTraceEnabled())
             this.log.trace("creating delegate: context=" + this.context);
-        this.view = new ReadWriteSpannerView(this.tableName, context, this::wrapException);
+        this.view = new ReadWriteSpannerView(this.tableName, context,
+          this::wrapException, this.kvdb.getExecutorService(), INITIAL_RTT_ESTIMATE);
 
         // Done
         this.state = State.ACCESSED;

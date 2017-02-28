@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides a (read-only) {@link KVStore} view of a {@link ReadContext}.
  *
+ * <p>
+ * For best performance, consider wrapping an instance of this class in a {@link org.jsimpledb.kv.util.BatchingKVStore}.
+ *
  * @see ReadWriteSpannerView
  */
 public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVStore {
