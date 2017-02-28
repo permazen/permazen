@@ -39,9 +39,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReadWriteSpannerView extends MutableView implements CloseableKVStore {
 
-    private static final byte[] TOP = new byte[] { (byte)0xff };
-    private static final Key TOP_KEY = Key.of(ByteArray.copyFrom(TOP));
-
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final String tableName;
     protected final Function<? super SpannerException, RuntimeException> exceptionMapper;
@@ -94,17 +91,14 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
         for (org.jsimpledb.kv.KeyRange range : writes.getRemoves()) {
             final byte[] rangeMax = range.getMax();
             final Key minKey = Key.of(ByteArray.copyFrom(range.getMin()));
-            final Key maxKey = rangeMax == null || ByteUtil.compare(rangeMax, TOP) >= 0 ?
-              TOP_KEY : Key.of(ByteArray.copyFrom(rangeMax));
-            this.buffer(context, Mutation.delete(this.tableName, KeySet.range(KeyRange.closedOpen(minKey, maxKey))));
+            this.buffer(context, Mutation.delete(this.tableName,
+              rangeMax != null ?                            // https://github.com/GoogleCloudPlatform/google-cloud-java/issues/1629
+               KeySet.range(KeyRange.closedOpen(minKey, Key.of(ByteArray.copyFrom(rangeMax)))) :
+               KeySet.range(KeyRange.closedClosed(minKey, Key.of()))));
         }
 
         // Add puts
         for (Map.Entry<byte[], byte[]> put : writes.getPuts().entrySet()) {
-
-            // Ignore keys starting with 0xff
-            if (ByteUtil.compare(put.getKey(), TOP) >= 0)
-                continue;
 
             // Add put
             this.buffer(context, Mutation.newReplaceBuilder(this.tableName)
@@ -115,10 +109,6 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
 
         // Add adjusts
         for (Map.Entry<byte[], Long> adjust : writes.getAdjusts().entrySet()) {
-
-            // Ignore keys starting with 0xff
-            if (ByteUtil.compare(adjust.getKey(), TOP) >= 0)
-                continue;
 
             // Get counter key
             final ByteArray key = ByteArray.copyFrom(adjust.getKey());
