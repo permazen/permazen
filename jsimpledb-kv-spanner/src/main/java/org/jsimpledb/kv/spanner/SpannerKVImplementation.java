@@ -21,8 +21,10 @@ public class SpannerKVImplementation extends KVImplementation {
         return new String[][] {
             { "--spanner id",           "Specify Google Cloud Spanner instance ID" },
             { "--spanner-project id",   "Specify Google Cloud Spanner project ID" },
-            { "--spanner-database id",  "Specify Google Cloud Spanner database ID" },
-            { "--spanner-table name",   "Specify Google Cloud Spanner table name" },
+            { "--spanner-database id",
+                "Specify Google Cloud Spanner database ID (default `" + SpannerKVDatabase.DEFAULT_DATABASE_ID + "')" },
+            { "--spanner-table name",
+                "Specify Google Cloud Spanner table name (default `" + SpannerKVDatabase.DEFAULT_TABLE_NAME + "')" },
         };
     }
 
