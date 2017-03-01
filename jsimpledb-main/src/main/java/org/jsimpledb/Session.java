@@ -571,12 +571,16 @@ public class Session {
                 this.kvt = this.kvdb.createTransaction(options);
                 break;
             case CORE_API:
+                if (this.schemaVersion == -1)
+                    this.schemaVersion = this.schemaModel.autogenerateVersion();
                 this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema, options);
                 this.kvt = this.tx.getKVTransaction();
                 break;
             case JSIMPLEDB:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a JSimpleDB transaction is already open in the current thread");
+                if (this.schemaVersion != 0)
+                    this.jdb.setConfiguredVersion(this.schemaVersion);
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
                   this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
                 JTransaction.setCurrent(jtx);

@@ -124,7 +124,6 @@ public class JSimpleDB {
     final ArrayList<ClassGenerator<?>> classGenerators;
     final ClassLoader loader;
     final Database db;
-    final int configuredVersion;
     final StorageIdGenerator storageIdGenerator;
 
     final boolean hasOnCreateMethods;
@@ -139,6 +138,7 @@ public class JSimpleDB {
 
     ValidatorFactory validatorFactory;
 
+    volatile int configuredVersion;
     volatile int actualVersion;
 
     private final LoadingCache<IndexQueryInfoKey, IndexQueryInfo> indexQueryInfoCache = CacheBuilder.newBuilder()
@@ -421,6 +421,19 @@ public class JSimpleDB {
      */
     public int getConfiguredVersion() {
         return this.configuredVersion;
+    }
+
+    /**
+     * Change the schema version that this instance is configured to use.
+     *
+     * @param version schema version number of the schema derived from {@code classes},
+     *  zero to use the highest version already recorded in the database,
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
+     * @throws IllegalArgumentException if {@code version} is less than -1
+     */
+    public void setConfiguredVersion(int version) {
+        Preconditions.checkArgument(version >= -1, "invalid schema version");
+        this.configuredVersion = version == -1 ? this.schemaModel.autogenerateVersion() : version;
     }
 
     /**
