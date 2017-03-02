@@ -34,7 +34,7 @@ public final class NavigableSets {
      * @param <E> element type
      * @return the intersection of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
-     * @throws IllegalArgumentException if {@code sets} is null
+     * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
     public static <E> NavigableSet<E> intersection(Iterable<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
@@ -56,7 +56,7 @@ public final class NavigableSets {
      * @param <E> element type
      * @return the intersection of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
-     * @throws IllegalArgumentException if {@code sets} is null
+     * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
     @SafeVarargs
     @SuppressWarnings("varargs")
@@ -74,7 +74,7 @@ public final class NavigableSets {
      * @param <E> element type
      * @return the union of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
-     * @throws IllegalArgumentException if {@code sets} is null
+     * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
     @SafeVarargs
     @SuppressWarnings("varargs")
@@ -92,7 +92,7 @@ public final class NavigableSets {
      * @param <E> element type
      * @return the union of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
-     * @throws IllegalArgumentException if {@code sets} is null
+     * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
     public static <E> NavigableSet<E> union(Iterable<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
@@ -115,8 +115,6 @@ public final class NavigableSets {
      * @throws IllegalArgumentException if either parameter is is null
      */
     public static <E> NavigableSet<E> difference(NavigableSet<E> set1, NavigableSet<E> set2) {
-        Preconditions.checkArgument(set1 != null, "null set1");
-        Preconditions.checkArgument(set2 != null, "null set2");
         if (set1 instanceof EmptyNavigableSet || set2 instanceof EmptyNavigableSet)
             return set1;
         return new DifferenceNavigableSet<>(set1, set2);
@@ -136,8 +134,6 @@ public final class NavigableSets {
      * @throws IllegalArgumentException if either parameter is is null
      */
     public static <E> NavigableSet<E> symmetricDifference(NavigableSet<E> set1, NavigableSet<E> set2) {
-        Preconditions.checkArgument(set1 != null, "null set1");
-        Preconditions.checkArgument(set2 != null, "null set2");
         if (set1 instanceof EmptyNavigableSet)
             return set2;
         if (set2 instanceof EmptyNavigableSet)

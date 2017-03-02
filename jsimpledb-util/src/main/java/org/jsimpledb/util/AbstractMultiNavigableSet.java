@@ -5,6 +5,7 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -43,12 +44,15 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * @param comparator common comparator
      * @param bounds range restriction
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
+     * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      * @throws IllegalArgumentException if {@code bounds} is null
      */
     protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets,
       Comparator<? super E> comparator, Bounds<E> bounds) {
         super(bounds);
+        Preconditions.checkArgument(sets != null, "null sets");
         this.list = Lists.newArrayList(sets);
+        Preconditions.checkArgument(!this.list.contains(null), "null set");
         this.comparator = comparator;
     }
 
