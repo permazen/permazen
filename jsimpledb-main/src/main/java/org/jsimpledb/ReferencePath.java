@@ -57,7 +57,6 @@ import org.slf4j.LoggerFactory;
  * &#64;JSimpleClass
  * public class Person {
  *
- *     &#64;JSimpleSetField
  *     public abstract Set&lt;Person&gt; <b>getFriends</b>();
  *
  *     &#64;OnChange("friends.element.<b>name</b>")
@@ -69,7 +68,6 @@ import org.slf4j.LoggerFactory;
  * &#64;JSimpleClass
  * public class NamedPerson extends Person {
  *
- *     &#64;JSimpleField
  *     public abstract String <b>getName</b>();
  *     public abstract void setName(String name);
  * }
