@@ -256,6 +256,15 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
         public void close() {
             this.resultSet.close();
         }
+
+        @Override
+        protected void finalize() throws Throwable {
+            try {
+                this.close();
+            } finally {
+                super.finalize();
+            }
+        }
     }
 }
 
