@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
     </parent>
     <artifactId>jsimpledb-kv-raft</artifactId>
     <name>JSimpleDB Raft Key/Value Store</name>

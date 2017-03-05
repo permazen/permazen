@@ -1,4 +1,4 @@
-Version Next
+Version 3.3.0 Released March 5, 2017
 
     - Added Google Cloud Spanner key/value database
     - Added BatchingKVStore key/value read-ahead and caching layer
