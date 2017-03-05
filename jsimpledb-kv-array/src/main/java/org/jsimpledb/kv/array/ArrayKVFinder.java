@@ -143,7 +143,7 @@ class ArrayKVFinder {
     protected byte[] get(ByteBuffer buf, int position, byte[] dest, int off, int len) {
         if (buf.hasArray())
             System.arraycopy(buf.array(), buf.arrayOffset() + position, dest, off, len);
-        else if (len < 3) {                                              // 256 is a wild guess TODO: performance testing
+        else if (len < 128) {                               // 128 is a wild guess TODO: determine through performance testing
             while (len-- > 0)
                 dest[off++] = buf.get(position++);
         } else
