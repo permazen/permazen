@@ -93,6 +93,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      *
      * <p>
      * Note that read-write transactions always use strong consistency.
+     *
+     * @return consistency of this transaction
      */
     public synchronized TimestampBound getConsistency() {
         return this.consistency;
@@ -100,6 +102,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
 
     /**
      * Convenience method to determine whether this transaction is using strong consistency.
+     *
+     * @return true if this transaction has strong consistency
      */
     public synchronized boolean isStrongConsistency() {
         return this.consistency.getMode().equals(TimestampBound.Mode.STRONG);
@@ -283,8 +287,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      * This method is not supported.
      *
      * <p>
-     * With Spanner, a transaction is not needed to create mutable snapshots;
-     * instead, see {@link SpannerKVDatabase#snapshot SpannerKVDatabase.snapshot()} and {@link MutableView}.
+     * With Spanner, a transaction is not needed to create mutable snapshots; instead, see
+     * {@link SpannerKVDatabase#snapshot SpannerKVDatabase.snapshot()} and {@link org.jsimpledb.kv.mvcc.MutableView}.
      *
      * @throws UnsupportedOperationException always
      */

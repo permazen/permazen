@@ -265,6 +265,7 @@ public class KeyRange {
      * Create an empty key range at the specified key.
      *
      * @param key the minimum and maximum key
+     * @return the empty key range {@code [key,key)}
      * @throws IllegalArgumentException if {@code key} is null
      */
     public static KeyRange empty(byte[] key) {

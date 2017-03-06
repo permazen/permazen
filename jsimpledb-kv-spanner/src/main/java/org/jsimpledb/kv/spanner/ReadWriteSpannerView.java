@@ -68,6 +68,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      *
      * @param tableName name of the Spanner database table
      * @param context read context
+     * @param exceptionMapper mapper for any thrown {@link SpannerException}s, or null for none
      * @param executor asynchronous load task executor
      * @param rttEstimate initial RTT estimate in milliseconds
      * @throws IllegalArgumentException if {@code tableName}, {@code context} or {@code executor} is null

@@ -248,8 +248,8 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
      * <p>
      * Default is {@value #DEFAULT_MAX_TOTAL_BYTES}.
      *
-     * @param totalBytes maximum cached ranges
-     * @throws IllegalArgumentException if {@code totalBytes <= 0}
+     * @param maxTotalBytes maximum cached ranges
+     * @throws IllegalArgumentException if {@code maxTotalBytes <= 0}
      */
     public synchronized void setMaxTotalBytes(int maxTotalBytes) {
         Preconditions.checkArgument(maxTotalBytes > 0, "maxTotalBytes <= 0");

@@ -108,7 +108,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Key Watches</b></p>
  *
  * <p>
- * {@linkplain KVTransaction#watchKey Key watches} are not supported.
+ * {@linkplain org.jsimpledb.kv.KVTransaction#watchKey Key watches} are not supported.
  *
  * @see <a href="https://cloud.google.com/spanner/">Google Cloud Spanner</a>
  */
@@ -116,8 +116,7 @@ import org.slf4j.LoggerFactory;
 public class SpannerKVDatabase implements KVDatabase {
 
     /**
-     * Option key for {@link #createTransaction(Map)}. Value should be a {@link TimestampBound} instance,
-     * or the {@link Consistency#name name()} thereof.
+     * Option key for {@link #createTransaction(Map)}. Value should be a {@link TimestampBound} instance.
      */
     public static final String OPTION_TIMESTAMP_BOUND = "TimestampBound";
 
@@ -439,6 +438,7 @@ public class SpannerKVDatabase implements KVDatabase {
      * Create a read-only snapshot of the database with the given timestamp bound.
      *
      * @param consistency consistency for the snapshot
+     * @return read-only view of database
      * @throws IllegalArgumentException if {@code consistency} is null
      * @throws IllegalStateException if this instance is not {@link #start}ed
      */
