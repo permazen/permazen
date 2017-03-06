@@ -552,6 +552,69 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         return 50;
     }
 
+    /**
+     * This test has multiple threads banging away on a single transaction to verify
+     * that the transaction is thread safe.
+     *
+     * @param store underlying store
+     * @throws Exception if an error occurs
+     */
+    @Test(dataProvider = "kvdbs")
+    public void testMultipleThreadsTransaction(KVDatabase store) throws Exception {
+        this.log.info("starting testMultipleThreadsTransaction() on " + store);
+
+        // Clear database
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
+
+        // Populate database with some data
+        final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
+        final RandomTask populateTask = new RandomTask(99, store, committedData, this.random.nextLong());
+        populateTask.run();
+        Throwable fail = populateTask.getFail();
+        if (fail != null)
+            throw new Exception("populate task failed: >>>" + this.show(fail).trim() + "<<<");
+
+        // Create new transaction and blast away at it
+        final KVTransaction tx = store.createTransaction();
+        try {
+
+            // Create worker threads
+            final RandomTask[] tasks = new RandomTask[33];
+            final Thread[] threads = new Thread[tasks.length];
+            for (int i = 0; i < tasks.length; i++) {
+                final RandomTask task = new RandomTask(i, null, this.random.nextLong());
+                threads[i] = new Thread(() -> task.runRandomAccess(tx));
+                tasks[i] = task;
+            }
+
+            // Start threads
+            for (int i = 0; i < tasks.length; i++)
+                threads[i].start();
+
+            // Join threads
+            for (int i = 0; i < tasks.length; i++)
+                threads[i].join();
+
+            // Check for errors
+            for (int i = 0; i < tasks.length; i++) {
+                if ((fail = tasks[i].getFail()) != null)
+                    throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
+            }
+
+            // Done
+            tx.commit();
+        } finally {
+            tx.rollback();
+        }
+        this.log.info("finished testMultipleThreadsTransaction() on " + store);
+    }
+
     protected <V> V tryNtimes(KVDatabase kvdb, Transactional<V> transactional) {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
@@ -982,6 +1045,71 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 if (committed) {
                     this.committedData.clear();
                     this.committedData.putAll(knownValues);
+                }
+            }
+        }
+
+        public void runRandomAccess(KVTransaction tx) {
+            KVDatabaseTest.this.log.debug("*** " + this + " runRandomAccess() STARTING");
+            try {
+                this.performRandomAccess(tx);
+            } catch (Throwable t) {
+                this.fail = t;
+            } finally {
+                KVDatabaseTest.this.log.debug("*** " + this + " runRandomAccess() FINISHED");
+            }
+        }
+
+        public void performRandomAccess(KVTransaction tx) {
+            final int limit = this.r(KVDatabaseTest.this.getRandomTaskMaxIterations());
+            for (int j = 0; j < limit; j++) {
+                byte[] key;
+                byte[] val;
+                byte[] min;
+                byte[] max;
+                KVPair pair;
+                int option = this.r(62);
+                boolean knownValuesChanged = false;
+                if (option < 10) {                                              // get
+                    key = this.rb(1, false);
+                    tx.get(key);
+                } else if (option < 20) {                                       // put
+                    key = this.rb(1, false);
+                    val = this.rb(2, true);
+                    tx.put(key, val);
+                } else if (option < 30) {                                       // getAtLeast
+                    min = this.rb(1, true);
+                    do {
+                        max = this.rb2(this.r(2) + 1, 20);
+                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    tx.getAtLeast(min, max);
+                } else if (option < 40) {                                       // getAtMost
+                    max = this.rb(1, true);
+                    do {
+                        min = this.rb2(this.r(2) + 1, 20);
+                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    tx.getAtMost(max, min);
+                } else if (option < 50) {                                       // remove
+                    key = this.rb(1, false);
+                    if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false), null)) != null)
+                        key = pair.getKey();
+                    tx.remove(key);
+                } else if (option < 52) {                                       // removeRange
+                    min = this.rb2(2, 20);
+                    do {
+                        max = this.rb2(2, 30);
+                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    tx.removeRange(min, max);
+                } else if (option < 60) {                                       // adjustCounter
+                    key = this.rb(1, false);
+                    final long adj = this.random.nextInt(1 << this.random.nextInt(24)) - 1024;
+                    tx.adjustCounter(key, adj);
+                } else {                                                        // yeild
+                    try {
+                        Thread.sleep(0, 1);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
                 }
             }
         }
