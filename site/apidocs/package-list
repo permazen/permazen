@@ -26,6 +26,7 @@ org.jsimpledb.kv.raft.fallback
 org.jsimpledb.kv.raft.msg
 org.jsimpledb.kv.rocksdb
 org.jsimpledb.kv.simple
+org.jsimpledb.kv.spanner
 org.jsimpledb.kv.sql
 org.jsimpledb.kv.sqlite
 org.jsimpledb.kv.test
