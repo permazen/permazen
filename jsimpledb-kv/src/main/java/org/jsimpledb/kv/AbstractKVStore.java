@@ -118,7 +118,13 @@ public abstract class AbstractKVStore implements KVStore {
         final byte[] previous = this.get(key);
         if (previous == null)
             return;
-        this.put(key, this.encodeCounter(this.decodeCounter(previous) + amount));
+        final long oldValue;
+        try {
+            oldValue = this.decodeCounter(previous);
+        } catch (IllegalArgumentException e) {
+            return;                                                     // if previous value is not valid, behavior is undefined
+        }
+        this.put(key, this.encodeCounter(oldValue + amount));
     }
 
     private void closeIfPossible(Iterator<KVPair> i) {
