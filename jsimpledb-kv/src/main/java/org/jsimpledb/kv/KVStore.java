@@ -90,7 +90,7 @@ public interface KVStore {
      *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @param minKey minimum key (inclusive), or null for no minimum (no lower bound)
-     * @return largest key/value pair with {@code key < maxKey}, or null if none exists
+     * @return largest key/value pair with {@code key < maxKey} and {@code key >= minKey}, or null if none exists
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
