@@ -32,9 +32,6 @@ import org.jsimpledb.util.ByteUtil;
  */
 public class ArrayKVStore extends AbstractKVStore {
 
-    private final ByteBuffer indx;
-    private final ByteBuffer keys;
-    private final ByteBuffer vals;
     private final int size;
     private final ArrayKVFinder finder;
 
@@ -52,11 +49,8 @@ public class ArrayKVStore extends AbstractKVStore {
         Preconditions.checkArgument(keys != null, "null keys");
         Preconditions.checkArgument(vals != null, "null vals");
         Preconditions.checkArgument(indx.capacity() % 8 == 0, "index size is not a multiple of 8");
-        this.indx = indx;
-        this.keys = keys;
-        this.vals = vals;
-        this.size = this.indx.capacity() / 8;
-        this.finder = new ArrayKVFinder(this.indx, this.keys, this.vals);
+        this.size = indx.capacity() / 8;
+        this.finder = new ArrayKVFinder(indx, keys, vals);
     }
 
     @Override
