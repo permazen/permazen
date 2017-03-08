@@ -2,7 +2,6 @@
 SHORT TERM
 ==========
 
-
 - Connection pooling in SQL k/v implementations
 
 - CLI:
@@ -17,8 +16,6 @@ SHORT TERM
 
 - New KVDatabase implementations
     - Amazon DynamoDB ?
-    - Google Cloud Datastore ?
-        - https://cloud.google.com/datastore/docs/concepts/overview
     - LMDB
         - https://github.com/deephacks/lmdbjni
         - https://github.com/lmdbjava/lmdbjava
