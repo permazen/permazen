@@ -86,7 +86,7 @@
         <commons-codec.version>1.10</commons-codec.version>
         <dellroad-stuff.version>2.0.4</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
-        <google-cloud-java.version>0.9.2</google-cloud-java.version>
+        <google-cloud-java.version>0.9.4</google-cloud-java.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
         <guava.version>19.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
