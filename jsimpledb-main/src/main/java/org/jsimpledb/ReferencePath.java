@@ -404,19 +404,16 @@ public class ReferencePath {
         private final JClass<?> jclass;
         private final JField jfield;
         private final ArrayDeque<String> fieldNames;
-        private final boolean steppedThroughField;
 
         private Cursor(JClass<?> jclass, ArrayDeque<String> fieldNames) {
-            this(new ArrayList<>(), jclass, null, fieldNames, false);
+            this(new ArrayList<>(), jclass, null, fieldNames);
         }
 
-        private Cursor(ArrayList<Integer> referenceFields, JClass<?> jclass,
-          JField jfield, ArrayDeque<String> fieldNames, boolean steppedThroughField) {
+        private Cursor(ArrayList<Integer> referenceFields, JClass<?> jclass, JField jfield, ArrayDeque<String> fieldNames) {
             this.referenceFields.addAll(referenceFields);
             this.jclass = jclass;
             this.jfield = jfield;
             this.fieldNames = fieldNames.clone();
-            this.steppedThroughField = steppedThroughField;
         }
 
         public ArrayList<Integer> getReferenceFields() {
@@ -440,7 +437,7 @@ public class ReferencePath {
         }
 
         public boolean isSteppedThroughField() {
-            return this.steppedThroughField;
+            return this.jfield != null;
         }
 
         /**
@@ -455,9 +452,9 @@ public class ReferencePath {
 
             // Sanity check
             Preconditions.checkArgument(!this.fieldNames.isEmpty(), "empty reference path");
-            Preconditions.checkState(!this.steppedThroughField, "already stepped through field");
+            Preconditions.checkState(this.jfield == null, "already stepped through field");
 
-            // Get field name
+            // Get field name and containing type
             final ArrayDeque<String> remainingFieldNames = this.fieldNames.clone();
             final String fieldName = remainingFieldNames.removeFirst();
             String description = "field `" + fieldName + "' in " + this.jclass.getType();
@@ -522,7 +519,7 @@ public class ReferencePath {
                     }
 
                     // Done
-                    final Cursor result = new Cursor(this.referenceFields, this.jclass, matchingField, remainingFieldNames, true);
+                    final Cursor result = new Cursor(this.referenceFields, this.jclass, matchingField, remainingFieldNames);
                     if (this.log.isTraceEnabled())
                         this.log.trace("RefPath.stepThroughField(): ended on complex field; result=" + result);
                     return result;
@@ -552,7 +549,7 @@ public class ReferencePath {
             }
 
             // Done
-            final Cursor result = new Cursor(this.referenceFields, this.jclass, matchingField, remainingFieldNames, true);
+            final Cursor result = new Cursor(this.referenceFields, this.jclass, matchingField, remainingFieldNames);
             if (this.log.isTraceEnabled())
                 this.log.trace("RefPath.stepThroughField(): result=" + result);
             return result;
@@ -568,7 +565,7 @@ public class ReferencePath {
                 this.log.trace("RefPath.stepThroughReference(): this=" + this);
 
             // Sanity check
-            Preconditions.checkState(this.steppedThroughField, "have not yet stepped through field");
+            Preconditions.checkState(this.jfield != null, "have not yet stepped through field");
             assert this.jfield != null;
             assert this.jfield.parent == this.jclass
               || (this.jfield instanceof JSimpleField && ((JSimpleField)this.jfield).getParentField().parent == this.jclass);
@@ -587,7 +584,7 @@ public class ReferencePath {
             }
             final HashSet<Cursor> cursors = new HashSet<>();
             for (JClass<?> referencedJClass : jdb.getJClasses(referencedType))
-                cursors.add(new Cursor(newReferenceFields, referencedJClass, jfield, this.fieldNames, false));
+                cursors.add(new Cursor(newReferenceFields, referencedJClass, null, this.fieldNames));
 
             // Done
             if (this.log.isTraceEnabled())
@@ -601,7 +598,7 @@ public class ReferencePath {
         public Cursor appendField(String fieldName) {
             final ArrayDeque<String> newFieldNames = this.fieldNames.clone();
             newFieldNames.add(fieldName);
-            return new Cursor(this.referenceFields, this.jclass, this.jfield, newFieldNames, this.steppedThroughField);
+            return new Cursor(this.referenceFields, this.jclass, this.jfield, newFieldNames);
         }
 
     // Object
@@ -632,7 +629,6 @@ public class ReferencePath {
               + (this.jfield != null ? ",jfield=" + this.jfield : "")
               + (!this.fieldNames.isEmpty() ? ",fieldNames=" + this.fieldNames : "")
               + (!this.referenceFields.isEmpty() ? ",refs=" + this.referenceFields : "")
-              + ",steppedThroughField=" + this.steppedThroughField
               + "]";
         }
     }
