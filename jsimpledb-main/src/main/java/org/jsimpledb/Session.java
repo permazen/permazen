@@ -599,9 +599,13 @@ public class Session {
                 final Schema schema = this.tx.getSchema();
                 this.setSchemaModel(schema.getSchemaModel());
                 this.setSchemaVersion(schema.getVersionNumber());
-                if (this.readOnly)
-                    this.tx.setReadOnly(true);
             }
+
+            // Set transaction read/only if appropriate
+            if (this.tx != null && this.readOnly)
+                this.tx.setReadOnly(true);
+            if (this.kvt != null && this.readOnly)
+                this.kvt.setReadOnly(true);
 
             // OK
             success = true;
