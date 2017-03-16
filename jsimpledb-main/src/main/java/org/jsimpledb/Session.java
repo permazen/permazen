@@ -560,13 +560,15 @@ public class Session {
     }
 
     private boolean openTransaction(Map<String, ?> options) {
+        final SessionMode currentMode = this.mode;
+        boolean success = false;
         try {
 
             // Sanity check
             Preconditions.checkState(this.tx == null && this.kvt == null, "a transaction is already open in this session");
 
             // Open transaction at the appropriate level
-            switch (this.mode) {
+            switch (currentMode) {
             case KEY_VALUE:
                 this.kvt = this.kvdb.createTransaction(options);
                 break;
@@ -601,17 +603,19 @@ public class Session {
                     this.tx.setReadOnly(true);
             }
 
-            // Done
-            return true;
+            // OK
+            success = true;
         } catch (Exception e) {
-            this.tx = null;
-            this.kvt = null;
             this.reportException(e);
-            return false;
+        } finally {
+            if (!success)
+                this.cleanupTx(currentMode);
         }
+
+        // Done
+        return success;
     }
 
-    @SuppressWarnings("fallthrough")
     private boolean closeTransaction(boolean commit) {
         final SessionMode currentMode = this.mode;
         try {
@@ -644,19 +648,28 @@ public class Session {
             this.reportException(e);
             return false;
         } finally {
-            switch (currentMode) {
-            case JSIMPLEDB:
-                JTransaction.setCurrent(null);
-                // FALLTHROUGH
-            case CORE_API:
-                this.tx = null;
-                // FALLTHROUGH
-            case KEY_VALUE:
-                this.kvt = null;
-                // FALLTHROUGH
-            default:
-                break;
+            this.cleanupTx(currentMode);
+        }
+    }
+
+    private void cleanupTx(SessionMode mode) {
+        if (mode.compareTo(SessionMode.JSIMPLEDB) >= 0) {
+            try {
+                JTransaction.getCurrent().rollback();
+            } catch (IllegalStateException e) {
+                // ignore
             }
+            JTransaction.setCurrent(null);
+        }
+        if (mode.compareTo(SessionMode.CORE_API) >= 0) {
+            if (this.tx != null)
+                this.tx.rollback();
+            this.tx = null;
+        }
+        if (mode.compareTo(SessionMode.KEY_VALUE) >= 0) {
+            if (this.kvt != null)
+                this.kvt.rollback();
+            this.kvt = null;
         }
     }
 
