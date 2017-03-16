@@ -117,7 +117,10 @@ final class Util {
         try {
             Files.delete(file.toPath());
         } catch (IOException e) {
-            LoggerFactory.getLogger(Util.class).warn("error deleting " + description + " " + file + " (proceeding anyway): " + e);
+            if (description != null) {
+                LoggerFactory.getLogger(Util.class).warn(
+                  "error deleting " + description + " " + file + " (proceeding anyway): " + e);
+            }
         }
     }
 }

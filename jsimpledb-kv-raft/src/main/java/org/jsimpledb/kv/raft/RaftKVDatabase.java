@@ -2298,7 +2298,7 @@ public class RaftKVDatabase implements KVDatabase {
 
                     // Delete deletable files, if any
                     if (!this.filesToDelete.isEmpty())
-                        this.deleteFiles(this.filesToDelete);
+                        this.deleteFiles(this.filesToDelete, true);
 
                     // Create a new temporary file, if needed
                     if (this.availableTempFiles.remainingCapacity() > 0) {
@@ -2324,11 +2324,11 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         private void cleanup() {
-            this.deleteFiles(this.availableTempFiles);
-            this.deleteFiles(this.filesToDelete);
+            this.deleteFiles(this.availableTempFiles, false);
+            this.deleteFiles(this.filesToDelete, true);
         }
 
-        private void deleteFiles(ArrayBlockingQueue<FileInfo> queue) {
+        private void deleteFiles(ArrayBlockingQueue<FileInfo> queue, boolean warn) {
             while (true) {
 
                 // Get next file
@@ -2340,7 +2340,7 @@ public class RaftKVDatabase implements KVDatabase {
                 }
 
                 // Delete file
-                Util.delete(fileInfo.getFile(), fileInfo.getDescription());
+                Util.delete(fileInfo.getFile(), warn ? fileInfo.getDescription() : null);
             }
         }
     }
