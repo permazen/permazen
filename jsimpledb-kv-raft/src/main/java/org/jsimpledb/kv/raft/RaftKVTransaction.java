@@ -381,7 +381,7 @@ public class RaftKVTransaction implements KVTransaction {
     public void configChange(String identity, String address) {
         Preconditions.checkArgument(identity != null, "null identity");
         synchronized (this.raft) {
-            Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");
+            Preconditions.checkState(this.configChange == null, "duplicate config change; only one is supported per transaction");
             Preconditions.checkState(!this.readOnly, "transaction is read-only");
             this.verifyExecuting();
             this.configChange = new String[] { identity, address };
