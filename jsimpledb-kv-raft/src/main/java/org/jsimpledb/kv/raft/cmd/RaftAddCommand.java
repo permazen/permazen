@@ -44,11 +44,6 @@ public class RaftAddCommand extends AbstractTransactionRaftCommand {
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
                 tx.configChange(identity, address);
             }
-
-            @Override
-            protected Consistency getConsistency() {
-                return Consistency.UNCOMMITTED;
-            }
         };
     }
 }

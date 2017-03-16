@@ -39,11 +39,6 @@ public class RaftRemoveCommand extends AbstractTransactionRaftCommand {
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
                 tx.configChange(identity, null);
             }
-
-            @Override
-            protected Consistency getConsistency() {
-                return Consistency.UNCOMMITTED;
-            }
         };
     }
 }
