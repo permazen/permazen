@@ -630,13 +630,14 @@
                     <additionalparam>-Xdoclint:-reference</additionalparam>
                     <links>
                         <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
+                        <link>http://archiecobbs.github.io/nvt4j/api/</link>
                         <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>http://slf4j.org/apidocs/</link>
                         <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
-                        <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                     </links>
                 </configuration>
                 <executions>
@@ -809,6 +810,7 @@
                         <link>http://archiecobbs.github.io/nvt4j/api/</link>
                         <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>http://slf4j.org/apidocs/</link>
                         <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
