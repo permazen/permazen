@@ -44,6 +44,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         writer.println("  CLI Mode: " + session.getMode());
         writer.println("  Database: " + session.getDatabaseDescription());
         writer.println("  Access Mode: " + (session.isReadOnly() ? "Read-Only" : "Read/Write"));
+        writer.println("  Verbose Mode: " + session.isVerbose());
         if (session.getMode().equals(SessionMode.KEY_VALUE))
             return;
         final int schemaVersion = InfoCommand.getSchemaVersion(session);
