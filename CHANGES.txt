@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bugs in `raft-add' and `raft-remove' CLI commands
+
 Version 3.3.0 Released March 6, 2017
 
     - Added Google Cloud Spanner key/value database
@@ -5,7 +9,6 @@ Version 3.3.0 Released March 6, 2017
     - Added limit parameters to KVStore.getAtLeast() and KVStore.getAtMost()
     - Fixed upgrade conversion exception if field did not previously exist
     - Added upgrade conversion between counter fields and numeric primitives
-    - Fixed bugs in `raft-add' and `raft-remove' CLI commands
     - Set the default UpgradeConversionPolicy to ATTEMPT (*)
 
     (*) Backwards-incompatible change
