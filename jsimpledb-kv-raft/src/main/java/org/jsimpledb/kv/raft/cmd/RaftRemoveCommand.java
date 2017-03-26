@@ -8,7 +8,6 @@ package org.jsimpledb.kv.raft.cmd;
 import java.util.Map;
 
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.kv.raft.Consistency;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.util.ParseContext;
 
