@@ -179,7 +179,7 @@ import org.slf4j.LoggerFactory;
  * </tr>
  * <tr>
  *  <td>{@code Asset}</td>
- *  <td>{@code "^Employee:assets.element^}<br></br>&nbsp;&nbsp;{@code .manager.^Employee:manager^.asset.assetId"}</td>
+ *  <td>{@code "^Employee:assets.element^}<br>&nbsp;&nbsp;{@code .manager.^Employee:manager^.asset.assetId"}</td>
  *  <td>Yes</td>
  *  <td>ID's of all {@code Asset}s owned by direct reports of the manager of the {@code Employee} owning the original
  *      {@code Asset}</td>
