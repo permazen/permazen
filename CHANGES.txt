@@ -1,3 +1,7 @@
+Version Next
+
+    - Corrected excessive logging (should be trace, not debug) from ReferencePath
+
 Version 3.4.0 Released March 26, 2017
 
     - Add support for inverse traversal in reference path steps
