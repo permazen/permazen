@@ -14,4 +14,9 @@
         <Method name="testSequentialTransactions"/>
         <Bug pattern="RU_INVOKE_RUN"/>
     </Match>
+    <Match>
+        <Class name="org.jsimpledb.kv.test.KVDatabaseTest"/>
+        <Method name="testMultipleThreadsTransaction"/>
+        <Bug pattern="RU_INVOKE_RUN"/>
+    </Match>
 </FindBugsFilter>
