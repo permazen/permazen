@@ -127,7 +127,7 @@ import org.slf4j.LoggerFactory;
  *  <td>{@code Object}</td>
  *  <td>{@code "name"}</td>
  *  <td>Yes</td>
- *  <td>The {@link Employee}'s or {@link Asset}'s name</td>
+ *  <td>The {@code Employee}'s or {@code Asset}'s name</td>
  * </tr>
  * <tr>
  *  <td>{@code Employee}</td>
@@ -179,9 +179,9 @@ import org.slf4j.LoggerFactory;
  * </tr>
  * <tr>
  *  <td>{@code Asset}</td>
- *  <td>{@code "^Employee:assets.element^}<br/>&nbsp;&nbsp;{@code .manager.^Employee:manager^.asset.assetId"}</td>
+ *  <td>{@code "^Employee:assets.element^}<br></br>&nbsp;&nbsp;{@code .manager.^Employee:manager^.asset.assetId"}</td>
  *  <td>Yes</td>
- *  <td>ID's of all {@code Asset}s owned by direct reports of the manager of the {@link Employee} owning the original
+ *  <td>ID's of all {@code Asset}s owned by direct reports of the manager of the {@code Employee} owning the original
  *      {@code Asset}</td>
  * </tr>
  * </table>
