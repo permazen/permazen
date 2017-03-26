@@ -249,8 +249,8 @@ public class ReferencePath {
         this.path = path;
 
         // Debug
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("RefPath: START startType=" + startType.getName() + " path=\"" + path
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("RefPath: START startType=" + startType.getName() + " path=\"" + path
               + "\" withTargetField=" + withTargetField + " lastIsSubField=" + lastIsSubField);
         }
 
@@ -273,8 +273,8 @@ public class ReferencePath {
         }
 
         // Debug
-        if (this.log.isDebugEnabled())
-            this.log.debug("RefPath: fieldNames=" + fieldNames);
+        if (this.log.isTraceEnabled())
+            this.log.trace("RefPath: fieldNames=" + fieldNames);
 
         // Initialize cursors
         final HashSet<Cursor> remainingCursors = new HashSet<>();
@@ -288,8 +288,8 @@ public class ReferencePath {
         while (!remainingCursors.isEmpty()) {
 
             // Debug
-            if (this.log.isDebugEnabled())
-                this.log.debug("RefPath: remainingCursors=" + remainingCursors);
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath: remainingCursors=" + remainingCursors);
 
             // Advance outstanding cursors
             final HashSet<Cursor> previouslyRemainingCursors = new HashSet<>(remainingCursors);
@@ -297,13 +297,13 @@ public class ReferencePath {
             for (Cursor cursor : previouslyRemainingCursors) {
 
                 // Debug
-                if (this.log.isDebugEnabled())
-                    this.log.debug("RefPath: processing remainingCursor " + cursor);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath: processing remainingCursor " + cursor);
 
                 // Cursors that have no remaining fields, and for which no target field is required, are completed
                 if (!withTargetField && !cursor.hasMoreFieldNames()) {
-                    if (this.log.isDebugEnabled())
-                        this.log.debug("RefPath: remainingCursor " + cursor + " is completed");
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("RefPath: remainingCursor " + cursor + " is completed");
                     completedCursors.add(cursor);
                     continue;
                 }
@@ -313,17 +313,17 @@ public class ReferencePath {
                 try {
                     newCursors = cursor.stepThroughField(jdb, withTargetField, lastIsSubField);
                 } catch (IllegalArgumentException e) {
-                    if (this.log.isDebugEnabled())
-                        this.log.debug("RefPath: stepThroughField() on " + cursor + " failed: " + e.getMessage());
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("RefPath: stepThroughField() on " + cursor + " failed: " + e.getMessage());
                     error = e;
                     continue;
                 }
-                if (this.log.isDebugEnabled())
-                    this.log.debug("RefPath: stepThroughField() on " + cursor + " succeeded: newCursors=" + newCursors);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath: stepThroughField() on " + cursor + " succeeded: newCursors=" + newCursors);
 
                 // Debug
-                if (this.log.isDebugEnabled())
-                    this.log.debug("RefPath: after stepThroughField(), newCursors=" + newCursors);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath: after stepThroughField(), newCursors=" + newCursors);
 
                 // Remove cursors for which we have reached the end of the path
                 for (Iterator<Cursor> i = newCursors.iterator(); i.hasNext(); ) {
@@ -331,23 +331,23 @@ public class ReferencePath {
                     if (withTargetField && !newCursor.hasMoreFieldNames()) {
                         if (newCursor.isReverseStep())                              // target field cannot be a reverse step
                             throw new IllegalArgumentException("Invalid reference path: missing target field");
-                        if (this.log.isDebugEnabled())
-                            this.log.debug("RefPath: newCursor " + cursor + " is completed");
+                        if (this.log.isTraceEnabled())
+                            this.log.trace("RefPath: newCursor " + cursor + " is completed");
                         completedCursors.add(newCursor);
                         i.remove();
                     }
                 }
 
                 // Debug
-                if (this.log.isDebugEnabled())
-                    this.log.debug("RefPath: after stepThroughField(), remaining newCursors=" + newCursors);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath: after stepThroughField(), remaining newCursors=" + newCursors);
 
                 // Advance the unfinished cursors through the next reference field
                 for (Cursor newCursor : newCursors) {
 
                     // Debug
-                    if (this.log.isDebugEnabled())
-                        this.log.debug("RefPath: invoking stepThroughReference() on " + newCursor);
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("RefPath: invoking stepThroughReference() on " + newCursor);
 
                     // "Dereference" the reference field, possibly branching to create multiple new cursors
                     final Set<Cursor> dereferencedCursors;
@@ -359,16 +359,16 @@ public class ReferencePath {
                     }
 
                     // Debug
-                    if (this.log.isDebugEnabled())
-                        this.log.debug("RefPath: stepThroughReference() returned " + dereferencedCursors);
+                    if (this.log.isTraceEnabled())
+                        this.log.trace("RefPath: stepThroughReference() returned " + dereferencedCursors);
                     remainingCursors.addAll(dereferencedCursors);
                 }
             }
         }
 
         // Check for error
-        if (this.log.isDebugEnabled())
-            this.log.debug("RefPath: remainingCursors=" + remainingCursors + " completedCursors=" + completedCursors);
+        if (this.log.isTraceEnabled())
+            this.log.trace("RefPath: remainingCursors=" + remainingCursors + " completedCursors=" + completedCursors);
         if (completedCursors.isEmpty())
             throw error;
 
@@ -429,8 +429,8 @@ public class ReferencePath {
         this.cursors = completedCursors;
 
         // Logging
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("RefPath: DONE: targetTypes=" + this.targetTypes + " targetFieldStorageId=" + this.targetFieldStorageId
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("RefPath: DONE: targetTypes=" + this.targetTypes + " targetFieldStorageId=" + this.targetFieldStorageId
               + " targetSuperFieldStorageId=" + this.targetSuperFieldStorageId + " targetFieldTypes=" + this.targetFieldTypes
               + " references=" + referenceFieldList + " cursors=" + this.cursors);
         }
@@ -572,8 +572,8 @@ public class ReferencePath {
         Preconditions.checkArgument(!fieldNames.isEmpty(), "empty reference path");
 
         // Logging
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("RefPath.findField(): jclass=" + jclass
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("RefPath.findField(): jclass=" + jclass
               + " fieldNames=" + fieldNames + " lastIsSubField=" + lastIsSubField);
         }
 
@@ -603,8 +603,8 @@ public class ReferencePath {
         }
 
         // Logging
-        if (this.log.isDebugEnabled())
-            this.log.debug("RefPath.findField(): found field " + matchingField + " in " + jclass.getType());
+        if (this.log.isTraceEnabled())
+            this.log.trace("RefPath.findField(): found field " + matchingField + " in " + jclass.getType());
 
         // Handle complex fields
         JComplexField superField = null;
@@ -612,8 +612,8 @@ public class ReferencePath {
             superField = (JComplexField)matchingField;
 
             // Logging
-            if (this.log.isDebugEnabled())
-                this.log.debug("RefPath.findField(): field is a complex field");
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.findField(): field is a complex field");
 
             // Last field?
             if (fieldNames.isEmpty()) {
@@ -635,8 +635,8 @@ public class ReferencePath {
                 }
 
                 // Done
-                if (this.log.isDebugEnabled())
-                    this.log.debug("RefPath.findField(): ended on complex field; result=" + matchingField);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath.findField(): ended on complex field; result=" + matchingField);
                 return matchingField;
             }
 
@@ -650,12 +650,12 @@ public class ReferencePath {
             }
 
             // Logging
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("RefPath.findField(): also stepping through sub-field ["
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("RefPath.findField(): also stepping through sub-field ["
                   + searchName + "." + subFieldName + "] to reach " + matchingField);
             }
-        } else if (this.log.isDebugEnabled())
-            this.log.debug("RefPath.findField(): field is a simple field");
+        } else if (this.log.isTraceEnabled())
+            this.log.trace("RefPath.findField(): field is a simple field");
 
         // Verify it's OK to end on a complex sub-field (if that's what happened)
         if (fieldNames.isEmpty() && superField != null && Boolean.FALSE.equals(lastIsSubField)) {
@@ -664,8 +664,8 @@ public class ReferencePath {
         }
 
         // Done
-        if (this.log.isDebugEnabled())
-            this.log.debug("RefPath.findField(): result=" + matchingField);
+        if (this.log.isTraceEnabled())
+            this.log.trace("RefPath.findField(): result=" + matchingField);
         return matchingField;
     }
 
@@ -767,8 +767,8 @@ public class ReferencePath {
 
                 // Consume step
                 remainingFieldNames.removeFirst();
-                if (this.log.isDebugEnabled()) {
-                    this.log.debug("RefPath.stepThroughField(): reverse step `" + step
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("RefPath.stepThroughField(): reverse step `" + step
                       + "' -> type `" + typeName + "' field `" + fieldName + "'");
                 }
 
@@ -822,8 +822,8 @@ public class ReferencePath {
             assert !newCursors.isEmpty();
 
             // Done
-            if (this.log.isDebugEnabled())
-                this.log.debug("RefPath.stepThroughField(): result=" + newCursors);
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.stepThroughField(): result=" + newCursors);
             return newCursors;
         }
 
@@ -833,8 +833,8 @@ public class ReferencePath {
         public Set<Cursor> stepThroughReference(JSimpleDB jdb) {
 
             // Logging
-            if (this.log.isDebugEnabled())
-                this.log.debug("RefPath.stepThroughReference(): this=" + this);
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.stepThroughReference(): this=" + this);
 
             // Sanity check
             Preconditions.checkState(this.jfield != null, "have not yet stepped through field");
@@ -853,8 +853,8 @@ public class ReferencePath {
             // Advance through the reference, either forward or inverse
             final Class<?> targetType = this.reverseStep ?
               this.jfield.getJClass().type : ((JReferenceField)this.jfield).typeToken.getRawType();
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("RefPath.stepThroughReference(): targetType="
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("RefPath.stepThroughReference(): targetType="
                   + targetType + " -> " + jdb.getJClasses(targetType));
             }
             final HashSet<Cursor> newCursors = new HashSet<>();
@@ -862,8 +862,8 @@ public class ReferencePath {
                 newCursors.add(new Cursor(newReferenceFields, targetJClass, null, this.fieldNames, false));
 
             // Done
-            if (this.log.isDebugEnabled())
-                this.log.debug("RefPath.stepThroughReference(): result=" + newCursors);
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.stepThroughReference(): result=" + newCursors);
             return newCursors;
         }
 
