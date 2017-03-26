@@ -10,17 +10,18 @@ import java.util.NavigableSet;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
-abstract class ComplexSubFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
+abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends SimpleFieldStorageInfo<T> {
 
-    final int parentStorageId;
+    final P parentRepresentative;
 
     private final int storageIdEncodedLength;
 
-    ComplexSubFieldStorageInfo(SimpleField<T> field) {
+    ComplexSubFieldStorageInfo(SimpleField<T> field, P parent) {
         super(field);
-        assert field.parent != null;
-        this.parentStorageId = field.parent.storageId;
-        this.storageIdEncodedLength = UnsignedIntEncoder.encodeLength(storageId);
+        assert parent != null;
+        assert parent == field.parent;
+        this.parentRepresentative = parent;
+        this.storageIdEncodedLength = UnsignedIntEncoder.encodeLength(this.storageId);
     }
 
     @Override
@@ -62,13 +63,13 @@ abstract class ComplexSubFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
             return true;
         if (!super.equals(obj))
             return false;
-        final ComplexSubFieldStorageInfo<?> that = (ComplexSubFieldStorageInfo<?>)obj;
-        return this.parentStorageId == that.parentStorageId;
+        final ComplexSubFieldStorageInfo<?, ?> that = (ComplexSubFieldStorageInfo<?, ?>)obj;
+        return this.parentRepresentative.storageId == that.parentRepresentative.storageId;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.parentStorageId;
+        return super.hashCode() ^ this.parentRepresentative.storageId;
     }
 }
 

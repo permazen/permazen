@@ -5,15 +5,17 @@
 
 package org.jsimpledb.core;
 
+import java.util.Set;
+
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 
-class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V> {
+class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K, V>> {
 
     final FieldType<K> keyFieldType;
 
     MapValueStorageInfo(MapField<K, V> field) {
-        super(field.valueField);
+        super(field.valueField, field);
         this.keyFieldType = field.keyField.fieldType.genericizeForIndex();
     }
 
@@ -28,11 +30,20 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V> {
 
     @Override
     void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        final FieldTypeMap<?, ?> fieldMap = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.parentStorageId, false);
+        final FieldTypeMap<?, ?> fieldMap
+          = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.parentRepresentative.storageId, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
             final ByteReader reader = new ByteReader(i.next().getKey());
             reader.skip(prefix.length);
             fieldMap.remove(fieldMap.keyFieldType.read(reader));
+        }
+    }
+
+    @Override
+    void readAllNonNull(Transaction tx, ObjId target, Set<V> values) {
+        for (V value : this.parentRepresentative.getValueInternal(tx, target).values()) {
+            if (value != null)
+                values.add(value);
         }
     }
 

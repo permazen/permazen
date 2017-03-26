@@ -80,7 +80,7 @@ public abstract class ComplexField<T> extends Field<T> {
         return null;
     }
 
-    abstract ComplexSubFieldStorageInfo<?> toStorageInfo(SimpleField<?> subField);
+    abstract ComplexSubFieldStorageInfo<?, ?> toStorageInfo(SimpleField<?> subField);
 
     /**
      * Delete all content (but not index entries) for the given object.

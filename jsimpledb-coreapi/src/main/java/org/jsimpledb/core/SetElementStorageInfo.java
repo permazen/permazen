@@ -5,15 +5,17 @@
 
 package org.jsimpledb.core;
 
-class SetElementStorageInfo<E> extends ComplexSubFieldStorageInfo<E> {
+import java.util.NavigableSet;
+
+class SetElementStorageInfo<E> extends CollectionElementStorageInfo<NavigableSet<E>, E, SetField<E>> {
 
     SetElementStorageInfo(SetField<E> field) {
-        super(field.elementField);
+        super(field);
     }
 
     @Override
     void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        tx.readSetField(referrer, this.parentStorageId, false).remove(target);
+        tx.readSetField(referrer, this.parentRepresentative.storageId, false).remove(target);
     }
 
 // Object

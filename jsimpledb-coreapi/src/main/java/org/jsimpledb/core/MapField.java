@@ -134,7 +134,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    ComplexSubFieldStorageInfo<?> toStorageInfo(SimpleField<?> subField) {
+    ComplexSubFieldStorageInfo<?, ?> toStorageInfo(SimpleField<?> subField) {
         if (subField == this.keyField)
             return new MapKeyStorageInfo<K>(this);
         if (subField == this.valueField)

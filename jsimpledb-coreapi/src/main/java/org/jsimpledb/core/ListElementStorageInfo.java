@@ -11,10 +11,10 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
-class ListElementStorageInfo<E> extends ComplexSubFieldStorageInfo<E> {
+class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E, ListField<E>> {
 
     ListElementStorageInfo(ListField<E> field) {
-        super(field.elementField);
+        super(field);
     }
 
     CoreIndex2<E, ObjId, Integer> getElementIndex(Transaction tx) {
@@ -31,7 +31,7 @@ class ListElementStorageInfo<E> extends ComplexSubFieldStorageInfo<E> {
     // However, the KVPairIterator always reflects the current state so we'll see updated list indexes.
     @Override
     void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        final List<?> list = tx.readListField(referrer, this.parentStorageId, false);
+        final List<?> list = tx.readListField(referrer, this.parentRepresentative.storageId, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
             final ByteReader reader = new ByteReader(i.next().getKey());
             reader.skip(prefix.length);

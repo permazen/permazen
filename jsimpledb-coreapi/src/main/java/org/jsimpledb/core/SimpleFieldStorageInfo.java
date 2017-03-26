@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import java.util.NavigableSet;
+import java.util.Set;
 
 /**
  * Represents an index on a simple field, either a regular simple field or a sub-field of a complex field.
@@ -35,6 +36,15 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
      * @param referrers objects that refer to {@code target} via this reference field
      */
     abstract void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers);
+
+    /**
+     * Read this field from the given object and add non-null value(s) to the given set.
+     *
+     * @param tx transaction
+     * @param id object being accessed
+     * @param values read values
+     */
+    abstract void readAllNonNull(Transaction tx, ObjId id, Set<T> values);
 
 // Object
 
