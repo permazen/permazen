@@ -1,5 +1,6 @@
 Version Next
 
+    - Removed "invert" CLI function (redundant with JTransaction API)
     - Fixed bugs in `raft-add' and `raft-remove' CLI commands
 
 Version 3.3.0 Released March 6, 2017

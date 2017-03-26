@@ -7,7 +7,6 @@
     <parse-function-implementation class="org.jsimpledb.parse.func.CreateFunction"/>
     <parse-function-implementation class="org.jsimpledb.parse.func.FilterFunction"/>
     <parse-function-implementation class="org.jsimpledb.parse.func.ForEachFunction"/>
-    <parse-function-implementation class="org.jsimpledb.parse.func.InvertFunction"/>
     <parse-function-implementation class="org.jsimpledb.parse.func.LimitFunction"/>
     <parse-function-implementation class="org.jsimpledb.parse.func.ListFunction"/>
     <parse-function-implementation class="org.jsimpledb.parse.func.QueryCompositeIndexFunction"/>
