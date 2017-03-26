@@ -271,6 +271,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
     /**
      * Remove all keys from this instance.
+     *
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public void clear() {
         assert this.checkMinimal();
@@ -479,6 +481,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @param range key range to add
      * @throws IllegalArgumentException if {@code range} is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public void add(KeyRange range) {
 
@@ -544,6 +547,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @param range range to remove
      * @throws IllegalArgumentException if {@code range} is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public void remove(KeyRange range) {
 
@@ -601,6 +605,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @param range key range to intersect with
      * @throws IllegalArgumentException if {@code range} is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public void intersect(KeyRange range) {
         this.intersect(new KeyRanges(range));
@@ -611,6 +616,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @param ranges key ranges to add
      * @throws IllegalArgumentException if {@code ranges} is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     @SuppressWarnings("unchecked")
     public void add(KeyRanges ranges) {
@@ -641,6 +647,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @param ranges key ranges to intersect with
      * @throws IllegalArgumentException if {@code ranges} is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public void intersect(KeyRanges ranges) {
         this.remove(ranges.inverse());
@@ -786,6 +793,12 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
 // Cloneable
 
+    /**
+     * Clone this instance.
+     *
+     * <p>
+     * The returned clone will always be mutable, even if this instance is not.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public KeyRanges clone() {
@@ -796,8 +809,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        if (!(clone.ranges instanceof ImmutableNavigableSet))
-            clone.ranges = new TreeSet<>(clone.ranges);
+        clone.ranges = new TreeSet<>(clone.ranges);
+        assert clone.checkMinimal();
         return clone;
     }
 

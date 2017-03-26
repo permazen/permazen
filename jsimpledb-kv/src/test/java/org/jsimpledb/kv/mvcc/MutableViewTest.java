@@ -157,6 +157,38 @@ public class MutableViewTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testClone() throws Exception {
+
+        final MutableView view = new MutableView(new NavigableMapKVStore());
+        view.getWrites().getRemoves().add(KeyRanges.forPrefix(b("3311")));
+
+        final MutableView view2 = new MutableView(view.getKVStore(), null, view.getWrites().immutableSnapshot());
+        try {
+            view2.getWrites().getRemoves().add(KeyRanges.forPrefix(b("4455")));
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+        try {
+            view2.getWrites().getPuts().put(b("01"), b("23"));
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+        try {
+            view2.getWrites().getAdjusts().put(b("45"), 6789L);
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+
+        final MutableView view3 = view2.clone();
+        view3.getWrites().getRemoves().add(KeyRanges.forPrefix(b("6677")));
+        view3.getWrites().getPuts().put(b("01"), b("23"));
+        view3.getWrites().getAdjusts().put(b("45"), 6789L);
+    }
+
 // CONFLICTS
 
     //@Test(dataProvider = "conflicts")

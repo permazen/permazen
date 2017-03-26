@@ -138,6 +138,38 @@ public class WritesTest extends TestSupport {
         this.compare(kv2, afterMutations);
     }
 
+    @Test
+    public void testClone() throws Exception {
+
+        final Writes writes = new Writes();
+        writes.getRemoves().add(KeyRanges.forPrefix(b("3311")));
+
+        final Writes writes2 = writes.immutableSnapshot();
+        try {
+            writes2.getRemoves().add(KeyRanges.forPrefix(b("4455")));
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+        try {
+            writes2.getPuts().put(b("01"), b("23"));
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+        try {
+            writes2.getAdjusts().put(b("45"), 6789L);
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+
+        final Writes writes3 = writes2.clone();
+        writes3.getRemoves().add(KeyRanges.forPrefix(b("6677")));
+        writes3.getPuts().put(b("01"), b("23"));
+        writes3.getAdjusts().put(b("45"), 6789L);
+    }
+
     private void compare(NavigableMapKVStore actual, NavigableMapKVStore expected) {
         final NavigableMap<String, String> actualView = this.stringView(actual.getNavigableMap());
         final NavigableMap<String, String> expectedView = this.stringView(expected.getNavigableMap());

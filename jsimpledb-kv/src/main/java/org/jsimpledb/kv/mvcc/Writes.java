@@ -41,7 +41,7 @@ public class Writes implements Cloneable, Mutations {
     private /*final*/ KeyRanges removes;
     private /*final*/ NavigableMap<byte[], byte[]> puts;
     private /*final*/ NavigableMap<byte[], Long> adjusts;
-    private final boolean immutable;
+    private /*final*/ boolean immutable;
 
     public Writes() {
         this(KeyRanges.empty(), new TreeMap<>(ByteUtil.COMPARATOR), new TreeMap<>(ByteUtil.COMPARATOR), false);
@@ -72,7 +72,7 @@ public class Writes implements Cloneable, Mutations {
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
      *
-     * @return mutable mapping from key to corresponding value
+     * @return mapping from key to corresponding value
      */
     public NavigableMap<byte[], byte[]> getPuts() {
         return this.puts;
@@ -84,7 +84,7 @@ public class Writes implements Cloneable, Mutations {
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
      *
-     * @return mutable mapping from key to corresponding counter adjustment
+     * @return mapping from key to corresponding counter adjustment
      */
     public NavigableMap<byte[], Long> getAdjusts() {
         return this.adjusts;
@@ -149,6 +149,7 @@ public class Writes implements Cloneable, Mutations {
      * @param mutations mutations to apply
      * @param target target for mutations
      * @throws IllegalArgumentException if either parameter is null
+     * @throws UnsupportedOperationException if this instance is immutable
      */
     public static void apply(Mutations mutations, KVStore target) {
         Preconditions.checkArgument(mutations != null, "null mutations");
@@ -315,6 +316,9 @@ public class Writes implements Cloneable, Mutations {
      * <p>
      * This is a "mostly deep" clone: all of the mutations are copied, but the actual
      * {@code byte[]} keys and values, which are already assumed non-mutable, are not copied.
+     *
+     * <p>
+     * The returned clone will always be mutable, even if this instance is not.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -325,11 +329,10 @@ public class Writes implements Cloneable, Mutations {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.removes = this.removes.immutableSnapshot();
-        if (!(clone.puts instanceof ImmutableNavigableMap))
-            clone.puts = new TreeMap<>(clone.puts);
-        if (!(clone.adjusts instanceof ImmutableNavigableMap))
-            clone.adjusts = new TreeMap<>(clone.adjusts);
+        clone.removes = this.removes.clone();
+        clone.puts = new TreeMap<>(clone.puts);
+        clone.adjusts = new TreeMap<>(clone.adjusts);
+        clone.immutable = false;
         return clone;
     }
 
