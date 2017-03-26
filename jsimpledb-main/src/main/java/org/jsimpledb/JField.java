@@ -127,6 +127,10 @@ public abstract class JField extends JSchemaObject {
 
     abstract boolean supportsChangeNotifications();
 
+    JClass<?> getJClass() {
+        return this.parent instanceof JClass ? ((JClass<?>)this.parent) : (JClass<?>)((JComplexField)this.parent).parent;
+    }
+
 // Bytecode generation
 
     boolean hasClassInitializerBytecode() {
