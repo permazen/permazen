@@ -1,5 +1,6 @@
-Version Next
+Version 3.4.0
 
+    - Add support for inverse traversal in reference path steps
     - Removed "invert" CLI function (redundant with JTransaction API)
     - Fixed bugs in `raft-add' and `raft-remove' CLI commands
 

@@ -35,7 +35,7 @@ class FieldMonitor {
      * Constructor.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of references to {@code field}
+     * @param path path of references to {@code field}; negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener listener to notify
      */

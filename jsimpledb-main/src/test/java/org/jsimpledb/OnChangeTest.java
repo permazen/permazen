@@ -225,6 +225,44 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testInversePaths() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(InversePaths.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final InversePaths parent = jtx.create(InversePaths.class);
+            final InversePaths child1 = jtx.create(InversePaths.class);
+            final InversePaths child2 = jtx.create(InversePaths.class);
+            final InversePaths child3 = jtx.create(InversePaths.class);
+
+            child1.setParent(parent);
+            child2.setParent(parent);
+            child3.setParent(parent);
+
+            Assert.assertNull(parent.getChange());
+            Assert.assertNull(child1.getChange());
+            Assert.assertNull(child2.getChange());
+            Assert.assertNull(child3.getChange());
+
+            child3.setName("pee-wee");
+
+            final SimpleFieldChange<InversePaths, String> change = new SimpleFieldChange<>(child3, 123, "name", null, "pee-wee");
+
+            Assert.assertNull(parent.getChange());
+            Assert.assertEquals(child1.getChange(), change);
+            Assert.assertEquals(child2.getChange(), change);
+            Assert.assertEquals(child3.getChange(), change);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -543,6 +581,28 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange
         private void onChange(Object change) {
+            this.change = change;
+        }
+    }
+
+    @JSimpleClass
+    public abstract static class InversePaths implements JObject {
+
+        private SimpleFieldChange<?, ?> change;
+
+        public SimpleFieldChange<?, ?> getChange() {
+            return this.change;
+        }
+
+        public abstract InversePaths getParent();
+        public abstract void setParent(InversePaths parent);
+
+        @JField(storageId = 123)
+        public abstract String getName();
+        public abstract void setName(String name);
+
+        @OnChange("parent.^InversePaths:parent^.name")          // i.e., change in any sibling's name (including myself)
+        private void onChange(SimpleFieldChange<?, ?> change) {
             this.change = change;
         }
     }

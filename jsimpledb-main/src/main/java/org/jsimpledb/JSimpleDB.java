@@ -798,7 +798,10 @@ public class JSimpleDB {
 // Reference Paths
 
     /**
-     * Parse a {@link ReferencePath} in {@link String} form.
+     * Parse a {@link ReferencePath} containing a target field.
+     *
+     * <p>
+     * Equivalent to: {@link #parseReferencePath(Class, String, boolean) parseReferencePath}{@code (startType, path, true)}.
      *
      * @param startType starting Java type for the path
      * @param path dot-separated path of zero or more reference fields, followed by a target field
@@ -808,11 +811,26 @@ public class JSimpleDB {
      * @see ReferencePath
      */
     public ReferencePath parseReferencePath(Class<?> startType, String path) {
-        return this.parseReferencePath(startType, path, null);
+        return this.parseReferencePath(startType, path, true);
     }
 
-    ReferencePath parseReferencePath(Class<?> startType, String path, Boolean lastIsSubField) {
-        return this.referencePathCache.get(startType, path, lastIsSubField);
+    /**
+     * Parse a {@link ReferencePath}.
+     *
+     * @param startType starting Java type for the path
+     * @param path dot-separated path of zero or more reference fields, followed by an optional target field
+     * @param expectTargetField true if {@code path} contains a target field, false otherwise
+     * @return parsed reference path
+     * @throws IllegalArgumentException if {@code path} is invalid
+     * @throws IllegalArgumentException if {@code startType} or {@code path} is null
+     * @see ReferencePath
+     */
+    public ReferencePath parseReferencePath(Class<?> startType, String path, boolean expectTargetField) {
+        return this.parseReferencePath(startType, path, expectTargetField, null);
+    }
+
+    ReferencePath parseReferencePath(Class<?> startType, String path, boolean expectTargetField, Boolean lastIsSubField) {
+        return this.referencePathCache.get(startType, path, expectTargetField, lastIsSubField);
     }
 
 // Validation

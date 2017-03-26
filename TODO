@@ -65,9 +65,6 @@ LONG TERM
 - Reference path extensions:
     - Add expression predicates
         E.g.: "friend[this.name.length() > 3].name"
-    - Add support for reversed segements
-        E.g.: "students.element.<Parent.children.element>.phone"
-        targets phone numbers of all parents of any of my students
 
 - Core API database consistency checker
     - Checks a JDB key-value store for consistency

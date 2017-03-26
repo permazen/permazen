@@ -35,7 +35,8 @@ class ReferencePathCache {
         this.cache = CacheBuilder.newBuilder().softValues().build(new CacheLoader<Key, ReferencePath>() {
             @Override
             public ReferencePath load(Key key) {
-                return new ReferencePath(ReferencePathCache.this.jdb, key.getStartType(), key.getPath(), key.isLastIsSubField());
+                return new ReferencePath(ReferencePathCache.this.jdb,
+                  key.getStartType(), key.getPath(), key.isWithTargetField(), key.isLastIsSubField());
             }
         });
     }
@@ -45,10 +46,10 @@ class ReferencePathCache {
      *
      * @see ReferencePath#ReferencePath
      */
-    public ReferencePath get(Class<?> startType, String path, Boolean lastIsSubField) {
+    public ReferencePath get(Class<?> startType, String path, boolean withTargetField, Boolean lastIsSubField) {
         Throwable cause;
         try {
-            return this.cache.get(new Key(startType, path, lastIsSubField));
+            return this.cache.get(new Key(startType, path, withTargetField, lastIsSubField));
         } catch (ExecutionException e) {
             cause = e.getCause() != null ? e.getCause() : e;
         } catch (UncheckedExecutionException e) {
@@ -64,11 +65,13 @@ class ReferencePathCache {
 
         private final Class<?> startType;
         private final String path;
+        private final boolean withTargetField;
         private final Boolean lastIsSubField;
 
-        Key(Class<?> startType, String path, Boolean lastIsSubField) {
+        Key(Class<?> startType, String path, boolean withTargetField, Boolean lastIsSubField) {
             this.startType = startType;
             this.path = path;
+            this.withTargetField = withTargetField;
             this.lastIsSubField = lastIsSubField;
         }
 
@@ -78,6 +81,10 @@ class ReferencePathCache {
 
         public String getPath() {
             return this.path;
+        }
+
+        public boolean isWithTargetField() {
+            return this.withTargetField;
         }
 
         public Boolean isLastIsSubField() {
@@ -93,6 +100,7 @@ class ReferencePathCache {
             final Key that = (Key)obj;
             return this.startType.equals(that.startType)
               && this.path.equals(that.path)
+              && this.withTargetField == that.withTargetField
               && Objects.equals(this.lastIsSubField, that.lastIsSubField);
         }
 
@@ -100,6 +108,7 @@ class ReferencePathCache {
         public int hashCode() {
             return this.startType.hashCode()
               ^ this.path.hashCode()
+              ^ (withTargetField ? 1 : 0)
               ^ Objects.hashCode(this.lastIsSubField);
         }
     }

@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -133,8 +132,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Reference Inversion</b>
  * <ul>
+ *  <li>{@link #followReferencePath followReferencePath()} - Find all objects referred to by to any element in a given set
+ *      of starting objects through a specified {@link ReferencePath}</li>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
- *      of objects through a specified reference path</li>
+ *      of objects through a specified {@link ReferencePath}</li>
  * </ul>
  *
  * <p>
@@ -422,7 +423,7 @@ public class JTransaction {
     public byte[] getKey(JObject jobj, String fieldName) {
         Preconditions.checkArgument(jobj != null, "null jobj");
         final Class<?> type = this.jdb.getJClass(jobj.getObjId()).type;
-        final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
+        final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, true, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
         assert refPath.targetTypes.iterator().next().isInstance(jobj);
@@ -528,6 +529,7 @@ public class JTransaction {
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
      * @see #copyTo(JTransaction, CopyState, Iterable)
+     * @see ReferencePath
      */
     public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, CopyState copyState, String... refPaths) {
 
@@ -552,17 +554,10 @@ public class JTransaction {
 
             // Parse reference path
             Preconditions.checkArgument(refPath != null, "null refPath");
-            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, true);
+            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, false, true);
 
-            // Verify that the target field is a reference field
-            if (!this.jdb.isReferenceField(path.targetFieldStorageId))
-                throw new IllegalArgumentException("the last field of path `" + path + "' is not a reference field");
-
-            // Append target reference field to array of reference fields and add to our list
-            final int[] pathReferences = new int[path.referenceFieldStorageIds.length + 1];
-            System.arraycopy(path.referenceFieldStorageIds, 0, pathReferences, 0, path.referenceFieldStorageIds.length);
-            pathReferences[path.referenceFieldStorageIds.length] = path.targetFieldStorageId;
-            pathReferencesList.add(pathReferences);
+            // Append array of reference fields to our list
+            pathReferencesList.add(path.referenceFieldStorageIds);
         }
 
         // Reset deleted assignments
@@ -1163,26 +1158,39 @@ public class JTransaction {
 // Reference Path Access
 
     /**
-     * Find all objects that refer to any object in the given target set through the specified path of references.
+     * Find all objects that are reachable from the given starting object set through the specified {@link ReferencePath}.
      *
-     * @param startType starting Java type for the path
-     * @param path dot-separated path of one or more reference fields
-     * @param targetObjects target objects
-     * @param <T> starting Java type
-     * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
+     * @param path reference path
+     * @param startObjects starting objects
+     * @return set of objects reachable from {@code startObjects} via {@code path}
      * @throws UnknownFieldException if {@code path} contains an unknown field
-     * @throws IllegalArgumentException if {@code path} is invalid, e.g., does not end on a reference field
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if either parameter is null
+     * @see ReferencePath
      */
-    public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
+    public NavigableSet<JObject> followReferencePath(ReferencePath path, Iterable<? extends JObject> startObjects) {
+        Preconditions.checkArgument(path != null, "null path");
+        Preconditions.checkArgument(startObjects != null, "null startObjects");
+        final NavigableSet<ObjId> ids = this.tx.followReferencePath(Iterables.transform(startObjects, this.referenceConverter),
+          path.getReferenceFields());
+        return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
+    }
+
+    /**
+     * Find all objects that refer to any object in the given target set through the specified {@link ReferencePath}.
+     *
+     * @param path reference path
+     * @param targetObjects target objects
+     * @return set of objects that refer to any of the {@code targetObjects} via {@code path}
+     * @throws UnknownFieldException if {@code path} contains an unknown field
+     * @throws IllegalArgumentException if either parameter is null
+     * @see ReferencePath
+     */
+    public NavigableSet<JObject> invertReferencePath(ReferencePath path, Iterable<? extends JObject> targetObjects) {
+        Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(targetObjects != null, "null targetObjects");
-        final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, true);
-        if (!this.jdb.isReferenceField(refPath.targetFieldStorageId))
-            throw new IllegalArgumentException("the last field of path `" + path + "' is not a reference field");
-        final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { refPath.targetFieldStorageId });
-        final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
+        final NavigableSet<ObjId> ids = this.tx.invertReferencePath(path.getReferenceFields(),
           Iterables.transform(targetObjects, this.referenceConverter));
-        return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, startType));
+        return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }
 
 // Index Access

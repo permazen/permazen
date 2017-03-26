@@ -145,10 +145,12 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Reference Inversion</b>
+ * <b>Reference Paths</b>
  * <ul>
+ *  <li>{@link #followReferencePath followReferencePath()} - Find all objects referred to by any element in a given set
+ *      of starting objects through a specified reference path</li>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
- *      of objects through a specified reference path</li>
+ *      of target objects through a specified reference path</li>
  * </ul>
  *
  * <p>
@@ -2405,7 +2407,8 @@ public class Transaction {
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2431,7 +2434,8 @@ public class Transaction {
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2456,7 +2460,8 @@ public class Transaction {
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2481,7 +2486,8 @@ public class Transaction {
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2507,7 +2513,8 @@ public class Transaction {
      * of the change.
      *
      * @param storageId storage ID of the field to monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2525,7 +2532,8 @@ public class Transaction {
      * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2543,7 +2551,8 @@ public class Transaction {
      * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2560,7 +2569,8 @@ public class Transaction {
      * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2578,7 +2588,8 @@ public class Transaction {
      * (or {@link #addFieldChangeListener addFieldChangeListener()}).
      *
      * @param storageId storage ID of the field to no longer monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2598,7 +2609,8 @@ public class Transaction {
      * or {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to no longer monitor
-     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
      * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2833,17 +2845,7 @@ public class Transaction {
 
         // Invert references for each group of remaining monitors and recurse
         for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
-            final int storageId = entry.getKey();
-
-            // Gather all objects that refer to any object in our current "objects" set
-            final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
-            for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(object);
-                if (refs != null)
-                    refsList.add(refs);
-            }
-
-            // Recurse on the union of those objects
+            final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(objects, -entry.getKey());
             if (!refsList.isEmpty())
                 this.notifyFieldMonitors(notifier, NavigableSets.union(refsList), entry.getValue(), step + 1);
         }
@@ -2863,55 +2865,124 @@ public class Transaction {
 // Reference Path Queries
 
     /**
-     * Find all objects that refer to any object in the given target set through the specified path of references.
+     * Find all objects referred to by any object in the given start set through the specified path of references.
      *
-     * @param path path of one or more reference fields (represented by storage IDs) through which to reach the target objects
-     * @param targetObjects target objects
-     * @return set of objects that refer to the {@code targetObjects} via {@code path}
+     * <p>
+     * Each value in {@code path} represents a reference field traversed in the path to some target object(s); if a
+     * value in {@code path} is negated, then the field is traversed in the inverse direction.
+     *
+     * <p>
+     * If {@code path} is empty, then {@code startObjects} is returned.
+     *
+     * @param startObjects starting objects
+     * @param path path of zero or more reference fields (represented by storage IDs) through which to reach the target objects;
+     *  negated values denote an inverse traversal of the corresponding reference field
+     * @return read-only set of objects referred to by the {@code startObjects} via {@code path}
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
-     * @throws IllegalArgumentException if {@code targetObjects} or {@code path} is null
-     * @throws IllegalArgumentException if {@code path} is empty
+     * @throws IllegalArgumentException if {@code startObjects} or {@code path} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public NavigableSet<ObjId> invertReferencePath(int[] path, Iterable<ObjId> targetObjects) {
+    public NavigableSet<ObjId> followReferencePath(Iterable<? extends ObjId> startObjects, int[] path) {
 
         // Sanity check
-        Preconditions.checkArgument(targetObjects != null, "null targetObjects");
-        Preconditions.checkArgument(path != null && path.length > 0, "null/empty path");
+        Preconditions.checkArgument(startObjects != null, "null startObjects");
+        Preconditions.checkArgument(path != null, "null path");
 
-        // Verify all fields in the path are reference fields
-        this.verifyReferencePath(path);
+        // Handle the case where 'path' is empty
+        if (path.length == 0) {
+            final ObjIdSet ids = new ObjIdSet();
+            for (ObjId id : startObjects)
+                ids.add(id);
+            return ids.sortedSnapshot();
+        }
 
-        // Invert references in reverse order
+        // Traverse each reference in the path
         NavigableSet<ObjId> result = null;
-        for (int i = path.length - 1; i >= 0; i--) {
-            final int storageId = path[i];
+        for (int i = 0; i < path.length; i++) {
+            final int pathId = path[i];
 
-            // Gather all objects that refer to any object in our current target objects set
-            final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
-            for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(id);
-                if (refs != null)
-                    refsList.add(refs);
-            }
+            // Traverse reference
+            final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(startObjects, pathId);
             if (refsList.isEmpty())
                 return NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
 
-            // Recurse on the union of those objects
-            targetObjects = result = NavigableSets.union(refsList);
+            // Recurse on the union of the resulting object sets
+            startObjects = result = NavigableSets.union(refsList);
         }
 
         // Done
         return result;
     }
 
+    /**
+     * Find all objects that refer to any object in the given target set through the specified path of references.
+     *
+     * <p>
+     * Each value in {@code path} represents a reference field traversed in the path to the target object(s); if a
+     * value in {@code path} is negated, then the field is traversed in the inverse direction.
+     *
+     * <p>
+     * If {@code path} is empty, then {@code targetObjects} is returned.
+     *
+     * @param path path of zero or more reference fields (represented by storage IDs) through which to reach the target objects;
+     *  negated values denote an inverse traversal of the corresponding reference field
+     * @param targetObjects target objects
+     * @return read-only set of objects that refer to the {@code targetObjects} via {@code path}
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code targetObjects} or {@code path} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public NavigableSet<ObjId> invertReferencePath(int[] path, Iterable<? extends ObjId> targetObjects) {
+        final int[] invertedPath = new int[path.length];
+        int i = 0;
+        int j = path.length;
+        while (i < path.length)
+            invertedPath[i++] = -path[--j];
+        return this.followReferencePath(targetObjects, invertedPath);
+    }
+
+    private ArrayList<NavigableSet<ObjId>> traverseReference(Iterable<? extends ObjId> objects, int referenceId) {
+        assert objects != null;
+
+        // Check forward vs. inverse and get storage info
+        final boolean inverse = referenceId < 0;
+        final int storageId = inverse ? -referenceId : referenceId;
+        final SimpleFieldStorageInfo<ObjId> info = this.verifyReferenceFieldStorageInfo(storageId);
+
+        // Traverse reference from each object
+        final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
+        if (inverse) {
+            for (ObjId id : objects) {
+                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(id);
+                if (refs != null)
+                    refsList.add(refs);
+            }
+        } else {
+            final ObjIdSet refs = new ObjIdSet();
+            for (ObjId id : objects)
+                info.readAllNonNull(this, id, refs);
+            if (!refs.isEmpty())
+                refsList.add(refs.sortedSnapshot());
+        }
+
+        // Done
+        return refsList;
+    }
+
     // Verify all fields in the path are reference fields
     private void verifyReferencePath(int[] path) {
-        for (int storageId : path) {
-            final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-            if (!(info.fieldType instanceof ReferenceFieldType))
-                throw new IllegalArgumentException(info + " is not a reference field");
+        for (int pathId : path) {
+            final int storageId = pathId < 0 ? -pathId : pathId;
+            this.verifyReferenceFieldStorageInfo(storageId);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private SimpleFieldStorageInfo<ObjId> verifyReferenceFieldStorageInfo(int storageId) {
+        final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+        if (!(info.fieldType instanceof ReferenceFieldType))
+            throw new IllegalArgumentException(info + " is not a reference field");
+        return (SimpleFieldStorageInfo<ObjId>)info;
     }
 
 // Index Queries

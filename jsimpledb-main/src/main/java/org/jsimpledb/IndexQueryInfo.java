@@ -55,7 +55,7 @@ class IndexQueryInfo {
         this.startType = startType;
 
         // Parse reference path
-        final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true);
+        final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true, true);
         if (path.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 

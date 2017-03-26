@@ -125,30 +125,15 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     final String prefixPath = unexpandedPath.substring(0, unexpandedPath.length() - 2);
                     final ReferencePath prefixReferencePath;
                     try {
-                        prefixReferencePath = jdb.parseReferencePath(startType, prefixPath, true);
+                        prefixReferencePath = jdb.parseReferencePath(startType, prefixPath, false, true);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                     }
 
-                    // Dereference all of the target fields that are reference fields
-                    final HashSet<ReferencePath.Cursor> dereferencedCursors = new HashSet<>(prefixReferencePath.cursors.size());
-                    for (ReferencePath.Cursor cursor : prefixReferencePath.cursors) {
-                        try {
-                            dereferencedCursors.addAll(cursor.stepThroughReference(jdb));
-                        } catch (IllegalArgumentException e) {
-                            continue;
-                        }
-                    }
-                    if (dereferencedCursors.isEmpty()) {
-                        final String targetFieldName = prefixPath.replaceAll("^.*\\.([^.]+)$", "$1");
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                          + "field `" + targetFieldName + "' is not a reference field");
-                    }
-
                     // Create a new non-wildcard path from each field in the dereferenced object types
-                    final HashSet<ReferencePath.Cursor> expandedCursors = new HashSet<>(dereferencedCursors.size() * 2);
-                    for (ReferencePath.Cursor dereferencedCursor : dereferencedCursors) {
-                        for (JField jfield : dereferencedCursor.getJClass().jfields.values()) {
+                    final HashSet<ReferencePath.Cursor> expandedCursors = new HashSet<>(prefixReferencePath.cursors.size() * 2);
+                    for (ReferencePath.Cursor cursor : prefixReferencePath.cursors) {
+                        for (JField jfield : cursor.getJClass().jfields.values()) {
                             if (!jfield.supportsChangeNotifications())
                                 continue;
                             expandedPathWasWildcard.add(expandedPathList.size());
@@ -197,7 +182,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 // Parse reference path
                 final ReferencePath path;
                 try {
-                    path = jdb.parseReferencePath(startType, stringPath, false);
+                    path = jdb.parseReferencePath(startType, stringPath, true, false);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                 }

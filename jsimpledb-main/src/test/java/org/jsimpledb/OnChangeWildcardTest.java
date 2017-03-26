@@ -317,5 +317,17 @@ public class OnChangeWildcardTest extends TestSupport {
         private void onChange(SimpleFieldChange<Person, String> change) {
         }
     }
+
+    @JSimpleClass
+    public abstract static class Bogus5 implements JObject {
+
+        public abstract List<Person> getFriends();
+
+    // No target field specified
+
+        @OnChange("^Bogus5:friends^")
+        private void onChange() {
+        }
+    }
 }
 
