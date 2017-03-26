@@ -9,12 +9,14 @@ import com.google.common.base.Preconditions;
 
 import java.io.Serializable;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
 import net.jcip.annotations.NotThreadSafe;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.util.ImmutableNavigableSet;
 
 /**
  * A set of {@link ObjId}s.
@@ -142,6 +144,18 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
     @Override
     public ObjId[] toArray() {
         return this.map.toKeysArray();
+    }
+
+    /**
+     * Create a sorted, immutable snapshot of this instance.
+     *
+     * @return sorted, immutable snapshot
+     */
+    @SuppressWarnings("unchecked")
+    public ImmutableNavigableSet<ObjId> sortedSnapshot() {
+        final ObjId[] array = this.toArray();
+        Arrays.sort(array);
+        return new ImmutableNavigableSet<>(array, ObjId::compareTo);
     }
 
     /**
