@@ -193,6 +193,7 @@ public interface JObject {
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
      * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String[]) JTransaction.copyTo()
+     * @see ReferencePath
      */
     JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths);
 

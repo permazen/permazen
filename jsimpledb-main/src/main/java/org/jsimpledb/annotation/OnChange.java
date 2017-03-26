@@ -103,7 +103,7 @@ import java.lang.annotation.Target;
  *
  *       &#64;OnChange("friends.element.friends.element.account.*")
  *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, ?&gt; change) {
- *           // Sees any change to any non-collection field in any friend-of-a-friend's Account
+ *           // Sees any change to any simple field in any friend-of-a-friend's Account
  *       }
  *   }
  * </pre>
@@ -168,6 +168,39 @@ import java.lang.annotation.Target;
  * <p>
  * {@link OnChange &#64;OnChange} functions within a single transaction; it does not notify about changes that
  * may have occurred in a different transaction.
+ *
+ * <p><b>Fields of Sub-Types</b>
+ *
+ * <p>
+ * The same field can appear in multiple sub-types, e.g., when implementing a Java interface containing a JSimpleDB field.
+ * This can lead to some subtleties: for example, in some cases, a field may not exist in a Java object type, but it does
+ * exist in a some sub-type of that type:
+ *
+ * <pre>
+ * &#64;JSimpleClass
+ * public class Person {
+ *
+ *     public abstract Set&lt;Person&gt; <b>getFriends</b>();
+ *
+ *     &#64;OnChange("friends.element.<b>name</b>")
+ *     private void friendNameChanged(SimpleFieldChange&lt;NamedPerson, String&gt; change) {
+ *         // ... do whatever
+ *     }
+ * }
+ *
+ * &#64;JSimpleClass
+ * public class NamedPerson extends Person {
+ *
+ *     public abstract String <b>getName</b>();
+ *     public abstract void setName(String name);
+ * }
+ *
+ * </pre>
+ * Here the path {@code "friends.element.name"} seems incorrect because {@code "friends.element"} has type {@code Person},
+ * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still
+ * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a field
+ * named {@code "name"}. Note also in the example above the {@link org.jsimpledb.change.SimpleFieldChange} parameter to the
+ * method {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
  *
