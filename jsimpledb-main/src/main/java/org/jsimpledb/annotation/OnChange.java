@@ -37,6 +37,8 @@ import java.lang.annotation.Target;
  *   &#64;JSimpleClass
  *   public abstract class Account implements JObject {
  *
+ *   // Database fields
+ *
  *       public abstract boolean isEnabled();
  *       public abstract void setEnabled(boolean enabled);
  *
@@ -45,6 +47,8 @@ import java.lang.annotation.Target;
  *       public abstract void setName(String name);
  *
  *       public abstract NavigableSet&lt;AccessLevel&gt; getAccessLevels();
+ *
+ *   // &#64;OnChange methods
  *
  *       &#64;OnChange      // equivalent to &#64;OnChange("*")
  *       private void handleAnyChange1() {
@@ -80,6 +84,8 @@ import java.lang.annotation.Target;
  *   &#64;JSimpleClass
  *   public abstract class User implements JObject {
  *
+ *   // Database fields
+ *
  *       &#64;NotNull
  *       &#64;JField(indexed = true, unique = true)
  *       public abstract String getUsername();
@@ -90,6 +96,8 @@ import java.lang.annotation.Target;
  *       public abstract void setAccount(Account account);
  *
  *       public abstract NavigableSet&lt;User&gt; getFriends();
+ *
+ *   // &#64;OnChange methods
  *
  *       &#64;OnChange("username")
  *       private void handleUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
@@ -104,6 +112,12 @@ import java.lang.annotation.Target;
  *       &#64;OnChange("friends.element.friends.element.account.*")
  *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, ?&gt; change) {
  *           // Sees any change to any simple field in any friend-of-a-friend's Account
+ *       }
+ *
+ *       &#64;OnChange("account.^User:account^.username")
+ *       private void handleSameAccountUserUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
+ *           // Sees changes to the username of any User with the same Account as this instance
+ *           // Note the use of the inverse step "^User:account^" from Account back to User
  *       }
  *   }
  * </pre>
@@ -194,8 +208,8 @@ import java.lang.annotation.Target;
  *     public abstract String <b>getName</b>();
  *     public abstract void setName(String name);
  * }
- *
  * </pre>
+ *
  * Here the path {@code "friends.element.name"} seems incorrect because {@code "friends.element"} has type {@code Person},
  * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still
  * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a field
