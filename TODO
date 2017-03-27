@@ -24,8 +24,6 @@ SHORT TERM
 
 - key/value layer transaction improvements
     - Add Spring transaction manager
-    - Add setReadOnly()
-        - Invoke from Transaction.setReadOnly()
     - Add setRollbackOnly()
         - Invoke from EvalCommand.getAction()
         - Invoke from Transaction.setRollbackOnly()
