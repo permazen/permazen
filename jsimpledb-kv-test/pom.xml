@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
     </parent>
     <artifactId>jsimpledb-kv-test</artifactId>
     <name>JSimpleDB Key/Value Store Test Classes</name>

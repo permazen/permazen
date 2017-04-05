@@ -1,4 +1,4 @@
-Version Next
+Version 3.4.1
 
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Updated some dependencies
