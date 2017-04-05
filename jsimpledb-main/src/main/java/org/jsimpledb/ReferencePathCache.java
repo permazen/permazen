@@ -55,7 +55,7 @@ class ReferencePathCache {
         } catch (UncheckedExecutionException e) {
             cause = e.getCause() != null ? e.getCause() : e;
         }
-        Throwables.propagateIfPossible(cause);
+        Throwables.throwIfUnchecked(cause);
         throw new RuntimeException("internal error", cause);
     }
 

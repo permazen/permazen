@@ -496,10 +496,10 @@ public final class Util {
         try {
             return method.invoke(target, params);
         } catch (InvocationTargetException e) {
-            Throwables.propagateIfPossible(e.getCause());
+            Throwables.throwIfUnchecked(e.getCause());
             throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
         } catch (Exception e) {
-            Throwables.propagateIfPossible(e);
+            Throwables.throwIfUnchecked(e);
             throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
         }
     }

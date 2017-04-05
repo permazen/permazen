@@ -5,12 +5,12 @@
 
 package org.jsimpledb.kv.spanner;
 
+import com.google.cloud.Timestamp;
 import com.google.cloud.spanner.AbortedException;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.ReadContext;
 import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.SpannerException;
-import com.google.cloud.spanner.Timestamp;
 import com.google.cloud.spanner.TimestampBound;
 import com.google.cloud.spanner.TransactionContext;
 import com.google.cloud.spanner.TransactionRunner;

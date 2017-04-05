@@ -80,15 +80,15 @@
 
         <!-- Dependency versions -->
         <ant.version>1.9.7</ant.version>
-        <asm.version>5.1</asm.version>
+        <asm.version>5.2</asm.version>
         <aspectj.version>1.8.9</aspectj.version>
         <bdb.version>6.4.9</bdb.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <dellroad-stuff.version>2.0.4</dellroad-stuff.version>
+        <dellroad-stuff.version>2.1.0</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
-        <google-cloud-java.version>0.10.0</google-cloud-java.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
-        <guava.version>19.0</guava.version>
+        <google-cloud-java.version>0.11.1</google-cloud-java.version>
+        <guava.version>21.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <javax.el-api.version>2.2.5</javax.el-api.version>
@@ -103,11 +103,10 @@
         <postgresql.version>9.4.1211.jre7</postgresql.version>
         <rocksdb.version>4.11.2</rocksdb.version>
         <servlet-api.version>3.1.0</servlet-api.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <spring.version>4.3.3.RELEASE</spring.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <spring.version>4.3.7.RELEASE</spring.version>
         <sqlite.version>3.15.1</sqlite.version>
         <testng.version>6.9.10</testng.version>
-        <vaadin7.version.prefix>7.7</vaadin7.version.prefix>
         <vaadin7.version>7.7.3</vaadin7.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
 
@@ -635,7 +634,7 @@
                         <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
                         <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>http://slf4j.org/apidocs/</link>
-                        <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
+                        <link>https://vaadin.com/api/${vaadin7.version}/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
@@ -812,7 +811,7 @@
                         <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
                         <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>http://slf4j.org/apidocs/</link>
-                        <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
+                        <link>https://vaadin.com/api/${vaadin7.version}/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>

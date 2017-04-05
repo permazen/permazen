@@ -940,7 +940,7 @@ public class JSimpleDB {
         try {
             return this.indexQueryInfoCache.getUnchecked(key);
         } catch (UncheckedExecutionException e) {
-            Throwables.propagateIfPossible(e.getCause());
+            Throwables.throwIfUnchecked(e.getCause());
             throw e;
         }
     }

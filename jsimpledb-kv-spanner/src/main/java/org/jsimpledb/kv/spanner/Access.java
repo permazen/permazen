@@ -5,8 +5,6 @@
 
 package org.jsimpledb.kv.spanner;
 
-import com.google.common.base.Throwables;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,17 +58,21 @@ final class Access {
         try {
             return method.invoke(instance, params);
         } catch (InvocationTargetException e) {
-            throw Throwables.propagate(e.getCause());
+            throw new RuntimeException(e.getCause());
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
     static Object read(Field field, Object instance) {
         try {
             return field.get(instance);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }

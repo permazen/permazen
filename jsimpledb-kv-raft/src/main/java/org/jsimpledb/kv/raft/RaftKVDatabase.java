@@ -1524,7 +1524,7 @@ public class RaftKVDatabase implements KVDatabase {
             } catch (ExecutionException e) {
                 final Throwable cause = e.getCause();
                 ThrowableUtil.prependCurrentStackTrace(cause);
-                Throwables.propagateIfPossible(cause);
+                Throwables.throwIfUnchecked(cause);
                 throw new KVTransactionException(tx, "commit failed", cause);           // should never get here
             }
         } finally {

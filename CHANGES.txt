@@ -1,6 +1,7 @@
 Version Next
 
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
+    - Updated some dependencies
 
 Version 3.4.0 Released March 26, 2017
 

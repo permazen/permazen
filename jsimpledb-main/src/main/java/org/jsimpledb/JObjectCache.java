@@ -216,7 +216,7 @@ class JObjectCache {
             Throwable cause = e;
             if (cause instanceof InvocationTargetException)
                 cause = ((InvocationTargetException)cause).getTargetException();
-            Throwables.propagateIfPossible(cause);
+            Throwables.throwIfUnchecked(cause);
             throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
         } finally {
 
