@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.util.AbstractKVNavigableMap;
@@ -29,28 +30,27 @@ import org.jsimpledb.util.ByteWriter;
  */
 abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
 
-    final Transaction tx;
     final FieldType<K> keyFieldType;
     final byte[] prefix;
 
     /**
      * Primary constructor.
      *
-     * @param tx transaction
+     * @param kv key/value data
      * @param keyFieldType key encoder/decoder
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param prefix implicit prefix of all keys
      * @throws IllegalArgumentException if {@code keyFieldType} is null
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, keyFieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
+    FieldTypeMap(KVStore kv, FieldType<K> keyFieldType, boolean prefixMode, byte[] prefix) {
+        this(kv, keyFieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
     }
 
     /**
      * Internal constructor.
      *
-     * @param tx transaction
+     * @param kv key/value data
      * @param keyFieldType key encoder/decoder
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
@@ -64,15 +64,14 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code bounds} is null
      * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRange} does not restrict within {@code prefix}
      */
-    FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, boolean reversed,
+    FieldTypeMap(KVStore kv, FieldType<K> keyFieldType, boolean prefixMode, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
-        super(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);
+        super(kv, prefixMode, reversed, keyRange, keyFilter, bounds);
         Preconditions.checkArgument(keyFieldType != null, "null keyFieldType");
         Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(keyRange != null, "null keyRange");
         if (!KeyRange.forPrefix(prefix).contains(keyRange))
             throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
-        this.tx = tx;
         this.keyFieldType = keyFieldType;
         this.prefix = prefix;
     }

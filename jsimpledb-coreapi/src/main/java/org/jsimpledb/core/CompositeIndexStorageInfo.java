@@ -52,7 +52,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
     private <V1, V2> CoreIndex2<V1, V2, ObjId> buildIndex(Transaction tx,
       FieldType<V1> value1Type,
       FieldType<V2> value2Type) {
-        return new CoreIndex2<>(tx, new Index2View<>(this.storageId,
+        return new CoreIndex2<>(tx.kvt, new Index2View<>(this.storageId,
           value1Type,
           value2Type,
           FieldTypeRegistry.OBJ_ID));
@@ -63,7 +63,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
       FieldType<V1> value1Type,
       FieldType<V2> value2Type,
       FieldType<V3> value3Type) {
-        return new CoreIndex3<>(tx, new Index3View<>(this.storageId,
+        return new CoreIndex3<>(tx.kvt, new Index3View<>(this.storageId,
           value1Type,
           value2Type,
           value3Type,
@@ -76,7 +76,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
       FieldType<V2> value2Type,
       FieldType<V3> value3Type,
       FieldType<V4> value4Type) {
-        return new CoreIndex4<>(tx, new Index4View<>(this.storageId,
+        return new CoreIndex4<>(tx.kvt, new Index4View<>(this.storageId,
           value1Type,
           value2Type,
           value3Type,

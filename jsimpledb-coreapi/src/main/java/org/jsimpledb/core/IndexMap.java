@@ -12,6 +12,7 @@ import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.index.Index3;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.Bounds;
@@ -24,14 +25,14 @@ import org.jsimpledb.util.ByteUtil;
 abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
 
     // Primary constructor
-    private IndexMap(Transaction tx, FieldType<K> keyType, byte[] prefix) {
-        super(tx, keyType, true, prefix);
+    private IndexMap(KVStore kv, FieldType<K> keyType, byte[] prefix) {
+        super(kv, keyType, true, prefix);
     }
 
     // Internal constructor
-    private IndexMap(Transaction tx, FieldType<K> keyType, boolean reversed,
+    private IndexMap(KVStore kv, FieldType<K> keyType, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
-        super(tx, keyType, true, reversed, prefix, keyRange, keyFilter, bounds);
+        super(kv, keyType, true, reversed, prefix, keyRange, keyFilter, bounds);
     }
 
     public String getDescription() {
@@ -78,15 +79,15 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         private final IndexView<V, E> indexView;
 
         // Primary constructor
-        OfValues(Transaction tx, IndexView<V, E> indexView) {
-            super(tx, indexView.getValueType(), indexView.prefix);
+        OfValues(KVStore kv, IndexView<V, E> indexView) {
+            super(kv, indexView.getValueType(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfValues(Transaction tx, IndexView<V, E> indexView,
+        private OfValues(KVStore kv, IndexView<V, E> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V> bounds) {
-            super(tx, indexView.getValueType(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValueType(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -95,17 +96,17 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V, NavigableSet<E>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V> newBounds) {
-            return new OfValues<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfValues<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected NavigableSet<E> decodeValue(byte[] keyPrefix) {
-            IndexSet<E> indexSet = new IndexSet<>(this.tx, this.indexView.getTargetType(), this.indexView.prefixMode, keyPrefix);
+            IndexSet<E> indexSet = new IndexSet<>(this.kv, this.indexView.getTargetType(), this.indexView.prefixMode, keyPrefix);
             final KeyFilter targetFilter = this.indexView.getFilter(1);
             if (targetFilter != null) {
-                indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, keyPrefix,
+                indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, keyPrefix,
                   new FieldType<?>[] { this.indexView.getTargetType() }, new KeyFilter[] { targetFilter }, 1));
             }
             return indexSet;
@@ -122,15 +123,15 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         private final Index2View<V1, V2, T> indexView;
 
         // Primary constructor
-        OfIndex(Transaction tx, Index2View<V1, V2, T> indexView) {
-            super(tx, indexView.getValue1Type(), indexView.prefix);
+        OfIndex(KVStore kv, Index2View<V1, V2, T> indexView) {
+            super(kv, indexView.getValue1Type(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfIndex(Transaction tx, Index2View<V1, V2, T> indexView,
+        private OfIndex(KVStore kv, Index2View<V1, V2, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(tx, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -139,14 +140,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index<V2, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex<V2, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex<>(this.tx, this.indexView.asIndexView(keyPrefix));
+            return new CoreIndex<>(this.kv, this.indexView.asIndexView(keyPrefix));
         }
     }
 
@@ -160,15 +161,15 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         private final Index3View<V1, V2, V3, T> indexView;
 
         // Primary constructor
-        OfIndex2(Transaction tx, Index3View<V1, V2, V3, T> indexView) {
-            super(tx, indexView.getValue1Type(), indexView.prefix);
+        OfIndex2(KVStore kv, Index3View<V1, V2, V3, T> indexView) {
+            super(kv, indexView.getValue1Type(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfIndex2(Transaction tx, Index3View<V1, V2, V3, T> indexView,
+        private OfIndex2(KVStore kv, Index3View<V1, V2, V3, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(tx, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -177,14 +178,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index2<V2, V3, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex2<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex2<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex2<V2, V3, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex2<>(this.tx, this.indexView.asIndex2View(keyPrefix));
+            return new CoreIndex2<>(this.kv, this.indexView.asIndex2View(keyPrefix));
         }
     }
 
@@ -198,15 +199,15 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         private final Index4View<V1, V2, V3, V4, T> indexView;
 
         // Primary constructor
-        OfIndex3(Transaction tx, Index4View<V1, V2, V3, V4, T> indexView) {
-            super(tx, indexView.getValue1Type(), indexView.prefix);
+        OfIndex3(KVStore kv, Index4View<V1, V2, V3, V4, T> indexView) {
+            super(kv, indexView.getValue1Type(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfIndex3(Transaction tx, Index4View<V1, V2, V3, V4, T> indexView,
+        private OfIndex3(KVStore kv, Index4View<V1, V2, V3, V4, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(tx, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -215,14 +216,14 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected NavigableMap<V1, Index3<V2, V3, V4, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex3<>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex3<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
         protected CoreIndex3<V2, V3, V4, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex3<>(this.tx, this.indexView.asIndex3View(keyPrefix));
+            return new CoreIndex3<>(this.kv, this.indexView.asIndex3View(keyPrefix));
         }
     }
 }

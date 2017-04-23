@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.Bounds;
@@ -20,14 +21,14 @@ import org.jsimpledb.util.ByteUtil;
 class IndexSet<E> extends FieldTypeSet<E> {
 
     // Primary constructor
-    IndexSet(Transaction tx, FieldType<E> entryType, boolean prefixMode, byte[] prefix) {
-        super(tx, entryType, prefixMode, prefix);
+    IndexSet(KVStore kv, FieldType<E> entryType, boolean prefixMode, byte[] prefix) {
+        super(kv, entryType, prefixMode, prefix);
     }
 
     // Internal constructor
-    private IndexSet(Transaction tx, FieldType<E> entryType, boolean prefixMode, boolean reversed,
+    private IndexSet(KVStore kv, FieldType<E> entryType, boolean prefixMode, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
-        super(tx, entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);
+        super(kv, entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);
     }
 
     public String getDescription() {
@@ -45,7 +46,7 @@ class IndexSet<E> extends FieldTypeSet<E> {
 
     @Override
     protected NavigableSet<E> createSubSet(boolean newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
-        return new IndexSet<>(this.tx, this.fieldType,
+        return new IndexSet<>(this.kv, this.fieldType,
           this.prefixMode, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
     }
 

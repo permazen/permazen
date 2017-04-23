@@ -18,6 +18,8 @@ import org.jsimpledb.util.ByteUtil;
  */
 final class ObjTypeSet extends FieldTypeSet<ObjId> {
 
+    private final Transaction tx;
+
     /**
      * Constructor for a single object type.
      *
@@ -25,8 +27,9 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY,
+        super(tx.kvt, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY,
           ObjId.getKeyRange(storageId), null, new Bounds<>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
+        this.tx = tx;
     }
 
     /**
@@ -35,7 +38,8 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param tx transaction
      */
     ObjTypeSet(Transaction tx) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<>());
+        super(tx.kvt, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<>());
+        this.tx = tx;
     }
 
     /**
@@ -49,7 +53,8 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      */
     private ObjTypeSet(Transaction tx, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<ObjId> bounds) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, keyRange, keyFilter, bounds);
+        super(tx.kvt, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, keyRange, keyFilter, bounds);
+        this.tx = tx;
     }
 
     @Override

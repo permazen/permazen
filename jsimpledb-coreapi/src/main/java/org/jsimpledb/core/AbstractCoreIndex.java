@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 
 /**
@@ -17,15 +18,15 @@ import org.jsimpledb.kv.KeyFilter;
  */
 abstract class AbstractCoreIndex {
 
-    final Transaction tx;
+    final KVStore kv;
     final AbstractIndexView indexView;
 
 // Constructors
 
-    protected AbstractCoreIndex(Transaction tx, int size, AbstractIndexView indexView) {
-        Preconditions.checkArgument(tx != null, "null tx");
+    protected AbstractCoreIndex(KVStore kv, int size, AbstractIndexView indexView) {
+        Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(indexView != null, "null indexView");
-        this.tx = tx;
+        this.kv = kv;
         this.indexView = indexView;
         if (this.indexView.fieldTypes.length != size)
             throw new RuntimeException("internal error: indexView has the wrong size");

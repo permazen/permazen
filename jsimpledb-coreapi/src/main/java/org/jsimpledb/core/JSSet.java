@@ -20,6 +20,7 @@ import org.jsimpledb.util.ByteUtil;
  */
 class JSSet<E> extends FieldTypeSet<E> {
 
+    private final Transaction tx;
     private final ObjId id;
     private final SetField<E> field;
 
@@ -27,7 +28,8 @@ class JSSet<E> extends FieldTypeSet<E> {
      * Primary constructor.
      */
     JSSet(Transaction tx, SetField<E> field, ObjId id) {
-        super(tx, field.elementField.fieldType, false, field.buildKey(id));
+        super(tx.kvt, field.elementField.fieldType, false, field.buildKey(id));
+        this.tx = tx;
         this.id = id;
         this.field = field;
     }
@@ -37,8 +39,9 @@ class JSSet<E> extends FieldTypeSet<E> {
      */
     private JSSet(Transaction tx, SetField<E> field, ObjId id,
       boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
-        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
+        super(tx.kvt, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
         Preconditions.checkArgument(keyRange != null, "null keyRange");
+        this.tx = tx;
         this.id = id;
         this.field = field;
     }

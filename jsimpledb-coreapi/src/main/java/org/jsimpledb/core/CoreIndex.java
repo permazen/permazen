@@ -9,6 +9,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
 
@@ -25,15 +26,15 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
 
 // Constructors
 
-    CoreIndex(Transaction tx, IndexView<V, T> indexView) {
-        super(tx, 2, indexView);
+    CoreIndex(KVStore kv, IndexView<V, T> indexView) {
+        super(kv, 2, indexView);
     }
 
 // Methods
 
     @Override
     public CoreIndex<V, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex<>(this.tx, this.getIndexView().filter(index, filter));
+        return new CoreIndex<>(this.kv, this.getIndexView().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
@@ -53,9 +54,9 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         final Tuple2FieldType<V, T> tupleFieldType = new Tuple2FieldType<>(iv.getValueType(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.tx, tupleFieldType, iv.prefixMode, iv.prefix);
+        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.kv, tupleFieldType, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
-            indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, iv, 2));
+            indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, iv, 2));
 
         // Done
         return indexSet;
@@ -68,9 +69,9 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         final IndexView<V, T> iv = this.getIndexView();
 
         // Build map and apply filtering
-        IndexMap<V, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.tx, iv);
+        IndexMap<V, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.kv, iv);
         if (this.indexView.hasFilters())
-            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, iv, 1));
+            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, iv, 1));
 
         // Done
         return indexMap;

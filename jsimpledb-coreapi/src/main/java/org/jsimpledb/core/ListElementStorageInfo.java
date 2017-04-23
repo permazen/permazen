@@ -18,7 +18,7 @@ class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E,
     }
 
     CoreIndex2<E, ObjId, Integer> getElementIndex(Transaction tx) {
-        return new CoreIndex2<>(tx,
+        return new CoreIndex2<>(tx.kvt,
           new Index2View<>(this.storageId, this.fieldType, FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.UNSIGNED_INT));
     }
 

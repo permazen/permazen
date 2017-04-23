@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.util.Arrays;
 
 import org.jsimpledb.kv.KVPairIterator;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
@@ -22,7 +23,7 @@ import org.jsimpledb.util.ByteUtil;
  */
 class IndexKeyFilter implements KeyFilter {
 
-    private final Transaction tx;
+    private final KVStore kv;
     private final byte[] prefix;                                // prefix to always skip over
     private final FieldType<?>[] fieldTypes;                    // fields to decode after prefix
     private final KeyFilter[] filters;                          // filters to apply to fields
@@ -33,37 +34,37 @@ class IndexKeyFilter implements KeyFilter {
     /**
      * Constructor from an index view.
      *
-     * @param tx transaction
+     * @param kv key/value data
      * @param indexView associated index view
      * @param prefixLen the number of fields in {@code indexView} that are considered mandatory
-     * @throws IllegalArgumentException if {@code tx} or {@code or indexView} is null
+     * @throws IllegalArgumentException if {@code kv} or {@code or indexView} is null
      * @throws IllegalArgumentException if {@code prefixLen} is zero or out of range
      */
-    IndexKeyFilter(Transaction tx, AbstractIndexView indexView, int prefixLen) {
-        this(tx, indexView.prefix, indexView.fieldTypes, indexView.filters, prefixLen);
+    IndexKeyFilter(KVStore kv, AbstractIndexView indexView, int prefixLen) {
+        this(kv, indexView.prefix, indexView.fieldTypes, indexView.filters, prefixLen);
     }
 
     /**
      * Primary constructor.
      *
-     * @param tx transaction
+     * @param kv key/value data
      * @param prefix prefix before first field type
      * @param fieldTypes one or more index field types
      * @param filters filters corresponding to {@code fieldTypes}
      * @param prefixLen the number of fields in {@code fieldTypes} that are considered mandatory
-     * @throws IllegalArgumentException if {@code tx} is null
+     * @throws IllegalArgumentException if {@code kv} is null
      * @throws IllegalArgumentException if {@code fieldTypes} is null or empty
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      * @throws IllegalArgumentException if {@code prefixLen} is zero or out of range
      * @throws IllegalArgumentException if {@code filters} is not the same length as {@code fieldTypes}
      */
-    IndexKeyFilter(Transaction tx, byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int prefixLen) {
-        Preconditions.checkArgument(tx != null, "null tx");
+    IndexKeyFilter(KVStore kv, byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int prefixLen) {
+        Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
         Preconditions.checkArgument(fieldTypes != null && fieldTypes.length > 0, "null/empty fieldTypes");
         Preconditions.checkArgument(filters != null && filters.length == fieldTypes.length, "bogus filters");
         Preconditions.checkArgument(prefixLen >= 0 && prefixLen <= fieldTypes.length, "invalid prefixLen");
-        this.tx = tx;
+        this.kv = kv;
         this.prefix = prefix;
         this.fieldTypes = fieldTypes;
         this.filters = filters.clone();
@@ -103,7 +104,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.tx.kvt, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
+        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
         if (!i.hasNext())
             return false;
 
@@ -131,7 +132,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.tx.kvt, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
+        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
         i.setNextTarget(key);
         if (!i.hasNext())
             return ByteUtil.getKeyAfterPrefix(suffixPrefix);
@@ -167,7 +168,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check suffix fields
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.tx.kvt, KeyRange.forPrefix(suffixPrefix), suffixFilter, true);
+        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true);
         i.setNextTarget(next);
         if (i.hasNext())
             return ByteUtil.getNextKey(i.next().getKey());

@@ -10,6 +10,7 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
@@ -28,15 +29,15 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
 
 // Constructors
 
-    CoreIndex2(Transaction tx, Index2View<V1, V2, T> indexView) {
-        super(tx, 3, indexView);
+    CoreIndex2(KVStore kv, Index2View<V1, V2, T> indexView) {
+        super(kv, 3, indexView);
     }
 
 // Methods
 
     @Override
     public CoreIndex2<V1, V2, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex2<>(this.tx, this.getIndex2View().filter(index, filter));
+        return new CoreIndex2<>(this.kv, this.getIndex2View().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
@@ -57,9 +58,9 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
           iv.getValue1Type(), iv.getValue2Type(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple3<V1, V2, T>> indexSet = new IndexSet<>(this.tx, fieldType, iv.prefixMode, iv.prefix);
+        IndexSet<Tuple3<V1, V2, T>> indexSet = new IndexSet<>(this.kv, fieldType, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
-            indexSet = indexSet.filterKeys(new IndexKeyFilter(this.tx, iv, 3));
+            indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, iv, 3));
 
         // Done
         return indexSet;
@@ -75,9 +76,9 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
         final IndexView<Tuple2<V1, V2>, T> tupleIV = iv.asTuple2IndexView();
 
         // Build map and apply filtering
-        IndexMap<Tuple2<V1, V2>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.tx, tupleIV);
+        IndexMap<Tuple2<V1, V2>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.kv, tupleIV);
         if (tupleIV.hasFilters())
-            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, tupleIV, 1));
+            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, tupleIV, 1));
 
         // Done
         return indexMap;
@@ -90,9 +91,9 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
         final Index2View<V1, V2, T> iv = this.getIndex2View();
 
         // Build map and apply filtering
-        IndexMap<V1, Index<V2, T>> indexMap = new IndexMap.OfIndex<>(this.tx, iv);
+        IndexMap<V1, Index<V2, T>> indexMap = new IndexMap.OfIndex<>(this.kv, iv);
         if (iv.hasFilters())
-            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.tx, iv, 1));
+            indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, iv, 1));
 
         // Done
         return indexMap;
@@ -100,7 +101,7 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
 
     @Override
     public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<>(this.tx, this.getIndex2View().asIndexView());
+        return new CoreIndex<>(this.kv, this.getIndex2View().asIndexView());
     }
 }
 
