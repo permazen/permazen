@@ -177,16 +177,6 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         }
     }
 
-    @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
-        try (CursorIterator i = this.getRange(minKey, maxKey, false)) {
-            while (i.hasNext()) {
-                i.next();
-                i.remove();
-            }
-        }
-    }
-
 // More KVTransaction
 
     @Override
