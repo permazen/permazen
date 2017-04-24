@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * <p>
  * A registered {@link Closeable} item is closed at the first occurrence of any of the following:
  * <ul>
- *  <li>
  *  <li>The application itself invokes {@link Closeable#close Closeable.close()} on the item</li>
  *  <li>The associated holder object is no longer strongly referenced, and then {@link #poll} is invoked</li>
  *  <li>{@link CloseableTracker#close} is invoked</li>
