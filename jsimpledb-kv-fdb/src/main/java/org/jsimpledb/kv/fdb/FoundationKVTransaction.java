@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv.fdb;
 
+import com.foundationdb.Disposable;
 import com.foundationdb.FDBException;
 import com.foundationdb.KeyValue;
 import com.foundationdb.MutationType;
@@ -16,7 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
-import java.util.Iterator;
+import java.io.Closeable;
 import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.CloseableKVStore;
@@ -29,6 +30,7 @@ import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * FoundationDB transaction.
@@ -120,7 +122,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
@@ -128,23 +130,28 @@ public class FoundationKVTransaction implements KVTransaction {
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
         Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
+        final AsyncIterator<KeyValue> i;
         try {
-            return Iterators.transform(
-              this.tx.getRange(this.addPrefix(minKey, maxKey), ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator(),
-              kv -> new KVPair(this.removePrefix(kv.getKey()), kv.getValue()));
+            i = this.tx.getRange(this.addPrefix(minKey, maxKey), ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator();
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
+        return CloseableIterator.wrap(Iterators.transform(i, kv -> new KVPair(this.removePrefix(kv.getKey()), kv.getValue())),
+          new DisposableCloseable(i));
     }
 
     private KVPair getFirstInRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         try {
             final AsyncIterator<KeyValue> i = this.tx.getRange(this.addPrefix(minKey, maxKey),
               ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator();
-            if (!i.hasNext())
-                return null;
-            final KeyValue kv = i.next();
-            return new KVPair(this.removePrefix(kv.getKey()), kv.getValue());
+            try {
+                if (!i.hasNext())
+                    return null;
+                final KeyValue kv = i.next();
+                return new KVPair(this.removePrefix(kv.getKey()), kv.getValue());
+            } finally {
+                i.dispose();
+            }
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -323,6 +330,22 @@ public class FoundationKVTransaction implements KVTransaction {
         final byte[] stripped = new byte[key.length - this.keyPrefix.length];
         System.arraycopy(key, this.keyPrefix.length, stripped, 0, stripped.length);
         return stripped;
+    }
+
+// DisposableCloseable
+
+    private static class DisposableCloseable implements Closeable {
+
+        private final Disposable target;
+
+        DisposableCloseable(Disposable target) {
+            this.target = target;
+        }
+
+        @Override
+        public void close() {
+            this.target.dispose();
+        }
     }
 }
 

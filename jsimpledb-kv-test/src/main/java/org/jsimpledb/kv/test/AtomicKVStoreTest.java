@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -26,6 +25,7 @@ import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.LongEncoder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -266,9 +266,11 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
             kv = lkv;
         }
         try {
-            for (Iterator<KVPair> i = kv.getRange(minKey, maxKey, false); i.hasNext(); ) {
-                final KVPair pair = i.next();
-                map.put(pair.getKey(), pair.getValue());
+            try (CloseableIterator<KVPair> i = kv.getRange(minKey, maxKey)) {
+                while (i.hasNext()) {
+                    final KVPair pair = i.next();
+                    map.put(pair.getKey(), pair.getValue());
+                }
             }
         } finally {
             if (snapshot != null)
@@ -285,9 +287,11 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
     private TreeMap<byte[], byte[]> asMap(KVStore kvstore) {
         final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
-        for (Iterator<KVPair> i = kvstore.getRange(null, null, false); i.hasNext(); ) {
-            final KVPair pair = i.next();
-            map.put(pair.getKey(), pair.getValue());
+        try (CloseableIterator<KVPair> i = kvstore.getRange(null, null)) {
+            while (i.hasNext()) {
+                final KVPair pair = i.next();
+                map.put(pair.getKey(), pair.getValue());
+            }
         }
         return map;
     }

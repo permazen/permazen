@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -35,6 +34,7 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -112,8 +112,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 Assert.assertNull(p);
                 p = tx.getAtMost(null, null);
                 Assert.assertNull(p);
-                Iterator<KVPair> it = tx.getRange(null, null, false);
-                Assert.assertFalse(it.hasNext());
+                try (CloseableIterator<KVPair> it = tx.getRange(null, null, false)) {
+                    Assert.assertFalse(it.hasNext());
+                }
                 return null;
             }
         });
@@ -962,16 +963,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     }
 
                     // Verify everything we know to no be there is not there
-                    final Iterator<KVPair> iter = tx.getRange(null, null, false);
-                    while (iter.hasNext()) {
-                        pair = iter.next();
-                        assert !knownEmpty.contains(pair.getKey()) :
-                          this + ": tx contains " + pair + " but"
-                          + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
-                          + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
+                    try (final CloseableIterator<KVPair> iter = tx.getRange(null, null, false)) {
+                        while (iter.hasNext()) {
+                            pair = iter.next();
+                            assert !knownEmpty.contains(pair.getKey()) :
+                              this + ": tx contains " + pair + " but"
+                              + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
+                              + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
+                        }
                     }
-                    if (iter instanceof Closeable)
-                        ((Closeable)iter).close();
                 }
 
                 // Maybe commit
@@ -1126,16 +1126,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         private TreeMap<byte[], byte[]> readDatabase(KVStore tx) {
             final TreeMap<byte[], byte[]> values = new TreeMap<>(ByteUtil.COMPARATOR);
-            final Iterator<KVPair> i = tx.getRange(null, null, false);
-            while (i.hasNext()) {
-                final KVPair pair = i.next();
-                values.put(pair.getKey(), pair.getValue());
-            }
-            if (i instanceof AutoCloseable) {
-                try {
-                    ((AutoCloseable)i).close();
-                } catch (Exception e) {
-                    // ignore
+            try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
+                while (i.hasNext()) {
+                    final KVPair pair = i.next();
+                    values.put(pair.getKey(), pair.getValue());
                 }
             }
             return values;
@@ -1144,18 +1138,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private String toString(KVStore kv) {
             final StringBuilder buf = new StringBuilder();
             buf.append('{');
-            final Iterator<KVPair> i = kv.getRange(null, null, false);
-            while (i.hasNext()) {
-                final KVPair pair = i.next();
-                if (buf.length() > 1)
-                    buf.append(", ");
-                buf.append(ByteUtil.toString(pair.getKey())).append('=').append(ByteUtil.toString(pair.getValue()));
-            }
-            if (i instanceof AutoCloseable) {
-                try {
-                    ((AutoCloseable)i).close();
-                } catch (Exception e) {
-                    // ignore
+            try (final CloseableIterator<KVPair> i = kv.getRange(null, null, false)) {
+                while (i.hasNext()) {
+                    final KVPair pair = i.next();
+                    if (buf.length() > 1)
+                        buf.append(", ");
+                    buf.append(ByteUtil.toString(pair.getKey())).append('=').append(ByteUtil.toString(pair.getValue()));
                 }
             }
             buf.append('}');

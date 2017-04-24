@@ -141,8 +141,8 @@ public class SnapshotTest extends CoreAPITestSupport {
         Transaction tx3 = db1.createTransaction(schema, 1, true);
 
         Assert.assertEquals(
-          Lists.<KVPair>newArrayList(tx3.getKVTransaction().getRange(null, null, false)),
-          Lists.<KVPair>newArrayList(kvstore1.getRange(null, null, false)));
+          Lists.<KVPair>newArrayList(tx3.getKVTransaction().getRange(null, null)),
+          Lists.<KVPair>newArrayList(kvstore1.getRange(null, null)));
     }
 
     @Test

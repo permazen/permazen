@@ -10,7 +10,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
 import net.jcip.annotations.GuardedBy;
@@ -26,6 +25,7 @@ import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotRefs;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -427,7 +427,7 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         this.fastVerifyExecuting();
         return this.view.getRange(minKey, maxKey, reverse);
     }

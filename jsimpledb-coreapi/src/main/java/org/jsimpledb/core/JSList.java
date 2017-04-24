@@ -12,16 +12,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.stream.Collectors;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -81,7 +82,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public CloseableIterator<E> iterator() {
         return new Iter();
     }
 
@@ -385,15 +386,19 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
 // Iter
 
-    private class Iter implements Iterator<E> {
+    private class Iter implements CloseableIterator<E> {
 
-        private Iterator<KVPair> i;
+        private CloseableIterator<KVPair> i;
         private boolean finished;
         private Integer removeIndex;
 
         Iter() {
-            this.i = JSList.this.tx.kvt.getRange(JSList.this.contentPrefix,
-              ByteUtil.getKeyAfterPrefix(JSList.this.contentPrefix), false);
+            this.i = JSList.this.tx.kvt.getRange(KeyRange.forPrefix(JSList.this.contentPrefix));
+        }
+
+        @Override
+        public void close() {
+            this.i.close();
         }
 
         @Override
@@ -402,7 +407,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 return false;
             if (!this.i.hasNext()) {
                 this.finished = true;
-                Database.closeIfPossible(this.i);
+                this.i.close();
                 return false;
             }
             return true;

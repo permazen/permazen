@@ -7,7 +7,6 @@ package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.jsimpledb.Session;
@@ -17,6 +16,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.ParseContext;
 
 public class KVGetCommand extends AbstractKVCommand {
@@ -91,20 +91,22 @@ public class KVGetCommand extends AbstractKVCommand {
 
             // Handle range of keys
             long count = 0;
-            for (Iterator<KVPair> i = kvt.getRange(this.key, this.maxKey, false); i.hasNext(); ) {
-                final KVPair pair = i.next();
-                if (this.limit != null && count >= this.limit)
-                    break;
-                if (this.cstrings) {
-                    writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
-                    if (!this.novals)
-                        writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
-                } else {
-                    KVGetCommand.decode(writer, "K ", pair.getKey());
-                    if (!this.novals)
-                        KVGetCommand.decode(writer, "V ", pair.getValue());
+            try (CloseableIterator<KVPair> i = kvt.getRange(this.key, this.maxKey)) {
+                while (i.hasNext()) {
+                    final KVPair pair = i.next();
+                    if (this.limit != null && count >= this.limit)
+                        break;
+                    if (this.cstrings) {
+                        writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
+                        if (!this.novals)
+                            writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
+                    } else {
+                        KVGetCommand.decode(writer, "K ", pair.getKey());
+                        if (!this.novals)
+                            KVGetCommand.decode(writer, "V ", pair.getValue());
+                    }
+                    count++;
                 }
-                count++;
             }
             writer.println("Displayed " + count + " key/value pairs");
         }

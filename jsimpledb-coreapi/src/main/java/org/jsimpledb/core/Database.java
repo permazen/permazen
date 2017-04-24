@@ -31,6 +31,7 @@ import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.Diffs;
 import org.jsimpledb.util.UnsignedIntEncoder;
 import org.slf4j.Logger;
@@ -461,81 +462,84 @@ public class Database {
         }
 
         // Get iterator over meta-data key/value pairs
-        final Iterator<KVPair> metaDataIterator = kvstore.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
-
-        // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
-        byte[] formatVersionBytes = null;
-        if (metaDataIterator.hasNext()) {
-            final KVPair pair = metaDataIterator.next();
-            assert METADATA_KEY_RANGE.contains(pair.getKey());
-            if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
-                throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                  + ByteUtil.toString(pair.getKey()) + ")");
-            }
-            formatVersionBytes = pair.getValue();
-        }
-
-        // Get database format object; check for an uninitialized database
-        final boolean uninitialized = formatVersionBytes == null;
         final int formatVersion;
-        if (uninitialized) {
+        final boolean uninitialized;
+        try (final CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(METADATA_KEY_RANGE)) {
 
-            // Sanity checks
-            if (kvstore.getAtLeast(new byte[0], null) != null)
-                throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-            if (kvstore.getAtMost(new byte[] { (byte)0xff }, null) != null)
-                throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
-            final Iterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff }, false);
-            if (testIterator.hasNext())
-                throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
-            Database.closeIfPossible(testIterator);
-            this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+            // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
+            byte[] formatVersionBytes = null;
+            if (metaDataIterator.hasNext()) {
+                final KVPair pair = metaDataIterator.next();
+                assert METADATA_KEY_RANGE.contains(pair.getKey());
+                if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                      + ByteUtil.toString(pair.getKey()) + ")");
+                }
+                formatVersionBytes = pair.getValue();
+            }
 
-            // Initialize database
-            formatVersion = CURRENT_FORMAT_VERSION;
-            this.log.debug("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
-            final ByteWriter writer = new ByteWriter();
-            UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
-            kvstore.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
+            // Get database format object; check for an uninitialized database
+            uninitialized = formatVersionBytes == null;
+            if (uninitialized) {
 
-            // Sanity check again
-            formatVersionBytes = kvstore.get(FORMAT_VERSION_KEY.clone());
-            if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
-                throw new InconsistentDatabaseException("database failed basic read/write test");
-            final KVPair lower = kvstore.getAtLeast(new byte[0], null);
-            if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                throw new InconsistentDatabaseException("database failed basic read/write test");
-            final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
-            if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                throw new InconsistentDatabaseException("database failed basic read/write test");
-        } else {
-            try {
-                formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
-            } catch (IllegalArgumentException e) {
-                throw new InconsistentDatabaseException("database contains invalid encoded format version "
-                  + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+                // Sanity checks
+                if (kvstore.getAtLeast(new byte[0], null) != null)
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
+                if (kvstore.getAtMost(new byte[] { (byte)0xff }, null) != null)
+                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
+                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff })) {
+                    if (testIterator.hasNext())
+                        throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+                }
+                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+
+                // Initialize database
+                formatVersion = CURRENT_FORMAT_VERSION;
+                this.log.debug("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
+                final ByteWriter writer = new ByteWriter();
+                UnsignedIntEncoder.write(writer, formatVersion);
+                kvstore.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
+
+                // Sanity check again
+                formatVersionBytes = kvstore.get(FORMAT_VERSION_KEY.clone());
+                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+                final KVPair lower = kvstore.getAtLeast(new byte[0], null);
+                if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+                final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
+                if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+            } else {
+
+                // Read format version
+                try {
+                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
+                } catch (IllegalArgumentException e) {
+                    throw new InconsistentDatabaseException("database contains invalid encoded format version "
+                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+                }
+
+                // Validate format version
+                switch (formatVersion) {
+                case FORMAT_VERSION_1:
+                case FORMAT_VERSION_2:
+                    break;
+                default:
+                    throw new InconsistentDatabaseException("database contains unrecognized format version "
+                      + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+                }
+            }
+
+            // There should not be any other meta data prior to recorded schemas
+            if (metaDataIterator.hasNext()) {
+                final KVPair pair = metaDataIterator.next();
+                if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
+                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
+                      + ByteUtil.toString(pair.getKey()));
+                }
             }
         }
-        final boolean compressedSchemaXML;
-        switch (formatVersion) {
-        case FORMAT_VERSION_1:
-        case FORMAT_VERSION_2:
-            compressedSchemaXML = formatVersion >= FORMAT_VERSION_2;
-            break;
-        default:
-            throw new InconsistentDatabaseException("database contains unrecognized format version "
-              + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
-        }
-
-        // There should not be any other meta data prior to recorded schemas
-        if (metaDataIterator.hasNext()) {
-            final KVPair pair = metaDataIterator.next();
-            if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
-                throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
-                  + ByteUtil.toString(pair.getKey()));
-            }
-        }
-        Database.closeIfPossible(metaDataIterator);
 
         // Check schema
         Schemas schemas = null;
@@ -544,18 +548,18 @@ public class Database {
 
             // Read recorded database schema versions
             final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-            final Iterator<KVPair> schemaIterator = kvstore.getRange(SCHEMA_KEY_RANGE.getMin(), SCHEMA_KEY_RANGE.getMax(), false);
-            while (schemaIterator.hasNext()) {
-                final KVPair pair = schemaIterator.next();
-                assert SCHEMA_KEY_RANGE.contains(pair.getKey());
+            try (CloseableIterator<KVPair> i = kvstore.getRange(SCHEMA_KEY_RANGE)) {
+                while (i.hasNext()) {
+                    final KVPair pair = i.next();
+                    assert SCHEMA_KEY_RANGE.contains(pair.getKey());
 
-                // Decode schema version and get XML
-                final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
-                if (vers == 0)
-                    throw new InconsistentDatabaseException("database contains an invalid schema version zero");
-                bytesMap.put(vers, pair.getValue());
+                    // Decode schema version and get XML
+                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
+                    if (vers == 0)
+                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
+                    bytesMap.put(vers, pair.getValue());
+                }
             }
-            Database.closeIfPossible(schemaIterator);
 
             // Read and decode database schemas, avoiding rebuild if possible
             schemas = this.lastSchemas;
@@ -563,7 +567,7 @@ public class Database {
                 schemas = null;
             if (schemas == null) {
                 try {
-                    schemas = this.buildSchemas(bytesMap, compressedSchemaXML);
+                    schemas = this.buildSchemas(bytesMap, formatVersion >= FORMAT_VERSION_2);
                 } catch (IllegalArgumentException e) {
                     if (firstAttempt)
                         throw new InconsistentDatabaseException("database contains invalid schema information", e);
@@ -591,7 +595,7 @@ public class Database {
 
                 // Record new schema in database
                 this.log.debug("recording new schema version " + version + " into database");
-                this.writeSchema(kvstore, version, schemaModel, compressedSchemaXML);
+                this.writeSchema(kvstore, version, schemaModel, formatVersion >= FORMAT_VERSION_2);
 
                 // Try again
                 schemas = null;
@@ -669,7 +673,7 @@ public class Database {
     }
 
     void copyMetaData(Transaction src, KVStore dst) {
-        final Iterator<KVPair> i = src.kvt.getRange(METADATA_PREFIX.clone(), VERSION_INDEX_PREFIX.clone(), false);
+        final Iterator<KVPair> i = src.kvt.getRange(METADATA_PREFIX.clone(), VERSION_INDEX_PREFIX.clone());
         while (i.hasNext()) {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());

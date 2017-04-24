@@ -8,16 +8,16 @@ package org.jsimpledb.kv;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
- * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a range of keys,
+ * An {@link java.util.Iterator} that iterates over all key/value pairs in a {@link KVStore} within a range of keys,
  * without using the {@link KVStore#getRange KVStore.getRange()} method. Therefore, it can be used to implement
  * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementations that don't natively support iteration.
- * Instances support forward or reverse iteration and {@link #remove Iterator.remove()}.
+ * Instances support forward or reverse iteration and {@link #remove java.util.Iterator.remove()}.
  *
  * <p>
  * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},
@@ -43,7 +43,7 @@ import org.jsimpledb.util.ByteUtil;
  * Instances are thread safe, and always reflect the current state of the underlying {@link KVStore},
  * even if it is mutated concurrently.
  */
-public class KVPairIterator implements Iterator<KVPair> {
+public class KVPairIterator implements CloseableIterator<KVPair> {
 
     private final KVStore kv;
     private final boolean reverse;
@@ -307,6 +307,12 @@ public class KVPairIterator implements Iterator<KVPair> {
             this.removeKey = null;
         }
         this.kv.remove(removeKeyCopy);
+    }
+
+// Closeable
+
+    @Override
+    public void close() {
     }
 }
 

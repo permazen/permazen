@@ -15,7 +15,6 @@ import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
 import java.io.Closeable;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +27,7 @@ import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,12 +273,12 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
 // CursorIterator
 
     /**
-     * {@link Iterator} implementation used by {@link BerkeleyKVTransaction#getRange BerkeleyKVTransaction.getRange()}.
+     * {@link java.util.Iterator} implementation used by {@link BerkeleyKVTransaction#getRange BerkeleyKVTransaction.getRange()}.
      *
      * <p>
      * Instances implement {@link Closeable}.
      */
-    public final class CursorIterator implements Iterator<KVPair>, Closeable {
+    public final class CursorIterator implements CloseableIterator<KVPair> {
 
         private final Cursor cursor;
         private final byte[] minKey;

@@ -14,6 +14,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
+import org.jsimpledb.util.CloseableIterator;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -92,7 +93,9 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KV
      */
     public static Long getKVStoreContentLength(KVStore kvstore) {
         Preconditions.checkArgument(kvstore != null, "null kvstore");
-        return KeyListEncoder.writePairsLength(kvstore.getRange(null, null, false));
+        try (CloseableIterator<KVPair> i = kvstore.getRange(null, null)) {
+            return KeyListEncoder.writePairsLength(i);
+        }
     }
 
     /**
@@ -132,7 +135,9 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KV
     public static void writeKVStore(KVStore kvstore, HttpOutputMessage output) throws IOException {
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         Preconditions.checkArgument(output != null, "null output");
-        KeyListEncoder.writePairs(kvstore.getRange(null, null, false), output.getBody());
+        try (CloseableIterator<KVPair> i = kvstore.getRange(null, null)) {
+            KeyListEncoder.writePairs(i, output.getBody());
+        }
     }
 }
 

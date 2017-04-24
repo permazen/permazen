@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
@@ -18,9 +17,10 @@ import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.KeyListEncoder;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
- * Represents and in-progress snapshot installation from the leader's point of view.
+ * Represents an in-progress snapshot installation from the leader's point of view.
  *
  * <p>
  * Instances are not thread safe.
@@ -35,7 +35,7 @@ class SnapshotTransmit implements Closeable {
     private final Map<String, String> snapshotConfig;
 
     private CloseableKVStore snapshot;                              // snapshot view of key/value store
-    private Iterator<KVPair> iterator;
+    private CloseableIterator<KVPair> iterator;
 
     private long pairIndex;                                         // count of how many key/value pairs sent so far
     private KVPair nextPair;
@@ -46,6 +46,7 @@ class SnapshotTransmit implements Closeable {
 
     SnapshotTransmit(long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig,
       CloseableKVStore snapshot, KVStore view) {
+        Preconditions.checkArgument(snapshot != null);
         Preconditions.checkArgument(snapshotTerm > 0);
         Preconditions.checkArgument(snapshotIndex > 0);
         Preconditions.checkArgument(snapshotConfig != null);
@@ -53,7 +54,7 @@ class SnapshotTransmit implements Closeable {
         this.snapshotIndex = snapshotIndex;
         this.snapshotConfig = snapshotConfig;
         this.snapshot = snapshot;
-        this.iterator = view.getRange(null, null, false);
+        this.iterator = view.getRange(null, null);
         this.advance();
     }
 
@@ -146,8 +147,8 @@ class SnapshotTransmit implements Closeable {
 
     @Override
     public void close() {
-        Util.closeIfPossible(this.snapshot);
-        Util.closeIfPossible(this.iterator);
+        this.snapshot.close();
+        this.iterator.close();
         this.snapshot = null;
         this.iterator = null;
         this.nextPair = null;

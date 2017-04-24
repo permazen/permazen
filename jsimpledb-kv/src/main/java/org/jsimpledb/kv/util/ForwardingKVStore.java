@@ -5,10 +5,9 @@
 
 package org.jsimpledb.kv.util;
 
-import java.util.Iterator;
-
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Forwards all {@link KVStore} operations to another underlying {@link KVStore}.
@@ -40,7 +39,7 @@ public abstract class ForwardingKVStore implements KVStore {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         return this.delegate().getRange(minKey, maxKey, reverse);
     }
 

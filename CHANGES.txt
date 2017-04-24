@@ -1,5 +1,6 @@
 Version 3.5.0
 
+    - Improvements to the KVStore interface; getRange() now returns CloseableIterator
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Updated some dependencies
 

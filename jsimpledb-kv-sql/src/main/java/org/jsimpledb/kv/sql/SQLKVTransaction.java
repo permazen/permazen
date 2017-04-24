@@ -7,12 +7,10 @@ package org.jsimpledb.kv.sql;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 
@@ -26,6 +24,7 @@ import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +120,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
            this.queryKVPair(StmtType.GET_LAST));
     }
 
-    private synchronized Iterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
+    private synchronized CloseableIterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey != null && minKey.length == 0)
@@ -281,7 +280,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(rs.getBytes(1), rs.getBytes(2)) : null, true, params);
     }
 
-    private Iterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
+    private CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, ResultSetIterator::new, false, params);
     }
 
@@ -346,7 +345,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
 
         @Override
-        public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
             return SQLKVTransaction.this.getRangeSQL(minKey, maxKey, reverse);
         }
 
@@ -375,7 +374,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
 // ResultSetIterator
 
-    private class ResultSetIterator implements Iterator<KVPair>, Closeable {
+    private class ResultSetIterator implements CloseableIterator<KVPair> {
 
         private final PreparedStatement preparedStatement;
         private final ResultSet resultSet;

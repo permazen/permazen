@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +38,7 @@ import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.NavigableSets;
 import org.jsimpledb.util.UnsignedIntEncoder;
 import org.slf4j.Logger;
@@ -1186,22 +1186,21 @@ public class Transaction {
             dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
 
             // Copy object meta-data and all field content in one key range sweep
-            final byte[] srcMinKey = srcId.getBytes();
-            final byte[] srcMaxKey = ByteUtil.getKeyAfterPrefix(srcMinKey);
+            final KeyRange srcKeyRange = KeyRange.forPrefix(srcId.getBytes());
             final ByteWriter dstWriter = new ByteWriter();
             dstWriter.write(dstId.getBytes());
             final int dstMark = dstWriter.mark();
-            final Iterator<KVPair> i = srcTx.kvt.getRange(srcMinKey, srcMaxKey, false);
-            while (i.hasNext()) {
-                final KVPair kv = i.next();
-                assert new KeyRange(srcMinKey, srcMaxKey).contains(kv.getKey());
-                final ByteReader srcReader = new ByteReader(kv.getKey());
-                srcReader.skip(srcMinKey.length);
-                dstWriter.reset(dstMark);
-                dstWriter.write(srcReader);
-                dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
+            try (final CloseableIterator<KVPair> i = srcTx.kvt.getRange(srcKeyRange)) {
+                while (i.hasNext()) {
+                    final KVPair kv = i.next();
+                    assert srcKeyRange.contains(kv.getKey());
+                    final ByteReader srcReader = new ByteReader(kv.getKey());
+                    srcReader.skip(ObjId.NUM_BYTES);
+                    dstWriter.reset(dstMark);
+                    dstWriter.write(srcReader);
+                    dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
+                }
             }
-            Database.closeIfPossible(i);
 
             // Create object's simple field index entries
             dstType.indexedSimpleFields

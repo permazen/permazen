@@ -8,7 +8,6 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -17,6 +16,7 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -162,13 +162,13 @@ public abstract class ComplexField<T> extends Field<T> {
         Preconditions.checkArgument(subField.indexed, "not indexed");
         final byte[] prefix = this.buildKey(id);
         final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
-        final Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false);
-        while (i.hasNext()) {
-            final KVPair pair = i.next();
-            assert KeyRange.forPrefix(prefix).contains(pair.getKey());
-            this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
+        try (final CloseableIterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd)) {
+            while (i.hasNext()) {
+                final KVPair pair = i.next();
+                assert KeyRange.forPrefix(prefix).contains(pair.getKey());
+                this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
+            }
         }
-        Database.closeIfPossible(i);
     }
 
     /**
@@ -204,13 +204,13 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, byte[] minKey, byte[] maxKey) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
-        final Iterator<KVPair> i = tx.kvt.getRange(minKey, maxKey, false);
-        while (i.hasNext()) {
-            final KVPair pair = i.next();
-            assert new KeyRange(minKey, maxKey).contains(pair.getKey());
-            this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
+        try (final CloseableIterator<KVPair> i = tx.kvt.getRange(minKey, maxKey)) {
+            while (i.hasNext()) {
+                final KVPair pair = i.next();
+                assert new KeyRange(minKey, maxKey).contains(pair.getKey());
+                this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
+            }
         }
-        Database.closeIfPossible(i);
     }
 
     /**

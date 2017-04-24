@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -25,6 +24,7 @@ import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -91,7 +91,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (minKey == null)
             minKey = ByteUtil.EMPTY;
         return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);

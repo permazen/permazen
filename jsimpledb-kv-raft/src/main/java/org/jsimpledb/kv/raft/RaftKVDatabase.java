@@ -69,6 +69,7 @@ import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
 import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
@@ -1694,9 +1695,10 @@ public class RaftKVDatabase implements KVDatabase {
      */
     boolean discardFlipFloppedStateMachine() {
         final byte[] dirtyPrefix = this.getFlipFloppedStateMachinePrefix();
-        final Iterator<KVPair> dirtyIterator = this.kv.getRange(dirtyPrefix, ByteUtil.getKeyAfterPrefix(dirtyPrefix), false);
-        final boolean dirty = dirtyIterator.hasNext();
-        Util.closeIfPossible(dirtyIterator);
+        final boolean dirty;
+        try (final CloseableIterator<KVPair> i = this.kv.getRange(KeyRange.forPrefix(dirtyPrefix))) {
+            dirty = i.hasNext();
+        }
         if (dirty)
             this.kv.removeRange(dirtyPrefix, ByteUtil.getKeyAfterPrefix(dirtyPrefix));
         return dirty;

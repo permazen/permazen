@@ -7,7 +7,6 @@ package org.jsimpledb.kv.leveldb;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
 import java.util.NoSuchElementException;
 
 import org.iq80.leveldb.DB;
@@ -18,6 +17,7 @@ import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
     }
 
     @Override
-    public java.util.Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         return this.createIterator(this.readOptions, minKey, maxKey, reverse);
     }
 
@@ -169,7 +169,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
         return new Iterator(this.db.iterator(readOptions), minKey, maxKey, reverse);
     }
 
-    final class Iterator implements java.util.Iterator<KVPair>, Closeable {
+    final class Iterator implements CloseableIterator<KVPair> {
 
         private final DBIterator cursor;
         private final byte[] minKey;

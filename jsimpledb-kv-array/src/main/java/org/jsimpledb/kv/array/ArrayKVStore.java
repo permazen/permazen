@@ -9,12 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * A simple read-only {@link org.jsimpledb.kv.KVStore} based on a sorted array of key/value pairs.
@@ -90,7 +90,7 @@ public class ArrayKVStore extends AbstractKVStore {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, final boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, final boolean reverse) {
 
         // Find min index
         int index;
@@ -108,22 +108,7 @@ public class ArrayKVStore extends AbstractKVStore {
         final int maxIndex = index;
 
         // Return iterator over array indexes
-        return new UnmodifiableIterator<KVPair>() {
-
-            private int index = reverse ? maxIndex : minIndex;
-
-            @Override
-            public boolean hasNext() {
-                return reverse ? this.index > minIndex : this.index < maxIndex;
-            }
-
-            @Override
-            public KVPair next() {
-                if (!this.hasNext())
-                    throw new NoSuchElementException();
-                return ArrayKVStore.this.finder.readKV(reverse ? --this.index : this.index++);
-            }
-        };
+        return new RangeIter(minIndex, maxIndex, reverse);
     }
 
     @Override
@@ -139,6 +124,38 @@ public class ArrayKVStore extends AbstractKVStore {
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         throw new UnsupportedOperationException();
+    }
+
+// RangeIter
+
+    private class RangeIter extends UnmodifiableIterator<KVPair> implements CloseableIterator<KVPair> {
+
+        private final int limit;
+        private final boolean reverse;
+
+        private int index;
+
+        RangeIter(int minIndex, int maxIndex, boolean reverse) {
+            this.index = reverse ? maxIndex : minIndex;
+            this.limit = reverse ? minIndex : maxIndex;
+            this.reverse = reverse;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.reverse ? this.index > this.limit : this.index < this.limit;
+        }
+
+        @Override
+        public KVPair next() {
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+            return ArrayKVStore.this.finder.readKV(this.reverse ? --this.index : this.index++);
+        }
+
+        @Override
+        public void close() {
+        }
     }
 }
 

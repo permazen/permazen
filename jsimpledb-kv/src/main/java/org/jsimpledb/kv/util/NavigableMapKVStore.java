@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -19,6 +18,7 @@ import net.jcip.annotations.ThreadSafe;
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying
@@ -106,7 +106,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         NavigableMap<byte[], byte[]> rangeMap = this.map;
         if (minKey != null && maxKey != null)
             rangeMap = rangeMap.subMap(minKey, true, maxKey, false);
@@ -116,8 +116,8 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
             rangeMap = rangeMap.headMap(maxKey, false);
         if (reverse)
             rangeMap = rangeMap.descendingMap();
-        return Iterators.transform(rangeMap.entrySet().iterator(),
-          entry -> new KVPair(entry.getKey().clone(), entry.getValue().clone()));
+        return CloseableIterator.wrap(Iterators.transform(rangeMap.entrySet().iterator(),
+          entry -> new KVPair(entry.getKey().clone(), entry.getValue().clone())));
     }
 
     @Override

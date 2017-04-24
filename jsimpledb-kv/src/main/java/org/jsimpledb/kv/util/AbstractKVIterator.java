@@ -7,8 +7,6 @@ package org.jsimpledb.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Iterator;
-
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
@@ -16,10 +14,11 @@ import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link Iterator} implementation whose values derive from key/value {@code byte[]} pairs in a {@link KVStore}.
+ * {@link java.util.Iterator} implementation whose values derive from key/value {@code byte[]} pairs in a {@link KVStore}.
  * Instances support either forward or reverse iteration.
  *
  * <p><b>Subclass Methods</b></p>
@@ -64,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * @see AbstractKVNavigableSet
  * @param <E> iteration element type
  */
-public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
+public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
 
     /**
      * The underlying {@link KVStore}.
@@ -82,7 +81,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
     protected final boolean reversed;
 
     // Iteration state
-    private final Iterator<KVPair> pairIterator;
+    private final CloseableIterator<KVPair> pairIterator;
     private KVPair removePair;
     private E removeValue;
 
@@ -185,6 +184,13 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
             removeValueCopy = this.removeValue;
         }
         this.doRemove(removeValueCopy, removePairCopy);
+    }
+
+// Closeable
+
+    @Override
+    public void close() {
+        this.pairIterator.close();
     }
 
 // Subclass methods

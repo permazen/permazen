@@ -16,7 +16,6 @@ import com.google.cloud.spanner.TransactionContext;
 import com.google.cloud.spanner.TransactionRunner;
 import com.google.common.base.Preconditions;
 
-import java.util.Iterator;
 import java.util.concurrent.Future;
 
 import net.jcip.annotations.GuardedBy;
@@ -31,6 +30,7 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.util.BatchingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -330,7 +330,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         try {
             return super.getRange(minKey, maxKey, reverse);
         } catch (SpannerException e) {

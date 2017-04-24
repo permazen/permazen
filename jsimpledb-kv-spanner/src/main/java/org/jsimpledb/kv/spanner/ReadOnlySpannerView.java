@@ -17,9 +17,7 @@ import com.google.cloud.spanner.Statement;
 import com.google.cloud.spanner.Struct;
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -28,6 +26,7 @@ import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +131,7 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (minKey != null && minKey.length == 0)
             minKey = null;
         try {
@@ -214,7 +213,7 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
 
 // Iter
 
-    private class Iter implements Iterator<KVPair>, Closeable {
+    private class Iter implements CloseableIterator<KVPair> {
 
         private final ResultSet resultSet;
 

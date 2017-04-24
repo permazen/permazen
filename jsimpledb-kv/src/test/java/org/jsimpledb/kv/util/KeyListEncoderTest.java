@@ -35,8 +35,8 @@ public class KeyListEncoderTest extends TestSupport {
 
             // Encode
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            final long length = KeyListEncoder.writePairsLength(original.getRange(null, null, false));
-            KeyListEncoder.writePairs(original.getRange(null, null, false), buf);
+            final long length = KeyListEncoder.writePairsLength(original.getRange(null, null));
+            KeyListEncoder.writePairs(original.getRange(null, null), buf);
 
             // Check length
             Assert.assertEquals(buf.size(), length);

@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -24,6 +23,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractXMLStreaming;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Utility methods for serializing and deserializing the contents of a {@link org.jsimpledb.kv.KVStore} to/from XML.
@@ -185,14 +185,17 @@ public class XMLSerializer extends AbstractXMLStreaming {
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
         int count = 0;
-        for (Iterator<KVPair> i = this.kv.getRange(minKey, maxKey, false); i.hasNext(); count++) {
-            writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
-            final KVPair pair = i.next();
-            this.writeElement(writer, KEY_TAG, pair.getKey());
-            final byte[] value = pair.getValue();
-            if (value.length > 0)
-                this.writeElement(writer, VALUE_TAG, value);
-            writer.writeEndElement();
+        try (CloseableIterator<KVPair> i = this.kv.getRange(minKey, maxKey)) {
+            while (i.hasNext()) {
+                writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
+                final KVPair pair = i.next();
+                this.writeElement(writer, KEY_TAG, pair.getKey());
+                final byte[] value = pair.getValue();
+                if (value.length > 0)
+                    this.writeElement(writer, VALUE_TAG, value);
+                writer.writeEndElement();
+                count++;
+            }
         }
         writer.writeEndElement();
         writer.flush();

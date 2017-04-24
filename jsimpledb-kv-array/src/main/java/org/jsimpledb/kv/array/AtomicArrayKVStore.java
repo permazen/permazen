@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,6 +57,7 @@ import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -666,7 +666,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -1216,7 +1216,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                   final ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
 
                     // Write out merged key/value pairs
-                    arrayWriter.writeMerged(this.kvstore, this.kvstore.getRange(null, null, false), writesToCompact);
+                    try (CloseableIterator<KVPair> i = this.kvstore.getRange(null, null)) {
+                        arrayWriter.writeMerged(this.kvstore, i, writesToCompact);
+                    }
 
                     // Sync file data
                     arrayWriter.flush();

@@ -5,7 +5,9 @@
 
 package org.jsimpledb.kv;
 
-import java.util.Iterator;
+import com.google.common.base.Preconditions;
+
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
@@ -17,7 +19,7 @@ import java.util.Iterator;
  * <p><b>Thread Safety</b></p>
  *
  * <p>
- * Instances must be thread safe, with the exception of the {@link Iterator} returned by {@link #getRange getRange()}.
+ * Instances must be thread safe, with the exception of the {@link java.util.Iterator} returned by {@link #getRange getRange()}.
  *
  * <p><b>Lock-free Counters</b></p>
  *
@@ -97,8 +99,9 @@ public interface KVStore {
     KVPair getAtMost(byte[] maxKey, byte[] minKey);
 
     /**
-     * Iterate the key/value pairs in the specified range. The returned {@link Iterator}'s {@link Iterator#remove remove()}
-     * must be supported and should have the same effect as invoking {@link #remove remove()} on the corresponding key.
+     * Iterate the key/value pairs in the specified range. The returned {@link java.util.Iterator}'s
+     * {@link Ijava.util.terator#remove remove()} method must be supported and should have the same effect as
+     * invoking {@link #remove remove()} on the corresponding key.
      *
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
@@ -109,18 +112,17 @@ public interface KVStore {
      * then this method behaves as if {@code maxKey} were null.
      *
      * <p>
-     * The returned {@link Iterator} must not throw {@link java.util.ConcurrentModificationException};
-     * however, whether or not a "live" {@link Iterator} reflects any modifications made after its creation is
-     * implementation dependent. Implementations that do make post-creation updates visible in the {@link Iterator},
+     * The returned {@link java.util.Iterator} must not throw {@link java.util.ConcurrentModificationException};
+     * however, whether or not a "live" {@link java.util.Iterator} reflects any modifications made after its creation is
+     * implementation dependent. Implementations that do make post-creation updates visible in the {@link java.util.Iterator},
      * even if the update occurs after some delay, must preserve the order in which the modifications actually occurred.
      *
      * <p>
-     * The returned {@link Iterator} itself is not guaranteed to be thread safe.
+     * The returned {@link java.util.Iterator} itself is not guaranteed to be thread safe.
      *
      * <p>
-     * Some implementations may return {@link Iterator}s that are also {@link java.io.Closeable}; invokers of this
-     * method are encouraged to detect and {@link java.io.Closeable#close close()} such instances, though this is not
-     * required for correct behavior.
+     * Invokers of this method are encouraged to {@link java.io.Closeable#close close()} the returned iterators,
+     * though this is not required for correct behavior.
      *
      * <p>
      * Modifications to the returned {@link KVPair} key and value {@code byte[]} arrays do not affect this instance.
@@ -133,7 +135,43 @@ public interface KVStore {
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
+    CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
+
+    /**
+     * Iterate the key/value pairs in the specified range in the forward direction.
+     *
+     * <p>
+     * This is a convenience method, equivalent to:
+     * {@link #getRange(byte[], byte[], boolean) getRange}{@code (minKey, maxKey, false)}.
+     *
+     * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
+     * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
+     * @return iteration of key/value pairs in the range {@code minKey} (inclusive) to {@code maxKey} (exclusive)
+     * @throws IllegalArgumentException if {@code minKey > maxKey}
+     * @throws StaleTransactionException if an underlying transaction is no longer usable
+     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     */
+    default CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey) {
+        return this.getRange(minKey, maxKey, false);
+    }
+
+    /**
+     * Iterate the key/value pairs in the specified range in the forward direction.
+     *
+     * <p>
+     * This is a convenience method, equivalent to:
+     * {@link #getRange(byte[], byte[], boolean) getRange}{@code (range.getMin(), range.getMax(), false)}.
+     *
+     * @param range range of keys to iterate
+     * @return iteration of key/value pairs in {@code range}
+     * @throws StaleTransactionException if an underlying transaction is no longer usable
+     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws IllegalArgumentException if {@code range} is null
+     */
+    default CloseableIterator<KVPair> getRange(KeyRange range) {
+        Preconditions.checkArgument(range != null, "null range");
+        return this.getRange(range.getMin(), range.getMax(), false);
+    }
 
     /**
      * Set the value associated with the given key.

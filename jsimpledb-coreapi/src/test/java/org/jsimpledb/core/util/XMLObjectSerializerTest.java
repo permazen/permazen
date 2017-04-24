@@ -20,6 +20,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.util.CloseableIterator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -180,15 +181,16 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         s.read(new ByteArrayInputStream(text.getBytes("UTF-8")));
 
         // Compare transaction KV stores
-        final Iterator<KVPair> i1 = tx.getKVTransaction().getRange(null, null, false);
-        final Iterator<KVPair> i2 = stx.getKVTransaction().getRange(null, null, false);
-        while (i1.hasNext() && i2.hasNext()) {
-            final KVPair p1 = i1.next();
-            final KVPair p2 = i2.next();
-            Assert.assertEquals(p1.toString(), p2.toString());
+        try (final CloseableIterator<KVPair> i1 = tx.getKVTransaction().getRange(null, null);
+            final CloseableIterator<KVPair> i2 = stx.getKVTransaction().getRange(null, null)) {
+            while (i1.hasNext() && i2.hasNext()) {
+                final KVPair p1 = i1.next();
+                final KVPair p2 = i2.next();
+                Assert.assertEquals(p1.toString(), p2.toString());
+            }
+            Assert.assertTrue(!i1.hasNext());
+            Assert.assertTrue(!i2.hasNext());
         }
-        Assert.assertTrue(!i1.hasNext());
-        Assert.assertTrue(!i2.hasNext());
     }
 }
 

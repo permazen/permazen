@@ -8,11 +8,11 @@ package org.jsimpledb.kv;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Support superclass for {@link KVStore} implementations.
@@ -25,7 +25,7 @@ import org.jsimpledb.util.ByteWriter;
  *      {@link #getRange getRange()}.</li>
  *  <li>A {@link #remove remove()} implementation that delegates to {@link #removeRange removeRange()}.</li>
  *  <li>A {@link #removeRange removeRange()} implementation that delegates to {@link #getRange getRange()},
- *      iterating through the range of keys and removing them one-by-one via {@link Iterator#remove}.</li>
+ *      iterating through the range of keys and removing them one-by-one via {@link java.util.Iterator#remove}.</li>
  *  <li>{@link #encodeCounter encodeCounter()}, {@link #decodeCounter encodeCounter()}, and
  *      {@link #adjustCounter adjustCounter()} implementations using normal reads and writes
  *      of values in big-endian encoding (does not provide any lock-free behavior).</li>
@@ -55,11 +55,8 @@ public abstract class AbstractKVStore implements KVStore {
     public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
             return null;
-        final Iterator<KVPair> i = this.getRange(minKey, maxKey, false);
-        try {
+        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             return i.hasNext() ? i.next() : null;
-        } finally {
-            this.closeIfPossible(i);
         }
     }
 
@@ -67,11 +64,8 @@ public abstract class AbstractKVStore implements KVStore {
     public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
             return null;
-        final Iterator<KVPair> i = this.getRange(minKey, maxKey, true);
-        try {
+        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, true)) {
             return i.hasNext() ? i.next() : null;
-        } finally {
-            this.closeIfPossible(i);
         }
     }
 
@@ -87,14 +81,11 @@ public abstract class AbstractKVStore implements KVStore {
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
-        final Iterator<KVPair> i = this.getRange(minKey, maxKey, false);
-        try {
+        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             while (i.hasNext()) {
                 i.next();
                 i.remove();
             }
-        } finally {
-            this.closeIfPossible(i);
         }
     }
 
@@ -125,16 +116,6 @@ public abstract class AbstractKVStore implements KVStore {
             return;                                                     // if previous value is not valid, behavior is undefined
         }
         this.put(key, this.encodeCounter(oldValue + amount));
-    }
-
-    private void closeIfPossible(Iterator<KVPair> i) {
-        if (i instanceof AutoCloseable) {
-            try {
-                ((AutoCloseable)i).close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
     }
 }
 

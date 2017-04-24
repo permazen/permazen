@@ -9,11 +9,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
-import java.util.Iterator;
-
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * A {@link org.jsimpledb.kv.KVStore} view of all keys having a common {@code byte[]} prefix
@@ -88,9 +87,10 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        final Iterator<KVPair> i = this.delegate().getRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey), reverse);
-        return Iterators.transform(i, pair -> new KVPair(this.removePrefix(pair.getKey()), pair.getValue()));
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        final CloseableIterator<KVPair> i = this.delegate().getRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey), reverse);
+        return CloseableIterator.wrap(
+          Iterators.transform(i, pair -> new KVPair(this.removePrefix(pair.getKey()), pair.getValue())), i);
     }
 
     @Override

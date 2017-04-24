@@ -30,6 +30,7 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,7 +281,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (minKey == null)
             minKey = ByteUtil.EMPTY;
         return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
@@ -765,25 +766,16 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         @Override
         public void run() {
             try {
-
-                // Get iterator
                 if (this.log.isTraceEnabled()) {
                     this.trace("run() invoked, creating iterator {}...{}",
                       ByteUtil.toString(this.start), ByteUtil.toString(this.limit));
                 }
-                final Iterator<KVPair> iterator = this.reverse ?
-                  BatchingKVStore.super.getRange(this.limit, this.start, true) :
-                  BatchingKVStore.super.getRange(this.start, this.limit, false);
 
-                // Load key/value pairs, then close iterator
-                try {
+                // Get iterator, load key/value pairs, then close iterator
+                try (final CloseableIterator<KVPair> iterator = this.reverse ?
+                  BatchingKVStore.super.getRange(this.limit, this.start, true) :
+                  BatchingKVStore.super.getRange(this.start, this.limit, false)) {
                     this.load(iterator);
-                } finally {
-                    try {
-                        ((AutoCloseable)iterator).close();
-                    } catch (Exception e) {
-                        // ignore
-                    }
                 }
             } catch (Throwable t) {
                 if (this.log.isTraceEnabled())

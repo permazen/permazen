@@ -7,9 +7,7 @@ package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -22,6 +20,7 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Provides a mutable view of an underlying, read-only {@link KVStore}.
@@ -193,7 +192,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
     }
 
     @Override
-    public synchronized Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public synchronized CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         return new RangeIterator(minKey, maxKey, reverse);
     }
 
@@ -391,7 +390,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
 // RangeIterator
 
     @ThreadSafe
-    private class RangeIterator implements Iterator<KVPair>, Closeable {
+    private class RangeIterator implements CloseableIterator<KVPair> {
 
         // Locking order: (1) RangeIterator (2) MutableView
 
@@ -411,7 +410,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
 
         // Position in underlying k/v store
         @GuardedBy("this")
-        private Iterator<KVPair> kviter;        // k/v store iterator, if any left
+        private CloseableIterator<KVPair> kviter;   // k/v store iterator, if any left
         @GuardedBy("this")
         private KVPair kvnext;                  // next kvstore pair, if already retrieved
 
@@ -638,11 +637,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         private void closeKVStoreIterator() {
             assert Thread.holdsLock(this);
             if (this.kviter != null) {
-                try {
-                    ((AutoCloseable)this.kviter).close();
-                } catch (Exception e) {
-                    // ignore;
-                }
+                this.kviter.close();
                 this.kviter = null;
             }
             this.kvnext = null;
