@@ -20,7 +20,7 @@ public class SpannerKVDatabaseTest extends KVDatabaseTest {
 
     @BeforeClass(groups = "configure")
     @Parameters({ "spannerProject", "spannerInstance" })
-    public void setSpannerConfig(@Optional String project, String instance) throws Exception {
+    public void setSpannerConfig(@Optional String project, @Optional String instance) throws Exception {
         if (instance != null) {
             this.spannerKV = new SpannerKVDatabase();
             final SpannerOptions.Builder builder = SpannerOptions.newBuilder();

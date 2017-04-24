@@ -23,7 +23,7 @@ public class DeleteTest extends KVTestSupport {
 
     @BeforeClass(groups = "configure")
     @Parameters({ "spannerProject", "spannerInstance" })
-    public void setSpannerConfig(@Optional String project, String instance) throws Exception {
+    public void setSpannerConfig(@Optional String project, @Optional String instance) throws Exception {
         if (instance != null) {
             this.db = new SpannerKVDatabase();
             final SpannerOptions.Builder builder = SpannerOptions.newBuilder();
@@ -36,6 +36,8 @@ public class DeleteTest extends KVTestSupport {
 
     @Test
     protected void testDeleteToInfinity() throws Exception {
+        if (this.db == null)
+            return;
         this.db.start();
         try {
 
