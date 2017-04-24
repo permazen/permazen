@@ -581,37 +581,43 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             throw new Exception("populate task failed: >>>" + this.show(fail).trim() + "<<<");
 
         // Create new transaction and blast away at it
-        final KVTransaction tx = store.createTransaction();
-        try {
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
 
-            // Create worker threads
-            final RandomTask[] tasks = new RandomTask[33];
-            final Thread[] threads = new Thread[tasks.length];
-            for (int i = 0; i < tasks.length; i++) {
-                final RandomTask task = new RandomTask(i, null, this.random.nextLong());
-                threads[i] = new Thread(() -> task.runRandomAccess(tx));
-                tasks[i] = task;
+                // Create worker threads
+                final RandomTask[] tasks = new RandomTask[33];
+                final Thread[] threads = new Thread[tasks.length];
+                for (int i = 0; i < tasks.length; i++) {
+                    final RandomTask task = new RandomTask(i, null, KVDatabaseTest.this.random.nextLong());
+                    threads[i] = new Thread(() -> task.runRandomAccess(tx));
+                    tasks[i] = task;
+                }
+
+                // Start threads
+                for (int i = 0; i < tasks.length; i++)
+                    threads[i].start();
+
+                // Join threads
+                for (int i = 0; i < tasks.length; i++) {
+                    try {
+                        threads[i].join();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                // Check for errors
+                for (int i = 0; i < tasks.length; i++) {
+                    final Throwable taskFail = tasks[i].getFail();
+                    if (taskFail != null) {
+                        throw new RuntimeException("task #" + i + " failed: >>>"
+                          + KVDatabaseTest.this.show(taskFail).trim() + "<<<");
+                    }
+                }
+                return null;
             }
-
-            // Start threads
-            for (int i = 0; i < tasks.length; i++)
-                threads[i].start();
-
-            // Join threads
-            for (int i = 0; i < tasks.length; i++)
-                threads[i].join();
-
-            // Check for errors
-            for (int i = 0; i < tasks.length; i++) {
-                if ((fail = tasks[i].getFail()) != null)
-                    throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
-            }
-
-            // Done
-            tx.commit();
-        } finally {
-            tx.rollback();
-        }
+        });
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
     }
 
