@@ -223,7 +223,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                             throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
                               + "parameter type " + genericParameterType + " will match change events of type "
                               + possibleChangeType + " from field `" + stringPath + "' at runtime due to type erasure,"
-                              + " but its generic type is incompatible; parameter type should be compatible with "
+                              + " but its generic type is does not match " + possibleChangeType
+                              + "; try narrowing or widening the parameter type, keeping it compatible with "
                               + (possibleChangeTypes.size() != 1 ?
                                   "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                         }
