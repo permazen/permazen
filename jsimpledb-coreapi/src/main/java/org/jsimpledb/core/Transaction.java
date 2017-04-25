@@ -317,7 +317,7 @@ public class Transaction {
         // Delete schema version
         if (!this.schemas.deleteVersion(version))
             return false;
-        this.db.deleteSchema(this.kvt, version);
+        this.kvt.remove(Layout.getSchemaKey(version));
         return true;
     }
 
@@ -601,7 +601,7 @@ public class Transaction {
      */
     public SnapshotTransaction createSnapshotTransaction() {
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
-        this.db.copyMetaData(this, kvstore);
+        Layout.copyMetaData(this.kvt, kvstore);
         return new SnapshotTransaction(this.db, kvstore, this.schemas, this.schema);
     }
 
@@ -771,7 +771,7 @@ public class Transaction {
         this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
 
         // Write object version index entry
-        this.kvt.put(Database.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
+        this.kvt.put(Layout.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
 
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
@@ -948,7 +948,7 @@ public class Transaction {
         this.kvt.removeRange(minKey, maxKey);
 
         // Delete object schema version entry
-        this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersion()));
+        this.kvt.remove(Layout.buildVersionIndexKey(id, info.getVersion()));
 
         // Update ObjInfo cache
         this.objInfoCache.remove(id);
@@ -1183,7 +1183,7 @@ public class Transaction {
                 dstTx.deleteObjectData(dstInfo);
 
             // Add schema version index entry
-            dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
+            dstTx.kvt.put(Layout.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
 
             // Copy object meta-data and all field content in one key range sweep
             final KeyRange srcKeyRange = KeyRange.forPrefix(srcId.getBytes());
@@ -1615,8 +1615,8 @@ public class Transaction {
         this.objInfoCache.put(id, new ObjInfo(this, id, newVersion, info.isDeleteNotified(), targetVersion, newType));
 
         // Update object version index entry
-        this.kvt.remove(Database.buildVersionIndexKey(id, oldVersion));
-        this.kvt.put(Database.buildVersionIndexKey(id, newVersion), ByteUtil.EMPTY);
+        this.kvt.remove(Layout.buildVersionIndexKey(id, oldVersion));
+        this.kvt.put(Layout.buildVersionIndexKey(id, newVersion), ByteUtil.EMPTY);
 
     //////// Notify listeners
 
@@ -1660,7 +1660,7 @@ public class Transaction {
     public synchronized CoreIndex<Integer, ObjId> queryVersion() {
         if (this.stale)
             throw new StaleTransactionException(this);
-        return this.db.getVersionIndex(this);
+        return Layout.getVersionIndex(this.kvt);
     }
 
     /**

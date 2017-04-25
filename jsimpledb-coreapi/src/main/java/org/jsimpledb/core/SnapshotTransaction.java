@@ -62,16 +62,12 @@ public class SnapshotTransaction extends Transaction {
      * Delete all objects contained in this snapshot transaction.
      *
      * <p>
-     * It will contain schema meta-data but no objects.
+     * Upon return, the underlying key/value store will still contain meta-data, but no objects.
      */
     public synchronized void reset() {
-
-        // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-
-        // Delete all object and index keys
-        this.db.reset(this);
+        Layout.deleteObjectData(this.kvt);
     }
 
     /**

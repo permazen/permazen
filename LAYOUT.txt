@@ -7,6 +7,14 @@
 
 ****** DATABASE META-DATA *******
 
+- The meta-data area spans all keys with first byte 0x00
+
+- Keys with first byte 0x00 and second byte 0x00 through 0xfe (inclusive)
+  are reserved by JSimpleDB and must not be modified.
+
+- Keys with first byte 0x00 and second byte 0xff are ignored by JSimpleDB
+  and may be used for custom user applications.
+
 Format Version
 
     +------+------+-----------------+    +-------------------+
@@ -24,6 +32,12 @@ Object Version Index
     +------+------+-------------------+---------------+
     | 0x00 | 0x80 |   Version Number  |     ObjId     |
     +------+------+-------------------+---------------+
+
+User meta-data area
+
+    +------+------+-----
+    | 0x00 | 0xff | ...
+    +------+------+-----
 
 ****** OBJECTS *******
 
