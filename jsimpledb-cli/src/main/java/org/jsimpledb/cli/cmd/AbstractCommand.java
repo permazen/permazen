@@ -157,8 +157,12 @@ public abstract class AbstractCommand implements Command {
      *
      * <p>
      * The implementation in {@link AbstractCommand} supports all {@link org.jsimpledb.core.FieldType}s registered with the
-     * database, {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID
-     * (returns {@link org.jsimpledb.core.ObjId}).
+     * database, plus:
+     * <ul>
+     *  <li>{@code type} for an object type name (returns {@link Integer})</li>
+     *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link org.jsimpledb.core.ObjId})</li>
+     *  <li>{@code expr} for an arbitrary Java expression</li>
+     * </ul>
      *
      * @param typeName parameter type name
      * @return parser for parameters of the specified type
