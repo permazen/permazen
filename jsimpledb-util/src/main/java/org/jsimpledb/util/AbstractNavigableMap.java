@@ -59,6 +59,17 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
         this.bounds = bounds;
     }
 
+    /**
+     * Removes the mapping for a key from this map if it is present.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableMap} always throws {@link UnsupportedOperationException}.
+     */
+    @Override
+    public V remove(Object key) {
+        throw new UnsupportedOperationException("read-only map");
+    }
+
     @Override
     public boolean isEmpty() {
         return this.navigableKeySet().isEmpty();

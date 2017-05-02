@@ -210,11 +210,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         };
     }
 
-    @Override
-    public boolean remove(Object obj) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Create a view of this instance with additional filtering applied to the underlying {@code byte[]} encoded keys.
      * Any set element for which the corresponding key does not pass {@code keyFilter} will be effectively hidden from view.

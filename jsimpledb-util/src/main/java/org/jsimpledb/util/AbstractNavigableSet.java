@@ -57,6 +57,17 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
         this.bounds = bounds;
     }
 
+    /**
+     * Removes the given element from this set if it is present.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableSet} always throws {@link UnsupportedOperationException}.
+     */
+    @Override
+    public boolean remove(Object elem) {
+        throw new UnsupportedOperationException("read-only set");
+    }
+
     @Override
     public E first() {
         return this.iterator().next();
