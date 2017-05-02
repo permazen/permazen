@@ -71,7 +71,7 @@ public class ByteReader {
      * Constructor. Takes a snapshot of the given writer's content starting at the specified position.
      *
      * @param writer {@code ByteWriter} to read data from
-     * @param mark position previously returned by {@code ByteWriter#mark}
+     * @param mark position previously returned by {@link ByteWriter#mark}
      * @throws IndexOutOfBoundsException if {@code mark} is out of bounds
      * @throws NullPointerException if {@code writer} is null
      */
