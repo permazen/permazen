@@ -7,6 +7,8 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Serializable;
+
 /**
  * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
  * Instead, instances hold a name and ordinal value.
@@ -17,7 +19,9 @@ import com.google.common.base.Preconditions;
  * @see EnumFieldType
  * @see org.jsimpledb.EnumConverter
  */
-public class EnumValue {
+public class EnumValue implements Serializable {
+
+    private static final long serialVersionUID = 7325751293674981562L;
 
     private final String name;
     private final int ordinal;
