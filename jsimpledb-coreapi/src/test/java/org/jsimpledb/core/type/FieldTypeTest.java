@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.core;
+package org.jsimpledb.core.type;
 
 import java.io.File;
 import java.net.URI;
@@ -12,7 +12,9 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.jsimpledb.core.type.Base64ArrayType;
+import org.jsimpledb.core.CoreAPITestSupport;
+import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.FieldTypeRegistry;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
