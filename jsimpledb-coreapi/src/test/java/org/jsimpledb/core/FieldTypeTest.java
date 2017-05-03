@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.core.type.Base64ArrayType;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;

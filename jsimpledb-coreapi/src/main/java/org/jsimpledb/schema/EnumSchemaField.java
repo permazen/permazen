@@ -20,8 +20,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.string.StringEncoder;
-import org.jsimpledb.core.EnumFieldType;
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.core.type.EnumFieldType;
 import org.jsimpledb.util.Diffs;
 
 /**

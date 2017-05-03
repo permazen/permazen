@@ -11,8 +11,8 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 
 import org.dellroad.stuff.java.EnumUtil;
-import org.jsimpledb.core.EnumFieldType;
 import org.jsimpledb.core.EnumValue;
+import org.jsimpledb.core.type.EnumFieldType;
 import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;

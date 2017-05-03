@@ -8,6 +8,8 @@ package org.jsimpledb.core;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import org.jsimpledb.core.type.ReferenceFieldType;
+
 /**
  * Represents an index on a regular simple field (not a sub-field of a complex field).
  */

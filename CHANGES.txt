@@ -3,6 +3,7 @@ Version 3.5.0
     - Improvements to the KVStore interface; getRange() now returns CloseableIterator
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Formalized layout definitions and allocated a user-defined meta-data area
+    - Moved core API field type classes into sub-package
     - Updated some dependencies
 
 Version 3.4.0 Released March 26, 2017

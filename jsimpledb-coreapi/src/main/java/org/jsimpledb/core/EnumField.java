@@ -7,6 +7,8 @@ package org.jsimpledb.core;
 
 import java.util.List;
 
+import org.jsimpledb.core.type.EnumFieldType;
+
 /**
  * A field that contains one entry in an ordered list of unique {@link String} identifiers.
  *

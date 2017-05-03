@@ -18,6 +18,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.kv.KeyRanges;
 
 /**

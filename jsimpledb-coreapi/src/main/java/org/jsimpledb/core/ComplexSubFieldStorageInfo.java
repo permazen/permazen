@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 

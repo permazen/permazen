@@ -77,9 +77,10 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = -2295331524544358832L;
 
-    final String name;
-    final TypeToken<T> typeToken;
-    final long signature;
+    protected final String name;
+    protected final TypeToken<T> typeToken;
+    protected final long signature;
+
     final T defaultValueObject;
 
     byte[] defaultValue;
@@ -399,14 +400,22 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
     }
 
     /**
-     * Convenience method for generic type binding.
+     * Convenience method that both validates and encodes a value.
      *
+     * <p>
+     * Equivalent to:
+     * <blockquote><code>
+     * this.write(writer, this.validate(obj))
+     * </code></blockquote>
+     *
+     * @param writer byte output
      * @param obj object to validate
      * @throws IllegalArgumentException if {@code obj} in not of type T
      * @throws IllegalArgumentException if {@code obj} is null and this type does not support null values
      * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link FieldType}
+     * @throws IllegalArgumentException if {@code writer} is null
      */
-    void validateAndWrite(ByteWriter writer, Object obj) {
+    public void validateAndWrite(ByteWriter writer, Object obj) {
         this.write(writer, this.validate(obj));
     }
 

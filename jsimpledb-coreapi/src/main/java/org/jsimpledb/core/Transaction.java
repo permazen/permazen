@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.core.util.ObjIdSet;
 import org.jsimpledb.kv.KVPair;

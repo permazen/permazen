@@ -24,6 +24,36 @@ import java.util.stream.StreamSupport;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
+import org.jsimpledb.core.type.ArrayType;
+import org.jsimpledb.core.type.BooleanArrayType;
+import org.jsimpledb.core.type.BooleanType;
+import org.jsimpledb.core.type.ByteArrayType;
+import org.jsimpledb.core.type.ByteType;
+import org.jsimpledb.core.type.CharacterArrayType;
+import org.jsimpledb.core.type.CharacterType;
+import org.jsimpledb.core.type.DateType;
+import org.jsimpledb.core.type.DoubleArrayType;
+import org.jsimpledb.core.type.DoubleType;
+import org.jsimpledb.core.type.FileType;
+import org.jsimpledb.core.type.FloatArrayType;
+import org.jsimpledb.core.type.FloatType;
+import org.jsimpledb.core.type.IntegerArrayType;
+import org.jsimpledb.core.type.IntegerType;
+import org.jsimpledb.core.type.LongArrayType;
+import org.jsimpledb.core.type.LongType;
+import org.jsimpledb.core.type.NullSafeType;
+import org.jsimpledb.core.type.ObjIdType;
+import org.jsimpledb.core.type.ObjectArrayType;
+import org.jsimpledb.core.type.PatternType;
+import org.jsimpledb.core.type.PrimitiveWrapperType;
+import org.jsimpledb.core.type.ReferenceFieldType;
+import org.jsimpledb.core.type.ShortArrayType;
+import org.jsimpledb.core.type.ShortType;
+import org.jsimpledb.core.type.StringType;
+import org.jsimpledb.core.type.URIType;
+import org.jsimpledb.core.type.UUIDType;
+import org.jsimpledb.core.type.UnsignedIntType;
+import org.jsimpledb.core.type.VoidType;
 
 /**
  * A registry of {@link FieldType}s.
@@ -65,114 +95,121 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
 public class FieldTypeRegistry {
 
     /**
-     * {@code void} primitive wrapper type (null values not allowed).
+     * {@code void} primitive type.
+     *
+     * <p>
+     * Completely useless, except perhaps as an invalid sentinel value.
      */
-    static final VoidType VOID = new VoidType();
+    public static final VoidType VOID = new VoidType();
 
     /**
-     * {@code Void} primitive wrapper type (null values allowed).
+     * {@code Void} primitive wrapper type.
      */
-    static final PrimitiveWrapperType<Void> VOID_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.VOID);
+    public static final PrimitiveWrapperType<Void> VOID_WRAPPER = new PrimitiveWrapperType<>(new VoidType());
 
     /**
-     * {@code boolean} primitive wrapper type (null values not allowed).
+     * {@code boolean} primitive type (null values not allowed).
      */
-    static final BooleanType BOOLEAN = new BooleanType();
+    public static final BooleanType BOOLEAN = new BooleanType();
 
     /**
      * {@code Boolean} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Boolean> BOOLEAN_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BOOLEAN);
+    public static final PrimitiveWrapperType<Boolean> BOOLEAN_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BOOLEAN);
 
     /**
-     * {@code byte} primitive wrapper type (null values not allowed).
+     * {@code byte} primitive type (null values not allowed).
      */
-    static final ByteType BYTE = new ByteType();
+    public static final ByteType BYTE = new ByteType();
 
     /**
      * {@code Byte} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Byte> BYTE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BYTE);
+    public static final PrimitiveWrapperType<Byte> BYTE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BYTE);
 
     /**
-     * {@code char} primitive wrapper type (null values not allowed).
+     * {@code char} primitive type (null values not allowed).
      */
-    static final CharacterType CHARACTER = new CharacterType();
+    public static final CharacterType CHARACTER = new CharacterType();
 
     /**
      * {@code Character} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Character> CHARACTER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.CHARACTER);
+    public static final PrimitiveWrapperType<Character> CHARACTER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.CHARACTER);
 
     /**
-     * {@code short} primitive wrapper type (null values not allowed).
+     * {@code short} primitive type (null values not allowed).
      */
-    static final ShortType SHORT = new ShortType();
+    public static final ShortType SHORT = new ShortType();
 
     /**
      * {@code Short} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Short> SHORT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.SHORT);
+    public static final PrimitiveWrapperType<Short> SHORT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.SHORT);
 
     /**
      * {@code int} primitive type (null values not allowed).
      */
-    static final IntegerType INTEGER = new IntegerType();
+    public static final IntegerType INTEGER = new IntegerType();
 
     /**
      * {@code Integer} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Integer> INTEGER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.INTEGER);
+    public static final PrimitiveWrapperType<Integer> INTEGER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.INTEGER);
 
     /**
-     * {@code float} primitive wrapper type (null values not allowed).
+     * {@code float} primitive type (null values not allowed).
      */
-    static final FloatType FLOAT = new FloatType();
+    public static final FloatType FLOAT = new FloatType();
 
     /**
      * {@code Float} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Float> FLOAT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.FLOAT);
+    public static final PrimitiveWrapperType<Float> FLOAT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.FLOAT);
 
     /**
-     * {@code long} primitive wrapper type (null values not allowed).
+     * {@code long} primitive type (null values not allowed).
      */
-    static final LongType LONG = new LongType();
+    public static final LongType LONG = new LongType();
 
     /**
      * {@code Long} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Long> LONG_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.LONG);
+    public static final PrimitiveWrapperType<Long> LONG_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.LONG);
 
     /**
-     * {@code double} primitive wrapper type (null values not allowed).
+     * {@code double} primitive type (null values not allowed).
      */
-    static final DoubleType DOUBLE = new DoubleType();
+    public static final DoubleType DOUBLE = new DoubleType();
 
     /**
      * {@code Double} primitive wrapper type (null values allowed).
      */
-    static final PrimitiveWrapperType<Double> DOUBLE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.DOUBLE);
+    public static final PrimitiveWrapperType<Double> DOUBLE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.DOUBLE);
 
     /**
      * Type for {@link ObjId}s (null values are not allowed).
+     *
+     * @see #REFERENCE
      */
-    static final ObjIdType OBJ_ID = new ObjIdType();
+    public static final ObjIdType OBJ_ID = new ObjIdType();
 
     /**
-     * Type for unsigned integers. Used internally.
+     * Type for unsigned integers encoded via {@link org.jsimpledb.util.UnsignedIntEncoder}. Used internally.
      */
-    static final UnsignedIntType UNSIGNED_INT = new UnsignedIntType();
+    public static final UnsignedIntType UNSIGNED_INT = new UnsignedIntType();
 
     /**
      * Type for object references with no restriction (null values are allowed).
+     *
+     * @see #OBJ_ID
      */
-    static final ReferenceFieldType REFERENCE = new ReferenceFieldType();
+    public static final ReferenceFieldType REFERENCE = new ReferenceFieldType();
 
     /**
      * Type for {@link String}s.
      */
-    static final NullSafeType<String> STRING = new NullSafeType<>(new StringType());
+    public static final NullSafeType<String> STRING = new NullSafeType<>(new StringType());
 
     /**
      * Type for {@link Date}s.

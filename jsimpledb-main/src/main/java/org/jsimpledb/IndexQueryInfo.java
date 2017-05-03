@@ -18,7 +18,7 @@ import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CoreIndex3;
 import org.jsimpledb.core.CoreIndex4;
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.core.ReferenceFieldType;
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 

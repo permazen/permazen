@@ -6,24 +6,24 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.core.FileType$FileConverter"/>
+        <Class name="org.jsimpledb.core.type.FileType$FileConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.core.PatternType$PatternConverter"/>
+        <Class name="org.jsimpledb.core.type.PatternType$PatternConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.core.URIType$URIConverter"/>
+        <Class name="org.jsimpledb.core.type.URIType$URIConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.core.EnumType"/>
+        <Class name="org.jsimpledb.core.type.EnumType"/>
         <Field name="enumValueList"/>
         <Bug pattern="SE_BAD_FIELD"/>
     </Match>
     <Match>
-        <Class name="org.jsimpledb.core.EnumType"/>
+        <Class name="org.jsimpledb.core.type.EnumType"/>
         <Field name="identifierMap"/>
         <Bug pattern="SE_BAD_FIELD"/>
     </Match>

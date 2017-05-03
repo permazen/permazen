@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 
 import java.io.ByteArrayInputStream;
 
+import org.jsimpledb.core.type.StringEncodedType;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.testng.annotations.DataProvider;

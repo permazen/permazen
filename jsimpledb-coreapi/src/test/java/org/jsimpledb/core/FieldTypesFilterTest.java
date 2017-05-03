@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
+import org.jsimpledb.core.type.UnsignedIntType;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;

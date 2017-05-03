@@ -5,6 +5,9 @@
 
 package org.jsimpledb.core;
 
+import org.jsimpledb.core.type.Tuple2FieldType;
+import org.jsimpledb.core.type.Tuple3FieldType;
+import org.jsimpledb.core.type.Tuple4FieldType;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;

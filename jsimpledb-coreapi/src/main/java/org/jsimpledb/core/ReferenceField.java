@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.util.ByteReader;
 
 /**

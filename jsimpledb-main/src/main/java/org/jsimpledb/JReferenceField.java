@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ReferenceFieldType;
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.schema.ReferenceSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;

@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
+import org.jsimpledb.core.type.Tuple2FieldType;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
