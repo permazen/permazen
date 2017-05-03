@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -30,11 +32,13 @@ public class ObjIdType extends NonNullFieldType<ObjId> {
 
     @Override
     public void write(ByteWriter writer, ObjId id) {
+        Preconditions.checkArgument(writer != null);
         writer.write(id.getBytes());
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(ObjId.NUM_BYTES);
     }
 

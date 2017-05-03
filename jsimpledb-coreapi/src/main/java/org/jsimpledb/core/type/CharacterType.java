@@ -27,6 +27,7 @@ public class CharacterType extends PrimitiveType<Character> {
 
     @Override
     public Character read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final int hi = reader.readByte();
         final int lo = reader.readByte();
         return (char)((hi << 8) | lo);
@@ -34,6 +35,7 @@ public class CharacterType extends PrimitiveType<Character> {
 
     @Override
     public void write(ByteWriter writer, Character value) {
+        Preconditions.checkArgument(writer != null);
         final int hi = (int)value >> 8;
         final int lo = (int)value & 0xff;
         writer.writeByte(hi);
@@ -42,6 +44,7 @@ public class CharacterType extends PrimitiveType<Character> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(2);
     }
 

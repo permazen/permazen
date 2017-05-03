@@ -40,6 +40,7 @@ public class ObjectArrayType<E> extends ArrayType<E[], E> {
 
     @Override
     public E[] read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final ArrayList<E> list = new ArrayList<>();
         while (true) {
             final int first = reader.readByte();
@@ -56,6 +57,7 @@ public class ObjectArrayType<E> extends ArrayType<E[], E> {
 
     @Override
     public void write(ByteWriter writer, E[] array) {
+        Preconditions.checkArgument(writer != null);
         for (E obj : array) {
             if (!this.inline)
                 writer.writeByte(VALUE);
@@ -66,6 +68,7 @@ public class ObjectArrayType<E> extends ArrayType<E[], E> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         while (true) {
             final int first = reader.readByte();
             if (first == END)

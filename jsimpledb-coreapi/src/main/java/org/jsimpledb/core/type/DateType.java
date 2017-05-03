@@ -30,17 +30,20 @@ public class DateType extends NonNullFieldType<Date> {
 
     @Override
     public Date read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         return new Date(LongEncoder.read(reader));
     }
 
     @Override
     public void write(ByteWriter writer, Date date) {
         Preconditions.checkArgument(date != null, "null date");
+        Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, date.getTime());
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }
 

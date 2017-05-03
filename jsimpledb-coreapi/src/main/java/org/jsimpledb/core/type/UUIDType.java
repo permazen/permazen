@@ -32,18 +32,21 @@ public class UUIDType extends NonNullFieldType<UUID> {
 
     @Override
     public UUID read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         return new UUID(ByteUtil.readLong(reader) ^ MASK, ByteUtil.readLong(reader) ^ MASK);
     }
 
     @Override
     public void write(ByteWriter writer, UUID uuid) {
         Preconditions.checkArgument(uuid != null, "null uuid");
+        Preconditions.checkArgument(writer != null);
         ByteUtil.writeLong(writer, uuid.getMostSignificantBits() ^ MASK);
         ByteUtil.writeLong(writer, uuid.getLeastSignificantBits() ^ MASK);
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(16);
     }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -27,6 +29,7 @@ public class DoubleType extends NumberType<Double> {
 
     @Override
     public Double read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         long bits = ByteUtil.readLong(reader);
         bits ^= (bits & SIGN_BIT) == 0 ? NEG_XOR : POS_XOR;
         return Double.longBitsToDouble(bits);
@@ -34,6 +37,7 @@ public class DoubleType extends NumberType<Double> {
 
     @Override
     public void write(ByteWriter writer, Double value) {
+        Preconditions.checkArgument(writer != null);
         long bits = Double.doubleToLongBits(value);
         bits ^= (bits & SIGN_BIT) != 0 ? NEG_XOR : POS_XOR;
         ByteUtil.writeLong(writer, bits);
@@ -41,6 +45,7 @@ public class DoubleType extends NumberType<Double> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(8);
     }
 

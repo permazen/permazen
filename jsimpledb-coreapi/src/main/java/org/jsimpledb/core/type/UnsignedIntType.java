@@ -30,17 +30,20 @@ public class UnsignedIntType extends NonNullFieldType<Integer> {
 
     @Override
     public Integer read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         return UnsignedIntEncoder.read(reader);
     }
 
     @Override
     public void write(ByteWriter writer, Integer value) {
         Preconditions.checkArgument(value != null, "null value");
+        Preconditions.checkArgument(writer != null);
         UnsignedIntEncoder.write(writer, value);
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(UnsignedIntEncoder.decodeLength(reader.peek()));
     }
 

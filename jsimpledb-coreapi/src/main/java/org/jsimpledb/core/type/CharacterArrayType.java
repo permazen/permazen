@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
@@ -34,16 +35,19 @@ public class CharacterArrayType extends ArrayType<char[], Character> {
 
     @Override
     public char[] read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         return this.stringType.read(reader).toCharArray();
     }
 
     @Override
     public void write(ByteWriter writer, char[] array) {
+        Preconditions.checkArgument(writer != null);
         this.stringType.write(writer, new String(array));
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         this.stringType.skip(reader);
     }
 

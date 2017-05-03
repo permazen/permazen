@@ -40,6 +40,7 @@ public abstract class IntegralArrayType<T, E extends Number> extends Base64Array
 
     @Override
     public T read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final ArrayList<E> list = new ArrayList<>();
         while (true) {
             final int first = reader.peek();
@@ -55,6 +56,7 @@ public abstract class IntegralArrayType<T, E extends Number> extends Base64Array
     @Override
     public void write(ByteWriter writer, T array) {
         Preconditions.checkArgument(array != null, "null array");
+        Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             LongEncoder.write(writer, this.integralType.upCast(this.getArrayElement(array, i)));
@@ -63,6 +65,7 @@ public abstract class IntegralArrayType<T, E extends Number> extends Base64Array
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         while (true) {
             final int first = reader.peek();
             if (first == END) {

@@ -163,12 +163,13 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
     /**
      * Read a value from the given input.
      *
-     * @param input byte input
+     * @param reader byte input
      * @return field value (possibly null)
      * @throws IllegalArgumentException if invalid input is encountered
      * @throws IndexOutOfBoundsException if input is truncated
+     * @throws IllegalArgumentException if {@code reader} is null
      */
-    public abstract T read(ByteReader input);
+    public abstract T read(ByteReader reader);
 
     /**
      * Write a value to the given output.
@@ -176,6 +177,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      * @param writer byte output
      * @param value value to write (possibly null)
      * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     * @throws IllegalArgumentException if {@code writer} is null
      */
     public abstract void write(ByteWriter writer, T value);
 
@@ -212,6 +214,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      * @param reader byte input
      * @throws IllegalArgumentException if invalid input is encountered
      * @throws IndexOutOfBoundsException if input is truncated
+     * @throws IllegalArgumentException if {@code reader} is null
      */
     public abstract void skip(ByteReader reader);
 

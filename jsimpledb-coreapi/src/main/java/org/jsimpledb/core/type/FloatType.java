@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -31,6 +33,7 @@ public class FloatType extends NumberType<Float> {
 
     @Override
     public Float read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         int bits = ByteUtil.readInt(reader);
         bits ^= (bits & SIGN_BIT) == 0 ? NEG_XOR : POS_XOR;
         return Float.intBitsToFloat(bits);
@@ -38,6 +41,7 @@ public class FloatType extends NumberType<Float> {
 
     @Override
     public void write(ByteWriter writer, Float value) {
+        Preconditions.checkArgument(writer != null);
         int bits = Float.floatToIntBits(value);
         bits ^= (bits & SIGN_BIT) != 0 ? NEG_XOR : POS_XOR;
         ByteUtil.writeInt(writer, bits);
@@ -45,6 +49,7 @@ public class FloatType extends NumberType<Float> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(4);
     }
 

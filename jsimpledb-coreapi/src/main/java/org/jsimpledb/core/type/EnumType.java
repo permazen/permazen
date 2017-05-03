@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
@@ -44,6 +45,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
 
     @Override
     public EnumValue read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final int ordinal = UnsignedIntEncoder.read(reader);
         try {
             return this.enumValueList.get(ordinal);
@@ -55,11 +57,13 @@ public class EnumType extends NonNullFieldType<EnumValue> {
 
     @Override
     public void write(ByteWriter writer, EnumValue value) {
+        Preconditions.checkArgument(writer != null);
         UnsignedIntEncoder.write(writer, this.validate(value).getOrdinal());
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         UnsignedIntEncoder.skip(reader);
     }
 

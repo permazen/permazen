@@ -74,6 +74,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     @Override
     public T read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         if (this.inline) {
             if (reader.peek() == NULL_SENTINEL) {
                 reader.skip(1);
@@ -94,6 +95,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     @Override
     public void write(ByteWriter writer, T value) {
+        Preconditions.checkArgument(writer != null);
         if (value == null) {
             writer.writeByte(NULL_SENTINEL);
             return;
@@ -105,6 +107,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         if (this.inline) {
             final int prefix = reader.peek();
             switch (prefix) {

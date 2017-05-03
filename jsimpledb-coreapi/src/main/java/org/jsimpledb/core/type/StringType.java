@@ -36,6 +36,7 @@ public class StringType extends NonNullFieldType<String> {
 
     @Override
     public String read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final StringBuilder buf = new StringBuilder();
         while (true) {
             int ch = UnsignedIntEncoder.read(reader);
@@ -59,6 +60,7 @@ public class StringType extends NonNullFieldType<String> {
 
     @Override
     public void write(ByteWriter writer, String value) {
+        Preconditions.checkArgument(writer != null);
         final int max = value.length();
         for (int i = 0; i < max; i++) {
             final int ch = value.charAt(i);
@@ -78,6 +80,7 @@ public class StringType extends NonNullFieldType<String> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         int value = reader.readByte();
         while (true) {
             switch (value) {

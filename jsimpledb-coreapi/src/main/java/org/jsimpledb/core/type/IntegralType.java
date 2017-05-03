@@ -25,17 +25,20 @@ public abstract class IntegralType<T extends Number> extends NumberType<T> {
 
     @Override
     public T read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         return this.downCast(LongEncoder.read(reader));
     }
 
     @Override
     public void write(ByteWriter writer, T value) {
         Preconditions.checkArgument(value != null, "null value");
+        Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, this.upCast(value));
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }
 

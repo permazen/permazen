@@ -43,6 +43,7 @@ public class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     @Override
     public double[] read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final ArrayList<Double> list = new ArrayList<>();
         while (true) {
             final byte[] next = reader.readBytes(NUM_BYTES);
@@ -56,6 +57,7 @@ public class DoubleArrayType extends Base64ArrayType<double[], Double> {
     @Override
     public void write(ByteWriter writer, double[] array) {
         Preconditions.checkArgument(array != null, "null array");
+        Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             this.doubleType.write(writer, array[i]);
@@ -64,6 +66,7 @@ public class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         while (true) {
             final byte[] next = reader.readBytes(NUM_BYTES);
             if (Arrays.equals(next, END))

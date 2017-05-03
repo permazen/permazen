@@ -24,6 +24,7 @@ public class BooleanType extends PrimitiveType<Boolean> {
 
     @Override
     public Boolean read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final int value = reader.readByte();
         switch (value) {
         case FALSE_VALUE:
@@ -37,12 +38,14 @@ public class BooleanType extends PrimitiveType<Boolean> {
 
     @Override
     public void write(ByteWriter writer, Boolean value) {
+        Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(value != null, "null value");
         writer.writeByte(value ? TRUE_VALUE : FALSE_VALUE);
     }
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         this.read(reader);
     }
 

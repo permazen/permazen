@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import com.google.common.reflect.TypeToken;
 
@@ -36,6 +37,7 @@ public class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 
     @Override
     public boolean[] read(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         final BitSet bits = new BitSet();
         int count = 0;
 loop:   while (true) {
@@ -63,6 +65,7 @@ loop:   while (true) {
 
     @Override
     public void write(ByteWriter writer, boolean[] array) {
+        Preconditions.checkArgument(writer != null);
         int value = 0;
         for (int i = 0; i < array.length; i++) {
             final int phase = i % 4;
@@ -78,6 +81,7 @@ loop:   while (true) {
 
     @Override
     public void skip(ByteReader reader) {
+        Preconditions.checkArgument(reader != null);
         while (true) {
             int value = reader.readByte();
             if ((value & 0xc0) == 0
