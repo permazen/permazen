@@ -440,7 +440,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
 
     @Override
     public int hashCode() {
-        return this.name.hashCode() ^ this.typeToken.hashCode();
+        return this.name.hashCode() ^ this.typeToken.hashCode() ^ Long.hashCode(this.signature);
     }
 
     @Override
@@ -450,7 +450,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final FieldType<?> that = (FieldType<?>)obj;
-        return this.name.equals(that.name) && this.typeToken.equals(that.typeToken);
+        return this.name.equals(that.name) && this.typeToken.equals(that.typeToken) && this.signature == that.signature;
     }
 }
 
