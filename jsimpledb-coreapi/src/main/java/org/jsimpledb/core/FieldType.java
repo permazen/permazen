@@ -123,9 +123,14 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
 // Public methods
 
     /**
-     * Get the name of this type. {@link FieldType} names must be unique in the registry.
+     * Get the name of this type.
+     *
+     * <p>
+     * The combination of {@link FieldType} name and signature must be unique in a {@link FieldTypeRegistry}.
      *
      * @return this type's name
+     * @see org.jsimpledb.annotation.JField#type &#64;JField.type()
+     * @see org.jsimpledb.annotation.JField#typeSignature &#64;JField.typeSignature()
      */
     public String getName() {
         return this.name;
@@ -152,9 +157,11 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      *
      * <p>
      * Note that another option when encodings change is simply to change the {@linkplain #getName name} of the type
-     * (encoding signatures are scoped to a single {@link FieldType} name).
+     * any case, the combination of {@link FieldType} name and signature must be unique in a {@link FieldTypeRegistry}.
      *
      * @return binary encoding signature
+     * @see org.jsimpledb.annotation.JField#type &#64;JField.type()
+     * @see org.jsimpledb.annotation.JField#typeSignature &#64;JField.typeSignature()
      */
     public long getEncodingSignature() {
         return this.signature;
@@ -432,6 +439,10 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      */
     public FieldType<T> genericizeForIndex() {
         return this;
+    }
+
+    FieldTypeRegistry.Key toKey() {
+        return new FieldTypeRegistry.Key(this.name, this.signature);
     }
 
 // Object

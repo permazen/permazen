@@ -87,6 +87,10 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return "";
         }
         @Override
+        public long typeSignature() {
+            return 0;
+        }
+        @Override
         public int storageId() {
             return 0;
         }

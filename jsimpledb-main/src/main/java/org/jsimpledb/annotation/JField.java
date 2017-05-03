@@ -132,11 +132,28 @@ public @interface JField {
      * </pre>
      *
      * @return the name of the field's type
+     * @see org.jsimpledb.core.FieldType
+     * @see org.jsimpledb.core.FieldTypeRegistry#getFieldType(String, long)
      */
     String type() default "";
 
     /**
-     * Storage ID for this field. Value should be positive and unique within the contained class.
+     * Optional override for the {@linkplain org.jsimpledb.core.FieldType#getEncodingSignature encoding signature}
+     * associated with this field's {@link org.jsimpledb.core.FieldType} used to encode/decode field values.
+     *
+     * @return the encoding signature of the field's type
+     * @see org.jsimpledb.core.FieldType
+     * @see org.jsimpledb.core.FieldTypeRegistry#getFieldType(String, long)
+     */
+    long typeSignature() default 0;
+
+    /**
+     * Storage ID for this field.
+     *
+     * <p>
+     * Value should be positive and unique within the contained class.
+     *
+     * <p>
      * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value
      * unless {@link JSimpleClass#autogenFields} is false (in which case an error occurs).
      *

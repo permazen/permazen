@@ -6,7 +6,6 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
 import java.io.File;
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -236,7 +234,7 @@ public class FieldTypeRegistry {
      */
     static final NullSafeType<Pattern> PATTERN = new PatternType();
 
-    private final HashMap<String, FieldType<?>> typesByName = new HashMap<>();
+    private final HashMap<Key, FieldType<?>> types = new HashMap<>();
     private final HashMap<TypeToken<?>, ArrayList<FieldType<?>>> typesByType = new HashMap<>();
 
     /**
@@ -353,43 +351,63 @@ public class FieldTypeRegistry {
     public synchronized boolean add(FieldType<?> type) {
         Preconditions.checkArgument(type != null, "null type");
         Preconditions.checkArgument(!type.name.endsWith(ArrayType.ARRAY_SUFFIX), "illegal array type name `" + type.name + "'");
-        final FieldType<?> other = this.typesByName.get(type.name);
+        final Key key = type.toKey();
+        final FieldType<?> other = this.types.get(key);
         if (other != null) {
             if (other.equals(type))
                 return false;
-            throw new IllegalArgumentException("type name `" + type.name + "' conflicts with existing type " + other);
+            throw new IllegalArgumentException("type name `" + type.name + "'"
+              + (type.signature != 0 ? " and encoding signature " + type.signature : "")
+              +  " conflicts with existing type " + other);
         }
-        this.typesByName.put(type.name, type);
-        final TypeToken<?> typeToken = type.getTypeToken();
-        if (!this.typesByType.containsKey(typeToken))
-            this.typesByType.put(typeToken, Lists.newArrayList(Collections.<FieldType<?>>singleton(type)));
-        else
-            this.typesByType.get(typeToken).add(type);
+        this.types.put(key, type);
+        this.typesByType.computeIfAbsent(type.getTypeToken(), typeToken -> new ArrayList<>(1)).add(type);
         return true;
     }
 
     /**
      * Get the {@link FieldType} with the given name in this registry.
      *
+     * <p>
+     * Convenience method, equivalent to:
+     * <blockquote><code>
+     *  getFieldType(name, 0L)
+     * </code></blockquote>
+     *
      * @param name type name
      * @return type with name {@code name}, or null if not found
      * @throws IllegalArgumentException if {@code name} is null
      */
-    public synchronized FieldType<?> getFieldType(final String name) {
+    public FieldType<?> getFieldType(final String name) {
+        return this.getFieldType(name, 0);
+    }
+
+    /**
+     * Get the {@link FieldType} with the given name and encoding signature in this registry.
+     *
+     * @param name type name
+     * @param signature type {@linkplain FieldType#getEncodingSignature encoding signature}
+     * @return type with name {@code name}, or null if not found
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    public FieldType<?> getFieldType(final String name, long signature) {
 
         // Sanity check
         Preconditions.checkArgument(name != null, "null name");
 
         // Handle array types
         if (name.endsWith(ArrayType.ARRAY_SUFFIX)) {
-            final FieldType<?> elementType = this.getFieldType(name.substring(0, name.length() - ArrayType.ARRAY_SUFFIX.length()));
+            final String elementName = name.substring(0, name.length() - ArrayType.ARRAY_SUFFIX.length());
+            final FieldType<?> elementType = this.getFieldType(elementName, signature);
             if (elementType == null)
                 return null;
             return this.getArrayType(elementType);
         }
 
         // Handle non-array type
-        return this.typesByName.get(name);
+        synchronized (this) {
+            return this.types.get(new Key(name, signature));
+        }
     }
 
     /**
@@ -507,10 +525,10 @@ public class FieldTypeRegistry {
     /**
      * Get all types registered with this instance.
      *
-     * @return mapping from type name to type
+     * @return all registered types
      */
-    public synchronized Map<String, FieldType<?>> getAll() {
-        return new HashMap<>(this.typesByName);
+    public synchronized List<FieldType<?>> getAll() {
+        return new ArrayList<>(this.types.values());
     }
 
     // This method exists solely to bind the generic type parameters
@@ -521,6 +539,34 @@ public class FieldTypeRegistry {
     // This method exists solely to bind the generic type parameters
     private <T> NullSafeType<T> createNullSafeType(FieldType<T> notNullType) {
         return new NullSafeType<>(notNullType);
+    }
+
+// Key
+
+    static class Key {
+
+        private final String name;
+        private final long signature;
+
+        Key(String name, long signature) {
+            this.name = name;
+            this.signature = signature;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final Key that = (Key)obj;
+            return this.name.equals(that.name) && this.signature == that.signature;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.name.hashCode() ^ Long.hashCode(this.signature);
+        }
     }
 }
 

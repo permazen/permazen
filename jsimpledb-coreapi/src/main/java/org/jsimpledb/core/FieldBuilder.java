@@ -52,10 +52,12 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
         final String fieldTypeName = field.getType();
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName);
+        final long signature = field.getEncodingSignature();
+        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName, signature);
         if (fieldType == null) {
-            throw new IllegalArgumentException("unknown field type `" + fieldTypeName
-              + "' for field `" + field.getName() + "' in " + this);
+            throw new IllegalArgumentException("unknown field type `" + fieldTypeName + "'"
+              + (signature != 0 ? " with signature " + signature : "")
+              + " for field `" + field.getName() + "' in " + this);
         }
         return this.buildSimpleField(field, field.getName(), fieldType);
     }
@@ -82,10 +84,7 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
-        if (field.getEncodingSignature() != fieldType.getEncodingSignature()) {
-            throw new IllegalArgumentException("incompatible encoding signatures: field type `" + fieldType.getName()
-              + "' has " + fieldType.getEncodingSignature() + " but schema is using " + field.getEncodingSignature());
-        }
+        assert field.getEncodingSignature() == fieldType.getEncodingSignature();
         return new SimpleField<>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
     }
 
