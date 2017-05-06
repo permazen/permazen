@@ -272,19 +272,19 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
 // Helper methods
 
-    private byte[] queryBytes(StmtType stmtType, byte[]... params) {
+    protected byte[] queryBytes(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
     }
 
-    private KVPair queryKVPair(StmtType stmtType, byte[]... params) {
+    protected KVPair queryKVPair(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(rs.getBytes(1), rs.getBytes(2)) : null, true, params);
     }
 
-    private CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
+    protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, ResultSetIterator::new, false, params);
     }
 
-    private <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
+    protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
         try {
             final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log);
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
@@ -308,7 +308,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
     }
 
-    private void update(StmtType stmtType, byte[]... params) {
+    protected void update(StmtType stmtType, byte[]... params) {
         try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
@@ -469,7 +469,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     /**
      * Used internally to build SQL statements.
      */
-    enum StmtType {
+    protected enum StmtType {
 
         GET {
             @Override
