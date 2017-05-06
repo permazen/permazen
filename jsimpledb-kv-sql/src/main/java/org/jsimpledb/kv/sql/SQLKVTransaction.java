@@ -466,150 +466,153 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
 // StmtType
 
-    abstract static class StmtType {
+    /**
+     * Used internally to build SQL statements.
+     */
+    enum StmtType {
 
-        static final StmtType GET = new StmtType() {
+        GET {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetStatement(), log);
             };
-        };
-        static final StmtType GET_FIRST = new StmtType() {
+        },
+        GET_FIRST {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(false)), log);
             };
-        };
-        static final StmtType GET_LAST = new StmtType() {
+        },
+        GET_LAST {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(true)), log);
             };
-        };
-        static final StmtType GET_AT_LEAST_FORWARD = new StmtType() {
+        },
+        GET_AT_LEAST_FORWARD {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtLeastStatement(false), log);
             };
-        };
-        static final StmtType GET_AT_LEAST_FORWARD_SINGLE = new StmtType() {
+        },
+        GET_AT_LEAST_FORWARD_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(false)), log);
             };
-        };
-        static final StmtType GET_AT_LEAST_REVERSE = new StmtType() {
+        },
+        GET_AT_LEAST_REVERSE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtLeastStatement(true), log);
             };
-        };
-        static final StmtType GET_AT_LEAST_REVERSE_SINGLE = new StmtType() {
+        },
+        GET_AT_LEAST_REVERSE_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(true)), log);
             };
-        };
-        static final StmtType GET_AT_MOST_FORWARD = new StmtType() {
+        },
+        GET_AT_MOST_FORWARD {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtMostStatement(false), log);
             };
-        };
-        static final StmtType GET_AT_MOST_FORWARD_SINGLE = new StmtType() {
+        },
+        GET_AT_MOST_FORWARD_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(false)), log);
             };
-        };
-        static final StmtType GET_AT_MOST_REVERSE = new StmtType() {
+        },
+        GET_AT_MOST_REVERSE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtMostStatement(true), log);
             };
-        };
-        static final StmtType GET_AT_MOST_REVERSE_SINGLE = new StmtType() {
+        },
+        GET_AT_MOST_REVERSE_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(true)), log);
             };
-        };
-        static final StmtType GET_RANGE_FORWARD = new StmtType() {
+        },
+        GET_RANGE_FORWARD {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetRangeStatement(false), log);
             };
-        };
-        static final StmtType GET_RANGE_FORWARD_SINGLE = new StmtType() {
+        },
+        GET_RANGE_FORWARD_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(false)), log);
             };
-        };
-        static final StmtType GET_RANGE_REVERSE = new StmtType() {
+        },
+        GET_RANGE_REVERSE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetRangeStatement(true), log);
             };
-        };
-        static final StmtType GET_RANGE_REVERSE_SINGLE = new StmtType() {
+        },
+        GET_RANGE_REVERSE_SINGLE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(true)), log);
             };
-        };
-        static final StmtType GET_ALL_FORWARD = new StmtType() {
+        },
+        GET_ALL_FORWARD {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAllStatement(false), log);
             };
-        };
-        static final StmtType GET_ALL_REVERSE = new StmtType() {
+        },
+        GET_ALL_REVERSE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAllStatement(true), log);
             };
-        };
-        static final StmtType PUT = new StmtType() {
+        },
+        PUT {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createPutStatement(), log);
             };
-        };
-        static final StmtType REMOVE = new StmtType() {
+        },
+        REMOVE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveStatement(), log);
             };
-        };
-        static final StmtType REMOVE_RANGE = new StmtType() {
+        },
+        REMOVE_RANGE {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveRangeStatement(), log);
             };
-        };
-        static final StmtType REMOVE_AT_LEAST = new StmtType() {
+        },
+        REMOVE_AT_LEAST {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAtLeastStatement(), log);
             };
-        };
-        static final StmtType REMOVE_AT_MOST = new StmtType() {
+        },
+        REMOVE_AT_MOST {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAtMostStatement(), log);
             };
-        };
-        static final StmtType REMOVE_ALL = new StmtType() {
+        },
+        REMOVE_ALL {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+            protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAllStatement(), log);
             };
         };
 
-        abstract PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException;
+        protected abstract PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException;
 
-        PreparedStatement prepare(Connection c, String sql, Logger log) throws SQLException {
+        protected PreparedStatement prepare(Connection c, String sql, Logger log) throws SQLException {
             if (log.isTraceEnabled())
                 log.trace("preparing SQL statement: " + sql);
             return c.prepareStatement(sql);
