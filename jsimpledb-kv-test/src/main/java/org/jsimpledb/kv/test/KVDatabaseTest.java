@@ -218,6 +218,81 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
 
+    private byte[] randomBytes() {
+        final byte[] array = new byte[this.random.nextInt(10)];
+        this.random.nextBytes(array);
+        return array;
+    }
+
+    @Test(dataProvider = "kvdbs")
+    public void testSortOrder(KVDatabase store) throws Exception {
+        final byte[][][] pairs = new byte[][][] {
+            { b(""),        this.randomBytes() },
+            { b("00"),      this.randomBytes() },
+            { b("0000"),    this.randomBytes() },
+            { b("0001"),    this.randomBytes() },
+            { b("000100"),  this.randomBytes() },
+            { b("007f"),    this.randomBytes() },
+            { b("007f00"),  this.randomBytes() },
+            { b("0080"),    this.randomBytes() },
+            { b("008000"),  this.randomBytes() },
+            { b("0081"),    this.randomBytes() },
+            { b("008100"),  this.randomBytes() },
+            { b("00ff"),    this.randomBytes() },
+            { b("00ff00"),  this.randomBytes() },
+            { b("0101"),    this.randomBytes() },
+            { b("0201"),    this.randomBytes() },
+            { b("7e01"),    this.randomBytes() },
+            { b("7f01"),    this.randomBytes() },
+            { b("8001"),    this.randomBytes() },
+            { b("fe01"),    this.randomBytes() },
+            { b("ff01"),    this.randomBytes() },
+        };
+
+        // Debug
+        this.log.info("starting testSortOrder() on " + store);
+
+        // Clear database
+        this.log.info("testSortOrder() on " + store + ": clearing database");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
+        this.log.info("testSortOrder() on " + store + ": done clearing database");
+
+        // Write data
+        this.log.info("testSortOrder() on " + store + ": writing data");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                for (byte[][] pair : pairs)
+                    tx.put(pair[0], pair[1]);
+                return null;
+            }
+        });
+
+        // Verify data
+        this.log.info("testSortOrder() on " + store + ": verifying data order");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
+                    int index = 0;
+                    while (i.hasNext()) {
+                        final byte[][] pair = pairs[index++];
+                        final KVPair kvpair = i.next();
+                        Assert.assertEquals(kvpair.getKey(), pair[0]);
+                        Assert.assertEquals(kvpair.getValue(), pair[1]);
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
     @Test(dataProvider = "kvdbs")
     public void testKeyWatch(KVDatabase store) throws Exception {
 
