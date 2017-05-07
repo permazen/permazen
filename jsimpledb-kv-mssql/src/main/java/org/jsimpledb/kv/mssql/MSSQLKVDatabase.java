@@ -109,7 +109,7 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
         final String sql = ""
           + "if not exists (select * from sys.tables t\n"
           + "   join sys.schemas s on (t.schema_id = s.schema_id)\n"
-          + "   where s.name = " + this.quoteString(this.schema)
+          + "   where s.name = " + this.quoteString(this.schema) + "\n"
           + "     and t.name = " + this.quoteString(this.getTableName()) + ")\n"
           + "create table " + this.getTableName() + " (\n"
           + "  " + this.getKeyColumnName() + " VARBINARY(" + keySize + ") NOT NULL PRIMARY KEY,\n"
