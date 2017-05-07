@@ -28,9 +28,10 @@ public class MySQLKVDatabase extends SQLKVDatabase {
     public static final int INNODB_NORMAL_INDEX_SIZE = 767;
     public static final int INNODB_LARGE_INDEX_SIZE = 3072;
 
-    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds
+    private static final int DEFAULT_LOCK_TIMEOUT = 3;              // 3 seconds
 
     private boolean innodbLargePrefix;
+    private int lockTimeout = DEFAULT_LOCK_TIMEOUT;
 
     /**
      * Configure the use of InnoDB large prefixes.
@@ -61,6 +62,19 @@ public class MySQLKVDatabase extends SQLKVDatabase {
         this.innodbLargePrefix = innodbLargePrefix;
     }
 
+    /**
+     * Get the lock timeout with which to configure new transactions.
+     *
+     * <p>
+     * Default is {@value #DEFAULT_LOCK_TIMEOUT}.
+     */
+    public int getLockTimeout() {
+        return this.lockTimeout;
+    }
+    public void setLockTimeout(int lockTimeout) {
+        this.lockTimeout = lockTimeout;
+    }
+
     @Override
     protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
         final int indexSize = this.innodbLargePrefix ? INNODB_LARGE_INDEX_SIZE : INNODB_NORMAL_INDEX_SIZE;
@@ -79,7 +93,7 @@ public class MySQLKVDatabase extends SQLKVDatabase {
     @Override
     protected void configureConnection(Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
-            statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);
+            statement.execute("SET innodb_lock_wait_timeout = " + this.lockTimeout);
             statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long
         }
     }
