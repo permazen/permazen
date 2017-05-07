@@ -26,6 +26,7 @@ public class MSSQLKVDatabaseTest extends KVDatabaseTest {
             dataSource.setURL(mssqlURL);
             this.mssqlKV = new MSSQLKVDatabase();
             this.mssqlKV.setDataSource(dataSource);
+            this.mssqlKV.setIsolationLevel(IsolationLevel.SERIALIZABLE);
             this.mssqlKV.setLockTimeout(100);
         }
     }
