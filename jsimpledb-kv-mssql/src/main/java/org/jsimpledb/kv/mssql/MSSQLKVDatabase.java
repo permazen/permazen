@@ -25,7 +25,6 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
     public static final String DEFAULT_SCHEMA = "dbo";
     public static final boolean DEFAULT_LARGE_KEYS = false;
     public static final boolean DEFAULT_LARGE_VALUES = true;
-    public static final Isolation DEFAULT_ISOLATION = Isolation.REPEATABLE_READ;
     public static final int DEFAULT_LOCK_TIMEOUT = 3000;
 
     private static final int MAX_SMALL_VARBINARY = 8000;
@@ -191,24 +190,5 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
             return super.wrapException(tx, e);
         }
     }
-
-// Isolation
-
-    /**
-     * Isolation levels for {@link MSSQLKVDatabase}.
-     *
-     * @see MSSQLKVDatabase#setIsolationLevel
-     */
-    public enum Isolation {
-        READ_UNCOMMITTED,
-        READ_COMMITTED,
-        REPEATABLE_READ,
-        SNAPSHOT,
-        SERIALIZABLE;
-
-        public String toSqlCommand() {
-            return "SET TRANSACTION ISOLATION LEVEL " + this.name().replace('_', ' ');
-        }
-    };
 }
 
