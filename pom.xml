@@ -27,6 +27,7 @@
         <module>jsimpledb-kv-cockroach</module>
         <module>jsimpledb-kv-fdb</module>
         <module>jsimpledb-kv-leveldb</module>
+        <module>jsimpledb-kv-mssql</module>
         <module>jsimpledb-kv-mysql</module>
         <module>jsimpledb-kv-raft</module>
         <module>jsimpledb-kv-rocksdb</module>
@@ -97,6 +98,7 @@
         <jline.version>2.14.2</jline.version>
         <leveldb.version>0.9</leveldb.version>
         <log4j.version>1.2.17</log4j.version>
+        <mssql.version>6.1.0.jre8</mssql.version>
         <mysql.version>5.1.40</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.3.9</plugin-api.version>
@@ -379,6 +381,11 @@
                 <artifactId>google-cloud-spanner</artifactId>
                 <version>${google-cloud-java.version}${google-cloud-java.suffix}</version>
             </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${mssql.version}</version>
+            </dependency>
 
             <!-- TestNG -->
             <dependency>
@@ -451,6 +458,11 @@
             <dependency>
                 <groupId>org.jsimpledb</groupId>
                 <artifactId>jsimpledb-kv-leveldb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-mssql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -690,6 +702,11 @@
 
                         <!-- kv-leveldb -->
                         <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
+
+                        <!-- kv-mssql -->
+                        <!--
+                        <mssqlURL>jdbc:sqlserver://127.0.01:1433;database=jsimpledb;user=SA;password=foobar123!</mssqlURL>
+                        -->
 
                         <!-- kv-mysql -->
                         <!--

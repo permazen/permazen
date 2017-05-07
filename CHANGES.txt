@@ -4,6 +4,7 @@ Version 3.5.0
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Formalized layout definitions and allocated a user-defined meta-data area
     - Allow multiple FieldTypes with the same name if different encoding signatures
+    - Added Microsoft SQL Server key/value database adapter
     - Add new @JField annotation property typeSignature()
     - Moved core API field type classes into sub-package
     - Updated some dependencies
