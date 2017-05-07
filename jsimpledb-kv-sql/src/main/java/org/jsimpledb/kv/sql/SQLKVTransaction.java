@@ -93,7 +93,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(key != null, "null key");
-        return this.queryBytes(StmtType.GET, key);
+        return this.queryBytes(StmtType.GET, this.encodeKey(key));
     }
 
     private synchronized KVPair getAtLeastSQL(byte[] minKey, byte[] maxKey) {
@@ -101,10 +101,10 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             throw new StaleTransactionException(this);
         return minKey != null && minKey.length > 0 ?
           (maxKey != null ?
-           this.queryKVPair(StmtType.GET_RANGE_FORWARD_SINGLE, minKey, maxKey) :
-           this.queryKVPair(StmtType.GET_AT_LEAST_FORWARD_SINGLE, minKey)) :
+           this.queryKVPair(StmtType.GET_RANGE_FORWARD_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
+           this.queryKVPair(StmtType.GET_AT_LEAST_FORWARD_SINGLE, this.encodeKey(minKey))) :
           (maxKey != null ?
-           this.queryKVPair(StmtType.GET_AT_MOST_FORWARD_SINGLE, maxKey) :
+           this.queryKVPair(StmtType.GET_AT_MOST_FORWARD_SINGLE, this.encodeKey(maxKey)) :
            this.queryKVPair(StmtType.GET_FIRST));
     }
 
@@ -113,10 +113,10 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             throw new StaleTransactionException(this);
         return maxKey != null ?
           (minKey != null && minKey.length > 0 ?
-           this.queryKVPair(StmtType.GET_RANGE_REVERSE_SINGLE, minKey, maxKey) :
-           this.queryKVPair(StmtType.GET_AT_MOST_REVERSE_SINGLE, maxKey)) :
+           this.queryKVPair(StmtType.GET_RANGE_REVERSE_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
+           this.queryKVPair(StmtType.GET_AT_MOST_REVERSE_SINGLE, this.encodeKey(maxKey))) :
           (minKey != null && minKey.length > 0 ?
-           this.queryKVPair(StmtType.GET_AT_LEAST_REVERSE_SINGLE, minKey) :
+           this.queryKVPair(StmtType.GET_AT_LEAST_REVERSE_SINGLE, this.encodeKey(minKey)) :
            this.queryKVPair(StmtType.GET_LAST));
     }
 
@@ -127,12 +127,17 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             minKey = null;
         if (minKey == null && maxKey == null)
             return this.queryIterator(reverse ? StmtType.GET_ALL_REVERSE : StmtType.GET_ALL_FORWARD);
-        if (minKey == null)
-            return this.queryIterator(reverse ? StmtType.GET_AT_MOST_REVERSE : StmtType.GET_AT_MOST_FORWARD, maxKey);
-        if (maxKey == null)
-            return this.queryIterator(reverse ? StmtType.GET_AT_LEAST_REVERSE : StmtType.GET_AT_LEAST_FORWARD, minKey);
-        else
-            return this.queryIterator(reverse ? StmtType.GET_RANGE_REVERSE : StmtType.GET_RANGE_FORWARD, minKey, maxKey);
+        if (minKey == null) {
+            return this.queryIterator(reverse ?
+              StmtType.GET_AT_MOST_REVERSE : StmtType.GET_AT_MOST_FORWARD, this.encodeKey(maxKey));
+        }
+        if (maxKey == null) {
+            return this.queryIterator(reverse ?
+              StmtType.GET_AT_LEAST_REVERSE : StmtType.GET_AT_LEAST_FORWARD, this.encodeKey(minKey));
+        } else {
+            return this.queryIterator(reverse ?
+              StmtType.GET_RANGE_REVERSE : StmtType.GET_RANGE_FORWARD, this.encodeKey(minKey), this.encodeKey(maxKey));
+        }
     }
 
     private synchronized void putSQL(byte[] key, byte[] value) {
@@ -140,14 +145,14 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         Preconditions.checkArgument(value != null, "null value");
         if (this.stale)
             throw new StaleTransactionException(this);
-        this.update(StmtType.PUT, key, value, value);
+        this.update(StmtType.PUT, this.encodeKey(key), value, value);
     }
 
     private synchronized void removeSQL(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.stale)
             throw new StaleTransactionException(this);
-        this.update(StmtType.REMOVE, key);
+        this.update(StmtType.REMOVE, this.encodeKey(key));
     }
 
     private synchronized void removeRangeSQL(byte[] minKey, byte[] maxKey) {
@@ -158,11 +163,11 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         if (minKey == null && maxKey == null)
             this.update(StmtType.REMOVE_ALL);
         else if (minKey == null)
-            this.update(StmtType.REMOVE_AT_MOST, maxKey);
+            this.update(StmtType.REMOVE_AT_MOST, this.encodeKey(maxKey));
         else if (maxKey == null)
-            this.update(StmtType.REMOVE_AT_LEAST, minKey);
+            this.update(StmtType.REMOVE_AT_LEAST, this.encodeKey(minKey));
         else
-            this.update(StmtType.REMOVE_RANGE, minKey, maxKey);
+            this.update(StmtType.REMOVE_RANGE, this.encodeKey(minKey), this.encodeKey(maxKey));
     }
 
     @Override
@@ -277,7 +282,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     protected KVPair queryKVPair(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(rs.getBytes(1), rs.getBytes(2)) : null, true, params);
+        return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(rs.getBytes(1)), rs.getBytes(2)) : null,
+          true, params);
     }
 
     protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
@@ -323,6 +329,35 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         } catch (SQLException e) {
             throw this.handleException(e);
         }
+    }
+
+    /**
+     * Encode the given key for the underlying database key column.
+     *
+     * <p>
+     * The implementation in {@link SQLKVTransaction} just returns {@code key}.
+     *
+     * @param key key
+     * @return database value for key column
+     * @see #decodeKey decodeKey()
+     */
+    protected byte[] encodeKey(byte[] key) {
+        return key;
+    }
+
+    /**
+     * Decode the given database key value encoded by {@link #encodeKey encodeKey()}.
+     *
+     * <p>
+     * The implementation in {@link SQLKVTransaction} just returns {@code dbkey}.
+     *
+     * @param dbkey database value for key column
+     * @return key
+     * @see #encodeKey encodeKey()
+     */
+
+    protected byte[] decodeKey(byte[] dbkey) {
+        return dbkey;
     }
 
 // SQLView
@@ -415,7 +450,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             final byte[] key;
             final byte[] value;
             try {
-                key = this.resultSet.getBytes(1);
+                key = SQLKVTransaction.this.decodeKey(this.resultSet.getBytes(1));
                 value = this.resultSet.getBytes(2);
             } catch (SQLException e) {
                 throw SQLKVTransaction.this.handleException(e);
