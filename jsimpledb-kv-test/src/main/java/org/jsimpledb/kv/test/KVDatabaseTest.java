@@ -218,35 +218,37 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
 
-    private byte[] randomBytes() {
-        final byte[] array = new byte[this.random.nextInt(10)];
+    private byte[] randomBytes(int index) {
+        final byte[] array = new byte[this.random.nextInt(10) + 1];
         this.random.nextBytes(array);
+        array[0] = (byte)index;
         return array;
     }
 
     @Test(dataProvider = "kvdbs")
     public void testSortOrder(KVDatabase store) throws Exception {
+        int index = 0;
         final byte[][][] pairs = new byte[][][] {
-            { b(""),        this.randomBytes() },
-            { b("00"),      this.randomBytes() },
-            { b("0000"),    this.randomBytes() },
-            { b("0001"),    this.randomBytes() },
-            { b("000100"),  this.randomBytes() },
-            { b("007f"),    this.randomBytes() },
-            { b("007f00"),  this.randomBytes() },
-            { b("0080"),    this.randomBytes() },
-            { b("008000"),  this.randomBytes() },
-            { b("0081"),    this.randomBytes() },
-            { b("008100"),  this.randomBytes() },
-            { b("00ff"),    this.randomBytes() },
-            { b("00ff00"),  this.randomBytes() },
-            { b("0101"),    this.randomBytes() },
-            { b("0201"),    this.randomBytes() },
-            { b("7e01"),    this.randomBytes() },
-            { b("7f01"),    this.randomBytes() },
-            { b("8001"),    this.randomBytes() },
-            { b("fe01"),    this.randomBytes() },
-            { b("ff01"),    this.randomBytes() },
+            { b(""),        this.randomBytes(index++) },
+            { b("00"),      this.randomBytes(index++) },
+            { b("0000"),    this.randomBytes(index++) },
+            { b("0001"),    this.randomBytes(index++) },
+            { b("000100"),  this.randomBytes(index++) },
+            { b("007f"),    this.randomBytes(index++) },
+            { b("007f00"),  this.randomBytes(index++) },
+            { b("0080"),    this.randomBytes(index++) },
+            { b("008000"),  this.randomBytes(index++) },
+            { b("0081"),    this.randomBytes(index++) },
+            { b("008100"),  this.randomBytes(index++) },
+            { b("00ff"),    this.randomBytes(index++) },
+            { b("00ff00"),  this.randomBytes(index++) },
+            { b("0101"),    this.randomBytes(index++) },
+            { b("0201"),    this.randomBytes(index++) },
+            { b("7e01"),    this.randomBytes(index++) },
+            { b("7f01"),    this.randomBytes(index++) },
+            { b("8001"),    this.randomBytes(index++) },
+            { b("fe01"),    this.randomBytes(index++) },
+            { b("ff01"),    this.randomBytes(index++) },
         };
 
         // Debug
@@ -282,10 +284,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                     int index = 0;
                     while (i.hasNext()) {
-                        final byte[][] pair = pairs[index++];
+                        final byte[][] pair = pairs[index];
                         final KVPair kvpair = i.next();
-                        Assert.assertEquals(kvpair.getKey(), pair[0]);
-                        Assert.assertEquals(kvpair.getValue(), pair[1]);
+                        Assert.assertTrue(Arrays.equals(kvpair.getKey(), pair[0]) && Arrays.equals(kvpair.getValue(), pair[1]),
+                          String.format("expected pair { %s, %s } but got { %s, %s } at index %d",
+                           ByteUtil.toString(pair[0]), ByteUtil.toString(pair[1]),
+                           ByteUtil.toString(kvpair.getKey()), ByteUtil.toString(kvpair.getValue()),
+                           index));
+                        index++;
                     }
                 }
                 return null;
