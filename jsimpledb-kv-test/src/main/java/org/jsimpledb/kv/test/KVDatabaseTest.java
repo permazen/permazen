@@ -656,13 +656,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Populate database with some data
         final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
-        final RandomTask populateTask = new RandomTask(99, store, committedData, this.random.nextLong());
+        final RandomTask populateTask = new RandomTask(-1, store, committedData, this.random.nextLong());
+        this.log.info("testMultipleThreadsTransaction() populating database with random data");
         populateTask.run();
         Throwable fail = populateTask.getFail();
         if (fail != null)
             throw new Exception("populate task failed: >>>" + this.show(fail).trim() + "<<<");
 
         // Create new transaction and blast away at it
+        this.log.info("testMultipleThreadsTransaction() starting threads");
         this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
