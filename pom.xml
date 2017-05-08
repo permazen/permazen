@@ -388,7 +388,7 @@
                 <version>${mssql.version}</version>
             </dependency>
 
-            <!-- SQL Connetion Pooling -->
+            <!-- SQL Connection Pooling -->
             <dependency>
                 <groupId>com.jolbox</groupId>
                 <artifactId>bonecp</artifactId>
