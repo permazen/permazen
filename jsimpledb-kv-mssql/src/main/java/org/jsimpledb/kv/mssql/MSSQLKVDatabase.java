@@ -19,6 +19,11 @@ import org.jsimpledb.kv.sql.SQLKVTransaction;
  *
  * <p>
  * Automatically creates the key/value table on startup if it doesn't already exist.
+ *
+ * <p>
+ * Note: Because <a href="http://stackoverflow.com/questions/26255195/how-does-varbinary-data-sorted/26257328">SQL Server
+ * ignores trailing zero bytes when comparing {@code VARBINARY} values</a>, we are forced to use "byte stuffing"
+ * to encode keys, whereby {@code 0x00} and {@code 0x01} are replaced by {@code 0x0101} and {@code 0x0102}, respectively.
  */
 public class MSSQLKVDatabase extends SQLKVDatabase {
 
