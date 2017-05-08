@@ -5,11 +5,13 @@
 
 package org.jsimpledb.kv.mssql;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import com.jolbox.bonecp.BoneCPDataSource;
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
 import org.jsimpledb.kv.test.KVDatabaseTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -17,18 +19,27 @@ import org.testng.annotations.Parameters;
 public class MSSQLKVDatabaseTest extends KVDatabaseTest {
 
     private MSSQLKVDatabase mssqlKV;
+    private BoneCPDataSource dataSource;
 
     @BeforeClass(groups = "configure")
     @Parameters("mssqlURL")
     public void setMSSQLURL(@Optional String mssqlURL) {
         if (mssqlURL != null) {
-            final SQLServerDataSource dataSource = new SQLServerDataSource();
-            dataSource.setURL(mssqlURL);
+            this.dataSource = new BoneCPDataSource();
+            this.dataSource.setDriverClass(SQLServerDriver.class.getName());
+            this.dataSource.setJdbcUrl(mssqlURL);
+            this.dataSource.setStatementsCacheSize(100);
             this.mssqlKV = new MSSQLKVDatabase();
-            this.mssqlKV.setDataSource(dataSource);
+            this.mssqlKV.setDataSource(this.dataSource);
             this.mssqlKV.setIsolationLevel(IsolationLevel.SERIALIZABLE);
             this.mssqlKV.setLockTimeout(100);
         }
+    }
+
+    @AfterClass
+    public void cleanup() {
+        if (this.dataSource != null)
+            this.dataSource.close();
     }
 
     @Override
@@ -39,6 +50,26 @@ public class MSSQLKVDatabaseTest extends KVDatabaseTest {
     @Override
     protected KVDatabase getKVDatabase() {
         return this.mssqlKV;
+    }
+
+    @Override
+    protected int getParallelTransactionLoopCount() {
+        return 13;
+    }
+
+    @Override
+    protected int getParallelTransactionTaskCount() {
+        return 13;
+    }
+
+    @Override
+    protected int getSequentialTransactionLoopCount() {
+        return 13;
+    }
+
+    @Override
+    protected int getRandomTaskMaxIterations() {
+        return 50;
     }
 }
 
