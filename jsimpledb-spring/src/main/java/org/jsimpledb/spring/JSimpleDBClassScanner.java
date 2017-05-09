@@ -36,12 +36,12 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      * Determine if the given bean definition is a possible search candidate.
      *
      * <p>
-     * This method is overridden in {@link JSimpleDBClassScanner} to allow abstract classes.
+     * This method is overridden in {@link JSimpleDBClassScanner} to allow abstract classes and interfaces.
      */
     @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
         final ClassMetadata metadata = beanDefinition.getMetadata();
-        return !metadata.isInterface() && metadata.isIndependent();
+        return metadata.isIndependent();
     }
 }
 

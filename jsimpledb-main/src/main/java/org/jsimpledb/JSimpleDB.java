@@ -230,9 +230,9 @@ public class JSimpleDB {
                     continue;
 
                 // Sanity check type
-                if (type.isPrimitive() || type.isInterface() || type.isArray()) {
+                if (type.isPrimitive() || type.isArray()) {
                     throw new IllegalArgumentException("illegal type " + type + " for @"
-                      + JSimpleClass.class.getSimpleName() + " annotation: not a normal class");
+                      + JSimpleClass.class.getSimpleName() + " annotation: not a normal class or interface");
                 }
 
                 // Add class

@@ -187,14 +187,22 @@ class ClassGenerator<T> {
         this.modelClass = modelClass;
 
         // Use superclass constructor taking either (a) (JTransaction tx, ObjId id) or (b) no parameters
-        try {
-            this.superclassConstructor = this.modelClass.getDeclaredConstructor(JTransaction.class, ObjId.class);
-        } catch (NoSuchMethodException e) {
+        if (this.modelClass.isInterface()) {
             try {
-                this.superclassConstructor = this.modelClass.getDeclaredConstructor();
-            } catch (NoSuchMethodException e2) {
-                throw new IllegalArgumentException("no suitable constructor found in model class " + this.modelClass.getName()
-                  + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)");
+                this.superclassConstructor = Object.class.getConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("unexpected exception", e);
+            }
+        } else {
+            try {
+                this.superclassConstructor = this.modelClass.getDeclaredConstructor(JTransaction.class, ObjId.class);
+            } catch (NoSuchMethodException e) {
+                try {
+                    this.superclassConstructor = this.modelClass.getDeclaredConstructor();
+                } catch (NoSuchMethodException e2) {
+                    throw new IllegalArgumentException("no suitable constructor found in model class " + this.modelClass.getName()
+                      + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)");
+                }
             }
         }
 
@@ -238,14 +246,14 @@ class ClassGenerator<T> {
      * Get class internal name. Note: this name contains slashes, not dots.
      */
     public String getClassName() {
-        return this.getSuperclassName() + JSimpleDB.GENERATED_CLASS_NAME_SUFFIX;
+        return Type.getInternalName(this.modelClass) + JSimpleDB.GENERATED_CLASS_NAME_SUFFIX;
     }
 
     /**
      * Get superclass (i.e., original Java model class) internal name.
      */
     public String getSuperclassName() {
-        return Type.getInternalName(this.modelClass);
+        return Type.getInternalName(this.modelClass.isInterface() ? Object.class : this.modelClass);
     }
 
 // Database class
@@ -258,8 +266,11 @@ class ClassGenerator<T> {
         // Generate class
         this.log.debug("begin generating class " + this.getClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        final String[] interfaces = this.modelClass.isInterface() ?
+          new String[] { Type.getInternalName(this.modelClass), Type.getInternalName(JObject.class) } :
+          new String[] { Type.getInternalName(JObject.class) };
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
-          this.getClassName(), null, this.getSuperclassName(), new String[] { Type.getInternalName(JObject.class) });
+          this.getClassName(), null, this.getSuperclassName(), interfaces);
         cw.visitSource(GEN_SOURCE, null);
         this.outputFields(cw);
         this.outputConstructors(cw);

@@ -48,20 +48,46 @@ public class InterfaceTest extends TestSupport {
         }
     }
 
-// Model Classes
+    @Test
+    public void testInterfaceModelClasses() {
 
-    @JSimpleClass(storageId = 100)
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Human fred = jtx.create(Human.class);
+
+            final NutriaRat poncho = jtx.create(NutriaRat.class);
+            final NutriaRat lefty = jtx.create(NutriaRat.class);
+
+            poncho.setFriend(lefty);
+            poncho.setOwner(fred);
+
+            lefty.setFriend(poncho);
+            lefty.setOwner(fred);
+
+            jtx.create(ContainerClass.OwnedPet.class);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+// Model Classes #1
+
+    @JSimpleClass
     public abstract static class Person implements JObject {
 
-        @JField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JSetField(storageId = 120, element = @JField(storageId = 121, indexed = true))
+        @JSetField(element = @JField(indexed = true))
         public abstract Set<Pet> getPets();
 
         public static Index<Dog, Pet> queryEnemies() {
@@ -73,14 +99,13 @@ public class InterfaceTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @JSimpleClass
     public abstract static class Dog implements Pet {
     }
 
-    @JSimpleClass(storageId = 300)
+    @JSimpleClass
     public abstract static class Cat implements Pet {
 
-        @JField(storageId = 301)
         public abstract Dog getEnemy();
         public abstract void setEnemy(Dog enemy);
 
@@ -91,9 +116,39 @@ public class InterfaceTest extends TestSupport {
 
     public interface Pet extends JObject {
 
-        @JField(storageId = 201)
         Pet getFriend();
         void setFriend(Pet pet);
+    }
+
+// Model Classes #2
+
+    @JSimpleClass
+    public interface Animal {
+        public int getNumLegs();
+        public void setNumLegs(int numLegs);
+    }
+
+    public interface CanReason {
+        public float getIQ();
+        public void setIQ(float iq);
+    }
+
+    public static class ContainerClass {
+
+        @JSimpleClass
+        public interface OwnedPet extends Pet {
+
+            Human getOwner();
+            void setOwner(Human owner);
+        }
+    }
+
+    @JSimpleClass
+    public interface Human extends Animal, CanReason {
+    }
+
+    @JSimpleClass
+    public abstract static class NutriaRat implements Animal, ContainerClass.OwnedPet {
     }
 }
 
