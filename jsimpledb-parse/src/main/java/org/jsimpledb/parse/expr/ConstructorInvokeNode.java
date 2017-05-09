@@ -15,7 +15,7 @@ import java.util.List;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * {@link Node} that invokes a Java method when evaluated.
+ * {@link Node} that invokes a Java constructor when evaluated.
  */
 public class ConstructorInvokeNode extends AbstractInvokeNode<Constructor<?>> {
 
