@@ -3,6 +3,7 @@ Version 3.5.0
     - Improvements to the KVStore interface; getRange() now returns CloseableIterator
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Formalized layout definitions and allocated a user-defined meta-data area
+    - Verify model class constructors earlier, and allow (JTransaction, ObjId) params
     - Allow multiple FieldTypes with the same name if different encoding signatures
     - Added Microsoft SQL Server key/value database adapter
     - Add new @JField annotation property typeSignature()

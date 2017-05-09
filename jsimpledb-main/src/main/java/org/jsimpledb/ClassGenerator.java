@@ -162,6 +162,7 @@ class ClassGenerator<T> {
 
     private Class<? extends T> subclass;
     private Constructor<? extends T> constructor;
+    private Constructor<? super T> superclassConstructor;
 
     /**
      * Constructor for application classes.
@@ -184,6 +185,24 @@ class ClassGenerator<T> {
         this.jdb = jdb;
         this.jclass = jclass;
         this.modelClass = modelClass;
+
+        // Use superclass constructor taking either (a) (JTransaction tx, ObjId id) or (b) no parameters
+        try {
+            this.superclassConstructor = this.modelClass.getDeclaredConstructor(JTransaction.class, ObjId.class);
+        } catch (NoSuchMethodException e) {
+            try {
+                this.superclassConstructor = this.modelClass.getDeclaredConstructor();
+            } catch (NoSuchMethodException e2) {
+                throw new IllegalArgumentException("no suitable constructor found in model class " + this.modelClass.getName()
+                  + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)");
+            }
+        }
+
+        // Verify superclass constructor is accessible
+        if ((this.superclassConstructor.getModifiers() & (Modifier.PUBLIC | Modifier.PROTECTED)) == 0) {
+            throw new IllegalArgumentException("model class " + this.modelClass.getName() + " constructor "
+              + this.superclassConstructor + " is inaccessible; must be either public or protected");
+        }
     }
 
     /**
@@ -301,7 +320,11 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 2);                                                              // this.id = id
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V", false);    // super()
+        if (this.superclassConstructor.getParameterCount() > 0) {
+            mv.visitVarInsn(Opcodes.ALOAD, 1);
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+        }
+        this.emitInvoke(mv, this.superclassConstructor);                                                // super(...)
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -555,6 +578,14 @@ class ClassGenerator<T> {
      */
     void emitInvoke(MethodVisitor mv, String className, Method method) {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, method.getName(), Type.getMethodDescriptor(method), false);
+    }
+
+    /**
+     * Emit code to INVOKESPECIAL a constructor using the specified class. This assumes the stack is loaded.
+     */
+    void emitInvoke(MethodVisitor mv, Constructor<?> constructor) {
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(constructor.getDeclaringClass()),
+          "<init>", Type.getConstructorDescriptor(constructor), false);
     }
 
     /**

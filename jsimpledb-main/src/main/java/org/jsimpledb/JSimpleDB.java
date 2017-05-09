@@ -165,6 +165,7 @@ public class JSimpleDB {
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
      * @throws IllegalArgumentException if {@code classes} is null
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
+     * @throws IllegalArgumentException if {@code classes} contains a class with no suitable subclass constructor
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     public JSimpleDB(Iterable<? extends Class<?>> classes) {
