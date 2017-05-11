@@ -44,8 +44,8 @@ class ClassGenerator<T> {
     // Names of generated fields
     static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
-    static final String JFIELD_FIELD_PREFIX = "$f";
-    static final String CACHED_FIELD_PREFIX = "$fc";
+    static final String CACHED_VALUE_FIELD_PREFIX = "$cached_";
+    static final String CACHED_FLAG_FIELD_PREFIX = "$cacheflags";
     static final String ENUM_CONVERTER_FIELD_PREFIX = "$ec";
 
     // JObject method handles
@@ -652,7 +652,7 @@ class ClassGenerator<T> {
 
     private String getCachedFlagFieldName(int simpleFieldIndex) {
         Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < this.jclass.simpleFieldStorageIds.length);
-        return ClassGenerator.CACHED_FIELD_PREFIX + (simpleFieldIndex / 32);
+        return ClassGenerator.CACHED_FLAG_FIELD_PREFIX + (simpleFieldIndex / 32);
     }
 
     private int getCachedFlagIndex(JSimpleField jfield) {

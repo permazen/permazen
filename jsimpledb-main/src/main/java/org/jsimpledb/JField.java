@@ -185,7 +185,7 @@ public abstract class JField extends JSchemaObject {
     }
 
     String getCachedValueFieldName() {
-        return ClassGenerator.JFIELD_FIELD_PREFIX + this.storageId;
+        return ClassGenerator.CACHED_VALUE_FIELD_PREFIX + this.name;
     }
 
     Class<?> getCachedValueFieldType() {
