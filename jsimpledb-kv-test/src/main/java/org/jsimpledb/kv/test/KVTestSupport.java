@@ -11,11 +11,11 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.test.TestSupport;
@@ -49,20 +49,33 @@ public abstract class KVTestSupport extends TestSupport {
      * @return exception thrown during query, or null if successful
      */
     protected Exception showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
+        final String xml;
         try {
-            final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            final XMLStreamWriter writer = new IndentXMLStreamWriter(
-              XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
-            new XMLSerializer(tx).write(writer, minKey, maxKey);
-            this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
-            return null;
-        } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            xml = this.toXmlString(tx, minKey, maxKey);
         } catch (Exception e) {
             this.log.info("{} - oops, got " + e, label);
             if (this.log.isTraceEnabled())
                 this.log.trace(label + " exception trace:", e);
             return e;
+        }
+        this.log.info("{}\n{}", label, xml);
+        return null;
+    }
+
+    protected String toXmlString(KVStore kv) {
+        return this.toXmlString(kv, null, null);
+    }
+
+    protected String toXmlString(KVStore kv, byte[] minKey, byte[] maxKey) {
+        try (final ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
+            final XMLStreamWriter writer = new IndentXMLStreamWriter(
+              XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
+            new XMLSerializer(kv).write(writer, minKey, maxKey);
+            return new String(buf.toByteArray(), Charset.forName("UTF-8")).replaceAll("^<\\?xml [^>]+>\\s+", "").trim();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
