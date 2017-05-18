@@ -172,6 +172,21 @@ public final class Layout {
     }
 
     /**
+     * Get the key corresponding to the specified schema version.
+     *
+     * @param version schema version
+     * @return schema key
+     * @throws IllegalArgumentException if {@code version} is zero or negative
+     */
+    public static byte[] buildSchemaKey(int version) {
+        Preconditions.checkArgument(version > 0, "version <= 0");
+        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + UnsignedIntEncoder.encodeLength(version));
+        writer.write(SCHEMA_KEY_PREFIX);
+        UnsignedIntEncoder.write(writer, version);
+        return writer.getBytes();
+    }
+
+    /**
      * Get the common prefix of all object version index entries.
      *
      * @return object version index key prefix
