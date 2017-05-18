@@ -7,13 +7,16 @@ package org.jsimpledb.test;
 
 import com.google.common.collect.Sets;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +41,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.dellroad.stuff.java.ProcessRunner;
 import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,9 +288,13 @@ public abstract class TestSupport {
     }
 
     protected byte[] randomBytes(boolean allowNull) {
+        return this.randomBytes(0, 6, allowNull);
+    }
+
+    protected byte[] randomBytes(int minLength, int maxLength, boolean allowNull) {
         if (allowNull && this.random.nextFloat() < 0.1f)
             return null;
-        final byte[] bytes = new byte[this.random.nextInt(6)];
+        final byte[] bytes = new byte[minLength + this.random.nextInt(maxLength - minLength)];
         this.random.nextBytes(bytes);
         return bytes;
     }
@@ -304,6 +312,54 @@ public abstract class TestSupport {
 
     protected static String s(byte[] b) {
         return b == null ? "null" : ByteArrayEncoder.encode(b);
+    }
+
+    /**
+     * Run {@code diff(1)} on two strings.
+     *
+     * @return the diff, or null if strings are the same
+     */
+    protected String diff(String s1, String s2) {
+        if (s1.equals(s2))
+            return null;
+        File[] files = new File[2];
+        try {
+
+            // Write strings to temp files
+            for (int i = 0; i < files.length; i++) {
+                files[i] = File.createTempFile("diff.", ".txt");
+                try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(files[i]))) {
+                    output.write((i == 0 ? s1 : s2).getBytes(StandardCharsets.UTF_8));
+                }
+            }
+
+            // Run diff(1) command
+            final ProcessRunner runner = new ProcessRunner(Runtime.getRuntime().exec(new String[] {
+              "diff", "-U", "5", "--strip-trailing-cr", "--text", "--expand-tabs", files[0].toString(), files[1].toString()
+            }));
+            switch (runner.run()) {
+            case 0:
+            case 1:
+                break;
+            default:
+                throw new RuntimeException("diff(1) error: " + new String(runner.getStandardError(), StandardCharsets.UTF_8));
+            }
+
+            // Skip first two lines (filenames)
+            String diff = new String(runner.getStandardOutput(), StandardCharsets.UTF_8);
+            for (int i = 0; i < 2; i++)
+                diff = diff.substring(diff.indexOf('\n') + 1);
+
+            // Done
+            return diff;
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException("diff(1) error", e);
+        } finally {
+            for (File file : files) {               // delete temp files
+                if (file != null)
+                    file.delete();
+            }
+        }
     }
 }
 
