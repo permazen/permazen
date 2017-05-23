@@ -97,7 +97,7 @@ import org.slf4j.LoggerFactory;
  *      <ul>
  *      <li>Transactions execute locally until commit time, using a {@link org.jsimpledb.kv.mvcc.MutableView} to collect mutations.
  *          The {@link org.jsimpledb.kv.mvcc.MutableView} is based on the local node's last unapplied log entry,
- *          if any (whether committed or not), or else directly the underlying key/value store; this defines
+ *          if any (whether committed or not), or else directly on the underlying key/value store; this defines
  *          the <i>base term and index</i> for the transaction.</li>
  *      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
  *          compacted key/value store, transaction performance degrades as the number of unapplied log
@@ -106,13 +106,13 @@ import org.slf4j.LoggerFactory;
  *          as well as their {@linkplain #setMaxUnappliedLogMemory total memory usage} are enforced.</li>
  *      <li>On commit, the transaction's {@link org.jsimpledb.kv.mvcc.Reads}, {@link org.jsimpledb.kv.mvcc.Writes},
  *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
- *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied,
- *          or was its most recently applied log entry. If this is not the case, then the transaction's base log entry
- *          is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is rejected
- *          with a {@link RetryTransactionException}.
+ *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied to its
+ *          own state machine, or was its most recently applied log entry. If this is not the case, then the transaction's base
+ *          log entry is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is
+ *          rejected with a {@link RetryTransactionException}.
  *      <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
  *          has been overwritten in a new Raft term, and the transaction is rejected with a {@link RetryTransactionException}.
- *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's base log entry
+ *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
  *          do not create {@linkplain org.jsimpledb.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
  *          {@link org.jsimpledb.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
  *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
@@ -122,17 +122,18 @@ import org.slf4j.LoggerFactory;
  *          transaction's commit term and index, then the transaction is complete.</li>
  *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
- *      <li>Upon receipt of a new log entry, both followers and leaders will "rebase" any open {@linkplain
+ *      <li>After adding a new log entry, both followers and leaders will "rebase" any open {@linkplain
  *          Consistency#isGuaranteesUpToDateReads guaranteed-up-to-date} transactions on the new log entry if there are
- *          no conflicts, or else mark it for retry if there are.
- *      <li>If a transaction's base log entry is overwritten in the Raft log, the transaction fails with a retry.</li>
+ *          no conflicts, or else mark it for retry failure if there are.
+ *      <li>If a transaction's base log entry gets overwritten in the Raft log (e.g., due to a new leader election), the
+ *          transaction fails with a retry.</li>
  *      </ul>
  *  </li>
  *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
- *  <li>On leaders, committed log entries are not applied to the state machine immediately; instead they kept around until all
- *      followers have confirmed receipt. The point of waiting is to avoid incoming follower transactions being rejected because
+ *  <li>On leaders, committed log entries are not applied to the state machine immediately; instead they are kept around until all
+ *      followers have confirmed receipt. The point of waiting is to avoid follower transactions being rejected because
  *      their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
- *      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry there
+ *      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry, there
  *      should be no further commit requests from that follower for transactions based on earlier log entries.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
@@ -184,10 +185,10 @@ import org.slf4j.LoggerFactory;
  * and they disallow local transactions that make any changes other than as described below to create a new cluster.
  *
  * <p>
- * An unconfigured node becomes configured when either:
+ * An unconfigured node becomes <i>configured</i> when either:
  * <ol>
  *  <li>{@link RaftKVTransaction#configChange RaftKVTransaction.configChange()} is invoked and committed within
- *      a local transaction, which creates a new single node cluster and commits the first log entry; or</li>
+ *      a local transaction, which creates a new single node cluster and commits its first log entry; or</li>
  *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
  *      records the cluster ID thereby joining the cluster (see below), and applies the received cluster configuration.</li>
  * </ol>
@@ -201,7 +202,7 @@ import org.slf4j.LoggerFactory;
  * Newly created clusters are assigned a random 32-bit cluster ID (option #1 above). This ID is included in all messages sent
  * over the network, and adopted by unconfigured nodes that join the cluster (via option #2 above). Configured nodes discard
  * incoming messages containing a cluster ID different from the one they have joined. This prevents data corruption that can
- * occur if nodes from two different clusters are inadvertently "mixed" together.
+ * occur if nodes from two different clusters are inadvertently "mixed" together on the same network.
  *
  * <p>
  * Once a node joins a cluster with a specific cluster ID, it cannot be reassigned to a different cluster without first
@@ -243,13 +244,17 @@ import org.slf4j.LoggerFactory;
  * reverts back to normal operation.
  *
  * <p>
- * This behavior is optional, but enabled by default (see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()});
+ * This behavior is optional, but enabled by default; see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()}.
  *
  * <p><b>Key Watches</b></p>
  *
  * <p>
- * {@linkplain RaftKVTransaction#watchKey Key watches} and {@linkplain RaftKVTransaction#mutableSnapshot mutable snapshots}
- * are supported.
+ * {@linkplain RaftKVTransaction#watchKey Key watches} are supported.
+ *
+ * <p><b>Mutable Snapshots</b></p>
+ *
+ * <p>
+ * {@linkplain RaftKVTransaction#mutableSnapshot Mutable snapshots} are supported.
  *
  * <p><b>Spring Isolation Levels</b></p>
  *
