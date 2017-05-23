@@ -91,6 +91,7 @@ LONG TERM
         - Different prompt "Expr>"
 
 - More built-in field types:
+    - java.time.*
     - BigInteger, BigDecimal
     - SimpleDateFormat
     - BitSet
