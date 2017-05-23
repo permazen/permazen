@@ -472,7 +472,7 @@ public abstract class Role {
     }
 
     /**
-     * Rebase the given transaction so that its base log entry the last log entry.
+     * Rebase the given transaction so that its base log entry is the last log entry.
      *
      * <p>
      * This should be invoked for any {@linkplain #shouldRebase rebasable} transaction
@@ -492,7 +492,7 @@ public abstract class Role {
         assert tx.failure == null;
         assert tx.baseIndex >= this.raft.lastAppliedIndex;
 
-        // Lock the mutable view so the rebase appears to happen atomically to any threads viewing the transaction
+        // Lock the mutable view so the rebase appears to happen instantaneously to any threads viewing the transaction
         synchronized (tx.view) {
 
             // Check for conflicts between transaction reads and newly committed log entries

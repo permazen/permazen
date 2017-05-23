@@ -130,7 +130,7 @@ public class RaftKVTransaction implements KVTransaction {
     @GuardedBy("raft")
     private Timestamp lastStateChangeTime = new Timestamp();    // timestamp of most recent state change
     @GuardedBy("raft")
-    private Consistency consistency = Consistency.LINEARIZABLE;
+    private Consistency consistency = Consistency.LINEARIZABLE; // this transaction's consistency level guarantee
     @GuardedBy("raft")
     private String[] configChange;                      // cluster config change associated with this transaction
     @GuardedBy("raft")
@@ -295,14 +295,15 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws IllegalArgumentException if {@code consistency} is null
      * @throws IllegalArgumentException if a change to {@code consistency} is {@linkplain Consistency#mayChangeTo incompatible}
      *  with this transaction's current consistency level
+     * @throws StaleTransactionException if this transaction is no longer open
      */
     public void setConsistency(Consistency consistency) {
         Preconditions.checkArgument(consistency != null, "null consistency");
         synchronized (this.raft) {
             if (this.consistency.equals(consistency))
                 return;
-            Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
             Preconditions.checkArgument(this.consistency.mayChangeTo(consistency), "illegal consistency level change");
+            this.verifyExecuting();
             this.consistency = consistency;
             if (this.consistency.isReadOnly())
                 this.readOnly = true;

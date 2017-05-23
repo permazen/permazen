@@ -1452,11 +1452,13 @@ public class RaftKVDatabase implements KVDatabase {
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,
           view.getTerm(), view.getIndex(), view.getSnapshot(), view.getView());
-        tx.setConsistency(consistency);
         tx.setTimeout(this.commitTimeout);
         if (this.log.isDebugEnabled())
             this.debug("created new transaction " + tx);
         this.openTransactions.put(tx.txId, tx);
+
+        // Set consistency
+        tx.setConsistency(consistency);
 
         // Done
         return tx;
@@ -2590,6 +2592,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Check transactions
         for (RaftKVTransaction tx : this.openTransactions.values()) {
             try {
+                assert !tx.getState().equals(TxState.CLOSED);
                 tx.checkStateOpen(this.currentTerm, this.getLastLogIndex(), this.commitIndex);
                 this.role.checkTransaction(tx);
             } catch (AssertionError e) {
