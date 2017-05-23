@@ -39,7 +39,7 @@ public class AppendRequest extends Message {
      *
      * <p>
      * Note that {@code leaderCommit} is limited to {@code prevLogIndex} by this constructor, because we can't guarantee
-     * that omitted the log entry at {@code prevLogIndex + 1} matches whatever the follower has in its log.
+     * that the omitted log entry at {@code prevLogIndex + 1} matches whatever the follower has in its log.
      *
      * @param clusterId cluster ID
      * @param senderId identity of sender

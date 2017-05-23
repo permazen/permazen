@@ -312,6 +312,9 @@ public class RaftKVTransaction implements KVTransaction {
     /**
      * Determine whether this transaction is configured as read-only.
      *
+     * <p>
+     * Default is false.
+     *
      * @return true if this transaction is configured read-only
      */
     @Override
