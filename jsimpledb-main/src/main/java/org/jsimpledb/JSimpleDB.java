@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
+import org.dellroad.stuff.util.LongMap;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
@@ -117,7 +118,7 @@ public class JSimpleDB {
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
     final HashMap<Class<?>, JClass<?>> jclassesByType = new HashMap<>();
     final HashMap<Integer, IndexInfo> indexInfoMap = new HashMap<>();
-    final HashMap<Long, JField> typeFieldMap = new HashMap<>();
+    final LongMap<JField> typeFieldMap = new LongMap<>();
     final HashSet<Integer> fieldsRequiringDefaultValidation = new HashSet<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator;

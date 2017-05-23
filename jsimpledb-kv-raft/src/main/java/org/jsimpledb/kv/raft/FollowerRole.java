@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import net.jcip.annotations.GuardedBy;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
+import org.dellroad.stuff.util.LongMap;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.mvcc.Reads;
@@ -50,10 +51,9 @@ public class FollowerRole extends NonLeaderRole {
     @GuardedBy("raft")
     private final HashSet<RaftKVTransaction> pendingRequests = new HashSet<>();     // waiting for CommitResponse from leader
     @GuardedBy("raft")
-    private final HashMap<Long, PendingWrite> pendingWrites = new HashMap<>();      // wait for AppendRequest with null data
+    private final LongMap<PendingWrite> pendingWrites = new LongMap<>();            // wait for AppendRequest with null data
     @GuardedBy("raft")
-    private final HashMap<Long, Timestamp> commitLeaderLeaseTimeoutMap              // tx's waiting for leaderLeaseTimeout's
-      = new HashMap<>();
+    private final LongMap<Timestamp> commitLeaderLeaseTimeoutMap = new LongMap<>(); // tx's waiting for leaderLeaseTimeout's
     @GuardedBy("raft")
     private Timestamp lastLeaderMessageTime;                                        // time of most recent rec'd AppendRequest
     @GuardedBy("raft")

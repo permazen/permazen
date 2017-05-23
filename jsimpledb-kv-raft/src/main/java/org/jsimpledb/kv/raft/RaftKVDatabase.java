@@ -49,6 +49,7 @@ import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.dellroad.stuff.java.TimedWait;
 import org.dellroad.stuff.net.Network;
 import org.dellroad.stuff.net.TCPNetwork;
+import org.dellroad.stuff.util.LongMap;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransactionException;
@@ -433,7 +434,7 @@ public class RaftKVDatabase implements KVDatabase {
     IOThread ioThread;                                                  // performs background I/O tasks
     ScheduledExecutorService serviceExecutor;                           // does stuff for us asynchronously
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
-    final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();  // transactions open on this instance
+    final LongMap<RaftKVTransaction> openTransactions = new LongMap<>();        // transactions open on this instance
     final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();        // pending work for serviceExecutor
     KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
     boolean performingService;                                          // true when serviceExecutor does not need to be woken up
