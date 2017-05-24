@@ -248,7 +248,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             { b("7f01"),    this.randomBytes(index++) },
             { b("8001"),    this.randomBytes(index++) },
             { b("fe01"),    this.randomBytes(index++) },
-            { b("ff01"),    this.randomBytes(index++) },
+            { b("feff"),    this.randomBytes(index++) },
         };
 
         // Debug
