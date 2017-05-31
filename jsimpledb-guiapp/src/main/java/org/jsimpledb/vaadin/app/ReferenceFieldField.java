@@ -6,11 +6,9 @@
 package org.jsimpledb.vaadin.app;
 
 import com.google.common.base.Preconditions;
-import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
@@ -44,12 +42,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
     private final String name;
     private final Class<?> type;
     private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();
-    private final SmallButton changeButton = new SmallButton("Change...", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            ReferenceFieldField.this.change();
-        }
-    });
+    private final SmallButton changeButton = new SmallButton("Change...", e -> this.change());
 
     private Component refLabel = new Label();
 
@@ -73,18 +66,8 @@ public class ReferenceFieldField extends CustomField<JObject> {
         this.type = type;
 
         // Listen for property value and read-only status changes
-        this.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                ReferenceFieldField.this.updateDisplay();
-            }
-        });
-        this.addReadOnlyStatusChangeListener(new Property.ReadOnlyStatusChangeListener() {
-            @Override
-            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {
-                ReferenceFieldField.this.updateDisplay();
-            }
-        });
+        this.addValueChangeListener(e -> this.updateDisplay());
+        this.addReadOnlyStatusChangeListener(e -> this.updateDisplay());
     }
 
 // CustomField

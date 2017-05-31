@@ -6,7 +6,6 @@
 package org.jsimpledb.vaadin.app;
 
 import com.google.common.base.Preconditions;
-import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -41,47 +40,16 @@ public class MainPanel extends VerticalLayout {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    // Buttons
-    private final Button editButton = new Button("Edit", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            final ObjId id = MainPanel.this.objectChooser.getObjId();
-            if (id != null)
-                MainPanel.this.editButtonClicked(id);
-        }
-    });
-    private final Button newButton = new Button("New", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.newButtonClicked();
-        }
-    });
-    private final Button deleteButton = new Button("Delete", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            final ObjId id = MainPanel.this.objectChooser.getObjId();
-            if (id != null)
-                MainPanel.this.deleteButtonClicked(id);
-        }
-    });
-    private final Button upgradeButton = new Button("Upgrade", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            final ObjId id = MainPanel.this.objectChooser.getObjId();
-            if (id != null)
-                MainPanel.this.upgradeButtonClicked(id);
-        }
-    });
-    private final Button refreshButton = new Button("Refresh", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.refreshButtonClicked();
-        }
-    });
-
     private final JSimpleDB jdb;
     private final ParseSession session;
     private final JObjectChooser objectChooser;
+
+    // Buttons
+    private final Button editButton = new Button("Edit", e -> this.editButtonClicked());
+    private final Button newButton = new Button("New", e -> this.newButtonClicked());
+    private final Button deleteButton = new Button("Delete", e -> this.deleteButtonClicked());
+    private final Button upgradeButton = new Button("Upgrade", e -> this.upgradeButtonClicked());
+    private final Button refreshButton = new Button("Refresh", e -> this.refreshButtonClicked());
 
     /**
      * Constructor.
@@ -107,12 +75,7 @@ public class MainPanel extends VerticalLayout {
         this.objectChooser = new JObjectChooser(this.session, null, true);
 
         // Listen to object selections
-        this.objectChooser.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                MainPanel.this.selectObject(MainPanel.this.objectChooser.getObjId());
-            }
-        });
+        this.objectChooser.addValueChangeListener(e -> this.selectObject(this.objectChooser.getObjId()));
     }
 
     @Override
@@ -191,7 +154,10 @@ public class MainPanel extends VerticalLayout {
 
 // Edit
 
-    private void editButtonClicked(ObjId id) {
+    private void editButtonClicked() {
+        final ObjId id = this.objectChooser.getObjId();
+        if (id == null)
+            return;
         this.log.info("editing object " + id);
 
         // Copy object
@@ -250,7 +216,10 @@ public class MainPanel extends VerticalLayout {
 
 // Delete
 
-    private void deleteButtonClicked(ObjId id) {
+    private void deleteButtonClicked() {
+        final ObjId id = this.objectChooser.getObjId();
+        if (id == null)
+            return;
         this.log.info("deleting object " + id);
         final boolean deleted;
         try {
@@ -281,7 +250,10 @@ public class MainPanel extends VerticalLayout {
 
 // Upgrade
 
-    private void upgradeButtonClicked(ObjId id) {
+    private void upgradeButtonClicked() {
+        final ObjId id = this.objectChooser.getObjId();
+        if (id == null)
+            return;
         final int newVersion = this.jdb.getActualVersion();
         this.log.info("upgrading object " + id + " to schema version " + newVersion);
         final int oldVersion = this.doUpgrade(id);

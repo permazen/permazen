@@ -37,12 +37,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final Button showButton = new Button("Show", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            JObjectChooser.this.showButtonClicked();
-        }
-    });
+    private final Button showButton = new Button("Show", e -> this.showButtonClicked());
     private final CheckBox reverseCheckBox = new CheckBox("Reverse sort");
 
     private final JSimpleDB jdb;
@@ -114,20 +109,10 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         this.showForm.addComponent(this.showButton);
 
         // Listen to type selections
-        this.typeTable.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                JObjectChooser.this.selectType((Class<?>)event.getProperty().getValue(), false);
-            }
-        });
+        this.typeTable.addValueChangeListener(e -> this.selectType((Class<?>)e.getProperty().getValue(), false));
 
         // Listen to "Sort by" and "Reverse sort" selections
-        final Property.ValueChangeListener sortListener = new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                JObjectChooser.this.selectSort();
-            }
-        };
+        final Property.ValueChangeListener sortListener = e -> this.selectSort();
         this.sortComboBox.addValueChangeListener(sortListener);
         this.reverseCheckBox.addValueChangeListener(sortListener);
 

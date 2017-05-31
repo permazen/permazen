@@ -7,7 +7,6 @@ package org.jsimpledb.vaadin;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Field;
 
 import org.dellroad.stuff.vaadin7.FieldLayout;
@@ -19,12 +18,7 @@ import org.dellroad.stuff.vaadin7.FieldLayout;
 @SuppressWarnings("serial")
 public class NullableField<T> extends FieldLayout<T> {
 
-    private final SmallButton nullButton = new SmallButton("Null", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            NullableField.this.field.setValue(null);
-        }
-    });
+    private final SmallButton nullButton = new SmallButton("Null", e -> this.field.setValue(null));
 
     public NullableField(Field<T> field) {
         super(field);
@@ -33,20 +27,10 @@ public class NullableField<T> extends FieldLayout<T> {
         this.addComponent(this.field);
         this.addComponent(this.nullButton);
         this.setComponentAlignment(this.nullButton, Alignment.MIDDLE_LEFT);
-        this.field.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                NullableField.this.updateDisplay();
-            }
-        });
+        this.field.addValueChangeListener(e -> this.updateDisplay());
         if (this.field instanceof Property.ReadOnlyStatusChangeNotifier) {
             final Property.ReadOnlyStatusChangeNotifier notifier = (Property.ReadOnlyStatusChangeNotifier)field;
-            notifier.addReadOnlyStatusChangeListener(new Property.ReadOnlyStatusChangeListener() {
-                @Override
-                public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {
-                    NullableField.this.updateDisplay();
-                }
-            });
+            notifier.addReadOnlyStatusChangeListener(e -> this.updateDisplay());
         }
     }
 

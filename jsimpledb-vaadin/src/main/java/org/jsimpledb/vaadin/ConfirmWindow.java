@@ -44,19 +44,11 @@ public abstract class ConfirmWindow extends Window {
         this.setModal(true);
 
         // Create buttons
-        this.okButton = okLabel != null ? new Button(okLabel, new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                if (ConfirmWindow.this.execute())
-                    ConfirmWindow.this.closeWindow();
-            }
+        this.okButton = okLabel != null ? new Button(okLabel, e -> {
+            if (this.execute())
+                this.closeWindow();
         }) : null;
-        this.cancelButton = cancelLabel != null ? new Button(cancelLabel, new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                ConfirmWindow.this.closeWindow();
-            }
-        }) : null;
+        this.cancelButton = cancelLabel != null ? new Button(cancelLabel, e -> this.closeWindow()) : null;
     }
 
     @Override
