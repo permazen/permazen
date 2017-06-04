@@ -268,9 +268,10 @@ public final class UnsignedIntEncoder {
      * @param off starting offset into output buffer
      * @return the number of encoded bytes written
      * @throws IllegalArgumentException if {@code value} is negative
+     * @throws NullPointerException if {@code buf} is null
      * @throws ArrayIndexOutOfBoundsException if {@code off} is negative or the encoded value exceeds the given buffer
      */
-    private static int encode(int value, byte[] buf, int off) {
+    public static int encode(int value, byte[] buf, int off) {
         Preconditions.checkArgument(value >= 0, "value < 0");
         if (value < MIN_MULTI_BYTE_VALUE) {
             buf[off] = (byte)value;
