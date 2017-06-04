@@ -8,15 +8,10 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,17 +27,26 @@ import org.jsimpledb.core.type.CharacterType;
 import org.jsimpledb.core.type.DateType;
 import org.jsimpledb.core.type.DoubleArrayType;
 import org.jsimpledb.core.type.DoubleType;
+import org.jsimpledb.core.type.DurationType;
 import org.jsimpledb.core.type.FileType;
 import org.jsimpledb.core.type.FloatArrayType;
 import org.jsimpledb.core.type.FloatType;
+import org.jsimpledb.core.type.InstantType;
 import org.jsimpledb.core.type.IntegerArrayType;
 import org.jsimpledb.core.type.IntegerType;
+import org.jsimpledb.core.type.LocalDateTimeType;
+import org.jsimpledb.core.type.LocalDateType;
+import org.jsimpledb.core.type.LocalTimeType;
 import org.jsimpledb.core.type.LongArrayType;
 import org.jsimpledb.core.type.LongType;
+import org.jsimpledb.core.type.MonthDayType;
 import org.jsimpledb.core.type.NullSafeType;
 import org.jsimpledb.core.type.ObjIdType;
 import org.jsimpledb.core.type.ObjectArrayType;
+import org.jsimpledb.core.type.OffsetDateTimeType;
+import org.jsimpledb.core.type.OffsetTimeType;
 import org.jsimpledb.core.type.PatternType;
+import org.jsimpledb.core.type.PeriodType;
 import org.jsimpledb.core.type.PrimitiveWrapperType;
 import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.core.type.ShortArrayType;
@@ -52,6 +56,11 @@ import org.jsimpledb.core.type.URIType;
 import org.jsimpledb.core.type.UUIDType;
 import org.jsimpledb.core.type.UnsignedIntType;
 import org.jsimpledb.core.type.VoidType;
+import org.jsimpledb.core.type.YearMonthType;
+import org.jsimpledb.core.type.YearType;
+import org.jsimpledb.core.type.ZoneIdType;
+import org.jsimpledb.core.type.ZoneOffsetType;
+import org.jsimpledb.core.type.ZonedDateTimeType;
 
 /**
  * A registry of {@link FieldType}s.
@@ -209,31 +218,6 @@ public class FieldTypeRegistry {
      */
     public static final NullSafeType<String> STRING = new NullSafeType<>(new StringType());
 
-    /**
-     * Type for {@link Date}s.
-     */
-    static final NullSafeType<Date> DATE = new NullSafeType<>(new DateType());
-
-    /**
-     * Type for {@link UUID}s.
-     */
-    static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());
-
-    /**
-     * Type for {@link URI}s.
-     */
-    static final NullSafeType<URI> URI = new URIType();
-
-    /**
-     * Type for {@link File}s.
-     */
-    static final NullSafeType<File> FILE = new FileType();
-
-    /**
-     * Type for {@link Pattern}s.
-     */
-    static final NullSafeType<Pattern> PATTERN = new PatternType();
-
     private final HashMap<Key, FieldType<?>> types = new HashMap<>();
     private final HashMap<TypeToken<?>, ArrayList<FieldType<?>>> typesByType = new HashMap<>();
 
@@ -242,6 +226,8 @@ public class FieldTypeRegistry {
      * types such as primitive types, {@link String}, etc.) already registered.
      */
     public FieldTypeRegistry() {
+
+        // Public singleton types
         this.add(FieldTypeRegistry.REFERENCE);
         this.add(FieldTypeRegistry.VOID_WRAPPER);
         this.add(FieldTypeRegistry.BOOLEAN);
@@ -261,11 +247,27 @@ public class FieldTypeRegistry {
         this.add(FieldTypeRegistry.DOUBLE);
         this.add(FieldTypeRegistry.DOUBLE_WRAPPER);
         this.add(FieldTypeRegistry.STRING);
-        this.add(FieldTypeRegistry.DATE);
-        this.add(FieldTypeRegistry.UUID);
-        this.add(FieldTypeRegistry.URI);
-        this.add(FieldTypeRegistry.FILE);
-        this.add(FieldTypeRegistry.PATTERN);
+
+        // Other types
+        this.add(new NullSafeType<>(new DateType()));
+        this.add(new NullSafeType<>(new UUIDType()));
+        this.add(new URIType());
+        this.add(new FileType());
+        this.add(new PatternType());
+        this.add(new NullSafeType<>(new DurationType()));
+        this.add(new NullSafeType<>(new InstantType()));
+        this.add(new NullSafeType<>(new LocalDateTimeType()));
+        this.add(new NullSafeType<>(new LocalDateType()));
+        this.add(new NullSafeType<>(new LocalTimeType()));
+        this.add(new NullSafeType<>(new MonthDayType()));
+        this.add(new NullSafeType<>(new OffsetDateTimeType()));
+        this.add(new NullSafeType<>(new OffsetTimeType()));
+        this.add(new NullSafeType<>(new PeriodType()));
+        this.add(new NullSafeType<>(new YearMonthType()));
+        this.add(new NullSafeType<>(new YearType()));
+        this.add(new NullSafeType<>(new ZoneOffsetType()));
+        this.add(new NullSafeType<>(new ZonedDateTimeType()));
+        this.add(new ZoneIdType());
     }
 
     /**

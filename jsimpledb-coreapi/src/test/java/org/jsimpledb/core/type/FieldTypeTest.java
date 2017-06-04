@@ -7,9 +7,23 @@ package org.jsimpledb.core.type;
 
 import java.io.File;
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.jsimpledb.core.CoreAPITestSupport;
@@ -110,16 +124,26 @@ public class FieldTypeTest extends CoreAPITestSupport {
             // Check sort order
             if (i > 0) {
                 final T previous = values[i - 1];
-                Assert.assertTrue(ByteUtil.compare(encodings[i - 1], encodings[i]) < 0,
-                  "binary sort failure: " + fieldType.toParseableString(previous) + " < " + fieldType.toParseableString(value));
-                Assert.assertTrue(fieldType.compare(previous, value) < 0,
-                  "Java sort failure: " + fieldType.toParseableString(previous) + " < " + fieldType.toParseableString(value));
+                final boolean bytesEqual = ByteUtil.compare(encodings[i - 1], encodings[i]) == 0;
+                final boolean bytesLessThan = ByteUtil.compare(encodings[i - 1], encodings[i]) < 0;
+                final boolean fieldEqual = fieldType.compare(previous, value) == 0;
+                final boolean fieldLessThan = fieldType.compare(previous, value) < 0;
+
+                Assert.assertTrue(bytesLessThan || bytesEqual,
+                  "Binary sort failure: " + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
+                Assert.assertTrue(fieldLessThan || fieldEqual,
+                  "Java sort failure: " + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
+
+                Assert.assertEquals(bytesEqual, fieldEqual,
+                  "equality mismatch: " + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+                Assert.assertEquals(bytesLessThan, fieldLessThan,
+                  "less-than mismatch: " + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
             }
         }
     }
 
     private <T> void assertEquals(FieldType<T> fieldType, T actual, T expected) {
-        FieldTypeTest.assertEquals(fieldType, actual, expected, "equals check failed");
+        FieldTypeTest.assertEquals(fieldType, actual, expected, "equals check failed: " + actual + " != " + expected);
     }
 
     public static <T> void assertEquals(FieldType<T> fieldType, T actual, T expected, String message) {
@@ -352,7 +376,122 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 null
             }},
 
+            {   Duration.class.getName(), this.genSorted(
+                () -> Duration.ofSeconds((long)this.random.nextInt() << 32 + this.random.nextInt(), this.randomNano()),
+                Duration.ZERO)
+            },
+
+            {   Instant.class.getName(), this.genSorted(
+                () -> Instant.ofEpochSecond(this.random.nextInt(), this.randomNano()),
+                Instant.now())
+            },
+
+            {   LocalDateTime.class.getName(), this.genSorted(
+                () -> LocalDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(),
+                  this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano()),
+                LocalDateTime.now())
+            },
+
+            {   LocalDate.class.getName(), this.genSorted(
+                () -> LocalDate.of(this.randomYear(), this.randomMonth(), this.randomDay()),
+                LocalDate.now())
+            },
+
+            {   LocalTime.class.getName(), this.genSorted(
+                () -> LocalTime.of(this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano()),
+                LocalTime.now())
+            },
+
+            {   MonthDay.class.getName(), this.genSorted(
+                () -> MonthDay.of(this.randomMonth(), this.randomDay()),
+                MonthDay.now())
+            },
+
+            {   OffsetDateTime.class.getName(), this.genSorted(
+                () -> OffsetDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(),
+                  this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
+                OffsetDateTime.now())
+            },
+
+            {   OffsetTime.class.getName(), this.genSorted(
+                () -> OffsetTime.of(this.randomHour(), this.randomMinute(),
+                  this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
+                OffsetTime.now())
+            },
+
+            {   Period.class.getName(), new Period[] {
+                Period.of(-10, 0, 0),
+                Period.ZERO,
+                Period.of(0, 3, 17),
+                Period.of(20, 3, 17),
+            }},
+
+            {   YearMonth.class.getName(), this.genSorted(
+                () -> YearMonth.of(this.randomYear(), this.randomMonth()),
+                YearMonth.now())
+            },
+
+            {   Year.class.getName(), this.genSorted(
+                () -> Year.of(this.randomYear()),
+                Year.now())
+            },
+
+            {   ZoneOffset.class.getName(), this.genSorted(
+                () -> ZoneOffset.ofTotalSeconds(this.randomOffsetSeconds()),
+                ZoneOffset.UTC,
+                ZoneOffset.MIN,
+                ZoneOffset.MAX)
+            },
+
+            {   ZonedDateTime.class.getName(), this.genSorted(
+                () -> ZonedDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(), this.randomHour(),
+                  this.randomMinute(), this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
+                ZonedDateTime.now())
+            },
+
         };
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <E extends Comparable> Object[] genSorted(Supplier<E> supplier, E... extras) {
+        final Object[] array = new Object[extras.length + this.random.nextInt(100) + 50];
+        System.arraycopy(extras, 0, array, 0, extras.length);
+        for (int i = extras.length; i < array.length; i++)
+            array[i] = supplier.get();
+        Arrays.sort(array);
+        return array;
+    }
+
+    private int randomYear() {
+        return this.random.nextInt(4000 * 2) - 4000;
+    }
+
+    private int randomMonth() {
+        return this.random.nextInt(12) + 1;
+    }
+
+    private int randomDay() {
+        return this.random.nextInt(28) + 1;
+    }
+
+    private int randomHour() {
+        return this.random.nextInt(24);
+    }
+
+    private int randomMinute() {
+        return this.random.nextInt(60);
+    }
+
+    private int randomSecond() {
+        return this.random.nextInt(60);
+    }
+
+    private int randomNano() {
+        return this.random.nextInt(1000000000);
+    }
+
+    private int randomOffsetSeconds() {
+        return this.random.nextInt(18 * 60 * 2 + 1) - 18 * 60;
     }
 }
 
