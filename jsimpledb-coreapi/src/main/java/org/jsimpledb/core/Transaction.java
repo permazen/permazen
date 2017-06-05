@@ -676,6 +676,10 @@ public class Transaction {
      * All fields will be set to their default values.
      * The object's schema version will be set to {@linkplain #getSchema() the version associated with this transaction}.
      *
+     * <p>
+     * This method guarantees that the returned value will never equal the {@linkplain ObjId#getSentinel sentinel value}
+     * for the given storage ID.
+     *
      * @param storageId object type storage ID
      * @return object id of newly created object
      * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in this transaction's schema
@@ -691,6 +695,10 @@ public class Transaction {
      * <p>
      * All fields will be set to their default values.
      * The object's schema version will be set to the specified version.
+     *
+     * <p>
+     * This method guarantees that the returned value will never equal the {@linkplain ObjId#getSentinel sentinel value}
+     * for the given storage ID.
      *
      * @param storageId object type storage ID
      * @param versionNumber schema version number to use for newly created object
@@ -719,6 +727,10 @@ public class Transaction {
 
     /**
      * Generate a random, unused {@link ObjId} for the given storage ID.
+     *
+     * <p>
+     * This method guarantees that the returned value will never equal the {@linkplain ObjId#getSentinel sentinel value}
+     * for the given storage ID.
      *
      * @param storageId object type storage ID
      * @return random unassigned object id

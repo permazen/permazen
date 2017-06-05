@@ -51,6 +51,9 @@ public class ObjId implements Comparable<ObjId>, Serializable {
     /**
      * Create a new, random instance with the given storage ID.
      *
+     * <p>
+     * The created instance will never equal the {@linkplain #getSentinel sentinel value} for {@code storageId}.
+     *
      * @param storageId storage ID, must be greater than zero
      * @throws IllegalArgumentException if {@code storageId} is zero or negative
      */
@@ -142,18 +145,57 @@ public class ObjId implements Comparable<ObjId>, Serializable {
     }
 
     /**
+     * Determine if this is the <i>sentinel instance</i> for its storage ID.
+     * The sentinel instance has trailing bytes all equal to {@code 0x00}.
+     *
+     * @return true if this is a sentinel instance
+     */
+    public boolean isSentinel() {
+        if (((int)this.value & 0x00ffffff) != 0)                    // quick check
+            return false;
+        final ByteReader reader = new ByteReader(this.getBytes());
+        UnsignedIntEncoder.read(reader);
+        while (reader.remain() > 0) {
+            if (reader.readByte() != 0)
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Get the smallest (i.e., first) instance having the given storage ID.
+     * This is the value having trailing bytes all equal to {@code 0x00}.
+     *
+     * <p>
+     * This value is also known as the {@linkplain #getSentinel sentinel value} for the given storage ID.
      *
      * @param storageId storage ID, must be greater than zero
      * @return smallest instance with storage ID {@code storageId} (inclusive)
      * @throws IllegalArgumentException if {@code storageId} is zero or negative
+     * @see #getSentinel getSentinel()
      */
     public static ObjId getMin(int storageId) {
         return ObjId.getFill(storageId, 0x00);
     }
 
     /**
+     * Get the <i>sentinel value</i> for the given storage ID.
+     * This is the value having trailing bytes all equal to {@code 0x00}.
+     *
+     * <p>
+     * {@link ObjId}'s created via {@link #ObjId(int)} will never equal this value.
+     *
+     * @param storageId storage ID, must be greater than zero
+     * @return smallest instance with storage ID {@code storageId} (inclusive)
+     * @throws IllegalArgumentException if {@code storageId} is zero or negative
+     */
+    public static ObjId getSentinel(int storageId) {
+        return ObjId.getMin(storageId);
+    }
+
+    /**
      * Get the largest (i.e., last) instance having the given storage ID.
+     * This is the value having trailing bytes all equal to {@code 0xff}.
      *
      * @param storageId storage ID, must be greater than zero
      * @return largest instance with storage ID {@code storageId} (inclusive)
@@ -237,12 +279,18 @@ public class ObjId implements Comparable<ObjId>, Serializable {
 // Internal methods
 
     private static ByteReader buildRandom(int storageId) {
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storage ID " + storageId);
+        Preconditions.checkArgument(storageId > 0, "non-positive storage ID");
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         final byte[] randomPart = new byte[NUM_BYTES - writer.getLength()];
-        ObjId.RANDOM.get().nextBytes(randomPart);
+    zeroLoop:
+        while (true) {
+            ObjId.RANDOM.get().nextBytes(randomPart);
+            for (byte b : randomPart) {
+                if (b != 0)
+                    break zeroLoop;
+            }
+        }
         writer.write(randomPart);
         return new ByteReader(writer);
     }
