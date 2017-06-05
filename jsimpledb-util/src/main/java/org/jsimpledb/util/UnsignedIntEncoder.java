@@ -32,19 +32,19 @@ import java.nio.ByteBuffer;
  * </tr>
  * <tr>
  *  <td>{@code 0xfb 0xWW}</td>
- *  <td>{@code 0xWW}</td>
+ *  <td>{@code 0xWW + 0xfb}</td>
  * </tr>
  * <tr>
  *  <td>{@code 0xfc 0xWW 0xXX}</td>
- *  <td>{@code 0xWWXX}</td>
+ *  <td>{@code 0xWWXX + 0xfb}</td>
  * </tr>
  * <tr>
  *  <td>{@code 0xfd 0xWW 0xXX 0xYY}</td>
- *  <td>{@code 0xWWXXYY}</td>
+ *  <td>{@code 0xWWXXYY + 0xfb}</td>
  * </tr>
  * <tr>
  *  <td>{@code 0xfe 0xWW 0xXX 0xYY 0xZZ}</td>
- *  <td>{@code 0xWWXXYYZZ}</td>
+ *  <td>{@code 0xWWXXYYZZ + 0xfb}</td>
  * </tr>
  * <tr>
  *  <td>{@code 0xff}</td>
