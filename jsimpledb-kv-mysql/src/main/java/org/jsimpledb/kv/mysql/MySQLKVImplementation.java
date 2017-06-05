@@ -11,7 +11,7 @@ import org.jsimpledb.kv.sql.SQLDriverKVImplementation;
 
 public class MySQLKVImplementation extends SQLDriverKVImplementation {
 
-    public static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
+    public static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
 
     /**
      * Default constructor.

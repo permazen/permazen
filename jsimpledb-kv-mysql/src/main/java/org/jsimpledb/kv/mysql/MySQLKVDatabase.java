@@ -5,8 +5,8 @@
 
 package org.jsimpledb.kv.mysql;
 
-import com.mysql.jdbc.MysqlErrorNumbers;
-import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+import com.mysql.cj.core.exceptions.MysqlErrorNumbers;
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
 
 import java.sql.Connection;
 import java.sql.SQLException;

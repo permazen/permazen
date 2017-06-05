@@ -5,7 +5,7 @@
 
 package org.jsimpledb.kv.mysql;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
