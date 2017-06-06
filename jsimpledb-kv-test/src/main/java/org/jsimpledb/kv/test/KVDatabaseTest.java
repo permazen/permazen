@@ -218,6 +218,41 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
 
+    @Test
+    public void testReadOnly(KVDatabase store) throws Exception {
+
+        // Debug
+        this.log.info("starting testReadOnly() on " + store);
+
+        // Put some data in database
+        this.log.info("testReadOnly() on " + store + ": initializing database");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                tx.put(ByteUtil.EMPTY, ByteUtil.EMPTY);
+                return null;
+            }
+        });
+        this.log.info("testReadOnly() on " + store + ": done initializing database");
+
+        // Test we can set a transaction to read-only mode after reading some data
+        this.log.info("testReadOnly() on " + store + ": testing setReadOnly()");
+        this.tryNtimes(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                final byte[] value1 = tx.get(null);
+                Assert.assertEquals(value1, ByteUtil.EMPTY);
+                tx.setReadOnly(true);
+                final byte[] value2 = tx.get(null);
+                Assert.assertEquals(value2, ByteUtil.EMPTY);
+                Assert.assertTrue(tx.isReadOnly());
+                return null;
+            }
+        });
+        this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
+    }
+
     private byte[] randomBytes(int index) {
         final byte[] array = new byte[this.random.nextInt(10) + 1];
         this.random.nextBytes(array);
