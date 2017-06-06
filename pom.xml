@@ -572,6 +572,28 @@
     <build>
         <plugins>
 
+            <!-- Avoid Mac OS X "Launcher" application appearing during build -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>set-system-properties</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>java.awt.headless</name>
+                                    <value>true</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Java version enforcer -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
