@@ -218,7 +218,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
 
-    @Test
+    @Test(dataProvider = "kvdbs")
     public void testReadOnly(KVDatabase store) throws Exception {
 
         // Debug
