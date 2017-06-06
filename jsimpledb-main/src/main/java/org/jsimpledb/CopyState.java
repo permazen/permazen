@@ -89,6 +89,9 @@ public class CopyState implements Cloneable {
      * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
      * also have {@code snapshotTransactions = true}, even if this property is set to false.
      *
+     * <p>
+     * Default is false.
+     *
      * @return true if {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      *  {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications should be suppressed, otherwise false
      */
