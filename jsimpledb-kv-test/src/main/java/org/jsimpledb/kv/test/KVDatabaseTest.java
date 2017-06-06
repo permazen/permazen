@@ -241,10 +241,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, new Transactional<Void>() {
             @Override
             public Void transact(KVTransaction tx) {
-                final byte[] value1 = tx.get(null);
+                final byte[] value1 = tx.get(ByteUtil.EMPTY);
                 Assert.assertEquals(value1, ByteUtil.EMPTY);
                 tx.setReadOnly(true);
-                final byte[] value2 = tx.get(null);
+                final byte[] value2 = tx.get(ByteUtil.EMPTY);
                 Assert.assertEquals(value2, ByteUtil.EMPTY);
                 Assert.assertTrue(tx.isReadOnly());
                 return null;
