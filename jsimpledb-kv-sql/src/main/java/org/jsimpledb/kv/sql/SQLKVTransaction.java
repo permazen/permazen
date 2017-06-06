@@ -41,6 +41,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     private long timeout;
     private boolean readOnly;
     private KVStore view;
+    private volatile boolean mutated;
     private boolean closed;
     private boolean stale;
 
@@ -176,22 +177,6 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     @Override
-    public synchronized void setReadOnly(boolean readOnly) {
-        Preconditions.checkState(this.view == null || readOnly == this.readOnly, "data already accessed");
-        this.readOnly = readOnly;
-    }
-
-    @Override
-    protected synchronized KVStore delegate() {
-        if (this.view == null) {
-            this.view = new SQLView();
-            if (this.readOnly && !this.database.rollbackForReadOnly)
-                this.view = new MutableView(this.view);
-        }
-        return this.view;
-    }
-
-    @Override
     public synchronized void commit() {
         if (this.stale)
             throw new StaleTransactionException(this);
@@ -273,6 +258,44 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         } finally {
             super.finalize();
         }
+    }
+
+// KVStore
+
+    @Override
+    public void put(byte[] key, byte[] value) {
+        this.mutated = true;
+        this.delegate().put(key, value);
+    }
+
+    @Override
+    public void remove(byte[] key) {
+        this.mutated = true;
+        this.delegate().remove(key);
+    }
+
+    @Override
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        this.mutated = true;
+        this.delegate().removeRange(minKey, maxKey);
+    }
+
+    @Override
+    protected synchronized KVStore delegate() {
+        if (this.view == null)
+            this.view = new SQLView();
+        return this.view;
+    }
+
+    @Override
+    public synchronized void setReadOnly(boolean readOnly) {
+        if (readOnly == this.readOnly)
+            return;
+        Preconditions.checkArgument(readOnly, "read-only transaction cannot be made writable again");
+        Preconditions.checkState(!this.mutated || this.database.rollbackForReadOnly, "data is already mutated");
+        if (!this.database.rollbackForReadOnly)
+            this.view = new MutableView(this.view);
+        this.readOnly = readOnly;
     }
 
 // Helper methods
