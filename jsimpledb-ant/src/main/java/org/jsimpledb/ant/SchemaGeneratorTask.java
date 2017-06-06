@@ -69,7 +69,8 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Set to {@code generate} to generate a new XML file, or {@code verify} to verify an existing XML file.
+ *      Set to {@code generate} to generate a new XML file, {@code verify} to verify an existing XML file,
+ *      or {@code generate-and-verify} to do both (i.e., update the schema file if necessary).
  *      </p>
  *
  *      <p>
@@ -255,6 +256,7 @@ public class SchemaGeneratorTask extends Task {
 
     public static final String MODE_VERIFY = "verify";
     public static final String MODE_GENERATE = "generate";
+    public static final String MODE_GENERATE_AND_VERIFY = "generate-and-verify";
 
     private String mode = MODE_VERIFY;
     private boolean matchNames = true;
@@ -330,16 +332,22 @@ public class SchemaGeneratorTask extends Task {
         // Sanity check
         if (this.file == null)
             throw new BuildException("`file' attribute is required specifying output/verify file");
-        final boolean generate;
+        boolean generate = false;
+        boolean verify = false;
         switch (this.mode) {
         case MODE_VERIFY:
-            generate = false;
+            verify = true;
             break;
         case MODE_GENERATE:
             generate = true;
             break;
+        case MODE_GENERATE_AND_VERIFY:
+            generate = true;
+            verify = true;
+            break;
         default:
-            throw new BuildException("`mode' attribute must be one of `" + MODE_VERIFY + "' or `" + MODE_GENERATE + "'");
+            throw new BuildException("`mode' attribute must be one of `"
+              + MODE_VERIFY + "', or `" + MODE_GENERATE + "', or `" + MODE_GENERATE_AND_VERIFY + "'");
         }
         if (this.packages == null)
             throw new BuildException("`packages' attribute is required specifying packages to scan for Java model classes");
@@ -474,29 +482,32 @@ public class SchemaGeneratorTask extends Task {
             // Record schema model in database
             db.createTransaction(schemaModel, 1, true).commit();
 
-            // Verify or generate
-            boolean verified = true;
-            if (generate) {
-
-                // Write schema model to file
-                this.log("writing JSimpleDB schema to `" + this.file + "'");
-                try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
-                    schemaModel.toXML(output, true);
-                } catch (IOException e) {
-                    throw new BuildException("error writing schema to `" + this.file + "': " + e, e);
-                }
-            } else {
+            // Parse verification file
+            SchemaModel verifyModel = null;
+            if (verify)  {
 
                 // Read file
-                this.log("verifying JSimpleDB schema matches `" + this.file + "'");
-                final SchemaModel verifyModel;
+                this.log("reading JSimpleDB verification file `" + this.file + "'");
                 try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                     verifyModel = SchemaModel.fromXML(input);
                 } catch (IOException e) {
                     throw new BuildException("error reading schema from `" + this.file + "': " + e, e);
                 }
+            }
 
-                // Compare
+            // Generate new file
+            if (generate) {
+                this.log("writing generated JSimpleDB schema to `" + this.file + "'");
+                try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
+                    schemaModel.toXML(output, true);
+                } catch (IOException e) {
+                    throw new BuildException("error writing schema to `" + this.file + "': " + e, e);
+                }
+            }
+
+            // Compare
+            boolean verified = true;
+            if (verify) {
                 final boolean matched = matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel);
                 if (!matched)
                     verified = false;
@@ -506,7 +517,7 @@ public class SchemaGeneratorTask extends Task {
             }
 
             // Check for conflicts with other schema versions
-            if (verified) {
+            if (verify && verified) {
                 int schemaVersion = 2;
                 for (FileSet oldSchemas : this.oldSchemasList) {
                     for (Iterator<?> i = oldSchemas.iterator(); i.hasNext(); ) {
@@ -529,7 +540,7 @@ public class SchemaGeneratorTask extends Task {
             }
 
             // Set verified property
-            if (this.verifiedProperty != null)
+            if (verify && this.verifiedProperty != null)
                 this.getProject().setProperty(this.verifiedProperty, "" + verified);
 
             // Set auto-generated schema version property
@@ -537,7 +548,7 @@ public class SchemaGeneratorTask extends Task {
                 this.getProject().setProperty(this.schemaVersionProperty, "" + schemaModel.autogenerateVersion());
 
             // Check verification results
-            if (!verified && this.failOnError)
+            if (verify && !verified && this.failOnError)
                 throw new BuildException("schema verification failed");
         } finally {
             loader.resetThreadContextLoader();
