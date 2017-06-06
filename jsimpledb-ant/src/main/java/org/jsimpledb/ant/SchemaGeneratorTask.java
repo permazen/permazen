@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.types.Resource;
@@ -263,7 +264,7 @@ public class SchemaGeneratorTask extends Task {
     private File file;
     private Path classPath;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
-    private final ArrayList<OldSchemas> oldSchemasList = new ArrayList<>();
+    private final ArrayList<FileSet> oldSchemasList = new ArrayList<>();
     private final LinkedHashSet<String> classes = new LinkedHashSet<>();
     private final LinkedHashSet<String> packages = new LinkedHashSet<>();
 
@@ -316,7 +317,7 @@ public class SchemaGeneratorTask extends Task {
         this.storageIdGeneratorClassName = storageIdGeneratorClassName;
     }
 
-    public void addOldSchemas(OldSchemas oldSchemas) {
+    public void addOldSchemas(FileSet oldSchemas) {
         this.oldSchemasList.add(oldSchemas);
     }
 
@@ -507,7 +508,7 @@ public class SchemaGeneratorTask extends Task {
             // Check for conflicts with other schema versions
             if (verified) {
                 int schemaVersion = 2;
-                for (OldSchemas oldSchemas : this.oldSchemasList) {
+                for (FileSet oldSchemas : this.oldSchemasList) {
                     for (Iterator<?> i = oldSchemas.iterator(); i.hasNext(); ) {
                         final Resource resource = (Resource)i.next();
                         this.log("checking schema for conflicts with " + resource);
