@@ -833,6 +833,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Keep track of known empty ranges
             final KeyRanges knownEmpty = new KeyRanges();
 
+            // Load actual committed database contents (if known) into "known values" tracker
+            if (this.committedData != null)
+                knownValues.putAll(this.committedData);
+
+            // Verify committed data is accurate
+            if (this.committedData != null)
+                Assert.assertEquals(stringView(this.readDatabase()), knownValuesView);
+
             // Create transaction; every now and then, do transaction read-only
             final KVTransaction tx = KVDatabaseTest.this.createKVTransaction(this.store);
             final boolean readOnly = this.r(100) < 3;
@@ -843,18 +851,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 assert tx.isReadOnly();
             }
 
-            // Load actual committed database contents (if known) into "known values" tracker
-            if (this.committedData != null)
-                knownValues.putAll(this.committedData);
-
             // Save a copy of committed data
             final TreeMap<byte[], byte[]> previousCommittedData = this.committedData != null ?
               (TreeMap<byte[], byte[]>)this.committedData.clone() : null;
             //final NavigableMap<String, String> previousCommittedDataView = stringView(previousCommittedData);
 
-            // Verify committed data is accurate before starting
-            if (this.committedData != null)
-                Assert.assertEquals(stringView(this.readDatabase(tx)), knownValuesView);
+            // Verify committed data is still accurate
+            if (this.committedData != null && this.random.nextInt(8) == 3)
+                Assert.assertEquals(stringView(this.readDatabase()), knownValuesView);
 
             // Note: if this.committedData != null, then knownValues will exactly track the transaction, otherwise,
             // knownValues only contains values we know are in there; nothing is known about uncontained values.
