@@ -791,7 +791,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         public RandomTask(int id, KVDatabase store, TreeMap<byte[], byte[]> committedData, long seed) {
-            super("Random[" + id + "]");
+            super("Random[" + id + "," + (committedData != null ? "SEQ" : "PAR") + "]");
             this.id = id;
             this.store = store;
             this.committedData = committedData;
@@ -1268,7 +1268,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         @Override
         public String toString() {
-            return "Random[" + this.id + "]";
+            return "Random[" + this.id + "," + (this.committedData != null ? "SEQ" : "PAR") + "]";
         }
     }
 
