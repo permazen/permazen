@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;

@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.jcip.annotations.NotThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ImmutableNavigableSet;

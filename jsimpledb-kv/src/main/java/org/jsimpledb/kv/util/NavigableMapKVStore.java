@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import net.jcip.annotations.ThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;

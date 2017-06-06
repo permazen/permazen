@@ -12,8 +12,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;

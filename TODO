@@ -2,9 +2,6 @@
 SHORT TERM
 ==========
 
-- Update FindBugs annotations
-    https://stackoverflow.com/questions/6322910/should-annotations-in-jar305-jar-be-preferred-over-similar-annotations-in-annota
-
 - Connection pooling in SQL k/v implementations
 
 - CLI:

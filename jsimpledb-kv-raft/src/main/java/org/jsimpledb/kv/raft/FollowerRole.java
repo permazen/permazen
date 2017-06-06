@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import net.jcip.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.dellroad.stuff.util.LongMap;

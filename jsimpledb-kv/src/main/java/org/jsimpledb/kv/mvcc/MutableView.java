@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;

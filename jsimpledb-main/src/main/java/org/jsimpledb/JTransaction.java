@@ -24,13 +24,12 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
-
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
 
 import org.dellroad.stuff.validation.ValidationContext;
 import org.dellroad.stuff.validation.ValidationUtil;

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.jcip.annotations.NotThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;

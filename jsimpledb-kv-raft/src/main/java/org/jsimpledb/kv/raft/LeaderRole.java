@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.function.Predicate;
 
-import net.jcip.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.jsimpledb.kv.KVTransactionException;

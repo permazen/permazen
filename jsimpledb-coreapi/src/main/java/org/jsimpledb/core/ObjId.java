@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
-import net.jcip.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;

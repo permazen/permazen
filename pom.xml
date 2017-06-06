@@ -88,13 +88,13 @@
         <commons-codec.version>1.10</commons-codec.version>
         <dellroad-stuff.version>2.1.0</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
+        <findbugs.version>3.0.1</findbugs.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
         <google-cloud-java.version>0.11.1</google-cloud-java.version>
         <guava.version>21.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <javax.el-api.version>2.2.5</javax.el-api.version>
-        <jcip.version>1.0</jcip.version>
         <jetty.version>9.2.19.v20160908</jetty.version>
         <jline.version>2.14.2</jline.version>
         <leveldb.version>0.9</leveldb.version>
@@ -117,10 +117,10 @@
 
     <dependencies>
 
-        <!-- JCIP annotations - not needed at runtime -->
+        <!-- FindBugs annotations - not needed at runtime -->
         <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -276,11 +276,11 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- JCIP annotations -->
+            <!-- FindBugs annotations -->
             <dependency>
-                <groupId>net.jcip</groupId>
-                <artifactId>jcip-annotations</artifactId>
-                <version>${jcip.version}</version>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${findbugs.version}</version>
             </dependency>
 
             <!-- ASM -->

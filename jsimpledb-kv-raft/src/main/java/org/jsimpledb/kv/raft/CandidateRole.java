@@ -7,7 +7,7 @@ package org.jsimpledb.kv.raft;
 
 import java.util.HashSet;
 
-import net.jcip.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.jsimpledb.kv.raft.msg.AppendRequest;
 import org.jsimpledb.kv.raft.msg.CommitResponse;

@@ -33,7 +33,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.jcip.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.jsimpledb.kv.KVDatabase;
