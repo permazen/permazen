@@ -24,7 +24,7 @@ public class LocalDateTimeType extends NonNullFieldType<LocalDateTime> {
 
     static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+T[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3302238853808401737L;
 
     public LocalDateTimeType() {
         super(LocalDateTime.class, 0);

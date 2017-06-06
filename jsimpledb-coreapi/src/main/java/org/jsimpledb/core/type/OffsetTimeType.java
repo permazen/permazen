@@ -20,7 +20,7 @@ public class OffsetTimeType extends Concat2Type<OffsetTime, Long, ZoneOffset> {
     private static final long NANOS_PER_SECOND = 1_000_000_000L;
     private static final LocalDate EPOCH = LocalDate.ofEpochDay(0);
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -42507926581583354L;
 
     public OffsetTimeType() {
         super(OffsetTime.class, 0, new LongType(), new ZoneOffsetType());

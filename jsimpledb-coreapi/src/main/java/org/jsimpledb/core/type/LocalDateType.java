@@ -22,7 +22,7 @@ public class LocalDateType extends NonNullFieldType<LocalDate> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1245720029314097665L;
 
     public LocalDateType() {
         super(LocalDate.class, 0);

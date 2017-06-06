@@ -15,7 +15,7 @@ import java.time.ZoneId;
  */
 public class ZoneIdType extends StringEncodedType<ZoneId> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4059733969700779261L;
 
     public ZoneIdType() {
         super(ZoneId.class, 0, new ZoneIdConverter());
@@ -25,7 +25,7 @@ public class ZoneIdType extends StringEncodedType<ZoneId> {
 
     private static class ZoneIdConverter extends Converter<ZoneId, String> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -4059733969700779261L;
 
         @Override
         protected String doForward(ZoneId zoneId) {

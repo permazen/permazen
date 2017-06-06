@@ -22,7 +22,7 @@ public class InstantType extends NonNullFieldType<Instant> {
 
     private static final Pattern PATTERN = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3907615112193058091L;
 
     public InstantType() {
         super(Instant.class, 0);

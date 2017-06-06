@@ -22,7 +22,7 @@ public class MonthDayType extends NonNullFieldType<MonthDay> {
 
     private static final Pattern PATTERN = Pattern.compile("--[0-9]{2}-[0-9]{2}");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8813919603844250786L;
 
     public MonthDayType() {
         super(MonthDay.class, 0);

@@ -22,7 +22,7 @@ public class LocalTimeType extends NonNullFieldType<LocalTime> {
 
     static final Pattern PATTERN = Pattern.compile("[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6138317689607411426L;
 
     public LocalTimeType() {
         super(LocalTime.class, 0);

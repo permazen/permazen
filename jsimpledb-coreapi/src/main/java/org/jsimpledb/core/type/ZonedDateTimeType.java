@@ -17,7 +17,7 @@ import org.jsimpledb.util.ParseContext;
  */
 public class ZonedDateTimeType extends Concat2Type<ZonedDateTime, OffsetDateTime, ZoneId> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2484375470437659420L;
 
     public ZonedDateTimeType() {
         super(ZonedDateTime.class, 0, new OffsetDateTimeType(), new ZoneIdType());

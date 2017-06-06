@@ -13,7 +13,7 @@ import org.jsimpledb.util.ByteWriter;
 
 abstract class Concat2Type<T, S1, S2> extends NonNullFieldType<T> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7395218884659436172L;
 
     protected final FieldType<S1> type1;
     protected final FieldType<S2> type2;

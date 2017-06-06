@@ -22,7 +22,7 @@ public class DurationType extends NonNullFieldType<Duration> {
 
     private static final Pattern PATTERN = Pattern.compile("PT(-?[0-9]+H)?(-?[0-9]+M)?(-?[0-9]+(\\.[0-9]+)?S)?");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 969067179729229705L;
 
     public DurationType() {
         super(Duration.class, 0, Duration.ZERO);

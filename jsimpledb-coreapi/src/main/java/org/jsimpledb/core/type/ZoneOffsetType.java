@@ -22,7 +22,7 @@ public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
 
     static final Pattern PATTERN = Pattern.compile("(Z|[-+][0-9]{2}:[0-9]{2}(:[0-9]{2})?)");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4606196393878370203L;
 
     public ZoneOffsetType() {
         super(ZoneOffset.class, 0);

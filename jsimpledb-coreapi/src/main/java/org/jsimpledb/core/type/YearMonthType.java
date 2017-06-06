@@ -22,7 +22,7 @@ public class YearMonthType extends NonNullFieldType<YearMonth> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2773124141026846109L;
 
     public YearMonthType() {
         super(YearMonth.class, 0);

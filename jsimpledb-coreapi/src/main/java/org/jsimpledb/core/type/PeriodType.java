@@ -22,7 +22,7 @@ public class PeriodType extends NonNullFieldType<Period> {
 
     private static final Pattern PATTERN = Pattern.compile("P(-?[0-9]+Y)?(-?[0-9]+M)?(-?[0-9]+?D)?|P-?[0-9]+W");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -5481674489895732054L;
 
     public PeriodType() {
         super(Period.class, 0, Period.ZERO);

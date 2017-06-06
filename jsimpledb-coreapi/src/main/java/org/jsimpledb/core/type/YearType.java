@@ -22,7 +22,7 @@ public class YearType extends NonNullFieldType<Year> {
 
     private static final Pattern PATTERN = Pattern.compile("[-+]?[0-9]+");
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 6800527893478605289L;
 
     public YearType() {
         super(Year.class, 0);
