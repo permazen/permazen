@@ -352,7 +352,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             snapshot.reset();
 
             // Determine object ID and create object in snapshot
-            final String idAttr = this.getAttr(reader, ID_ATTR, true);
+            final String idAttr = this.getAttr(reader, ID_ATTR, false);
             ObjId id;
             if (idAttr == null) {
 
