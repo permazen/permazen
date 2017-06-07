@@ -1041,6 +1041,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     this.log("tx was definitely committed");
                     assert actualView.equals(knownValuesView) :
                       this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + knownValuesView + "\n";
+
+                    // Update model of database
+                    this.committedData.clear();
+                    this.committedData.putAll(knownValues);
                 } else if (Boolean.FALSE.equals(committed) || readOnly) {
 
                     // Verify
@@ -1050,23 +1054,32 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     committed = false;
                 } else {
 
-                    // We don't know whether transaction got committed or not .. check both possibilities
-                    final boolean matchCommit = actualView.equals(knownValuesView);
-                    final boolean matchRollback = actualView.equals(committedDataView);
-                    this.log("tx was either committed (" + matchCommit + ") or rolled back (" + matchRollback + ")");
-
-                    // Verify one or the other
-                    assert matchCommit || matchRollback :
-                      this + "\n*** ACTUAL:\n" + actualView
-                      + "\n*** COMMIT:\n" + knownValuesView
-                      + "\n*** ROLLBACK:\n" + committedDataView + "\n";
-                    committed = matchCommit;
-                }
-
-                // Update model of database
-                if (committed) {
+                    // We don't know whether transaction got committed or not. In fact, a mutating commit may appear
+                    // to have taken effect after the "actual" snapshot because the transaction could have terminated early.
+                    // To get a reliable update of the actual database contents, we must commit a mutating transaction.
                     this.committedData.clear();
-                    this.committedData.putAll(knownValues);
+                    this.committedData.putAll(KVDatabaseTest.this.tryNtimesWithResult(this.store, kvt -> {
+
+                        // Make a definite mutation
+                        KVPair pair = kvt.getAtLeast(null, null);
+                        byte[] key;
+                        byte[] val;
+                        if (pair != null) {
+                            key = pair.getKey();
+                            val = pair.getValue();
+                            if (val.length == 0)
+                                val = this.rb(2, false);
+                            else
+                                val[0] += (byte)77;
+                        } else {
+                            key = this.rb(1, false);
+                            val = this.rb(2, false);
+                        }
+                        kvt.put(key, val);
+
+                        // Re-read database contents
+                        return this.readDatabase(kvt);
+                    }));
                 }
             }
         }
