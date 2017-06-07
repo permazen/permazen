@@ -23,6 +23,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
@@ -94,78 +96,56 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("testSimpleStuff() on " + store + ": clearing database");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
         this.log.info("testSimpleStuff() on " + store + ": done clearing database");
 
         // Verify database is empty
         this.log.info("testSimpleStuff() on " + store + ": verifying database is empty");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                KVPair p = tx.getAtLeast(null, null);
-                Assert.assertNull(p);
-                p = tx.getAtMost(null, null);
-                Assert.assertNull(p);
-                try (CloseableIterator<KVPair> it = tx.getRange(null, null, false)) {
-                    Assert.assertFalse(it.hasNext());
-                }
-                return null;
+        this.tryNtimes(store, tx ->  {
+            KVPair p = tx.getAtLeast(null, null);
+            Assert.assertNull(p);
+            p = tx.getAtMost(null, null);
+            Assert.assertNull(p);
+            try (CloseableIterator<KVPair> it = tx.getRange(null, null, false)) {
+                Assert.assertFalse(it.hasNext());
             }
         });
         this.log.info("testSimpleStuff() on " + store + ": done verifying database is empty");
 
         // tx 1
         this.log.info("testSimpleStuff() on " + store + ": starting tx1");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                final byte[] x = tx.get(b("01"));
-                if (x != null)
-                    Assert.assertEquals(tx.get(b("01")), b("02"));          // transaction was retried even though it succeeded
-                tx.put(b("01"), b("02"));
-                Assert.assertEquals(tx.get(b("01")), b("02"));
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            final byte[] x = tx.get(b("01"));
+            if (x != null)
+                Assert.assertEquals(tx.get(b("01")), b("02"));          // transaction was retried even though it succeeded
+            tx.put(b("01"), b("02"));
+            Assert.assertEquals(tx.get(b("01")), b("02"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx1");
 
         // tx 2
         this.log.info("testSimpleStuff() on " + store + ": starting tx2");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                final byte[] x = tx.get(b("01"));
-                Assert.assertNotNull(x);
-                Assert.assertTrue(Arrays.equals(x, b("02")) || Arrays.equals(x, b("03")));
-                tx.put(b("01"), b("03"));
-                Assert.assertEquals(tx.get(b("01")), b("03"));
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            final byte[] x = tx.get(b("01"));
+            Assert.assertNotNull(x);
+            Assert.assertTrue(Arrays.equals(x, b("02")) || Arrays.equals(x, b("03")));
+            tx.put(b("01"), b("03"));
+            Assert.assertEquals(tx.get(b("01")), b("03"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx2");
 
         // tx 3
         this.log.info("testSimpleStuff() on " + store + ": starting tx3");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                final byte[] x = tx.get(b("01"));
-                Assert.assertEquals(x, b("03"));
-                tx.put(b("10"), b("01"));
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            final byte[] x = tx.get(b("01"));
+            Assert.assertEquals(x, b("03"));
+            tx.put(b("10"), b("01"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx3");
 
         // Check stale access
         this.log.info("testSimpleStuff() on " + store + ": checking stale access");
-        final KVTransaction tx = this.tryNtimes(store, tx1 -> tx1);
+        final KVTransaction tx = this.tryNtimesWithResult(store, tx1 -> tx1);
         try {
             tx.get(b("01"));
             assert false;
@@ -176,44 +156,32 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Check read-only transaction (part 1)
         this.log.info("testSimpleStuff() on " + store + ": starting tx4");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.setReadOnly(false);
-                tx.put(b("10"), b("dd"));
-                final byte[] x = tx.get(b("10"));
-                Assert.assertEquals(x, b("dd"));
-                return null;
-            }
+        this.tryNtimes(store, kvt -> {
+            kvt.setReadOnly(false);
+            kvt.put(b("10"), b("dd"));
+            final byte[] x = kvt.get(b("10"));
+            Assert.assertEquals(x, b("dd"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx4");
 
         // Check read-only transaction (part 2)
         this.log.info("testSimpleStuff() on " + store + ": starting tx5");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.setReadOnly(true);
-                final byte[] x = tx.get(b("10"));
-                Assert.assertEquals(x, b("dd"));
-                tx.put(b("10"), b("ee"));
-                final byte[] y = tx.get(b("10"));
-                Assert.assertEquals(y, b("ee"));
-                return null;
-            }
+        this.tryNtimes(store, kvt -> {
+            kvt.setReadOnly(true);
+            final byte[] x = kvt.get(b("10"));
+            Assert.assertEquals(x, b("dd"));
+            kvt.put(b("10"), b("ee"));
+            final byte[] y = kvt.get(b("10"));
+            Assert.assertEquals(y, b("ee"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx5");
 
         // Check read-only transaction (part 3)
         this.log.info("testSimpleStuff() on " + store + ": starting tx6");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.setReadOnly(true);
-                final byte[] x = tx.get(b("10"));
-                Assert.assertEquals(x, b("dd"));
-                return null;
-            }
+        this.tryNtimes(store, kvt -> {
+            kvt.setReadOnly(true);
+            final byte[] x = kvt.get(b("10"));
+            Assert.assertEquals(x, b("dd"));
         });
         this.log.info("testSimpleStuff() on " + store + ": committed tx6");
     }
@@ -226,29 +194,21 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Put some data in database
         this.log.info("testReadOnly() on " + store + ": initializing database");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                tx.put(ByteUtil.EMPTY, ByteUtil.EMPTY);
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            tx.removeRange(null, null);
+            tx.put(ByteUtil.EMPTY, ByteUtil.EMPTY);
         });
         this.log.info("testReadOnly() on " + store + ": done initializing database");
 
         // Test we can set a transaction to read-only mode after reading some data
         this.log.info("testReadOnly() on " + store + ": testing setReadOnly()");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                final byte[] value1 = tx.get(ByteUtil.EMPTY);
-                Assert.assertEquals(value1, ByteUtil.EMPTY);
-                tx.setReadOnly(true);
-                final byte[] value2 = tx.get(ByteUtil.EMPTY);
-                Assert.assertEquals(value2, ByteUtil.EMPTY);
-                Assert.assertTrue(tx.isReadOnly());
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            final byte[] value1 = tx.get(ByteUtil.EMPTY);
+            Assert.assertEquals(value1, ByteUtil.EMPTY);
+            tx.setReadOnly(true);
+            final byte[] value2 = tx.get(ByteUtil.EMPTY);
+            Assert.assertEquals(value2, ByteUtil.EMPTY);
+            Assert.assertTrue(tx.isReadOnly());
         });
         this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
     }
@@ -291,45 +251,31 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("testSortOrder() on " + store + ": clearing database");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
         this.log.info("testSortOrder() on " + store + ": done clearing database");
 
         // Write data
         this.log.info("testSortOrder() on " + store + ": writing data");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                for (byte[][] pair : pairs)
-                    tx.put(pair[0], pair[1]);
-                return null;
-            }
+        this.tryNtimes(store, tx -> {
+            for (byte[][] pair : pairs)
+                tx.put(pair[0], pair[1]);
         });
 
         // Verify data
         this.log.info("testSortOrder() on " + store + ": verifying data order");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
-                    int index = 0;
-                    while (i.hasNext()) {
-                        final byte[][] pair = pairs[index];
-                        final KVPair kvpair = i.next();
-                        Assert.assertTrue(Arrays.equals(kvpair.getKey(), pair[0]) && Arrays.equals(kvpair.getValue(), pair[1]),
-                          String.format("expected pair { %s, %s } but got { %s, %s } at index %d",
-                           ByteUtil.toString(pair[0]), ByteUtil.toString(pair[1]),
-                           ByteUtil.toString(kvpair.getKey()), ByteUtil.toString(kvpair.getValue()),
-                           index));
-                        index++;
-                    }
+        this.tryNtimes(store, tx -> {
+            try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
+                int index2 = 0;
+                while (i.hasNext()) {
+                    final byte[][] pair = pairs[index2];
+                    final KVPair kvpair = i.next();
+                    Assert.assertTrue(Arrays.equals(kvpair.getKey(), pair[0]) && Arrays.equals(kvpair.getValue(), pair[1]),
+                      String.format("expected pair { %s, %s } but got { %s, %s } at index %d",
+                       ByteUtil.toString(pair[0]), ByteUtil.toString(pair[1]),
+                       ByteUtil.toString(kvpair.getKey()), ByteUtil.toString(kvpair.getValue()),
+                       index2));
+                    index2++;
                 }
-                return null;
             }
         });
     }
@@ -342,52 +288,25 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("testKeyWatch() on " + store + ": clearing database");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
         this.log.info("testKeyWatch() on " + store + ": done clearing database");
 
         // Set up the modifications we want to test
-        final ArrayList<Transactional<Void>> mods = new ArrayList<>();
-        mods.add(tx -> {
-            tx.put(b("0123"), b("4567"));
-            return null;
-        });
-        mods.add(tx -> {
-            tx.put(b("0123"), b("89ab"));
-            return null;
-        });
-        mods.add(tx -> {
-            tx.put(b("0123"), tx.encodeCounter(1234));
-            return null;
-        });
-        mods.add(tx -> {
-            tx.adjustCounter(b("0123"), 99);
-            return null;
-        });
-        mods.add(tx -> {
-            tx.removeRange(b("01"), b("02"));
-            return null;
-        });
-        mods.add(tx -> {
-            tx.put(b("0123"), b(""));
-            return null;
-        });
-        mods.add(tx -> {
-            tx.remove(b("0123"));
-            return null;
-        });
+        final ArrayList<Consumer<KVTransaction>> mods = new ArrayList<>();
+        mods.add(tx -> tx.put(b("0123"), b("4567")));
+        mods.add(tx -> tx.put(b("0123"), b("89ab")));
+        mods.add(tx -> tx.put(b("0123"), tx.encodeCounter(1234)));
+        mods.add(tx -> tx.adjustCounter(b("0123"), 99));
+        mods.add(tx -> tx.removeRange(b("01"), b("02")));
+        mods.add(tx -> tx.put(b("0123"), b("")));
+        mods.add(tx -> tx.remove(b("0123")));
 
         // Set watches, perform modifications, and test notifications
-        for (Transactional<Void> mod : mods) {
+        for (Consumer<KVTransaction> mod : mods) {
 
             // Set watch
             this.log.info("testKeyWatch() on " + store + ": creating key watch for " + mod);
-            final Future<Void> watch = this.tryNtimes(store, tx -> {
+            final Future<Void> watch = this.tryNtimesWithResult(store, tx -> {
                 try {
                     return tx.watchKey(b("0123"));
                 } catch (UnsupportedOperationException e) {
@@ -420,13 +339,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("starting testConflictingTransactions() on " + store);
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Both read the same key
         final KVTransaction[] txs = new KVTransaction[] {
@@ -530,13 +443,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Clear database
         this.log.info("starting testNonconflictingTransactions() on " + store);
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Multiple concurrent transactions with overlapping read ranges and non-intersecting write ranges
         int done = 0;
@@ -643,13 +550,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("starting testSequentialTransactions() on " + store);
 
         // Clear database
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Keep an in-memory record of what is in the committed database
         final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
@@ -681,13 +582,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("starting testMultipleThreadsTransaction() on " + store);
 
         // Clear database
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
-                tx.removeRange(null, null);
-                return null;
-            }
-        });
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Populate database with some data
         final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
@@ -700,53 +595,56 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Create new transaction and blast away at it
         this.log.info("testMultipleThreadsTransaction() starting threads");
-        this.tryNtimes(store, new Transactional<Void>() {
-            @Override
-            public Void transact(KVTransaction tx) {
+        this.tryNtimes(store, tx -> {
 
-                // Create worker threads
-                final RandomTask[] tasks = new RandomTask[33];
-                final Thread[] threads = new Thread[tasks.length];
-                for (int i = 0; i < tasks.length; i++) {
-                    final RandomTask task = new RandomTask(i, null, KVDatabaseTest.this.random.nextLong());
-                    threads[i] = new Thread(() -> task.runRandomAccess(tx));
-                    tasks[i] = task;
+            // Create worker threads
+            final RandomTask[] tasks = new RandomTask[33];
+            final Thread[] threads = new Thread[tasks.length];
+            for (int i = 0; i < tasks.length; i++) {
+                final RandomTask task = new RandomTask(i, null, KVDatabaseTest.this.random.nextLong());
+                threads[i] = new Thread(() -> task.runRandomAccess(tx));
+                tasks[i] = task;
+            }
+
+            // Start threads
+            for (int i = 0; i < tasks.length; i++)
+                threads[i].start();
+
+            // Join threads
+            for (int i = 0; i < tasks.length; i++) {
+                try {
+                    threads[i].join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
+            }
 
-                // Start threads
-                for (int i = 0; i < tasks.length; i++)
-                    threads[i].start();
-
-                // Join threads
-                for (int i = 0; i < tasks.length; i++) {
-                    try {
-                        threads[i].join();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+            // Check for errors
+            for (int i = 0; i < tasks.length; i++) {
+                final Throwable taskFail = tasks[i].getFail();
+                if (taskFail != null) {
+                    throw new RuntimeException("task #" + i + " failed: >>>"
+                      + KVDatabaseTest.this.show(taskFail).trim() + "<<<");
                 }
-
-                // Check for errors
-                for (int i = 0; i < tasks.length; i++) {
-                    final Throwable taskFail = tasks[i].getFail();
-                    if (taskFail != null) {
-                        throw new RuntimeException("task #" + i + " failed: >>>"
-                          + KVDatabaseTest.this.show(taskFail).trim() + "<<<");
-                    }
-                }
-                return null;
             }
         });
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
     }
 
-    protected <V> V tryNtimes(KVDatabase kvdb, Transactional<V> transactional) {
+    protected void tryNtimes(KVDatabase kvdb, Consumer<KVTransaction> consumer) {
+        this.<Void>tryNtimesWithResult(kvdb, kvt -> {
+            consumer.accept(kvt);
+            return null;
+        });
+    }
+
+    protected <R> R tryNtimesWithResult(KVDatabase kvdb, Function<KVTransaction, R> function) {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             try {
                 this.numTransactionAttempts.incrementAndGet();
                 final KVTransaction tx = kvdb.createTransaction();
-                final V result = transactional.transact(tx);
+                final R result = function.apply(tx);
                 tx.commit();
                 return result;
             } catch (RetryTransactionException e) {
@@ -783,10 +681,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
         throw retry;
-    }
-
-    protected interface Transactional<V> {
-        V transact(KVTransaction kvt);
     }
 
     protected void updateRetryStats(RetryTransactionException e) {
@@ -1243,7 +1137,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         private TreeMap<byte[], byte[]> readDatabase() {
-            return KVDatabaseTest.this.tryNtimes(this.store, RandomTask.this::readDatabase);
+            return KVDatabaseTest.this.tryNtimesWithResult(this.store, RandomTask.this::readDatabase);
         }
 
         private TreeMap<byte[], byte[]> readDatabase(KVStore tx) {

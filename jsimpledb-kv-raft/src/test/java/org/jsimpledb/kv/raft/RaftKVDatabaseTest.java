@@ -141,13 +141,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             final int addIndex = (i + 1) % numNodes;
             final String node = this.rafts[addIndex].getIdentity();
             this.log.debug("adding node \"" + node + "\" to test cluster");
-            this.tryNtimes(this.rafts[targetIndex], new Transactional<Void>() {
-                @Override
-                public Void transact(KVTransaction tx) {
-                    ((RaftKVTransaction)tx).configChange(node, node);
-                    return null;
-                }
-            });
+            this.tryNtimes(this.rafts[targetIndex], tx -> ((RaftKVTransaction)tx).configChange(node, node));
         }
     }
 
