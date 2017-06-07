@@ -40,36 +40,54 @@ public class RaftKVTransaction implements KVTransaction {
    How transactions are managed
    ============================
 
-   When a transaction is created, a MutableView is setup with the transaction's base log entry as the underlying
-   read-only data, implicitly establishing the base term+index for the transaction. The transaction's (initial)
-   consistency level determines whether this log entry is the last log entry (LINEARIZABLE, EVENTUAL, UNCOMMITTED)
-   or the last committed log entry (EVENTUAL_COMMITTED).
+   Transactions have a base term+index, which dictates the MVCC version of the database that the transaction sees,
+   and (eventually) a commit term+index, which represents the log entry that must be committed (in the Raft sense)
+   before the transaction itself may commit.
 
-   If a transaction's base log entry is ever replaced (implying it had not yet been committed, and therefore the
-   consistency level cannot be EVENTUAL_COMMITTED), then the transaction fails immediately with a retry (unless
-   UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore it's always
-   the case that a transaction's base term+index actually exists in the nodes log as an entry, or has been compacted
-   (unless UNCOMMITTED).
+   When a transaction is created, a MutableView is setup using the log entry corresponding to the transaction's base
+   term+index as the underlying read-only data. The transaction's consistency determines whether this log entry is
+   the last log entry (LINEARIZABLE, EVENTUAL, UNCOMMITTED) or the last committed log entry (EVENTUAL_COMMITTED).
 
-   As long as the transaction's consistency is LINEARIZABLE, which is the only consistency level that guarantees
-   up-to-date reads, every time a log entry is added to the raft log, the transaction is rebased on that log entry.
-   Therefore open LINEARIZABLE transactions have an invariant that their base log entry is always the last log entry.
-   The rebase operation can result in a read/write conflict, in which case the transaction immediately fails with a
-   retry. Non-LINEARIZABLE transactions are never rebased and so their base term+index does not change.
+   For non-LINEARIZABLE transactions, the commit term+index can always be determined immediately: for EVENTUAL and
+   EVENTUAL_COMMITTED, it is just the base log entry; for UNCOMMITTED, both values are zero. Therefore, UNCOMMITTED
+   and EVENTUAL_COMMITTED transactions can always commit() immediately, because their commit term+index is already
+   committed at the time the transaction starts.
 
-   When commit() is invoked, if UNCOMMITTED or EVENTUAL_COMMITTED the transaction immediately suceeds; otherwise the
-   node communicates the base term+index with the leader (possibly itself) and waits to receive the transaction's commit
-   term+index in a reply. If the transaction's base term+index is not found in the leader's log, the transaction fails;
-   otherwise, if/when the follower sees the transaction's commit term+index applied to the Raft log and committed, the
-   transaction completes.
+   For LINEARIZABLE transactions, the base term+index must change over time as new log entries are received, to keep
+   the transaction's view up-to-date. This is called "rebasing" the transaction. The rebase operation can fail due
+   to read/write conflicts, whereby a newly added log entry mutates a key that has been accessed by the transaction.
+   If such a conflict is detected, the transaction must retry because it has seen out-of-date information.
 
-   For followers, the response from the leader may be delayed or lost; if so the transaction just times out. When a
-   follower transaction is waiting for its leader response, it no longer gets rebased; the leader is responsible
-   for performing conflict detection with any log entries after the transaction's base index, as recorded in the
-   commit request sent from the follower to the leader.
+   For LINEARIZABLE transactions, the leader must be consulted (via CommitRequest) to determine the commit term+index.
+   If the transaction is read-only, the commit term+index is taken from the leader's last log entry at the time the
+   CommitRequest is received. In addition, the transaction must also wait until the leader's lease expiration time
+   exceeds the leader's current time, to guarantee that the leader's last log entry is in fact up-to-date (i.e., there's
+   not some other leader we don't know about who has already been elected).
 
-   A follower transaction in state COMMIT_READY, but for whom a commit request has already been sent to the leader, is
-   effectively a special follower-specific sub-state of COMMIT_READY (this is indicated by membership in 'pendingRequests').
+   If the LINEARIZABLE transaction is read-write, the leader checks for conflicts caused by any log entries it has betwen
+   the transaction's base log entry and its last log entry, then appends a new log entry, and returns the new log entry
+   as the transaction's commit term+index in a CommitResponse.
+
+   Followers must continue to rebase read-only LINEARIZABLE until their commit term+index is received, but for mutating
+   transactions they do not need to rebase beyond the base term+index that was sent to the leader in the CommitRequest,
+   because the leader takes over conflict detection from that point as described above.
+
+   If a follower transaction's base log entry is ever overwritten then the transaction fails immediately with a retry
+   (unless UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore it's always
+   the case that a transaction's base term+index actually exists in the node's log as an entry (possibly compacted),
+   unless UNCOMMITTED.
+
+   CommitRequest's
+   ---------------
+
+   CommitRequest's are sent by followers to leaders for LINEARIZABLE transactions. For read-write transactions, they are
+   sent when commit() is invoked, and contain both the transaction's reads and writes. For read-only transactions, the
+   CommitRequest is sent as soon as possible, i.e., as soon as it is known that the transaction is read-only. This is
+   allowed because the "up-to-date" guarantee of LINEARIZABLE is only that the transaction sees the database as it
+   existed at some point in time between begin() and commit().
+
+   When commit() is invoked, the thread blocks until the commit term+index log entry is committed. The leader's response
+   may be delayed or lost; if so the transaction times out.
 
    Compacting Log Entries
    ----------------------
@@ -85,17 +103,22 @@ public class RaftKVTransaction implements KVTransaction {
     o If some follower has not received a log entry, but the leader has applied that log entry to its state machine, then
       the only way the follower can be synchronized is via InstallSnapshot (i.e., full state machine dump), which is costly.
 
-    o In order to detect conflicts in a LINEARIZABLE transaction received from a follower, a leader must have access
-      to all log entries after the transaction's base term+index. If any of these have already been applied to the state
-      machine, the leader has no choice but to return a retry error.
+    o In order to detect conflicts in a mutating LINEARIZABLE transaction received in a follower's CommitRequest, a leader
+      must have access to all log entries after the transaction's base term+index. If any of these have already been applied
+      to the state machine, the leader has no choice but to return a retry error.
 
    Actually, these issues also apply to followers, in the sense that they could become leaders at any time, but we don't
    worry about optimizing that relatively rare case.
 
    To address these issues, leaders wait until all followers acknowlegde receipt of a log entry before applying it to
    their state machine. This clearly addresses the first issue above, but also the second, assuming message reordering
-   between nodes is rare: followers' LINEARIZABLE transactions are always based on their last received log entry, so no
-   commit request should have a base term+index less than what the follower has already acknowledged receiving.
+   between nodes is unlikely: followers' LINEARIZABLE transactions are always based on their last received log entry, so
+   no commit request should have a base term+index less than what the follower has already acknowledged receiving.
+
+   Lock Order
+   ----------
+
+   If locks are to be obtained on both this.raft and this.view, the order is: (1) this.raft, (2) this.view
 
 */
 
@@ -103,60 +126,74 @@ public class RaftKVTransaction implements KVTransaction {
 
     private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers
 
-    // Package-private transaction state
+    // Static setup
     final RaftKVDatabase raft;
-    final long txId = COUNTER.incrementAndGet();
-    @GuardedBy("raft")
-    SnapshotRefs snapshotRefs;                          // snapshot of the committed key/value store
-    @GuardedBy("raft")
-    long baseTerm;                                      // term of the log entry on which this transaction is based
-    @GuardedBy("raft")
-    long baseIndex;                                     // index of the log entry on which this transaction is based
-    @GuardedBy("raft")
-    KVTransactionException failure;                     // exception to throw on next access, if any; state CLOSED only
-    final MutableView view;                             // transaction's view of key/value store (restricted to prefix)
-    final SettableFuture<Void> commitFuture = SettableFuture.create();
-    @GuardedBy("raft")
-    boolean readOnly;                                   // read-only status
-    @GuardedBy("raft")
-    Timer commitTimer;                                  // commit timeout timer
-    @GuardedBy("raft")
-    int timeout;                                        // commit timeout, or zero for none
+    final long txId = COUNTER.incrementAndGet();                // transaction's unique ID (on this node)
+    final Consistency consistency;                              // transaction's consistency level guarantee
+    final MutableView view;                                     // transaction's view of key/value store
 
-    // Private transaction state
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    // Base and commit log entry
     @GuardedBy("raft")
-    private TxState state = TxState.EXECUTING;          // curent state
+    private long baseTerm;                                      // term of the log entry on which this transaction is based
+    @GuardedBy("raft")
+    private long baseIndex;                                     // index of the log entry on which this transaction is based
+    @GuardedBy("raft")
+    private long commitTerm;                                    // term of the log entry representing this transaction's commit
+    @GuardedBy("raft")
+    private long commitIndex;                                   // index of the log entry representing this transaction's commit
+    @GuardedBy("raft")
+    private boolean rebasable;                                 // transaction should be rebased on newly committed log entries
+
+    // Transaction state
+    @GuardedBy("raft")
+    private TxState state = TxState.EXECUTING;                  // curent state
+    private volatile boolean executing;                         // allows for quick checks without synchronization
     @GuardedBy("raft")
     private Timestamp lastStateChangeTime = new Timestamp();    // timestamp of most recent state change
     @GuardedBy("raft")
-    private Consistency consistency = Consistency.LINEARIZABLE; // this transaction's consistency level guarantee
+    private boolean readOnly;                                   // read-only status
     @GuardedBy("raft")
-    private String[] configChange;                      // cluster config change associated with this transaction
+    private String[] configChange;                              // cluster config change associated with this transaction
     @GuardedBy("raft")
-    private long commitTerm;                            // term of the log entry representing this transaction's commit
+    private KVTransactionException failure;                     // exception to throw on next access, if any; state CLOSED only
     @GuardedBy("raft")
-    private long commitIndex;                           // index of the log entry representing this transaction's commit
-    @GuardedBy("raft")
-    private boolean commitIndexCommitted;               // true if log entry at (commitIndex, commitTerm) is committed
+    private SnapshotRefs snapshotRefs;                          // snapshot of the committed key/value store
 
-    private volatile boolean executing;                 // allows for quick checks without synchronization
+    // commit() status
+    private final SettableFuture<Void> commitFuture = SettableFuture.create();  // the result for the thread invoking commit()
+    @GuardedBy("raft")
+    private Timer commitTimer;                                  // commit timeout timer
+    @GuardedBy("raft")
+    private int timeout;                                        // commit timeout, or zero for none
+    @GuardedBy("raft")
+    private boolean committable;                                // transaction can be committed after commitLeaderLeaseTimeout
+    @GuardedBy("raft")
+    private Timestamp commitLeaderLeaseTimeout;                 // minimum required leader lease timeout for commit (if not null)
+
+    // Private transaction state
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Constructor.
      *
      * @param raft associated database
+     * @param consistency consistency guarantee
      * @param baseTerm term of the Raft log entry on which this transaction is based
      * @param baseIndex index of the Raft log entry on which this transaction is based
      * @param snapshot underlying state machine snapshot; will be closed with this instance
      * @param view this transaction's view of the (prefixed) key/value store
      */
-    RaftKVTransaction(RaftKVDatabase raft, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {
+    RaftKVTransaction(RaftKVDatabase raft, Consistency consistency,
+      long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {
         this.raft = raft;
+        this.consistency = consistency;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
         this.snapshotRefs = new SnapshotRefs(snapshot);
         this.view = view;
+        this.rebasable = consistency.isGuaranteesUpToDateReads();                   // i.e., LINEARIZABLE
+        if (!this.rebasable)
+            this.view.disableReadTracking();
     }
 
 // Properties
@@ -234,32 +271,30 @@ public class RaftKVTransaction implements KVTransaction {
      * Get the term of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
      * before it can complete.
      *
-     * @return associated commit log entry index, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
+     * <p>
+     * For {@link Consistency#UNCOMMITTED} transactions, this will always return zero.
+     *
+     * @return associated commit log entry index, or zero if not yet determined
      */
     public long getCommitTerm() {
         synchronized (this.raft) {
             return this.commitTerm;
         }
     }
-    void setCommitTerm(long commitTerm) {
-        assert Thread.holdsLock(this.raft);
-        this.commitTerm = commitTerm;
-    }
 
     /**
      * Get the index of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
      * before it can complete.
      *
-     * @return associated commit log entry term, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
+     * <p>
+     * For {@link Consistency#UNCOMMITTED} transactions, this will always return zero.
+     *
+     * @return associated commit log entry term, or zero if not yet determined
      */
     public long getCommitIndex() {
         synchronized (this.raft) {
             return this.commitIndex;
         }
-    }
-    void setCommitIndex(long commitIndex) {
-        assert Thread.holdsLock(this.raft);
-        this.commitIndex = commitIndex;
     }
 
     /**
@@ -271,43 +306,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @return transaction consistency level
      */
     public Consistency getConsistency() {
-        synchronized (this.raft) {
-            return this.consistency;
-        }
-    }
-
-    /**
-     * Set the consistency level for this transaction.
-     *
-     * <p>
-     * This setting may be modified during a transaction while it is still open; such a change only affects the behavior
-     * of the transaction after {@link #commit} is invoked. However, only {@linkplain Consistency#mayChangeTo certain transitions}
-     * between consistency levels are allowed.
-     *
-     * <p>
-     * Setting the consistency to any level other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction
-     * to read-only.
-     *
-     * @param consistency desired consistency level
-     * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
-     * @throws IllegalStateException if {@code consistency} is different from the {@linkplain #getConsistency currently configured
-     *  consistency} but this transaction is no longer open (i.e., in state {@link TxState#EXECUTING})
-     * @throws IllegalArgumentException if {@code consistency} is null
-     * @throws IllegalArgumentException if a change to {@code consistency} is {@linkplain Consistency#mayChangeTo incompatible}
-     *  with this transaction's current consistency level
-     * @throws StaleTransactionException if this transaction is no longer open
-     */
-    public void setConsistency(Consistency consistency) {
-        Preconditions.checkArgument(consistency != null, "null consistency");
-        synchronized (this.raft) {
-            if (this.consistency.equals(consistency))
-                return;
-            Preconditions.checkArgument(this.consistency.mayChangeTo(consistency), "illegal consistency level change");
-            this.verifyExecuting();
-            this.consistency = consistency;
-            if (this.consistency.isReadOnly())
-                this.readOnly = true;
-        }
+        return this.consistency;
     }
 
     /**
@@ -333,22 +332,29 @@ public class RaftKVTransaction implements KVTransaction {
      * when read back, but they are discarded on {@link #commit commit()}.
      *
      * <p>
-     * {@link RaftKVTransaction} allows changing read-only status at any time prior to {@link #commit}.
+     * By default, {@link Consistency#LINEARIZABLE} transactions are read-write. They may be changed to read-only via
+     * this method, and once changed, may not be changed back. Non-{@link Consistency#LINEARIZABLE} are always read-only.
      *
      * @param readOnly true to discard mutations on commit, false to apply mutations on commit
      * @throws IllegalArgumentException if {@code readOnly} is false and
      *  {@linkplain #getConsistency this transaction's consistency} is not {@link Consistency#LINEARIZABLE}
+     * @throws IllegalArgumentException if {@code readOnly} is false and this transaction is currently read-only
      * @throws StaleTransactionException if this transaction is no longer open
      */
     @Override
     public void setReadOnly(boolean readOnly) {
         synchronized (this.raft) {
-            Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE),
-              this.consistency + " transactions must be read-only");
             if (readOnly == this.readOnly)
                 return;
+            Preconditions.checkArgument(readOnly || this.consistency.equals(Consistency.LINEARIZABLE),
+              this.consistency + " transactions must be read-only");
+            Preconditions.checkArgument(readOnly || !this.consistency.equals(Consistency.LINEARIZABLE),
+              this.consistency + " transactions cannot be changed back to read-write after being set read-only");
+            assert this.consistency.equals(Consistency.LINEARIZABLE);
+            assert !this.readOnly;
             this.verifyExecuting();
             this.readOnly = readOnly;
+            this.raft.role.handleLinearizableReadOnlyChange(this);
         }
     }
 
@@ -577,8 +583,54 @@ public class RaftKVTransaction implements KVTransaction {
 
 // Package-access methods
 
+    SettableFuture<Void> getCommitFuture() {
+        return this.commitFuture;
+    }
+
+    int getTimeout() {
+        return this.timeout;
+    }
+
+    Timer getCommitTimer() {
+        return this.commitTimer;
+    }
+    void setCommitTimer(final Timer commitTimer) {
+        this.commitTimer = commitTimer;
+    }
+
+    KVTransactionException getFailure() {
+        assert Thread.holdsLock(this.raft);
+        return this.failure;
+    }
+
+    Timestamp getCommitLeaderLeaseTimeout() {
+        return this.commitLeaderLeaseTimeout;
+    }
+
+    void setFailure(final KVTransactionException failure) {
+        assert Thread.holdsLock(this.raft);
+        this.failure = failure;
+    }
+
+    void setCommitInfo(long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
+        assert Thread.holdsLock(this.raft);
+        assert this.commitTerm == 0 || this.commitTerm == commitTerm;
+        assert this.commitIndex == 0 || this.commitIndex == commitIndex;
+        assert this.commitLeaderLeaseTimeout == null || this.commitLeaderLeaseTimeout == commitLeaderLeaseTimeout;
+        if (this.raft.log.isTraceEnabled()) {
+            this.raft.trace("setting commit to " + commitIndex + "t" + commitTerm
+              + (commitLeaderLeaseTimeout != null ? "@" + commitLeaderLeaseTimeout : "") + " for " + this);
+        }
+        this.commitTerm = commitTerm;
+        this.commitIndex = commitIndex;
+        this.commitLeaderLeaseTimeout = commitLeaderLeaseTimeout;
+        if (this.rebasable && this.baseIndex >= this.commitIndex)
+            this.setNoLongerRebasable();
+    }
+
     void rebase(long baseTerm, long baseIndex, KVStore kvstore, CloseableKVStore snapshot) {
         assert Thread.holdsLock(this.view);
+        assert Thread.holdsLock(this.raft);
         assert this.state.equals(TxState.EXECUTING);
         assert this.snapshotRefs != null;
         this.rebase(baseTerm, baseIndex);
@@ -588,8 +640,12 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     void rebase(long baseTerm, long baseIndex) {
-        assert Thread.holdsLock(this.raft);
         assert baseIndex > this.baseIndex;
+        this.setBase(baseTerm, baseIndex);
+    }
+
+    void setBase(long baseTerm, long baseIndex) {
+        assert Thread.holdsLock(this.raft);
         assert this.failure == null;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
@@ -601,13 +657,29 @@ public class RaftKVTransaction implements KVTransaction {
             throw this.failure != null ? this.failure.duplicate() : new StaleTransactionException(this);
     }
 
-    boolean isCommitIndexCommitted() {
+    boolean isCommittable() {
         assert Thread.holdsLock(this.raft);
-        return this.commitIndexCommitted;
+        return this.committable;
     }
-    void setCommitIndexCommitted() {
+    void setCommittable() {
         assert Thread.holdsLock(this.raft);
-        this.commitIndexCommitted = true;
+        assert !this.committable;
+        this.committable = true;
+    }
+
+    boolean isRebasable() {
+        assert Thread.holdsLock(this.raft);
+        return this.rebasable;
+    }
+    void setNoLongerRebasable() {
+        assert Thread.holdsLock(this.raft);
+        assert this.rebasable == (this.view.getReads() != null);
+        if (this.rebasable) {
+            if (this.raft.log.isTraceEnabled())
+                this.raft.trace("stopping rebasing for " + this);
+            this.view.disableReadTracking();
+            this.rebasable = false;
+        }
     }
 
     /**
@@ -633,14 +705,18 @@ public class RaftKVTransaction implements KVTransaction {
         synchronized (this.raft) {
             return this.getClass().getSimpleName()
               + "[txId=" + this.txId
-              + ",state=" + this.state
+              + "," + this.state
               + ",base=" + this.baseIndex + "t" + this.baseTerm
-              + ",consistency=" + this.consistency
+              + (this.rebasable ? ",rebasable" : "")
+              + "," + this.consistency
+              + (this.addsLogEntry() ? ",mutating" : !this.readOnly ? ",non-mutating" : "")
               + (this.readOnly ? ",readOnly" : "")
               + (this.configChange != null ? ",config=" + (this.configChange[1] != null ?
                "+" + this.configChange[0] + "@" + this.configChange[1] : "-" + this.configChange[0]) : "")
-              + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
+              + ((this.commitIndex | this.commitTerm) != 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
+              + (this.committable ? ",committable" : "")
               + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
+              + (this.commitLeaderLeaseTimeout != null ? ",leaseTimeout=" + this.commitLeaderLeaseTimeout : "")
               + "]";
         }
     }
@@ -664,40 +740,82 @@ public class RaftKVTransaction implements KVTransaction {
     void checkStateOpen(long currentTerm, long lastIndex, long raftCommitIndex) {
         assert !this.commitFuture.isCancelled();
         assert this.commitFuture.isDone() == this.state.compareTo(TxState.COMPLETED) >= 0;
-        assert this.baseTerm <= currentTerm;
+        if (this.state.compareTo(TxState.COMPLETED) < 0) {
+            assert this.baseTerm <= currentTerm;
+            assert this.commitIndex == 0 || this.commitIndex >= this.baseIndex;
+        }
+        assert this.commitTerm <= currentTerm;
+        assert !this.committable || this.commitTerm > 0 || this.commitIndex > 0 || this.consistency == Consistency.UNCOMMITTED;
+        assert this.commitLeaderLeaseTimeout == null || this.commitTerm > 0 || this.commitIndex > 0;
+        assert this.raft.role.checkRebasableAndCommittableUpToDate(this);
+        assert !this.rebasable || !this.committable;
+        assert !this.rebasable || this.baseIndex >= lastIndex;
+        assert !this.rebasable || this.consistency == Consistency.LINEARIZABLE;
+        assert !this.rebasable || this.commitIndex == 0 || this.commitIndex > raftCommitIndex;
+        assert !this.rebasable || this.commitIndex == 0 || !this.addsLogEntry();
+        assert this.rebasable == (this.view.getReads() != null);
+        switch (this.consistency) {
+        case LINEARIZABLE:
+            assert !this.committable || this.addsLogEntry() || this.baseIndex == this.commitIndex
+              || this.state.compareTo(TxState.COMMIT_WAITING) >= 0;
+            assert !this.committable || !this.addsLogEntry() || this.baseIndex < this.commitIndex;
+            assert this.commitIndex == 0 || !this.addsLogEntry() || this.state.compareTo(TxState.COMMIT_WAITING) >= 0;
+            assert this.commitTerm == 0 || this.commitTerm >= this.baseTerm;
+            assert this.commitIndex == 0 || this.commitIndex >= this.baseIndex;
+            break;
+        case EVENTUAL:
+            assert this.readOnly;
+            assert !this.rebasable;
+            assert this.configChange == null;
+            assert this.commitTerm == this.baseTerm;
+            assert this.commitIndex == this.baseIndex;
+            break;
+        case EVENTUAL_COMMITTED:
+            assert this.readOnly;
+            assert !this.rebasable;
+            assert this.configChange == null;
+            assert this.commitTerm == this.baseTerm;
+            assert this.commitIndex == this.baseIndex;
+            assert this.commitIndex <= raftCommitIndex;
+            assert this.committable;
+            break;
+        case UNCOMMITTED:
+            assert this.readOnly;
+            assert !this.rebasable;
+            assert this.configChange == null;
+            assert this.commitTerm == 0;
+            assert this.commitIndex == 0;
+            assert this.committable;
+            assert raftCommitIndex >= this.commitIndex;
+            break;
+        default:
+            assert false;
+            break;
+        }
+        assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
+        assert !this.readOnly || this.configChange == null;
         switch (this.state) {
         case EXECUTING:
-            assert this.commitTerm == 0;
-            assert this.commitIndex == 0;
             assert this.snapshotRefs != null;
             assert this.failure == null;
-            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
-            assert !this.readOnly || this.configChange == null;
             break;
         case COMMIT_READY:
-            assert this.commitTerm == 0;
-            assert this.commitIndex == 0;
             assert this.snapshotRefs == null;
             assert this.failure == null;
-            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
-            assert !this.readOnly || this.configChange == null;
             break;
         case COMMIT_WAITING:
-            assert this.commitTerm >= this.baseTerm;
             assert this.commitTerm <= currentTerm;
-            assert this.commitIndex >= this.baseIndex;                                      // equal implies a read-only tx
-            assert this.commitIndex > this.baseIndex || !this.addsLogEntry();
+            if (this.consistency != Consistency.UNCOMMITTED) {
+                assert this.commitTerm >= this.baseTerm;
+                assert this.commitIndex >= this.baseIndex;
+            }
             assert this.failure == null;
-            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
-            assert !this.readOnly || this.configChange == null;
             break;
         case COMPLETED:
             assert this.commitFuture.isDone();
             assert this.commitTerm == 0 || this.commitTerm >= this.baseTerm;
             assert this.commitIndex == 0 || this.commitIndex >= this.baseIndex;
             assert this.commitTerm <= currentTerm;
-            assert this.readOnly || this.consistency.equals(Consistency.LINEARIZABLE);
-            assert !this.readOnly || this.configChange == null;
             assert this.failure == null;
             break;
         case CLOSED:

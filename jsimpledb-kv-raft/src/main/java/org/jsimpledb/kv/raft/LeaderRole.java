@@ -334,6 +334,9 @@ public class LeaderRole extends Role {
             }
             this.raft.commitIndex = maxCommitIndex;
 
+            // Update commitables
+            this.checkCommittables();
+
             // Perform various service
             this.raft.requestService(this.checkReadyTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
@@ -546,6 +549,8 @@ public class LeaderRole extends Role {
      * </ul>
      */
     private void updateFollower(Follower follower) {
+
+        // Sanity check
         assert Thread.holdsLock(this.raft);
 
         // If follower has an in-progress snapshot that has become too stale, abort it
@@ -633,7 +638,7 @@ public class LeaderRole extends Role {
 
         // If follower is too far behind, we must do a snapshot install
         if (nextIndex <= this.raft.lastAppliedIndex) {
-            final MostRecentView view = new MostRecentView(this.raft, true);
+            final MostRecentView view = new MostRecentView(this.raft, this.raft.commitIndex);
             follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
               view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
             if (this.log.isDebugEnabled())
@@ -729,52 +734,67 @@ public class LeaderRole extends Role {
 // Transactions
 
     @Override
-    void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly) {
+    void handleLinearizableReadOnlyChange(RaftKVTransaction tx) {
 
         // Sanity check
-        assert Thread.holdsLock(this.raft);
-        assert tx.getState().equals(TxState.COMMIT_READY);
+        super.handleLinearizableReadOnlyChange(tx);
 
-        // Check for conflicts
-        final String error = this.checkConflicts(tx.baseTerm, tx.baseIndex, tx.view.getReads(),
-          this.raft.dumpConflicts ? "local txId=" + tx.txId : null);
-        if (error != null) {
-            if (this.log.isDebugEnabled())
-                this.debug("local transaction " + tx + " failed due to conflict: " + error);
-            throw new RetryTransactionException(tx, error);
-        }
+        // Set commit info based on what we currently know as "up-to-date"
+        tx.setCommitInfo(this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
+        this.checkCommittable(tx);
+    }
 
-        // Handle read-only vs. read-write transaction
-        if (readOnly) {
-            if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
-                this.advanceReadyTransaction(tx, tx.baseTerm, tx.baseIndex);
-            else
-                this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
-            return;
-        } else {
+    @Override
+    void checkReadyTransactionNeedingCommitInfo(RaftKVTransaction tx) {
 
-            // If a config change is involved, check whether we can safely apply it
-            if (tx.getConfigChange() != null && !this.mayApplyNewConfigChange())
+        // Sanity check
+        super.checkReadyTransactionNeedingCommitInfo(tx);
+
+        // Handle (effectively) read-only transactions
+        if (!tx.addsLogEntry()) {
+
+            // Does it already have commit information?
+            if (tx.getCommitIndex() != 0) {
+                this.advanceReadyTransactionWithCommitInfo(tx,
+                  tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
                 return;
-
-            // Commit transaction as a new log entry
-            final LogEntry logEntry;
-            try {
-                logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
-            } catch (IllegalStateException e) {
-                throw new RetryTransactionException(tx, e.getMessage());
-            } catch (Exception e) {
-                throw new KVTransactionException(tx, "error attempting to persist transaction", e);
             }
-            if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " for local transaction " + tx);
 
-            // Update transaction
-            this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
-
-            // Rebase transactions
-            this.rebaseTransactions();
+            // Set commit info based on what we currently know as "up-to-date" and proceed
+            this.advanceReadyTransactionWithCommitInfo(tx,
+              this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
+            return;
         }
+
+        // Must be a read-write transaction that's fully rebased
+        assert !tx.isReadOnly();
+        assert tx.isRebasable() : "fail tx " + tx;
+        assert !tx.isCommittable();
+        assert tx.getCommitTerm() == 0;
+        assert tx.getCommitIndex() == 0;
+        assert this.checkRebasableAndCommittableUpToDate(tx);
+
+        // If a config change is involved, check whether we can safely apply it
+        if (tx.getConfigChange() != null && !this.mayApplyNewConfigChange())
+            return;
+
+        // Commit transaction as a new log entry
+        final LogEntry logEntry;
+        try {
+            logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
+        } catch (IllegalStateException e) {
+            throw new RetryTransactionException(tx, e.getMessage());
+        } catch (Exception e) {
+            throw new KVTransactionException(tx, "error attempting to persist transaction", e);
+        }
+        if (this.log.isDebugEnabled())
+            this.debug("added log entry " + logEntry + " for local transaction " + tx);
+
+        // Update transaction
+        this.advanceReadyTransactionWithCommitInfo(tx, logEntry.getTerm(), logEntry.getIndex(), null);
+
+        // Rebase transactions
+        this.rebaseTransactions();
     }
 
     // Determine whether it's safe to append a log entry with a configuration change
@@ -794,6 +814,19 @@ public class LeaderRole extends Role {
 
         // OK
         return true;
+    }
+
+    @Override
+    Timestamp getLeaderLeaseTimeout() {
+        return this.leaseTimeout;
+    }
+
+    /**
+     * Get the minimum future leader timestamp required before we will know that our last log entry is up-to-date as of now.
+     * If we already know that it's up-to-date as of now (because our lease currently extends into the future), return null.
+     */
+    private Timestamp getCurrentCommitMinLeaseTimeout() {
+        return this.isLeaderLeaseActiveNow() ? null : new Timestamp();
     }
 
 // Message
@@ -916,40 +949,29 @@ public class LeaderRole extends Role {
         if (msg.isReadOnly()) {
             assert newLogEntry == null;
 
-            // Get current time
-            final Timestamp minimumLeaseTimeout = new Timestamp();
+            // Determine our minimum lease timeout before we can know for sure that we are up-to-date, if not already
+            final Timestamp minimumLeaseTimeout = this.getCurrentCommitMinLeaseTimeout();
 
-            // The follower may commit as soon as it sees the transaction's BASE log entry get committed.
-            // Note, we don't need to wait for any subsequent log entries to be committed, because if they
-            // are committed they are invisible to the transaction, and if they aren't ever committed then
-            // whatever log entries replace them will necessarily have been created sometime after now.
-            final CommitResponse response;
-            if (this.leaseTimeout != null && this.leaseTimeout.compareTo(minimumLeaseTimeout) > 0) {
-
-                // No other leader could have been elected yet as of right now, so the transaction can commit immediately
-                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex());
-            } else {
+            // If there is a minimum lease timeout requirement, try to advance our lease timeout
+            if (minimumLeaseTimeout != null) {
 
                 // Remember that this follower is now going to be waiting for this particular leaseTimeout
                 follower.getCommitLeaseTimeouts().add(minimumLeaseTimeout);
 
                 // Send immediate probes to all (up-to-date) followers in an attempt to increase our leaseTimeout quickly
                 this.updateAllSynchronizedFollowersNow();
-
-                // Build response
-                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex(), minimumLeaseTimeout);
             }
 
-            // Send response
-            this.raft.sendMessage(response);
+            // Send response with commit term+index set from our last log entry
+            this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
+              this.raft.currentTerm, msg.getTxId(), this.raft.getLastLogTerm(), this.raft.getLastLogIndex(),
+              minimumLeaseTimeout));
         } else {
             assert newLogEntry != null;
 
             // If the client is requesting a config change, we could check for an outstanding config change now and if so
             // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will
-            // throw an exception and the client will just just have to retry the transaction.
+            // throw an exception and the client will just just have to retry the transaction. Config changes are rare.
 
             // Commit mutations as a new log entry
             final LogEntry logEntry;

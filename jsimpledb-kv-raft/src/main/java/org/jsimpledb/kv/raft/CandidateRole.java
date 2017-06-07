@@ -119,11 +119,10 @@ public class CandidateRole extends NonLeaderRole {
 // Transactions
 
     @Override
-    void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly) {
+    void checkReadyTransactionNeedingCommitInfo(RaftKVTransaction tx) {
 
         // Sanity check
-        assert Thread.holdsLock(this.raft);
-        assert tx.getState().equals(TxState.COMMIT_READY);
+        super.checkReadyTransactionNeedingCommitInfo(tx);
 
         // We can't do anything because we don't have a leader yet
     }

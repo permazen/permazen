@@ -48,7 +48,8 @@ public enum TxState {
      *
      * <p>
      * The thread that invoked {@link RaftKVTransaction#commit} or {@link RaftKVTransaction#rollback} has not yet
-     * woken up and returned from the invocation.
+     * woken up and returned from the invocation. The transaction's {@code commitFuture} has been completed one way
+     * or another.
      */
     COMPLETED,
 

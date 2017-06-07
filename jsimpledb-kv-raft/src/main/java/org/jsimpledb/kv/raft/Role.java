@@ -97,9 +97,22 @@ public abstract class Role {
     }
 
     void shutdown() {
+
+        // Sanity check
         assert Thread.holdsLock(this.raft);
-        this.raft.openTransactions.values()
-          .forEach(this::cleanupForTransaction);
+
+        // Fail any (read-only) transactions with a minimum lease timeout, because they won't be valid for a new leader
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            if (!tx.getState().equals(TxState.COMPLETED) && tx.getCommitLeaderLeaseTimeout() != null) {
+                assert tx.getCommitTerm() > 0;
+                assert tx.getCommitIndex() > 0;
+                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
+            }
+        }
+
+        // Cleanup role-specific state
+        for (RaftKVTransaction tx : this.raft.openTransactions.values())
+            this.cleanupForTransaction(tx);
     }
 
 // Service
@@ -111,8 +124,10 @@ public abstract class Role {
      */
     void checkReadyTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values()))
-            new CheckReadyTransactionService(this, tx).run();
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            if (TxState.COMMIT_READY.equals(tx.getState()))
+                new CheckReadyTransactionService(this, tx).run();
+        }
     }
 
     /**
@@ -121,8 +136,10 @@ public abstract class Role {
      */
     void checkWaitingTransactions() {
         assert Thread.holdsLock(this.raft);
-        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values()))
-            new CheckWaitingTransactionService(this, tx).run();
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            if (TxState.COMMIT_WAITING.equals(tx.getState()))
+                new CheckWaitingTransactionService(this, tx).run();
+        }
     }
 
     /**
@@ -133,7 +150,10 @@ public abstract class Role {
      * Note: checkWaitingTransactions() must have been invoked already when this method is invoked.
      */
     void applyCommittedLogEntries() {
+
+        // Sanity check
         assert Thread.holdsLock(this.raft);
+        assert this.checkRebasableAndCommittableUpToDate();
 
         // Determine how many committed log entries we can apply to the state machine at this time
         int numEntriesToApply = 0;
@@ -142,14 +162,6 @@ public abstract class Role {
             numEntriesToApply++;
         final long maxAppliedIndex = this.raft.lastAppliedIndex + numEntriesToApply;
         assert maxAppliedIndex <= this.raft.commitIndex;
-
-        // Sanity check that all committable transactions have been committed before we compact their commit log entries
-        boolean assertionsEnabled = false;
-        assert assertionsEnabled = true;
-        if (assertionsEnabled) {
-            for (RaftKVTransaction tx : this.raft.openTransactions.values())
-                assert !tx.getState().equals(TxState.COMMIT_WAITING) || tx.getCommitIndex() > this.raft.commitIndex;
-        }
 
         // Apply committed log entries to the state machine
         while (this.raft.lastAppliedIndex < maxAppliedIndex) {
@@ -213,6 +225,30 @@ public abstract class Role {
             this.raft.raftLog.remove(0);
             this.raft.deleteFile(logEntry.getFile(), "applied log file");
         }
+    }
+
+    // Assertion check
+    boolean checkRebasableAndCommittableUpToDate() {
+        for (RaftKVTransaction tx : this.raft.openTransactions.values())
+            this.checkRebasableAndCommittableUpToDate(tx);
+        return true;
+    }
+
+    // Assertion check
+    boolean checkRebasableAndCommittableUpToDate(RaftKVTransaction tx) {
+
+        // A rebasable transactions should be fully rebased
+        assert !tx.isRebasable() || tx.getBaseIndex() == this.raft.getLastLogIndex() : "rebasable check failed for " + tx;
+
+        // A committable transaction should be marked as such
+        if (!tx.isCommittable()) {
+            try {
+                assert !this.checkCommittable(tx);
+            } catch (KVTransactionException e) {
+                // ok - it's not committable because it's broken
+            }
+        }
+        return true;
     }
 
     /**
@@ -286,6 +322,24 @@ public abstract class Role {
 // Transactions
 
     /**
+     * Handle the situation where a {@link Consistency#LINEARIZABLE} transaction in state {@link TxState#EXECUTING}
+     * transitions from read-write to read-only.
+     */
+    void handleLinearizableReadOnlyChange(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        assert tx.getState().equals(TxState.EXECUTING);
+        assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
+        assert tx.isReadOnly();
+        assert tx.getCommitTerm() == 0;
+        assert tx.getCommitIndex() == 0;
+        assert tx.isRebasable();
+        assert !tx.isCommittable();
+        assert this.checkRebasableAndCommittableUpToDate(tx);
+    }
+
+    /**
      * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state).
      *
      * <p>
@@ -302,45 +356,43 @@ public abstract class Role {
      * @param tx the transaction
      * @throws KVTransactionException if an error occurs
      */
-    void checkReadyTransaction(RaftKVTransaction tx) {
+    final void checkReadyTransaction(RaftKVTransaction tx) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
-        // Determine whether transaction is truly read-only, i.e., it does not imply adding a new Raft log entry
-        final boolean readOnly = !tx.addsLogEntry();
-
-        // Check whether we can commit the transaction immediately
-        if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {           // i.e., UNCOMMITTED, EVENTUAL_COMMITTED
-            if (this.log.isTraceEnabled())
-                this.trace("trivial commit for read-only, " + tx.getConsistency() + " " + tx);
-            this.raft.succeed(tx);
+        // If transaction already has a commit term & index, proceed to COMMIT_WAITING
+        if (tx.getCommitIndex() != 0) {
+            this.advanceReadyTransactionWithCommitInfo(tx,
+              tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
             return;
         }
 
-        // Check whether we don't need to bother talking to the leader
-        if (readOnly && !tx.getConsistency().isGuaranteesUpToDateReads()) {                 // i.e., EVENTUAL
-            this.advanceReadyTransaction(tx, tx.baseTerm, tx.baseIndex);
-            return;
-        }
-
-        // Requires leader communication - let subclass handle it
-        this.checkReadyLinearizableTransaction(tx, readOnly);                               // i.e., LINEARIZABLE
+        // Requires leader communication to acquire commit term+index - let subclass handle it
+        assert !tx.isCommittable();
+        assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
+        this.checkReadyTransactionNeedingCommitInfo(tx);
     }
 
     /**
-     * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state)
-     * and requires communication with the leader.
-     *
-     * <p>
-     * This will not be invoked unless the transaction is read/write or the consistency level provides up-to-date reads.
+     * Handle a linearizable transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state) but
+     * does not yet have a commit term &amp; index and therefore requires communication with the leader.
      *
      * @param tx the transaction
-     * @param readOnly if transaction commit does not imply adding a Raft log entry
      * @throws KVTransactionException if an error occurs
      */
-    abstract void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly);
+    void checkReadyTransactionNeedingCommitInfo(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        assert tx.getState().equals(TxState.COMMIT_READY);
+        assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
+        assert tx.getCommitTerm() == 0;
+        assert tx.getCommitIndex() == 0;
+        assert !tx.isCommittable();
+        assert this.checkRebasableAndCommittableUpToDate(tx);
+    }
 
     /**
      * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
@@ -348,25 +400,25 @@ public abstract class Role {
      * @param tx the transaction
      * @param commitTerm term of log entry that must be committed before the transaction may succeed
      * @param commitIndex index of log entry that must be committed before the transaction may succeed
+     * @param commitLeaderLeaseTimeout if not null, minimum leader lease timeout we must see before commit may succeed
      */
-    void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {
+    final void advanceReadyTransactionWithCommitInfo(RaftKVTransaction tx,
+      long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Set commit term & index and update state
-        if (this.log.isDebugEnabled())
-            this.debug("advancing " + tx + " to " + TxState.COMMIT_WAITING + " with commit " + commitIndex + "t" + commitTerm);
-        tx.setCommitTerm(commitTerm);
-        tx.setCommitIndex(commitIndex);
+        tx.setCommitInfo(commitTerm, commitIndex, commitLeaderLeaseTimeout);
+        if (this.log.isTraceEnabled())
+            this.trace("advancing " + tx + " to " + TxState.COMMIT_WAITING);
         tx.setState(TxState.COMMIT_WAITING);
-
-        // Discard information we no longer need
-        tx.view.disableReadTracking();
+        tx.setNoLongerRebasable();
+        this.checkCommittable(tx);
 
         // Check this transaction to see if it can be committed
-        this.raft.requestService(this.checkWaitingTransactionsService);
+        new CheckWaitingTransactionService(this, tx).run();
     }
 
     /**
@@ -391,59 +443,128 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         assert tx.getConsistency().isGuaranteesUpToDateReads();
 
-        // Check whether the transaction's commit index and term corresponds to a committed log entry
-        final long commitIndex = tx.getCommitIndex();
-        final long commitTerm = tx.getCommitTerm();
-        if (!tx.isCommitIndexCommitted()) {
-
-            // Has the transaction's commit log entry been committed yet? If not, the transaction is not committed yet.
-            if (commitIndex > this.raft.commitIndex)
-                return;
-
-            // Determine the actual term of the log entry corresponding to commitIndex
-            final long commitIndexActualTerm;
-            if (commitIndex >= this.raft.lastAppliedIndex)
-                commitIndexActualTerm = this.raft.getLogTermAtIndex(commitIndex);
-            else {
-
-                // The commit log entry has already been applied to the state machine; we may or may not know what its term was
-                if ((commitIndexActualTerm = this.raft.getAppliedLogEntryTerm(commitIndex)) == 0) {
-
-                    // This can happen if we lose contact and by the time we're back the log entry has
-                    // already been applied to the state machine on some leader and that leader sent
-                    // us an InstallSnapshot message. We don't know whether it actually got committed
-                    // or not, so the transaction must be retried.
-                    throw new RetryTransactionException(tx, "commit index " + commitIndex
-                      + " < last applied log index " + this.raft.lastAppliedIndex);
-                }
-            }
-
-            // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
-            if (commitTerm != commitIndexActualTerm) {
-                throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry "
-                  + commitIndex + "t" + commitTerm + " overwritten by " + commitIndex + "t" + commitIndexActualTerm);
-            }
-
-            // The transaction's commit log entry is committed
-            tx.setCommitIndexCommitted();
-        }
-
-        // Check with subclass
-        if (!this.mayCommit(tx))
+        // Is transaction committable?
+        if (!this.checkCommittable(tx))
             return;
 
-        // Transaction is officially committed now
+        // Is there a required minimum leader lease timeout associated with the transaction? If so, we must wait for it.
+        final Timestamp commitLeaderLeaseTimeout = tx.getCommitLeaderLeaseTimeout();
+        if (commitLeaderLeaseTimeout != null && !this.isLeaderLeaseActiveAt(commitLeaderLeaseTimeout)) {
+            if (this.log.isTraceEnabled())
+                this.trace("committable " + tx + " must wait for leader lease timeout " + commitLeaderLeaseTimeout);
+            return;
+        }
+
+        // Allow transaction commit to complete
         if (this.log.isTraceEnabled())
-            this.trace("commit successful for " + tx + " (commit index " + this.raft.commitIndex + " >= " + commitIndex + ")");
+            this.trace("commit successful for " + tx);
         this.raft.succeed(tx);
     }
 
-    boolean mayCommit(RaftKVTransaction tx) {
+    /**
+     * Detect newly-committable transactions.
+     *
+     * <p>
+     * This should be invoked after advancing my {@code commitIndex} (as leader or follower).
+     *
+     * @param tx the transaction
+     * @throws KVTransactionException if an error occurs
+     */
+    void checkCommittables() {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+
+        // Check which transactions are now committable
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            try {
+                this.checkCommittable(tx);
+            } catch (KVTransactionException e) {
+                this.raft.fail(tx, e);
+            } catch (Exception | Error e) {
+                this.raft.error("error checking committable for transaction " + tx, e);
+                this.raft.fail(tx, new KVTransactionException(tx, e));
+            }
+        }
+    }
+
+    /**
+     * Determine if a transction has become committable, and mark it so if so.
+     *
+     * <p>
+     * This should be invoked after advancing my {@code commitIndex} (as leader or follower), after setting
+     * the commit info for a transaction, or after rebasing a transaction that has commit info already.
+     *
+     * <p>
+     * Note: "committable" means ready to commit except any required wait for {@code tx.commitLeaderLeaseTimeout}.
+     * In particular, the commit term+index is known, the corresponding log entry has been committed, and if rebasable
+     * the transaction is rebased up through the commit term+index.
+     *
+     * @param tx the transaction
+     * @throws KVTransactionException if an error occurs
+     */
+    boolean checkCommittable(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+
+        // Already checked?
+        if (tx.isCommittable())
+            return true;
+
+        // Has the transaction's commit info been determined yet?
+        final long commitIndex = tx.getCommitIndex();
+        final long commitTerm = tx.getCommitTerm();
+        if (commitIndex == 0)
+            return false;
+
+        // Has the transaction's commit log entry been added yet?
+        final long lastIndex = this.raft.getLastLogIndex();
+        if (commitIndex > lastIndex)
+            return false;
+
+        // Compare commit term to the actual term of the commit log entry
+        final long commitIndexActualTerm = this.raft.getLogTermAtIndexIfKnown(commitIndex);
+        if (commitIndexActualTerm == 0) {
+
+            // The commit log entry has already been applied to the state machine and its term forgotten.
+            // This can happen if we lose contact and by the time we're back the log entry has
+            // already been applied to the state machine on some leader and that leader sent
+            // us an InstallSnapshot message. We don't know whether it actually got committed
+            // or not, so the transaction must be retried.
+            throw new RetryTransactionException(tx, "commit index " + commitIndex
+              + " < last applied log index " + this.raft.lastAppliedIndex);
+        }
+
+        // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
+        if (commitTerm != commitIndexActualTerm) {
+            throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's commit log entry "
+              + commitIndex + "t" + commitTerm + " overwritten by " + commitIndex + "t" + commitIndexActualTerm);
+        }
+
+        // Has the transaction's commit log entry been committed yet?
+        if (commitIndex > this.raft.commitIndex)
+            return false;
+
+        // If transaction is rebasable, it must be rebased at least up through its commit index
+        if (tx.isRebasable() && tx.getBaseIndex() < commitIndex)
+            return false;
+
+        // The transaction's commit log entry is committed, so mark the transaction as committable
+        if (this.log.isTraceEnabled())
+            this.trace(tx + " is now committable: " + this.raft.commitIndex + " >= " + commitIndex + "t" + commitTerm);
+        tx.setCommittable();
+        if (tx.isRebasable())
+            tx.setNoLongerRebasable();
         return true;
     }
 
     /**
-     * Rebase all rebasable transactions.
+     * Rebase all rebasable transactions up to through the last log entry.
+     *
+     * <p>
+     * We only rebase {@link Consistency#LINEARIZABLE} transactions that are either non-mutating or have not
+     * yet had a {@link CommitRequest} sent to the leader.
      *
      * <p>
      * This should be invoked after appending a new Raft log entry.
@@ -457,9 +578,9 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
 
         // Rebase all rebasable transactions
-        new ArrayList<>(this.raft.openTransactions.values()).stream()
-          .filter(this::shouldRebase)
-          .forEach(tx -> {
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            if (!tx.isRebasable())
+                continue;
             try {
                 this.rebaseTransaction(tx);
             } catch (KVTransactionException e) {
@@ -468,18 +589,19 @@ public abstract class Role {
                 this.raft.error("error rebasing transaction " + tx, e);
                 this.raft.fail(tx, new KVTransactionException(tx, e));
             }
-        });
+        }
     }
 
     /**
-     * Rebase the given transaction so that its base log entry is the last log entry.
+     * Rebase the given transaction so that its base log entry is the last log entry or its commit log entry,
+     * whichever is lower.
      *
      * <p>
-     * This should be invoked for any {@linkplain #shouldRebase rebasable} transaction
-     * after appending a new Raft log entry.
+     * This should be invoked for each {@linkplain RaftKVTransaction#isRebasable rebasable} transaction
+     * after appending a new log entry.
      *
      * <p>
-     * This method assumes that the given transaction is {@linkplain #shouldRebase rebasable}.
+     * This method assumes that the given transaction is {@linkplain RaftKVTransaction#isRebasable rebasable}.
      *
      * @param tx the transaction
      * @throws KVTransactionException if an error occurs
@@ -488,51 +610,71 @@ public abstract class Role {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
-        assert this.shouldRebase(tx);
-        assert tx.failure == null;
-        assert tx.baseIndex >= this.raft.lastAppliedIndex;
+        assert tx.isRebasable();
+        assert tx.getFailure() == null;
+        assert tx.getBaseIndex() >= this.raft.lastAppliedIndex;
+        assert tx.getCommitIndex() == 0 || tx.getCommitIndex() > tx.getBaseIndex();
+        assert tx.getCommitIndex() == 0 || !tx.addsLogEntry();
+
+        // Anything to do?
+        long baseIndex = tx.getBaseIndex();
+        final long lastIndex = this.raft.getLastLogIndex();
+        if (baseIndex == lastIndex)
+            return;
 
         // Lock the mutable view so the rebase appears to happen instantaneously to any threads viewing the transaction
         synchronized (tx.view) {
 
             // Check for conflicts between transaction reads and newly committed log entries
-            long baseIndex = tx.baseIndex;
-            final long lastIndex = this.raft.getLastLogIndex();
             while (baseIndex < lastIndex) {
 
-                // Get log entry
+                // Check for conflicts
                 final LogEntry logEntry = this.raft.getLogEntryAtIndex(++baseIndex);
-
-                // Check for conflict
                 if (tx.view.getReads().isConflict(logEntry.getWrites())) {
                     if (this.log.isDebugEnabled())
                         this.debug("cannot rebase " + tx + " past " + logEntry + " due to conflicts, failing");
                     if (this.raft.dumpConflicts)
                         this.dumpConflicts(tx.view.getReads(), logEntry, "local txId=" + tx.txId);
                     throw new RetryTransactionException(tx, "writes of committed transaction at index " + baseIndex
-                      + " conflict with transaction reads from transaction base index " + tx.baseIndex);
+                      + " conflict with transaction reads from transaction base index " + tx.getBaseIndex());
+                }
+
+                // If we reach the transaction's commit log entry (if any), we can stop
+                if (baseIndex == tx.getCommitIndex()) {
+                    tx.setNoLongerRebasable();
+                    break;
                 }
             }
-            assert baseIndex == lastIndex;
-            final long baseTerm = this.raft.getLogTermAtIndex(baseIndex);
 
-            // Rebase transaction
-            if (this.log.isDebugEnabled())
-                this.debug("rebasing " + tx + " from " + tx.baseIndex + "t" + tx.baseTerm + " -> " + baseIndex + "t" + baseTerm);
+            // Update transaction
+            final long baseTerm = this.raft.getLogTermAtIndex(baseIndex);
+            if (this.log.isDebugEnabled()) {
+                this.debug("rebased " + tx + " from " + tx.getBaseIndex() + "t" + tx.getBaseTerm()
+                  + " -> " + baseIndex + "t" + baseTerm);
+            }
             switch (tx.getState()) {
             case EXECUTING:
-                final MostRecentView view = new MostRecentView(this.raft, false);
-                assert view.getIndex() == baseIndex;
+                assert tx.getCommitIndex() == 0 || tx.isReadOnly();
+                final MostRecentView view = new MostRecentView(this.raft, baseIndex);
                 assert view.getTerm() == baseTerm;
+                assert view.getIndex() == baseIndex;
                 tx.rebase(baseTerm, baseIndex, view.getView().getKVStore(), view.getSnapshot());
                 break;
             case COMMIT_READY:
                 tx.rebase(baseTerm, baseIndex);
                 break;
+            case COMMIT_WAITING:
+                tx.rebase(baseTerm, baseIndex);
+                this.checkWaitingTransaction(tx);               // transaction might have become committable
+                break;
             default:
                 throw new RuntimeException("internal error");
             }
         }
+
+        // Check whether transaction has become committable
+        if (baseIndex == tx.getCommitIndex())
+            this.checkCommittable(tx);
     }
 
     void dumpConflicts(Reads reads, LogEntry logEntry, String description) {
@@ -544,22 +686,43 @@ public abstract class Role {
     }
 
     /**
-     * Determine if the given transaction should be kept rebased on the last log entry.
+     * Get the leader's lease timeout, if known.
+     *
+     * @return leader lease timeout, or null if unknown
      */
-    boolean shouldRebase(RaftKVTransaction tx) {
-        assert Thread.holdsLock(this.raft);
-        return (tx.getState().equals(TxState.EXECUTING) || tx.getState().equals(TxState.COMMIT_READY))
-          && tx.getConsistency().isGuaranteesUpToDateReads();
+    Timestamp getLeaderLeaseTimeout() {
+        return null;
+    }
+
+    /**
+     * Determine whether the leader's lease timeout extends past the current time, that is, it is known that if
+     * the current leader is deposed by a new leader, then that deposition must occur after now.
+     *
+     * @return true if it is known that no other leader can possibly have been elected at the current time, otherwise false
+     */
+    protected boolean isLeaderLeaseActiveNow() {
+        return this.isLeaderLeaseActiveAt(new Timestamp());
+    }
+
+    /**
+     * Determine whether the leader's lease timeout extends past the given time, that is, it is known that if
+     * the current leader is deposed by a new leader, then that deposition must occur after the given time.
+     *
+     * @return true if it is known that no other leader can possibly have been elected at the given time, otherwise false
+     */
+    protected boolean isLeaderLeaseActiveAt(Timestamp time) {
+        final Timestamp leaderLeaseTimeout = this.getLeaderLeaseTimeout();
+        return leaderLeaseTimeout != null && leaderLeaseTimeout.compareTo(time) > 0;
     }
 
     /**
      * Perform any role-specific transaction cleanups.
      *
      * <p>
-     * Invoked either when transaction is completed or this role is being shutdown.
+     * Invoked either when transaction is completed OR this role is being shutdown.
      *
      * <p>
-     * The implementation in {@link Role} does nothing; subclasses should override if appropriate.
+     * Subclasses should invoke this method if overriden.
      *
      * @param tx the transaction
      */
@@ -603,8 +766,7 @@ public abstract class Role {
     abstract boolean checkState();
 
     void checkTransaction(RaftKVTransaction tx) {
-        if (this.shouldRebase(tx))
-            assert tx.baseIndex == this.raft.getLastLogIndex() && tx.baseTerm == this.raft.getLastLogTerm();
+        this.checkRebasableAndCommittableUpToDate(tx);
     }
 
 // Logging

@@ -7,6 +7,8 @@ Version 3.5.0
     - Formalized layout definitions and allocated a user-defined meta-data area
     - Verify model class constructors earlier, and allow (JTransaction, ObjId) params
     - Allow multiple FieldTypes with the same name if different encoding signatures
+    - Fixed bug where Raft leaders did not respect their own required lease timeouts
+    - Improved Raft read-only transaction performance by capturing commit index early
     - Use names for Java cached value fields instead of storage ID's
     - Added new mode "generate-and-verify" to <jsimpledb:schema> Ant task
     - Added Microsoft SQL Server key/value database adapter

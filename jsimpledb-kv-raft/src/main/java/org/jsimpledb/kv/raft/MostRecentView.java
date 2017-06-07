@@ -26,9 +26,16 @@ class MostRecentView {
     private final HashMap<String, String> config;
     private final MutableView view;
 
-    MostRecentView(RaftKVDatabase raft, boolean committed) {
+    MostRecentView(RaftKVDatabase raft) {
+        this(raft, -1);
+    }
+
+    MostRecentView(RaftKVDatabase raft, long maxIndex) {
+
+        // Sanity check
         assert raft != null;
         assert Thread.holdsLock(raft);
+        assert maxIndex >= -1;
 
         // Grab a snapshot of the key/value store
         this.snapshot = raft.kv.snapshot();
@@ -40,7 +47,7 @@ class MostRecentView {
         long viewIndex = raft.lastAppliedIndex;
         long viewTerm = raft.lastAppliedTerm;
         for (LogEntry logEntry : raft.raftLog) {
-            if (committed && logEntry.getIndex() > raft.commitIndex)
+            if (maxIndex != -1 && logEntry.getIndex() > maxIndex)
                 break;
             final Writes writes = logEntry.getWrites();
             if (!writes.isEmpty())

@@ -49,11 +49,9 @@ public class FollowerRole extends NonLeaderRole {
     @GuardedBy("raft")
     private SnapshotReceive snapshotReceive;                                        // in-progress snapshot install, if any
     @GuardedBy("raft")
-    private final HashSet<RaftKVTransaction> pendingRequests = new HashSet<>();     // waiting for CommitResponse from leader
+    private final HashSet<RaftKVTransaction> commitRequests = new HashSet<>();      // waiting for CommitResponse from leader
     @GuardedBy("raft")
     private final LongMap<PendingWrite> pendingWrites = new LongMap<>();            // wait for AppendRequest with null data
-    @GuardedBy("raft")
-    private final LongMap<Timestamp> commitLeaderLeaseTimeoutMap = new LongMap<>(); // tx's waiting for leaderLeaseTimeout's
     @GuardedBy("raft")
     private Timestamp lastLeaderMessageTime;                                        // time of most recent rec'd AppendRequest
     @GuardedBy("raft")
@@ -180,23 +178,18 @@ public class FollowerRole extends NonLeaderRole {
             this.snapshotReceive = null;
         }
 
-        // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
-        new ArrayList<>(this.raft.openTransactions.values()).stream()
-          .filter(tx -> tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId))
-          .forEach(tx -> this.raft.fail(tx,
-           new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait")));
-
-        // Fail any transactions that are waiting on leader response to a commit request and not based on the last log entry
-        new ArrayList<>(this.raft.openTransactions.values()).stream()
-          .filter(tx -> super.shouldRebase(tx)
-            && (tx.baseIndex != this.raft.getLastLogIndex() || tx.baseTerm != this.raft.getLastLogTerm()))
-          .forEach(tx -> {
-            assert tx.getState().equals(TxState.COMMIT_READY) && this.pendingRequests.contains(tx);
-            this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
-        });
+        // Fail any r/w transactions that are waiting on leader response to a CommitRequest. We've already discarded
+        // the reads for these transactions, so there's no way to conflict check them with a new leader.
+        for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+            if (this.commitRequests.contains(tx) && tx.addsLogEntry()) {
+                assert !tx.isRebasable();
+                assert tx.getState().equals(TxState.COMMIT_READY);
+                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
+            }
+        }
 
         // Cleanup pending requests and commit writes
-        this.pendingRequests.clear();
+        this.commitRequests.clear();
         this.pendingWrites.values().forEach(PendingWrite::cleanup);
         this.pendingWrites.clear();
 
@@ -211,24 +204,6 @@ public class FollowerRole extends NonLeaderRole {
         assert Thread.holdsLock(this.raft);
         if (address.equals(this.leaderAddress))
             this.raft.requestService(this.checkReadyTransactionsService);       // TODO: track specific transactions
-    }
-
-    // Check whether the required minimum leader lease timeout has been seen, if any
-    @Override
-    boolean mayCommit(RaftKVTransaction tx) {
-        assert Thread.holdsLock(this.raft);
-
-        // Is there a required minimum leader lease timeout associated with the transaction?
-        final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.txId);
-        if (commitLeaderLeaseTimeout == null)
-            return true;
-
-        // Do we know the leader's lease timeout yet?
-        if (this.leaderLeaseTimeout == null)
-            return false;
-
-        // Verify leader's lease timeout has extended beyond that required by the transaction
-        return this.leaderLeaseTimeout.compareTo(commitLeaderLeaseTimeout) >= 0;
     }
 
     @Override
@@ -298,34 +273,55 @@ public class FollowerRole extends NonLeaderRole {
 // Transactions
 
     @Override
-    void checkReadyLinearizableTransaction(RaftKVTransaction tx, boolean readOnly) {
+    void handleLinearizableReadOnlyChange(RaftKVTransaction tx) {
 
         // Sanity check
+        super.handleLinearizableReadOnlyChange(tx);
+        assert !this.commitRequests.contains(tx);
+
+        // Send an immediate CommitRequest
+        this.checkSendCommitRequest(tx, false);
+    }
+
+    @Override
+    void checkReadyTransactionNeedingCommitInfo(RaftKVTransaction tx) {
+
+        // Sanity check
+        super.checkReadyTransactionNeedingCommitInfo(tx);
+
+        // Send CommitRequest if not already sent
+        this.checkSendCommitRequest(tx, true);
+    }
+
+    private void checkSendCommitRequest(RaftKVTransaction tx, boolean allowConfigure) {
+
+        // Sanity check
+        final boolean addsLogEntry = tx.addsLogEntry();
         assert Thread.holdsLock(this.raft);
-        assert tx.getState().equals(TxState.COMMIT_READY);
+        assert (tx.getState().equals(TxState.EXECUTING) && !addsLogEntry) || tx.getState().equals(TxState.COMMIT_READY);
 
         // Did we already send a CommitRequest for this transaction?
-        if (this.pendingRequests.contains(tx)) {
+        if (this.commitRequests.contains(tx)) {
             if (this.log.isTraceEnabled())
-                this.trace("leaving alone ready tx " + tx + " because request already sent");
+                this.trace("not sending CommitRequest for tx " + tx + " because request already sent");
             return;
         }
 
         // If we are installing a snapshot, we must wait
         if (this.snapshotReceive != null) {
             if (this.log.isTraceEnabled())
-                this.trace("leaving alone ready tx " + tx + " because a snapshot install is in progress");
+                this.trace("not sending CommitRequest for tx " + tx + " because a snapshot install is in progress");
             return;
         }
 
         // Handle situation where we are unconfigured and not part of any cluster yet
-        if (!this.raft.isConfigured()) {
+        if (allowConfigure && !this.raft.isConfigured()) {
 
             // Get transaction mutations
             final String[] configChange = tx.getConfigChange();
 
             // Allow an empty read-only transaction when unconfigured
-            if (readOnly) {
+            if (!addsLogEntry) {
                 this.raft.succeed(tx);
                 return;
             }
@@ -368,14 +364,20 @@ public class FollowerRole extends NonLeaderRole {
             assert logEntry.getTerm() == 1;
             assert logEntry.getIndex() == 1;
 
-            // Update transaction
-            this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
+            // Advance transaction
+            this.advanceReadyTransactionWithCommitInfo(tx, 1, 1, null);
 
-            // Rebase transactions
+            // Rebase any other transactions
             this.rebaseTransactions();
 
-            // Set commit term and index from new log entry
+            // Update our commit term and index from new log entry
             this.raft.commitIndex = logEntry.getIndex();
+            this.checkCommittables();
+
+            // Commit transaction
+            new CheckWaitingTransactionService(this, tx).run();
+
+            // Trigger key watches
             this.raft.requestService(this.triggerKeyWatchesService);
 
             // Immediately become the leader of our new single-node cluster
@@ -389,30 +391,31 @@ public class FollowerRole extends NonLeaderRole {
         // If we don't have a leader yet, or leader's queue is full, we must wait
         if (this.leader == null || this.raft.isTransmitting(this.leaderAddress)) {
             if (this.log.isTraceEnabled()) {
-                this.trace("leaving alone ready tx " + tx + " because leader "
+                this.trace("leaving alone tx " + tx + " because leader "
                   + (this.leader == null ? "is not known yet" : "\"" + this.leader + "\" is not writable yet"));
             }
             return;
         }
 
-        // Serialize reads into buffer
-        assert !readOnly || tx.getConsistency().isGuaranteesUpToDateReads();
-        final Reads reads = tx.view.getReads();
-        final long readsDataSize = reads.serializedLength();
-        if (readsDataSize != (int)readsDataSize)
-            throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
-        final ByteBuffer readsData = Util.allocateByteBuffer((int)readsDataSize);
-        try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
-            reads.serialize(output);
-        } catch (IOException e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
-        assert !readsData.hasRemaining();
-        readsData.flip();
-
-        // Gather writes data (i.e., mutations), but only if transaction contains mutations
+        // For read-write transactions, send the reads & writes to the leader so leader can check for conflicts
+        ByteBuffer readsData = null;
         ByteBuffer mutationData = null;
-        if (!readOnly) {
+        if (addsLogEntry) {
+
+            // Serialize reads into buffer
+            assert tx.getConsistency().isGuaranteesUpToDateReads();
+            final Reads reads = tx.view.getReads();
+            final long readsDataSize = reads.serializedLength();
+            if (readsDataSize != (int)readsDataSize)
+                throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
+            readsData = Util.allocateByteBuffer((int)readsDataSize);
+            try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
+                reads.serialize(output);
+            } catch (IOException e) {
+                throw new RuntimeException("unexpected exception", e);
+            }
+            assert !readsData.hasRemaining();
+            readsData.flip();
 
             // Serialize mutations into a temporary file (but do not close or durably persist yet)
             final Writes writes = tx.view.getWrites();          // synchronization not req'd here because tx is COMMIT_READY
@@ -448,27 +451,31 @@ public class FollowerRole extends NonLeaderRole {
             this.pendingWrites.put(tx.txId, pendingWrite);
         }
 
-        // Record pending request
-        assert !this.pendingRequests.contains(tx);
-        this.pendingRequests.add(tx);
-
         // Send commit request to leader
         final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,
-          this.raft.currentTerm, tx.txId, tx.baseTerm, tx.baseIndex, readsData, mutationData);
+          this.raft.currentTerm, tx.txId, tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);
         if (this.log.isTraceEnabled())
             this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);
         if (!this.raft.sendMessage(msg))
             throw new RetryTransactionException(tx, "error sending commit request to leader");
+
+        // Record pending request
+        assert !this.commitRequests.contains(tx);
+        this.commitRequests.add(tx);
+
+        // Mark transaction no longer rebasable if leader will be checking conflicts for us
+        if (addsLogEntry)
+            tx.setNoLongerRebasable();
     }
 
     @Override
     void cleanupForTransaction(RaftKVTransaction tx) {
         assert Thread.holdsLock(this.raft);
-        this.pendingRequests.remove(tx);
+        this.commitRequests.remove(tx);
         final PendingWrite pendingWrite = this.pendingWrites.remove(tx.txId);
         if (pendingWrite != null)
             pendingWrite.cleanup();
-        this.commitLeaderLeaseTimeoutMap.remove(tx.txId);
+        super.cleanupForTransaction(tx);
     }
 
 // Messages
@@ -570,14 +577,6 @@ public class FollowerRole extends NonLeaderRole {
             // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
             if (logIndex <= lastLogIndex && logTerm != this.raft.getLogTermAtIndex(logIndex)) {
 
-                // Fail all rebasable transactions whose base log entry is being overwritten
-                for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
-                    if (this.shouldRebase(tx)) {
-                        assert tx.baseIndex == lastLogIndex && tx.baseTerm == this.raft.getLogTermAtIndex(lastLogIndex);
-                        this.raft.fail(tx, new RetryTransactionException(tx, "transaction's base log entry overwritten"));
-                    }
-                }
-
                 // Delete conflicting log entry, and all entries that follow it, from the log
                 final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
                 final List<LogEntry> conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());
@@ -598,6 +597,14 @@ public class FollowerRole extends NonLeaderRole {
 
                 // Update last log entry index
                 lastLogIndex = this.raft.getLastLogIndex();
+
+                // Fail any transactions that are based on any of the discarded log entries
+                for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+                    if (tx.getBaseIndex() >= logIndex && !tx.getConsistency().equals(Consistency.UNCOMMITTED)) {
+                        this.raft.fail(tx, new RetryTransactionException(tx,
+                          "base log entry " + tx.getBaseIndex() + "t" + tx.getBaseTerm() + " overwritten by new leader"));
+                    }
+                }
             }
 
             // Append the new log entry - if we don't already have it
@@ -685,6 +692,7 @@ public class FollowerRole extends NonLeaderRole {
             if (this.log.isDebugEnabled())
                 this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
             this.raft.commitIndex = newCommitIndex;
+            this.checkCommittables();
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.triggerKeyWatchesService);
             this.raft.requestService(this.applyCommittedLogEntriesService);
@@ -719,14 +727,11 @@ public class FollowerRole extends NonLeaderRole {
         final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());
         if (tx == null)                                                                 // must have been rolled back locally
             return;
+        assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
+        assert msg.getCommitLeaderLeaseTimeout() == null || !tx.addsLogEntry();
 
-        // Sanity check transaction state
-        if (!tx.getState().equals(TxState.COMMIT_READY)) {
-            if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
-            return;
-        }
-        if (!this.pendingRequests.remove(tx)) {
+        // Sanity check whether we're expecting this response
+        if (!this.commitRequests.remove(tx)) {
             if (this.log.isDebugEnabled())
                 this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");
             return;
@@ -735,16 +740,51 @@ public class FollowerRole extends NonLeaderRole {
         // Check result
         if (this.log.isTraceEnabled())
             this.trace("rec'd " + msg + " for " + tx);
-        if (msg.isSuccess()) {
 
-            // Update transaction
-            this.advanceReadyTransaction(tx, msg.getCommitTerm(), msg.getCommitIndex());
+        // Do we already have a commit index & term? This would be unusual and can only happen with some leader change
+        if (tx.getCommitIndex() != 0) {
+            if (this.log.isTraceEnabled()) {
+                this.trace("ignoring " + msg + " for " + tx + "; already have commit "
+                  + tx.getCommitIndex() + "t" + tx.getCommitTerm());
+            }
+            return;
+        }
 
-            // Track leader lease timeout we must wait for, if any
-            if (msg.getCommitLeaderLeaseTimeout() != null)
-                this.commitLeaderLeaseTimeoutMap.put(tx.txId, msg.getCommitLeaderLeaseTimeout());
-        } else
+        // Did the request fail?
+        if (!msg.isSuccess()) {
             this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));
+            return;
+        }
+
+        // If messages can get out of order, then it's possible we've already rebased this tx past its commit index
+        long commitIndex = msg.getCommitIndex();
+        long commitTerm = msg.getCommitTerm();
+        if (tx.getBaseIndex() > commitIndex) {
+            if (this.log.isTraceEnabled()) {
+                final long actualCommitTerm = this.raft.getLogTermAtIndexIfKnown(commitIndex);
+                this.trace(tx + " was rebased past its commit index " + commitIndex + "t" + commitTerm + " to "
+                  + tx.getBaseIndex() + "t" + tx.getBaseTerm() + "; actual term for index " + commitIndex + " is "
+                  + (actualCommitTerm != 0 ? "" + actualCommitTerm : "unknown"));
+            }
+            this.raft.fail(tx, new RetryTransactionException(tx, "transaction was rebased past its commit index"));
+            return;
+        }
+
+        // Update transaction
+        switch (tx.getState()) {
+        case EXECUTING:
+            assert tx.isReadOnly();
+            tx.setCommitInfo(commitTerm, commitIndex, msg.getCommitLeaderLeaseTimeout());
+            this.checkCommittable(tx);
+            break;
+        case COMMIT_READY:
+            this.advanceReadyTransactionWithCommitInfo(tx, commitTerm, commitIndex, msg.getCommitLeaderLeaseTimeout());
+            break;
+        default:
+            if (this.log.isDebugEnabled())
+                this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
+            return;
+        }
     }
 
     @Override
@@ -838,10 +878,24 @@ public class FollowerRole extends NonLeaderRole {
             this.raft.flipFlopStateMachine(term, index, snapshotConfig);
             this.updateElectionTimer();
 
-            // Fail any rebasable transactions
-            new ArrayList<>(this.raft.openTransactions.values()).stream()
-              .filter(this::shouldRebase)
-              .forEach(tx -> this.raft.fail(tx, new RetryTransactionException(tx, "rec'd snapshot install from leader")));
+            // Fail transactions we can no longer deal with
+            for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
+
+                // Fail if base index is past our applied index
+                if (tx.getBaseIndex() > index) {
+                    this.raft.fail(tx, new RetryTransactionException(tx,
+                      "rec'd snapshot install from leader and base index " + tx.getBaseIndex() + " > " + index));
+                }
+
+                // Fail if rebasable and the base index doesn't exactly match
+                if (tx.isRebasable() && (tx.getBaseTerm() != term || tx.getBaseIndex() != index)) {
+                    this.raft.fail(tx, new RetryTransactionException(tx, "snapshot install of " + index + "t" + term
+                      + " invalidated base " + tx.getBaseIndex() + "t" + tx.getBaseTerm()));
+                }
+            }
+
+            // Check for newly committable transactions
+            this.checkCommittables();
         }
     }
 
@@ -960,8 +1014,8 @@ public class FollowerRole extends NonLeaderRole {
 // Role
 
     @Override
-    boolean shouldRebase(RaftKVTransaction tx) {
-        return super.shouldRebase(tx) && !this.pendingRequests.contains(tx);
+    Timestamp getLeaderLeaseTimeout() {
+        return this.leaderLeaseTimeout;
     }
 
 // Object
@@ -969,15 +1023,14 @@ public class FollowerRole extends NonLeaderRole {
     @Override
     public String toString() {
         synchronized (this.raft) {
-            final List<Long> pendingRequestIds = pendingRequests.stream()
+            final List<Long> pendingRequestIds = commitRequests.stream()
               .map(tx -> tx.txId)
               .collect(Collectors.toList());
             return this.toStringPrefix()
               + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
               + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")
-              + (!pendingRequestIds.isEmpty() ? ",pendingRequests=" + pendingRequestIds : "")
+              + (!pendingRequestIds.isEmpty() ? ",commitRequests=" + pendingRequestIds : "")
               + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")
-              + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")
               + "]";
         }
     }
@@ -989,8 +1042,17 @@ public class FollowerRole extends NonLeaderRole {
         assert Thread.holdsLock(this.raft);
         assert this.leaderAddress != null || this.leader == null;
         assert this.electionTimer.isRunning() == this.raft.isClusterMember();
-        for (RaftKVTransaction tx : this.pendingRequests) {
-            assert tx.getState().equals(TxState.COMMIT_READY);
+        for (RaftKVTransaction tx : this.commitRequests) {
+            switch (tx.getState()) {
+            case EXECUTING:
+                assert tx.isReadOnly();
+                break;
+            case COMMIT_READY:
+                break;
+            default:
+                assert false;
+                break;
+            }
             assert tx.getCommitTerm() == 0;
             assert tx.getCommitIndex() == 0;
         }
@@ -1009,16 +1071,17 @@ public class FollowerRole extends NonLeaderRole {
     void checkTransaction(RaftKVTransaction tx) {
         super.checkTransaction(tx);
         switch (tx.getState()) {
+        case EXECUTING:
+            assert !this.pendingWrites.containsKey(tx.txId);
+            break;
         case COMMIT_READY:
-            assert !this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId);
             break;
         case COMMIT_WAITING:
-            assert !this.pendingRequests.contains(tx);
+            assert !this.commitRequests.contains(tx);
             break;
         default:
             assert !this.pendingWrites.containsKey(tx.txId);
-            assert !this.pendingRequests.contains(tx);
-            assert !this.commitLeaderLeaseTimeoutMap.containsKey(tx.txId);
+            assert !this.commitRequests.contains(tx);
             break;
         }
     }

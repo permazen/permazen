@@ -93,7 +93,7 @@ import org.slf4j.LoggerFactory;
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
  *  <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
- *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (same as used by
+ *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (similar to that used by
  *      {@link org.jsimpledb.kv.mvcc.SnapshotKVDatabase}):
  *      <ul>
  *      <li>Transactions execute locally until commit time, using a {@link org.jsimpledb.kv.mvcc.MutableView} to collect mutations.
@@ -111,8 +111,8 @@ import org.slf4j.LoggerFactory;
  *          own state machine, or was its most recently applied log entry. If this is not the case, then the transaction's base
  *          log entry is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is
  *          rejected with a {@link RetryTransactionException}.
- *      <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
- *          has been overwritten in a new Raft term, and the transaction is rejected with a {@link RetryTransactionException}.
+ *      <li>The leader verifies that the transaction's base term matches its log; if not, the transaction's base log entry has
+ *          been overwritten, and the transaction is rejected with a {@link RetryTransactionException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
  *          do not create {@linkplain org.jsimpledb.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
  *          {@link org.jsimpledb.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
@@ -123,11 +123,8 @@ import org.slf4j.LoggerFactory;
  *          transaction's commit term and index, then the transaction is complete.</li>
  *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
- *      <li>After adding a new log entry, both followers and leaders will "rebase" any open {@linkplain
- *          Consistency#isGuaranteesUpToDateReads guaranteed-up-to-date} transactions on the new log entry if there are
- *          no conflicts, or else mark it for retry failure if there are.
- *      <li>If a transaction's base log entry gets overwritten in the Raft log (e.g., due to a new leader election), the
- *          transaction fails with a retry.</li>
+ *      <li>After adding a new log entry, both followers and leaders "rebase" any open {@link Consistency#LINEARIZABLE}
+ *          transactions by checking for conflicts in the manner described above.</li>
  *      </ul>
  *  </li>
  *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
@@ -142,16 +139,20 @@ import org.slf4j.LoggerFactory;
  *      This is calculated as the time in the past at which the leader sent {@link AppendRequest}'s to a majority of followers
  *      who have since responded, plus the {@linkplain #setMinElectionTimeout minimum election timeout}, minus a small adjustment
  *      for possible clock drift (this assumes all nodes have the same minimum election timeout configured). If the current
- *      time is prior to the leader lease timeout, the transaction may be committed as soon as log entry corresponding to the
- *      commit term and index is committed (it may already be); otherwise, the current time is returned to the follower
- *      as minimum required leader lease timeout before the transaction may be committed.</li>
+ *      time is prior to the leader lease timeout (expected normally), the transaction may be committed as soon as log entry
+ *      corresponding to the commit term and index is committed (it may already be); otherwise, the current time is returned
+ *      to the follower as minimum required leader lease timeout before the transaction may be committed.</li>
+ *  <li>For read-only transactions, followers {@linkplain CommitRequest send} the base term and index to the leader as soon
+ *      as the transaction is set read-only, without any conflict information. This allows the leader to capture and return
+ *      the lowest possible commit index to the follower while the transaction is still open, and lets followers stop
+ *      rebasing the transaction (at the returned commit index) as soon as possible, minimizing conflicts.
  *  <li>Every {@link AppendRequest} includes the leader's current timestamp and leader lease timeout, so followers can commit
  *      any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
- *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see
- *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()}. Setting the consistency to any level
- *      other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction to read-only.</li>
+ *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see {@link #OPTION_CONSISTENCY}.
+ *      Setting the consistency to any level other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction
+ *      to read-only.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
@@ -1043,14 +1044,16 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Start background I/O thread
             assert this.ioThread == null;
-            this.ioThread = new IOThread(this.logDir);
+            final String ioThreadName = "Raft I/O [" + this.identity + "]";
+            this.ioThread = new IOThread(this.logDir, ioThreadName);
             this.ioThread.start();
 
             // Start up service executor thread
             assert this.serviceExecutor == null;
+            final String serviceThreadName = "Raft Service [" + this.identity + "]";
             this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(action -> {
                 final Thread thread = new Thread(action);
-                thread.setName("RaftKVDatabase Service");
+                thread.setName(serviceThreadName);
                 return thread;
             });
 
@@ -1447,20 +1450,39 @@ public class RaftKVDatabase implements KVDatabase {
         // Base transaction on the most recent log entry (if !committed). This is itself a form of optimistic locking: we assume
         // that the most recent log entry has a high probability of being committed (in the Raft sense), which is of course
         // required in order to commit any transaction based on it.
-        final MostRecentView view = new MostRecentView(this, consistency.isBasedOnCommittedLogEntry());
+        final MostRecentView view = new MostRecentView(this, consistency.isBasedOnCommittedLogEntry() ? this.commitIndex : -1);
+        final long baseTerm = view.getTerm();
+        final long baseIndex = view.getIndex();
 
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,
-          view.getTerm(), view.getIndex(), view.getSnapshot(), view.getView());
+          consistency, baseTerm, baseIndex, view.getSnapshot(), view.getView());
         tx.setTimeout(this.commitTimeout);
-        if (this.log.isDebugEnabled())
-            this.debug("created new transaction " + tx);
         this.openTransactions.put(tx.txId, tx);
 
-        // Set consistency
-        tx.setConsistency(consistency);
+        // Set commit term+index if already known
+        switch (consistency) {
+        case UNCOMMITTED:
+            tx.setCommittable();
+            break;
+        case EVENTUAL_COMMITTED:
+            tx.setCommitInfo(baseTerm, baseIndex, null);
+            tx.setCommittable();
+            break;
+        case EVENTUAL:
+            tx.setCommitInfo(baseTerm, baseIndex, null);
+            this.role.checkCommittable(tx);
+            break;
+        case LINEARIZABLE:
+            break;
+        default:
+            assert false;
+            break;
+        }
 
         // Done
+        if (this.log.isDebugEnabled())
+            this.debug("created new transaction " + tx);
         return tx;
     }
 
@@ -1488,11 +1510,11 @@ public class RaftKVDatabase implements KVDatabase {
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
 
                     // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
-                    tx.failure = null;
+                    tx.setFailure(null);
 
                     // Setup commit timer
-                    if (tx.timeout != 0) {
-                        tx.commitTimer = new Timer(this, "commit timer for " + tx,
+                    if (tx.getTimeout() != 0) {
+                        final Timer commitTimer = new Timer(this, "commit timer for " + tx,
                           new Service("commit timeout for tx#" + tx.txId) {
                             @Override
                             public void run() {
@@ -1500,7 +1522,7 @@ public class RaftKVDatabase implements KVDatabase {
                                 case COMMIT_READY:
                                 case COMMIT_WAITING:
                                     RaftKVDatabase.this.fail(tx, new RetryTransactionException(tx,
-                                      "transaction failed to complete within " + tx.timeout
+                                      "transaction failed to complete within " + tx.getTimeout()
                                       + "ms (in state " + tx.getState() + ")"));
                                     break;
                                 default:
@@ -1508,14 +1530,15 @@ public class RaftKVDatabase implements KVDatabase {
                                 }
                             }
                         });
-                        tx.commitTimer.timeoutAfter(tx.timeout);
+                        commitTimer.timeoutAfter(tx.getTimeout());
+                        tx.setCommitTimer(commitTimer);
                     }
                     break;
                 case CLOSED:                                        // this transaction has already been committed or rolled back
                     try {
                         tx.verifyExecuting();                       // always throws some kind of exception
                     } finally {
-                        tx.failure = null;                          // from now on, throw StaleTransactionException if accessed
+                        tx.setFailure(null);                        // from now on, throw StaleTransactionException if accessed
                     }
                     assert false;
                     return;
@@ -1527,7 +1550,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Wait for completion
             try {
-                tx.commitFuture.get();
+                tx.getCommitFuture().get();
             } catch (InterruptedException e) {
                 throw new RetryTransactionException(tx, "thread interrupted while waiting for commit", e);
             } catch (ExecutionException e) {
@@ -1551,7 +1574,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.role != null;
 
         // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
-        tx.failure = null;
+        tx.setFailure(null);
 
         // Check tx state
         switch (tx.getState()) {
@@ -1568,6 +1591,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
+    // Clean up transaction and transition to state CLOSED
     synchronized void cleanupTransaction(RaftKVTransaction tx) {
 
         // Debug
@@ -1579,14 +1603,15 @@ public class RaftKVDatabase implements KVDatabase {
             this.role.cleanupForTransaction(tx);
 
         // Cancel commit timer
-        if (tx.commitTimer != null)
-            tx.commitTimer.cancel();
+        if (tx.getCommitTimer() != null)
+            tx.getCommitTimer().cancel();
 
         // Remove from open transactions set
         this.openTransactions.remove(tx.txId);
 
         // Transition to CLOSED
         tx.setState(TxState.CLOSED);
+        tx.setNoLongerRebasable();
 
         // Notify waiting thread if doing shutdown
         if (this.shuttingDown)
@@ -1604,8 +1629,9 @@ public class RaftKVDatabase implements KVDatabase {
         // Succeed transaction
         if (this.log.isDebugEnabled())
             this.debug("successfully committed " + tx);
-        tx.commitFuture.set(null);
+        tx.getCommitFuture().set(null);
         tx.setState(TxState.COMPLETED);
+        tx.setNoLongerRebasable();
         this.role.cleanupForTransaction(tx);
     }
 
@@ -1622,14 +1648,15 @@ public class RaftKVDatabase implements KVDatabase {
             this.debug("failing transaction " + tx + ": " + e);
         switch (tx.getState()) {
         case EXECUTING:
-            assert tx.failure == null;
-            tx.failure = e;
+            assert tx.getFailure() == null;
+            tx.setFailure(e);
             this.cleanupTransaction(tx);
             break;
         case COMMIT_READY:
         case COMMIT_WAITING:
-            tx.commitFuture.setException(e);
+            tx.getCommitFuture().setException(e);
             tx.setState(TxState.COMPLETED);
+            tx.setNoLongerRebasable();
             this.role.cleanupForTransaction(tx);
             break;
         default:                                        // too late, nobody cares
@@ -1654,7 +1681,14 @@ public class RaftKVDatabase implements KVDatabase {
         if (!this.pendingService.add(service) || this.performingService)
             return;
         try {
-            this.serviceExecutor.submit(this::handlePendingService);
+            this.serviceExecutor.submit(() -> {
+                try {
+                    this.handlePendingService();
+                } catch (Throwable t) {
+                    RaftKVDatabase.this.error("exception in handlePendingService()", t);
+                    this.lastInternalError = t;
+                }
+            });
         } catch (RejectedExecutionException e) {
             if (!this.shuttingDown) {
                 this.warn("service executor task rejected, skipping", e);
@@ -1970,6 +2004,11 @@ public class RaftKVDatabase implements KVDatabase {
         return this.appliedTerms[(int)(index % MAX_APPLIED_TERMS)];
     }
 
+    // Get the term of a log entry (either applied or not-yet-applied), if known, otherwise zero
+    long getLogTermAtIndexIfKnown(long index) {
+        return index >= this.lastAppliedIndex ? this.getLogTermAtIndex(index) : this.getAppliedLogEntryTerm(index);
+    }
+
 // Object
 
     @Override
@@ -2246,8 +2285,8 @@ public class RaftKVDatabase implements KVDatabase {
         private boolean didWarnDelete;
         private boolean didWarnTempFile;
 
-        private IOThread(File tempDir) {
-            super("Raft I/O Thread");
+        private IOThread(File tempDir, String threadName) {
+            super(threadName);
             Preconditions.checkArgument(tempDir != null);
             this.tempDir = tempDir;
         }

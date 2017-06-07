@@ -174,7 +174,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
 
     @Override
     protected int getNumTries() {
-        return 6;
+        return 20;
     }
 
     @Override
