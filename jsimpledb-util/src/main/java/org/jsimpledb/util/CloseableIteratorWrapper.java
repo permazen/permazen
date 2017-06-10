@@ -8,11 +8,13 @@ package org.jsimpledb.util;
 import com.google.common.collect.ForwardingIterator;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class CloseableIteratorWrapper<E> extends ForwardingIterator<E> implements CloseableIterator<E> {
 
     private final Iterator<E> iterator;
     private final AutoCloseable resource;
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     CloseableIteratorWrapper(Iterator<E> iterator, AutoCloseable resource) {
         this.iterator = iterator;
@@ -26,7 +28,7 @@ class CloseableIteratorWrapper<E> extends ForwardingIterator<E> implements Close
 
     @Override
     public void close() {
-        if (resource != null) {
+        if (this.closed.compareAndSet(false, true) && resource != null) {
             try {
                 this.resource.close();
             } catch (Exception e) {
