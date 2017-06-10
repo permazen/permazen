@@ -15,6 +15,25 @@
  * or a {@link java.util.NavigableMap}{@code <Integer, }{@link java.util.NavigableSet}{@code <User>>}.
  *
  * <p>
+ * Indexes are accessible through the {@link org.jsimpledb.JTransaction} API:
+ * <ul>
+ *  <li>{@link #queryIndex(Class, String, Class) JTransaction.queryIndex()}
+ *      - Access the index associated with a simple field</li>
+ *  <li>{@link #queryListElementIndex JTransaction.queryListElementIndex()}
+ *      - Access the composite index associated with a list field that includes corresponding list indicies</li>
+ *  <li>{@link #queryMapValueIndex JTransaction.queryMapValueIndex()}
+ *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) JTransaction.queryCompositeIndex()}
+ *      - Access a composite index defined on two fields</li>
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class) JTransaction.queryCompositeIndex()}
+ *      - Access a composite index defined on three fields</li>
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class, Class) JTransaction.queryCompositeIndex()}
+ *      - Access a composite index defined on four fields</li>
+ *  <!-- COMPOSITE-INDEX -->
+ *  <li>{@link #queryVersion JTransaction.queryVersion()} - Get database objects grouped according to their schema versions</li>
+ * </ul>
+ *
+ * <p>
  * <b>Simple and Composite Indexes</b>
  *
  * <p>
