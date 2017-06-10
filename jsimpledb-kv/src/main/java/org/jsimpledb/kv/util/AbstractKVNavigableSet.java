@@ -7,7 +7,6 @@ package org.jsimpledb.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Iterator;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
@@ -20,6 +19,7 @@ import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
@@ -195,7 +195,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public CloseableIterator<E> iterator() {
         return new AbstractKVIterator<E>(this.kv, this.prefixMode, this.reversed, this.keyRange, this.keyFilter) {
 
             @Override
