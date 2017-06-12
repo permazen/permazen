@@ -446,10 +446,17 @@ public class JTransaction {
      * <p>
      * The default {@link SnapshotJTransaction} uses {@link ValidationMode#MANUAL}.
      *
+     * <p>
+     * This instance must not itself be a {@link SnapshotJTransaction}; use
+     * {@link createSnapshotTransaction createSnapshotTransaction()} to create additional snapshot transactions.
+     *
      * @return the associated snapshot transaction
      * @see JObject#copyOut JObject.copyOut()
+     * @throws IllegalArgumentException if this instance is itself a {@link SnapshotJTransaction}
      */
     public synchronized SnapshotJTransaction getSnapshotTransaction() {
+        Preconditions.checkArgument(!this.isSnapshot(),
+          "getSnapshotTransaction() invoked on a snapshot transaction; use createSnapshotTransaction() instead");
         if (this.snapshotTransaction == null)
             this.snapshotTransaction = this.createSnapshotTransaction(ValidationMode.MANUAL);
         return this.snapshotTransaction;
