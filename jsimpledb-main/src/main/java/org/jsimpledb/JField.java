@@ -86,6 +86,7 @@ public abstract class JField extends JSchemaObject {
      *  is no longer usable
      * @return this field's value in {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if this field is a sub-field of a complex field
      */
     public abstract Object getValue(JObject jobj);
 

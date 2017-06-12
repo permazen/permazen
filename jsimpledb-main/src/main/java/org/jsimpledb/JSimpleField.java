@@ -131,6 +131,7 @@ public class JSimpleField extends JField {
     @Override
     public Object getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
+        Preconditions.checkArgument(!(this.parent instanceof JComplexField), "field is a complex sub-field");
         return jobj.getTransaction().readSimpleField(jobj.getObjId(), this.storageId, false);
     }
 
@@ -153,11 +154,13 @@ public class JSimpleField extends JField {
      * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
      * @throws org.jsimpledb.core.StaleTransactionException if the {@link JTransaction} associated with {@code jobj}
      *  is no longer usable
+     * @throws IllegalArgumentException if this field is a sub-field of a complex field
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for this field
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public void setValue(JObject jobj, Object value) {
         Preconditions.checkArgument(jobj != null, "null jobj");
+        Preconditions.checkArgument(!(this.parent instanceof JComplexField), "field is a complex sub-field");
         jobj.getTransaction().writeSimpleField(jobj, this.storageId, value, false);
     }
 
