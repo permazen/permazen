@@ -1,7 +1,6 @@
 Version 3.5.0
 
     - Allow Java interfaces to be model classes
-    - Define the sentinel ObjId and avoid using the sentinel ObjId for new objects
     - Improvements to the KVStore interface; getRange() now returns CloseableIterator
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Formalized layout definitions and allocated a user-defined meta-data area
