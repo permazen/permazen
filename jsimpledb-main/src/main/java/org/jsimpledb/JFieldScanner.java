@@ -111,6 +111,14 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return false;
         }
         @Override
+        public String[] cascades() {
+            return new String[0];
+        }
+        @Override
+        public String[] inverseCascades() {
+            return new String[0];
+        }
+        @Override
         public DeleteAction onDelete() {
             return DeleteAction.EXCEPTION;
         }

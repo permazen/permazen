@@ -9,6 +9,8 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,8 @@ public class JReferenceField extends JSimpleField {
     final boolean cascadeDelete;
     final boolean allowDeleted;
     final boolean allowDeletedSnapshot;
+    final String[] forwardCascades;
+    final String[] inverseCascades;
 
     JReferenceField(JSimpleDB jdb, String name, int storageId, String description, TypeToken<?> typeToken,
       org.jsimpledb.annotation.JField annotation, Method getter, Method setter) {
@@ -39,6 +43,8 @@ public class JReferenceField extends JSimpleField {
         this.cascadeDelete = annotation.cascadeDelete();
         this.allowDeleted = annotation.allowDeleted();
         this.allowDeletedSnapshot = annotation.allowDeletedSnapshot();
+        this.forwardCascades = annotation.cascades();
+        this.inverseCascades = annotation.inverseCascades();
     }
 
     @Override
@@ -82,6 +88,10 @@ public class JReferenceField extends JSimpleField {
         if (!this.onDelete.equals(that.onDelete))
             return false;
         if (this.cascadeDelete != that.cascadeDelete)
+            return false;
+        if (!new HashSet<>(Arrays.asList(this.forwardCascades)).equals(new HashSet<>(Arrays.asList(that.forwardCascades))))
+            return false;
+        if (!new HashSet<>(Arrays.asList(this.inverseCascades)).equals(new HashSet<>(Arrays.asList(that.inverseCascades))))
             return false;
         return true;
     }

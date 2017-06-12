@@ -15,7 +15,7 @@ import org.jsimpledb.UpgradeConversionPolicy;
 import org.jsimpledb.core.DeleteAction;
 
 /**
- * Java annotation for defining fields, including reference fields that refer to other Java model object types,
+ * Java annotation for defining simple fields, including reference fields that refer to other Java model object types,
  * and {@link org.jsimpledb.Counter} fields.
  *
  * <p>
@@ -23,8 +23,8 @@ import org.jsimpledb.core.DeleteAction;
  * <ul>
  *  <li>To describe a <b>simple</b> or <b>counter</b> database field by annotating the corresponding abstract Java bean
  *      property `getter' method</li>
- *  <li>To describe the <b>sub-field(s)</b> of a <b>complex</b> database field (i.e., set, list, or map),
- *      that is, the collection element or map key and value. In this case this annotation nests within the corresponding
+ *  <li>To describe the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
+ *      a collection element field, or a map key or value field. In this case this annotation nests within the corresponding
  *      {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField}, or {@link JMapField &#64;JMapField} annotation.</li>
  * </ul>
  *
@@ -56,6 +56,65 @@ import org.jsimpledb.core.DeleteAction;
  *
  * <p>
  * Reference fields are always indexed; the value of {@link #indexed} is ignored.
+ *
+ * <p><b>Copy Cascades</b></p>
+ *
+ * <p>
+ * The {@link org.jsimpledb.JObject} methods {@link org.jsimpledb.JObject#cascadeCopyIn cascadeCopyIn()},
+ * {@link org.jsimpledb.JObject#cascadeCopyOut cascadeCopyOut()}, and {@link org.jsimpledb.JObject#cascadeCopyTo cascadeCopyTo()}
+ * copy a graph of related objects between transactions by first copying a starting object, then cascading through matching
+ * reference fields and repeating recursively. This cascade operation is capable of traversing references in both the
+ * forward and inverse directions.
+ *
+ * <p>
+ * Which reference fields are traversed in a particular copy operation is determined by the supplied <i>cascade name</i>.
+ * Outgoing references are traversed if the cascade name is in the reference field's {@link #cascades} property,
+ * while incoming references from other objects are traversed (in the reverse direction) if the cascade name is in the
+ * referring object's reference field's {@link #inverseCascades}.
+ *
+ * <p>
+ * For example:
+ * <pre>
+ *  &#64;JSimpleClass
+ *  public interface Node extends JObject {
+ *
+ *      /**
+ *       * Get the parent of this node, or null if node is the root.
+ *       *&#47;
+ *      &#64;JField(<b>cascades = { "tree", "ancestors" }</b>, <b>inverseCascades = { "tree", "descendants" }</b>)
+ *      Node getParent();
+ *      void setParent(Node parent);
+ *
+ *      /**
+ *       * Get the children of this node.
+ *       *&#47;
+ *      default NavigableSet&lt;Node&gt; getChildren() {
+ *          final NavigableSet&lt;Node&gt; children = this.getTransaction().queryIndex(
+ *            Node.class, "parent", Node.class).get(this);
+ *          return children != null ? children : NavigableSets.empty();
+ *      }
+ *
+ *      default Node copySubtreeTo(JTransaction dest) {
+ *          return (Node)this.cascadeCopyTo(dest, <b>"descendants"</b>, false);
+ *      }
+ *
+ *      default Node copyWithAnscestorsTo(JTransaction dest) {
+ *          return (Node)this.cascadeCopyTo(dest, <b>"ancestors"</b>, false);
+ *      }
+ *
+ *      default Node copyEntireTreeTo(JTransaction dest) {
+ *          return (Node)this.cascadeCopyTo(dest, <b>"tree"</b>, false);
+ *      }
+ *
+ *      default Node cloneEntireTreeTo(JTransaction dest) {
+ *          return (Node)this.cascadeCopyTo(dest, <b>"tree"</b>, true);
+ *      }
+ *
+ *      default Node cloneEntireTree() {
+ *          return (Node)this.cascadeCopyTo(this.getTransaction(), <b>"tree"</b>, true);
+ *      }
+ *  }
+ * </pre>
  *
  * <p><b>Delete Cascades</b></p>
  *
@@ -179,6 +238,44 @@ public @interface JField {
      * @return whether the field is indexed
      */
     boolean indexed() default false;
+
+    /**
+     * Define forward copy cascades for the annotated reference field.
+     *
+     * <p>
+     * When {@link org.jsimpledb.JObject#cascadeCopyIn JObject.cascadeCopyIn()},
+     * {@link org.jsimpledb.JObject#cascadeCopyOut JObject.cascadeCopyOut()}, or
+     * {@link org.jsimpledb.JObject#cascadeCopyTo JObject.cascadeCopyTo()} is invoked, if the given cascade name is one
+     * of the names listed here, and an object with the annotated reference field is copied, then the reference field will
+     * will be traversed in the forward direction and the referred-to object will also be copied.
+     *
+     * <p>
+     * For non-reference fields this property must be equal to its default value.
+     *
+     * @return whether the field is indexed
+     * @see org.jsimpledb.JObject#cascadeCopyTo JObject.cascadeCopyTo()
+     * @see org.jsimpledb.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
+     */
+    String[] cascades() default {};
+
+    /**
+     * Define inverse copy cascades for the annotated reference field.
+     *
+     * <p>
+     * When {@link org.jsimpledb.JObject#cascadeCopyIn JObject.cascadeCopyIn()},
+     * {@link org.jsimpledb.JObject#cascadeCopyOut JObject.cascadeCopyOut()}, or
+     * {@link org.jsimpledb.JObject#cascadeCopyTo JObject.cascadeCopyTo()} is invoked, if the given cascade name is one
+     * of the names listed here, and an object with the annotated reference field refers to an object that is copied, then the
+     * reference field will be traversed in the inverse direction and the referring object will also be copied.
+     *
+     * <p>
+     * For non-reference fields this property must be equal to its default value.
+     *
+     * @return whether the field is indexed
+     * @see org.jsimpledb.JObject#cascadeCopyTo JObject.cascadeCopyTo()
+     * @see org.jsimpledb.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
+     */
+    String[] inverseCascades() default {};
 
     /**
      * For reference fields, configure the behavior when the referred-to object is

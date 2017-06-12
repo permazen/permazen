@@ -1,6 +1,7 @@
 Version 3.5.0
 
     - Allow Java interfaces to be model classes
+    - Added support for copy cascades defined by new @JField annotation properties
     - Improvements to the KVStore interface; getRange() now returns CloseableIterator
     - Corrected excessive logging (should be trace, not debug) from ReferencePath
     - Formalized layout definitions and allocated a user-defined meta-data area
@@ -12,7 +13,7 @@ Version 3.5.0
     - Use names for Java cached value fields instead of storage ID's
     - Added new mode "generate-and-verify" to <jsimpledb:schema> Ant task
     - Added Microsoft SQL Server key/value database adapter
-    - Add new @JField annotation property typeSignature()
+    - Added new @JField annotation property typeSignature()
     - Moved core API field type classes into sub-package
     - Updated some dependencies
 

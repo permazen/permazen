@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -69,6 +70,7 @@ import org.jsimpledb.index.Index4;
 import org.jsimpledb.kv.KVDatabaseException;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
+import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
 import org.slf4j.Logger;
@@ -109,11 +111,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Copying Objects</b>
  * <ul>
- * <ul>
  *  <li>{@link #copyTo(JTransaction, CopyState, Stream) copyTo()}
  *  - Copy a {@link Stream} of objects into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, JObject, CopyState, String[]) copyTo()}
  *  - Copy objects reachable through specified reference path(s) into another transaction</li>
+ *  <li>{@link #cascadeFindAll(ObjId, String) cascadeFindAll()} - Find all objects reachable through a named cascade</li>
  * </ul>
  *
  * <p>
@@ -501,8 +503,8 @@ public class JTransaction {
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
      * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
-     * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}. The {@code CopyState} may also be configured to remap object ID's.
+     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
+     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
@@ -590,7 +592,7 @@ public class JTransaction {
      * <p>
      * This is a convenience method; equivalent to:
      * <blockquote><code>
-     *  {@link copyTo(JTransaction, CopyState, Stream) copyTo}{@code
+     *  {@link #copyTo(JTransaction, CopyState, Stream) copyTo}{@code
      *      (dest, copyState, }{@link Streams#stream(Iterable) Streams.stream}{@code (jobjs))}
      * </code></blockquote>
      *
@@ -604,7 +606,6 @@ public class JTransaction {
      *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any parameter is null
-     * @see #copyTo(JTransaction, CopyState, Stream)
      */
     public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
         Preconditions.checkArgument(jobjs != null, "null jobjs");
@@ -615,7 +616,7 @@ public class JTransaction {
      * Copy the specified objects into the specified destination transaction.
      *
      * <p>
-     * This is a convenience method; equivalent to {@link #copyTo(JTransaction, CopyState, Stream}}
+     * This is a convenience method; equivalent to {@link #copyTo(JTransaction, CopyState, Stream)}}
      * but with the objects specified by object ID.
      *
      * @param dest destination transaction
@@ -628,7 +629,6 @@ public class JTransaction {
      *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any parameter is null
-     * @see #copyTo(JTransaction, CopyState, Stream)
      */
     public void copyTo(JTransaction dest, CopyState copyState, ObjIdSet ids) {
         Preconditions.checkArgument(ids != null, "null ids");
@@ -647,8 +647,8 @@ public class JTransaction {
      *
      * <p>
      * The {@code copyState} tracks which objects have already been copied. For a "fresh" copy operation,
-     * pass a newly created {@code CopyState}; for a copy operation that is a continuation of a previous copy,
-     * reuse the previous {@link CopyState}. The {@code CopyState} may also be configured to remap object ID's.
+     * pass a newly created {@link CopyState}; for a copy operation that is a continuation of a previous copy,
+     * reuse the previous {@link CopyState}. The {@link CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
@@ -675,7 +675,6 @@ public class JTransaction {
      *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if {@code dest}, {@code copyState}, or {@code jobjs} is null
-     * @see #copyTo(JTransaction, JObject, ObjId, CopyState, String[])
      */
     public void copyTo(JTransaction dest, CopyState copyState, Stream<? extends JObject> jobjs) {
         this.copyIdStreamTo(dest, copyState, jobjs
@@ -766,6 +765,134 @@ public class JTransaction {
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
                 this.copyTo(copyState, dest, referrent, false, fieldIndex, fields);
+        }
+    }
+
+    /**
+     * Create a new object in this transaction of the same type for each object ID in the given set.
+     *
+     * <p>
+     * The newly created objects will be in their initial states.
+     *
+     * @param ids object ID's
+     * @return mapping from object ID in {@code ids} to newly created object
+     * @throws IllegalArgumentException if {@code ids} is null
+     */
+    public ObjIdMap<ObjId> createClones(ObjIdSet ids) {
+        Preconditions.checkArgument(ids != null, "null ids");
+        final ObjIdMap<ObjId> map = new ObjIdMap<>(ids.size());
+        for (ObjId id : ids)
+            map.put(id, this.tx.create(id.getStorageId()));
+        return map;
+    }
+
+    /**
+     * Recursively traverse reference cascades starting from the given object to find all objects reachable
+     * through the specified cascade.
+     *
+     * <p>
+     * This method finds all objects reachable from the starting object based on
+     * {@link org.jsimpledb.annotation.JField#cascades &#64;JField.cascades()} and
+     * {@link org.jsimpledb.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
+     * reference fields: a reference field is traversed in the forward or inverse direction if {@link cascadeName} is
+     * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
+     *
+     * @param id starting object ID
+     * @param cascadeName cascade name, or null for no cascade (returns just the {@code id} object)
+     * @return the object ID's of all objects reachable through the specified cascade (including the {@code id} object)
+     * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public ObjIdSet cascadeFindAll(ObjId id, String cascadeName) {
+        Preconditions.checkArgument(id != null, "null id");
+        final ObjIdSet ids = new ObjIdSet();
+        this.cascadeFindAll(id, cascadeName, ids);
+        return ids;
+    }
+
+    /**
+     * Recursively traverse the specified reference cascade until all objects reachable through the cascade are found.
+     *
+     * <p>
+     * Upon invocation the {@code ids} set contains the ID's of objects already visited; these objects will not be traversed.
+     * Upon return, {@code ids} will contain the ID's of all objects found.
+     *
+     * @param id starting object ID
+     * @param cascadeName cascade name, or null for no cascade
+     * @param visitedIds on entry objects already visited, on return all objects reachable
+     * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
+     * @throws IllegalArgumentException if {@code id} or {@code visitedIds} is null
+     */
+    public void cascadeFindAll(ObjId id, String cascadeName, ObjIdSet visitedIds) {
+
+        // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(visitedIds != null, "null visitedIds");
+        if (cascadeName == null)
+            return;
+
+        // Initialize search
+        final ObjIdSet toVisitIds = new ObjIdSet();
+        if (visitedIds.add(id))
+            toVisitIds.add(id);
+
+        // While there are objects remaining to scan, cascade through forward and inverse reference field cascades
+        while (!toVisitIds.isEmpty()) {
+            assert visitedIds.containsAll(toVisitIds);
+            id = toVisitIds.removeOne();
+            this.gatherForwardCascadeRefs(id, cascadeName, visitedIds, toVisitIds);
+            this.gatherInverseCascadeRefs(id, cascadeName, visitedIds, toVisitIds);
+        }
+    }
+
+    private void gatherForwardCascadeRefs(ObjId id, String cascadeName, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
+        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
+        if (jclass == null)
+            return;
+        final List<JReferenceField> fieldList = jclass.forwardCascadeMap.get(cascadeName);
+        if (fieldList == null)
+            return;
+        for (JReferenceField field : fieldList) {
+            final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(field.storageId);
+            assert info.getFieldType() instanceof ReferenceFieldType;
+            if (info instanceof ComplexSubFieldIndexInfo) {
+                final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
+                this.gatherRefs(subFieldInfo.iterateReferences(this.tx, id).iterator(), visitedIds, toVisitIds);
+            } else {
+                final ObjId referrent = (ObjId)this.tx.readSimpleField(id, field.storageId, false);
+                if (referrent != null && visitedIds.add(referrent))
+                    toVisitIds.add(referrent);
+            }
+        }
+    }
+
+    private void gatherInverseCascadeRefs(ObjId id, String cascadeName, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
+        final List<JReferenceField> fieldList = this.jdb.inverseCascadeMap.get(cascadeName);
+        if (fieldList == null)
+            return;
+        for (JReferenceField field : fieldList) {
+            final JClass<?> jclass = field.getJClass();
+
+            // Access the index associated with the reference field's storage ID
+            CoreIndex<?, ?> index = this.tx.queryIndex(field.storageId);
+
+            // Restrict to references coming from objects having the type containing the particular reference field in question
+            index = index.filter(1, new KeyRanges(ObjId.getKeyRange(jclass.storageId)));
+
+            // Find objects of that type referring to "id" through the field and add them to our cascade
+            final NavigableSet<?> refs = index.asMap().get(id);
+            if (refs != null)
+                this.gatherRefs(refs.iterator(), visitedIds, toVisitIds);
+        }
+    }
+
+    private void gatherRefs(Iterator<?> i0, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
+        try (CloseableIterator<?> i = CloseableIterator.wrap(i0)) {
+            while (i.hasNext()) {
+                final ObjId ref = (ObjId)i.next();
+                if (ref != null && visitedIds.add(ref))
+                    toVisitIds.add(ref);
+            }
         }
     }
 

@@ -126,6 +126,7 @@ public class JSimpleDB {
     final ClassLoader loader;
     final Database db;
     final StorageIdGenerator storageIdGenerator;
+    final HashMap<String, List<JReferenceField>> inverseCascadeMap = new HashMap<>();
 
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
@@ -334,6 +335,50 @@ public class JSimpleDB {
                     for (JSimpleField subField : parentField.getSubFields())
                         this.typeFieldMap.put(this.getTypeFieldKey(jclass.storageId, subField.storageId), subField);
                 }
+            }
+        }
+
+        // Populate jclass.forwardCascadeMap and this.inverseCascadeMap
+        for (JClass<?> jclass0 : this.jclasses.values()) {
+            final JClass<?> jclass = jclass0;
+            for (JField jfield : jclass.jfields.values()) {
+                jfield.visit(new JFieldSwitchAdapter<Void>() {
+
+                    @Override
+                    public Void caseJReferenceField(JReferenceField field) {
+                        for (String cascadeName : field.forwardCascades)
+                            this.addCascade(jclass.forwardCascadeMap, cascadeName, field);
+                        for (String cascadeName : field.inverseCascades)
+                            this.addCascade(JSimpleDB.this.inverseCascadeMap, cascadeName, field);
+                        return null;
+                    }
+
+                    @Override
+                    public Void caseJMapField(JMapField field) {
+                        if (field.getKeyField() instanceof JReferenceField)
+                            this.caseJReferenceField((JReferenceField)field.getKeyField());
+                        if (field.getValueField() instanceof JReferenceField)
+                            this.caseJReferenceField((JReferenceField)field.getValueField());
+                        return null;
+                    }
+
+                    @Override
+                    protected Void caseJCollectionField(JCollectionField field) {
+                        if (field.getElementField() instanceof JReferenceField)
+                            this.caseJReferenceField((JReferenceField)field.getElementField());
+                        return null;
+                    }
+
+                    @Override
+                    protected Void caseJField(JField field) {
+                        return null;
+                    }
+
+                    private void addCascade(Map<String, List<JReferenceField>> map, String cascadeName, JReferenceField field) {
+                        if (cascadeName != null)
+                            map.computeIfAbsent(cascadeName, s -> new ArrayList<>()).add(field);
+                    }
+                });
             }
         }
 

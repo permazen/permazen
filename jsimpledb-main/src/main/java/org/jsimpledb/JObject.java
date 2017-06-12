@@ -5,22 +5,42 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.util.ObjIdSet;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.
  *
  * <p>
- * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of user-provided Java model classes.
+ * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of user-provided Java model types.
  * These generated subclasses will always implement this interface, providing convenient access to database operations.
  * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
  * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
  * {@link JTransaction} support methods.
  *
+ * <p><b>Object Identity and State</b></p>
+ *
  * <p>
- * All {@link JObject}s are {@linkplain #getTransaction associated} with a specific {@linkplain JTransaction},
- * and are the unique representatives for their corresponding {@link ObjId} in that transaction.
- * All field state derives from the transaction.
+ * Every {@link JObject} has a unique 64-bit object identifier, represented as an {@link ObjId}.
+ * All {@link JObject}s are permanently {@linkplain #getTransaction associated} with a specific
+ * {@linkplain JTransaction transaction}, and are the unique representatives for their corresponding {@link ObjId}
+ * in that transaction. All field state derives from the associated transaction.
+ *
+ * <p>
+ * There are two types of transactions: normal transactions reflecting an open transaction on the underlying
+ * key/value database, and {@linkplain SnapshotJTransaction snapshot transactions}, which are in-memory containers
+ * of object data. Snapshot transactions are fully functional, supporting index queries, object versioning, etc.
+ *
+ * <p><b>Copying Objects</b></p>
+ *
+ * <p>
+ * This interface provides methods for copying a graph of objects between transactions, for example, from an open
+ * key/value database transaction into an in-memory snapshot transaction ("copy out"), or vice-versa ("copy in").
+ * A graph of objects can be copied by specifying a starting object and either a list of reference paths, or
+ * a cascade name. Object ID's can be remapped during the copy if necessary, e.g., to ensure existing objects
+ * are not overwritten.
  *
  * @see JTransaction
  */
@@ -51,11 +71,6 @@ public interface JObject {
 
     /**
      * Get this instance's associated {@link JTransaction}.
-     *
-     * <p>
-     * If this is a regular database instance, this returns the {@link JTransaction}
-     * {@linkplain JTransaction#getCurrent associated} with the current thread. Otherwise, this instance
-     * is a snapshot instance and this method returns the associated {@link SnapshotJTransaction}.
      *
      * @return the {@link JTransaction} that contains this instance's field state
      */
@@ -90,7 +105,7 @@ public interface JObject {
     }
 
     /**
-     * Determine whether this instance is a normal instance or is a "snapshot" instance associated
+     * Determine whether this instance is a normal instance or is an in-memory "snapshot" instance associated
      * with a {@link SnapshotJTransaction}.
      *
      * <p>
@@ -183,8 +198,8 @@ public interface JObject {
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
      * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
-     * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}. The {@code CopyState} may also be configured to remap object ID's.
+     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
+     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * Warning: if two threads attempt to copy objects between the same two transactions at the same time
@@ -207,7 +222,7 @@ public interface JObject {
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
-     * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String[]) JTransaction.copyTo()
+     * @see JTransaction#copyTo(JTransaction, JObject, CopyState, String[]) JTransaction.copyTo()
      * @see ReferencePath
      */
     default JObject copyTo(JTransaction dest, CopyState copyState, String... refPaths) {
@@ -234,6 +249,7 @@ public interface JObject {
      *  that does not exist in {@code dest} through a reference field
      *  {@linkplain org.jsimpledb.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
      *  in snapshot transactions
+     * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      */
@@ -247,8 +263,7 @@ public interface JObject {
      *
      * <p>
      * Normally this method would only be invoked on a snapshot {@link JObject}.
-     * If this instance is a regular database {@link JObject}, then it is immediately returned unchanged.
-     * The returned object will always be a regular database {@link JObject}.
+     * The returned object will be a {@link JObject} in the currently open transaction.
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
@@ -268,6 +283,133 @@ public interface JObject {
      */
     default JObject copyIn(String... refPaths) {
         return this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths);
+    }
+
+    /**
+     * Copy this instance and all objects reachable from it via the specified cascade into the
+     * specified destination transaction.
+     *
+     * <p>
+     * This is a more general method; see {@link #cascadeCopyIn cascadeCopyIn()} and {@link #cascadeCopyOut cascadeCopyOut()}
+     * for more common and specific use cases.
+     *
+     * <p>
+     * This method finds and copies all objects reachable from this object based on
+     * {@link org.jsimpledb.annotation.JField#cascades &#64;JField.cascades()} and
+     * {@link org.jsimpledb.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
+     * reference fields: a reference field is traversed in the forward or inverse direction if {@link cascadeName} is
+     * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
+     *
+     * <p>
+     * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
+     * it will have its schema version updated first, if necessary, then be overwritten.
+     * Any {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate},
+     * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
+     * however, for {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
+     * if {@code dest} is a {@link SnapshotJTransaction}.
+     *
+     * <p>
+     * The two transactions must be compatible in that for any schema versions encountered, those schema versions
+     * must be identical in both transactions.
+     *
+     * <p>
+     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
+     * The {@code copyState} tracks which objects have already been copied and traversed.
+     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
+     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
+     *
+     * <p>
+     * Warning: if two threads attempt to copy objects between the same two transactions at the same time
+     * but in opposite directions, deadlock could result.
+     *
+     * @param dest destination transaction for copies
+     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
+     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
+     *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
+     * @return the copied version of this instance in {@code dest}
+     * @throws org.jsimpledb.core.DeletedObjectException if any object to be copied does not exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema version corresponding to any copied object is not identical in both transactions
+     * @throws IllegalArgumentException if {@code dest} is null
+     * @see #copyIn cascadeCopyIn()
+     * @see #copyOut cascadeCopyOut()
+     * @see JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
+     */
+    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, boolean clone) {
+        Preconditions.checkArgument(dest != null, "null dest");
+        final ObjId id = this.getObjId();
+        final JTransaction jtx = this.getTransaction();
+        final ObjIdSet ids = jtx.cascadeFindAll(id, cascadeName);
+        final CopyState copyState = clone ? new CopyState(dest.createClones(ids)) : new CopyState();
+        jtx.copyTo(dest, copyState, ids);
+        return dest.get(copyState.getDestinationId(id));
+    }
+
+    /**
+     * Copy this instance and all objects reachable from it via the specified cascade
+     * into the associated in-memory snapshot transaction.
+     *
+     * <p>
+     * Normally this method would only be invoked on a regular database {@link JObject}.
+     * The returned object will always be a snapshot {@link JObject}.
+     *
+     * <p>
+     * This is a convenience method, and is equivalent to invoking:
+     * <blockquote><code>
+     * this.cascadeCopyTo(this.getTransaction().getSnapshotTransaction(), cascadeName, clone);
+     * </code></blockquote>
+     *
+     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
+     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the snapshot transaction,
+     *  or false to preserve the same object ID's, overwriting any existing objects
+     * @return the snapshot {@link JObject} copy of this instance
+     * @throws org.jsimpledb.core.DeletedObjectException if any object to be copied does not exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field
+     *  {@linkplain org.jsimpledb.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  in snapshot transactions
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema version corresponding to any copied object is not identical in both transactions
+     * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
+     * @see #cascadeCopyIn cascadeCopyIn()
+     * @see #cascadeCopyTo cascadeCopyTo()
+     */
+    default JObject cascadeCopyOut(String cascadeName, boolean clone) {
+        return this.cascadeCopyTo(this.getTransaction().getSnapshotTransaction(), cascadeName, clone);
+    }
+
+    /**
+     * Copy this instance and all objects reachable from it via the specified cascade
+     * into the transaction associated with the current thread.
+     *
+     * <p>
+     * Normally this method would only be invoked on a snapshot {@link JObject}.
+     * The returned object will be a {@link JObject} in the currently open transaction.
+     *
+     * <p>
+     * This is a convenience method, and is equivalent to invoking:
+     * <blockquote><code>
+     * this.cascadeCopyTo(JTransaction.getCurrent(), cascadeName, clone);
+     * </code></blockquote>
+     *
+     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
+     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the database transaction,
+     *  or false to preserve the same object ID's, overwriting any existing objects
+     * @return the regular database copy of this instance
+     * @throws org.jsimpledb.core.DeletedObjectException if any object to be copied does not exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field
+     *  {@linkplain org.jsimpledb.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema version corresponding to any copied object is not identical in both transactions
+     * @see #cascadeCopyOut cascadeCopyOut()
+     * @see #cascadeCopyTo cascadeCopyTo()
+     */
+    default JObject cascadeCopyIn(String cascadeName, boolean clone) {
+        return this.cascadeCopyTo(JTransaction.getCurrent(), cascadeName, clone);
     }
 
     /**

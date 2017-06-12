@@ -34,7 +34,7 @@ import org.jsimpledb.core.util.ObjIdSet;
  * Instances are not thread safe.
  *
  * @see JObject#copyTo JObject.copyTo()
- * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String...) JTransaction.copyTo()
+ * @see JObject#cascadeCopyTo JObject.cascadeCopyTo()
  */
 @NotThreadSafe
 public class CopyState implements Cloneable {

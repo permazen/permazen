@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ public class JClass<T> extends JSchemaObject {
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
     final ArrayList<JField> upgradeConversionFields = new ArrayList<>();                // contains only simple and counter fields
+    final HashMap<String, List<JReferenceField>> forwardCascadeMap = new HashMap<>();
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
@@ -620,6 +622,10 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": uniqueExcludeNull() is incompatible with fields"
               + " having primitive type");
         }
+        if (!isReferenceType && annotation.cascades().length != 0)
+            throw new IllegalArgumentException("invalid " + description + ": cascades() only allowed on reference fields");
+        if (!isReferenceType && annotation.inverseCascades().length != 0)
+            throw new IllegalArgumentException("invalid " + description + ": inverseCascades() only allowed on reference fields");
 
         // Create simple, enum, or reference field
         try {

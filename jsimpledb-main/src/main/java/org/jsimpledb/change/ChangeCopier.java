@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import org.jsimpledb.CopyState;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
 
 /**
  * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the
@@ -22,22 +23,38 @@ import org.jsimpledb.JTransaction;
 public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     protected final JTransaction dest;
-    protected final CopyState copyState = new CopyState();
+    protected final String cascadeName;
+    protected CopyState copyState = new CopyState();
 
     /**
-     * Primary constructor.
+     * Non-cascading constructor.
+     *
+     * <p>
+     * Equivalent to: {@code ChangeCopier(dest, null)}.
      *
      * @param dest destination transaction for copied {@link JObject}s
      * @throws IllegalArgumentException if {@code dest} is null
      */
     public ChangeCopier(JTransaction dest) {
+        this(dest, null);
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param dest destination transaction for copied {@link JObject}s
+     * @param cascadeName cascade to use when copying objects, or null to not cascade
+     * @throws IllegalArgumentException if {@code dest} is null
+     */
+    public ChangeCopier(JTransaction dest, String cascadeName) {
         Preconditions.checkArgument(dest != null, "null dest");
         this.dest = dest;
+        this.cascadeName = cascadeName;
     }
 
     /**
      * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction
-     * associated with the current thread.
+     * associated with the current thread and no copy cascade is needed
      *
      * <p>
      * This is a convenience constructor, equivalent to:
@@ -53,12 +70,49 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     }
 
     /**
+     * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction
+     * associated with the current thread.
+     *
+     * <p>
+     * This is a convenience constructor, equivalent to:
+     * <blockquote><code>
+     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName)
+     * </code></blockquote>
+     *
+     * @param cascadeName cascade to use when copying objects, or null to not cascade
+     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
+     *  associated with the current thread
+     */
+    public ChangeCopier(String cascadeName) {
+        this(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName);
+    }
+
+    /**
      * Get the destination transaction configured in this instance.
      *
      * @return destination transaction
      */
     public JTransaction getDestinationTransaction() {
         return this.dest;
+    }
+
+    /**
+     * Get the configured cascade name, if any.
+     *
+     * @return configured cascade name, or null if none
+     */
+    public String getCascadeName() {
+        return this.cascadeName;
+    }
+
+    /**
+     * Set the {@link CopyState} used by this instance.
+     *
+     * @param copyState copy state
+     * @throws IllegalArgumentException if {@code copyState} is null
+     */
+    public void setCopyState(CopyState copyState) {
+        this.copyState = copyState;
     }
 
     /**
@@ -159,10 +213,10 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * Copy the given {@link JObject} into the destination transaction.
      *
      * <p>
-     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getCopyState())} unless
-     * {@code jobj} does not exist, in which case it is not copied (but the
+     * The implementation in {@link ChangeCopier} copies {@code jobj} and objects reachable via the configured copy cascade,
+     * unless {@code jobj} does not exist, in which case it is not copied (but the
      * {@linkplain JTransaction#get(ObjId) corresponding} {@link JObject} is still returned).
-     * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.
+     * Subclasses may override as needed.
      *
      * @param jobj original object
      * @return copied object in {@link #dest}
@@ -171,6 +225,11 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     @SuppressWarnings("unchecked")
     protected JObject copy(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return !jobj.exists() ? this.dest.get(jobj) : jobj.copyTo(this.dest, this.getCopyState());
+        if (!jobj.exists())
+            return this.dest.get(jobj);
+        final ObjId id = jobj.getObjId();
+        final JTransaction jtx = jobj.getTransaction();
+        jtx.copyTo(this.dest, this.copyState, jtx.cascadeFindAll(id, this.cascadeName));
+        return dest.get(this.copyState.getDestinationId(id));
     }
 }
