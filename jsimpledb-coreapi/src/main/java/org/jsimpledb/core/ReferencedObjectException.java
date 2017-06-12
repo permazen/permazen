@@ -16,9 +16,10 @@ public class ReferencedObjectException extends DatabaseException {
     private final ObjId referrer;
     private final int storageId;
 
-    ReferencedObjectException(ObjId id, ObjId referrer, int storageId) {
-        super("object " + id + " cannot be deleted because it is still referenced by field "
-          + storageId + " in object " + referrer + ", which is configured for error on deletion");
+    ReferencedObjectException(Transaction tx, ObjId id, ObjId referrer, int storageId) {
+        super(tx.getObjDescription(id) + " cannot be deleted because it is still referenced by "
+          + tx.getFieldDescription(referrer, storageId) + " in " + tx.getObjDescription(referrer)
+          + ", which is configured for error on deletion");
         this.id = id;
         this.referrer = referrer;
         this.storageId = storageId;

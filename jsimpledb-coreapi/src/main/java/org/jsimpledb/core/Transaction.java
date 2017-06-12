@@ -881,7 +881,7 @@ public class Transaction {
             for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.EXCEPTION).entrySet()) {
                 for (ObjId referrer : entry.getValue()) {
                     if (!referrer.equals(id))
-                        throw new ReferencedObjectException(id, referrer, entry.getKey());
+                        throw new ReferencedObjectException(this, id, referrer, entry.getKey());
                 }
             }
 
@@ -1975,9 +1975,8 @@ public class Transaction {
         }
 
         // Not allowed
-        throw new DeletedObjectException(targetId, "illegal assignment to " + field + " in object " + id
-          + " (" + this.getTypeDescription(id) + ") of reference to deleted object " + targetId
-          + " (" + this.getTypeDescription(targetId) + ")");
+        throw new DeletedObjectException(targetId, "illegal assignment to " + field + " in " + this.getObjDescription(id)
+          + " of reference to deleted object " + this.getObjDescription(targetId));
     }
 
     /**
@@ -2009,7 +2008,26 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         final int storageId = id.getStorageId();
         final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
-        return type != null ? "type " + type.getName() + "#" + storageId : "type with storage ID #" + storageId;
+        return type != null ? "type `" + type.getName() + "'" : "type #" + storageId;
+    }
+
+    String getObjDescription(ObjId id) {
+        Preconditions.checkArgument(id != null, "null id");
+        return "object " + id + " (" + this.getTypeDescription(id) + ")";
+    }
+
+    String getFieldDescription(ObjId id, int storageId) {
+        Preconditions.checkArgument(id != null, "null id");
+        final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
+        if (type == null)
+            return "field #" + storageId;
+        final Field<?> field;
+        try {
+            field = type.getField(storageId, true);
+        } catch (UnknownFieldException e) {
+            return "field #" + storageId;
+        }
+        return "field `" + field.getName() + "'";
     }
 
     /**
