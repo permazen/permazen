@@ -19,7 +19,9 @@ import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeletedObjectException;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferencedObjectException;
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.test.TestSupport;
@@ -113,13 +115,15 @@ public class BasicTest extends TestSupport {
 
             // Test copyTo() with different target
             final MeanPerson t1dup = tx.create(MeanPerson.class);
-            t1.copyTo(tx, t1dup.getObjId(), new CopyState());
+            final ObjIdMap<ObjId> idMap = new ObjIdMap<>(1);
+            idMap.put(t1.getObjId(), t1dup.getObjId());
+            t1.copyTo(tx, new CopyState(idMap));
             this.check(t1dup, true, (byte)123, (short)-32763, '!', -99, 12.34e-13f, Long.MAX_VALUE, Double.POSITIVE_INFINITY,
-              "hey there", Mood.HAPPY, t1,
+              "hey there", Mood.HAPPY, t1dup,
               Arrays.asList("apple", "banana", "dinkle"),
               Arrays.asList(23, 21, 22, 21),
               Arrays.asList(t3),
-              t1, 100.0f, t2, -99.0f, null, -0.0f);
+              t1dup, 100.0f, t2, -99.0f, null, -0.0f);
             t1dup.delete();
 
             t2.setBooleanArray(null);

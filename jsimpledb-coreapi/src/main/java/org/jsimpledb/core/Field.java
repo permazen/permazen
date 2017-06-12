@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
@@ -98,7 +99,7 @@ public abstract class Field<T> extends SchemaItem {
      * <p>
      * This method assumes both objects exist and both transactions are locked.
      */
-    abstract void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx);
+    abstract void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap);
 
     /**
      * Build the key (or key prefix) for this field in the given object.

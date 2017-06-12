@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteWriter;
 
 /**
@@ -125,8 +126,20 @@ public class SimpleField<T> extends Field<T> {
     }
 
     @Override
-    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
-        dstTx.writeSimpleField(dstId, this.storageId, srcTx.readSimpleField(srcId, this.storageId, false), false);
+    @SuppressWarnings("unchecked")
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
+        T value = (T)srcTx.readSimpleField(srcId, this.storageId, false);
+        if (objectIdMap != null)
+            value = this.remapObjectId(objectIdMap, value);
+        dstTx.writeSimpleField(dstId, this.storageId, value, false);
+    }
+
+    protected boolean remapsObjectId() {
+        return false;
+    }
+
+    protected T remapObjectId(ObjIdMap<ObjId> objectIdMap, T value) {
+        return value;
     }
 
     /**

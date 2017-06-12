@@ -6,6 +6,8 @@
 package org.jsimpledb;
 
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -85,7 +87,10 @@ public class LotsOfFieldsTest extends TestSupport {
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 456);
 
-            f1.copyTo(jtx, f2.getObjId(), new CopyState());
+            final ObjIdMap<ObjId> map = new ObjIdMap<>(1);
+            map.put(f1.getObjId(), f2.getObjId());
+            final CopyState copyState = new CopyState(map);
+            f1.copyTo(jtx, copyState);
 
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 123);

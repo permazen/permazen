@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.testng.annotations.Test;
@@ -29,6 +30,11 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"3\">\n"
           + "    <SimpleField name=\"uuid\" type=\"java.util.UUID\" storageId=\"4\"/>\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"5\" allowDeleted=\"true\">\n"
+          + "      <ObjectTypes>\n"
+          + "         <ObjectType storageId=\"3\"/>\n"
+          + "      </ObjectTypes>\n"
+          + "    </ReferenceField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
@@ -37,16 +43,43 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
 
         Transaction tx = db.createTransaction(schema, 1, true);
 
-        final ObjId foo = tx.create(1);
-        tx.writeSimpleField(foo, 2, 1234L, false);
-        final ObjId bar = tx.create(3);
-        tx.writeSimpleField(bar, 4, UUID.randomUUID(), false);
+        final ObjId foo1 = tx.create(1);
+        final ObjId foo2 = tx.create(1);
+        tx.writeSimpleField(foo1, 2, 1234L, false);
+        final ObjId bar1 = tx.create(3);
+        final ObjId bar2 = tx.create(3);
+        tx.writeSimpleField(bar1, 4, UUID.randomUUID(), false);
+        tx.writeSimpleField(bar2, 4, UUID.randomUUID(), false);
 
+        // Try to copy mapping bar1 -> foo1: incompatible type
+        final ObjIdMap<ObjId> remap1 = new ObjIdMap<>(1);
+        remap1.put(bar1, foo1);
         try {
-            tx.copy(bar, foo, tx, false, false);
-            assert false : "copied foo to bar!";
+            tx.copy(bar1, tx, false, false, null, remap1);
+            assert false : "copied foo1 to bar1!";
         } catch (IllegalArgumentException e) {
-            // expected
+            this.log.debug("got expected " + e);
+        }
+
+        // Try to copy mapping bar1.ref -> foo1: incompatible type in reference field
+        tx.writeSimpleField(bar1, 5, bar2, false);
+        final ObjIdMap<ObjId> remap2 = new ObjIdMap<>(1);
+        remap2.put(bar2, foo2);
+        try {
+            tx.copy(bar1, tx, false, false, null, remap2);
+            assert false : "copied bar1.ref to foo!";
+        } catch (IllegalArgumentException e) {
+            this.log.debug("got expected " + e);
+        }
+
+        // Try to copy mapping bar1 -> wrong storage ID
+        final ObjIdMap<ObjId> remap3 = new ObjIdMap<>(1);
+        remap3.put(bar2, new ObjId(1));
+        try {
+            tx.copy(bar2, tx, false, false, null, remap3);
+            assert false : "copied bar2 to id#1!";
+        } catch (IllegalArgumentException e) {
+            this.log.debug("got expected " + e);
         }
     }
 }

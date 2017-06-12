@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -57,7 +59,9 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.core.util.ObjIdMap;
+import org.jsimpledb.core.util.ObjIdSet;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.index.Index3;
@@ -103,6 +107,16 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
+ * <b>Copying Objects</b>
+ * <ul>
+ * <ul>
+ *  <li>{@link #copyTo(JTransaction, CopyState, Stream) copyTo()}
+ *  - Copy a {@link Stream} of objects into another transaction</li>
+ *  <li>{@link #copyTo(JTransaction, JObject, CopyState, String[]) copyTo()}
+ *  - Copy objects reachable through specified reference path(s) into another transaction</li>
+ * </ul>
+ *
+ * <p>
  * <b>Validation</b>
  * <ul>
  *  <li>{@link #validate validate()} - Validate objects in the validation queue</li>
@@ -141,13 +155,9 @@ import org.slf4j.LoggerFactory;
  * <b>Snapshot Transactions</b>
  * <ul>
  *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory snapshot transaction
- *      associated with this transaction</li>
+ *      associated with this regular transaction</li>
  *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a new in-memory snapshot transaction</li>
  *  <li>{@link #isSnapshot} - Determine whether this transaction is a snapshot transaction</li>
- *  <li>{@link #copyTo(JTransaction, JObject, ObjId, CopyState, String[]) copyTo()}
- *      - Copy an object into another transaction</li>
- *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
- *      - Copy explicitly specified objects into another transaction</li>
  * </ul>
  *
  * <p>
@@ -490,11 +500,9 @@ public class JTransaction {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copyState} parameter can be used to keep track of objects that have already been copied and/or traversed
-     * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
-     * actually already exist in {@code dest}, an exception is thrown).
+     * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}.
+     * of a previous copy, reuse the previous {@code copyState}. The {@code CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
@@ -511,50 +519,42 @@ public class JTransaction {
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
-     * <p>
-     * This method is typically only used by generated classes; normally, {@link JObject#copyIn JObject.copyIn()},
-     * {@link JObject#copyOut JObject.copyOut()}, or {@link JObject#copyTo JObject.copyTo()} would be used instead.
-     *
      * @param dest destination transaction
-     * @param srcObj source object
-     * @param dstId target object ID, or null for the object ID of {@code srcObj}
-     * @param copyState tracks which objects have already been copied and traversed
+     * @param jobj object to copy
+     * @param copyState tracks which objects have already been copied and traversed and whether to remap object ID's
      * @param refPaths zero or more reference paths that refer to additional objects to be copied (including intermediate objects)
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
-     * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
-     * @throws DeletedObjectException if an object in {@code copyState} is traversed but does not actually exist
-     * @throws DeletedObjectException if any copied object contains a reference to another deleted, but not copied, object,
-     *  through a reference field configured to disallow deleted assignment
-     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
-     *  is not identical in this instance and {@code dest} (as well for any referenced objects)
+     * @throws DeletedObjectException if any object to be copied does not actually exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
+     *  in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if any parameter other than {@code dstId} is null
      * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
      * @see #copyTo(JTransaction, CopyState, Iterable)
      * @see ReferencePath
      */
-    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, CopyState copyState, String... refPaths) {
+    public JObject copyTo(JTransaction dest, JObject jobj, CopyState copyState, String... refPaths) {
 
         // Sanity check
         Preconditions.checkArgument(dest != null, "null dest");
-        Preconditions.checkArgument(srcObj != null, "null srcObj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         Preconditions.checkArgument(copyState != null, "null copyState");
         Preconditions.checkArgument(refPaths != null, "null refPaths");
 
         // Handle possible re-entrant object cache load
-        JTransaction.registerJObject(srcObj);
+        JTransaction.registerJObject(jobj);
 
-        // Get source and dest ID
-        final ObjId srcId = srcObj.getObjId();
-        if (dstId == null)
-            dstId = srcId;
+        // Get object ID
+        final ObjId id = jobj.getObjId();
 
         // Parse paths and convert each into an array of reference fields (including the target reference field at the end)
-        final Class<?> startType = this.jdb.getJClass(srcId).type;
+        final Class<?> startType = this.jdb.getJClass(id).type;
         final ArrayList<int[]> pathReferencesList = new ArrayList<>(refPaths.length);
         for (String refPath : refPaths) {
 
@@ -571,21 +571,72 @@ public class JTransaction {
 
         // Ensure object is copied even when there are zero reference paths
         if (pathReferencesList.isEmpty())
-            this.copyTo(copyState, dest, srcId, dstId, true, 0, new int[0]);
+            this.copyTo(copyState, dest, id, true, 0, new int[0]);
 
         // Recurse over each reference path
         for (int[] pathReferences : pathReferencesList)
-            this.copyTo(copyState, dest, srcId, dstId, false/*doesn't matter*/, 0, pathReferences);
+            this.copyTo(copyState, dest, id, false/*doesn't matter*/, 0, pathReferences);
 
-        // Check for any remining deleted assignments
+        // Check for any remaining deleted assignments
         copyState.checkDeletedAssignments(this);
 
         // Done
-        return dest.get(dstId);
+        return dest.get(copyState.getDestinationId(id));
     }
 
     /**
-     * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
+     * Copy the specified objects into the specified destination transaction.
+     *
+     * <p>
+     * This is a convenience method; equivalent to:
+     * <blockquote><code>
+     *  {@link copyTo(JTransaction, CopyState, Stream) copyTo}{@code
+     *      (dest, copyState, }{@link Streams#stream(Iterable) Streams.stream}{@code (jobjs))}
+     * </code></blockquote>
+     *
+     * @param dest destination transaction
+     * @param copyState tracks which objects have already been copied and whether to remap object ID's
+     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
+     * @throws DeletedObjectException if any object to be copied does not actually exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
+     *  in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws IllegalArgumentException if any parameter is null
+     * @see #copyTo(JTransaction, CopyState, Stream)
+     */
+    public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
+        Preconditions.checkArgument(jobjs != null, "null jobjs");
+        this.copyTo(dest, copyState, Streams.stream(jobjs));
+    }
+
+    /**
+     * Copy the specified objects into the specified destination transaction.
+     *
+     * <p>
+     * This is a convenience method; equivalent to {@link #copyTo(JTransaction, CopyState, Stream}}
+     * but with the objects specified by object ID.
+     *
+     * @param dest destination transaction
+     * @param copyState tracks which objects have already been copied and whether to remap object ID's
+     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
+     * @throws DeletedObjectException if any object to be copied does not actually exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
+     *  in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws IllegalArgumentException if any parameter is null
+     * @see #copyTo(JTransaction, CopyState, Stream)
+     */
+    public void copyTo(JTransaction dest, CopyState copyState, ObjIdSet ids) {
+        Preconditions.checkArgument(ids != null, "null ids");
+        this.copyIdStreamTo(dest, copyState, ids.stream());
+    }
+
+    /**
+     * Copy the specified objects into the specified destination transaction.
      *
      * <p>
      * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
@@ -595,9 +646,9 @@ public class JTransaction {
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
-     * The {@code copyState} parameter tracks which objects that have already been copied. For a "fresh" copy operation,
+     * The {@code copyState} tracks which objects have already been copied. For a "fresh" copy operation,
      * pass a newly created {@code CopyState}; for a copy operation that is a continuation of a previous copy,
-     * reuse the previous {@link CopyState}.
+     * reuse the previous {@link CopyState}. The {@code CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
@@ -616,68 +667,67 @@ public class JTransaction {
      *
      * @param dest destination transaction
      * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
-     * @param copyState tracks which objects have already been copied
-     * @throws DeletedObjectException if an object in {@code jobjs} does not exist in this transaction
-     * @throws DeletedObjectException if any copied object contains a reference to another deleted, but not copied, object,
-     *  through a reference field configured to disallow deleted assignment
-     * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
-     *  {@code jobjs} is not identical in this instance and {@code dest}
+     * @param copyState tracks which objects have already been copied and whether to remap object ID's
+     * @throws DeletedObjectException if any object to be copied does not actually exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
+     *  in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
+     * @throws IllegalArgumentException if {@code dest}, {@code copyState}, or {@code jobjs} is null
      * @see #copyTo(JTransaction, JObject, ObjId, CopyState, String[])
      */
-    public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
+    public void copyTo(JTransaction dest, CopyState copyState, Stream<? extends JObject> jobjs) {
+        this.copyIdStreamTo(dest, copyState, jobjs
+          .filter(jobj -> jobj != null)
+          .peek(JTransaction::registerJObject)                              // handle possible re-entrant object cache load
+          .map(JObject::getObjId));
+    }
+
+    void copyIdStreamTo(JTransaction dest, CopyState copyState, Stream<ObjId> ids) {
 
         // Sanity check
         Preconditions.checkArgument(dest != null, "null dest");
         Preconditions.checkArgument(copyState != null, "null copyState");
-        Preconditions.checkArgument(jobjs != null, "null jobjs");
+        Preconditions.checkArgument(ids != null, "null ids");
 
         // Reset deleted assignments
         copyState.deletedAssignments.clear();
 
         // Copy objects
-        for (JObject jobj : jobjs) {
+        ids.forEachOrdered(id -> this.copyTo(copyState, dest, id, true, 0, new int[0]));
 
-            // Get next object
-            if (jobj == null)
-                continue;
-
-            // Handle possible re-entrant object cache load
-            JTransaction.registerJObject(jobj);
-
-            // Copy object
-            final ObjId id = jobj.getObjId();
-            this.copyTo(copyState, dest, id, id, true, 0, new int[0]);
-        }
-
-        // Check for any remining deleted assignments
+        // Check for any remaining deleted assignments
         copyState.checkDeletedAssignments(this);
     }
 
-    void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fields) {
+    void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, boolean required, int fieldIndex, int[] fields) {
 
         // Copy current instance unless already copied, upgrading it in the process
-        if (copyState.markCopied(dstId)) {
+        if (copyState.markCopied(srcId)) {
 
             // See if we can disable listener notifications
             boolean disableListenerNotifications = copyState.isSuppressNotifications();
             if (!disableListenerNotifications && dest.isSnapshot()) {
-                final JClass<?> jclass = this.jdb.jclasses.get(dstId.getStorageId());
+                final JClass<?> jclass = this.jdb.jclasses.get(srcId.getStorageId());
                 if (jclass != null)
                     disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
             }
+
+            // Get destination ID
+            final ObjId dstId = copyState.getDestinationId(srcId);
 
             // Reset any cached fields in the destination object
             final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
             if (dstObject != null)
                 dstObject.resetCachedFieldValues();
 
-            // Copy at the core API level
+            // Copy object at the core API level
             final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
             boolean exists = true;
             try {
-                this.tx.copy(srcId, dstId, dest.tx, true, !disableListenerNotifications, coreDeletedAssignments);
+                this.tx.copy(srcId, dest.tx, true,
+                  !disableListenerNotifications, coreDeletedAssignments, copyState.getObjectIdMap());
             } catch (DeletedObjectException e) {
                 if (required)
                     throw e;
@@ -715,7 +765,7 @@ public class JTransaction {
         } else {
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
-                this.copyTo(copyState, dest, referrent, referrent, false, fieldIndex, fields);
+                this.copyTo(copyState, dest, referrent, false, fieldIndex, fields);
         }
     }
 

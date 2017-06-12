@@ -48,10 +48,8 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
     public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx, ObjId id, int fieldIndex, int[] fields) {
         assert this.getFieldType() instanceof ReferenceFieldType;
         for (Object obj : this.iterateReferences(srcTx.tx, id)) {
-            if (obj != null) {
-                final ObjId ref = (ObjId)obj;
-                srcTx.copyTo(copyState, dstTx, ref, ref, false, fieldIndex, fields);
-            }
+            if (obj != null)
+                srcTx.copyTo(copyState, dstTx, (ObjId)obj, false, fieldIndex, fields);
         }
     }
 

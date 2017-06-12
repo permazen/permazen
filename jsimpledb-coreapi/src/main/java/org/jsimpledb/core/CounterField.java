@@ -8,6 +8,8 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import org.jsimpledb.core.util.ObjIdMap;
+
 /**
  * Counter fields.
  *
@@ -61,7 +63,7 @@ public class CounterField extends Field<Long> {
 // Non-public methods
 
     @Override
-    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
         dstTx.writeCounterField(dstId, this.storageId, srcTx.readCounterField(srcId, this.storageId, false), false);
     }
 

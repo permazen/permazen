@@ -171,7 +171,6 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     @SuppressWarnings("unchecked")
     protected JObject copy(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return !jobj.exists() ? this.dest.get(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());
+        return !jobj.exists() ? this.dest.get(jobj) : jobj.copyTo(this.dest, this.getCopyState());
     }
 }
-

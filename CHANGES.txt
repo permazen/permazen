@@ -9,12 +9,15 @@ Version 3.5.0
     - Allow multiple FieldTypes with the same name if different encoding signatures
     - Fixed bug where Raft leaders did not respect their own required lease timeouts
     - Improved Raft read-only transaction performance by capturing commit index early
+    - Generalize how object copies are made to allow arbitrary object ID remapping (*)
     - Use names for Java cached value fields instead of storage ID's
     - Added new mode "generate-and-verify" to <jsimpledb:schema> Ant task
     - Added Microsoft SQL Server key/value database adapter
     - Add new @JField annotation property typeSignature()
     - Moved core API field type classes into sub-package
     - Updated some dependencies
+
+    (*) Backwards-incompatible change
 
 Version 3.4.0 Released March 26, 2017
 

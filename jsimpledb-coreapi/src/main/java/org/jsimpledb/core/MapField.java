@@ -18,8 +18,10 @@ import java.util.NavigableMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Map field.
@@ -143,47 +145,63 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
         final FieldType<K> keyFieldType = this.keyField.fieldType;
         final NavigableMap<K, V> src = this.getValue(srcTx, srcId);
         final NavigableMap<K, V> dst = this.getValue(dstTx, dstId);
-        final Iterator<Map.Entry<K, V>> si = src.entrySet().iterator();
-        final Iterator<Map.Entry<K, V>> di = dst.entrySet().iterator();
-        if (!si.hasNext()) {
-            dst.clear();
-            return;
-        }
-        if (!di.hasNext()) {
-            dst.putAll(src);
-            return;
-        }
-        Map.Entry<K, V> s = si.next();
-        Map.Entry<K, V> d = di.next();
-        while (true) {
-            final int diff = keyFieldType.compare(s.getKey(), d.getKey());
-            boolean sadvance = true;
-            boolean dadvance = true;
-            if (diff < 0) {
-                dst.put(s.getKey(), s.getValue());
-                dadvance = false;
-            } else if (diff > 0) {
-                di.remove();
-                sadvance = false;
-            } else
-                d.setValue(s.getValue());
-            if (sadvance) {
-                if (!si.hasNext()) {
-                    dst.tailMap(s.getKey(), false).clear();
-                    return;
-                }
-                s = si.next();
+        try (final CloseableIterator<Map.Entry<K, V>> si = CloseableIterator.wrap(src.entrySet().iterator());
+             final CloseableIterator<Map.Entry<K, V>> di = CloseableIterator.wrap(dst.entrySet().iterator())) {
+
+            // Check for empty
+            if (!si.hasNext()) {
+                dst.clear();
+                return;
             }
-            if (dadvance) {
+
+            // If we're not remapping anything, walk forward through both maps and synchronize dst to src
+            if (objectIdMap == null || objectIdMap.isEmpty()
+              || (!this.keyField.remapsObjectId() && !this.valueField.remapsObjectId())) {
                 if (!di.hasNext()) {
-                    dst.putAll(src.tailMap(s.getKey(), true));
+                    dst.putAll(src);
                     return;
                 }
-                d = di.next();
+                Map.Entry<K, V> s = si.next();
+                Map.Entry<K, V> d = di.next();
+                while (true) {
+                    final int diff = keyFieldType.compare(s.getKey(), d.getKey());
+                    boolean sadvance = true;
+                    boolean dadvance = true;
+                    if (diff < 0) {
+                        dst.put(s.getKey(), s.getValue());
+                        dadvance = false;
+                    } else if (diff > 0) {
+                        di.remove();
+                        sadvance = false;
+                    } else
+                        d.setValue(s.getValue());
+                    if (sadvance) {
+                        if (!si.hasNext()) {
+                            dst.tailMap(s.getKey(), false).clear();
+                            return;
+                        }
+                        s = si.next();
+                    }
+                    if (dadvance) {
+                        if (!di.hasNext()) {
+                            dst.putAll(src.tailMap(s.getKey(), true));
+                            return;
+                        }
+                        d = di.next();
+                    }
+                }
+            } else {
+                dst.clear();
+                while (si.hasNext()) {
+                    final Map.Entry<K, V> entry = si.next();
+                    final K destKey = this.keyField.remapObjectId(objectIdMap, entry.getKey());
+                    final V destValue = this.valueField.remapObjectId(objectIdMap, entry.getValue());
+                    dst.put(destKey, destValue);
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.jsimpledb.core.type.ReferenceFieldType;
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteReader;
 
 /**
@@ -112,6 +113,20 @@ public class ReferenceField extends SimpleField<ObjId> {
     }
 
 // Non-public methods
+
+    @Override
+    protected boolean remapsObjectId() {
+        return true;
+    }
+
+    @Override
+    protected ObjId remapObjectId(ObjIdMap<ObjId> objectIdMap, ObjId srcId) {
+        if (objectIdMap == null || srcId == null)
+            return srcId;
+        final ObjId dstId = objectIdMap.get(srcId);
+        Preconditions.checkArgument(dstId != null, "can't copy " + srcId + " because " + srcId + " is remapped to null");
+        return dstId;
+    }
 
     /**
      * Find any object referenced by this field in the source transaction that don't exist in the destination transaction.

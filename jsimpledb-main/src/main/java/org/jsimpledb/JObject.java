@@ -156,21 +156,20 @@ public interface JObject {
     }
 
     /**
-     * Copy this instance, and other instances it references through the specified {@code refPaths} (if any), into a (possibly)
-     * different {@link JTransaction}. This is a more general method; see {@link #copyIn copyIn()} and {@link #copyOut copyOut()}
+     * Copy this instance, and other instances it references through the specified reference paths, into the
+     * specified destination transaction.
+     *
+     * <p>
+     * This is a more general method; see {@link #copyIn copyIn()} and {@link #copyOut copyOut()}
      * for more common and specific use cases.
      *
      * <p>
-     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
-     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
+     * This method copies this object and all other objects reachable from this instance through any of the specified
+     * {@linkplain ReferencePath reference paths} (including intermediate objects visited).
      *
      * <p>
-     * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if
-     * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other
-     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths} (including
-     * intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.
-     * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version
-     * updated first, if necessary, otherwise it will be created.
+     * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
+     * it will have its schema version updated first, if necessary, then be overwritten.
      * Any {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate},
      * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
      * however, for {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
@@ -183,54 +182,41 @@ public interface JObject {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copyState} parameter can be used to keep track of objects that have already been copied and/or traversed
-     * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
-     * actually already exist in {@code dest}, an exception is thrown).
+     * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@link CopyState}.
+     * of a previous copy, reuse the previous {@code copyState}. The {@code CopyState} may also be configured to remap object ID's.
      *
      * <p>
      * Warning: if two threads attempt to copy objects between the same two transactions at the same time
      * but in opposite directions, deadlock could result.
      *
      * @param dest destination transaction for copies
-     * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
      * @param copyState tracks which indirectly referenced objects have already been copied
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      *  (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)
-     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copied} is traversed but does not actually exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any object to be copied does not actually exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
      * @throws org.jsimpledb.core.SchemaMismatchException
-     *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}
-     *  associated with this instance and {@code dest} (as well for any referenced objects)
-     * @throws IllegalArgumentException if {@code dest}, {@code copied}, or {@code refPaths} is null
+     *  if the schema corresponding to any copied object is not identical in both the {@link JTransaction}
+     *  associated with this instance and {@code dest}
+     * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
      * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String[]) JTransaction.copyTo()
      * @see ReferencePath
      */
-    default JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths) {
-        return this.getTransaction().copyTo(dest, this, target, copyState, refPaths);
+    default JObject copyTo(JTransaction dest, CopyState copyState, String... refPaths) {
+        return this.getTransaction().copyTo(dest, this, copyState, refPaths);
     }
 
     /**
-     * Snapshot this instance and other instances it references through the specified {@code refPaths} (if any).
-     *
-     * <p>
-     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
-     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
-     *
-     * <p>
-     * This method will copy this object and all of its fields, along with all other objects reachable through
-     * any of the specified {@linkplain ReferencePath reference paths} into the {@link SnapshotJTransaction}
-     * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction
-     * (including intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.
-     * If any object already exists there, it will be overwritten, otherwise it will be created.
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.
+     * Copy this instance and other instances it references through the specified reference paths (if any)
+     * into the associated in-memory snapshot transaction.
      *
      * <p>
      * Normally this method would only be invoked on a regular database {@link JObject}.
@@ -239,36 +225,25 @@ public interface JObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><code>
-     * this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
+     * this.copyTo(this.getTransaction().getSnapshotTransaction(), new CopyState(), refPaths);
      * </code></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the snapshot {@link JObject} copy of this instance
-     * @throws org.jsimpledb.core.DeletedObjectException
-     *  if this object does not exist in the {@link JTransaction} associated with this instance
-     *  (no exception is thrown however if an indirectly referenced object does not exist)
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field
+     *  {@linkplain org.jsimpledb.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  in snapshot transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      */
     default JObject copyOut(String... refPaths) {
-        return this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
+        return this.copyTo(this.getTransaction().getSnapshotTransaction(), new CopyState(), refPaths);
     }
 
     /**
      * Copy this instance, and other instances it references through the specified {@code refPaths} (if any),
      * into the transaction associated with the current thread.
-     *
-     * <p>
-     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
-     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
-     *
-     * <p>
-     * This method will copy this object and all of its fields, along with all other objects reachable through any of the
-     * specified {@linkplain ReferencePath reference paths} into the {@link JTransaction}
-     * {@linkplain JTransaction#getCurrent associated} with the current thread (including intermediate objects visited).
-     * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly.
      *
      * <p>
      * Normally this method would only be invoked on a snapshot {@link JObject}.
@@ -278,21 +253,21 @@ public interface JObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><code>
-     * this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths)
+     * this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths)
      * </code></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the regular database copy of this instance
-     * @throws org.jsimpledb.core.DeletedObjectException
-     *  if this object does not exist in the {@link JTransaction} associated with this instance
-     *  (no exception is thrown however if an indirectly referenced object does not exist)
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field
+     *  {@linkplain org.jsimpledb.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
      * @throws org.jsimpledb.core.SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyOut copyOut()
      */
     default JObject copyIn(String... refPaths) {
-        return this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths);
+        return this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths);
     }
 
     /**

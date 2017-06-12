@@ -484,7 +484,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             }
 
             // Copy over object, replacing any previous
-            snapshot.copy(id, id, this.tx, false, false, this.unresolvedReferences);
+            snapshot.copy(id, this.tx, false, false, this.unresolvedReferences, null);
 
             // Removed the copied object from deleted assignments, as any forward reference to it is now resolved
             this.unresolvedReferences.remove(id);

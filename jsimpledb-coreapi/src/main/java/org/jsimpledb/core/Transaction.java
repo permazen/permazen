@@ -87,8 +87,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #create(int) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
- *  <li>{@link #copy(ObjId, ObjId, Transaction, boolean, boolean) copy()} - Copy an object's fields
- *      onto another object in a (possibly) different transaction</li>
+ *  <li>{@link #copy copy()} - Copy an object into a (possibly different) transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
@@ -239,6 +238,7 @@ public class Transaction {
 
     // Recording of deleted assignments used during a copy() operation (otherwise should be null)
     private ObjIdMap<ReferenceField> deletedAssignments;
+    private ObjIdMap<ObjId> copyIdMap;
 
 // Constructors
 
@@ -986,112 +986,91 @@ public class Transaction {
     }
 
     /**
-     * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
+     * Copy an object into a (possibly different) transaction.
+     *
+     * <p>
+     * This copies the object, including all of its field data, to {@code dest}. If the object already exists in {@code dest},
+     * the existing copy is completely replaced.
+     *
+     * <p>
+     * Only the object itself is copied; any other objects it references are not copied. If the target object does not exist
+     * in {@code dest}, it will be created first (and {@link CreateListener}s notified); otherwise, first the target object's
+     * schema version will be upgraded if necessary to match {@code source} (and {@link VersionChangeListener}s notified).
+     * Finally, as fields are copied, non-trivial changes to the target object's fields generate change listener notifications.
      *
      * <p>
      * If {@code updateVersion} is true, the {@code source} object is first upgraded to
      * {@linkplain #getSchema() the schema version associated with this transaction}.
-     * In any case, the schema version associated with {@code source} when copied must be identical
+     * In any case, the schema version associated with {@code source}, when copied, must be identical
      * in this transaction and {@code dest}.
      *
-     * <p>
-     * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
-     * does not exist in {@code dest}, it will be created first (and {@link CreateListener}s notified); if {@code target}
-     * does exist in {@code dest}, its schema version will be upgraded if necessary to match {@code source} (and any registered
-     * {@link VersionChangeListener}s notified).
-     * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
+     * <p><b>Disabling Notifications</b></p>
      *
      * <p>
-     * If {@code source} contains references to any objects that don't exist in {@code dest} through fields configured
-     * to {@linkplain ReferenceField#isAllowDeleted disallow deleted assignments}, then a {@link DeletedObjectException}
-     * is thrown and no copy is performed. To perform a copy that allows such deleted assignments, use
-     * {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}.
+     * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
+     * and field change listeners as objects are created and modified in {@code dest}. {@link VersionChangeListener}s
+     * are always notified.
+     *
+     * <p><b>Deleted Assignments Handling</b></p>
+     *
+     * <p>
+     * If a reference field configured to {@linkplain ReferenceField#isAllowDeleted disallow deleted assignments} is copied,
+     * but the referenced object does not exist in {@code dest}, then a {@link DeletedObjectException} is thrown and no copy
+     * is performed. However, this can present an impossible chicken-and-egg situation when multiple objects need to be copied
+     * and there are cycles in the graph of references between objects.
+     *
+     * <p>
+     * If {@code deletedAssignments} is non-null, then instead of triggering an exception, illegal references to deleted objects
+     * are collected in {@code deletedAssignments}, which maps each deleted object to (some) referring field in the copied
+     * object. This lets the caller to decide what to do about them.
+     *
+     * <p><b>Object ID Remapping</b></p>
+     *
+     * <p>
+     * The optional {@code objectIdMap} parameter specifies how object ID's should be remapped as fields are copied into
+     * {@code dest}. This remapping applies to all {@linkplain ReferenceField reference fields}, and also applies to
+     * {@code source} itself, i.e., the target object ID may be different from {@code source}.
+     *
+     * <p><b>Return Value</b></p>
+     *
+     * <p>
+     * If {@code dest} is this instance, and the {@code source} is not remapped (see below), no fields are changed and false is
+     * returned; however, a schema update may still occur (if {@code updateVersion} is true), and deleted assignment checks are
+     * applied.
+     *
+     * <p><b>Deadlocks</b></p>
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
-     * <p>
-     * If {@code dest} is this instance, and {@code source} equals {@code target}, no fields are changed and false is returned;
-     * however, a schema update may occur (if {@code updateVersion} is true), and deleted assignment checks are applied.
-     *
-     * <p>
-     * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
-     * and field change listeners as objects are created and modified in {@code dest}.
-     *
      * @param source object ID of the source object in this transaction
-     * @param target object ID of the target object in {@code dest}
-     * @param dest destination transaction containing {@code target} (possibly same as this transaction)
-     * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
-     * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners
-     * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
-     * @throws DeletedObjectException if no object with ID equal to {@code source} is found in this transaction
-     * @throws DeletedObjectException if a non-null reference field in {@code source} that disallows deleted assignments
-     *  contains a reference to an object that does not exist in {@code dest}
-     * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
-     * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
-     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
-     *  this transaction and {@code dest}
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
-     */
-    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion, boolean notifyListeners) {
-        return this.copy(source, target, dest, updateVersion, notifyListeners, null);
-    }
-
-    /**
-     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean, boolean)} that allows, but tracks, deleted assignments,
-     * and supports disabling create and change notifications.
-     *
-     * <p>
-     * When multiple objects need to be copied, {@link #copy(ObjId, ObjId, Transaction, boolean, boolean) copy()} can throw a
-     * {@link DeletedObjectException} if an object is copied before some other object that it references through a
-     * {@link ReferenceField} with {@link ReferenceField#allowDeleted} set to false. If there are cycles in the
-     * graph of references between objects, this situation is impossible to avoid.
-     *
-     * <p>
-     * In this variant, instead of triggering an exception, illegal references to deleted objects are collected in
-     * {@code deletedAssignments}, which maps each deleted object to (some) referring field in {@code target}.
-     * This allows the caller to decide what to do about them.
-     *
-     * <p>
-     * If a null {@code deletedAssignments} is given, and any illegal deleted assignment would occur, then an immediate
-     * {@link DeletedObjectException} is thrown and no copy is performed.
-     *
-     * <p>
-     * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
-     * and field change listeners as objects are created and modified in {@code dest}.
-     *
-     * @param source object ID of the source object in this transaction
-     * @param target object ID of the target object in {@code dest}
-     * @param dest destination transaction containing {@code target} (possibly same as this transaction)
-     * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
+     * @param dest destination for the copy of {@code source} (possibly this transaction)
+     * @param updateVersion true to automatically update {@code source}'s schema version prior to the copy, false to not change it
      * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners
      * @param deletedAssignments if not null, collect assignments to deleted objects here instead of throwing
      *  {@link DeletedObjectException}s, where the map key is the deleted object and the map value is some referring field
-     * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
+     * @param objectIdMap if not null, a remapping of object ID's in this transaction to object ID's in {@code dest}
+     * @return false if the target object already existed in {@code dest}, true if it was newly created
      * @throws DeletedObjectException if no object with ID equal to {@code source} exists in this transaction
      * @throws DeletedObjectException if {@code deletedAssignments} is null, and a non-null reference field in {@code source}
      *  that disallows deleted assignments contains a reference to an object that does not exist in {@code dest}
-     * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
-     * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
+     * @throws UnknownTypeException if {@code source} or an ID in {@code objectIdMap} specifies an unknown object type
+     * @throws IllegalArgumentException if {@code objectIdMap} maps an object ID to null
+     * @throws IllegalArgumentException if {@code objectIdMap} maps {@code source} to a different object type
+     * @throws IllegalArgumentException if {@code objectIdMap} maps the value of a reference field to an incompatible object type
      * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
      *  this transaction and {@code dest}
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      */
-    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion,
-      final boolean notifyListeners, final ObjIdMap<ReferenceField> deletedAssignments) {
+    public synchronized boolean copy(ObjId source, final Transaction dest, final boolean updateVersion,
+      final boolean notifyListeners, final ObjIdMap<ReferenceField> deletedAssignments, final ObjIdMap<ObjId> objectIdMap) {
 
         // Sanity check
         Preconditions.checkArgument(source != null, "null source");
-        Preconditions.checkArgument(target != null, "null target");
         Preconditions.checkArgument(dest != null, "null dest");
         if (this.stale)
             throw new StaleTransactionException(this);
@@ -1108,13 +1087,16 @@ public class Transaction {
 
             // Copy fields
             return dest.mutateAndNotify(() -> {
+                final ObjIdMap<ObjId> previousCopyIdMap = dest.copyIdMap;
+                dest.copyIdMap = objectIdMap;
                 final ObjIdMap<ReferenceField> previousCopyDeletedAssignments = dest.deletedAssignments;
                 dest.deletedAssignments = deletedAssignments;
                 final boolean previousDisableListenerNotifications = dest.disableListenerNotifications;
                 dest.disableListenerNotifications = !notifyListeners;
                 try {
-                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
+                    return Transaction.doCopyFields(srcInfo, Transaction.this, dest, updateVersion);
                 } finally {
+                    dest.copyIdMap = previousCopyIdMap;
                     dest.deletedAssignments = previousCopyDeletedAssignments;
                     dest.disableListenerNotifications = previousDisableListenerNotifications;
                 }
@@ -1123,18 +1105,21 @@ public class Transaction {
     }
 
     // This method assumes both transactions are locked
-    private static boolean doCopyFields(ObjInfo srcInfo, ObjId dstId, Transaction srcTx, Transaction dstTx, boolean updateVersion) {
+    private static boolean doCopyFields(ObjInfo srcInfo, Transaction srcTx, Transaction dstTx, boolean updateVersion) {
 
         // Sanity check
         assert Thread.holdsLock(srcTx);
         assert Thread.holdsLock(dstTx);
 
-        // Verify objects have the same type
+        // Get destination object ID and verify it is sensible
         final ObjId srcId = srcInfo.getId();
+        final ObjId dstId = dstTx.copyIdMap != null && dstTx.copyIdMap.containsKey(srcId) ? dstTx.copyIdMap.get(srcId) : srcId;
+        if (dstId == null)
+            throw new IllegalArgumentException("can't copy " + srcId + " because " + srcId + " is remapped to null");
         final int typeStorageId = srcId.getStorageId();
         if (dstId.getStorageId() != typeStorageId) {
             throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
-              + " due to non-equal object types (" + typeStorageId + " != " + dstId.getStorageId() + ")");
+              + " due to non-equal storage ID's (" + typeStorageId + " != " + dstId.getStorageId() + ")");
         }
 
         // Upgrade source object if necessary
@@ -1170,10 +1155,10 @@ public class Transaction {
             dstInfo = dstTx.loadIntoCache(dstId);
         }
 
-        // Do field-by-field copy if there are change listeners, otherwise do fast copy of key/value pairs directly
+        // Do field-by-field copy if there are change listeners or remapping, otherwise do fast copy of key/value pairs directly
         final ObjType srcType = srcSchema.getObjType(typeStorageId);
         final ObjType dstType = dstSchema.getObjType(typeStorageId);
-        if (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType)) {
+        if (dstTx.copyIdMap != null || (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType))) {
 
             // Create destination object if it does not exist
             if (!existed)
@@ -1181,7 +1166,7 @@ public class Transaction {
 
             // Copy fields
             for (Field<?> field : srcType.fields.values())
-                field.copy(srcId, dstId, srcTx, dstTx);
+                field.copy(srcId, dstId, srcTx, dstTx, dstTx.copyIdMap);
         } else {
             assert srcType.schema.versionNumber == dstType.schema.versionNumber;
 

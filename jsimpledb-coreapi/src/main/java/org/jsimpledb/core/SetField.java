@@ -10,12 +10,13 @@ import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.CloseableIterator;
 
 /**
  * Set field.
@@ -78,46 +79,57 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
-    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
         final FieldType<E> fieldType = this.elementField.fieldType;
         final NavigableSet<E> src = this.getValue(srcTx, srcId);
         final NavigableSet<E> dst = this.getValue(dstTx, dstId);
-        final Iterator<E> si = src.iterator();
-        final Iterator<E> di = dst.iterator();
-        if (!si.hasNext()) {
-            dst.clear();
-            return;
-        }
-        if (!di.hasNext()) {
-            dst.addAll(src);
-            return;
-        }
-        E s = si.next();
-        E d = di.next();
-        while (true) {
-            final int diff = fieldType.compare(s, d);
-            boolean sadvance = true;
-            boolean dadvance = true;
-            if (diff < 0) {
-                dst.add(s);
-                dadvance = false;
-            } else if (diff > 0) {
-                di.remove();
-                sadvance = false;
+        try (final CloseableIterator<E> si = CloseableIterator.wrap(src.iterator());
+             final CloseableIterator<E> di = CloseableIterator.wrap(dst.iterator())) {
+
+            // Check for empty
+            if (!si.hasNext()) {
+                dst.clear();
+                return;
             }
-            if (sadvance) {
-                if (!si.hasNext()) {
-                    dst.tailSet(s, false).clear();
-                    return;
-                }
-                s = si.next();
-            }
-            if (dadvance) {
+
+            // If we're not remapping anything, walk forward through both sets and synchronize dst to src
+            if (objectIdMap == null || objectIdMap.isEmpty() || !this.elementField.remapsObjectId()) {
                 if (!di.hasNext()) {
-                    dst.addAll(src.tailSet(s, true));
+                    dst.addAll(src);
                     return;
                 }
-                d = di.next();
+                E s = si.next();
+                E d = di.next();
+                while (true) {
+                    final int diff = fieldType.compare(s, d);
+                    boolean sadvance = true;
+                    boolean dadvance = true;
+                    if (diff < 0) {
+                        dst.add(s);
+                        dadvance = false;
+                    } else if (diff > 0) {
+                        di.remove();
+                        sadvance = false;
+                    }
+                    if (sadvance) {
+                        if (!si.hasNext()) {
+                            dst.tailSet(s, false).clear();
+                            return;
+                        }
+                        s = si.next();
+                    }
+                    if (dadvance) {
+                        if (!di.hasNext()) {
+                            dst.addAll(src.tailSet(s, true));
+                            return;
+                        }
+                        d = di.next();
+                    }
+                }
+            } else {
+                dst.clear();
+                while (si.hasNext())
+                    dst.add(this.elementField.remapObjectId(objectIdMap, si.next()));
             }
         }
     }

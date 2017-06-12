@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 
@@ -80,18 +81,20 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
-    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
         final List<E> srcList = this.getValue(srcTx, srcId);
         final List<E> dstList = this.getValue(dstTx, dstId);
         final int ssize = srcList.size();
         final int dsize = dstList.size();
         final int min = Math.min(ssize, dsize);
         for (int i = 0; i < min; i++)
-            dstList.set(i, srcList.get(i));
+            dstList.set(i, this.elementField.remapObjectId(objectIdMap, srcList.get(i)));
         if (ssize < dsize)
             dstList.subList(ssize, dsize).clear();
-        else if (dsize < ssize)
-            dstList.addAll(srcList.subList(dsize, ssize));
+        else if (dsize < ssize) {
+            for (E elem : srcList.subList(dsize, ssize))
+                dstList.add(this.elementField.remapObjectId(objectIdMap, elem));
+        }
     }
 
     @Override
