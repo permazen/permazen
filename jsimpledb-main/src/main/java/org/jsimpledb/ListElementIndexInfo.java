@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.type.ReferenceFieldType;
 
 /**
  * Represents an index on the {@code element} sub-field of a {@link JListField}.
@@ -28,6 +29,7 @@ class ListElementIndexInfo extends ComplexSubFieldIndexInfo {
 
     @Override
     protected Iterable<?> iterateReferences(Transaction tx, ObjId id) {
+        assert this.getFieldType() instanceof ReferenceFieldType;
         return tx.readListField(id, this.getParentStorageId(), false);
     }
 }

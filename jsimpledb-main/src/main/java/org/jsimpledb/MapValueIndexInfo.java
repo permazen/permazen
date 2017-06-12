@@ -12,6 +12,7 @@ import java.util.Objects;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.type.ReferenceFieldType;
 
 /**
  * Represents an index on the {@code value} sub-field of a {@link JMapField}.
@@ -71,6 +72,7 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
 
     @Override
     protected Iterable<?> iterateReferences(Transaction tx, ObjId id) {
+        assert this.getFieldType() instanceof ReferenceFieldType;
         return tx.readMapField(id, this.getParentStorageId(), false).values();
     }
 

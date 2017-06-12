@@ -7,6 +7,7 @@ package org.jsimpledb;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.type.ReferenceFieldType;
 
 /**
  * Represents an index on a sub-field of a complex field.
@@ -45,6 +46,7 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
      * @param fields fields to follow in the reference path
      */
     public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx, ObjId id, int fieldIndex, int[] fields) {
+        assert this.getFieldType() instanceof ReferenceFieldType;
         for (Object obj : this.iterateReferences(srcTx.tx, id)) {
             if (obj != null) {
                 final ObjId ref = (ObjId)obj;

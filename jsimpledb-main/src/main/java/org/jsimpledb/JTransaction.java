@@ -708,6 +708,7 @@ public class JTransaction {
         // Recurse through the next reference field in the path
         final int storageId = fields[fieldIndex++];
         final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(storageId);
+        assert info == null || info.getFieldType() instanceof ReferenceFieldType;
         if (info instanceof ComplexSubFieldIndexInfo) {
             final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
             subFieldInfo.copyRecurse(copyState, this, dest, srcId, fieldIndex, fields);
