@@ -34,6 +34,9 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
      * Recurse on this reference sub-field during a copy between transactions. Copies all objects referred to by
      * this sub-field in the given object from {@code srcTx} to {@code dstTx}.
      *
+     * <p>
+     * This method assumes that this indexed field is a reference field.
+     *
      * @param copyState copy state
      * @param srcTx source transaction
      * @param dstTx destination transaction
@@ -50,6 +53,12 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
         }
     }
 
+    /**
+     * Iterate over the references in this sub-field in the given object.
+     *
+     * <p>
+     * This method assumes that this indexed field is a reference field.
+     */
     protected abstract Iterable<?> iterateReferences(Transaction tx, ObjId id);
 
 // Object

@@ -29,8 +29,7 @@ import org.jsimpledb.core.DeleteAction;
  * </ul>
  *
  * <p>
- * Note that this annotation can be applied to superclass and interface methods to have the corresponding
- * field defined in all sub-types.
+ * This annotation can be applied to superclass and interface methods to have the corresponding field defined in all sub-types.
  *
  * <p>
  * When auto-generation of properties is enabled, use of this annotation is not required unless you need to override

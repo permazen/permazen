@@ -590,6 +590,8 @@ public class Transaction {
 
     /**
      * Create an empty, in-memory "snapshot" transaction.
+     *
+     * <p>
      * The snapshot transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
      * (i.e., contain no objects). It can be used as a destination for "snapshot" copies of objects made via {@link #copy copy()}.
      *

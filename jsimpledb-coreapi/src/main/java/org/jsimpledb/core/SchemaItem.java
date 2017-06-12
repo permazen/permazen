@@ -38,7 +38,7 @@ public abstract class SchemaItem {
     }
 
     /**
-     * Get the associated with this instance.
+     * Get the name associated with this instance.
      *
      * @return name of this object type or field, never null
      */

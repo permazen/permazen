@@ -471,7 +471,7 @@ public class JTransaction {
     }
 
     /**
-     * Copy the specified object, and any other objects referneced through the specified reference paths,
+     * Copy the specified object, and any other objects referenced through the specified reference paths,
      * into the specified destination transaction.
      *
      * <p>
@@ -495,7 +495,7 @@ public class JTransaction {
      *
      * <p>
      * If any copied objects contain reference fields configured with
-     * {@link org.jsimpledb.annotation.JField#allowDeleted}{@code = false},
+     * {@link org.jsimpledb.annotation.JField#allowDeleted} equal to {@code false},
      * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
      * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link org.jsimpledb.annotation.JField#allowDeletedSnapshot}
      * applies instead). Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
