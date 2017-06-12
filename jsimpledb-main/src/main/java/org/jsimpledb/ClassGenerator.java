@@ -50,36 +50,16 @@ class ClassGenerator<T> {
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
-    static final Method JOBJECT_GET_SCHEMA_VERSION_METHOD;
     static final Method JOBJECT_GET_TRANSACTION;
-    static final Method JOBJECT_DELETE_METHOD;
-    static final Method JOBJECT_EXISTS_METHOD;
-    static final Method JOBJECT_IS_SNAPSHOT_METHOD;
-    static final Method JOBJECT_RECREATE_METHOD;
-    static final Method JOBJECT_UPGRADE_METHOD;
-    static final Method JOBJECT_REVALIDATE_METHOD;
-    static final Method JOBJECT_COPY_OUT_METHOD;
-    static final Method JOBJECT_COPY_IN_METHOD;
-    static final Method JOBJECT_COPY_TO_METHOD;
     static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
     // JTransaction method handles
-    static final Method GET_CURRENT_METHOD;
     static final Method READ_SIMPLE_FIELD_METHOD;
     static final Method WRITE_SIMPLE_FIELD_METHOD;
     static final Method READ_COUNTER_FIELD_METHOD;
     static final Method READ_SET_FIELD_METHOD;
     static final Method READ_LIST_FIELD_METHOD;
     static final Method READ_MAP_FIELD_METHOD;
-    static final Method DELETE_METHOD;
-    static final Method EXISTS_METHOD;
-    static final Method RECREATE_METHOD;
-    static final Method GET_SCHEMA_VERSION_METHOD;
-    static final Method UPDATE_SCHEMA_VERSION_METHOD;
-    static final Method REVALIDATE_METHOD;
-    static final Method IS_SNAPSHOT_METHOD;
-    static final Method COPY_TO_METHOD;
-    static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
     static final Method GET_TRANSACTION_METHOD;
     static final Method GET_METHOD;
     static final Method REGISTER_JOBJECT_METHOD;
@@ -100,22 +80,10 @@ class ClassGenerator<T> {
 
             // JObject methods
             JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
-            JOBJECT_GET_SCHEMA_VERSION_METHOD = JObject.class.getMethod("getSchemaVersion");
             JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
-            JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
-            JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
-            JOBJECT_IS_SNAPSHOT_METHOD = JObject.class.getMethod("isSnapshot");
-            JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
-            JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
-            JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate", Class[].class);
-            JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo",
-              JTransaction.class, ObjId.class, CopyState.class, String[].class);
-            JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
-            JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
             JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = JObject.class.getMethod("resetCachedFieldValues");
 
             // JTransaction methods
-            GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
             READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class, boolean.class);
             WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField",
               JObject.class, int.class, Object.class, boolean.class);
@@ -123,16 +91,6 @@ class ClassGenerator<T> {
             READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class, boolean.class);
             READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class, boolean.class);
             READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class, boolean.class);
-            DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
-            EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
-            RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
-            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
-            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
-            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class, Class[].class);
-            IS_SNAPSHOT_METHOD = JTransaction.class.getMethod("isSnapshot");
-            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
-              JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
-            GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
             GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
@@ -382,133 +340,6 @@ class ClassGenerator<T> {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.getSchemaVersion()
-        mv = this.startMethod(cw, JOBJECT_GET_SCHEMA_VERSION_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        this.emitInvoke(mv, GET_SCHEMA_VERSION_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.delete()
-        mv = this.startMethod(cw, JOBJECT_DELETE_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, DELETE_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.exists()
-        mv = this.startMethod(cw, JOBJECT_EXISTS_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        this.emitInvoke(mv, EXISTS_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.isSnapshot()
-        mv = this.startMethod(cw, JOBJECT_IS_SNAPSHOT_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        this.emitInvoke(mv, IS_SNAPSHOT_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.recreate()
-        mv = this.startMethod(cw, JOBJECT_RECREATE_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, RECREATE_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.revalidate()
-        mv = this.startMethod(cw, JOBJECT_REVALIDATE_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        this.emitInvoke(mv, REVALIDATE_METHOD);
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.upgrade()
-        mv = this.startMethod(cw, JOBJECT_UPGRADE_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.copyTo()
-        mv = this.startMethod(cw, JOBJECT_COPY_TO_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitVarInsn(Opcodes.ALOAD, 2);
-        mv.visitVarInsn(Opcodes.ALOAD, 3);
-        mv.visitVarInsn(Opcodes.ALOAD, 4);
-        this.emitInvoke(mv, COPY_TO_METHOD);
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.copyOut()
-        mv = this.startMethod(cw, JOBJECT_COPY_OUT_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        this.emitInvoke(mv, GET_SNAPSHOT_TRANSACTION_METHOD);
-        mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(CopyState.class).getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(CopyState.class).getInternalName(), "<init>", "()V", false);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.copyIn()
-        mv = this.startMethod(cw, JOBJECT_COPY_IN_METHOD);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, GET_CURRENT_METHOD);
-        mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(CopyState.class).getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(CopyState.class).getInternalName(), "<init>", "()V", false);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

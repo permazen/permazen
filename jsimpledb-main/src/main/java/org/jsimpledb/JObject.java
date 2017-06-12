@@ -45,7 +45,9 @@ public interface JObject {
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
-    int getSchemaVersion();
+    default int getSchemaVersion() {
+        return this.getTransaction().getSchemaVersion(this.getObjId());
+    }
 
     /**
      * Get this instance's associated {@link JTransaction}.
@@ -72,7 +74,9 @@ public interface JObject {
      * @throws org.jsimpledb.core.ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link org.jsimpledb.core.DeleteAction#EXCEPTION}
      */
-    boolean delete();
+    default boolean delete() {
+        return this.getTransaction().delete(this);
+    }
 
     /**
      * Determine whether this instance still exists in its associated transaction.
@@ -81,15 +85,22 @@ public interface JObject {
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
-    boolean exists();
+    default boolean exists() {
+        return this.getTransaction().exists(this.getObjId());
+    }
 
     /**
      * Determine whether this instance is a normal instance or is a "snapshot" instance associated
      * with a {@link SnapshotJTransaction}.
      *
+     * <p>
+     * Equvialent to {@code getTransaction().isSnapshot()}.
+     *
      * @return true if instance is a snapshot instance
      */
-    boolean isSnapshot();
+    default boolean isSnapshot() {
+        return this.getTransaction().isSnapshot();
+    }
 
     /**
      * Recreate a deleted instance, if it does not exist, in its associated transaction.
@@ -99,7 +110,9 @@ public interface JObject {
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
-    boolean recreate();
+    default boolean recreate() {
+        return this.getTransaction().recreate(this);
+    }
 
     /**
      * Add this instance to the validation queue for validation in its associated transaction.
@@ -120,7 +133,9 @@ public interface JObject {
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      * @throws NullPointerException if {@code groups} is null
      */
-    void revalidate(Class<?>... groups);
+    default void revalidate(Class<?>... groups) {
+        this.getTransaction().revalidate(this.getObjId(), groups);
+    }
 
     /**
      * Update the schema version of this instance, if necessary, so that it matches the schema version
@@ -136,7 +151,9 @@ public interface JObject {
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
-    boolean upgrade();
+    default boolean upgrade() {
+        return this.getTransaction().updateSchemaVersion(this);
+    }
 
     /**
      * Copy this instance, and other instances it references through the specified {@code refPaths} (if any), into a (possibly)
@@ -195,7 +212,9 @@ public interface JObject {
      * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String[]) JTransaction.copyTo()
      * @see ReferencePath
      */
-    JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths);
+    default JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths) {
+        return this.getTransaction().copyTo(dest, this, target, copyState, refPaths);
+    }
 
     /**
      * Snapshot this instance and other instances it references through the specified {@code refPaths} (if any).
@@ -231,7 +250,9 @@ public interface JObject {
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      */
-    JObject copyOut(String... refPaths);
+    default JObject copyOut(String... refPaths) {
+        return this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
+    }
 
     /**
      * Copy this instance, and other instances it references through the specified {@code refPaths} (if any),
@@ -270,7 +291,9 @@ public interface JObject {
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyOut copyOut()
      */
-    JObject copyIn(String... refPaths);
+    default JObject copyIn(String... refPaths) {
+        return this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths);
+    }
 
     /**
      * Reset cached simple field values.
