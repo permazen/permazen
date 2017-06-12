@@ -52,10 +52,10 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
         tx.writeSimpleField(bar2, 4, UUID.randomUUID(), false);
 
         // Try to copy mapping bar1 -> foo1: incompatible type
-        final ObjIdMap<ObjId> remap1 = new ObjIdMap<>(1);
-        remap1.put(bar1, foo1);
+        final ObjIdMap<ObjId> remap = new ObjIdMap<>(1);
+        remap.put(bar1, foo1);
         try {
-            tx.copy(bar1, tx, false, false, null, remap1);
+            tx.copy(bar1, tx, false, false, null, remap);
             assert false : "copied foo1 to bar1!";
         } catch (IllegalArgumentException e) {
             this.log.debug("got expected " + e);
@@ -63,21 +63,31 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
 
         // Try to copy mapping bar1.ref -> foo1: incompatible type in reference field
         tx.writeSimpleField(bar1, 5, bar2, false);
-        final ObjIdMap<ObjId> remap2 = new ObjIdMap<>(1);
-        remap2.put(bar2, foo2);
+        remap.clear();
+        remap.put(bar2, foo2);
         try {
-            tx.copy(bar1, tx, false, false, null, remap2);
+            tx.copy(bar1, tx, false, false, null, remap);
             assert false : "copied bar1.ref to foo!";
         } catch (IllegalArgumentException e) {
             this.log.debug("got expected " + e);
         }
 
-        // Try to copy mapping bar1 -> wrong storage ID
-        final ObjIdMap<ObjId> remap3 = new ObjIdMap<>(1);
-        remap3.put(bar2, new ObjId(1));
+        // Try to copy mapping bar2 -> wrong storage ID
+        remap.clear();
+        remap.put(bar2, new ObjId(1));
         try {
-            tx.copy(bar2, tx, false, false, null, remap3);
+            tx.copy(bar2, tx, false, false, null, remap);
             assert false : "copied bar2 to id#1!";
+        } catch (IllegalArgumentException e) {
+            this.log.debug("got expected " + e);
+        }
+
+        // Try to copy mapping bar2 -> null
+        remap.clear();
+        remap.put(bar2, null);
+        try {
+            tx.copy(bar2, tx, false, false, null, remap);
+            assert false : "copied bar2 to null!";
         } catch (IllegalArgumentException e) {
             this.log.debug("got expected " + e);
         }

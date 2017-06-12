@@ -121,7 +121,7 @@ public class ReferenceField extends SimpleField<ObjId> {
 
     @Override
     protected ObjId remapObjectId(ObjIdMap<ObjId> objectIdMap, ObjId srcId) {
-        if (objectIdMap == null || srcId == null)
+        if (srcId == null || objectIdMap == null || !objectIdMap.containsKey(srcId))
             return srcId;
         final ObjId dstId = objectIdMap.get(srcId);
         Preconditions.checkArgument(dstId != null, "can't copy " + srcId + " because " + srcId + " is remapped to null");
