@@ -134,13 +134,8 @@ public class CopyState implements Cloneable {
         boolean fullPath = true;
         for (int limit = fields.length; limit > 0; limit--) {
             final int[] prefix = fullPath ? fields : Arrays.copyOfRange(fields, 0, limit);
-            ObjIdSet idSet = this.traversedMap.get(prefix);
-            if (idSet == null) {
-                idSet = new ObjIdSet();
-                this.traversedMap.put(prefix, idSet);
-            }
-            if (!idSet.add(id))                         // we have already marked this prefix (and every shorter prefix)
-                return !fullPath;
+            if (!this.traversedMap.computeIfAbsent(prefix, p -> new ObjIdSet()).add(id))
+                return !fullPath;                       // we have already marked this prefix (and every shorter prefix)
             fullPath = false;
         }
 
