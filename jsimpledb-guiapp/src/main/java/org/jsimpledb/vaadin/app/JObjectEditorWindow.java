@@ -28,6 +28,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -54,6 +55,7 @@ import org.jsimpledb.ValidationException;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.vaadin.ConfirmWindow;
 import org.jsimpledb.vaadin.NullableField;
@@ -216,7 +218,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
         }
 
         // Copy fields
-        this.jobj.copyTo(jtx, target.getObjId(), new CopyState());
+        this.jobj.copyTo(jtx, new CopyState(new ObjIdMap<>(Collections.singletonMap(id, target.getObjId()))));
 
         // Run validation queue
         try {

@@ -124,7 +124,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
 
         // Copy out target object
         final JTransaction jtx = target.getTransaction();
-        final JObject copy = target.copyTo(dest, null, copyState);
+        final JObject copy = target.copyTo(dest, copyState);
 
         // Copy out target's related objects
         final Iterable<? extends JObject> relatedObjects = this.getRelatedObjects(target);

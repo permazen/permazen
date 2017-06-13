@@ -148,7 +148,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
                 return false;
             }
             try {
-                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new CopyState()));
+                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, new CopyState()));
             } catch (Exception e) {
                 Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);
             }

@@ -244,7 +244,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         Preconditions.checkArgument(jobj != null, "null jobj");
         final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(jobj.getObjId());
         if (item != null) {
-            jobj.copyTo(item.getObject().getTransaction(), null, new CopyState());
+            jobj.copyTo(item.getObject().getTransaction(), new CopyState());
             item.fireValueChange();
         }
     }
