@@ -16,7 +16,6 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.test.TestSupport;
 import org.jsimpledb.util.ByteUtil;
@@ -31,27 +30,27 @@ public abstract class KVTestSupport extends TestSupport {
     /**
      * Dump KV contents to the log.
      *
-     * @param tx transaction
+     * @param kv k/v store
      * @param label descriptive label
      * @return exception thrown during query, or null if successful
      */
-    protected Exception showKV(KVTransaction tx, String label) {
-        return this.showKV(tx, label, null, null);
+    protected Exception showKV(KVStore kv, String label) {
+        return this.showKV(kv, label, null, null);
     }
 
     /**
      * Dump KV portion to the log.
      *
-     * @param tx transaction
+     * @param kv k/v store
      * @param label descriptive label
      * @param minKey minimum key
      * @param maxKey maximum key
      * @return exception thrown during query, or null if successful
      */
-    protected Exception showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
+    protected Exception showKV(KVStore kv, String label, byte[] minKey, byte[] maxKey) {
         final String xml;
         try {
-            xml = this.toXmlString(tx, minKey, maxKey);
+            xml = this.toXmlString(kv, minKey, maxKey);
         } catch (Exception e) {
             this.log.info("{} - oops, got " + e, label);
             if (this.log.isTraceEnabled())
