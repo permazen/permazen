@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -547,32 +548,94 @@ public class Database {
     }
 
     /**
-     * Validate a {@link SchemaModel}.
+     * Validate a {@link SchemaModel} against this instance.
      *
      * <p>
-     * This method only performs "static" checks; it does not access the database and therefore
-     * does not validate the schema against existing schema versions previously recorded.
-     * It does however use the {@link FieldTypeRegistry} associated with this instance to look up field types.
-     *
-     * <p>
-     * To validate a schema against the database contents as well, simply attempt to create a transaction
-     * via {@link #createTransaction createTransaction()}.
+     * This is a convenience method, equivalent to: {@link #validateSchema(FieldTypeRegistry, SchemaModel)
+     * Database.validateSchema}{@code (this.getFieldTypeRegistry(), schemaModel)}.
      *
      * @param schemaModel schema to validate
      * @throws InvalidSchemaException if {@code schemaModel} is invalid
      * @throws IllegalArgumentException if {@code schemaModel} is null
      */
     public void validateSchema(SchemaModel schemaModel) {
+        Database.validateSchema(this.getFieldTypeRegistry(), schemaModel);
+    }
+
+    /**
+     * Validate a {@link SchemaModel}.
+     *
+     * <p>
+     * This method only statically checks the schema; it does not validate the schema against any other
+     * existing schema versions that may be previously recorded in a database.
+     *
+     * <p>
+     * To validate a schema against a particular database, simply attempt to create a transaction
+     * via {@link #createTransaction createTransaction()}. To validate that a collection of schemas
+     * are mutually consistent independently from any database, use {@link #validateSchemas validateSchemas()}.
+     *
+     * @param fieldTypeRegistry registry of simple field types
+     * @param schemaModel schema to validate
+     * @throws InvalidSchemaException if {@code schemaModel} is invalid
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void validateSchema(FieldTypeRegistry fieldTypeRegistry, SchemaModel schemaModel) {
 
         // Sanity check
+        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
         Preconditions.checkArgument(schemaModel != null, "null schemaModel");
 
         // Validate
         schemaModel.validate();
         try {
-            new Schema(1, new byte[0], schemaModel, this.fieldTypeRegistry);
+            new Schema(1, new byte[0], schemaModel, fieldTypeRegistry);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Check whether a collection of {@link SchemaModel}s are individually valid and mutually consistent.
+     *
+     * <p>
+     * This method verifies each schema via {@link #validateSchema(FieldTypeRegistry, SchemaModel) validateSchema()},
+     * and also verifies that the schemas are mututally consistent, i.e., that they do not use storage ID's incompatibly.
+     *
+     * @param fieldTypeRegistry registry of simple field types
+     * @param schemaModels schemas to validate (null elements are ignored)
+     * @throws InvalidSchemaException if an element in {@code schemaModels} is invalid
+     * @throws InvalidSchemaException if the {@code schemaModels} are not mutally consistent
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void validateSchemas(FieldTypeRegistry fieldTypeRegistry, Collection<SchemaModel> schemaModels) {
+
+        // Sanity check
+        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
+        Preconditions.checkArgument(schemaModels != null, "null schemaModels");
+
+        // Validate schemas individually and build map
+        final TreeMap<Integer, Schema> schemaMap = new TreeMap<>();
+        int index = 0;
+        for (SchemaModel schemaModel : schemaModels) {
+            if (schemaModel == null)
+                continue;
+            schemaModel.validate();
+            final int version = index + 1;
+            try {
+                schemaMap.put(version, new Schema(version, new byte[0], schemaModel, fieldTypeRegistry));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidSchemaException("invalid schema at index " + index + ": " + e.getMessage(), e);
+            }
+            index++;
+        }
+
+        // Validate schemas together
+        try {
+            new Schemas(schemaMap);
+        } catch (InvalidSchemaException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidSchemaException("invalid schema combination: " + e.getMessage(), e);
         }
     }
 

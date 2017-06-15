@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Converter;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 
 import org.jsimpledb.core.type.StringEncodedType;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -18,13 +19,13 @@ import org.testng.annotations.Test;
 public class SchemaTest extends CoreAPITestSupport {
 
     @Test(dataProvider = "cases")
-    private void testSchema(boolean valid, String xml) throws Exception {
+    public void testSchema(boolean valid, String xml) throws Exception {
         xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml + "</Schema>\n";
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         // Register custom type
-        db.getFieldTypeRegistry().add(new StringEncodedType<Bar>("testType", Bar.class, 12345, new BarConverter()));
+        db.getFieldTypeRegistry().add(new BarType());
 
         // Validate XML
         final SchemaModel schema;
@@ -45,7 +46,7 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     @Test(dataProvider = "upgradeCases")
-    private void testUpgradeSchema(boolean valid, String a, String b) throws Exception {
+    public void testUpgradeSchema(boolean valid, String a, String b) throws Exception {
         final String[] xmls = new String[] { a, b };
         for (int i = 0; i < xmls.length; i++) {
             String xml1 = xmls[i];
@@ -66,6 +67,70 @@ public class SchemaTest extends CoreAPITestSupport {
             } catch (InvalidSchemaException e) {
                 assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
             }
+        }
+    }
+
+    @Test
+    public void testValidateSchema() throws Exception {
+        final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n";
+        final String footer = "</Schema>\n";
+
+        final String xml1 = header
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField indexed=\"true\" name=\"i\" type=\"int\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n"
+          + footer;
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+
+        final String xml2 = header
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField indexed=\"true\" name=\"i\" type=\"float\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n"
+          + footer;
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+
+        final String xml3 = header
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"b\" type=\"bar\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n"
+          + footer;
+        final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes("UTF-8")));
+
+        final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
+
+        this.validate(fieldTypeRegistry, true, schema1);
+        this.validate(fieldTypeRegistry, true, schema1);
+        this.validate(fieldTypeRegistry, false, schema3);                       // BarType not registered yet
+
+        fieldTypeRegistry.add(new BarType());
+        this.validate(fieldTypeRegistry, true, schema1);
+        this.validate(fieldTypeRegistry, true, schema1);
+        this.validate(fieldTypeRegistry, true, schema3);                        // BarType is now registered
+
+        this.validate(fieldTypeRegistry, false, schema1, schema2);              // incompatible use of field #20
+        this.validate(fieldTypeRegistry, true, schema1, schema3);
+        this.validate(fieldTypeRegistry, true, schema2, schema3);
+        this.validate(fieldTypeRegistry, false, schema1, schema2, schema3);
+    }
+
+    private void validate(FieldTypeRegistry fieldTypeRegistry, boolean expectedValid, SchemaModel... schemas) {
+        if (schemas.length == 0) {
+            try {
+                Database.validateSchema(fieldTypeRegistry, schemas[1]);
+                if (!expectedValid)
+                    throw new AssertionError("expected invalid schema but schema was valid");
+            } catch (InvalidSchemaException e) {
+                if (expectedValid)
+                    throw new AssertionError("expected valid schema but got " + e, e);
+            }
+        }
+        try {
+            Database.validateSchemas(fieldTypeRegistry, Arrays.asList(schemas));
+            if (!expectedValid)
+                throw new AssertionError("expected invalid schema combination but was valid");
+        } catch (InvalidSchemaException e) {
+            if (expectedValid)
+                throw new AssertionError("expected valid schema combination but got " + e, e);
         }
     }
 
@@ -92,6 +157,13 @@ public class SchemaTest extends CoreAPITestSupport {
         @Override
         protected Bar doBackward(String value) {
             return value != null ? new Bar(value) : null;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public static class BarType extends StringEncodedType<Bar> {
+        public BarType() {
+            super("bar", Bar.class, 12345, new BarConverter());
         }
     }
 
@@ -470,7 +542,7 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 37 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"bar\" type=\"testType\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"bar\" type=\"bar\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -478,7 +550,7 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 38 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"bar\" type=\"testType\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"bar\" type=\"bar\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           },
 
