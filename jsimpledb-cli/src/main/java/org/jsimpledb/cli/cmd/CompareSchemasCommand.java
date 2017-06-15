@@ -20,8 +20,13 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Shows the differences between two schema versions recorded in the database.\n\n"
-          + "A version number of zero can be given to indicate the schema configured for this CLI session.";
+        return "Shows the differences between two schema versions recorded in the database";
+    }
+
+    @Override
+    public String getHelpDetail() {
+        return "Finds and displays differences between database schema versions and/or the configured schema."
+          + " A version number of zero means to use the schema configured for this CLI session.";
     }
 
     @Override
