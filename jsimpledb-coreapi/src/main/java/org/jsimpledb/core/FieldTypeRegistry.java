@@ -97,6 +97,7 @@ import org.jsimpledb.core.type.ZonedDateTimeType;
  *  <li>{@link java.net.URI}</li>
  *  <li>{@link java.io.File}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
+ *  <li>{@link java.time java.time.*}</li>
  * </ul>
  */
 public class FieldTypeRegistry {
