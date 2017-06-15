@@ -317,6 +317,8 @@ public abstract class TestSupport {
     /**
      * Run {@code diff(1)} on two strings.
      *
+     * @param s1 first string
+     * @param s2 second string
      * @return the diff, or null if strings are the same
      */
     protected String diff(String s1, String s2) {

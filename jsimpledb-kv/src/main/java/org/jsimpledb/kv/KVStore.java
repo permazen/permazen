@@ -100,7 +100,7 @@ public interface KVStore {
 
     /**
      * Iterate the key/value pairs in the specified range. The returned {@link java.util.Iterator}'s
-     * {@link Ijava.util.terator#remove remove()} method must be supported and should have the same effect as
+     * {@link java.util.Iterator#remove remove()} method must be supported and should have the same effect as
      * invoking {@link #remove remove()} on the corresponding key.
      *
      * <p>

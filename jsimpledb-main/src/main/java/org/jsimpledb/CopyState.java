@@ -185,11 +185,8 @@ public class CopyState implements Cloneable {
      *
      * <p>
      * This method returns the {@code objectIdMap} parameter given to the constructor, if any.
-     * If not null, then as objects are copied and cloned, the new object ID's are recorded in this map.
      *
-     * @param srcId source transaction object ID
-     * @return corresponding destination transaction object ID
-     * @throws IllegalArgumentException if {@code srcId} is null
+     * @return mapping from source transaction object ID to destination transaction object ID, or null if none configured
      */
     public ObjIdMap<ObjId> getObjectIdMap() {
         return this.objectIdMap;

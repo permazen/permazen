@@ -16,7 +16,7 @@ import java.io.Serializable;
  * <p>
  * Instances are immutable.
  *
- * @see EnumFieldType
+ * @see org.jsimpledb.core.type.EnumFieldType
  * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue implements Serializable {

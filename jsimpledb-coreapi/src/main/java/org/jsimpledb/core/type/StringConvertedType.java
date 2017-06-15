@@ -15,7 +15,7 @@ import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.ParseContext;
 
 /**
- * {@link FieldType} for any Java type that can be encoded and ordered as a {@link String}.
+ * {@link org.jsimpledb.core.FieldType} for any Java type that can be encoded and ordered as a {@link String}.
  * A {@link Converter} is used to convert between native and {@link String} forms.
  *
  * <p>
@@ -38,7 +38,7 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
     /**
      * Primary constructor.
      *
-     * @param name the name for this {@link FieldType}
+     * @param name the name for this {@link org.jsimpledb.core.FieldType}
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}

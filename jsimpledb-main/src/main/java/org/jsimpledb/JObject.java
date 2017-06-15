@@ -297,7 +297,7 @@ public interface JObject {
      * This method finds and copies all objects reachable from this object based on
      * {@link org.jsimpledb.annotation.JField#cascades &#64;JField.cascades()} and
      * {@link org.jsimpledb.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
-     * reference fields: a reference field is traversed in the forward or inverse direction if {@link cascadeName} is
+     * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
      *
      * <p>

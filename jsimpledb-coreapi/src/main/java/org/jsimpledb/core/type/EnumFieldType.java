@@ -16,7 +16,8 @@ import org.dellroad.stuff.java.EnumUtil;
 import org.jsimpledb.core.EnumValue;
 
 /**
- * The {@link FieldType} for {@link EnumValue}, which is the data type used by {@link EnumField}.
+ * The {@link org.jsimpledb.core.FieldType} for {@link EnumValue}, which is the data type used by
+ * {@link org.jsimpledb.core.EnumField}.
  *
  * <p>
  * Each {@link EnumFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumFieldType}

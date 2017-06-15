@@ -591,10 +591,10 @@ public class JTransaction {
      *
      * <p>
      * This is a convenience method; equivalent to:
-     * <blockquote><code>
+     * <blockquote>
      *  {@link #copyTo(JTransaction, CopyState, Stream) copyTo}{@code
      *      (dest, copyState, }{@link Streams#stream(Iterable) Streams.stream}{@code (jobjs))}
-     * </code></blockquote>
+     * </blockquote>
      *
      * @param dest destination transaction
      * @param copyState tracks which objects have already been copied and whether to remap object ID's
@@ -621,7 +621,7 @@ public class JTransaction {
      *
      * @param dest destination transaction
      * @param copyState tracks which objects have already been copied and whether to remap object ID's
-     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
+     * @param ids the object ID's of the objects to copy
      * @throws DeletedObjectException if any object to be copied does not actually exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
      *  in {@code dest} through a reference field configured to disallow deleted assignment
@@ -794,7 +794,7 @@ public class JTransaction {
      * This method finds all objects reachable from the starting object based on
      * {@link org.jsimpledb.annotation.JField#cascades &#64;JField.cascades()} and
      * {@link org.jsimpledb.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
-     * reference fields: a reference field is traversed in the forward or inverse direction if {@link cascadeName} is
+     * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
      *
      * @param id starting object ID

@@ -45,6 +45,8 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
      *
      * <p>
      * Default is {@value #DEFAULT_SCHEMA}.
+     *
+     * @return schema name
      */
     public String getSchema() {
         return this.schema;
@@ -65,6 +67,8 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
      *
      * <p>
      * Default is {@value #DEFAULT_LARGE_KEYS}.
+     *
+     * @return true if large key support is enabled
      */
     public boolean isLargeKeys() {
         return this.largeKeys;
@@ -86,6 +90,8 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
      *
      * <p>
      * Default is {@value #DEFAULT_LARGE_VALUES}.
+     *
+     * @return true if large value support is enabled
      */
     public boolean isLargeValues() {
         return this.largeValues;
@@ -99,6 +105,8 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
      *
      * <p>
      * Default is {@value #DEFAULT_LOCK_TIMEOUT}.
+     *
+     * @return lock timeout for new transactions
      */
     public int getLockTimeout() {
         return this.lockTimeout;
@@ -174,6 +182,9 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
 
     /**
      * Encloses the given {@code name} in single quotes and doubles up any single quotes therein.
+     *
+     * @param value string to quote
+     * @return quoted string
      */
     protected String quoteString(String value) {
         return "'" + value.replaceAll("'", "''") + "'";

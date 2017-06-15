@@ -61,7 +61,7 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
      * The method {@link #toString(Object)} returns the base 64 form; this method works exactly the same way but
      * allows the caller to specify which form to generate. Either form is parseable by {@link #fromString fromString()}.
      *
-     * @param value actual value, never null
+     * @param array array to encode, never null
      * @param base64 true for base 64 synax, false for list syntax
      * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
      * @throws IllegalArgumentException if {@code value} is null
@@ -88,7 +88,7 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
      * allows the caller to specify which form to generate. Either form is parseable by
      * {@link #fromParseableString fromParseableString()}.
      *
-     * @param value actual value (possibly null)
+     * @param array array to encode, possibly null
      * @param base64 true for base 64 synax, false for list syntax
      * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
      * @throws IllegalArgumentException if {@code value} is null and this type does not support null

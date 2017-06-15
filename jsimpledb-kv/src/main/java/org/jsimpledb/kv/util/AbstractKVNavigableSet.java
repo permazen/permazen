@@ -47,8 +47,8 @@ import org.jsimpledb.util.CloseableIterator;
  * <p>
  * Additional subclass notes:
  * <ul>
- *  <li>{@link #iterator} returns an {@link Iterator} whose {@link Iterator#remove Iterator.remove()} method delegates
- *      to this instance's {@link #remove remove()} method.
+ *  <li>{@link #iterator} returns an {@link java.util.Iterator} whose {@link java.util.Iterator#remove Iterator.remove()}
+ *      method delegates to this instance's {@link #remove remove()} method.
  * </ul>
  *
  * <p><b>Prefix Mode</b></p>

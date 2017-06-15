@@ -34,6 +34,7 @@ public interface CloseableIterator<E> extends Iterator<E>, Closeable {
      * Otherwise, invoking {@link Closeable#close close()} on the returned instance does nothing.
      *
      * @param iterator nested iterator
+     * @param <E> iteration element type
      * @return {@link CloseableIterator} wrapping {@code iterator}, or null if {@code iterator} is null
      */
     static <E> CloseableIterator<E> wrap(final Iterator<E> iterator) {
@@ -51,6 +52,7 @@ public interface CloseableIterator<E> extends Iterator<E>, Closeable {
      * @param iterator nested iterator
      * @param resource resource to close when the returned instance is {@link Closeable#close close()}'d,
      *  or null to do nothing on {@link Closeable#close close()}
+     * @param <E> iteration element type
      * @return {@link CloseableIterator} wrapping {@code iterator}, or null if {@code iterator} is null
      */
     static <E> CloseableIterator<E> wrap(final Iterator<E> iterator, AutoCloseable resource) {

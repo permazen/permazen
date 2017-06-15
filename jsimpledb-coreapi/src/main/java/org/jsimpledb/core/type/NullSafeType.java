@@ -64,7 +64,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     /**
      * Constructor. Takes type name from {@code inner}; therefore, this instance and {@code inner}
-     * cannot be both registered in a {@link FieldTypeRegistry}.
+     * cannot be both registered in a {@link org.jsimpledb.core.FieldTypeRegistry}.
      *
      * @param inner inner type that is not null safe
      */

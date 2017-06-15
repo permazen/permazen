@@ -67,6 +67,8 @@ public class MySQLKVDatabase extends SQLKVDatabase {
      *
      * <p>
      * Default is {@value #DEFAULT_LOCK_TIMEOUT}.
+     *
+     * @return lock timeout for new transactions
      */
     public int getLockTimeout() {
         return this.lockTimeout;

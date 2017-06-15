@@ -9,11 +9,11 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 /**
- * A {@link FieldType} implementation for any Java type that can be encoded uniquely as a {@link String}.
+ * A {@link org.jsimpledb.core.FieldType} implementation for any Java type that can be encoded uniquely as a {@link String}.
  * A {@link Converter} is used to convert between native and {@link String} forms.
  *
  * <p>
- * This class provides a convenient way to implement custom {@link FieldType}s.
+ * This class provides a convenient way to implement custom {@link org.jsimpledb.core.FieldType}s.
  * Null values are supported and null is the default value. This type will sort instances according to
  * the lexicographical sort order of their {@link String} encodings; null will sort last.
  *
@@ -28,7 +28,7 @@ public class StringEncodedType<T> extends NullSafeType<T> {
     private static final long serialVersionUID = 6224434959455483181L;
 
     /**
-     * Convenience constructor. Uses the name of the {@code type} as this {@link FieldType}'s type name.
+     * Convenience constructor. Uses the name of the {@code type} as this {@link org.jsimpledb.core.FieldType}'s type name.
      *
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
@@ -43,7 +43,7 @@ public class StringEncodedType<T> extends NullSafeType<T> {
     /**
      * Primary constructor.
      *
-     * @param name the name for this {@link FieldType}
+     * @param name the name for this {@link org.jsimpledb.core.FieldType}
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}

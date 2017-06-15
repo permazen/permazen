@@ -708,6 +708,7 @@ public abstract class Role {
      * Determine whether the leader's lease timeout extends past the given time, that is, it is known that if
      * the current leader is deposed by a new leader, then that deposition must occur after the given time.
      *
+     * @param time leader timestamp
      * @return true if it is known that no other leader can possibly have been elected at the given time, otherwise false
      */
     protected boolean isLeaderLeaseActiveAt(Timestamp time) {

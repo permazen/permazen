@@ -22,7 +22,7 @@ import org.jsimpledb.util.ParseContext;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * This is the inner, non-null supporting {@link FieldType} for {@link EnumFieldType}.
+ * This is the inner, non-null supporting {@link org.jsimpledb.core.FieldType} for {@link EnumFieldType}.
  */
 public class EnumType extends NonNullFieldType<EnumValue> {
 

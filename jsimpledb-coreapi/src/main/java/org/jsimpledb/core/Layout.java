@@ -208,6 +208,7 @@ public final class Layout {
      * Get a {@link CoreIndex} view of the object version index in a key/value database.
      *
      * @param kv key/value data
+     * @return object version index
      * @throws IllegalArgumentException if {@code kv} is null
      */
     public static CoreIndex<Integer, ObjId> getVersionIndex(KVStore kv) {
@@ -240,6 +241,7 @@ public final class Layout {
      *
      * @param value encoded schema from key/value pair
      * @param formatVersion database format version
+     * @return decoded schema
      * @throws InvalidSchemaException if schema is invalid
      * @throws IllegalArgumentException if {@code formatVersion} is invalid
      * @throws IllegalArgumentException if {@code value} is null

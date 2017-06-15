@@ -18,7 +18,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * The {@link FieldType} for {@link ReferenceField}s. Instances support object type restriction.
+ * The {@link FieldType} for {@link org.jsimpledb.core.ReferenceField}s. Instances support object type restriction.
  *
  * <p>
  * Null values are supported by this class.

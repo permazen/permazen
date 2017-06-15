@@ -170,6 +170,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      * Get the length of the given array.
      *
      * @param array non-null array
+     * @return array length
      */
     protected abstract int getArrayLength(T array);
 
@@ -178,6 +179,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      *
      * @param array non-null array
      * @param index index of target element in {@code array}
+     * @return array element at index {@code index}
      */
     protected abstract E getArrayElement(T array, int index);
 
@@ -185,6 +187,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      * Create a new array instance containing the given elements.
      *
      * @param elements content for the new array
+     * @return newly created array
      */
     protected abstract T createArray(List<E> elements);
 }
