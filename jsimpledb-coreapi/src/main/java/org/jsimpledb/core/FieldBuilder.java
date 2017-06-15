@@ -55,9 +55,25 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
         final long signature = field.getEncodingSignature();
         final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName, signature);
         if (fieldType == null) {
-            throw new IllegalArgumentException("unknown field type `" + fieldTypeName + "'"
-              + (signature != 0 ? " with signature " + signature : "")
-              + " for field `" + field.getName() + "' in " + this);
+            final StringBuilder buf = new StringBuilder("unknown field type `" + fieldTypeName + "'");
+            if (signature != 0)
+                buf.append(" with signature ").append(signature);
+            buf.append(" for field `").append(field.getName()).append('\'');
+            boolean foundAny = false;
+            for (FieldType<?> otherFieldType : this.fieldTypeRegistry.getAll()) {
+                if (otherFieldType.getName().equals(fieldTypeName)) {
+                    if (!foundAny) {
+                        buf.append(" (note: field type(s) named `").append(fieldTypeName)
+                          .append("' exist but with different signature(s): ");
+                        foundAny = true;
+                    } else
+                        buf.append(", ");
+                    buf.append(otherFieldType.getEncodingSignature());
+                }
+            }
+            if (foundAny)
+                buf.append(')');
+            throw new IllegalArgumentException(buf.toString());
         }
         return this.buildSimpleField(field, field.getName(), fieldType);
     }
