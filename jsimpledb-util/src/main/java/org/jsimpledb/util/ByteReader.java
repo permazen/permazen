@@ -193,6 +193,8 @@ public class ByteReader {
      * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is out of bounds
      */
     public byte[] getBytes(int off, int len) {
+        if (off < 0 || len < 0 || off + len > this.max)
+            throw new IndexOutOfBoundsException();
         final byte[] data = new byte[len];
         System.arraycopy(this.buf, off, data, 0, len);
         return data;
