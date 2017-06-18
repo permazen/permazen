@@ -22,6 +22,7 @@
         <module>jsimpledb-coreapi</module>
         <module>jsimpledb-demo</module>
         <module>jsimpledb-guiapp</module>
+        <module>jsimpledb-jsck</module>
         <module>jsimpledb-kv-array</module>
         <module>jsimpledb-kv-bdb</module>
         <module>jsimpledb-kv-cockroach</module>

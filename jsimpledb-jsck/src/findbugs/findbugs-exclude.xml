@@ -1,0 +1,17 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.jsck.Issue"/>
+        <Method name="getKey"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.jsck.Issue"/>
+        <Method name="getNewValue"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.jsck.Issue"/>
+        <Method name="getOldValue"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+</FindBugsFilter>

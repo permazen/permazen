@@ -72,18 +72,6 @@ LONG TERM
     - Add expression predicates
         E.g.: "friend[this.name.length() > 3].name"
 
-- Core API database consistency checker
-    - Checks a JDB key-value store for consistency
-        - Correctly stored meta-data
-        - All field values are properly encoded
-        - Object vs. index entry consistency
-        - No extraneous key-value pairs exist
-    - Uses another, empty database to store its state
-        - State database is a JSimpleDB database of course :)
-        - Allows to run in multiple "chunked" transactions
-    - Generates inconsistency report
-    - Can auto-repair if necessary
-
 - More JLS-correct expression parsing, method resolution, etc.
     - Carry "compile time" type information along with each Node?
     - Fix varargs methods when last param passed with a cast
