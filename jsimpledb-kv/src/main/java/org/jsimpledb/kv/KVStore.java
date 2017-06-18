@@ -219,6 +219,21 @@ public interface KVStore {
     void removeRange(byte[] minKey, byte[] maxKey);
 
     /**
+     * Remove all key/value pairs whose keys are in a given range.
+     *
+     * <p>
+     * Equivalent to: {@link #removeRange removeRange}{@code (range.getMin(), range.getMax())}.
+     *
+     * @param range range to remove
+     * @throws IllegalArgumentException if {@code range} is null
+     * @throws StaleTransactionException if an underlying transaction is no longer usable
+     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     */
+    default void removeRange(KeyRange range) {
+        this.removeRange(range.getMin(), range.getMax());
+    }
+
+    /**
      * Encode a counter value into a {@code byte[]} value suitable for use with {@link #decodeCounter decodeCounter()}
      * and/or {@link #adjustCounter adjustCounter()}.
      *
