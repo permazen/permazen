@@ -34,7 +34,6 @@ public class JsckCommand extends AbstractCommand {
          + " -gc:garbageCollectSchemas"
          + " -force-schemas:schema-map:expr"
          + " -force-format-version:format-version:int"
-         + " -keys:key-range:expr"
          + " -registry:registry:expr");
     }
 
@@ -56,9 +55,6 @@ public class JsckCommand extends AbstractCommand {
           + "       Specify a custom field type registry. If this flag is not given, in JSimpleDB and Core API modes,\n"
           + "       the configured registry will be used; in key/value database CLI mode, a default instances is used.\n"
           + "       The parameter must be a Java expression returning a FieldTypeRegistry.\n"
-          + "   -keys\n"    // TODO
-          + "       Restrict (non-schema) checks to keys in the specified range. The parameter must be\n"
-          + "       a Java expression returning a KeyRanges object.\n"
           + "   -force-schemas\n"
           + "       Forcibly override schema versions. WARNING: only use this if you know what you are doing.\n"
           + "       The parameter must be a Java expression returning a Map<Integer, SchemaModel>.\n"
@@ -86,9 +82,6 @@ public class JsckCommand extends AbstractCommand {
         if (registry != null)
             config.setFieldTypeRegistry(registry);
         config.setRepair(params.containsKey("repair"));
-        final KeyRanges keys = this.getParam(params, "keys", KeyRanges.class);
-        if (keys != null)
-            config.setKeysToInspect(keys);
         final Integer formatVersion = (Integer)params.get("force-format-version");
         if (formatVersion != null)
             config.setForceFormatVersion(formatVersion);
