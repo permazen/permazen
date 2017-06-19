@@ -7,8 +7,11 @@ package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
 
+import java.util.NavigableSet;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.util.ObjIdSet;
+import org.jsimpledb.util.NavigableSets;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.
@@ -425,5 +428,23 @@ public interface JObject {
      * in exotic situations, for example, where the underlying key/value store is being modified directly.
      */
     void resetCachedFieldValues();
+
+    /**
+     * Find all objects of the given type referring to this object through the specified reference field.
+     *
+     * <p>
+     * The {@code fieldName} can be the name of a simple reference field (e.g., {@code "teacher"})
+     * or a sub-field of a complex field (e.g., {@code "students.element"}).
+     *
+     * @param type type of referring objects
+     * @param fieldName name of reference field
+     * @return all objects of the specified type referring to this object through the named field
+     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction associated with this instance is no longer open
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    default <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
+        final NavigableSet<R> set = this.getTransaction().queryIndex(type, fieldName, Object.class).asMap().get(this);
+        return set != null ? set : NavigableSets.empty();
+    }
 }
 

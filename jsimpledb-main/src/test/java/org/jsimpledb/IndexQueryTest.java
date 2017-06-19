@@ -73,6 +73,14 @@ public class IndexQueryTest extends TestSupport {
             TestSupport.checkMap(jtx.queryIndex(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
 
+        // JObject.getReferring()
+
+            TestSupport.checkSet(a1.findReferring(Foo.class, "account"), buildSet(f1));
+            TestSupport.checkSet(a1.findReferring(Bar.class, "account"), buildSet(b1));
+            TestSupport.checkSet(a1.findReferring(Jam.class, "account"), buildSet(j1));
+            TestSupport.checkSet(a1.findReferring(FooBar.class, "account"), buildSet(f1, b1));
+            TestSupport.checkSet(a1.findReferring(Object.class, "account"), buildSet(f1, b1, j1));
+
             jtx.commit();
 
         } finally {
