@@ -20,7 +20,6 @@ import org.jsimpledb.jsck.Jsck;
 import org.jsimpledb.jsck.JsckConfig;
 import org.jsimpledb.jsck.JsckLogger;
 import org.jsimpledb.kv.KVTransaction;
-import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
@@ -49,7 +48,7 @@ public class JsckCommand extends AbstractCommand {
           + "       In addition to detecting issues, attempt to repair them.\n"
           + "   -limit\n"
           + "       Stop after encountering `limit' issues.\n"
-          + "   -gc\n"      // TODO
+          + "   -gc\n"
           + "       Garbage collect unused schema versions at the end of inspection.\n"
           + "   -registry\n"
           + "       Specify a custom field type registry. If this flag is not given, in JSimpleDB and Core API modes,\n"

@@ -11,6 +11,7 @@ import com.google.common.collect.PeekingIterator;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -474,6 +475,7 @@ public class Jsck {
 
         // Check the object version index
         info.info("checking object version index");
+        final HashSet<Integer> unusedSchemaVersions = new HashSet<>(info.getSchemas().keySet());
         try (final CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(objectVersionIndexKeyPrefix))) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
@@ -510,12 +512,26 @@ public class Jsck {
                     continue;
                 }
 
+                // Mark object's schema version in use
+                unusedSchemaVersions.remove(version);
+
                 // Validate value, which should be empty
                 if (pair.getValue().length > 0) {
                     info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail("invalid object version index entry "
                       + Jsck.ds(reader.getBytes()) + " for version " + version + ": value is " + Jsck.ds(pair.getValue())
                       + " but should be empty"));
                 }
+            }
+        }
+
+        // Garbage collect schema versions
+        if (this.config.isGarbageCollectSchemas()) {
+            info.info("checking object version index");
+            for (int version : unusedSchemaVersions) {
+                final byte[] key = Layout.getSchemaKey(version);
+                final byte[] value = kv.get(key);
+                if (value != null)
+                    info.handle(new InvalidKey(key, value).setDetail("unused schema version " + version));
             }
         }
     }
