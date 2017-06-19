@@ -436,6 +436,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-jsck</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
                 <artifactId>jsimpledb-kv</artifactId>
                 <version>${project.version}</version>
             </dependency>
