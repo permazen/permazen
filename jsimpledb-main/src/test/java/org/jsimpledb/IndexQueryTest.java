@@ -89,7 +89,26 @@ public class IndexQueryTest extends TestSupport {
         JTransaction.setCurrent(jtx);
         try {
 
-            jtx.queryIndex(HasName.class, "name", String.class);
+            final HasNameImpl h1 = jtx.create(HasNameImpl.class);
+            final HasNameImpl h2 = jtx.create(HasNameImpl.class);
+
+            h1.setName("h1");
+            h2.setName("h2");
+
+            TestSupport.checkMap(jtx.queryIndex(HasNameImpl.class, "name", String.class).asMap(),
+              buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
+
+            TestSupport.checkMap(jtx.queryIndex(HasName.class, "name", String.class).asMap(),
+              buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
+
+            TestSupport.checkMap(jtx.queryIndex(JObject.class, "name", String.class).asMap(),
+              buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
+
+            TestSupport.checkMap(jtx.queryIndex(Object.class, "name", String.class).asMap(),
+              buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
+
+            TestSupport.checkMap(jtx.queryIndex(HasNameImpl.class, "name", Object.class).asMap(),
+              buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
             jtx.commit();
 

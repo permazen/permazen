@@ -1,6 +1,7 @@
 Version Next
 
     - Added `jsck' utility for verifying/repairing key/value databases
+    - Allow queryIndex() to specify any super-type of indexed value type
 
 Version 3.5.0 Released June 15, 2017
 

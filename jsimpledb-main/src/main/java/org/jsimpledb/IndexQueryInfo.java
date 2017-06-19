@@ -268,13 +268,13 @@ class IndexQueryInfo {
 
         public KeyRanges checkAndGetKeyRanges(JSimpleDB jdb, Class<?> startType, String queryDescription) {
 
-            // Check whether actual type matches expected type
+            // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
+            // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).
             boolean match = this.expectedTypes.contains(this.actualType);
-            if (!match && this.reference) {
-
-                // For reference type, we allow matching any sub-type or super-type
+            if (!match) {
                 for (Class<?> expectedType : this.expectedTypes) {
-                    if (expectedType.isAssignableFrom(this.actualType) || this.actualType.isAssignableFrom(expectedType)) {
+                    if (this.actualType.isAssignableFrom(expectedType)
+                      || (this.reference && expectedType.isAssignableFrom(this.actualType))) {
                         match = true;
                         break;
                     }
@@ -291,8 +291,8 @@ class IndexQueryInfo {
                     }
                 }
                 throw new IllegalArgumentException("invalid " + this.description + " " + actualType.getName()
-                  + " for " + queryDescription + " in " + startType + ": should be "
-                  + (this.reference ? "a super-type or sub-type of " : "") + expectedTypesDescription);
+                  + " for " + queryDescription + " in " + startType + ": should be a super-type"
+                  + (this.reference ? " or sub-type " : "") + " of " + expectedTypesDescription);
             }
 
             // For non reference fields, we don't have any restrictions on 'type'
