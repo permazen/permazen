@@ -96,11 +96,6 @@ LONG TERM
     - java.util.Currency
     - java.util.Locale
 
-- Graceful recovery mode
-    - If any inconsistent information encountered
-        - Log an error
-        - Return reasonable default
-
 - Add support for XA transactions
     - But only if KVStore supports them
 
