@@ -115,7 +115,7 @@ import org.slf4j.LoggerFactory;
  *  - Copy a {@link Stream} of objects into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, JObject, CopyState, String[]) copyTo()}
  *  - Copy objects reachable through specified reference path(s) into another transaction</li>
- *  <li>{@link #cascadeFindAll(ObjId, String) cascadeFindAll()} - Find all objects reachable through a named cascade</li>
+ *  <li>{@link #cascadeFindAll(ObjId, String, int) cascadeFindAll()} - Find all objects reachable through a named cascade</li>
  * </ul>
  *
  * <p>
@@ -787,7 +787,7 @@ public class JTransaction {
     }
 
     /**
-     * Recursively traverse reference cascades starting from the given object to find all objects reachable
+     * Recursively traverse cascade references starting from the given object to find all objects reachable
      * through the specified cascade.
      *
      * <p>
@@ -797,51 +797,78 @@ public class JTransaction {
      * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
      *
+     * <p>
+     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
+     * measured in the number of reference field "hops" from the given object.
+     *
      * @param id starting object ID
      * @param cascadeName cascade name, or null for no cascade (returns just the {@code id} object)
+     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
      * @return the object ID's of all objects reachable through the specified cascade (including the {@code id} object)
      * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalArgumentException if {@code id} is null
+     * @see JObject#cascadeCopyTo(JTransaction, String, int, boolean)
      */
-    public ObjIdSet cascadeFindAll(ObjId id, String cascadeName) {
-        Preconditions.checkArgument(id != null, "null id");
+    public ObjIdSet cascadeFindAll(ObjId id, String cascadeName, int recursionLimit) {
         final ObjIdSet ids = new ObjIdSet();
-        this.cascadeFindAll(id, cascadeName, ids);
+        this.cascadeFindAll(id, cascadeName, recursionLimit, ids);
         return ids;
     }
 
     /**
-     * Recursively traverse the specified reference cascade until all objects reachable through the cascade are found.
+     * Recursively traverse cascade references starting from the given object to find all objects reachable
+     * through the specified cascade.
      *
      * <p>
-     * Upon invocation the {@code ids} set contains the ID's of objects already visited; these objects will not be traversed.
-     * Upon return, {@code ids} will contain the ID's of all objects found.
+     * Upon invocation {@code visitedIds} contains the ID's of objects already visited; these objects will not be traversed.
+     * In particular, if {@code id} is in {@code visitedIds}, then this method does nothing.
+     * Upon return, {@code visitedIds} will also contain the ID's of all new objects found.
+     *
+     * <p>
+     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
+     * measured in the number of reference field "hops" from the given object.
      *
      * @param id starting object ID
      * @param cascadeName cascade name, or null for no cascade
+     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
      * @param visitedIds on entry objects already visited, on return all objects reachable
      * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalArgumentException if {@code id} or {@code visitedIds} is null
+     * @see JObject#cascadeCopyTo(JTransaction, String, int, boolean)
      */
-    public void cascadeFindAll(ObjId id, String cascadeName, ObjIdSet visitedIds) {
+    public void cascadeFindAll(ObjId id, String cascadeName, int recursionLimit, ObjIdSet visitedIds) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(recursionLimit >= -1, "recursionLimit < -1");
         Preconditions.checkArgument(visitedIds != null, "null visitedIds");
         if (cascadeName == null)
             return;
 
         // Initialize search
-        final ObjIdSet toVisitIds = new ObjIdSet();
+        ObjIdSet toVisitIds = new ObjIdSet();
         if (visitedIds.add(id))
             toVisitIds.add(id);
 
         // While there are objects remaining to scan, cascade through forward and inverse reference field cascades
         while (!toVisitIds.isEmpty()) {
             assert visitedIds.containsAll(toVisitIds);
-            id = toVisitIds.removeOne();
-            this.gatherForwardCascadeRefs(id, cascadeName, visitedIds, toVisitIds);
-            this.gatherInverseCascadeRefs(id, cascadeName, visitedIds, toVisitIds);
+
+            // Stop if we reach the recursion limit
+            if (recursionLimit != -1 && recursionLimit-- <= 0)
+                break;
+
+            // Find all new objects reachable in one hop from any object in 'toVisitIds'
+            final ObjIdSet newIds = new ObjIdSet();
+            for (ObjId toVisitId : toVisitIds) {
+                this.gatherForwardCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
+                this.gatherInverseCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
+            }
+
+            // New objects will be expanded on next time
+            toVisitIds = newIds;
         }
     }
 

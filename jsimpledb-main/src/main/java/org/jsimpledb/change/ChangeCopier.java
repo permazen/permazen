@@ -24,19 +24,20 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     protected final JTransaction dest;
     protected final String cascadeName;
+    protected final int recursionLimit;
     protected CopyState copyState = new CopyState();
 
     /**
      * Non-cascading constructor.
      *
      * <p>
-     * Equivalent to: {@code ChangeCopier(dest, null)}.
+     * Equivalent to: {@code ChangeCopier(dest, null, 0)}.
      *
      * @param dest destination transaction for copied {@link JObject}s
      * @throws IllegalArgumentException if {@code dest} is null
      */
     public ChangeCopier(JTransaction dest) {
-        this(dest, null);
+        this(dest, null, 0);
     }
 
     /**
@@ -44,12 +45,16 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      *
      * @param dest destination transaction for copied {@link JObject}s
      * @param cascadeName cascade to use when copying objects, or null to not cascade
+     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalArgumentException if {@code dest} is null
      */
-    public ChangeCopier(JTransaction dest, String cascadeName) {
+    public ChangeCopier(JTransaction dest, String cascadeName, int recursionLimit) {
         Preconditions.checkArgument(dest != null, "null dest");
+        Preconditions.checkArgument(recursionLimit >= -1, "recursionLimit < -1");
         this.dest = dest;
         this.cascadeName = cascadeName;
+        this.recursionLimit = recursionLimit;
     }
 
     /**
@@ -76,15 +81,17 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * <p>
      * This is a convenience constructor, equivalent to:
      * <blockquote><code>
-     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName)
+     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName, recursionLimit)
      * </code></blockquote>
      *
      * @param cascadeName cascade to use when copying objects, or null to not cascade
+     * @param recursionLimit the maximum number of cascaded references to traverse, or -1 for infinity
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      */
-    public ChangeCopier(String cascadeName) {
-        this(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName);
+    public ChangeCopier(String cascadeName, int recursionLimit) {
+        this(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName, recursionLimit);
     }
 
     /**

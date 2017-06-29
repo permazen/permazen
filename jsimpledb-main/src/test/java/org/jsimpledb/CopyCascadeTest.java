@@ -10,6 +10,7 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.util.ObjIdMap;
+import org.jsimpledb.core.util.ObjIdSet;
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -107,6 +108,47 @@ public class CopyCascadeTest extends TestSupport {
 
             sjtx.getAll(JObject.class).stream().forEach(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
+
+        // Check cascades copies with recursion limits
+
+            final ObjId ia = a.getObjId();
+            final ObjId ib = b.getObjId();
+            final ObjId ic = c.getObjId();
+            final ObjId id = d.getObjId();
+
+            final ObjIdSet ids = new ObjIdSet();
+
+            ids.clear();
+            jtx.cascadeFindAll(ia, "tree", -1, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
+
+            ids.clear();
+            jtx.cascadeFindAll(ia, "tree", 0, ids);
+            Assert.assertEquals(ids, buildSet(ia));
+
+            ids.clear();
+            jtx.cascadeFindAll(ia, "tree", 1, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic));
+
+            ids.clear();
+            jtx.cascadeFindAll(ia, "tree", 2, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
+
+            ids.clear();
+            jtx.cascadeFindAll(ib, "tree", 2, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic));
+
+            ids.clear();
+            jtx.cascadeFindAll(ib, "tree", 3, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
+
+            ids.clear();
+            jtx.cascadeFindAll(ib, "tree", Integer.MAX_VALUE, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
+
+            ids.clear();
+            jtx.cascadeFindAll(ib, "ancestors", Integer.MAX_VALUE, ids);
+            Assert.assertEquals(ids, buildSet(ia, ib));
 
         // Done
 

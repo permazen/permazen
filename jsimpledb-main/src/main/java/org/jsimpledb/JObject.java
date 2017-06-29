@@ -42,8 +42,8 @@ import org.jsimpledb.util.NavigableSets;
  * This interface provides methods for copying a graph of objects between transactions, for example, from an open
  * key/value database transaction into an in-memory snapshot transaction ("copy out"), or vice-versa ("copy in").
  * A graph of objects can be copied by specifying a starting object and either a list of reference paths, or
- * a cascade name. Object ID's can be remapped during the copy if necessary, e.g., to ensure existing objects
- * are not overwritten.
+ * a cascade name (see {@link org.jsimpledb.annotation.JField &#64;JField}). Object ID's can be remapped during
+ * the copy if necessary, e.g., to ensure existing objects are not overwritten (see {@link CopyState}).
  *
  * @see JTransaction
  */
@@ -289,8 +289,33 @@ public interface JObject {
     }
 
     /**
-     * Copy this instance and all objects reachable from it via the specified cascade into the
-     * specified destination transaction.
+     * Copy this instance and all objects reachable from it via the specified cascade into the specified destination transaction.
+     *
+     * <p>
+     * This is a convenience method, and is equivalent to invoking:
+     * <blockquote><code>
+     * this.cascadeCopyTo(dest, cascadeName, -1, clone);
+     * </code></blockquote>
+     *
+     * @param dest destination transaction for copies
+     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
+     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
+     *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
+     * @return the copied version of this instance in {@code dest}
+     * @throws org.jsimpledb.core.DeletedObjectException if any object to be copied does not exist
+     * @throws org.jsimpledb.core.DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
+     * @throws org.jsimpledb.core.SchemaMismatchException
+     *  if the schema version corresponding to any copied object is not identical in both transactions
+     * @throws IllegalArgumentException if {@code dest} is null
+     * @see #cascadeCopyTo(JTransaction, String, int, boolean)
+     */
+    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, boolean clone) {
+        return this.cascadeCopyTo(dest, cascadeName, -1, clone);
+    }
+
+    /**
+     * Copy this instance and all objects reachable from it via the specified cascade into the specified destination transaction.
      *
      * <p>
      * This is a more general method; see {@link #cascadeCopyIn cascadeCopyIn()} and {@link #cascadeCopyOut cascadeCopyOut()}
@@ -302,6 +327,10 @@ public interface JObject {
      * {@link org.jsimpledb.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
      * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
+     *
+     * <p>
+     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any copied object,
+     * measured in the number of reference field "hops" from this object.
      *
      * <p>
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
@@ -328,6 +357,7 @@ public interface JObject {
      *
      * @param dest destination transaction for copies
      * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
+     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
      *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
      * @return the copied version of this instance in {@code dest}
@@ -336,16 +366,17 @@ public interface JObject {
      *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
      * @throws org.jsimpledb.core.SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalArgumentException if {@code dest} is null
-     * @see #copyIn cascadeCopyIn()
-     * @see #copyOut cascadeCopyOut()
+     * @see #cascadeCopyIn cascadeCopyIn()
+     * @see #cascadeCopyOut cascadeCopyOut()
      * @see JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
      */
-    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, boolean clone) {
+    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, int recursionLimit, boolean clone) {
         Preconditions.checkArgument(dest != null, "null dest");
         final ObjId id = this.getObjId();
         final JTransaction jtx = this.getTransaction();
-        final ObjIdSet ids = jtx.cascadeFindAll(id, cascadeName);
+        final ObjIdSet ids = jtx.cascadeFindAll(id, cascadeName, recursionLimit);
         final CopyState copyState = clone ? new CopyState(dest.createClones(ids)) : new CopyState();
         jtx.copyTo(dest, copyState, ids);
         return dest.get(copyState.getDestinationId(id));
