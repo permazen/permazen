@@ -225,11 +225,11 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     @SuppressWarnings("unchecked")
     protected JObject copy(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        if (!jobj.exists())
-            return this.dest.get(jobj);
         final ObjId id = jobj.getObjId();
-        final JTransaction jtx = jobj.getTransaction();
-        jtx.copyTo(this.dest, this.copyState, jtx.cascadeFindAll(id, this.cascadeName));
+        if (jobj.exists()) {
+            final JTransaction jtx = jobj.getTransaction();
+            jtx.copyTo(this.dest, this.copyState, jtx.cascadeFindAll(id, this.cascadeName, this.recursionLimit));
+        }
         return dest.get(this.copyState.getDestinationId(id));
     }
 }
