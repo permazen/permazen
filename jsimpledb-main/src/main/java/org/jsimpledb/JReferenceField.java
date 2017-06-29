@@ -89,6 +89,10 @@ public class JReferenceField extends JSimpleField {
             return false;
         if (this.cascadeDelete != that.cascadeDelete)
             return false;
+        if (this.allowDeleted != that.allowDeleted)
+            return false;
+        if (this.allowDeletedSnapshot != that.allowDeletedSnapshot)
+            return false;
         if (!new HashSet<>(Arrays.asList(this.forwardCascades)).equals(new HashSet<>(Arrays.asList(that.forwardCascades))))
             return false;
         if (!new HashSet<>(Arrays.asList(this.inverseCascades)).equals(new HashSet<>(Arrays.asList(that.inverseCascades))))

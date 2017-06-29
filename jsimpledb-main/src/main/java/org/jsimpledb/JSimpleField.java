@@ -179,6 +179,8 @@ public class JSimpleField extends JField {
             return false;
         if (!(this.uniqueExcludes != null ? this.uniqueExcludes.equals(that.uniqueExcludes) : that.uniqueExcludes == null))
             return false;
+        if (!this.upgradeConversion.equals(that.upgradeConversion))
+            return false;
         return true;
     }
 
