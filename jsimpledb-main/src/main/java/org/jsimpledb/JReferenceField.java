@@ -80,6 +80,48 @@ public class JReferenceField extends JSimpleField {
         return this.cascadeDelete;
     }
 
+    /**
+     * Determine whether this field allows assignment to deleted objects in normal transactions.
+     *
+     * @return this field's deleted assignment setting for normal transactions
+     */
+    public boolean isAllowDeleted() {
+        return this.allowDeleted;
+    }
+
+    /**
+     * Determine whether this field allows assignment to deleted objects in snapshot transactions.
+     *
+     * @return this field's deleted assignment setting for snapshot transactions
+     */
+    public boolean isAllowDeletedSnapshot() {
+        return this.allowDeletedSnapshot;
+    }
+
+    /**
+     * Get this field's forward copy cascades.
+     *
+     * <p>
+     * The returned array is a copy; modifications to it have no effect.
+     *
+     * @return zero or more forward copy cascade names
+     */
+    public String[] getForwardCascades() {
+        return this.forwardCascades.clone();
+    }
+
+    /**
+     * Get this field's inverse copy cascades.
+     *
+     * <p>
+     * The returned array is a copy; modifications to it have no effect.
+     *
+     * @return zero or more inverse copy cascade names
+     */
+    public String[] getInverseCascades() {
+        return this.inverseCascades.clone();
+    }
+
     @Override
     boolean isSameAs(JField that0) {
         if (!super.isSameAs(that0))
