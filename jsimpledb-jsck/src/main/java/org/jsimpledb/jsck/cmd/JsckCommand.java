@@ -6,6 +6,7 @@
 package org.jsimpledb.jsck.cmd;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class JsckCommand extends AbstractCommand {
         super("jsck"
          + " -repair:repair"
          + " -verbose:verbose"
+         + " -weak:weak"
          + " -limit:limit:int"
          + " -gc:garbageCollectSchemas"
          + " -force-schemas:schema-map:expr"
@@ -55,14 +57,17 @@ public class JsckCommand extends AbstractCommand {
           + "       the configured registry will be used; in key/value database CLI mode, a default instances is used.\n"
           + "       The parameter must be a Java expression returning a FieldTypeRegistry.\n"
           + "   -force-schemas\n"
-          + "       Forcibly override schema versions. WARNING: only use this if you know what you are doing.\n"
-          + "       The parameter must be a Java expression returning a Map<Integer, SchemaModel>.\n"
+          + "       Forcibly override schema versions. The parameter must be a Java expression returning a\n"
+          + "       Map<Integer, SchemaModel>. WARNING: only use this if you know what you are doing.\n"
           + "       This flag is ignored without `-repair'.\n"
           + "   -force-format-version\n"
           + "       Forcibly override format version. WARNING: only use this if you know what you are doing.\n"
           + "       This flag is ignored without `-repair'.\n"
           + "   -verbose\n"
-          + "       Increase logging verbosity to show a high level of detail\n";
+          + "       Increase logging verbosity to show a high level of detail.\n"
+          + "   -weak\n"
+          + "       For certain key/value stores, use weaker consistency to reduce the chance of conflicts.\n"
+          + "       This flag is ignored if used with `-repair'.\n";
     }
 
     @Override
@@ -81,6 +86,7 @@ public class JsckCommand extends AbstractCommand {
         if (registry != null)
             config.setFieldTypeRegistry(registry);
         config.setRepair(params.containsKey("repair"));
+        final boolean weak = params.containsKey("weak");
         final Integer formatVersion = (Integer)params.get("force-format-version");
         if (formatVersion != null)
             config.setForceFormatVersion(formatVersion);
@@ -100,7 +106,7 @@ public class JsckCommand extends AbstractCommand {
         }
 
         // Done
-        return new JsckAction(config, verbose);
+        return new JsckAction(config, verbose, weak);
     }
 
     private <T> T getParam(Map<String, Object> params, String name, Class<T> type) {
@@ -116,14 +122,16 @@ public class JsckCommand extends AbstractCommand {
         return type.cast(param);
     }
 
-    private static class JsckAction implements CliSession.Action, Session.TransactionalAction {
+    private static class JsckAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
 
         private final JsckConfig config;
         private final boolean verbose;
+        private final boolean weak;
 
-        JsckAction(JsckConfig config, boolean verbose) {
+        JsckAction(JsckConfig config, boolean verbose, boolean weak) {
             this.config = config;
             this.verbose = verbose;
+            this.weak = weak;
         }
 
         @Override
@@ -156,6 +164,12 @@ public class JsckCommand extends AbstractCommand {
                   issue, this.config.isRepair() ? " [FIXED]" : ""));
             });
             writer.println("jsck: " + (this.config.isRepair() ? "repaired" : "found") + " " + numHandled + " issue(s)");
+        }
+
+        // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
+        @Override
+        public Map<String, ?> getTransactionOptions() {
+            return this.weak && !this.config.isRepair() ? Collections.singletonMap("consistency", "EVENTUAL") : null;
         }
     }
 }

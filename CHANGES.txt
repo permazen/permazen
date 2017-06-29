@@ -4,6 +4,7 @@ Version 3.5.1
     - Allow queryIndex() to specify any super-type of indexed value type
     - Added recursion limit parameter to cascadeCopyTo() and cascadeFindAll()
     - Added default method JObject.findReferring()
+    - Added `-weak' flag to jsck command
 
 Version 3.5.0 Released June 15, 2017
 
