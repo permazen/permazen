@@ -230,6 +230,7 @@ public interface KVStore {
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
     default void removeRange(KeyRange range) {
+        Preconditions.checkArgument(range != null, "null range");
         this.removeRange(range.getMin(), range.getMax());
     }
 
