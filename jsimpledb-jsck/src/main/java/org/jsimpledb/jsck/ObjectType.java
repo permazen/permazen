@@ -207,7 +207,7 @@ class ObjectType extends Storage {
         this.verifyVersionIndexEntry(info, id, version);
     }
 
-    // Returns true if field has non-default value
+    // Returns field's byte[] value if field has non-default value, otherwise null
     private byte[] checkSimpleField(JsckInfo info, ObjId id, SimpleSchemaField field, byte[] prefix, PeekingIterator<KVPair> i) {
 
         // Get field type
@@ -229,24 +229,18 @@ class ObjectType extends Storage {
         // Decode value
         byte[] value = pair.getValue();
         final ByteReader reader = new ByteReader(pair.getValue());
-        try {
-            fieldType.read(reader);
-            if (reader.remain() > 0)
-                throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
-        } catch (IllegalArgumentException e) {
-            info.handle(new InvalidValue(pair).setDetail(e.getMessage()));
-            return null;
-        }
+        if (!this.validateSimpleFieldValue(info, id, field, pair, reader))
+            value = null;
 
-        // We should not see default values
-        if (ByteUtil.compare(value, fieldType.getDefaultValue()) == 0) {
+        // We should not see default values in simple fields that are not sub-fields of complex fields
+        if (value != null && ByteUtil.compare(value, fieldType.getDefaultValue()) == 0) {
             info.handle(new InvalidValue(pair).setDetail("default value; should not be present"));
-            return null;
+            value = null;
         }
 
         // Verify index entry
         if (field.isIndexed())
-            this.verifySimpleIndexEntry(info, id, field, value);
+            this.verifySimpleIndexEntry(info, id, field, value != null ? value : fieldType.getDefaultValue());
 
         // Done
         return value;
@@ -254,10 +248,8 @@ class ObjectType extends Storage {
 
     private void checkSetField(JsckInfo info, ObjId id, SetSchemaField field, byte[] prefix, PeekingIterator<KVPair> i) {
 
-        // Get element field and type
+        // Get element field
         final SimpleSchemaField elementField = field.getElementField();
-        final FieldType<?> elementType = this.simpleFieldTypes.get(elementField.getStorageId());
-        assert elementType != null;
 
         // Iterate over set elements
         while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
@@ -265,14 +257,8 @@ class ObjectType extends Storage {
 
             // Verify encoded element
             final ByteReader reader = new ByteReader(pair.getKey(), prefix.length);
-            try {
-                elementType.read(reader);
-                if (reader.remain() > 0)
-                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
-            } catch (IllegalArgumentException e) {
-                info.handle(new InvalidKey(pair).setDetail(id, elementField, e.getMessage()));
+            if (!this.validateSimpleFieldValue(info, id, elementField, pair, reader))
                 continue;
-            }
 
             // Value should be empty
             if (pair.getValue().length != 0)
@@ -286,13 +272,9 @@ class ObjectType extends Storage {
 
     private void checkMapField(JsckInfo info, ObjId id, MapSchemaField field, byte[] prefix, PeekingIterator<KVPair> i) {
 
-        // Get key and value fields and types
+        // Get key and value fields
         final SimpleSchemaField keyField = field.getKeyField();
         final SimpleSchemaField valField = field.getValueField();
-        final FieldType<?> keyType = this.simpleFieldTypes.get(keyField.getStorageId());
-        final FieldType<?> valType = this.simpleFieldTypes.get(valField.getStorageId());
-        assert keyType != null;
-        assert valType != null;
 
         // Iterate over set elements
         while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
@@ -300,25 +282,13 @@ class ObjectType extends Storage {
 
             // Verify encoded key
             final ByteReader keyReader = new ByteReader(pair.getKey(), prefix.length);
-            try {
-                keyType.read(keyReader);
-                if (keyReader.remain() > 0)
-                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(keyReader, keyReader.getOffset()));
-            } catch (IllegalArgumentException e) {
-                info.handle(new InvalidValue(pair).setDetail(id, keyField, e.getMessage()));
+            if (!this.validateSimpleFieldValue(info, id, keyField, pair, keyReader))
                 continue;
-            }
 
             // Verify encoded value
             final ByteReader valReader = new ByteReader(pair.getValue());
-            try {
-                valType.read(valReader);
-                if (valReader.remain() > 0)
-                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(valReader, valReader.getOffset()));
-            } catch (IllegalArgumentException e) {
-                info.handle(new InvalidValue(pair).setDetail(id, valField, e.getMessage()));
+            if (!this.validateSimpleFieldValue(info, id, valField, pair, valReader))
                 continue;
-            }
 
             // Verify index entries
             if (keyField.isIndexed())
@@ -332,44 +302,54 @@ class ObjectType extends Storage {
 
         // Get element field and type
         final SimpleSchemaField elementField = field.getElementField();
-        final FieldType<?> elementType = this.simpleFieldTypes.get(elementField.getStorageId());
-        assert elementType != null;
 
         // Iterate over list elements
-        int index = 0;
+        int expectedIndex = 0;
         while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
             final KVPair pair = i.next();
 
-            // Verify encoded index
+            // Decode list index
             final ByteReader keyReader = new ByteReader(pair.getKey(), prefix.length);
+            final int actualIndex;
             try {
-                final int actualIndex = UnsignedIntEncoder.read(keyReader);
-                if (actualIndex != index)
-                    throw new IllegalArgumentException("bogus index " + actualIndex + " != " + index);
+                try {
+                    actualIndex = UnsignedIntEncoder.read(keyReader);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("invalid list index: " + e.getMessage(), e);
+                }
                 if (keyReader.remain() > 0) {
                     throw new IllegalArgumentException("trailing garbage "
-                      + Jsck.ds(keyReader, keyReader.getOffset()) + " after encoded index " + index);
+                      + Jsck.ds(keyReader, keyReader.getOffset()) + " after encoded index " + actualIndex);
                 }
             } catch (IllegalArgumentException e) {
                 info.handle(new InvalidValue(pair).setDetail(id, elementField, e.getMessage()));
                 continue;
             }
-            index++;
 
             // Verify encoded element
             final ByteReader valReader = new ByteReader(pair.getValue());
-            try {
-                elementType.read(valReader);
-                if (valReader.remain() > 0)
-                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(valReader, valReader.getOffset()));
-            } catch (IllegalArgumentException e) {
-                info.handle(new InvalidValue(pair).setDetail(id, elementField, e.getMessage()));
+            if (!this.validateSimpleFieldValue(info, id, elementField, pair, valReader))
                 continue;
+
+            // Check list index, and renumber if necessary
+            byte[] encodedIndex = keyReader.getBytes(prefix.length);
+            if (actualIndex != expectedIndex) {
+                info.handle(new InvalidValue(pair).setDetail(id,
+                  elementField, "wrong index " + actualIndex + " != " + expectedIndex));
+                final ByteWriter keyWriter = new ByteWriter(prefix.length + UnsignedIntEncoder.encodeLength(actualIndex));
+                keyWriter.write(prefix);
+                UnsignedIntEncoder.write(keyWriter, expectedIndex);
+                encodedIndex = keyWriter.getBytes(prefix.length);
+                info.handle(new MissingKey("incorrect list index", keyWriter.getBytes(), pair.getValue())
+                  .setDetail(id, elementField, "renumbered list index " + actualIndex + " -> " + expectedIndex));
             }
+
+            // Entry is good - we can advance the list index
+            expectedIndex++;
 
             // Verify index entry
             if (elementField.isIndexed())
-                this.verifySimpleIndexEntry(info, id, elementField, field, pair.getValue(), keyReader.getBytes(prefix.length));
+                this.verifySimpleIndexEntry(info, id, elementField, field, pair.getValue(), encodedIndex);
         }
     }
 
@@ -393,6 +373,35 @@ class ObjectType extends Storage {
         } catch (IllegalArgumentException e) {
             info.handle(new InvalidValue(pair).setDetail(id, field, " (resetting to zero): " + e.getMessage()));
         }
+    }
+
+    private boolean validateSimpleFieldValue(JsckInfo info, ObjId id, SimpleSchemaField field, KVPair pair, ByteReader reader) {
+
+        // Verify field encoding
+        final FieldType<?> fieldType = this.simpleFieldTypes.get(field.getStorageId());
+        assert fieldType != null;
+        try {
+
+            // Decode value
+            final Object value = fieldType.read(reader);
+            if (reader.remain() > 0)
+                throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
+
+            // For reference fields, check for illegal dangling references
+            if (value != null && field instanceof ReferenceSchemaField) {
+                final ReferenceSchemaField referenceField = (ReferenceSchemaField)field;
+                if (!referenceField.isAllowDeleted()) {
+                    assert fieldType instanceof ReferenceFieldType;
+                    final ObjId target = (ObjId)value;
+                    if (info.getKVStore().get(target.getBytes()) == null)
+                        throw new IllegalArgumentException("invalid reference to deleted object " + target);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            info.handle(new InvalidValue(pair).setDetail(id, field, e.getMessage()));
+            return false;
+        }
+        return true;
     }
 
     private void verifySimpleIndexEntry(JsckInfo info, ObjId id, SimpleSchemaField field, byte[] value) {

@@ -86,6 +86,47 @@ public class JsckTest extends KVTestSupport {
         this.mutateAndCompare(this.getConfig(true), true, actual, expected, Collections.emptySet());
     }
 
+    @Test
+    public void testDeletedReference() throws Exception {
+
+        // Setup db
+        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final JTransaction jtx = this.jdb.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
+
+        // Create objects with known ID's we can easily recognize
+        final Person p1 = this.create(jtx, Person.class, 0x1011111111111111L);
+        final Person deleted = this.create(jtx, Person.class, 0x1022222222222222L);
+        final Person p3 = this.create(jtx, Person.class, 0x1033333333333333L);
+
+        // Set up refs
+        p1.setSpouse(deleted);
+        p1.getAmountOwed().put(p1, 545.45f);
+        p1.getAmountOwed().put(deleted, 123.45f);
+        p1.getAmountOwed().put(p3, 616.34f);
+        p3.getFriends().add(p1);
+        p3.getFriends().add(deleted);
+        p3.getFriends().add(p3);
+        p3.getFriends().add(p1);
+
+        // Secretly delete p3
+        final ObjId deletedId = deleted.getObjId();
+        final int deletedVersion = jtx.getSchemaVersion(deletedId);
+        kv.removeRange(KeyRange.forPrefix(deletedId.getBytes()));
+        kv.remove(ByteUtil.parse("aaff1022222222222222"));                  // index entry for delete.name
+        kv.remove(ByteUtil.parse("bbff1022222222222222"));                  // index entry for delete.spouse
+        kv.remove(Layout.buildVersionIndexKey(deletedId, deletedVersion));
+
+        // Prepare KV's
+        final NavigableMapKVStore damaged = kv.clone();
+        p1.setSpouse(null);
+        p1.getAmountOwed().remove(deleted);
+        p3.getFriends().remove(1);
+        final NavigableMapKVStore repaired = kv.clone();
+
+        // Test repair - dangling references to deleted should get cleaned up
+        this.repairAndCompare(this.getConfig(true), damaged, repaired);
+    }
+
     private void mutateAndCompare(JsckConfig config, boolean repair, NavigableMapKVStore actual, NavigableMapKVStore expected,
       Iterable<? extends Consumer<? super KVStore>> mutations) {
 
@@ -104,6 +145,22 @@ public class JsckTest extends KVTestSupport {
         // Compare result
         final String actualXml = this.toXmlString(actual);
         final String expectedXml = this.toXmlString(expected);
+        final String diff = this.diff(expectedXml, actualXml);
+        assert diff == null : "Difference in resulting XML:\n" + diff;
+    }
+
+    private void repairAndCompare(JsckConfig config, NavigableMapKVStore damaged, NavigableMapKVStore repaired) {
+
+        // Run checker
+        final Jsck jsck = new Jsck(config);
+        final long count = jsck.check(damaged, issue -> {
+            log.info(String.format("JSCK: %s", issue));
+            issue.apply(damaged);
+        });
+
+        // Compare result
+        final String actualXml = this.toXmlString(damaged);
+        final String expectedXml = this.toXmlString(repaired);
         final String diff = this.diff(expectedXml, actualXml);
         assert diff == null : "Difference in resulting XML:\n" + diff;
     }
