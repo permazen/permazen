@@ -37,6 +37,7 @@ public abstract class Issue {
     /**
      * Constructor.
      *
+     * @param description short description of the issue
      * @param key key of invalid key/value pair
      * @param oldValue the original, invalid value for {@code key}, or null if {@code key} was missing
      * @param newValue the corrected replacement value for {@code key}, or null if {@code key} should be deleted

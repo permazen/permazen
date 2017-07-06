@@ -89,7 +89,7 @@ public class JsckConfig {
      * Configure a destination for log messages emitted during the scan.
      *
      * <p>
-     * By default, messages are logged via this class' {@link Logger} via {@link JsckLogger#wrap JsckLogger.wrap()}.
+     * By default, messages are logged via this class' {@link org.slf4j.Logger} via {@link JsckLogger#wrap JsckLogger.wrap()}.
      *
      * @return true to repair inconsistencies, otherwise false
      */
@@ -186,7 +186,7 @@ public class JsckConfig {
      * Configure a maximum number of issues to generate.
      *
      * <p>
-     * Default is {@link Long.MAX_VALUE}.
+     * Default is {@link Long#MAX_VALUE}.
      *
      * @return maximum number of issues
      */

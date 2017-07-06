@@ -17,11 +17,15 @@ public interface JsckLogger {
 
     /**
      * Log a low-detail (informational) message.
+     *
+     * @param message message to log
      */
     void info(String message);
 
     /**
      * Log a high-detail message.
+     *
+     * @param message message to log
      */
     void detail(String message);
 
@@ -31,6 +35,8 @@ public interface JsckLogger {
      * <p>
      * When this returns true, detailed logging is delivered to {@link #detail detail()},
      * otherwise it is suppressed.
+     *
+     * @return true if detailed logging should be performed
      */
     boolean isDetailEnabled();
 

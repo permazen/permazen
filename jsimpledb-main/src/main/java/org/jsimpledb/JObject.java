@@ -469,6 +469,7 @@ public interface JObject {
      *
      * @param type type of referring objects
      * @param fieldName name of reference field
+     * @param <R> type of referring objects
      * @return all objects of the specified type referring to this object through the named field
      * @throws org.jsimpledb.kv.StaleTransactionException if the transaction associated with this instance is no longer open
      * @throws IllegalArgumentException if either parameter is null

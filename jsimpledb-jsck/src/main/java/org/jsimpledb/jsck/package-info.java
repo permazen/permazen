@@ -4,7 +4,7 @@
  */
 
 /**
- * CLI commands associated with {@link Jsck}, the JSimpleDB key/value database consistency checker.
+ * CLI commands associated with {@link org.jsimpledb.jsck.Jsck}, the JSimpleDB key/value database consistency checker.
  *
  * @see org.jsimpledb.jsck
  */
