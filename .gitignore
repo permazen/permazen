@@ -1,3 +1,7 @@
 *.swp
 dependency-reduced-pom.xml
 target/
+/*.patch
+/*.patch.gz
+/xx.java
+/xx*.class
