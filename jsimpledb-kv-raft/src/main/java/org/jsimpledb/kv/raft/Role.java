@@ -104,8 +104,7 @@ public abstract class Role {
         // Fail any (read-only) transactions with a minimum lease timeout, because they won't be valid for a new leader
         for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (!tx.getState().equals(TxState.COMPLETED) && tx.getCommitLeaderLeaseTimeout() != null) {
-                assert tx.getCommitTerm() > 0;
-                assert tx.getCommitIndex() > 0;
+                assert tx.hasCommitInfo();
                 this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
             }
         }
@@ -332,8 +331,7 @@ public abstract class Role {
         assert tx.getState().equals(TxState.EXECUTING);
         assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
         assert tx.isReadOnly();
-        assert tx.getCommitTerm() == 0;
-        assert tx.getCommitIndex() == 0;
+        assert !tx.hasCommitInfo();
         assert tx.isRebasable();
         assert !tx.isCommittable();
         assert this.checkRebasableAndCommittableUpToDate(tx);
@@ -363,7 +361,7 @@ public abstract class Role {
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // If transaction already has a commit term & index, proceed to COMMIT_WAITING
-        if (tx.getCommitIndex() != 0) {
+        if (tx.hasCommitInfo()) {
             this.advanceReadyTransactionWithCommitInfo(tx,
               tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
             return;
@@ -388,8 +386,7 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
         assert tx.getConsistency().equals(Consistency.LINEARIZABLE);
-        assert tx.getCommitTerm() == 0;
-        assert tx.getCommitIndex() == 0;
+        assert !tx.hasCommitInfo();
         assert !tx.isCommittable();
         assert this.checkRebasableAndCommittableUpToDate(tx);
     }
@@ -613,8 +610,8 @@ public abstract class Role {
         assert tx.isRebasable();
         assert tx.getFailure() == null;
         assert tx.getBaseIndex() >= this.raft.lastAppliedIndex;
-        assert tx.getCommitIndex() == 0 || tx.getCommitIndex() > tx.getBaseIndex();
-        assert tx.getCommitIndex() == 0 || !tx.addsLogEntry();
+        assert !tx.hasCommitInfo() || tx.getCommitIndex() > tx.getBaseIndex();
+        assert !tx.hasCommitInfo() || !tx.addsLogEntry();
 
         // Anything to do?
         long baseIndex = tx.getBaseIndex();
@@ -654,7 +651,7 @@ public abstract class Role {
             }
             switch (tx.getState()) {
             case EXECUTING:
-                assert tx.getCommitIndex() == 0 || tx.isReadOnly();
+                assert !tx.hasCommitInfo() || tx.isReadOnly();
                 final MostRecentView view = new MostRecentView(this.raft, baseIndex);
                 assert view.getTerm() == baseTerm;
                 assert view.getIndex() == baseIndex;

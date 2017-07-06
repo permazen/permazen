@@ -742,7 +742,7 @@ public class FollowerRole extends NonLeaderRole {
             this.trace("rec'd " + msg + " for " + tx);
 
         // Do we already have a commit index & term? This would be unusual and can only happen with some leader change
-        if (tx.getCommitIndex() != 0) {
+        if (tx.hasCommitInfo()) {
             if (this.log.isTraceEnabled()) {
                 this.trace("ignoring " + msg + " for " + tx + "; already have commit "
                   + tx.getCommitIndex() + "t" + tx.getCommitTerm());
@@ -1053,8 +1053,7 @@ public class FollowerRole extends NonLeaderRole {
                 assert false;
                 break;
             }
-            assert tx.getCommitTerm() == 0;
-            assert tx.getCommitIndex() == 0;
+            assert !tx.hasCommitInfo();
         }
         for (Map.Entry<Long, PendingWrite> entry : this.pendingWrites.entrySet()) {
             final long txId = entry.getKey();

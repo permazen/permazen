@@ -612,6 +612,11 @@ public class RaftKVTransaction implements KVTransaction {
         this.failure = failure;
     }
 
+    boolean hasCommitInfo() {
+        assert (this.commitTerm == 0) == (this.commitIndex == 0);
+        return this.commitTerm != 0;
+    }
+
     void setCommitInfo(long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
         assert Thread.holdsLock(this.raft);
         assert this.commitTerm == 0 || this.commitTerm == commitTerm;

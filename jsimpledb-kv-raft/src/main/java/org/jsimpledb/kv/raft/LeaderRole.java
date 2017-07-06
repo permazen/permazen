@@ -754,7 +754,7 @@ public class LeaderRole extends Role {
         if (!tx.addsLogEntry()) {
 
             // Does it already have commit information?
-            if (tx.getCommitIndex() != 0) {
+            if (tx.hasCommitInfo()) {
                 this.advanceReadyTransactionWithCommitInfo(tx,
                   tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
                 return;
@@ -770,8 +770,7 @@ public class LeaderRole extends Role {
         assert !tx.isReadOnly();
         assert tx.isRebasable() : "fail tx " + tx;
         assert !tx.isCommittable();
-        assert tx.getCommitTerm() == 0;
-        assert tx.getCommitIndex() == 0;
+        assert !tx.hasCommitInfo();
         assert this.checkRebasableAndCommittableUpToDate(tx);
 
         // If a config change is involved, check whether we can safely apply it
