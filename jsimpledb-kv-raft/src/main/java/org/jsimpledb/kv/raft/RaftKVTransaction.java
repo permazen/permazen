@@ -64,9 +64,9 @@ public class RaftKVTransaction implements KVTransaction {
    exceeds the leader's current time, to guarantee that the leader's last log entry is in fact up-to-date (i.e., there's
    not some other leader we don't know about who has already been elected).
 
-   If the LINEARIZABLE transaction is read-write, the leader checks for conflicts caused by any log entries it has betwen
-   the transaction's base log entry and its last log entry, then appends a new log entry, and returns the new log entry
-   as the transaction's commit term+index in a CommitResponse.
+   If the LINEARIZABLE transaction is read-write, the leader checks for conflicts caused by any log entries it has between
+   the transaction's base log entry and the leader's last log entry, then appends a new log entry, and returns the new log
+   entry as the transaction's commit term+index in a CommitResponse.
 
    Followers must continue to rebase read-only LINEARIZABLE until their commit term+index is received, but for mutating
    transactions they do not need to rebase beyond the base term+index that was sent to the leader in the CommitRequest,

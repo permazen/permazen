@@ -434,7 +434,7 @@ public abstract class Role {
      * @param tx the transaction
      * @throws KVTransactionException if an error occurs
      */
-    void checkWaitingTransaction(RaftKVTransaction tx) {
+    final void checkWaitingTransaction(RaftKVTransaction tx) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
