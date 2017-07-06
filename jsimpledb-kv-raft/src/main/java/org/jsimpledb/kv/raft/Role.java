@@ -362,8 +362,7 @@ public abstract class Role {
 
         // If transaction already has a commit term & index, proceed to COMMIT_WAITING
         if (tx.hasCommitInfo()) {
-            this.advanceReadyTransactionWithCommitInfo(tx,
-              tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
+            this.advanceReadyTransaction(tx);
             return;
         }
 
@@ -405,9 +404,31 @@ public abstract class Role {
         // Sanity check
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
+        assert !tx.hasCommitInfo();
 
-        // Set commit term & index and update state
+        // Set commit term & index
         tx.setCommitInfo(commitTerm, commitIndex, commitLeaderLeaseTimeout);
+
+        // Advance to COMMIT_WAITING
+        this.advanceReadyTransaction(tx);
+    }
+
+    /**
+     * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
+     *
+     * <p>
+     * This assumes the commit info is already set.
+     *
+     * @param tx the transaction
+     */
+    final void advanceReadyTransaction(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        assert tx.getState().equals(TxState.COMMIT_READY);
+        assert tx.hasCommitInfo();
+
+        // Update state
         if (this.log.isTraceEnabled())
             this.trace("advancing " + tx + " to " + TxState.COMMIT_WAITING);
         tx.setState(TxState.COMMIT_WAITING);

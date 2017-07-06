@@ -757,8 +757,7 @@ public class LeaderRole extends Role {
 
             // Does it already have commit information?
             if (tx.hasCommitInfo()) {
-                this.advanceReadyTransactionWithCommitInfo(tx,
-                  tx.getCommitTerm(), tx.getCommitIndex(), tx.getCommitLeaderLeaseTimeout());
+                this.advanceReadyTransaction(tx);
                 return;
             }
 

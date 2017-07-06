@@ -619,9 +619,7 @@ public class RaftKVTransaction implements KVTransaction {
 
     void setCommitInfo(long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
         assert Thread.holdsLock(this.raft);
-        assert this.commitTerm == 0 || this.commitTerm == commitTerm;
-        assert this.commitIndex == 0 || this.commitIndex == commitIndex;
-        assert this.commitLeaderLeaseTimeout == null || this.commitLeaderLeaseTimeout == commitLeaderLeaseTimeout;
+        assert !this.hasCommitInfo();
         if (this.raft.log.isTraceEnabled()) {
             this.raft.trace("setting commit to " + commitIndex + "t" + commitTerm
               + (commitLeaderLeaseTimeout != null ? "@" + commitLeaderLeaseTimeout : "") + " for " + this);

@@ -774,10 +774,12 @@ public class FollowerRole extends NonLeaderRole {
         switch (tx.getState()) {
         case EXECUTING:
             assert tx.isReadOnly();
+            assert !tx.hasCommitInfo();
             tx.setCommitInfo(commitTerm, commitIndex, msg.getCommitLeaderLeaseTimeout());
             this.checkCommittable(tx);
             break;
         case COMMIT_READY:
+            assert !tx.hasCommitInfo();
             this.advanceReadyTransactionWithCommitInfo(tx, commitTerm, commitIndex, msg.getCommitLeaderLeaseTimeout());
             break;
         default:
