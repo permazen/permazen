@@ -13,6 +13,8 @@ org.jsimpledb.core.type
 org.jsimpledb.core.util
 org.jsimpledb.demo
 org.jsimpledb.index
+org.jsimpledb.jsck
+org.jsimpledb.jsck.cmd
 org.jsimpledb.kv
 org.jsimpledb.kv.array
 org.jsimpledb.kv.bdb
