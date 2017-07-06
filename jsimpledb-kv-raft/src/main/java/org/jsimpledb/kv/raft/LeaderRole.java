@@ -740,8 +740,10 @@ public class LeaderRole extends Role {
         super.handleLinearizableReadOnlyChange(tx);
 
         // Set commit info based on what we currently know as "up-to-date"
-        tx.setCommitInfo(this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
-        this.checkCommittable(tx);
+        if (!tx.hasCommitInfo()) {
+            tx.setCommitInfo(this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
+            this.checkCommittable(tx);
+        }
     }
 
     @Override

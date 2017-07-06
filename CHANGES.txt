@@ -3,6 +3,7 @@ Version 3.5.1
     - Added `jsck' utility for verifying/repairing key/value databases
     - Allow queryIndex() to specify any super-type of indexed value type
     - Added recursion limit parameter to cascadeCopyTo() and cascadeFindAll()
+    - Fixed Raft bug with eventually consistent tx's on isolated leaders
     - Added default method JObject.findReferring()
     - Added `-weak' flag to jsck command
 
