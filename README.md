@@ -6,6 +6,8 @@ JSimpleDB is a completely different way of looking at persistence programming. J
 
 With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved as well, and some entirely new, useful functionality is added.
 
+JSimpleDB can be thought of not only as a persistence layer, but also as a general purpose serialization framework with built-in schema management, and an object indexing, reference tracking, and field change notification system.
+
 Ask these questions of your existing persistence solution:
 
   * **Configuration complexity** Do we have to explicitly configure details of how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
