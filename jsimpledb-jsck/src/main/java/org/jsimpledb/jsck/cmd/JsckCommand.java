@@ -20,7 +20,7 @@ import org.jsimpledb.core.FieldTypeRegistry;
 import org.jsimpledb.jsck.Jsck;
 import org.jsimpledb.jsck.JsckConfig;
 import org.jsimpledb.jsck.JsckLogger;
-import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
@@ -34,6 +34,7 @@ public class JsckCommand extends AbstractCommand {
          + " -weak:weak"
          + " -limit:limit:int"
          + " -gc:gc"
+         + " -kv:kv:expr"
          + " -force-schemas:schema-map:expr"
          + " -force-format-version:format-version:int"
          + " -registry:registry:expr");
@@ -53,6 +54,8 @@ public class JsckCommand extends AbstractCommand {
           + "       Stop after encountering `limit' issues.\n"
           + "   -gc\n"
           + "       Garbage collect unused schema versions at the end of inspection.\n"
+          + "   -kv\n"
+          + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
           + "   -registry\n"
           + "       Specify a custom field type registry. If this flag is not given, in JSimpleDB and Core API modes,\n"
           + "       the configured registry will be used; in key/value database CLI mode, a default instances is used.\n"
@@ -93,19 +96,22 @@ public class JsckCommand extends AbstractCommand {
             config.setMaxIssues(limit);
 
         // Done
-        return new JsckAction(config, (Node)params.get("registry"), (Node)params.get("force-schemas"), verbose, weak);
+        return new JsckAction(config,
+          (Node)params.get("kv"), (Node)params.get("registry"), (Node)params.get("schema-map"), verbose, weak);
     }
 
     private class JsckAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
 
         private final JsckConfig config;
+        private final Node kvNode;
         private final Node registryNode;
         private final Node schemasNode;
         private final boolean verbose;
         private final boolean weak;
 
-        JsckAction(JsckConfig config, Node registryNode, Node schemasNode, boolean verbose, boolean weak) {
+        JsckAction(JsckConfig config, Node kvNode, Node registryNode, Node schemasNode, boolean verbose, boolean weak) {
             this.config = config;
+            this.kvNode = kvNode;
             this.registryNode = registryNode;
             this.schemasNode = schemasNode;
             this.verbose = verbose;
@@ -114,6 +120,10 @@ public class JsckCommand extends AbstractCommand {
 
         @Override
         public void run(CliSession session) throws Exception {
+
+            // Evaluate KVStore, if any
+            final KVStore kv = this.kvNode != null ?
+              JsckCommand.this.getExprParam(session, this.kvNode, "kv", KVStore.class) : session.getKVTransaction();
 
             // Evaluate registry, if any
             if (this.registryNode != null) {
@@ -161,10 +171,9 @@ public class JsckCommand extends AbstractCommand {
             });
 
             // Do scan
-            final KVTransaction kvt = session.getKVTransaction();
             final Jsck jsck = new Jsck(this.config);
             final AtomicInteger count = new AtomicInteger();
-            final long numHandled = jsck.check(kvt, issue -> {
+            final long numHandled = jsck.check(kv, issue -> {
                 writer.println(String.format("[%05d] %s%s", count.incrementAndGet(),
                   issue, this.config.isRepair() ? " [FIXED]" : ""));
             });
