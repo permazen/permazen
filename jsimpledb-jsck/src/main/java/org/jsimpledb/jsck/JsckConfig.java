@@ -39,6 +39,9 @@ public class JsckConfig {
      * <p>
      * Default is null, i.e., no restriction.
      *
+     * <p>
+     * <b>TODO:</b> this is not implemented yet
+     *
      * @return ranges of keys to inspect, or null for no restriction
      */
     public KeyRanges getKeysToInspect() {
