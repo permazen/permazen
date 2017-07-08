@@ -33,13 +33,19 @@ public class RegisterCommandCommand extends AbstractCommand {
     public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("class");
         return session -> {
-            final Object result = expr.evaluate(session).get(session);
-            if (!(result instanceof Class))
-                throw new Exception("invalid parameter: not a " + Class.class.getName() + " instance");
-            final Class<?> cl = (Class<?>)result;
-            if (!Command.class.isAssignableFrom(cl))
-                throw new Exception("invalid parameter: " + cl + " does not implement " + Command.class);
-            final Command command = cl.asSubclass(Command.class).getConstructor().newInstance();
+
+            // Evaluate class expression
+            final Class<? extends Command> commandClass = RegisterCommandCommand.this.getExprParam(session, expr, "class", obj -> {
+                if (!(obj instanceof Class))
+                    throw new IllegalArgumentException("not a " + Class.class.getName() + " instance");
+                final Class<?> cl = (Class<?>)obj;
+                if (!Command.class.isAssignableFrom(cl))
+                    throw new IllegalArgumentException(cl + " does not implement " + Command.class);
+                return cl.asSubclass(Command.class);
+            });
+
+            // Instantiate class to create new command and register command
+            final Command command = commandClass.getConstructor().newInstance();
             session.registerCommand(command);
             session.getWriter().println("Registered command `" + command.getName() + "'");
         };

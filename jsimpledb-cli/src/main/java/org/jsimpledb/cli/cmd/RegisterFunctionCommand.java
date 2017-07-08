@@ -34,13 +34,20 @@ public class RegisterFunctionCommand extends AbstractCommand {
     public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("class");
         return session -> {
-            final Object result = expr.evaluate(session).get(session);
-            if (!(result instanceof Class))
-                throw new Exception("invalid parameter: not a " + Class.class.getName() + " instance");
-            final Class<?> cl = (Class<?>)result;
-            if (!Function.class.isAssignableFrom(cl))
-                throw new Exception("invalid parameter: " + cl + " does not implement " + Function.class);
-            final Function function = cl.asSubclass(Function.class).getConstructor().newInstance();
+
+            // Evaluate class expression
+            final Class<? extends Function> functionClass = RegisterFunctionCommand.this.getExprParam(session, expr, "class",
+              obj -> {
+                if (!(obj instanceof Class))
+                    throw new IllegalArgumentException("not a " + Class.class.getName() + " instance");
+                final Class<?> cl = (Class<?>)obj;
+                if (!Function.class.isAssignableFrom(cl))
+                    throw new IllegalArgumentException(cl + " does not implement " + Function.class);
+                return cl.asSubclass(Function.class);
+            });
+
+            // Instantiate class to create new function and register function
+            final Function function = functionClass.getConstructor().newInstance();
             session.registerFunction(function);
             session.getWriter().println("Registered function `" + function.getName() + "'");
         };

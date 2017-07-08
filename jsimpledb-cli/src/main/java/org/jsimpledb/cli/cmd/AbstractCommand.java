@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.expr.ExprParser;
+import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +178,46 @@ public abstract class AbstractCommand implements Command {
         if (typeName.equals("expr"))
             return new ExprParser();
         return FieldTypeParser.getFieldTypeParser(typeName);
+    }
+
+    /**
+     * Evaluate an {@code "expr"} parameter, expecting the specified type.
+     *
+     * @param session CLI session
+     * @param node parsed parameter
+     * @param name parameter name
+     * @param type expected type
+     */
+    protected <T> T getExprParam(CliSession session, Node node, String name, Class<T> type) {
+        Preconditions.checkArgument(type != null, "null type");
+        return this.getExprParam(session, node, name, obj -> {
+            if (!type.isInstance(obj)) {
+                throw new IllegalArgumentException("must be of type " + type.getName()
+                  + " (found " + (obj != null ? obj.getClass().getName() : "null") + ")");
+            }
+            return type.cast(obj);
+        });
+    }
+
+    /**
+     * Evaluate an {@code "expr"} parameter, expecting the parameter to pass the given test.
+     *
+     * @param session CLI session
+     * @param node parsed parameter
+     * @param name parameter name
+     * @param validator validates value, or throws {@link IllegalArgumentException} if value is invalid
+     */
+    protected <T> T getExprParam(CliSession session, Node node, String name, Function<Object, T> validator) {
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(node != null, "null node");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(validator != null, "null validator");
+        final Object value = node.evaluate(session).get(session);
+        try {
+            return validator.apply(value);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("invalid `" + name + "' parameter: " + e.getMessage());
+        }
     }
 }
 
