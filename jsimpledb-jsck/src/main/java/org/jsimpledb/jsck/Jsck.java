@@ -508,7 +508,8 @@ public class Jsck {
                 }
 
                 // Mark object's schema version in use
-                unusedSchemaVersions.remove(version);
+                if (unusedSchemaVersions.remove(version) && this.config.isGarbageCollectSchemas())
+                    info.info("marking schema version " + version + " in use");
 
                 // Validate value, which should be empty
                 if (pair.getValue().length > 0) {
@@ -521,7 +522,7 @@ public class Jsck {
 
         // Garbage collect schema versions
         if (this.config.isGarbageCollectSchemas()) {
-            info.info("checking object version index");
+            info.info("garbage collecting unused schema versions: " + unusedSchemaVersions);
             for (int version : unusedSchemaVersions) {
                 final byte[] key = Layout.getSchemaKey(version);
                 final byte[] value = kv.get(key);
