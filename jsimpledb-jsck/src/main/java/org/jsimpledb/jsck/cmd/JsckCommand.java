@@ -21,6 +21,7 @@ import org.jsimpledb.jsck.Jsck;
 import org.jsimpledb.jsck.JsckConfig;
 import org.jsimpledb.jsck.JsckLogger;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
@@ -78,13 +79,10 @@ public class JsckCommand extends AbstractCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
-        // Setup config
+        // Setup config (partially)
         final JsckConfig config = new JsckConfig();
         final boolean verbose = params.containsKey("verbose");
         config.setGarbageCollectSchemas(params.containsKey("gc"));
-        final FieldTypeRegistry registry = this.getParam(params, "registry", FieldTypeRegistry.class);
-        if (registry != null)
-            config.setFieldTypeRegistry(registry);
         config.setRepair(params.containsKey("repair"));
         final boolean weak = params.containsKey("weak");
         final Integer formatVersion = (Integer)params.get("force-format-version");
@@ -93,43 +91,23 @@ public class JsckCommand extends AbstractCommand {
         final Integer limit = (Integer)params.get("limit");
         if (limit != null)
             config.setMaxIssues(limit);
-        final Map<?, ?> forceSchemaVersions = this.getParam(params, "force-schemas", Map.class, "Map<Integer, SchemaModel>");
-        if (forceSchemaVersions != null) {
-            final HashMap<Integer, SchemaModel> versionMap = new HashMap<>(forceSchemaVersions.size());
-            for (Map.Entry<?, ?> entry : forceSchemaVersions.entrySet()) {
-                if (!(entry.getKey() instanceof Integer)
-                  || (entry.getValue() != null && !(entry.getValue() instanceof SchemaModel)))
-                    throw new IllegalArgumentException("parameter to `-force-schemas' must be a Map<Integer, SchemaModel>");
-                versionMap.put((Integer)entry.getKey(), (SchemaModel)entry.getValue());
-            }
-            config.setForceSchemaVersions(versionMap);
-        }
 
         // Done
-        return new JsckAction(config, verbose, weak);
+        return new JsckAction(config, (Node)params.get("registry"), (Node)params.get("force-schemas"), verbose, weak);
     }
 
-    private <T> T getParam(Map<String, Object> params, String name, Class<T> type) {
-        return this.getParam(params, name, type, type.getSimpleName());
-    }
-
-    private <T> T getParam(Map<String, Object> params, String name, Class<T> type, String typeDescription) {
-        final Object param = params.get(name);
-        if (param == null)
-            return null;
-        if (!type.isInstance(param))
-            throw new IllegalArgumentException("parameter to `-" + name + "' must be a " + typeDescription);
-        return type.cast(param);
-    }
-
-    private static class JsckAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
+    private class JsckAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
 
         private final JsckConfig config;
+        private final Node registryNode;
+        private final Node schemasNode;
         private final boolean verbose;
         private final boolean weak;
 
-        JsckAction(JsckConfig config, boolean verbose, boolean weak) {
+        JsckAction(JsckConfig config, Node registryNode, Node schemasNode, boolean verbose, boolean weak) {
             this.config = config;
+            this.registryNode = registryNode;
+            this.schemasNode = schemasNode;
             this.verbose = verbose;
             this.weak = weak;
         }
@@ -137,7 +115,34 @@ public class JsckCommand extends AbstractCommand {
         @Override
         public void run(CliSession session) throws Exception {
 
-            // Configure logger to log to consol
+            // Evaluate registry, if any
+            if (this.registryNode != null) {
+                this.config.setFieldTypeRegistry(
+                  JsckCommand.this.getExprParam(session, this.registryNode, "registry", FieldTypeRegistry.class));
+            } else if (session.getDatabase() != null)
+                config.setFieldTypeRegistry(session.getDatabase().getFieldTypeRegistry());
+
+            // Evaluate forced schemas, if any
+            if (this.schemasNode != null) {
+                config.setForceSchemaVersions(JsckCommand.this.getExprParam(session, this.schemasNode, "force-schemas", obj -> {
+                    if (!(obj instanceof Map))
+                        throw new IllegalArgumentException("must be a Map<Integer, SchemaModel>");
+                    final Map<?, ?> map = (Map<?, ?>)obj;
+                    final HashMap<Integer, SchemaModel> versionMap = new HashMap<>(map.size());
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        if (!(entry.getKey() instanceof Integer))
+                            throw new IllegalArgumentException("must be a Map<Integer, SchemaModel>; found key " + entry.getKey());
+                        if ((entry.getValue() != null && !(entry.getValue() instanceof SchemaModel))) {
+                            throw new IllegalArgumentException("must be a Map<Integer, SchemaModel>; found value "
+                              + entry.getValue());
+                        }
+                        versionMap.put((Integer)entry.getKey(), (SchemaModel)entry.getValue());
+                    }
+                    return versionMap;
+                }));
+            }
+
+            // Configure logger to log to console
             final PrintWriter writer = session.getWriter();
             this.config.setJsckLogger(new JsckLogger() {
                 @Override
