@@ -66,7 +66,7 @@ public class JsckConfig {
         return this.fieldTypeRegistry;
     }
     public void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
-        Preconditions.checkArgument(keysToInspect != null, "null keysToInspect");
+        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
         this.fieldTypeRegistry = fieldTypeRegistry;
     }
 
