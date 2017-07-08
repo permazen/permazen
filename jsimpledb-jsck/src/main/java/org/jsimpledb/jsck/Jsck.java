@@ -220,7 +220,7 @@ public class Jsck {
                     Database.validateSchema(this.config.getFieldTypeRegistry(), schema);
                 } catch (InvalidSchemaException e) {
                     throw new IllegalArgumentException((schema == forceSchemaVersions.get(version) ? "forced " : "")
-                      + "schema version " + version + " is invalid: " + e.getMessage(), e);
+                      + "schema version " + version + " is invalid (forced schema override required): " + e.getMessage(), e);
                 }
 
                 // Note recorded schema
