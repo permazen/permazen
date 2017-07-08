@@ -165,10 +165,9 @@ public class Jsck {
                     try {
                         schema = Layout.decodeSchema(pair.getValue(), info.getFormatVersion());
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid schema entry value " + Jsck.ds(pair.getValue())
-                          + " for schema version " + version + ": " + e.getMessage());
+                        throw new IllegalArgumentException("invalid encoded schema: " + e.getMessage(), e);
                     } catch (InvalidSchemaException e) {
-                        throw new IllegalArgumentException("invalid schema for schema version " + version + ": " + e.getMessage());
+                        throw new IllegalArgumentException("invalid schema model: " + e.getMessage(), e);
                     }
 
                     // Is there a forced override? If so, replace/delete schema version
@@ -189,19 +188,19 @@ public class Jsck {
                     }
                 } catch (IllegalArgumentException e) {
 
-                    // Invalid key?
+                    // Invalid version/key?
                     if (version == 0) {
                         info.handle(new InvalidKey(pair).setDetail(e.getMessage()));
                         continue;
                     }
 
-                    // Is there no forced override? If so, delete schema version
+                    // Is there no forced override? If so, bail out requiring user to correct
                     if (!forceSchemaVersions.containsKey(version)) {
-                        info.handle(new InvalidValue(pair).setDetail(e.getMessage()));
-                        continue;
+                        throw new IllegalArgumentException("schema version " + version
+                          + " is invalid (forced schema override required): " + e.getMessage(), e);
                     }
 
-                    // Replace/delete schema version
+                    // Replace/delete schema version with forced override
                     final SchemaModel forcedSchema = forceSchemaVersions.get(version);
                     if (forcedSchema != null) {
                         info.handle(new InvalidValue(pair, Layout.encodeSchema(forcedSchema, info.getFormatVersion())).setDetail(
@@ -215,17 +214,13 @@ public class Jsck {
                 }
                 assert schema != null;
 
-                // Validate schema
+                // Validate schema, and if not valid, bail out requiring user to correct
                 info.info("validating schema version " + version);
                 try {
                     Database.validateSchema(this.config.getFieldTypeRegistry(), schema);
                 } catch (InvalidSchemaException e) {
-                    if (schema == forceSchemaVersions.get(version)) {
-                        throw new IllegalArgumentException("forced schema version "
-                          + version + " is invalid: " + e.getMessage(), e);
-                    }
-                    info.handle(new InvalidValue(pair).setDetail("schema version " + version + " is invalid: " + e.getMessage()));
-                    continue;
+                    throw new IllegalArgumentException((schema == forceSchemaVersions.get(version) ? "forced " : "")
+                      + "schema version " + version + " is invalid: " + e.getMessage(), e);
                 }
 
                 // Note recorded schema
@@ -253,7 +248,7 @@ public class Jsck {
               "forcibly override schema version " + version + " with provided version"));
         }
 
-        // Validate schemas are mutually consistent
+        // Validate schemas are mutually consistent; if not, bail out requiring user to correct
         info.info("validating schema compatibility among all versions " + info.getSchemas().keySet());
         try {
             Database.validateSchemas(this.config.getFieldTypeRegistry(), info.getSchemas().values());
