@@ -469,7 +469,7 @@ public class Jsck {
         }
 
         // Check the object version index
-        info.info("checking object version index");
+        info.info("checking object version index; recorded schema versions are " + info.getSchemas().keySet());
         final HashSet<Integer> unusedSchemaVersions = new HashSet<>(info.getSchemas().keySet());
         try (final CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(objectVersionIndexKeyPrefix))) {
             while (i.hasNext()) {
@@ -527,7 +527,7 @@ public class Jsck {
                 final byte[] key = Layout.getSchemaKey(version);
                 final byte[] value = kv.get(key);
                 if (value != null)
-                    info.handle(new InvalidKey(key, value).setDetail("unused schema version " + version));
+                    info.handle(new InvalidKey("unused schema version", key, null).setDetail("schema version " + version));
             }
         }
     }

@@ -19,5 +19,9 @@ public class InvalidKey extends Issue {
     public InvalidKey(byte[] key, byte[] value) {
         super("invalid key", key, value, null);
     }
+
+    public InvalidKey(String message, byte[] key, byte[] value) {
+        super(message, key, value, null);
+    }
 }
 

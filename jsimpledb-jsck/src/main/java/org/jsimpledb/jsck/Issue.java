@@ -39,7 +39,7 @@ public abstract class Issue {
      *
      * @param description short description of the issue
      * @param key key of invalid key/value pair
-     * @param oldValue the original, invalid value for {@code key}, or null if {@code key} was missing
+     * @param oldValue the original, invalid value for {@code key}, or null if {@code key} was missing or don't care
      * @param newValue the corrected replacement value for {@code key}, or null if {@code key} should be deleted
      * @throws IllegalArgumentException if {@code key} is null
      * @throws IllegalArgumentException if {@code oldValue} and {@code newValue} are equal
@@ -47,7 +47,7 @@ public abstract class Issue {
     protected Issue(String description, byte[] key, byte[] oldValue, byte[] newValue) {
         Preconditions.checkArgument(description != null, "null description");
         Preconditions.checkArgument(key != null, "null key");
-        Preconditions.checkArgument(!Arrays.equals(oldValue, newValue), "newValue = oldValue");
+        Preconditions.checkArgument(!Arrays.equals(oldValue, newValue) || oldValue == null, "newValue = oldValue");
         this.description = description;
         this.key = key;
         this.oldValue = oldValue;
