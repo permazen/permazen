@@ -33,7 +33,7 @@ public class JsckCommand extends AbstractCommand {
          + " -verbose:verbose"
          + " -weak:weak"
          + " -limit:limit:int"
-         + " -gc:garbageCollectSchemas"
+         + " -gc:gc"
          + " -force-schemas:schema-map:expr"
          + " -force-format-version:format-version:int"
          + " -registry:registry:expr");
@@ -41,7 +41,7 @@ public class JsckCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Check a key/value database for inconsistencies and optionally repair them";
+        return "Check key/value database for inconsistencies and optionally repair them";
     }
 
     @Override
@@ -85,7 +85,7 @@ public class JsckCommand extends AbstractCommand {
         config.setGarbageCollectSchemas(params.containsKey("gc"));
         config.setRepair(params.containsKey("repair"));
         final boolean weak = params.containsKey("weak");
-        final Integer formatVersion = (Integer)params.get("force-format-version");
+        final Integer formatVersion = (Integer)params.get("format-version");
         if (formatVersion != null)
             config.setForceFormatVersion(formatVersion);
         final Integer limit = (Integer)params.get("limit");
