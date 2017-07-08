@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
 /**
- * Configuration for a {@link Jsck} key/value database consistency inspection.
+ * Logging callback interface used during a {@link Jsck} key/value database consistency inspection.
  */
 public interface JsckLogger {
 

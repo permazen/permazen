@@ -6,7 +6,7 @@
 package org.jsimpledb.jsck;
 
 /**
- * Represents an invalid/unexpected key in a JSimpleDB key/value database.
+ * Represents a missing key in a JSimpleDB key/value database.
  */
 public class MissingKey extends Issue {
 
