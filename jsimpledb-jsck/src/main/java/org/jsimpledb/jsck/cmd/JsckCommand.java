@@ -95,6 +95,10 @@ public class JsckCommand extends AbstractCommand {
         if (limit != null)
             config.setMaxIssues(limit);
 
+        // Sanity check
+        if (weak && (config.isGarbageCollectSchemas() || config.isRepair()))
+            throw new RuntimeException("`-weak' flag requires read-only transaction (incompatible with `-gc' and `-repair')");
+
         // Done
         return new JsckAction(config,
           (Node)params.get("kv"), (Node)params.get("registry"), (Node)params.get("schema-map"), verbose, weak);
