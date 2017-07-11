@@ -478,5 +478,12 @@ public interface JObject {
         final NavigableSet<R> set = this.getTransaction().queryIndex(type, fieldName, Object.class).asMap().get(this);
         return set != null ? set : NavigableSets.empty();
     }
+
+    /**
+     * Get the original Java model class of which this {@link JObject} is an instance.
+     *
+     * @return Java model class
+     */
+    Class<?> getModelClass();
 }
 

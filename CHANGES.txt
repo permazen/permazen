@@ -1,6 +1,7 @@
 Version 3.5.2
 
     - Fixed bugs in jsck CLI command parameter parsing; added `-kv' flag
+    - Added method JObject.getModelClass()
 
 Version 3.5.1 Released July 6, 2017
 

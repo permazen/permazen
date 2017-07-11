@@ -51,6 +51,7 @@ class ClassGenerator<T> {
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
     static final Method JOBJECT_GET_TRANSACTION;
+    static final Method JOBJECT_GET_MODEL_CLASS;
     static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
     // JTransaction method handles
@@ -81,6 +82,7 @@ class ClassGenerator<T> {
             // JObject methods
             JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
             JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
+            JOBJECT_GET_MODEL_CLASS = JObject.class.getMethod("getModelClass");
             JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = JObject.class.getMethod("resetCachedFieldValues");
 
             // JTransaction methods
@@ -331,6 +333,15 @@ class ClassGenerator<T> {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Output JObject.getModelClass()
+        mv = this.startMethod(cw, JOBJECT_GET_MODEL_CLASS);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(this.modelClass)));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
