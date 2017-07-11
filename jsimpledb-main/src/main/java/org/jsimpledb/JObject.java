@@ -480,6 +480,15 @@ public interface JObject {
     }
 
     /**
+     * Get the {@link JClass} of which this {@link JObject} is an instance.
+     *
+     * @return associated {@link JClass}
+     */
+    default JClass<?> getJClass() {
+        return this.getTransaction().getJSimpleDB().getJClass(this.getObjId());
+    }
+
+    /**
      * Get the original Java model class of which this {@link JObject} is an instance.
      *
      * @return Java model class
