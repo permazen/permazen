@@ -11,10 +11,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.type.EnumFieldType;
+import org.jsimpledb.core.type.ReferenceFieldType;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.schema.CounterSchemaField;
+import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.ListSchemaField;
 import org.jsimpledb.schema.MapSchemaField;
+import org.jsimpledb.schema.ReferenceSchemaField;
 import org.jsimpledb.schema.SchemaCompositeIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaFieldSwitchAdapter;
@@ -174,17 +178,33 @@ class JsckInfo implements JsckLogger {
     }
 
     // Find FieldType for field
-    FieldType<?> findFieldType(int schemaVersion, SimpleSchemaField field) {
-        final FieldType<?> fieldType = this.config.getFieldTypeRegistry().getFieldType(
-          field.getType(), field.getEncodingSignature());
-        if (fieldType == null) {
-            throw new IllegalArgumentException("no FieldType named `" + field.getType() + "'"
-              + (field.getEncodingSignature() != 0 ? " with signature " + field.getEncodingSignature() : "")
-              + " (used by " + field + " in schema version " + schemaVersion
-              + ") was found in the configured FieldTypeRepository");
-        }
-        assert fieldType.getEncodingSignature() == field.getEncodingSignature();
-        return fieldType;
+    FieldType<?> findFieldType(final int schemaVersion, final SimpleSchemaField schemaField) {
+        return schemaField.visit(new SchemaFieldSwitchAdapter<FieldType<?>>() {
+
+            @Override
+            public FieldType<?> caseEnumSchemaField(EnumSchemaField field) {
+                return new EnumFieldType(field.getIdentifiers());
+            }
+
+            @Override
+            public FieldType<?> caseReferenceSchemaField(ReferenceSchemaField field) {
+                return new ReferenceFieldType(field.getObjectTypes());
+            }
+
+            @Override
+            public FieldType<?> caseSimpleSchemaField(SimpleSchemaField field) {
+                final FieldType<?> fieldType = JsckInfo.this.config.getFieldTypeRegistry().getFieldType(
+                  field.getType(), field.getEncodingSignature());
+                if (fieldType == null) {
+                    throw new IllegalArgumentException("no FieldType named `" + field.getType() + "'"
+                      + (field.getEncodingSignature() != 0 ? " with signature " + field.getEncodingSignature() : "")
+                      + " (used by " + field + " in schema version " + schemaVersion
+                      + ") was found in the configured FieldTypeRepository");
+                }
+                assert fieldType.getEncodingSignature() == field.getEncodingSignature();
+                return fieldType;
+            }
+        });
     }
 
     // Add new Storage, checking for conflicts
