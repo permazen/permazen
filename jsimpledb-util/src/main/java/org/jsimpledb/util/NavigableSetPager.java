@@ -52,6 +52,15 @@ public abstract class NavigableSetPager<E> {
 // Configuration
 
     /**
+     * Get the page size.
+     *
+     * @return maximum number of rows in a page, always greater than zero
+     */
+    public int getPageSize() {
+        return this.pageSize;
+    }
+
+    /**
      * Set the page size.
      *
      * @param pageSize maximum number of rows in a page
