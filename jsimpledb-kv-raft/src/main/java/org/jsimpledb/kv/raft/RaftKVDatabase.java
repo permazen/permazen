@@ -86,9 +86,22 @@ import org.slf4j.LoggerFactory;
  * As long as as a node is part of a majority, the state machine is fully operational.
  *
  * <p>
- * {@link RaftKVDatabase} turns this into a transactional key/value database with linearizable ACID semantics.
+ * {@link RaftKVDatabase} turns this into a transactional, highly available clustered key/value database with linearizable
+ * ACID semantics. A {@link RaftKVDatabase} appears to each node in the cluster as a shared, fully consistent key/value
+ * database. As long as a node can communicate with a majority of other nodes (i.e., at least half of the cluster), then the
+ * database is fully available. Conflict detection allows all nodes to perform write transactions simultaneously such that
+ * transactions always guarantee strict linearizable semantics, even in the face of arbitrary network drops, delays, and
+ * reorderings. When two transactions conflict, the loser receives a {@link RetryTransactionException}.
  *
- * <p><b>Implementation Details</b></p>
+ * <p>
+ * Because each node maintains a complete copy of the database, persistence is guaranteed even if up to half of the cluster
+ * is lost. Each node stores its private persistent state in an {@link AtomicKVStore} (see {@link #setKVStore setKVStore()}).
+ *
+ * <p>
+ * Optional support for falling back to a "standalone mode" based on the most recent copy of the database when a majority of
+ * nodes can't be reached is provided by {@link org.jsimpledb.kv.raft.fallback.FallbackKVDatabase}.
+ *
+ * <p><b>Raft Implementation Details</b></p>
  *
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
@@ -159,7 +172,6 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *  <li>A transaction's mutations must fit in memory.</li>
- *  <li>An {@link AtomicKVStore} is required to store local persistent state.</li>
  *  <li>All nodes must be configured with the same {@linkplain #setMinElectionTimeout minimum election timeout}.
  *      This guarantees that the leader's lease timeout calculation is valid.</li>
  *  <li>Due to the optimistic locking approach used, this implementation will perform poorly when there is a high
