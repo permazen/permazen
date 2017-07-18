@@ -10,10 +10,15 @@ import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitchAdapter;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.parse.ParseSession;
 
 /**
  * A parsed cast expression.
+ *
+ * <p>
+ * Includes an extension to support casting a {@link String} to any supported field type
+ * via {@link FieldType#fromString}, for example {@code (java.time.Duration)"PT24H"}.
  */
 public class CastNode implements Node {
 
@@ -64,6 +69,19 @@ public class CastNode implements Node {
             if (type.isPrimitive())
                 throw new EvalException("invalid cast of null value to " + typeName);
             return new ConstValue(null);
+        }
+
+        // Check for cast of a String to a supported field type (other than String)
+        if (obj instanceof String && type != String.class && session.getDatabase() != null) {
+            final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(type));
+            if (fieldType != null) {
+                final Object value;
+                try {
+                    return new ConstValue(fieldType.fromString((String)obj));
+                } catch (IllegalArgumentException e) {
+                    // nope
+                }
+            }
         }
 
         // Handle primitive cast, e.g. "(int)foo"

@@ -13,7 +13,6 @@ import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.UntypedJObject;
-import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.parse.ObjIdParser;
@@ -32,8 +31,6 @@ import org.jsimpledb.util.ParseContext;
  * <ul>
  *  <li>Variable references, e.g., {@code $foo}</li>
  *  <li>Object ID literals, e.g., <code>@fc21bf6d8930a215</code></li>
- *  <li>Any {@link FieldType} value in {@linkplain FieldType#fromParseableString parseable string form}
- *      preceded by the {@link FieldType} name in curly braces, e.g., <code>{java.util.Date}2015-01-23T07:19:42</code></li>
  * </ul>
  */
 public class LiteralExprParser implements Parser<Node> {
@@ -134,24 +131,6 @@ public class LiteralExprParser implements Parser<Node> {
         final Matcher stringMatch = ctx.tryPattern(StringEncoder.ENQUOTE_PATTERN);
         if (stringMatch != null)
             return new LiteralNode(StringEncoder.dequote(stringMatch.group()));
-
-        // Try to match the name of a type from the type registry within curly braces, followed by a value of that type
-        final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");
-        if (braceMatch != null) {
-            final String fieldTypeName = braceMatch.group(1);
-            final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(fieldTypeName);
-            if (fieldType == null) {
-                ctx.setIndex(start);
-                throw new ParseException(ctx, "unknown simple field type `" + fieldTypeName + "'");
-            }
-            final int fieldTypeStart = ctx.getIndex();
-            try {
-                return new LiteralNode(fieldType.fromParseableString(ctx));
-            } catch (IllegalArgumentException e) {
-                ctx.setIndex(fieldTypeStart);
-                throw new ParseException(ctx, "invalid value for type `" + fieldTypeName + "'");
-            }
-        }
 
         // Try to match variable
         if (ctx.tryLiteral("$")) {

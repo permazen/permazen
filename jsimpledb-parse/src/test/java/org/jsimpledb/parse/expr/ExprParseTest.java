@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.expr;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -384,6 +385,18 @@ public class ExprParseTest extends TestSupport {
                new String[3].getClass() == String[].class },
             { "((Object[])new String[] { \"abc\" }).length",
                ((Object[])new String[] {  "abc"  }).length },
+
+            // Casts of String to field type
+            { "(int)\"123\"",
+               123 },
+            { "(java.time.Duration)\"PT72H\"",
+               Duration.ofDays(3) },
+            { "(String)\"foo\"",
+               "foo" },
+            { "(String[])\"[ \\\"foo\\\", \\\"bar\\\"]\"",
+               new String[] { "foo", "bar" } },
+            { "(int[][])\"[[1, 2], [3, 4]]\"",
+               new int[][] { { 1, 2 }, {3, 4} } },
 
             // Misc
             { "java.lang.annotation.ElementType.FIELD",
