@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.java.PrimitiveSwitch;
+import org.dellroad.stuff.java.PrimitiveSwitchAdapter;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -72,19 +72,7 @@ public class CastNode implements Node {
                 return new ConstValue(new ConstValue(obj).checkBoolean(session, "cast to " + typeName));
             final Number num = obj instanceof Character ?
               (int)(Character)obj : new ConstValue(obj).checkNumeric(session, "cast to " + typeName);
-            return new ConstValue(primitive.visit(new PrimitiveSwitch<Object>() {
-                @Override
-                public Object caseVoid() {
-                    throw new RuntimeException("internal error");
-                }
-                @Override
-                public Object caseBoolean() {
-                    throw new RuntimeException("internal error");
-                }
-                @Override
-                public Object caseCharacter() {
-                    throw new RuntimeException("internal error");
-                }
+            return new ConstValue(primitive.visit(new PrimitiveSwitchAdapter<Object>() {
                 @Override
                 public Object caseByte() {
                     return num.byteValue();
@@ -108,6 +96,10 @@ public class CastNode implements Node {
                 @Override
                 public Object caseDouble() {
                     return num.doubleValue();
+                }
+                @Override
+                protected Object caseDefault() {
+                    throw new RuntimeException("internal error");
                 }
             }));
         }
