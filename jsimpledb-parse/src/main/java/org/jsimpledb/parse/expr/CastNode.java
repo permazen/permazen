@@ -59,13 +59,16 @@ public class CastNode implements Node {
         } else
             obj = target.evaluate(session).get(session);                            // just evaluate target
 
+        // Check for null
+        if (obj == null) {
+            if (type.isPrimitive())
+                throw new EvalException("invalid cast of null value to " + typeName);
+            return new ConstValue(null);
+        }
+
         // Handle primitive cast, e.g. "(int)foo"
         if (type.isPrimitive()) {
             final Primitive<?> primitive = Primitive.forName(typeName);
-
-            // Check for null
-            if (obj == null)
-                throw new EvalException("invalid cast of null value to " + typeName);
 
             // Handle cast
             if (primitive == Primitive.BOOLEAN)
@@ -105,7 +108,7 @@ public class CastNode implements Node {
         }
 
         // Cast it
-        if (obj != null && !type.isInstance(obj))
+        if (!type.isInstance(obj))
             throw new EvalException("can't cast object of type " + obj.getClass().getName() + " to " + typeName);
         return new ConstValue(obj);
     }
