@@ -6,14 +6,22 @@ JSimpleDB is a completely different way of looking at persistence programming. J
 
 With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved as well, and some entirely new, useful functionality is added.
 
-JSimpleDB can be thought of not only as a persistence layer, but also as a general purpose serialization framework with built-in schema management, and an object indexing, reference tracking, and field change notification system.
+JSimpleDB is:
 
-Ask these questions of your existing persistence solution:
+  * A Java persistence layer for SQL, key-value, or in-memory databases
+  * A rigorously defined, modular key/value API with adapters for multiple database technologies
+  * An object serialization framework
+  * An automated schema management framework
+  * A library for inverting Java references
+  * A library for automatic field change notification
+  * An embeddable Java command line interface (CLI)
+
+JSimpleDB was inspired by years of frustration with existing persistence solutions, in particular JPA. Ask these questions of your persistence solution:
 
   * **Configuration complexity** Do we have to explicitly configure details of how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
   * **Query language concordance** Does the code that performs queries look like regular Java code, or do we have to learn a new “query language”?
   * **Query performance transparency** Is the performance of a query visible and obvious from looking at the code that performs it?
-  * **Data type congruence** Do database types agree with Java types across the entire domain of values? Are we guaranteed to always read back the same value we write?
+  * **Data type congruence** Are database types equivalent to Java types across the entire domain of values? Are we guaranteed to always read back the same value we write?
   * **First class offline data** Can it be precisely defined which data is copied out of a transaction? Does offline data have all the rights and privileges of “online” (i.e., transactional) data? Does this include the ability to query indexes, and a framework for handling schema differences? Can offline data be easily serialized/deserialized?
   * **Schema verification** Is the schema assumed by the code cross-checked against the schema actually present in the database? Are we always guaranteed a consistent interpretation of stored data?
   * **Incremental schema evolution** Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Are we free from "whole database" migration operations that would limit scalability?
@@ -22,8 +30,9 @@ Ask these questions of your existing persistence solution:
   * **Schema evolution type safety** Is type safety and data type congruence guaranteed across arbitrary schema migrations?
   * **Transactional validation** Does validation, including reference validation, occur only at the end of the transaction (as it should), or randomly and inconveniently in the middle?
   * **Cross-object validation** Is it possible to define validation constraints that span multiple objects/records? Can we register for data-level notifications about changes in non-local objects?
+  * **Custom types and indexes** Is it possible to define custom data types, have them be indexed? Is it easy to define arbitrary custom indexes?
   * **Language-level data maintainability** Can database maintenance tasks and queries be performed via a command line interface (CLI) using Java types, values, and expressions (including Java 8 streams and lambdas)? Are there convenient tools for manual and scripted use?
-  * **Data store independence** Are we restricted to using only a specific type of database technology (such as SQL), or are NoSQL solutions also an option?
+  * **Data store independence** Are we restricted to using only a specific type of database technology, or can virtually any database technology be used by implementing a simple API, making it easy to change later if needed?
 
 JSimpleDB addresses *all* of these issues, this without sacrificing flexibility or scalability.
 
