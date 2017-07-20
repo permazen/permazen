@@ -1,10 +1,12 @@
 ### JSimpleDB is a better persistence layer for Java
 
-Mainstream persistence solutions such as JDBC, JPA and JDO were designed simply to give Java programmers access to existing database functionality. They leave many important issues that are _inherent_ to persistence programming poorly addressed or entirely up to the programmer to solve.
+Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
 
-JSimpleDB is a completely different way of looking at persistence programming. JSimpleDB starts over, asking the simple question, "What are the issues that are inherent to persistence programming, regardless of programming language or database technology, and how can they be addressed in the most language-natural way?"
+Mainstream Java solutions such as JDBC, JPA and JDO were designed simply to give Java programmers _access_ to existing database functionality. They address the "storage" problem, but leave many other important issues that are inherent to persistence programming poorly addressed, or not addressed at all.
 
-With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved as well, and some entirely new, useful functionality is added.
+JSimpleDB is a completely different way of looking at persistence programming. Instead of starting from the storage technology side, it starts from the programming language side, asking the simple question, "What are the issues that are inherent to persistence programming, regardless of programming language or database storage technology, and how can they be addressed at the language level in the simplest, most correct, and most language-natural way?"
+
+With JSimpleDB, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved, and some entirely new, useful functionality is added.
 
 JSimpleDB is:
 
@@ -16,7 +18,9 @@ JSimpleDB is:
   * A library for automatic field change notification
   * An embeddable Java command line interface (CLI)
 
-JSimpleDB was inspired by years of frustration with existing persistence solutions, in particular JPA. Ask these questions of your persistence solution:
+JSimpleDB was inspired by years of frustration with existing persistence solutions, in particular JPA. Compared to using JPA, building an application with JSimpleDB is a refreshingly straightforward experience.
+
+Ask these questions of your persistence solution:
 
   * **Configuration complexity** Do we have to explicitly configure details of how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
   * **Query language concordance** Does the code that performs queries look like regular Java code, or do we have to learn a new “query language”?
@@ -52,7 +56,7 @@ JSimpleDB also adds several new features that traditional databases don't provid
 
 ### JSimpleDB Slides
 
-View slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group.
+For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group.
 
 ### JSimpleDB Paper
 
