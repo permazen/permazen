@@ -705,16 +705,14 @@ public class JTransaction {
         // Copy current instance unless already copied, upgrading it in the process
         if (copyState.markCopied(srcId)) {
 
-            // See if we can disable listener notifications
-            boolean disableListenerNotifications = copyState.isSuppressNotifications();
-            if (!disableListenerNotifications && dest.isSnapshot()) {
-                final JClass<?> jclass = this.jdb.jclasses.get(srcId.getStorageId());
-                if (jclass != null)
-                    disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
-            }
-
             // Get destination ID
             final ObjId dstId = copyState.getDestinationId(srcId);
+
+            // See if we can disable listener notifications
+            boolean disableListenerNotifications = copyState.isSuppressNotifications();
+            final JClass<?> jclass = dest.jdb.jclasses.get(dstId.getStorageId());
+            if (!disableListenerNotifications && dest.isSnapshot() && jclass != null)
+                disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
 
             // Reset any cached fields in the destination object
             final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
@@ -732,6 +730,10 @@ public class JTransaction {
                     throw e;
                 exists = false;
             }
+
+            // Revalidate destination object if needed
+            if (dest.validationMode.equals(ValidationMode.AUTOMATIC) && jclass.requiresDefaultValidation)
+                dest.revalidate(Collections.singleton(dstId));
 
             // Add any deleted assignments from the core API copy to our copy state
             for (Map.Entry<ObjId, ReferenceField> entry : coreDeletedAssignments.entrySet()) {

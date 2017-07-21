@@ -9,6 +9,7 @@ import java.util.Date;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.test.TestSupport;
 import org.testng.annotations.Test;
 
@@ -218,6 +219,80 @@ public class UniqueConstraintTest extends TestSupport {
 
             assert u1.getName().equals("Jeffrey");
             assert u2s.getName().equals("Jeffrey");
+            assert u2.getName().equals("Jeffrey");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                this.log.debug("got expected " + e);
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testDuplicateAfterCopyOnTopOf() throws Exception {
+
+        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        JTransaction jtx;
+
+        final ObjId id1;
+        final ObjId id2;
+
+        // Create two objects with different names
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u1 = jtx.create(UniqueName.class);
+            final UniqueName u2 = jtx.create(UniqueName.class);
+            u1.setName("Jeffrey");
+            u2.setName("Flapjack");
+
+            assert u1.exists();
+            assert u2.exists();
+
+            id1 = u1.getObjId();
+            id2 = u2.getObjId();
+
+            assert !id1.equals(id2);
+
+            assert u1.getName().equals("Jeffrey");
+            assert u2.getName().equals("Flapjack");
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        // Copy on top of the second object, which already exists, but where the copy has the same name
+        // Configure the CopyState to suppress notifications. The bug was that this also inadvertently
+        // suppressed the notification that was supposed to trigger validation.
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u2s = jtx.getSnapshotTransaction().get(id2, UniqueName.class);
+            u2s.recreate();
+            u2s.setName("Jeffrey");
+
+            final CopyState copyState = new CopyState();
+            copyState.setSuppressNotifications(true);
+            u2s.copyTo(jtx, copyState);
+
+            final UniqueName u1 = jtx.get(id1, UniqueName.class);
+            final UniqueName u2 = jtx.get(id2, UniqueName.class);
+
+            assert u1.exists();
+            assert u2.exists();
+
+            assert !id1.equals(id2);
+
+            assert u1.getName().equals("Jeffrey");
             assert u2.getName().equals("Jeffrey");
 
             try {
