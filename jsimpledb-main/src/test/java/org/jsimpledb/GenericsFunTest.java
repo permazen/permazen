@@ -105,6 +105,11 @@ public class GenericsFunTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testGenerics6() throws Exception {
+        BasicTest.getJSimpleDB(GenericBeanProperty.class);
+    }
+
 // Model Classes #1
 
     public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
@@ -180,6 +185,22 @@ public class GenericsFunTest extends TestSupport {
 
     @JSimpleClass
     public abstract static class ListSub2 extends ListSuper<ListSub1> {
+    }
+
+// Model Classes #4
+
+    public interface GenericBeanPropertySupport<T> {
+
+        T getProperty();
+        void setProperty(T value);
+    }
+
+    @JSimpleClass
+    public abstract static class GenericBeanProperty implements GenericBeanPropertySupport<String> {
+
+        @Override
+        @JField(indexed = true)
+        public abstract String getProperty();
     }
 }
 

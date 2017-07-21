@@ -268,9 +268,13 @@ public final class Util {
         }
         final String setterName = "set" + matcher.group(2);
         for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
-            try {
-                final Method setter = superType.getRawType().getDeclaredMethod(setterName, getter.getReturnType());
-                if (setter.getReturnType() != Void.TYPE)
+            for (Method setter : superType.getRawType().getDeclaredMethods()) {
+                if (!setter.getName().equals(setterName) || setter.getReturnType() != Void.TYPE)
+                    continue;
+                final Class<?>[] ptypes = setter.getParameterTypes();
+                if (ptypes.length != 1)
+                    continue;
+                if (!ptypes[0].isAssignableFrom(getter.getReturnType()))
                     continue;
                 if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
                   || (setter.getModifiers() & Modifier.PRIVATE) != 0) {
@@ -278,8 +282,6 @@ public final class Util {
                       + "() corresponding to getter method " + getter.getName() + "(): method must be public or protected");
                 }
                 return setter;
-            } catch (NoSuchMethodException e) {
-                continue;
             }
         }
         throw new IllegalArgumentException("can't find any setter method " + setterName
