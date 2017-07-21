@@ -18,6 +18,27 @@ import org.testng.annotations.Test;
 public class CopyCascadeTest extends TestSupport {
 
     @Test
+    public void testNullCopyCascade() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Node.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Node n1 = jtx.create(Node.class);
+            assert n1.exists();
+
+            final JTransaction stx = jtx.getSnapshotTransaction();
+            final Node n2 = (Node)n1.cascadeCopyTo(stx, null, 0, false);
+            assert n2.exists();
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
     public void testCopyCascades() throws Exception {
         final JSimpleDB jdb = BasicTest.getJSimpleDB(Node.class, Other.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);

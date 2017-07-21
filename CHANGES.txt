@@ -3,6 +3,7 @@ Version 3.5.2
     - Fixed several bugs in jsck; added `-kv' flag
     - Added methods JObject.getModelClass() and JObject.getJClass()
     - Added parse support for casting a String to any supported field type
+    - Fixed bug in cascadeCopyTo() when a null cascade name is given
 
 Version 3.5.1 Released July 6, 2017
 

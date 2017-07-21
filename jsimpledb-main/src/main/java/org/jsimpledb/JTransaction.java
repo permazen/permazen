@@ -844,13 +844,15 @@ public class JTransaction {
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(recursionLimit >= -1, "recursionLimit < -1");
         Preconditions.checkArgument(visitedIds != null, "null visitedIds");
-        if (cascadeName == null)
-            return;
 
         // Initialize search
         ObjIdSet toVisitIds = new ObjIdSet();
         if (visitedIds.add(id))
             toVisitIds.add(id);
+
+        // Do we need to cascade?
+        if (cascadeName == null)
+            return;
 
         // While there are objects remaining to scan, cascade through forward and inverse reference field cascades
         while (!toVisitIds.isEmpty()) {
