@@ -34,6 +34,7 @@ import org.jsimpledb.core.type.FloatType;
 import org.jsimpledb.core.type.InstantType;
 import org.jsimpledb.core.type.IntegerArrayType;
 import org.jsimpledb.core.type.IntegerType;
+import org.jsimpledb.core.type.InternetAddressType;
 import org.jsimpledb.core.type.LocalDateTimeType;
 import org.jsimpledb.core.type.LocalDateType;
 import org.jsimpledb.core.type.LocalTimeType;
@@ -97,6 +98,7 @@ import org.jsimpledb.core.type.ZonedDateTimeType;
  *  <li>{@link java.net.URI}</li>
  *  <li>{@link java.io.File}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
+ *  <li>{@link javax.mail.internet.InternetAddress}</li>
  *  <li>{@link java.time java.time.*}</li>
  * </ul>
  */
@@ -269,6 +271,13 @@ public class FieldTypeRegistry {
         this.add(new NullSafeType<>(new ZoneOffsetType()));
         this.add(new NullSafeType<>(new ZonedDateTimeType()));
         this.add(new ZoneIdType());
+
+        // Types that require optional classpath components
+        try {
+            this.add(new InternetAddressType());
+        } catch (NoClassDefFoundError e) {
+            // ignore
+        }
     }
 
     /**

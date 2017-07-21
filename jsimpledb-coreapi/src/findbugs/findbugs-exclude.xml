@@ -18,6 +18,10 @@
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
+        <Class name="org.jsimpledb.core.type.InternetAddressType$InternetAddressConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
         <Class name="org.jsimpledb.core.type.ZoneIdType$ZoneIdConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
