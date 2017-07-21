@@ -27,7 +27,7 @@ import org.jsimpledb.util.NavigableSets;
  *
  * <p>
  * Every {@link JObject} has a unique 64-bit object identifier, represented as an {@link ObjId}.
- * All {@link JObject}s are permanently {@linkplain #getTransaction associated} with a specific
+ * All {@link JObject} instances are permanently {@linkplain #getTransaction associated} with a specific
  * {@linkplain JTransaction transaction}, and are the unique representatives for their corresponding {@link ObjId}
  * in that transaction. All field state derives from the associated transaction.
  *
