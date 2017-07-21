@@ -87,7 +87,7 @@
         <bdb.version>6.4.9</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <dellroad-stuff.version>2.2.0</dellroad-stuff.version>
+        <dellroad-stuff.version>2.2.1</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
         <findbugs.version>3.0.1</findbugs.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
