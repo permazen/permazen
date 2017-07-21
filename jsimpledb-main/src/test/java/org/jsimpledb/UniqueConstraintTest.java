@@ -154,7 +154,82 @@ public class UniqueConstraintTest extends TestSupport {
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
 
+    @Test
+    public void testDuplicateAfterCopyClone() throws Exception {
+
+        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        JTransaction jtx;
+
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u1 = jtx.create(UniqueName.class);
+            u1.setName("Jeffrey");
+            final UniqueName u2 = (UniqueName)u1.cascadeCopyTo(jtx, null, -1, true);
+
+            assert u1.exists();
+            assert u2.exists();
+
+            assert !u1.getObjId().equals(u2.getObjId());
+
+            assert u1.getName().equals("Jeffrey");
+            assert u2.getName().equals("Jeffrey");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                this.log.debug("got expected " + e);
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testDuplicateAfterCopyIn() throws Exception {
+
+        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        JTransaction jtx;
+
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u1 = jtx.create(UniqueName.class);
+            u1.setName("Jeffrey");
+
+            final JTransaction stx = jtx.getSnapshotTransaction();
+            final UniqueName u2s = stx.create(UniqueName.class);
+            u2s.setName("Jeffrey");
+
+            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, new CopyState());
+
+            assert u1.exists();
+            assert u2s.exists();
+            assert u2.exists();
+
+            assert !u1.getObjId().equals(u2.getObjId());
+            assert u2.getObjId().equals(u2s.getObjId());
+
+            assert u1.getName().equals("Jeffrey");
+            assert u2s.getName().equals("Jeffrey");
+            assert u2.getName().equals("Jeffrey");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                this.log.debug("got expected " + e);
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
     @Test
