@@ -52,7 +52,7 @@ public class UUIDType extends NonNullFieldType<UUID> {
 
     @Override
     public UUID fromParseableString(ParseContext ctx) {
-        return java.util.UUID.fromString(ctx.matchPrefix(PATTERN).group());
+        return UUID.fromString(ctx.matchPrefix(PATTERN).group());
     }
 
     @Override
