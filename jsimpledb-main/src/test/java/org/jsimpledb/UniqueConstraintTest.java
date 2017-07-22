@@ -208,7 +208,10 @@ public class UniqueConstraintTest extends TestSupport {
             final UniqueName u2s = stx.create(UniqueName.class);
             u2s.setName("Jeffrey");
 
-            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, new CopyState());
+            final CopyState copyState = new CopyState();
+            copyState.setSuppressNotifications(this.random.nextBoolean());
+
+            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, copyState);
 
             assert u1.exists();
             assert u2s.exists();
