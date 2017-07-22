@@ -98,6 +98,15 @@ public class KVPair implements Cloneable {
         return "{" + ByteUtil.toString(this.key) + "," + ByteUtil.toString(this.value) + "}";
     }
 
+    /**
+     * Compare for equality.
+     *
+     * <p>
+     * Two {@link KVPair} instances are equal if the keys and values both match
+     * according to {@link Arrays#equals(byte[], byte[])}.
+     *
+     * @return true if objects are equal
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -108,6 +117,15 @@ public class KVPair implements Cloneable {
         return Arrays.equals(this.key, that.key) && Arrays.equals(this.value, that.value);
     }
 
+    /**
+     * Calculate hash code.
+     *
+     * <p>
+     * The hash code of a {@link KVPair} is the exclusive-OR of the hash codes of the key
+     * and the value, each according to {@link Arrays#hashCode(byte[])}.
+     *
+     * @return hash value for this instance
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(this.key) ^ Arrays.hashCode(this.value);
