@@ -5,8 +5,13 @@
 
 package org.jsimpledb.core.type;
 
+import com.google.common.net.InetAddresses;
+
 import java.io.File;
 import java.net.URI;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -324,6 +329,53 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                 }
             },
 
+            // Inet4Address
+            {
+                "java.net.Inet4Address", new Object[] {
+                                            InetAddresses.forString("0.0.0.0"),
+                                            InetAddresses.forString("10.7.7.32"),
+                                            InetAddresses.forString("192.168.0.1"),
+                                            InetAddresses.forString("255.255.255.255"),
+                                            InetAddresses.forString("224.3.4.5"),
+                                        },
+                new Object[] {
+                    "java.net.InetAddress", new Object[] {
+                                            InetAddresses.forString("0.0.0.0"),
+                                            InetAddresses.forString("10.7.7.32"),
+                                            InetAddresses.forString("192.168.0.1"),
+                                            InetAddresses.forString("255.255.255.255"),
+                                            InetAddresses.forString("224.3.4.5"),
+                                        },
+                }
+            },
+
+            // Inet6Address
+            {
+                "java.net.Inet6Address", new Object[] {
+                                            InetAddresses.forString("::0"),
+                                            InetAddresses.forString("::1"),
+                                            InetAddresses.forString("::0a07:0730"),
+                                            InetAddresses.forString("::192.168.0.1"),
+                                            InetAddresses.forString("::e003:0405"),
+                                            InetAddresses.forString("::ffff:ffff"),
+                                            InetAddresses.forString("2001:db8::1"),
+                                            InetAddresses.forString("fe80::10ed:4b7f:24fd:ce78"),
+                                            InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
+                                        },
+                new Object[] {
+                    "java.net.InetAddress", new Object[] {
+                                            InetAddresses.forString("::0"),
+                                            InetAddresses.forString("::1"),
+                                            InetAddresses.forString("::0a07:0730"),
+                                            InetAddresses.forString("::192.168.0.1"),
+                                            InetAddresses.forString("::e003:0405"),
+                                            InetAddresses.forString("::ffff:ffff"),
+                                            InetAddresses.forString("2001:db8::1"),
+                                            InetAddresses.forString("fe80::10ed:4b7f:24fd:ce78"),
+                                            InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
+                                        },
+                }
+            },
         };
     }
 }

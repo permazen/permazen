@@ -31,6 +31,9 @@ import org.jsimpledb.core.type.DurationType;
 import org.jsimpledb.core.type.FileType;
 import org.jsimpledb.core.type.FloatArrayType;
 import org.jsimpledb.core.type.FloatType;
+import org.jsimpledb.core.type.Inet4AddressType;
+import org.jsimpledb.core.type.Inet6AddressType;
+import org.jsimpledb.core.type.InetAddressType;
 import org.jsimpledb.core.type.InstantType;
 import org.jsimpledb.core.type.IntegerArrayType;
 import org.jsimpledb.core.type.IntegerType;
@@ -97,6 +100,9 @@ import org.jsimpledb.core.type.ZonedDateTimeType;
  *  <li>{@link java.util.UUID}</li>
  *  <li>{@link java.net.URI}</li>
  *  <li>{@link java.io.File}</li>
+ *  <li>{@link java.net.InetAddress}</li>
+ *  <li>{@link java.net.Inet4Address}</li>
+ *  <li>{@link java.net.Inet6Address}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
  *  <li>{@link javax.mail.internet.InternetAddress}</li>
  *  <li>{@link java.time java.time.*}</li>
@@ -252,12 +258,12 @@ public class FieldTypeRegistry {
         this.add(FieldTypeRegistry.STRING);
 
         // Other types
-        this.add(new NullSafeType<>(new DateType()));
-        this.add(new NullSafeType<>(new UUIDType()));
-        this.add(new URIType());
         this.add(new FileType());
-        this.add(new PatternType());
+        this.add(new NullSafeType<>(new DateType()));
         this.add(new NullSafeType<>(new DurationType()));
+        this.add(new NullSafeType<>(new Inet4AddressType()));
+        this.add(new NullSafeType<>(new Inet6AddressType()));
+        this.add(new NullSafeType<>(new InetAddressType()));
         this.add(new NullSafeType<>(new InstantType()));
         this.add(new NullSafeType<>(new LocalDateTimeType()));
         this.add(new NullSafeType<>(new LocalDateType()));
@@ -266,10 +272,13 @@ public class FieldTypeRegistry {
         this.add(new NullSafeType<>(new OffsetDateTimeType()));
         this.add(new NullSafeType<>(new OffsetTimeType()));
         this.add(new NullSafeType<>(new PeriodType()));
+        this.add(new NullSafeType<>(new UUIDType()));
         this.add(new NullSafeType<>(new YearMonthType()));
         this.add(new NullSafeType<>(new YearType()));
         this.add(new NullSafeType<>(new ZoneOffsetType()));
         this.add(new NullSafeType<>(new ZonedDateTimeType()));
+        this.add(new PatternType());
+        this.add(new URIType());
         this.add(new ZoneIdType());
 
         // Types that require optional classpath components

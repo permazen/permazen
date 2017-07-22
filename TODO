@@ -90,8 +90,6 @@ LONG TERM
     - BigInteger, BigDecimal
     - SimpleDateFormat
     - BitSet
-    - InetAddress, Inet4Address, Inet6Address
-        - See com.google.common.net.InetAddresses
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
     - java.util.Currency
