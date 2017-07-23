@@ -8,6 +8,7 @@ Version 3.5.2
     - Fixed bug omitting validation after a copy with suppressed notifications
     - Added field type for javax.mail.internet.InternetAddress
     - Added field types for Inet4Address, Inet6Address, and InetAddress
+    - Added field type for java.util.BitSet
 
 Version 3.5.1 Released July 6, 2017
 

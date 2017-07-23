@@ -26,6 +26,7 @@ import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -498,6 +499,28 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 InetAddresses.forString("2001:db8::1"),
                 InetAddresses.forString("fe80::10ed:4b7f:24fd:ce78"),
                 InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
+            }},
+
+            {   BitSet.class.getName(), new BitSet[] {
+                new BitSet(),
+                BitSet.valueOf(new byte[] { (byte)0x01                          }),
+                BitSet.valueOf(new byte[] { (byte)0x05, (byte)0x00              }),
+                BitSet.valueOf(new byte[] { (byte)0x06, (byte)0x00, (byte)0x00  }),
+                BitSet.valueOf(new byte[] { (byte)0x10,                         }),
+                BitSet.valueOf(new byte[] { (byte)0xfe,                         }),
+                BitSet.valueOf(new byte[] { (byte)0xff,                         }),
+                BitSet.valueOf(new byte[] { (byte)0x00, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0x01, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0x7f, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0x80, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0xaa, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0xff, (byte)0x01,             }),
+                BitSet.valueOf(new byte[] { (byte)0x12, (byte)0x34, (byte)0x56  }),
+                BitSet.valueOf(new byte[] { (byte)0xff, (byte)0xff, (byte)0xfe  }),
+                BitSet.valueOf(new byte[] { (byte)0xff, (byte)0xfe, (byte)0xff  }),
+                BitSet.valueOf(new byte[] { (byte)0x00, (byte)0xff, (byte)0xff  }),
+                BitSet.valueOf(new byte[] { (byte)0xfe, (byte)0xff, (byte)0xff  }),
+                BitSet.valueOf(new byte[] { (byte)0xff, (byte)0xff, (byte)0xff  }),
             }},
 
         };
