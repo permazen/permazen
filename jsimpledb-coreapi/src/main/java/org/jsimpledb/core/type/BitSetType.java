@@ -58,9 +58,9 @@ public class BitSetType extends NonNullFieldType<BitSet> {
     }
 
     @Override
-    public String toString(BitSet addr) {
-        Preconditions.checkArgument(addr != null);
-        return "[" + ByteUtil.toString(this.reverse(addr.toByteArray())) + "]";
+    public String toString(BitSet bitSet) {
+        Preconditions.checkArgument(bitSet != null);
+        return "[" + ByteUtil.toString(this.reverse(bitSet.toByteArray())) + "]";
     }
 
     @Override
@@ -73,14 +73,14 @@ public class BitSetType extends NonNullFieldType<BitSet> {
     }
 
     @Override
-    public String toParseableString(BitSet addr) {
-        return this.toString(addr);
+    public String toParseableString(BitSet bitSet) {
+        return this.toString(bitSet);
     }
 
     @Override
     public BitSet fromParseableString(ParseContext ctx) {
         Preconditions.checkArgument(ctx != null);
-        return this.fromString((ctx.matchPrefix("\\[\\p{XDigit}*\\]").group()));
+        return this.fromString(ctx.matchPrefix("\\[\\p{XDigit}*\\]").group());
     }
 
     @Override
