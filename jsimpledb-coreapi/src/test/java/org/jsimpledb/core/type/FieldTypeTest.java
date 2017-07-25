@@ -8,6 +8,7 @@ package org.jsimpledb.core.type;
 import com.google.common.net.InetAddresses;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -521,6 +522,46 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 BitSet.valueOf(new byte[] { (byte)0x00, (byte)0xff, (byte)0xff  }),
                 BitSet.valueOf(new byte[] { (byte)0xfe, (byte)0xff, (byte)0xff  }),
                 BitSet.valueOf(new byte[] { (byte)0xff, (byte)0xff, (byte)0xff  }),
+            }},
+
+            {   BigInteger.class.getName(), new BigInteger[] {
+                new BigInteger("-9999999999999999999999999999999999999"),
+                new BigInteger("-4089446911"),
+                new BigInteger("-62915071"),
+                new BigInteger("-62914817"),
+                new BigInteger("-16711679"),
+                new BigInteger("-65279"),
+                new BigInteger("-257"),
+                new BigInteger("-256"),
+                new BigInteger("-254"),
+                new BigInteger("-128"),
+                new BigInteger("-23"),
+                new BigInteger("-1"),
+                new BigInteger("0"),
+                new BigInteger("1"),
+                new BigInteger("2"),
+                new BigInteger("3"),
+                new BigInteger("7"),
+                new BigInteger("8"),
+                new BigInteger("16"),
+                new BigInteger("63"),
+                new BigInteger("255"),
+                new BigInteger("256"),
+                new BigInteger("496"),
+                new BigInteger("511"),
+                new BigInteger("65535"),
+                new BigInteger("131844"),
+                new BigInteger("7471876"),
+                new BigInteger("7471877"),
+                new BigInteger("16777215"),
+                new BigInteger("16777216"),
+                new BigInteger("2147483647"),
+                new BigInteger("2147483648"),
+                new BigInteger("2147483649"),
+                new BigInteger("2863311530"),
+                new BigInteger("4294967294"),
+                new BigInteger("4294967295"),
+                new BigInteger("9999999999999999999999999999999999999"),
             }},
 
         };
