@@ -87,9 +87,8 @@ LONG TERM
         - Different prompt "Expr>"
 
 - More built-in field types:
-    - BigInteger, BigDecimal
+    - BigDecimal
     - SimpleDateFormat
-    - BitSet
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
     - java.util.Currency
