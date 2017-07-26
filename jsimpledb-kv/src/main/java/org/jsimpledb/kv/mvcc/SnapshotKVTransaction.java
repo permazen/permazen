@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -45,11 +46,10 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     volatile KVTransactionException error;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final AtomicBoolean closed = new AtomicBoolean();   // used to detect whether commit() or rollback() has been invoked
 
     @GuardedBy("this")
     private boolean readOnly;
-    @GuardedBy("this")
-    private boolean closed;                                 // used to detect whether commit() or rollback() has been invoked
     @GuardedBy("this")
     private long timeout;
 
@@ -150,15 +150,14 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     @Override
     public synchronized void commit() {
         this.checkAlive();
-        this.closed = true;
+        this.closed.set(true);
         this.kvdb.commit(this, this.readOnly);
     }
 
     @Override
     public synchronized void rollback() {
-        if (this.closed)
+        if (!this.closed.compareAndSet(false, true))
             return;
-        this.closed = true;
         this.kvdb.rollback(this);
     }
 
@@ -190,22 +189,18 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 // Object
 
     @Override
-    public synchronized String toString() {
+    public String toString() {
         return this.getClass().getSimpleName()
           + "[id=" + this.uniqueId
           + ",vers=" + this.baseVersion
-          + (this.closed ? ",closed" : "")
+          + (this.closed.get() ? ",closed" : "")
           + "]";
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
-            final boolean leaked;
-            synchronized (this) {
-                leaked = !this.closed;
-            }
-            if (leaked) {
+            if (!this.closed.get()) {
                 this.log.warn(this + " leaked without commit() or rollback()");
                 this.close();
             }
@@ -229,7 +224,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         assert Thread.holdsLock(this);
 
         // Has commit() or rollback() already been invoked?
-        if (this.closed)
+        if (this.closed.get())
             throw this.kvdb.logException(new StaleTransactionException(this));
 
         // Check for timeout
