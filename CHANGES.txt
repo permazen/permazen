@@ -9,7 +9,7 @@ Version 3.5.2
     - Fixed deadlock in SnapshotKVDatabase when trace logging enabled
     - Added field type for javax.mail.internet.InternetAddress
     - Added field types for Inet4Address, Inet6Address, and InetAddress
-    - Added field types for BitSet, BigInteger
+    - Added field types for BitSet, BigInteger, and BigDecimal
 
 Version 3.5.1 Released July 6, 2017
 

@@ -18,6 +18,7 @@ import java.util.stream.StreamSupport;
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
 import org.jsimpledb.core.type.ArrayType;
+import org.jsimpledb.core.type.BigDecimalType;
 import org.jsimpledb.core.type.BigIntegerType;
 import org.jsimpledb.core.type.BitSetType;
 import org.jsimpledb.core.type.BooleanArrayType;
@@ -98,6 +99,7 @@ import org.jsimpledb.core.type.ZonedDateTimeType;
  *  <li>{@link String}</li>
  *  <li>Array types</li>
  *  <li>{@link Enum} types</li>
+ *  <li>{@link java.math.BigDecimal}</li>
  *  <li>{@link java.math.BigInteger}</li>
  *  <li>{@link java.util.BitSet}</li>
  *  <li>{@link java.util.Date}</li>
@@ -263,6 +265,7 @@ public class FieldTypeRegistry {
 
         // Other types
         this.add(new FileType());
+        this.add(new NullSafeType<>(new BigDecimalType()));
         this.add(new NullSafeType<>(new BigIntegerType()));
         this.add(new NullSafeType<>(new BitSetType()));
         this.add(new NullSafeType<>(new DateType()));

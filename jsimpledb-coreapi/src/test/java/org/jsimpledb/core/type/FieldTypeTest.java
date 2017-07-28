@@ -8,6 +8,7 @@ package org.jsimpledb.core.type;
 import com.google.common.net.InetAddresses;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -138,15 +139,16 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 final boolean fieldEqual = fieldType.compare(previous, value) == 0;
                 final boolean fieldLessThan = fieldType.compare(previous, value) < 0;
 
-                Assert.assertTrue(bytesLessThan || bytesEqual,
-                  "Binary sort failure: " + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
-                Assert.assertTrue(fieldLessThan || fieldEqual,
-                  "Java sort failure: " + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
+                Assert.assertTrue(bytesLessThan || bytesEqual, "Binary sort failure @ " + i + ": expected "
+                  + fieldType.toParseableString(previous) + " [" + ByteUtil.toString(encodings[i - 1]) + "] <= "
+                  + fieldType.toParseableString(value) + " [" + ByteUtil.toString(encodings[i]) + "]");
+                Assert.assertTrue(fieldLessThan || fieldEqual, "Java sort failure @ " + i + ": expected "
+                  + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
 
-                Assert.assertEquals(bytesEqual, fieldEqual,
-                  "equality mismatch: " + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
-                Assert.assertEquals(bytesLessThan, fieldLessThan,
-                  "less-than mismatch: " + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+                Assert.assertEquals(bytesEqual, fieldEqual, "equality mismatch @ " + i + ": "
+                  + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+                Assert.assertEquals(bytesLessThan, fieldLessThan, "less-than mismatch @ " + i + ": "
+                  + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
             }
         }
     }
@@ -536,13 +538,20 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 new BigInteger("-254"),
                 new BigInteger("-128"),
                 new BigInteger("-23"),
+                BigInteger.TEN.negate(),
+                BigInteger.ONE.negate(),
                 new BigInteger("-1"),
+                BigInteger.ONE.negate(),
                 new BigInteger("0"),
+                BigInteger.ZERO,
+                BigInteger.ONE,
                 new BigInteger("1"),
+                BigInteger.ONE,
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("7"),
                 new BigInteger("8"),
+                BigInteger.TEN,
                 new BigInteger("16"),
                 new BigInteger("63"),
                 new BigInteger("255"),
@@ -562,6 +571,99 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 new BigInteger("4294967294"),
                 new BigInteger("4294967295"),
                 new BigInteger("9999999999999999999999999999999999999"),
+            }},
+
+            {   BigDecimal.class.getName(), new BigDecimal[] {
+                new BigDecimal("-9999999999999999999999999999999999999e1000"),
+                new BigDecimal("-9999999999999999999999999999999999999e100"),
+                new BigDecimal("-9999999999999999999999999999999999999e10"),
+                new BigDecimal("-9999999999999999999999999999999999999e1"),
+                new BigDecimal("-9999999999999999999999999999999999999"),
+                new BigDecimal("-999999999999999999999999999999999999"),
+                new BigDecimal("-99999999999999999999999999999999"),
+                new BigDecimal("-9999999999999999999999999999999.9"),
+                new BigDecimal("-502.449999999999"),
+                new BigDecimal("-502.4050010"),
+                new BigDecimal("-502.405001"),
+                new BigDecimal("-502.4050000000020000"),
+                new BigDecimal("-502.4050000000000001"),
+                new BigDecimal("-502.4050000000000000"),
+                new BigDecimal("-502.405000"),
+                new BigDecimal("-502.4050"),
+                new BigDecimal("-502.405"),
+                new BigDecimal("-501.99999999999999999"),
+                new BigDecimal("-501.99999999999999999e-1"),
+                new BigDecimal("-49.00000e0"),
+                new BigDecimal("-49.000e0"),
+                new BigDecimal("-49e0"),
+                new BigDecimal("-1.00e1"),
+                new BigDecimal("-10"),
+                new BigDecimal("-50E-1"),
+                new BigDecimal("-.4e1"),
+                new BigDecimal("-3"),
+                new BigDecimal("-2"),
+                BigDecimal.ONE.negate(),
+                new BigDecimal("-1"),
+                BigDecimal.ONE.negate(),
+                new BigDecimal("-.404"),
+                new BigDecimal("-.400"),
+                new BigDecimal("-.4"),
+                new BigDecimal("-.3"),
+                new BigDecimal("-1.3e-1"),
+                new BigDecimal("-0.01"),
+                new BigDecimal("-0.0001"),
+                new BigDecimal("-1.5e-10"),
+                new BigDecimal("-5.1e-11"),
+                new BigDecimal("-5.1e-11234"),
+                new BigDecimal("-5.1e-11234383"),
+                BigDecimal.ZERO,
+                new BigDecimal("0"),
+                BigDecimal.ZERO,
+                new BigDecimal("0.0"),
+                new BigDecimal("0.00"),
+                new BigDecimal("0.0000"),
+                new BigDecimal("5.1e-11234383"),
+                new BigDecimal("5.1e-11234"),
+                new BigDecimal("5.1e-11"),
+                new BigDecimal("1.5e-10"),
+                new BigDecimal("0.0001"),
+                new BigDecimal("0.01"),
+                new BigDecimal("1.3e-1"),
+                new BigDecimal(".3"),
+                new BigDecimal(".4"),
+                new BigDecimal(".400"),
+                new BigDecimal(".404"),
+                BigDecimal.ONE,
+                new BigDecimal("1"),
+                BigDecimal.ONE,
+                new BigDecimal("2"),
+                new BigDecimal("3"),
+                new BigDecimal(".4e1"),
+                new BigDecimal("50E-1"),
+                new BigDecimal("10"),
+                new BigDecimal("1.00e1"),
+                new BigDecimal("49e0"),
+                new BigDecimal("49.000e0"),
+                new BigDecimal("49.00000e0"),
+                new BigDecimal("501.99999999999999999e-1"),
+                new BigDecimal("501.99999999999999999"),
+                new BigDecimal("502.405"),
+                new BigDecimal("502.4050"),
+                new BigDecimal("502.405000"),
+                new BigDecimal("502.4050000000000000"),
+                new BigDecimal("502.4050000000000001"),
+                new BigDecimal("502.4050000000020000"),
+                new BigDecimal("502.405001"),
+                new BigDecimal("502.4050010"),
+                new BigDecimal("502.449999999999"),
+                new BigDecimal("9999999999999999999999999999999.9"),
+                new BigDecimal("99999999999999999999999999999999"),
+                new BigDecimal("999999999999999999999999999999999999"),
+                new BigDecimal("9999999999999999999999999999999999999"),
+                new BigDecimal("9999999999999999999999999999999999999e1"),
+                new BigDecimal("9999999999999999999999999999999999999e10"),
+                new BigDecimal("9999999999999999999999999999999999999e100"),
+                new BigDecimal("9999999999999999999999999999999999999e1000"),
             }},
 
         };

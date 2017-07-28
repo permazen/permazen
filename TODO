@@ -87,7 +87,6 @@ LONG TERM
         - Different prompt "Expr>"
 
 - More built-in field types:
-    - BigDecimal
     - SimpleDateFormat
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
