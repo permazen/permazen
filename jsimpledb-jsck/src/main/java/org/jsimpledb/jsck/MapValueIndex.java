@@ -19,7 +19,7 @@ class MapValueIndex extends ComplexFieldIndex {
 
     MapValueIndex(JsckInfo info, int schemaVersion, MapSchemaField field) {
         super(info, schemaVersion, field, field.getValueField(), "map", "value");
-        this.keyType = this.info.findFieldType(schemaVersion, field.getKeyField());
+        this.keyType = this.info.findFieldType(schemaVersion, field.getKeyField()).genericizeForIndex();
     }
 
     @Override

@@ -26,7 +26,7 @@ class CompositeIndex extends Index {
         this.fieldTypes = new FieldType<?>[this.fieldStorageIds.length];
         for (int i = 0; i < this.fieldTypes.length; i++) {
             final SimpleSchemaField field = (SimpleSchemaField)objectType.getSchemaFields().get(fieldStorageIds[i]);
-            this.fieldTypes[i] = this.info.findFieldType(schemaVersion, field);
+            this.fieldTypes[i] = this.info.findFieldType(schemaVersion, field).genericizeForIndex();
         }
     }
 

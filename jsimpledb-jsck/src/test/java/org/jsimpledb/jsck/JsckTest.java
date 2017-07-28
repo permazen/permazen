@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.function.Consumer;
 
@@ -125,6 +126,34 @@ public class JsckTest extends KVTestSupport {
 
         // Test repair - dangling references to deleted should get cleaned up
         this.repairAndCompare(this.getConfig(true), damaged, repaired);
+    }
+
+    @Test
+    public void testSchemaCompat() throws Exception {
+        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final JSimpleDB refsDB = new JSimpleDB(Refs1.class, Refs2.class, Person.class, Pet.class);
+        final JTransaction jtx = refsDB.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
+
+        final Person person1 = this.create(jtx, Person.class, 0x1011111111111111L);
+        final Person person2 = this.create(jtx, Person.class, 0x1022222222222222L);
+        final Pet pet1 = this.create(jtx, Pet.class, 0x2033333333333333L);
+        final Pet pet2 = this.create(jtx, Pet.class, 0x2044444444444444L);
+
+        final Refs1 refs1 = this.create(jtx, Refs1.class, 0x5055555555555555L);
+        refs1.setRef(person1);
+        refs1.getList().add(person2);
+        refs1.getSet().add(person1);
+        refs1.getMap1().put(person2, pet1);
+        refs1.getMap2().put(pet2, person1);
+
+        final Refs2 refs2 = this.create(jtx, Refs2.class, 0x6066666666666666L);
+        refs2.setRef(pet1);
+        refs2.getList().add(pet2);
+        refs2.getSet().add(pet1);
+        refs2.getMap1().put(pet2, person1);
+        refs2.getMap2().put(person2, pet1);
+
+        this.repairAndCompare(this.getConfig(true), kv.clone(), kv.clone());
     }
 
     private void mutateAndCompare(JsckConfig config, boolean repair, NavigableMapKVStore actual, NavigableMapKVStore expected,
@@ -355,5 +384,22 @@ public class JsckTest extends KVTestSupport {
         @JField(storageId = 0xfe)
         Person getOwner();
         void setOwner(Person owner);
+    }
+
+    public interface Refs<T1 extends JObject, T2 extends JObject> extends JObject {
+        T1 getRef();
+        void setRef(T1 x);
+        List<T1> getList();
+        NavigableSet<T1> getSet();
+        NavigableMap<T1, T2> getMap1();
+        NavigableMap<T2, T1> getMap2();
+    }
+
+    @JSimpleClass(storageId = 0x50)
+    public abstract static class Refs1 implements Refs<Person, Pet> {
+    }
+
+    @JSimpleClass(storageId = 0x60)
+    public abstract static class Refs2 implements Refs<Pet, Person> {
     }
 }

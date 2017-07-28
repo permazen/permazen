@@ -18,7 +18,7 @@ abstract class SimpleIndex extends Index {
     SimpleIndex(JsckInfo info, int schemaVersion, SimpleSchemaField field) {
         super(info, field.getStorageId());
         assert field.isIndexed();
-        this.type = this.info.findFieldType(schemaVersion, field);
+        this.type = this.info.findFieldType(schemaVersion, field).genericizeForIndex();
     }
 
     @Override
