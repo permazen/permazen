@@ -1,4 +1,4 @@
-Version 3.5.2
+Version 3.5.2 Released July 29, 2017
 
     - Fixed several bugs in jsck; added `-kv' flag
     - Added methods JObject.getModelClass() and JObject.getJClass()
