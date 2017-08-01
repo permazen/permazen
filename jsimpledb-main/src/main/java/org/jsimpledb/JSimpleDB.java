@@ -509,19 +509,17 @@ public class JSimpleDB {
      *
      * <p>
      * If {@code jobj} is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
-     * this returns the original Java model class. Otherwise, it returns {@code obj}'s type.
+     * this returns the original Java model class.
      *
      * @param jobj database instance
-     * @return lowest ancestor class of {@code jobj}'s class that is not a JSimpleDB-generated subclass
+     * @return the original Java model class of which {@code jobj} is an instance
      * @throws IllegalArgumentException if {@code jobj} is null
+     * @deprecated Use {@link JObject#getModelClass} instead
      */
+    @Deprecated
     public static Class<?> getModelClass(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        for (Class<?> type = jobj.getClass(); type != null; type = type.getSuperclass()) {
-            if (!type.getName().contains(GENERATED_CLASS_NAME_SUFFIX))
-                return type;
-        }
-        return null;
+        return jobj.getModelClass();
     }
 
 // Transactions

@@ -1002,10 +1002,7 @@ public class JTransaction {
      */
     @SuppressWarnings("unchecked")
     public <T extends JObject> T get(T jobj) {
-        final Class<?> modelClass = JSimpleDB.getModelClass(jobj);
-        if (modelClass == null)
-            throw new IllegalArgumentException("can't determine model class for type " + jobj.getClass().getName());
-        return (T)modelClass.cast(this.get(jobj.getObjId()));
+        return (T)jobj.getModelClass().cast(this.get(jobj.getObjId()));
     }
 
     /**
