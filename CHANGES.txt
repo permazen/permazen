@@ -1,4 +1,4 @@
-Version Next
+Version 3.5.3 Released August 1, 2017
 
     - Fixed bug in previous bug fix for inherited setters with generic types
 
