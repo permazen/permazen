@@ -192,11 +192,14 @@ class ClassGenerator<T> {
 
     /**
      * Generate the Java class for this instance's {@link JClass}.
+     *
+     * <p>
+     * This method also initializes the class to force early detection of any bytecode verification errors.
      */
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateClass() {
         try {
-            return (Class<? extends T>)this.jdb.loader.loadClass(this.getClassName().replace('/', '.'));
+            return (Class<? extends T>)Class.forName(this.getClassName().replace('/', '.'), true, this.jdb.loader);
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
