@@ -260,21 +260,23 @@ public final class Util {
      * @return Java bean property setter method
      * @throws IllegalArgumentException if no corresponding setter method exists
      */
-    static Method findJFieldSetterMethod(Class<?> type, Method getter) {
+    static <T> Method findJFieldSetterMethod(Class<T> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
         if (!matcher.matches()) {
             throw new IllegalArgumentException("can't infer setter method name from getter method "
               + getter.getName() + "() because name does not follow Java bean naming conventions");
         }
         final String setterName = "set" + matcher.group(2);
+        final TypeToken<T> typeType = TypeToken.of(type);
+        final TypeToken<?> propertyType = typeType.resolveType(getter.getGenericReturnType());
         for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
             for (Method setter : superType.getRawType().getDeclaredMethods()) {
                 if (!setter.getName().equals(setterName) || setter.getReturnType() != Void.TYPE)
                     continue;
-                final Class<?>[] ptypes = setter.getParameterTypes();
+                final Type[] ptypes = setter.getGenericParameterTypes();
                 if (ptypes.length != 1)
                     continue;
-                if (!ptypes[0].isAssignableFrom(getter.getReturnType()))
+                if (!typeType.resolveType(ptypes[0]).equals(propertyType))
                     continue;
                 if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
                   || (setter.getModifiers() & Modifier.PRIVATE) != 0) {

@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug in previous bug fix for inherited setters with generic types
+
 Version 3.5.2 Released July 29, 2017
 
     - Fixed several bugs in jsck; added `-kv' flag

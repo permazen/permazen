@@ -292,6 +292,13 @@ public class JSimpleField extends JField {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Type.getType(propertyType).getOpcode(Opcodes.ILOAD), 1);
 
+        // Cast value to the appropriate type if needed; this is required when overriding a supertype setter with generic parameter
+        if (!this.typeToken.isPrimitive()) {
+            final Class<?> parameterType = this.setter.getParameterTypes()[0];
+            if (!propertyType.isAssignableFrom(parameterType))
+                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType));
+        }
+
         // Wrap (if necessary) and write the value to the field
         mv.visitInsn(wide ? Opcodes.DUP2 : Opcodes.DUP);
         if (this.typeToken.isPrimitive())
