@@ -76,42 +76,42 @@ import org.jsimpledb.core.DeleteAction;
  * For example:
  * <pre>
  *  &#64;JSimpleClass
- *  public interface Node extends JObject {
+ *  public interface TreeNode extends JObject {
  *
  *      /**
- *       * Get the parent of this node, or null if node is the root.
+ *       * Get the parent of this node, or null if node is a root.
  *       *&#47;
  *      &#64;JField(<b>cascades = { "tree", "ancestors" }</b>, <b>inverseCascades = { "tree", "descendants" }</b>)
- *      Node getParent();
- *      void setParent(Node parent);
+ *      TreeNode getParent();
+ *      void setParent(TreeNode parent);
  *
  *      /**
  *       * Get the children of this node.
  *       *&#47;
- *      default NavigableSet&lt;Node&gt; getChildren() {
- *          final NavigableSet&lt;Node&gt; children = this.getTransaction().queryIndex(
- *            Node.class, "parent", Node.class).get(this);
+ *      default NavigableSet&lt;TreeNode&gt; getChildren() {
+ *          final NavigableSet&lt;TreeNode&gt; children = this.getTransaction().queryIndex(
+ *            TreeNode.class, "parent", TreeNode.class).get(this);
  *          return children != null ? children : NavigableSets.empty();
  *      }
  *
- *      default Node copySubtreeTo(JTransaction dest) {
- *          return (Node)this.cascadeCopyTo(dest, <b>"descendants"</b>, false);
+ *      default TreeNode copySubtreeTo(JTransaction dest) {
+ *          return (TreeNode)this.cascadeCopyTo(dest, <b>"descendants"</b>, false);
  *      }
  *
- *      default Node copyWithAnscestorsTo(JTransaction dest) {
- *          return (Node)this.cascadeCopyTo(dest, <b>"ancestors"</b>, false);
+ *      default TreeNode copyWithAnscestorsTo(JTransaction dest) {
+ *          return (TreeNode)this.cascadeCopyTo(dest, <b>"ancestors"</b>, false);
  *      }
  *
- *      default Node copyEntireTreeTo(JTransaction dest) {
- *          return (Node)this.cascadeCopyTo(dest, <b>"tree"</b>, false);
+ *      default TreeNode copyEntireTreeTo(JTransaction dest) {
+ *          return (TreeNode)this.cascadeCopyTo(dest, <b>"tree"</b>, false);
  *      }
  *
- *      default Node cloneEntireTreeTo(JTransaction dest) {
- *          return (Node)this.cascadeCopyTo(dest, <b>"tree"</b>, true);
+ *      default TreeNode cloneEntireTreeTo(JTransaction dest) {
+ *          return (TreeNode)this.cascadeCopyTo(dest, <b>"tree"</b>, true);
  *      }
  *
- *      default Node cloneEntireTree() {
- *          return (Node)this.cascadeCopyTo(this.getTransaction(), <b>"tree"</b>, true);
+ *      default TreeNode cloneEntireTree() {
+ *          return (TreeNode)this.cascadeCopyTo(this.getTransaction(), <b>"tree"</b>, true);
  *      }
  *  }
  * </pre>
