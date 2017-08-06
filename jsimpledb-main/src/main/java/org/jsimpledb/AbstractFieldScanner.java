@@ -117,7 +117,7 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
             } catch (NoSuchMethodException e) {
                 continue;
             }
-            if (override.getAnnotation(JTransient.class) != null)
+            if (Util.getAnnotation(override, JTransient.class) != null)
                 return true;
         }
         return false;

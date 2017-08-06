@@ -50,6 +50,19 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     }
 
     /**
+     * Get the annotation on the given method.
+     *
+     * <p>
+     * Utilizes {@link Util#getAnnotation Util.getAnnotation()}.
+     *
+     * @return the annotation found, or null if not found
+     */
+    @Override
+    protected A getAnnotation(Method method) {
+        return Util.getAnnotation(method, this.annotationType);
+    }
+
+    /**
      * Get a simple description of the annotation being scanned for.
      *
      * @return annotation description

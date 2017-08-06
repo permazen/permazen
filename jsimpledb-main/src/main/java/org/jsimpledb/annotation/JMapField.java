@@ -25,9 +25,16 @@ import java.lang.annotation.Target;
  * keys/values have primitive type will throw an exception on an attempt to add a null key/value.
  * To specify a primitive key or value type, specify the type name (e.g., {@code "int"}) as the {@link JField#type}
  * in the {@link #key} or the {@link #value}.
+ *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface JMapField {
 

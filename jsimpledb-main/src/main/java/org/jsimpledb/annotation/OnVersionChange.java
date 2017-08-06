@@ -58,9 +58,16 @@ import java.lang.annotation.Target;
  * the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.
  * Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of
  * {@link org.jsimpledb.core.DeleteAction#UNREFERENCE}); use {@code oldValues} to access the previous field value(s) if needed.
+ *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface OnVersionChange {
 

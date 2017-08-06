@@ -227,7 +227,7 @@ public class JSimpleDB {
             do {
 
                 // Find annotation
-                final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+                final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
                 if (annotation == null)
                     continue;
 
@@ -246,7 +246,7 @@ public class JSimpleDB {
         for (Class<?> type : jsimpleClasses) {
 
             // Create JClass
-            final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+            final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
             final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
                 this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
@@ -294,7 +294,7 @@ public class JSimpleDB {
         // Add composite indexes to class; like fields, indexes are inherited (duplicated) from superclasses
         for (JClass<?> jclass : this.jclasses.values()) {
             for (Class<?> type = jclass.type; type != null; type = type.getSuperclass()) {
-                final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+                final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
                 if (annotation != null) {
                     for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : annotation.compositeIndexes())
                         jclass.addCompositeIndex(this, indexAnnotation);

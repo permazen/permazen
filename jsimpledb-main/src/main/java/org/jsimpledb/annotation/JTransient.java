@@ -22,11 +22,18 @@ import java.lang.annotation.Target;
  * It is only useful on non-abstract methods in classes for which both {@link JSimpleClass#autogenFields}
  * and {@link JSimpleClass#autogenNonAbstract} are true.
  *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
+ *
  * @see JSimpleClass#autogenFields
  * @see JSimpleClass#autogenNonAbstract
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface JTransient {
 }

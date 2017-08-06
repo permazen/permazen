@@ -21,9 +21,16 @@ import java.lang.annotation.Target;
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * It may have any level of access, including {@code private}.
+ *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface OnDelete {
 

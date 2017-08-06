@@ -144,9 +144,16 @@ import org.jsimpledb.core.DeleteAction;
  * Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
  * Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
  * To avoid this possibililty, change the schema version number and update them manually.
+ *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface JField {
 

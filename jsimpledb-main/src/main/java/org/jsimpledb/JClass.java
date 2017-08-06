@@ -145,7 +145,7 @@ public class JClass<T> extends JSchemaObject {
     void createFields(JSimpleDB jdb) {
 
         // Auto-generate properties?
-        final JSimpleClass jsimpleClass = this.type.getAnnotation(JSimpleClass.class);
+        final JSimpleClass jsimpleClass = Util.getAnnotation(this.type, JSimpleClass.class);
 
         // Scan for Simple and Counter fields
         final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<>(this, jsimpleClass);

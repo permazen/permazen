@@ -27,9 +27,16 @@ import java.lang.annotation.Target;
  * {@linkplain org.jsimpledb.core.FieldType#getEncodingSignature encoding signature}.
  * Otherwise, {@link org.jsimpledb.core.InconsistentDatabaseException}s can result when the new type unexpectedly
  * encounters the old encoding or vice-versa.
+ *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Documented
 public @interface JFieldType {
 }

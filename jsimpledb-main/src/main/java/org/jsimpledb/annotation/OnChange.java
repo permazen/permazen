@@ -231,11 +231,18 @@ import java.lang.annotation.Target;
  * See {@link org.jsimpledb.core.Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
  * for further information on other special corner cases.
  *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
+ *
  * @see org.jsimpledb.ReferencePath
  * @see org.jsimpledb.change
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface OnChange {
 

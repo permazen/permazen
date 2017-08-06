@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,11 +33,16 @@ import javax.validation.Constraint;
 import javax.validation.groups.Default;
 
 import org.jsimpledb.annotation.OnValidate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Various utility routines.
  */
 public final class Util {
+
+    private static final String ANNOTATION_ELEMENT_UTILS_CLASS_NAME = "org.springframework.core.annotation.AnnotatedElementUtils";
+    private static final String ANNOTATION_ELEMENT_UTILS_GET_MERGED_ANNOTATION_METHOD_NAME = "getMergedAnnotation";
 
     private static final WildcardType QUESTION_MARK = new WildcardType() {
 
@@ -57,8 +63,54 @@ public final class Util {
     };
 
     private static Method newParameterizedTypeMethod;
+    private static BiFunction<AnnotatedElement, Class<? extends Annotation>, Annotation> annotationRetriever;
 
     private Util() {
+    }
+
+    /**
+     * Find the annotation on the given element.
+     *
+     * <p>
+     * If {@code spring-core} is available on the classpath, the implementation in {@link AnnotationScanner} utilizes Spring's
+     * {@link org.springframework.core.annotation.AnnotatedElementUtils#getMergedAnnotation(AnnotatedElement, Class)} method
+     * to find annotations that are either <i>present</i> or <i>meta-present</i> on the element, and includes support for
+     * <i>annotation attribute overrides</i>; otherwise, it just invokes {@link AnnotatedElement#getAnnotation(Class)}.
+     *
+     * @return the annotation found, or null if not found
+     */
+    public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationType) {
+        Preconditions.checkArgument(element != null, "null element");
+        Preconditions.checkArgument(annotationType != null, "null annotationType");
+        synchronized (Util.class) {
+            if (Util.annotationRetriever == null) {
+                final Logger log = LoggerFactory.getLogger(Util.class);
+                try {
+                    final Class<?> cl = Class.forName(ANNOTATION_ELEMENT_UTILS_CLASS_NAME,
+                      true, Thread.currentThread().getContextClassLoader());
+                    final Method method = cl.getMethod(ANNOTATION_ELEMENT_UTILS_GET_MERGED_ANNOTATION_METHOD_NAME,
+                      AnnotatedElement.class, Class.class);
+                    Util.annotationRetriever = (elem, atype) -> {
+                        try {
+                            return atype.cast(method.invoke(null, elem, atype));
+                        } catch (Exception e) {
+                            throw new RuntimeException("internal error", e);
+                        }
+                    };
+                    if (log.isDebugEnabled())
+                        log.debug("using Spring's " + cl.getSimpleName() + "." + method.getName() + "() for annotation retrieval");
+                } catch (ClassNotFoundException e) {
+                    if (log.isDebugEnabled())
+                        log.debug("using JDK AnnotatedElement.getAnnotation() for annotation retrieval");
+                    Util.annotationRetriever = (elem, atype) -> elem.getAnnotation(atype);
+                } catch (Exception e) {
+                    log.warn("using JDK AnnotatedElement.getAnnotation() for annotation retrieval", e);
+                    Util.annotationRetriever = (elem, atype) -> elem.getAnnotation(atype);
+                }
+            }
+            assert Util.annotationRetriever != null;
+        }
+        return annotationType.cast(Util.annotationRetriever.apply(element, annotationType));
     }
 
     /**

@@ -32,6 +32,13 @@ import java.lang.annotation.Target;
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * If validation fails, the method should throw a {@link org.jsimpledb.ValidationException}.
  *
+ * <p><b>Meta-Annotations</b></p>
+ *
+ * <p>
+ * This annotation may be configured indirectly as a Spring
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * when {@code spring-core} is on the classpath.
+ *
  * @see org.jsimpledb.JTransaction#validate
  * @see org.jsimpledb.JObject#revalidate
  * @see org.jsimpledb.ValidationMode
@@ -39,7 +46,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 public @interface OnValidate {
 
     /**
