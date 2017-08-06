@@ -34,27 +34,41 @@ import org.slf4j.LoggerFactory;
  * A reference path is a {@link String} specifying a path from some implicit <em>starting object type</em>, through zero
  * or more reference fields, ending up at some <em>target object type(s)</em>.
  * In other words, given some starting object(s), a reference path takes you through a path of references to the target object(s).
+ * Note that the number of target objects can be vastly different than the number of starting objects, depending on
+ * the fan-in/fan-out of the references traversed.
+ *
+ * <p><b>Specifying Fields</b>
  *
  * <p>
  * The starting object type is always implicit from the context in which the path is used. The {@link String} path describes
  * the reference fields, i.e., the "steps" in the path that travel from the starting object type to the target object type.
- * The steps are separated by period ({@code "."}) characters.
+ * The steps are separated by dot ({@code "."}) characters.
  *
  * <p>
- * The reference fields in the path may be traversed in either the forward or inverse direction:
+ * The reference fields in the path may be traversed in either the <i>forward</i> or <i>inverse</i> direction:
  * to traverse a field in the forward direction, specify name of the field; to traverse a field in the inverse direction,
- * specify the name of the referring field and its containing type using the syntax {@code ^Type:field^}.
+ * specify the name of the field and its containing type using the syntax {@code ^Type:field^}.
  *
  * <p>
- * For complex fields, specify the field with sub-field: for {@link Set} and {@link java.util.List} fields, the sub-field is
+ * For complex fields, specify both the field and sub-field: for {@link Set} and {@link java.util.List} fields, the sub-field is
  * always {@code "element"}, while for {@link java.util.Map} fields the sub-field is either {@code "key"} or {@code "value"}.
+ * For example, to traverse a map field's {@code key} sub-field, specify {@code "mymap.key"}.
+ *
+ * <p><b>Target Fields</b>
  *
  * <p>
- * A reference path may optionally have a <b>target field</b> appended to the end of the path. If so, the target object types
- * are restricted to those types containing the target field. Note that whether there is a target field must be known at
- * the time the path is parsed: for example, the path {@code "parent.parent"} in the context of a {@code Child} refers to the
- * {@code "parent"} field of the child's parent if the path has a target field, but it refers to the child's grandparent if
- * the path does not have a target field.
+ * A reference path may optionally have a <b>target field</b> appended to the end of the path. The target field does not have
+ * to be a reference field. If a target field is specified, the target object types
+ * are restricted to those types containing the target field.
+ *
+ * <p>
+ * Note that to avoid ambiguity it must be known at the time the path is parsed whether the path contains a target field: for
+ * example, consider the path {@code "parent.parent"} in the context of a {@code Child} object: if there is a target field,
+ * the target object is the child's parent and the target field is the {@code "parent"} field of the child's parent
+ * (which just happens to also be a reference field), but if there is no target field, the path simply refers to the child's
+ * grandparent.
+ *
+ * <p><b>Examples</b>
  *
  * <p>
  * Considering the following model classes:
@@ -190,21 +204,30 @@ import org.slf4j.LoggerFactory;
  * <p><b>Fields of Sub-Types</b>
  *
  * <p>
- * The same field can appear in multiple types, e.g., {@code "name"} in the example above. The set of all possible
- * object types is recalculated at each step in the reference path, including at the last step, which gives the
- * target object type(s). At each intermediate step, as long as the Java types do not contain incompatible definitions
- * for the named field, the step is valid.
+ * The same field can appear in multiple types, e.g., {@code "name"} in the example above appears in both {@code Employee}
+ * and {@code Asset}. The set of all possible object types is recalculated at each step in the reference path, including
+ * at the last step, which gives the target object type(s). At each intermediate step, as long as the Java types do not
+ * contain incompatible definitions for the named field, the step is valid.
  *
  * <p>
  * In rare cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
  * the storage ID may be explicitly specified as a suffix, for example, {@code "name#123"}.
  *
+ * <p><b>Using Reference Paths</b>
+ *
  * <p>
- * Reference paths are created via {@link JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()}.
+ * Reference paths may be explicitly created via {@link JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()}
+ * and traversed in the forward direction via {@link JTransaction#followReferencePath JTransaction.followReferencePath()}
+ * or in the inverse direction via {@link JTransaction#invertReferencePath JTransaction.invertReferencePath()}.
+ *
+ * <p>
+ * Reference paths are also used implicitly by {@link org.jsimpledb.annotation.OnChange &#64;OnChange} annotations to
+ * specify non-local objects for change monitoring.
  *
  * @see JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()
  * @see JTransaction#followReferencePath JTransaction.followReferencePath()
  * @see JTransaction#invertReferencePath JTransaction.invertReferencePath()
+ * @see org.jsimpledb.annotation.OnChange &#64;OnChange
  */
 public class ReferencePath {
 
