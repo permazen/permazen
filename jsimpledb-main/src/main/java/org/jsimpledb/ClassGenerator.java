@@ -55,15 +55,13 @@ class ClassGenerator<T> {
     static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
     // JTransaction method handles
-    static final Method READ_SIMPLE_FIELD_METHOD;
-    static final Method WRITE_SIMPLE_FIELD_METHOD;
-    static final Method READ_COUNTER_FIELD_METHOD;
-    static final Method READ_SET_FIELD_METHOD;
-    static final Method READ_LIST_FIELD_METHOD;
-    static final Method READ_MAP_FIELD_METHOD;
-    static final Method GET_TRANSACTION_METHOD;
-    static final Method GET_METHOD;
-    static final Method REGISTER_JOBJECT_METHOD;
+    static final Method JTRANSACTION_READ_COUNTER_FIELD_METHOD;
+    static final Method JTRANSACTION_READ_SET_FIELD_METHOD;
+    static final Method JTRANSACTION_READ_LIST_FIELD_METHOD;
+    static final Method JTRANSACTION_READ_MAP_FIELD_METHOD;
+    static final Method JTRANSACTION_GET_TRANSACTION_METHOD;
+    static final Method JTRANSACTION_GET_METHOD;
+    static final Method JTRANSACTION_REGISTER_JOBJECT_METHOD;
 
     // Converter method handles
     static final Method CONVERTER_CONVERT_METHOD;
@@ -86,16 +84,17 @@ class ClassGenerator<T> {
             JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = JObject.class.getMethod("resetCachedFieldValues");
 
             // JTransaction methods
-            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class, boolean.class);
-            WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField",
-              JObject.class, int.class, Object.class, boolean.class);
-            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class, boolean.class);
-            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class, boolean.class);
-            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class, boolean.class);
-            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class, boolean.class);
-            GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
-            GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
-            REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
+            JTRANSACTION_READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField",
+              ObjId.class, int.class, boolean.class);
+            JTRANSACTION_READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField",
+              ObjId.class, int.class, boolean.class);
+            JTRANSACTION_READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField",
+              ObjId.class, int.class, boolean.class);
+            JTRANSACTION_READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField",
+              ObjId.class, int.class, boolean.class);
+            JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
+            JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
+            JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
 
             // Transaction methods
             TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",

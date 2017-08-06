@@ -378,7 +378,7 @@ public class JSimpleField extends JField {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        generator.emitInvoke(mv, ClassGenerator.GET_TRANSACTION_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_TRANSACTION_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
@@ -391,13 +391,13 @@ public class JSimpleField extends JField {
 
         // JTransaction.registerJObject(this);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        generator.emitInvoke(mv, ClassGenerator.REGISTER_JOBJECT_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_REGISTER_JOBJECT_METHOD);
 
         // this.$tx.getTransaction().writeSimpleField(this.id, STORAGEID, STACK[0], true)
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        generator.emitInvoke(mv, ClassGenerator.GET_TRANSACTION_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_TRANSACTION_METHOD);
         mv.visitInsn(Opcodes.SWAP);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),

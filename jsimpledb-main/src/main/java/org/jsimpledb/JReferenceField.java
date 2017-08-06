@@ -188,7 +188,7 @@ public class JReferenceField extends JSimpleField {
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitInsn(Opcodes.SWAP);
-        generator.emitInvoke(mv, ClassGenerator.GET_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_METHOD);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);

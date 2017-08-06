@@ -87,7 +87,7 @@ public class JSetField extends JCollectionField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.READ_SET_FIELD_METHOD;
+        return ClassGenerator.JTRANSACTION_READ_SET_FIELD_METHOD;
     }
 }
 

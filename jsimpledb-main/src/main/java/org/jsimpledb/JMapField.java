@@ -183,7 +183,7 @@ public class JMapField extends JComplexField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.READ_MAP_FIELD_METHOD;
+        return ClassGenerator.JTRANSACTION_READ_MAP_FIELD_METHOD;
     }
 }
 

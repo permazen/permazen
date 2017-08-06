@@ -90,7 +90,7 @@ public class JListField extends JCollectionField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.READ_LIST_FIELD_METHOD;
+        return ClassGenerator.JTRANSACTION_READ_LIST_FIELD_METHOD;
     }
 }
 
