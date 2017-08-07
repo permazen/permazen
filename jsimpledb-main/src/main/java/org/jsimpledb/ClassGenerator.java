@@ -249,14 +249,12 @@ class ClassGenerator<T> {
     private void outputFields(ClassWriter cw) {
 
         // Output "$tx" field
-        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT,
-          TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null);
-        fv.visitEnd();
+        cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT,
+          TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null).visitEnd();
 
         // Output "$id" field
-        final FieldVisitor idField = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
-          ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null);
-        idField.visitEnd();
+        cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
+          ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null).visitEnd();
 
         // Output fields associated with JFields
         if (this.jclass != null) {
