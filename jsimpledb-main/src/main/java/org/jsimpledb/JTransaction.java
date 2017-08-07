@@ -145,7 +145,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Reference Inversion</b>
+ * <b>Reference Paths</b>
  * <ul>
  *  <li>{@link #followReferencePath followReferencePath()} - Find all objects referred to by to any element in a given set
  *      of starting objects through a specified {@link ReferencePath}</li>
@@ -1374,7 +1374,7 @@ public class JTransaction {
      *
      * @param path reference path
      * @param startObjects starting objects
-     * @return set of objects reachable from {@code startObjects} via {@code path}
+     * @return read-only set of objects reachable from {@code startObjects} via {@code path}
      * @throws UnknownFieldException if {@code path} contains an unknown field
      * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
@@ -1392,7 +1392,7 @@ public class JTransaction {
      *
      * @param path reference path
      * @param targetObjects target objects
-     * @return set of objects that refer to any of the {@code targetObjects} via {@code path}
+     * @return read-only set of objects that refer to any of the {@code targetObjects} via {@code path}
      * @throws UnknownFieldException if {@code path} contains an unknown field
      * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
