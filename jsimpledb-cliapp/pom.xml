@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.4-SNAPSHOT</version>
     </parent>
     <artifactId>jsimpledb-cliapp</artifactId>
     <name>JSimpleDB CLI Application</name>
