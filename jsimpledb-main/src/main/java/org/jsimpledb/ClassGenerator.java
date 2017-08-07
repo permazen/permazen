@@ -342,7 +342,6 @@ class ClassGenerator<T> {
         // Output JObject.getModelClass()
         mv = this.startMethod(cw, JOBJECT_GET_MODEL_CLASS);
         mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(this.modelClass)));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
