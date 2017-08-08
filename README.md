@@ -12,6 +12,7 @@ JSimpleDB is:
 
   * A Java persistence layer for SQL, key-value, or in-memory databases
   * A rigorously defined, modular key/value API with adapters for multiple database technologies
+  * A way to make your application portable across different database technologies
   * An object serialization framework
   * An automated schema management framework
   * A library for inverting Java references
