@@ -1466,7 +1466,7 @@ public class Transaction {
                     // We must reset a reference to an object type that is no longer allowed by the new reference field
                     final ReferenceField newField = (ReferenceField)entry.getValue();
                     if (newField != null) {
-                        final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldField, newField);
+                        final SortedSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldField, newField);
                         if (!xtypes.isEmpty()) {
                             final ObjId ref = oldField.getValue(Transaction.this, id);
                             if (ref != null && xtypes.contains(ref.getStorageId())) {
@@ -1526,7 +1526,7 @@ public class Transaction {
                         if (!reset && oldSubField instanceof ReferenceField) {
                             final ReferenceField oldRefField = (ReferenceField)oldSubField;
                             final ReferenceField newRefField = (ReferenceField)newSubField;
-                            final TreeSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldRefField, newRefField);
+                            final SortedSet<Integer> xtypes = Transaction.this.findRemovedTypes(oldRefField, newRefField);
                             if (!xtypes.isEmpty())
                                 oldField.unreferenceRemovedTypes(Transaction.this, id, oldRefField, xtypes);
                         }
@@ -1622,13 +1622,15 @@ public class Transaction {
     /**
      * Find storage ID's which are no longer allowed by a reference field when upgrading to the specified
      * schema version and therefore need to be scrubbed during the upgrade.
+     *
+     * @return set of storage ID's that are no longer allowed and should be audited on upgrade
      */
-    private TreeSet<Integer> findRemovedTypes(ReferenceField oldField, ReferenceField newField) {
+    private SortedSet<Integer> findRemovedTypes(ReferenceField oldField, ReferenceField newField) {
 
         // Check allowed storage IDs
         final SortedSet<Integer> newObjectTypes = newField.getObjectTypes();
         if (newObjectTypes == null)
-            return null;                                                // new field can refer to any type in any schema version
+            return Collections.emptySortedSet();                        // new field can refer to any type in any schema version
         SortedSet<Integer> oldObjectTypes = oldField.getObjectTypes();
         if (oldObjectTypes == null)
             oldObjectTypes = this.schemas.objTypeStorageIds;            // old field can refer to any type in any schema version
