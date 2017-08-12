@@ -200,17 +200,33 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         });
         this.log.info("testReadOnly() on " + store + ": done initializing database");
 
-        // Test we can set a transaction to read-only mode after reading some data
-        this.log.info("testReadOnly() on " + store + ": testing setReadOnly()");
+        // Test we can set a transaction to read-only mode before reading some data
+        this.log.info("testReadOnly() on " + store + ": testing setReadOnly() before access");
         this.tryNtimes(store, tx -> {
+            tx.setReadOnly(true);
             final byte[] value1 = tx.get(ByteUtil.EMPTY);
             Assert.assertEquals(value1, ByteUtil.EMPTY);
-            tx.setReadOnly(true);
-            final byte[] value2 = tx.get(ByteUtil.EMPTY);
-            Assert.assertEquals(value2, ByteUtil.EMPTY);
             Assert.assertTrue(tx.isReadOnly());
         });
-        this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
+        this.log.info("testReadOnly() on " + store + ": done testing setReadOnly() after access");
+
+        // Test we can set a transaction to read-only mode after reading some data
+        if (this.supportsReadOnlyAfterDataAccess()) {
+            this.log.info("testReadOnly() on " + store + ": testing setReadOnly()");
+            this.tryNtimes(store, tx -> {
+                final byte[] value1 = tx.get(ByteUtil.EMPTY);
+                Assert.assertEquals(value1, ByteUtil.EMPTY);
+                tx.setReadOnly(true);
+                final byte[] value2 = tx.get(ByteUtil.EMPTY);
+                Assert.assertEquals(value2, ByteUtil.EMPTY);
+                Assert.assertTrue(tx.isReadOnly());
+            });
+            this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
+        }
+    }
+
+    protected boolean supportsReadOnlyAfterDataAccess() {
+        return true;
     }
 
     private byte[] randomBytes(int index) {

@@ -85,8 +85,12 @@ public interface KVTransaction extends KVStore {
      * Read-only transactions allow mutations, but all changes are discarded on {@link #commit}.
      *
      * <p>
-     * Some implementations may require that this operation be performed prior to mutating any data,
-     * and/or disallow changing a read-only transaction back to read-write.
+     * Some implementations may impose one or more of the following restrictions on this method:
+     * <ul>
+     *  <li>{@link #setReadOnly setReadOnly()} may only be invoked prior to accessing data;</li>
+     *  <li>{@link #setReadOnly setReadOnly()} may only be invoked prior to mutating data; and/or</li>
+     *  <li>Once set to read-only, a transaction may not be set back to read-write</li>
+     * </ul>
      *
      * <p>
      * Note: for some implementations, the data read from a transaction that is never {@link #commit}'ed is
