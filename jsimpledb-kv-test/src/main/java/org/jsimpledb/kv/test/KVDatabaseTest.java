@@ -22,9 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
@@ -47,11 +45,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected ExecutorService executor;
 
-    private final AtomicInteger numTransactionAttempts = new AtomicInteger();
-    private final AtomicInteger numTransactionRetries = new AtomicInteger();
-
-    private TreeMap<String, AtomicInteger> retryReasons = new TreeMap<>();
-
     @BeforeClass(dependsOnGroups = "configure")
     public void setup() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
@@ -59,8 +52,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (kvdb.length > 0)
                 kvdb[0].start();
         }
-        this.numTransactionAttempts.set(0);
-        this.numTransactionRetries.set(0);
     }
 
     @AfterClass
@@ -70,14 +61,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (kvdb.length > 0)
                 kvdb[0].stop();
         }
-        final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
-        this.log.info("\n\n****************\n");
-        this.log.info(String.format("Retry rate: %.2f%% (%d / %d)",
-          retryRate * 100.0, this.numTransactionRetries.get(), this.numTransactionAttempts.get()));
-        this.log.info("Retry reasons:");
-        for (Map.Entry<String, AtomicInteger> entry : this.retryReasons.entrySet())
-            this.log.info(String.format("%10d %s", entry.getValue().get(), entry.getKey()));
-        this.log.info("\n\n****************\n");
     }
 
     @DataProvider(name = "kvdbs")
@@ -645,77 +628,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         });
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
-    }
-
-    protected void tryNtimes(KVDatabase kvdb, Consumer<KVTransaction> consumer) {
-        this.<Void>tryNtimesWithResult(kvdb, kvt -> {
-            consumer.accept(kvt);
-            return null;
-        });
-    }
-
-    protected <R> R tryNtimesWithResult(KVDatabase kvdb, Function<KVTransaction, R> function) {
-        RetryTransactionException retry = null;
-        for (int count = 0; count < this.getNumTries(); count++) {
-            try {
-                this.numTransactionAttempts.incrementAndGet();
-                final KVTransaction tx = kvdb.createTransaction();
-                final R result = function.apply(tx);
-                tx.commit();
-                return result;
-            } catch (RetryTransactionException e) {
-                this.updateRetryStats(e);
-                KVDatabaseTest.this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
-                retry = e;
-            }
-            try {
-                Thread.sleep(100 + count * 200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        throw retry;
-    }
-
-    protected int getNumTries() {
-        return 3;
-    }
-
-    // Some k/v databases can throw a RetryTransaction from createTransaction()
-    protected KVTransaction createKVTransaction(KVDatabase kvdb) {
-        RetryTransactionException retry = null;
-        for (int count = 0; count < this.getNumTries(); count++) {
-            try {
-                return kvdb.createTransaction();
-            } catch (RetryTransactionException e) {
-                retry = e;
-            }
-            try {
-                Thread.sleep(100 + count * 200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        throw retry;
-    }
-
-    protected void updateRetryStats(RetryTransactionException e) {
-        this.numTransactionRetries.incrementAndGet();
-        String message = e.getMessage();
-        if (message != null)
-            message = this.mapRetryExceptionMessage(message);
-        synchronized (this) {
-            AtomicInteger counter = this.retryReasons.get(message);
-            if (counter == null) {
-                counter = new AtomicInteger();
-                this.retryReasons.put(message, counter);
-            }
-            counter.incrementAndGet();
-        }
-    }
-
-    protected String mapRetryExceptionMessage(String message) {
-        return message.replaceAll("[0-9]+", "NNN");
     }
 
 // RandomTask

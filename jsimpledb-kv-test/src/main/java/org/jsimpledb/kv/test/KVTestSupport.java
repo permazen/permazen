@@ -7,25 +7,58 @@ package org.jsimpledb.kv.test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
+import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.test.TestSupport;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 /**
  * Base class for key/value unit tests.
  */
 public abstract class KVTestSupport extends TestSupport {
+
+    protected final AtomicInteger numTransactionAttempts = new AtomicInteger();
+    protected final AtomicInteger numTransactionRetries = new AtomicInteger();
+
+    private final TreeMap<String, AtomicInteger> retryReasons = new TreeMap<>();
+
+    @BeforeClass
+    public void setup() throws Exception {
+        this.numTransactionAttempts.set(0);
+        this.numTransactionRetries.set(0);
+    }
+
+    @AfterClass
+    public void teardown() throws Exception {
+        final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
+        this.log.info("\n\n****************\n");
+        this.log.info(String.format("Retry rate: %.2f%% (%d / %d)",
+          retryRate * 100.0, this.numTransactionRetries.get(), this.numTransactionAttempts.get()));
+        this.log.info("Retry reasons:");
+        for (Map.Entry<String, AtomicInteger> entry : this.retryReasons.entrySet())
+            this.log.info(String.format("%10d %s", entry.getValue().get(), entry.getKey()));
+        this.log.info("\n\n****************\n");
+    }
 
     /**
      * Dump KV contents to the log.
@@ -99,5 +132,76 @@ public abstract class KVTestSupport extends TestSupport {
         if (byteSet == null)
             return null;
         return new ConvertedNavigableSet<String, byte[]>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
+    }
+
+    protected void tryNtimes(KVDatabase kvdb, Consumer<KVTransaction> consumer) {
+        this.<Void>tryNtimesWithResult(kvdb, kvt -> {
+            consumer.accept(kvt);
+            return null;
+        });
+    }
+
+    protected <R> R tryNtimesWithResult(KVDatabase kvdb, Function<KVTransaction, R> function) {
+        RetryTransactionException retry = null;
+        for (int count = 0; count < this.getNumTries(); count++) {
+            try {
+                this.numTransactionAttempts.incrementAndGet();
+                final KVTransaction tx = kvdb.createTransaction();
+                final R result = function.apply(tx);
+                tx.commit();
+                return result;
+            } catch (RetryTransactionException e) {
+                this.updateRetryStats(e);
+                this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
+                retry = e;
+            }
+            try {
+                Thread.sleep(100 + count * 200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        throw retry;
+    }
+
+    protected int getNumTries() {
+        return 3;
+    }
+
+    // Some k/v databases can throw a RetryTransaction from createTransaction()
+    protected KVTransaction createKVTransaction(KVDatabase kvdb) {
+        RetryTransactionException retry = null;
+        for (int count = 0; count < this.getNumTries(); count++) {
+            try {
+                return kvdb.createTransaction();
+            } catch (RetryTransactionException e) {
+                retry = e;
+            }
+            try {
+                Thread.sleep(100 + count * 200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        throw retry;
+    }
+
+    protected void updateRetryStats(RetryTransactionException e) {
+        this.numTransactionRetries.incrementAndGet();
+        String message = e.getMessage();
+        if (message != null)
+            message = this.mapRetryExceptionMessage(message);
+        synchronized (this) {
+            AtomicInteger counter = this.retryReasons.get(message);
+            if (counter == null) {
+                counter = new AtomicInteger();
+                this.retryReasons.put(message, counter);
+            }
+            counter.incrementAndGet();
+        }
+    }
+
+    protected String mapRetryExceptionMessage(String message) {
+        return message.replaceAll("[0-9]+", "NNN");
     }
 }
