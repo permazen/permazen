@@ -245,7 +245,7 @@ public class JSimpleDB {
         // Add Java model classes
         for (Class<?> type : jsimpleClasses) {
 
-            // Create JClass
+            // Get annotation
             final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
             final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
