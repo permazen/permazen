@@ -79,6 +79,8 @@ public class JClass<T> extends JSchemaObject {
     JClass(JSimpleDB jdb, String name, int storageId, Class<T> type) {
         super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
         Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(!UntypedJObject.class.isAssignableFrom(type),
+          "invalid model type " + type.getName() + ": model types may not subclass " + UntypedJObject.class.getName());
         this.type = type;
         this.classGenerator = new ClassGenerator<>(this);
     }
