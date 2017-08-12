@@ -2384,8 +2384,10 @@ public class Transaction {
      * loops when listeners can themselves mutate fields, to avoid infinite loops.
      *
      * <p>
-     * If a non-null {@code types} is provided, then only objects whose types have one of the specified storage ID's
-     * will trigger notifications to {@code listener}.
+     * The {@code filters}, if any, are applied to {@link ObjId}'s at the corresponding steps in the path: {@code filters[0]}
+     * is applied to the starting objects R, {@code filters[1]} is applied to the objects reachable from R via {@code path[0]},
+     * etc., up to {@code filters[path.length]}, which applies to the target objects T. {@code filters} or any element
+     * therein may be null to indicate no restriction.
      *
      * <p>
      * A referring object R may refer to the changed object T through more than one sequence of objects matching {@code path};
@@ -2416,16 +2418,17 @@ public class Transaction {
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void addSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+    public void addSimpleFieldChangeListener(int storageId, int[] path, KeyRanges[] filters,
       SimpleFieldChangeListener listener) {
-        this.addFieldChangeListener(storageId, path, types, listener);
+        this.addFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2443,15 +2446,16 @@ public class Transaction {
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void addSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, SetFieldChangeListener listener) {
-        this.addFieldChangeListener(storageId, path, types, listener);
+    public void addSetFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, SetFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2469,15 +2473,16 @@ public class Transaction {
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void addListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, ListFieldChangeListener listener) {
-        this.addFieldChangeListener(storageId, path, types, listener);
+    public void addListFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, ListFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2495,15 +2500,16 @@ public class Transaction {
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void addMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, MapFieldChangeListener listener) {
-        this.addFieldChangeListener(storageId, path, types, listener);
+    public void addMapFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, MapFieldChangeListener listener) {
+        this.addFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2522,16 +2528,17 @@ public class Transaction {
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, Object listener) {
+    public synchronized void addFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateChangeListener(path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, filters, listener));
     }
 
     /**
@@ -2541,16 +2548,17 @@ public class Transaction {
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+    public void removeSimpleFieldChangeListener(int storageId, int[] path, KeyRanges[] filters,
       SimpleFieldChangeListener listener) {
-        this.removeFieldChangeListener(storageId, path, types, listener);
+        this.removeFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2560,15 +2568,16 @@ public class Transaction {
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, SetFieldChangeListener listener) {
-        this.removeFieldChangeListener(storageId, path, types, listener);
+    public void removeSetFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, SetFieldChangeListener listener) {
+        this.removeFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2578,16 +2587,16 @@ public class Transaction {
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
-      ListFieldChangeListener listener) {
-        this.removeFieldChangeListener(storageId, path, types, listener);
+    public void removeListFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, ListFieldChangeListener listener) {
+        this.removeFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2597,15 +2606,16 @@ public class Transaction {
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, MapFieldChangeListener listener) {
-        this.removeFieldChangeListener(storageId, path, types, listener);
+    public void removeMapFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, MapFieldChangeListener listener) {
+        this.removeFieldChangeListener(storageId, path, filters, listener);
     }
 
     /**
@@ -2618,18 +2628,19 @@ public class Transaction {
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
      *  negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeFieldChangeListener(int storageId, int[] path, Iterable<Integer> types, Object listener) {
+    public synchronized void removeFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateChangeListener(path, listener);
         final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
-            monitors.remove(new FieldMonitor(storageId, path, types, listener));
+            monitors.remove(new FieldMonitor(storageId, path, filters, listener));
     }
 
     private void validateChangeListener(int[] path, Object listener) {
@@ -2835,9 +2846,12 @@ public class Transaction {
         final HashMap<Integer, ArrayList<FieldMonitor>> remainingMonitorsMap = new HashMap<>();
         for (FieldMonitor monitor : monitorList) {
 
-            // On the first step, apply the monitor's type filter, if any
-            if (step == 0 && monitor.types != null && !monitor.types.contains(notifier.getId().getBytes()))
-                continue;
+            // Apply the monitor's type filter on the target object, if any
+            if (step == 0) {
+                final KeyRanges filter = monitor.getTargetFilter();
+                if (filter != null && !filter.contains(notifier.getId().getBytes()))
+                    continue;
+            }
 
             // Issue notification callback if we have back-tracked through the whole path
             if (monitor.path.length == step) {
@@ -2846,15 +2860,20 @@ public class Transaction {
             }
 
             // Sort the unfinished monitors by their next (i.e., previous) reference field
-            final int storageId = monitor.path[monitor.path.length - step - 1];
+            final int storageId = monitor.getStorageId(step);
             remainingMonitorsMap.computeIfAbsent(storageId, i -> new ArrayList<>()).add(monitor);
         }
 
         // Invert references for each group of remaining monitors and recurse
         for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
-            final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(objects, -entry.getKey());
+            final int storageId = entry.getKey();
+            final ArrayList<FieldMonitor> monitors = entry.getValue();
+            assert monitors != null;
+            final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>(monitors.size());
+            for (FieldMonitor monitor : entry.getValue())
+                refsList.addAll(this.traverseReference(objects, -storageId, monitor.getFilter(step + 1)));
             if (!refsList.isEmpty())
-                this.notifyFieldMonitors(notifier, NavigableSets.union(refsList), entry.getValue(), step + 1);
+                this.notifyFieldMonitors(notifier, NavigableSets.union(refsList), monitors, step + 1);
         }
     }
 
@@ -2881,44 +2900,57 @@ public class Transaction {
      * <p>
      * If {@code path} is empty, then {@code startObjects} is returned.
      *
+     * <p>
+     * The {@code filters}, if any, are applied to {@link ObjId}'s at the corresponding steps in the path: {@code filters[0]}
+     * is applied to {@code startObjects}, {@code filters[1]} is applied to the objects reachable from {@code startObjects}
+     * via {@code path[0]}, etc., up to {@code filters[path.length]}, which applies to the final target objects. {@code filters}
+     * or any element therein may be null to indicate no restriction.
+     *
      * @param startObjects starting objects
      * @param path path of zero or more reference fields (represented by storage IDs) through which to reach the target objects;
      *  negated values denote an inverse traversal of the corresponding reference field
-     * @return read-only set of objects referred to by the {@code startObjects} via {@code path}
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
+     * @return read-only set of objects referred to by the {@code startObjects} via {@code path} restricted by {@code filters}
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code startObjects} or {@code path} is null
+     * @throws IllegalArgumentException if {@code filters} is not null and does not have length {@code path.length + 1}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public NavigableSet<ObjId> followReferencePath(Iterable<? extends ObjId> startObjects, int[] path) {
+    public NavigableSet<ObjId> followReferencePath(Iterable<? extends ObjId> startObjects, int[] path, KeyRanges[] filters) {
 
         // Sanity check
         Preconditions.checkArgument(startObjects != null, "null startObjects");
         Preconditions.checkArgument(path != null, "null path");
+        Preconditions.checkArgument(filters == null || filters.length == path.length + 1, "invalid filters length");
 
-        // Handle the case where 'path' is empty
-        if (path.length == 0) {
-            final ObjIdSet ids = new ObjIdSet();
-            for (ObjId id : startObjects)
-                ids.add(id);
-            return ids.sortedSnapshot();
+        // Perform initial filtering
+        final ObjIdSet startIds = new ObjIdSet();
+        final KeyRanges firstFilter = filters != null ? filters[0] : null;
+        for (ObjId id : startObjects) {
+            if (firstFilter == null || firstFilter.contains(id.getBytes()))
+                startIds.add(id);
         }
+        if (path.length == 0)
+            return startIds.sortedSnapshot();
 
         // Traverse each reference in the path
-        NavigableSet<ObjId> result = null;
+        Set<ObjId> ids = startIds;
         for (int i = 0; i < path.length; i++) {
             final int pathId = path[i];
+            final KeyRanges filter = filters != null ? filters[i + 1] : null;
 
             // Traverse reference
-            final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(startObjects, pathId);
+            final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(ids, pathId, filter);
             if (refsList.isEmpty())
                 return NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
 
             // Recurse on the union of the resulting object sets
-            startObjects = result = NavigableSets.union(refsList);
+            ids = NavigableSets.union(refsList);
         }
 
         // Done
-        return result;
+        return (NavigableSet<ObjId>)ids;
     }
 
     /**
@@ -2931,24 +2963,49 @@ public class Transaction {
      * <p>
      * If {@code path} is empty, then {@code targetObjects} is returned.
      *
+     * <p>
+     * The {@code filters}, if any, are applied to {@link ObjId}'s at the corresponding steps in the path:
+     * {@code filters[path.length]} is applied to {@code targetObjects}, {@code filters[path.length - 1]} is applied to the
+     * objects referring to {@code targetObjects} via {@code path[path.length - 1]}, etc., down to {@code filters[0]}, which
+     * applies to the objects at the start of the path being inverted. {@code filters} or any element therein may be null to
+     * indicate no restriction.
+     *
      * @param path path of zero or more reference fields (represented by storage IDs) through which to reach the target objects;
      *  negated values denote an inverse traversal of the corresponding reference field
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param targetObjects target objects
-     * @return read-only set of objects that refer to the {@code targetObjects} via {@code path}
+     * @return read-only set of objects that refer to the {@code targetObjects} via {@code path} restricted by {@code filters}
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code targetObjects} or {@code path} is null
+     * @throws IllegalArgumentException if {@code filters} is not null and does not have length {@code path.length + 1}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public NavigableSet<ObjId> invertReferencePath(int[] path, Iterable<? extends ObjId> targetObjects) {
+    public NavigableSet<ObjId> invertReferencePath(int[] path, KeyRanges[] filters, Iterable<? extends ObjId> targetObjects) {
+
+        // Invert path
         final int[] invertedPath = new int[path.length];
         int i = 0;
         int j = path.length;
         while (i < path.length)
             invertedPath[i++] = -path[--j];
-        return this.followReferencePath(targetObjects, invertedPath);
+
+        // Invert filters
+        final KeyRanges[] invertedFilters;
+        if (filters != null) {
+            invertedFilters = new KeyRanges[filters.length];
+            i = 0;
+            j = invertedFilters.length;
+            while (i < invertedFilters.length)
+                invertedFilters[i++] = filters[--j];
+        } else
+            invertedFilters = null;
+
+        // Follow inverted path
+        return this.followReferencePath(targetObjects, invertedPath, invertedFilters);
     }
 
-    private ArrayList<NavigableSet<ObjId>> traverseReference(Iterable<? extends ObjId> objects, int referenceId) {
+    private ArrayList<NavigableSet<ObjId>> traverseReference(Iterable<? extends ObjId> objects, int referenceId, KeyRanges filter) {
         assert objects != null;
 
         // Check forward vs. inverse and get storage info
@@ -2959,15 +3016,24 @@ public class Transaction {
         // Traverse reference from each object
         final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
         if (inverse) {
+
+            // Get index and apply filter, if any
+            CoreIndex<ObjId, ObjId> index = info.getIndex(this);
+            if (filter != null)
+                index = index.filter(1, filter);
+            final NavigableMap<ObjId, NavigableSet<ObjId>> indexMap = index.asMap();
+
+            // Query for each ID in the index
             for (ObjId id : objects) {
-                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(id);
+                final NavigableSet<ObjId> refs = indexMap.get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
         } else {
             final ObjIdSet refs = new ObjIdSet();
+            final Predicate<ObjId> idFilter = filter != null ? id -> filter.contains(id.getBytes()) : null;
             for (ObjId id : objects)
-                info.readAllNonNull(this, id, refs);
+                info.readAllNonNull(this, id, refs, idFilter);
             if (!refs.isEmpty())
                 refsList.add(refs.sortedSnapshot());
         }
@@ -3138,13 +3204,6 @@ public class Transaction {
     public Object queryCompositeIndex(int storageId) {
         final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
         return indexInfo.getIndex(this);
-    }
-
-    // Query an index on a reference field for referring objects
-    @SuppressWarnings("unchecked")
-    private NavigableMap<ObjId, NavigableSet<ObjId>> queryReferences(int storageId) {
-        assert this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class).fieldType instanceof ReferenceFieldType;
-        return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.queryIndex(storageId).asMap();
     }
 
     /**
@@ -3487,7 +3546,10 @@ public class Transaction {
         @Override
         public boolean test(FieldMonitor monitor) {
             assert monitor != null;
-            return monitor.storageId == this.fieldStorageId && (monitor.types == null || monitor.types.contains(this.objTypeBytes));
+            if (monitor.storageId != this.fieldStorageId)
+                return false;
+            final KeyRanges filter = monitor.getTargetFilter();
+            return filter == null || filter.contains(this.objTypeBytes);
         }
     }
 }

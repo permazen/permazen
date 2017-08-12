@@ -70,7 +70,7 @@ class IndexQueryInfo {
           this.wrapRaw(path.getTargetFieldTypes()), fieldIndexInfo.getFieldType()));
 
         // Verify target type
-        valueChecks.add(new ValueCheck("target type", startType, path.targetTypes));
+        valueChecks.add(new ValueCheck("target type", startType, path.getTargetTypes()));
 
         // Add additional check for the map key type when doing a map value index query
         if (keyType != null) {

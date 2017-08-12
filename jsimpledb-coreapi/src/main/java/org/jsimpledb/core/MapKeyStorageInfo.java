@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 class MapKeyStorageInfo<K> extends ComplexSubFieldStorageInfo<K, MapField<K, ?>> {
 
@@ -19,9 +20,9 @@ class MapKeyStorageInfo<K> extends ComplexSubFieldStorageInfo<K, MapField<K, ?>>
     }
 
     @Override
-    void readAllNonNull(Transaction tx, ObjId target, Set<K> values) {
+    void readAllNonNull(Transaction tx, ObjId target, Set<K> values, Predicate<? super K> filter) {
         for (K key : this.parentRepresentative.getValueInternal(tx, target).keySet()) {
-            if (key != null)
+            if (key != null && (filter == null || filter.test(key)))
                 values.add(key);
         }
     }

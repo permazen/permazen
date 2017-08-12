@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
@@ -41,9 +42,9 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
     }
 
     @Override
-    void readAllNonNull(Transaction tx, ObjId target, Set<V> values) {
+    void readAllNonNull(Transaction tx, ObjId target, Set<V> values, Predicate<? super V> filter) {
         for (V value : this.parentRepresentative.getValueInternal(tx, target).values()) {
-            if (value != null)
+            if (value != null && (filter == null || filter.test(value)))
                 values.add(value);
         }
     }

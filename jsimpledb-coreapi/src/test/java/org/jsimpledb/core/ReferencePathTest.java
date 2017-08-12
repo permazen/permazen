@@ -14,6 +14,8 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.testng.Assert;
@@ -200,6 +202,119 @@ public class ReferencePathTest extends CoreAPITestSupport {
         tx.commit();
     }
 
+    @Test
+    public void testRestrictedReferencePaths() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        final String schemaXML =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema formatVersion=\"2\">\n"
+          + "  <ObjectType name=\"A\" storageId=\"10\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"1\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"B\" storageId=\"11\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"1\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"C\" storageId=\"12\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"1\"/>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n";
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+        final Transaction tx = db.createTransaction(schema, 1, true);
+
+        final ObjId a1 = new ObjId("0a11111111111111");
+        final ObjId a2 = new ObjId("0a22222222222222");
+
+        final ObjId b1 = new ObjId("0b11111111111111");
+        final ObjId b2 = new ObjId("0b22222222222222");
+        final ObjId b3 = new ObjId("0b33333333333333");
+
+        final ObjId c1 = new ObjId("0c11111111111111");
+        final ObjId c2 = new ObjId("0c22222222222222");
+
+        Assert.assertTrue(tx.create(a1));
+        Assert.assertTrue(tx.create(a2));
+        Assert.assertTrue(tx.create(b1));
+        Assert.assertTrue(tx.create(b2));
+        Assert.assertTrue(tx.create(b3));
+        Assert.assertTrue(tx.create(c1));
+        Assert.assertTrue(tx.create(c2));
+
+    /*
+
+       a1 ----> b1 ------> c1
+                ^          |
+                |          v
+       a2 ------/   b2 <-> c2
+                    ^
+                    |
+                    |
+            b3 -----/
+    */
+
+        tx.writeSimpleField(a1, 1, b1, true);
+        tx.writeSimpleField(a2, 1, b1, true);
+
+        tx.writeSimpleField(b1, 1, c1, true);
+        tx.writeSimpleField(b2, 1, c2, true);
+        tx.writeSimpleField(b3, 1, b2, true);
+
+        tx.writeSimpleField(c1, 1, c2, true);
+        tx.writeSimpleField(c2, 1, b2, true);
+
+        final KeyRange arange = ObjId.getKeyRange(10);
+        final KeyRange brange = ObjId.getKeyRange(11);
+        final KeyRange crange = ObjId.getKeyRange(12);
+
+        this.check(tx, true, new ObjId[] { a1 }, new int[] { },
+          new KeyRanges[] { new KeyRanges(brange) },
+          buildSet());
+
+        this.check(tx, true, new ObjId[] { a1 }, new int[] { 1 },
+          new KeyRanges[] { new KeyRanges(brange), null },
+          buildSet());
+
+        this.check(tx, true, new ObjId[] { a1, a2, b1, c1 }, new int[] { 1 },
+          new KeyRanges[] { new KeyRanges(arange, brange), null },
+          buildSet(b1, c1));
+
+        this.check(tx, true, new ObjId[] { a1, a2, b1, c1 }, new int[] { 1 },
+          new KeyRanges[] { null, new KeyRanges(arange, brange) },
+          buildSet(b1));
+
+        this.check(tx, true, new ObjId[] { a1, b1, c1, c2 }, new int[] { 1, 1 },
+          new KeyRanges[] { null, new KeyRanges(brange), null },
+          buildSet(c1, c2));
+
+        this.check(tx, true, new ObjId[] { a1, b1, b2, b3 }, new int[] { 1, 1, 1 },
+          new KeyRanges[] { null, null, new KeyRanges(brange), null },
+          buildSet(c2));
+
+        this.check(tx, true, new ObjId[] { b1, b2, b3, c2 }, new int[] { 1, 1 },
+          new KeyRanges[] { null, null, new KeyRanges(brange) },
+          buildSet(b2));
+
+        this.check(tx, false, new ObjId[] { c2 }, new int[] { },
+          new KeyRanges[] { new KeyRanges(brange) },
+          buildSet());
+
+        this.check(tx, false, new ObjId[] { c1 }, new int[] { 1 },
+          new KeyRanges[] { null, new KeyRanges(brange) },
+          buildSet());
+
+        this.check(tx, false, new ObjId[] { b2 }, new int[] { 1 },
+          new KeyRanges[] { new KeyRanges(brange), null },
+          buildSet(b3));
+
+        this.check(tx, false, new ObjId[] { b2 }, new int[] { 1, 1, 1, 1 },
+          new KeyRanges[] { new KeyRanges(arange, crange), new KeyRanges(brange), null, null, null },
+          buildSet(a1, a2));
+
+        tx.commit();
+    }
+
     private void checkForward(Transaction tx, Set<?> expected, ObjId id1, int... path) {
         this.check(tx, true, new ObjId[] { id1 }, path, expected);
     }
@@ -233,8 +348,13 @@ public class ReferencePathTest extends CoreAPITestSupport {
     }
 
     private void check(Transaction tx, boolean forward, ObjId[] ids, int[] path, Set<?> expected) {
+        this.check(tx, forward, ids, path, null, expected);
+    }
+
+    private void check(Transaction tx, boolean forward, ObjId[] ids, int[] path, KeyRanges[] filters, Set<?> expected) {
         final List<ObjId> idList = Arrays.asList(ids);
-        final NavigableSet<ObjId> actual = forward ? tx.followReferencePath(idList, path) : tx.invertReferencePath(path, idList);
+        final NavigableSet<ObjId> actual = forward ?
+          tx.followReferencePath(idList, path, filters) : tx.invertReferencePath(path, filters, idList);
         checkSet(actual, expected);
     }
 }

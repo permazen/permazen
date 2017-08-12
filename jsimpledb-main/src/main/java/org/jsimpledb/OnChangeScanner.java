@@ -14,10 +14,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableSet;
 
 import org.jsimpledb.annotation.OnChange;
@@ -70,7 +68,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
     class ChangeMethodInfo extends MethodInfo implements AllChangesListener {
 
-        final HashMap<ReferencePath, HashSet<Integer>> paths;
+        final HashSet<ReferencePath> paths;
         final Class<?>[] genericTypes;      // derived from this.method, so there's no need to include it in equals() or hashCode()
 
         ChangeMethodInfo(Method method, OnChange annotation) {
@@ -174,7 +172,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference paths
             boolean anyFieldsFound = false;
-            this.paths = new HashMap<>(expandedPathList.size());
+            this.paths = new HashSet<>(expandedPathList.size());
             for (int i = 0; i < expandedPathList.size(); i++) {
                 final String stringPath = expandedPathList.get(i);
                 final boolean wildcard = expandedPathWasWildcard.contains(i);           // path was auto-generated from a wildcard
@@ -185,13 +183,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     path = jdb.parseReferencePath(startType, stringPath, true, false);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
-                }
-
-                // Get the actual types and storage ID's of all model classes in the path that actually contain the target field
-                final HashSet<Integer> storageIds = new HashSet<>(path.cursors.size());
-                for (ReferencePath.Cursor cursor : path.cursors) {
-                    final JClass<?> jclass = cursor.getJClass();
-                    storageIds.add(jclass.storageId);
                 }
 
                 // Validate the parameter type against the types of possible change events
@@ -245,8 +236,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     }
                 }
 
-                // Match on storage ID's; this filters out obsolete types from old versions
-                this.paths.put(path, storageIds);
+                // Add path
+                this.paths.add(path);
             }
 
             // No matching fields?
@@ -262,11 +253,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         // Register listeners for this method
         void registerChangeListener(Transaction tx) {
-            for (Map.Entry<ReferencePath, HashSet<Integer>> entry : this.paths.entrySet()) {
-                final ReferencePath path = entry.getKey();
-                final HashSet<Integer> objectTypeStorageIds = entry.getValue();
-                tx.addFieldChangeListener(path.targetFieldStorageId, path.getReferenceFields(), objectTypeStorageIds, this);
-            }
+            for (ReferencePath path : this.paths)
+                tx.addFieldChangeListener(path.targetFieldStorageId, path.getReferenceFields(), path.getPathKeyRanges(), this);
         }
 
         @Override

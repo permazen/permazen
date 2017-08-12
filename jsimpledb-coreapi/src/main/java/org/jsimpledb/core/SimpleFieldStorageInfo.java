@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Represents an index on a simple field, either a regular simple field or a sub-field of a complex field.
@@ -43,8 +44,9 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
      * @param tx transaction
      * @param id object being accessed
      * @param values read values
+     * @param filter optional filter to apply
      */
-    abstract void readAllNonNull(Transaction tx, ObjId id, Set<T> values);
+    abstract void readAllNonNull(Transaction tx, ObjId id, Set<T> values, Predicate<? super T> filter);
 
 // Object
 

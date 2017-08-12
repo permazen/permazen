@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.jsimpledb.core.type.ReferenceFieldType;
 
@@ -29,9 +30,9 @@ class RegularSimpleFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    void readAllNonNull(Transaction tx, ObjId target, Set<T> values) {
+    void readAllNonNull(Transaction tx, ObjId target, Set<T> values, Predicate<? super T> filter) {
         final T value = (T)tx.readSimpleField(target, this.storageId, false);
-        if (value != null)
+        if (value != null && (filter == null || filter.test(value)))
             values.add(value);
     }
 

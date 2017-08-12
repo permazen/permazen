@@ -8,12 +8,9 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
 
-import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 
 /**
@@ -28,7 +25,7 @@ class FieldMonitor {
 
     final int storageId;
     final int[] path;
-    final KeyRanges types;
+    final KeyRanges[] filters;
     final Object listener;
 
     /**
@@ -36,22 +33,39 @@ class FieldMonitor {
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of references to {@code field}; negated values denote inverse traversal of the field
-     * @param types set of allowed storage IDs for the changed object, or null for no restriction
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
      * @param listener listener to notify
      */
-    FieldMonitor(int fieldStorageId, int[] path, Iterable<Integer> types, Object listener) {
+    FieldMonitor(int fieldStorageId, int[] path, KeyRanges[] filters, Object listener) {
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
+        Preconditions.checkArgument(filters == null || filters.length == path.length + 1, "wrong filters length");
         this.storageId = fieldStorageId;
-        if (types != null) {
-            final ArrayList<KeyRange> keyRanges = new ArrayList<>();
-            for (int objTypeStorageId : types)
-                keyRanges.add(ObjId.getKeyRange(objTypeStorageId));
-            this.types = new KeyRanges(keyRanges);
-        } else
-            this.types = null;
+        this.filters = filters != null ? filters.clone() : null;
         this.path = path.clone();
         this.listener = listener;
+    }
+
+    /**
+     * @param step step in the path, going backwards
+     */
+    public int getStorageId(int step) {
+        return this.path[this.path.length - 1 - step];
+    }
+
+    /**
+     * @param step step in the path, going backwards
+     */
+    public KeyRanges getFilter(int step) {
+        return this.filters != null ? this.filters[this.path.length - step] : null;
+    }
+
+    /**
+     * Get the filter on the target (i.e., changing) object type.
+     */
+    public KeyRanges getTargetFilter() {
+        return this.getFilter(0);
     }
 
 // Object
@@ -60,7 +74,7 @@ class FieldMonitor {
     public int hashCode() {
         return this.storageId
           ^ Arrays.hashCode(this.path)
-          ^ Objects.hashCode(this.types)
+          ^ Arrays.hashCode(this.filters)
           ^ this.listener.hashCode();
     }
 
@@ -73,7 +87,7 @@ class FieldMonitor {
         final FieldMonitor that = (FieldMonitor)obj;
         return this.storageId == that.storageId
           && Arrays.equals(this.path, that.path)
-          && Objects.equals(this.types, that.types)
+          && Arrays.equals(this.filters, that.filters)
           && this.listener.equals(that.listener);
     }
 
@@ -82,7 +96,7 @@ class FieldMonitor {
         return this.getClass().getSimpleName()
           + "[storageId=" + this.storageId
           + ",path=" + Ints.asList(this.path)
-          + ",types=" + this.types
+          + ",filters=" + Arrays.asList(this.filters)
           + ",listener=" + this.listener
           + "]";
     }

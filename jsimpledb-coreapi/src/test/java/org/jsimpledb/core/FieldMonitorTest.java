@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.testng.Assert;
@@ -284,21 +285,24 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         tx.writeSimpleField(id1, 105, 5001, true);
         tx.writeSimpleField(bar, 105, 5001, true);
 
-        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);     // object type 100 only
+        final KeyRanges range100 = new KeyRanges(ObjId.getKeyRange(100));
+        final KeyRanges range200 = new KeyRanges(ObjId.getKeyRange(200));
+
+        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, new KeyRanges[] { null, range100 }, listener);  // type 100 only
         tx.writeSimpleField(bar, 105, 5002, true);
         listener.verify();
         tx.writeSimpleField(id1, 105, 5003, true);
         listener.verify(new Notify("SimpleChange", id1, 105, new int[] { 109 }, Arrays.asList(bar), 5001, 5003));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, new KeyRanges[] { null, range100 }, listener);
 
-        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(200), listener);     // object type 200 only
+        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, new KeyRanges[] { null, range200 }, listener);  // type 200 only
         tx.writeSimpleField(id1, 105, 5004, true);
         listener.verify();
         tx.writeSimpleField(bar, 105, 5005, true);
         listener.verify(new Notify("SimpleChange", bar, 105, new int[] { 109 }, Arrays.asList(id1), 5002, 5005));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(200), listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, new KeyRanges[] { null, range200 }, listener);
 
-        tx.rollback();
+        tx.commit();
     }
 
     static class TestListener implements SimpleFieldChangeListener, SetFieldChangeListener,

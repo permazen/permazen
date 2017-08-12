@@ -437,7 +437,7 @@ public class JTransaction {
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, true, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
-        assert refPath.targetTypes.iterator().next().isInstance(jobj);
+        assert refPath.getTargetTypes().iterator().next().isInstance(jobj);
         return this.tx.getKey(jobj.getObjId(), refPath.targetFieldStorageId);
     }
 
@@ -1383,7 +1383,7 @@ public class JTransaction {
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(startObjects != null, "null startObjects");
         final NavigableSet<ObjId> ids = this.tx.followReferencePath(Iterables.transform(startObjects, this.referenceConverter),
-          path.getReferenceFields());
+          path.getReferenceFields(), path.getPathKeyRanges());
         return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }
 
@@ -1400,7 +1400,7 @@ public class JTransaction {
     public NavigableSet<JObject> invertReferencePath(ReferencePath path, Iterable<? extends JObject> targetObjects) {
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(targetObjects != null, "null targetObjects");
-        final NavigableSet<ObjId> ids = this.tx.invertReferencePath(path.getReferenceFields(),
+        final NavigableSet<ObjId> ids = this.tx.invertReferencePath(path.getReferenceFields(), path.getPathKeyRanges(),
           Iterables.transform(targetObjects, this.referenceConverter));
         return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }

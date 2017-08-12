@@ -51,7 +51,7 @@ public class ReferencePathTest extends TestSupport {
 
         // Verify parse
         Assert.assertEquals(path.startType, startType);
-        Assert.assertTrue(path.targetTypes.contains(targetType), path.targetTypes + " does not contain " + targetType);
+        Assert.assertTrue(path.getTargetTypes().contains(targetType), path.getTargetTypes() + " does not contain " + targetType);
         Assert.assertEquals(path.targetFieldStorageId, targetField, "wrong target field");
         Assert.assertEquals(path.targetSuperFieldStorageId, targetSuperField, "wrong target superfield");
         Assert.assertEquals(Ints.asList(path.getReferenceFields()), Ints.asList(refs), "wrong reference fields");
