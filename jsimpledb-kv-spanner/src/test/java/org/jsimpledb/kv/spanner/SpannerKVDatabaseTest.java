@@ -55,5 +55,10 @@ public class SpannerKVDatabaseTest extends KVDatabaseTest {
     protected int getRandomTaskMaxIterations() {
         return 25;
     }
+
+    @Override
+    protected boolean supportsReadOnlyAfterDataAccess() {
+        return false;
+    }
 }
 
