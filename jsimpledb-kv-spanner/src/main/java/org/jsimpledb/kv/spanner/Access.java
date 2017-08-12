@@ -58,7 +58,12 @@ final class Access {
         try {
             return method.invoke(instance, params);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
+            final Throwable cause = e.getCause();
+            if (cause instanceof Error)
+                throw (Error)cause;
+            if (cause instanceof RuntimeException)
+                throw (RuntimeException)cause;
+            throw new RuntimeException(cause);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
