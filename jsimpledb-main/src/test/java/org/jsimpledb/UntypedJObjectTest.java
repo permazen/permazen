@@ -43,6 +43,9 @@ public class UntypedJObjectTest extends TestSupport {
             final Bar bar = jtx1.create(Bar.class);
             bar.setName("bar");
 
+            foo.setObject(bar);
+            foo.setHasName(bar);
+
             fooId = foo.getObjId();
             barId = bar.getObjId();
 
@@ -68,8 +71,17 @@ public class UntypedJObjectTest extends TestSupport {
             Assert.assertEquals(jobjs.size(), 1);
             Assert.assertEquals(nobjs.size(), 1);
 
-            Assert.assertEquals(jobjs.iterator().next().getObjId(), fooId);
-            Assert.assertEquals(nobjs.iterator().next().getObjId(), barId);
+            final Foo foo = (Foo)jobjs.iterator().next();
+            final JObject bar = nobjs.iterator().next();
+
+            Assert.assertTrue(foo instanceof Foo);
+            Assert.assertTrue(bar instanceof UntypedJObject);
+
+            Assert.assertEquals(foo.getObjId(), fooId);
+            Assert.assertEquals(bar.getObjId(), barId);
+
+            Assert.assertEquals(foo.getObject(), bar);  // this foo -> bar reference is preserved even though bar is now untyped
+            Assert.assertNull(foo.getHasName());        // this foo -> bar reference is cleared because bar is no longer a HasName
 
             jtx2.commit();
         } finally {
@@ -122,6 +134,12 @@ public class UntypedJObjectTest extends TestSupport {
     @JSimpleClass
     public abstract static class Foo implements HasName {
         // this class exists in schema versions 1 and 2
+
+        public abstract Object getObject();
+        public abstract void setObject(Object obj);
+
+        public abstract HasName getHasName();
+        public abstract void setHasName(HasName obj);
     }
 
     @JSimpleClass
