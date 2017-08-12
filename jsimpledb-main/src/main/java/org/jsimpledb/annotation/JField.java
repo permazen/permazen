@@ -88,11 +88,8 @@ import org.jsimpledb.core.DeleteAction;
  *      /**
  *       * Get the children of this node.
  *       *&#47;
- *      default NavigableSet&lt;TreeNode&gt; getChildren() {
- *          final NavigableSet&lt;TreeNode&gt; children = this.getTransaction().queryIndex(
- *            TreeNode.class, "parent", TreeNode.class).get(this);
- *          return children != null ? children : NavigableSets.empty();
- *      }
+ *      &#64;FollowPath(inverseOf = "parent", startingFrom = TreeNode.class)
+ *      NavigableSet&lt;TreeNode&gt; getChildren();
  *
  *      default TreeNode copySubtreeTo(JTransaction dest) {
  *          return (TreeNode)this.cascadeCopyTo(dest, <b>"descendants"</b>, false);

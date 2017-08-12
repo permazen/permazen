@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.jsimpledb.annotation.FollowPath;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.FieldType;
@@ -55,6 +57,7 @@ public class JClass<T> extends JSchemaObject {
     final ArrayList<JField> upgradeConversionFields = new ArrayList<>();                // contains only simple and counter fields
     final HashMap<String, List<JReferenceField>> forwardCascadeMap = new HashMap<>();
 
+    Set<FollowPathScanner<T>.MethodInfo> followPathMethods;
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
@@ -349,6 +352,10 @@ public class JClass<T> extends JSchemaObject {
         }
         for (Method method : JObject.class.getDeclaredMethods())
             abstractMethods.remove(new MethodKey(method));
+        for (Iterator<Method> i = abstractMethods.values().iterator(); i.hasNext(); ) {
+            if (Util.getAnnotation(i.next(), FollowPath.class) != null)
+                i.remove();
+        }
         if (!abstractMethods.isEmpty()) {
             throw new IllegalArgumentException("the @JSimpleClass-annotated type " + this.type.getName() + " is invalid because"
               + " " + abstractMethods.size() + " abstract method(s) remain unimplemented: "
@@ -405,6 +412,7 @@ public class JClass<T> extends JSchemaObject {
     }
 
     void scanAnnotations() {
+        this.followPathMethods = new FollowPathScanner<>(this).findAnnotatedMethods();
         this.onCreateMethods = new OnCreateScanner<>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<>(this).findAnnotatedMethods();

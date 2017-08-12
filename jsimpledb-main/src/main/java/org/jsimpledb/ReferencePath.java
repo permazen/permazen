@@ -225,7 +225,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Reference paths are also used implicitly by {@link org.jsimpledb.annotation.OnChange &#64;OnChange} annotations to
- * specify non-local objects for change monitoring.
+ * specify non-local objects for change monitoring, and by {@link org.jsimpledb.annotation.FollowPath &#64;FollowPath}
+ * annotations.
  *
  * @see JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()
  * @see JTransaction#followReferencePath JTransaction.followReferencePath()

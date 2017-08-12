@@ -10,6 +10,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.jsimpledb.annotation.FollowPath;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
@@ -38,7 +39,9 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
     @Override
     protected boolean isAutoPropertyCandidate(Method method) {
-        return super.isAutoPropertyCandidate(method) && Set.class.isAssignableFrom(method.getReturnType());
+        return super.isAutoPropertyCandidate(method)
+          && Set.class.isAssignableFrom(method.getReturnType())
+          && Util.getAnnotation(method, FollowPath.class) == null;
     }
 
 // DefaultJSetField

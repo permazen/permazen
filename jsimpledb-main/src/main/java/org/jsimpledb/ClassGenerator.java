@@ -14,6 +14,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.SortedSet;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.DatabaseException;
@@ -21,6 +25,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -47,6 +52,7 @@ class ClassGenerator<T> {
     static final String CACHED_VALUE_FIELD_PREFIX = "$cached_";
     static final String CACHED_FLAG_FIELD_PREFIX = "$cacheflags";
     static final String ENUM_CONVERTER_FIELD_PREFIX = "$ec";
+    static final String FOLLOW_PATH_FIELD_PREFIX = "$followPath";
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
@@ -62,6 +68,12 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_GET_TRANSACTION_METHOD;
     static final Method JTRANSACTION_GET_METHOD;
     static final Method JTRANSACTION_REGISTER_JOBJECT_METHOD;
+    static final Method JTRANSACTION_GET_JSIMPLEDB_METHOD;
+    static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
+    static final Method JTRANSACTION_INVERT_REFERENCE_PATH_METHOD;
+
+    // JSimpleDB method handles
+    static final Method JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD;
 
     // Converter method handles
     static final Method CONVERTER_CONVERT_METHOD;
@@ -73,6 +85,12 @@ class ClassGenerator<T> {
     // Transaction method handles
     static final Method TRANSACTION_READ_SIMPLE_FIELD_METHOD;
     static final Method TRANSACTION_WRITE_SIMPLE_FIELD_METHOD;
+
+    // Collections method handles
+    static final Method COLLECTIONS_SINGLETON_METHOD;
+    static final Method OPTIONAL_OF_METHOD;
+    static final Method OPTIONAL_EMPTY_METHOD;
+    static final Method SORTED_SET_FIRST_METHOD;
 
     static {
         try {
@@ -95,6 +113,15 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
+            JTRANSACTION_GET_JSIMPLEDB_METHOD = JTransaction.class.getMethod("getJSimpleDB");
+            JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
+              ReferencePath.class, Iterable.class);
+            JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
+              ReferencePath.class, Iterable.class);
+
+            // JSimpleDB methods
+            JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD = JSimpleDB.class.getMethod("parseReferencePath",
+              Class.class, String.class, boolean.class);
 
             // Transaction methods
             TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",
@@ -108,6 +135,12 @@ class ClassGenerator<T> {
 
             // EnumConverter
             ENUM_CONVERTER_CREATE_METHOD = EnumConverter.class.getMethod("createEnumConverter", Class.class);
+
+            // Collections
+            COLLECTIONS_SINGLETON_METHOD = Collections.class.getMethod("singleton", Object.class);
+            OPTIONAL_OF_METHOD = Optional.class.getMethod("of", Object.class);
+            OPTIONAL_EMPTY_METHOD = Optional.class.getMethod("empty");
+            SORTED_SET_FIRST_METHOD = SortedSet.class.getMethod("first");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
         }
@@ -276,6 +309,17 @@ class ClassGenerator<T> {
                 lastFieldName = fieldName;
             }
         }
+
+        // Output (static) @FollowPath cached ReferencePath fields
+        if (this.jclass != null) {
+            int fieldIndex = 0;
+            for (FollowPathScanner<?>.MethodInfo info0 : this.jclass.followPathMethods) {
+                final FollowPathScanner<?>.FollowPathMethodInfo info = (FollowPathScanner<?>.FollowPathMethodInfo)info0;
+                final String fieldName = FOLLOW_PATH_FIELD_PREFIX + fieldIndex++;
+                cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC,
+                  fieldName, Type.getDescriptor(ReferencePath.class), null, null).visitEnd();
+            }
+        }
     }
 
     private void outputConstructors(ClassWriter cw) {
@@ -382,6 +426,63 @@ class ClassGenerator<T> {
         // Add methods that override field getters & setters
         for (JField jfield : this.jclass.jfields.values())
             jfield.outputMethods(this, cw);
+
+        // Add @FollowPath methods
+        int fieldIndex = 0;
+        for (FollowPathScanner<?>.MethodInfo info : this.jclass.followPathMethods)
+            this.addFollowPathMethod(cw, (FollowPathScanner<?>.FollowPathMethodInfo)info, FOLLOW_PATH_FIELD_PREFIX + fieldIndex++);
+    }
+
+    private void addFollowPathMethod(ClassWriter cw, FollowPathScanner<?>.FollowPathMethodInfo info, String fieldName) {
+        final MethodVisitor mv = this.startMethod(cw, info.getMethod());
+
+        // Check if we have cached the path already
+        mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
+        final Label gotPath = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, gotPath);
+
+        // Parse the path and cache it
+        final ReferencePath path = info.getReferencePath();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_JSIMPLEDB_METHOD);
+        mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(path.getStartType())));
+        mv.visitLdcInsn(path.toString());
+        mv.visitInsn(Opcodes.ICONST_0);
+        this.emitInvoke(mv, ClassGenerator.JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
+
+        // Traverse the path
+        mv.visitLabel(gotPath);
+        mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, ClassGenerator.COLLECTIONS_SINGLETON_METHOD);
+        this.emitInvoke(mv, info.isInverse() ?
+          JTRANSACTION_INVERT_REFERENCE_PATH_METHOD : JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
+
+        // Extract first element if firstOnly()
+        if (info.getAnnotation().firstOnly()) {
+            final Label tryStart = new Label();
+            final Label tryStop = new Label();
+            final Label catchLabel = new Label();
+            mv.visitTryCatchBlock(tryStart, tryStop, catchLabel, Type.getInternalName(NoSuchElementException.class));
+            mv.visitLabel(tryStart);
+            this.emitInvoke(mv, ClassGenerator.SORTED_SET_FIRST_METHOD);
+            mv.visitLabel(tryStop);
+            this.emitInvoke(mv, ClassGenerator.OPTIONAL_OF_METHOD);
+            mv.visitInsn(Opcodes.ARETURN);
+            mv.visitLabel(catchLabel);
+            this.emitInvoke(mv, ClassGenerator.OPTIONAL_EMPTY_METHOD);
+            mv.visitInsn(Opcodes.ARETURN);
+        } else
+            mv.visitInsn(Opcodes.ARETURN);
+
+        // Done
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
 // Helper Methods
