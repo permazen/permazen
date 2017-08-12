@@ -47,58 +47,35 @@ public class DeleteTest extends KVTestSupport {
             final byte[] val2 = new byte[] { (byte)0xbb };
 
             // Populate DB
-            KVTransaction tx = this.db.createTransaction();
-            try {
+            this.tryNtimes(this.db, tx -> {
                 tx.removeRange(new byte[0], null);
                 tx.put(key1, val1);
                 tx.put(key2, val2);
-                tx.commit();
-            } finally {
-                tx.rollback();
-            }
+            });
 
             // Display db
             this.show("initial content");
 
             // Delete to infinity
-            tx = this.db.createTransaction();
-            try {
-                tx.removeRange(ByteUtil.getNextKey(key1), null);
-                tx.commit();
-            } finally {
-                tx.rollback();
-            }
+            this.tryNtimes(this.db, tx -> tx.removeRange(ByteUtil.getNextKey(key1), null));
 
             // Verify second key is gone
-            tx = this.db.createTransaction();
-            try {
+            this.tryNtimes(this.db, tx -> {
                 this.show("after remove");
                 Assert.assertNull(tx.get(key2));
-                tx.commit();
-            } finally {
-                tx.rollback();
-            }
+            });
 
         } finally {
             this.db.stop();
         }
     }
 
-    private void show(String label) throws Exception {
-        this.log.info("Spanner content (" + label + "):");
-        KVTransaction tx = this.db.createTransaction();
-        try {
-            this.show(tx, label);
-            tx.commit();
-        } finally {
-            tx.rollback();
-        }
-    }
-
-    private void show(KVTransaction tx, String label) throws Exception {
-        final Exception e = this.showKV(tx, label);
-        if (e != null)
-            throw e;
+    private void show(String label) {
+        this.tryNtimes(this.db, tx -> {
+            final RuntimeException e = this.showKV(tx, "Spanner content (" + label + "):");
+            if (e != null)
+                throw e;
+        });
     }
 }
 
