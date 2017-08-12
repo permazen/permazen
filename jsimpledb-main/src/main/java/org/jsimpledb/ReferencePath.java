@@ -334,19 +334,19 @@ public class ReferencePath {
                 // Try to step through the next field in the path
                 final Set<Cursor> newCursors;
                 try {
-                    newCursors = cursor.stepThroughField(jdb, withTargetField, lastIsSubField);
+                    newCursors = cursor.identifyNextField(jdb, withTargetField, lastIsSubField);
                 } catch (IllegalArgumentException e) {
                     if (this.log.isTraceEnabled())
-                        this.log.trace("RefPath: stepThroughField() on " + cursor + " failed: " + e.getMessage());
+                        this.log.trace("RefPath: identifyNextField() on " + cursor + " failed: " + e.getMessage());
                     error = e;
                     continue;
                 }
                 if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: stepThroughField() on " + cursor + " succeeded: newCursors=" + newCursors);
+                    this.log.trace("RefPath: identifyNextField() on " + cursor + " succeeded: newCursors=" + newCursors);
 
                 // Debug
                 if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: after stepThroughField(), newCursors=" + newCursors);
+                    this.log.trace("RefPath: after identifyNextField(), newCursors=" + newCursors);
 
                 // Remove cursors for which we have reached the end of the path
                 for (Iterator<Cursor> i = newCursors.iterator(); i.hasNext(); ) {
@@ -363,7 +363,7 @@ public class ReferencePath {
 
                 // Debug
                 if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: after stepThroughField(), remaining newCursors=" + newCursors);
+                    this.log.trace("RefPath: after identifyNextField(), remaining newCursors=" + newCursors);
 
                 // Advance the unfinished cursors through the next reference field
                 for (Cursor newCursor : newCursors) {
@@ -701,7 +701,7 @@ public class ReferencePath {
      * An instance points to a {@link JClass}, and optionally to a {@link JField} within that class (or within
      * some referring class in the case of a reverse step).
      * It has a list of references it has already traversed, and a list of field names it has yet to traverse.
-     * Traversing a field involves two steps: (a) finding the field via {@link #stepThroughField},
+     * Traversing a field involves two steps: (a) finding the field via {@link #identifyNextField},
      * and (if not done yet) (b) dereferencing that (presumably reference) field via {@link #stepThroughReference}.
      * Note prior to step (a), {@code this.jfield} is null; prior to step (b), {@code this.jfield} is the field
      * we just dereferenced in the previous {@link JClass}.
@@ -763,7 +763,7 @@ public class ReferencePath {
          * @return resulting cursor
          * @throws IllegalArgumentException if step is bogus
          */
-        public Set<Cursor> stepThroughField(JSimpleDB jdb, boolean withTargetField, Boolean lastIsSubField) {
+        public Set<Cursor> identifyNextField(JSimpleDB jdb, boolean withTargetField, Boolean lastIsSubField) {
 
             // Sanity check
             Preconditions.checkArgument(!this.fieldNames.isEmpty(), "empty reference path");
@@ -791,7 +791,7 @@ public class ReferencePath {
                 // Consume step
                 remainingFieldNames.removeFirst();
                 if (this.log.isTraceEnabled()) {
-                    this.log.trace("RefPath.stepThroughField(): reverse step `" + step
+                    this.log.trace("RefPath.identifyNextField(): reverse step `" + step
                       + "' -> type `" + typeName + "' field `" + fieldName + "'");
                 }
 
@@ -846,7 +846,7 @@ public class ReferencePath {
 
             // Done
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath.stepThroughField(): result=" + newCursors);
+                this.log.trace("RefPath.identifyNextField(): result=" + newCursors);
             return newCursors;
         }
 
