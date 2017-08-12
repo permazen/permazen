@@ -67,7 +67,7 @@ public abstract class KVTestSupport extends TestSupport {
      * @param label descriptive label
      * @return exception thrown during query, or null if successful
      */
-    protected Exception showKV(KVStore kv, String label) {
+    protected RuntimeException showKV(KVStore kv, String label) {
         return this.showKV(kv, label, null, null);
     }
 
@@ -80,11 +80,11 @@ public abstract class KVTestSupport extends TestSupport {
      * @param maxKey maximum key
      * @return exception thrown during query, or null if successful
      */
-    protected Exception showKV(KVStore kv, String label, byte[] minKey, byte[] maxKey) {
+    protected RuntimeException showKV(KVStore kv, String label, byte[] minKey, byte[] maxKey) {
         final String xml;
         try {
             xml = this.toXmlString(kv, minKey, maxKey);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             this.log.info("{} - oops, got " + e, label);
             if (this.log.isTraceEnabled())
                 this.log.trace(label + " exception trace:", e);
