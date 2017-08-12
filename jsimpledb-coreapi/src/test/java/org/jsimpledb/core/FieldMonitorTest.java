@@ -296,7 +296,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         listener.verify();
         tx.writeSimpleField(bar, 105, 5005, true);
         listener.verify(new Notify("SimpleChange", bar, 105, new int[] { 109 }, Arrays.asList(id1), 5002, 5005));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(200), listener);
 
         tx.rollback();
     }
