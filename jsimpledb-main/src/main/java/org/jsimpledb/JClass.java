@@ -546,9 +546,10 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": use of uniqueExcludeNull() requires unique = true");
 
         // See if field type encompasses one or more JClass types and is therefore a reference type
+        final Class<?> fieldRawType = fieldTypeToken.getRawType();
         boolean isReferenceType = false;
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
-            if (fieldTypeToken.getRawType().isAssignableFrom(jclass.type)) {
+            if (fieldRawType.isAssignableFrom(jclass.type)) {
                 isReferenceType = true;
                 break;
             }
@@ -591,8 +592,8 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Detect enum types
-        final Class<? extends Enum<?>> enumType = Enum.class.isAssignableFrom(fieldTypeToken.getRawType()) ?
-          (Class<? extends Enum<?>>)fieldTypeToken.getRawType().asSubclass(Enum.class) : null;
+        final Class<? extends Enum<?>> enumType = Enum.class.isAssignableFrom(fieldRawType) ?
+          (Class<? extends Enum<?>>)fieldRawType.asSubclass(Enum.class) : null;
 
         // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail
         if (!isReferenceType && nonReferenceType == null && enumType == null) {
