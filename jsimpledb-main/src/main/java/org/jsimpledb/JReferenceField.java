@@ -150,10 +150,16 @@ public class JReferenceField extends JSimpleField {
         schemaField.setCascadeDelete(this.cascadeDelete);
         schemaField.setAllowDeleted(this.allowDeleted);
         schemaField.setAllowDeletedSnapshot(this.allowDeletedSnapshot);
-        schemaField.setObjectTypes(
-          jdb.getJClasses(this.typeToken.getRawType()).stream()
-           .map(jclass -> jclass.storageId)
-           .collect(Collectors.toCollection(TreeSet::new)));
+        final Class<?> rawType = this.typeToken.getRawType();
+        if (!rawType.isAssignableFrom(JObject.class)) {
+            assert !rawType.isAssignableFrom(UntypedJObject.class);
+            if (UntypedJObject.class.isAssignableFrom(rawType))
+                throw new RuntimeException("internal error: " + rawType);
+            schemaField.setObjectTypes(
+              jdb.getJClasses(rawType).stream()
+               .map(jclass -> jclass.storageId)
+               .collect(Collectors.toCollection(TreeSet::new)));
+        }
         return schemaField;
     }
 
