@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.NavigableSet;
 
+import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.test.TestSupport;
 import org.testng.annotations.Test;
 
@@ -83,10 +84,61 @@ public class InvertReferencePathTest extends TestSupport {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testInvertReferencePath2() throws Exception {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(A.class, B.class, C.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            A a = jtx.create(A.class);
+
+            B b = jtx.create(B.class);
+            C c = jtx.create(C.class);
+
+            b.setA(a);
+            c.setA(a);
+
+            final ReferencePath inverseAny = jdb.parseReferencePath(Object.class, "^" + HasA.class.getName() + ":a^", false);
+            final ReferencePath inverseB = jdb.parseReferencePath(A.class, "^B:a^", false);
+            final ReferencePath inverseC = jdb.parseReferencePath(A.class, "^C:a^", false);
+
+            TestSupport.checkSet(jtx.followReferencePath(inverseAny, Collections.singleton(a)), buildSet(b, c));
+            TestSupport.checkSet(jtx.followReferencePath(inverseB, Collections.singleton(a)), buildSet(b));
+            TestSupport.checkSet(jtx.followReferencePath(inverseC, Collections.singleton(a)), buildSet(c));
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private NavigableSet<JObject> invertRefPath(JTransaction jtx,
       Class<?> startType, String path, Iterable<? extends JObject> objs) {
         final ReferencePath refPath = jtx.getJSimpleDB().parseReferencePath(startType, path, false);
         return jtx.invertReferencePath(refPath, objs);
+    }
+
+// Model Classes
+
+    public static interface HasA {
+        A getA();
+        void setA(A a);
+    }
+
+    @JSimpleClass
+    public abstract static class A implements JObject {
+    }
+
+    @JSimpleClass
+    public abstract static class B implements JObject, HasA {
+    }
+
+    @JSimpleClass
+    public abstract static class C implements JObject, HasA {
     }
 }
 
