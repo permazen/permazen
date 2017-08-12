@@ -263,6 +263,41 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testInverseRestrictedTypes() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(A.class, B.class, C.class, D.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final A a = jtx.create(A.class);
+            final B b = jtx.create(B.class);
+            final C c = jtx.create(C.class);
+            final D d = jtx.create(D.class);
+
+            b.setA(a);
+            c.setA(a);
+
+            Assert.assertNull(a.getChange());
+
+            d.setMiddleMan(c);                  // @OnChange path should not match because "c" is the middle object
+            d.setFoo(123);
+
+            Assert.assertNull(a.getChange());
+
+            d.setMiddleMan(b);                  // @OnChange path should match now because "b" is the middle object
+            d.setFoo(456);
+
+            Assert.assertEquals(a.getChange(), new SimpleFieldChange<D, Integer>(d, 10, "foo", 123, 456));
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -605,6 +640,47 @@ public class OnChangeTest extends TestSupport {
         private void onChange(SimpleFieldChange<?, ?> change) {
             this.change = change;
         }
+    }
+
+// Inverse Restricted Test
+
+    public static interface HasA {
+        A getA();
+        void setA(A a);
+    }
+
+    @JSimpleClass
+    public abstract static class A implements JObject {
+
+        private SimpleFieldChange<D, Integer> change;
+
+        public SimpleFieldChange<D, Integer> getChange() {
+            return this.change;
+        }
+
+        @OnChange("^B:a^.^D:middleMan^.foo")
+        private void onChange(SimpleFieldChange<D, Integer> change) {
+            this.change = change;
+        }
+    }
+
+    @JSimpleClass
+    public abstract static class B implements JObject, HasA {
+    }
+
+    @JSimpleClass
+    public abstract static class C implements JObject, HasA {
+    }
+
+    @JSimpleClass
+    public abstract static class D implements JObject {
+
+        public abstract JObject getMiddleMan();
+        public abstract void setMiddleMan(JObject x);
+
+        @JField(storageId = 10)
+        public abstract int getFoo();
+        public abstract void setFoo(int x);
     }
 }
 
