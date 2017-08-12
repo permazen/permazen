@@ -363,9 +363,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 futures[i].get();
                 this.log.info(txs[i] + " #" + (i + 1) + " succeeded on write");
                 fails[i] = null;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 while (e instanceof ExecutionException)
-                    e = (Exception)e.getCause();
+                    e = e.getCause();
+                if (e instanceof AssertionError)
+                    throw (AssertionError)e;
+                if (e.toString().contains(AssertionError.class.getName()))
+                    throw new AssertionError("internal assertion failure", e);
                 if (!(e instanceof RetryTransactionException))
                     throw new AssertionError("wrong exception type: " + e, e);
                 final RetryTransactionException retry = (RetryTransactionException)e;
@@ -380,9 +384,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Show contents of surviving transactions; note exception(s) could occur here also
         for (int i = 0; i < 2; i++) {
             if (fails[i] == null) {
-                final Exception e = this.showKV(txs[i], "tx[" + i + "] of " + store + " after write");
-                if (e != null)
+                final RuntimeException e = this.showKV(txs[i], "tx[" + i + "] of " + store + " after write");
+                if (e != null) {
+                    if (e.toString().contains(AssertionError.class.getName()))
+                        throw new AssertionError("internal assertion failure", e);
                     fails[i] = "" + e;
+                }
             }
         }
 
@@ -402,6 +409,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 } catch (Throwable e) {
                     while (e instanceof ExecutionException)
                         e = e.getCause();
+                    if (e instanceof AssertionError)
+                        throw (AssertionError)e;
+                    if (e.toString().contains(AssertionError.class.getName()))
+                        throw new AssertionError("internal assertion failure", e);
                     assert e instanceof RetryTransactionException : "wrong exception type: " + e;
                     final RetryTransactionException retry = (RetryTransactionException)e;
                     //Assert.assertSame(retry.getTransaction(), txs[i]);
