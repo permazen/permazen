@@ -555,6 +555,13 @@ public class JClass<T> extends JSchemaObject {
             }
         }
 
+        // Check for reference to UntypedJObject - not currently allowed
+        if (UntypedJObject.class.isAssignableFrom(fieldRawType)) {
+            throw new IllegalArgumentException("invalid " + description + ": references to "
+              + (!UntypedJObject.class.equals(fieldRawType) ? "sub-types of " : "")
+              + UntypedJObject.class.getName() + " are not allowed; use " + JObject.class.getName() + " instead");
+        }
+
         // See if field type is a simple type, known either by explicitly-given name or type
         FieldType<?> nonReferenceType = null;
         if (typeName != null) {
