@@ -71,6 +71,26 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected abstract KVDatabase getKVDatabase();
 
+    protected int getNonconflictingTransactionCount() {
+        return 10;
+    }
+
+    protected int getParallelTransactionLoopCount() {
+        return 25;
+    }
+
+    protected int getParallelTransactionTaskCount() {
+        return 25;
+    }
+
+    protected int getSequentialTransactionLoopCount() {
+        return 50;
+    }
+
+    protected int getRandomTaskMaxIterations() {
+        return 1000;
+    }
+
     @Test(dataProvider = "kvdbs")
     public void testSimpleStuff(KVDatabase store) throws Exception {
 
@@ -499,10 +519,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("finished testNonconflictingTransactions() on " + store);
     }
 
-    protected int getNonconflictingTransactionCount() {
-        return 10;
-    }
-
     /**
      * This test runs transactions in parallel and verifies there is no "leakage" between them.
      * Database must be configured for linearizable isolation.
@@ -540,14 +556,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
     }
 
-    protected int getParallelTransactionLoopCount() {
-        return 25;
-    }
-
-    protected int getParallelTransactionTaskCount() {
-        return 25;
-    }
-
     /**
      * This test runs transactions sequentially and verifies that each transaction sees
      * the changes that were committed in the previous transaction.
@@ -574,10 +582,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
         }
         this.log.info("finished testSequentialTransactions() on " + store);
-    }
-
-    protected int getSequentialTransactionLoopCount() {
-        return 50;
     }
 
     /**
@@ -1155,10 +1159,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         public String toString() {
             return "Random[" + this.id + "," + (this.committedData != null ? "SEQ" : "PAR") + "]";
         }
-    }
-
-    protected int getRandomTaskMaxIterations() {
-        return 1000;
     }
 
 // Reader
