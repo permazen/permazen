@@ -28,7 +28,6 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.caching.CachingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
@@ -60,8 +59,6 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     private ReadContext context;
     @GuardedBy("this")
     private ReadWriteSpannerView view;
-    @GuardedBy("this")
-    private CachingKVStore batcher;
     @GuardedBy("this")
     private State state = State.INITIAL;
 
@@ -188,7 +185,6 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         switch (this.state) {
         case INITIAL:
             assert this.view == null;
-            assert this.batcher == null;
             assert this.context == null;
             this.state = State.CLOSED;
             return;
@@ -255,15 +251,9 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         try {
             this.view.close();
         } finally {
-            try {
-                if (this.batcher != null)
-                    this.batcher.close();
-            } finally {
-                this.view = null;
-                this.batcher = null;
-                this.context = null;
-                this.state = State.CLOSED;
-            }
+            this.view = null;
+            this.context = null;
+            this.state = State.CLOSED;
         }
     }
 
