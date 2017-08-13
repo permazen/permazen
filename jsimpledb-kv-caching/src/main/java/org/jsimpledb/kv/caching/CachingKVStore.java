@@ -411,7 +411,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                 if (reverse && range != null) {
                     if (KeyRange.compare(range.getMax(), start) < 0) {
                         range = this.first(this.ranges.tailSet(this.key(start), true));
-                        assert KeyRange.compare(range.getMax(), start) >= 0;
+                        assert range == null || KeyRange.compare(range.getMax(), start) >= 0;
                     }
                 }
 
