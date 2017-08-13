@@ -3,14 +3,16 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.caching;
+package org.jsimpledb.util;
 
 import com.google.common.base.Preconditions;
 
 /**
  * Exponential moving average calculator.
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average">Exponential Moving Average</a>
  */
-class MovingAverage {
+public class MovingAverage {
 
     private final double alpha;
     private double average = Double.NaN;
@@ -21,21 +23,21 @@ class MovingAverage {
      * @param alpha averaging parameter
      * @throws IllegalArgumentException if {@code alpha} is not a finite number in the range 0.0 to 1.0 (inclusive)
      */
-    MovingAverage(double alpha) {
+    public MovingAverage(double alpha) {
         Preconditions.checkArgument(Double.isFinite(alpha));
         Preconditions.checkArgument(alpha >= 0.0 && alpha <= 1.0);
         this.alpha = alpha;
     }
 
     /**
-     * Constructor.
+     * Constructor with initial value.
      *
      * @param alpha averaging parameter
      * @param initialValue initial value
      * @throws IllegalArgumentException if {@code alpha} is not a finite number in the range 0.0 to 1.0 (inclusive)
      * @throws IllegalArgumentException if {@code initialValue} is not a finite number
      */
-    MovingAverage(double alpha, double initialValue) {
+    public MovingAverage(double alpha, double initialValue) {
         this(alpha);
         this.add(initialValue);
     }

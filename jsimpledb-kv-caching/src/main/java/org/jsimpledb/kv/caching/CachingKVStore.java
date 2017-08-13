@@ -32,6 +32,7 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.CloseableIterator;
+import org.jsimpledb.util.MovingAverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
