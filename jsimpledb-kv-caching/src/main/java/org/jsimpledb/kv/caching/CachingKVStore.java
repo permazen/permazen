@@ -60,9 +60,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * These underlying queries are performed asynchronously in background tasks, and multiple background range queries
  * may be running at the same time. To avoid creating redundant background queries, when handling a query for a
- * key/value pair that may possibly be answered by an existing but uncompleted background range query depending on
- * the key/value pairs are yet to arrive), instances will sometimes speculatively delay creating a new task. This
- * decision is based on an estimation of round-trip time, and the uncompleted background query's data arrival rate.
+ * key/value pair that may possibly be answered by an existing but uncompleted background range query (depending on
+ * key/value pairs yet to arrive), instances will sometimes speculatively delay creating a new task. This decision
+ * is based on an ongoing estimation of round-trip time, and the uncompleted background query's data arrival rate.
  *
  * <p><b>Configuration</b></p>
  *
@@ -82,6 +82,8 @@ import org.slf4j.LoggerFactory;
  * <b>Warning:</b> this class assumes that the underlying {@link KVStore} provides fully consistent
  * reads: the data returned by any two read operations, no matter when they occur, will be consistent.
  * Enabling assertions on this package may detect some violations of this assumption.
+ *
+ * @see CachingKVDatabase
  */
 public class CachingKVStore extends CloseableForwardingKVStore implements CachingConfig {
 

@@ -16,6 +16,14 @@ import org.jsimpledb.util.CloseableIterator;
 
 /**
  * A transaction associated with a {@link CachingKVDatabase}.
+ *
+ * <p>
+ * Instances create the following "stack":
+ * <ul>
+ *  <li>A {@link MutableView} to collect any mutations</li>
+ *  <li>A {@link CachingKVStore} to cache transaction data</li>
+ *  <li>The underlying {@link KVTransaction}</li>
+ * </ul>
  */
 public class CachingKVTransaction extends AbstractCachingConfig implements KVTransaction, CloseableKVStore {
 

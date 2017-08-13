@@ -14,7 +14,11 @@ import java.util.concurrent.Executors;
 import org.jsimpledb.kv.KVDatabase;
 
 /**
- * A wrapper around an inner {@link KVDatabase} that adds caching to created transactions.
+ * A wrapper around an inner {@link KVDatabase} that adds a caching layer to transactions by wrapping them
+ * in a {@link CachingKVStore}.
+ *
+ * <p>
+ * See {@link CachingKVStore} for details on how caching is performed.
  *
  * <p><b>Consistency Assumptions</b></p>
  *
