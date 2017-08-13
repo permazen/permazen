@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Batch Loading</b></p>
  *
  * <p>
- * Because Spanner has relatively high latency vs. throughput, instances utilize a {@link org.jsimpledb.kv.util.BatchingKVStore}
+ * Because Spanner has relatively high latency vs. throughput, instances utilize a {@link org.jsimpledb.kv.caching.CachingKVStore}
  * for batch loading and read-ahead.
  *
  * <p><b>Consistency Levels</b></p>

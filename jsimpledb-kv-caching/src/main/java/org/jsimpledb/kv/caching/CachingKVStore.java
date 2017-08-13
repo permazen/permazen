@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.util;
+package org.jsimpledb.kv.caching;
 
 import com.google.common.base.Preconditions;
 
@@ -29,6 +29,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
@@ -39,33 +40,49 @@ import org.slf4j.LoggerFactory;
  * latency for consecutive key/value pairs in a {@link KVStore#getRange KVStore.getRange()} range read.
  *
  * <p>
- * An example is a {@link KVStore} backed by some service provided over the network. Reading one key/value pair
+ * An example is a {@link KVStore} backed by a service provided over the network. Reading one key/value pair
  * costs a network round trip, whereas when reading a whole range of keys the round trip time is amortized over
  * the whole range because many key/value pairs can be streamed in a single response.
  *
- * <p>
- * When a read occurs, an instance triggers an asynchronous batch query with "read-ahead" and caches the result
- * in anticipation of further queries in the same region of the key space. Instances attempt to optimize behavior
- * based on estimations of round-trip time and range query key arrival rates.
+ * <p><b>Caching and Read-Ahead</b></p>
  *
  * <p>
- * Internally, instances store contiguous key ranges and the associated values. Queries contained within a
- * range can be answered immediately; other queries trigger the creation of a new range or the extension of
- * an existing range.
+ * All queries to the underlying {@link KVStore} are range queries. Internally, instances store the results from
+ * these queries as contiguous key ranges with the associated values. Queries contained within a known range can
+ * be answered immediately; other queries trigger the creation of a new range or the extension of an existing range.
  *
  * <p>
- * This class assumes the underlying key/value store is read-only and unchanging, so that cached values are
- * always up-to-date.
+ * By default, instances are configured for {@linkplain #setReadAhead read ahead}, so that underlying range reads
+ * extend past the end of the requested limit, in anticipation of further queries from the nearby region of the
+ * key space.
+ *
+ * <p>
+ * These underlying queries are performed asynchronously in background tasks, and multiple background range queries
+ * may be running at the same time. To avoid creating redundant background queries, when handling a query for a
+ * key/value pair that may possibly be answered by an existing but uncompleted background range query depending on
+ * the key/value pairs are yet to arrive), instances will sometimes speculatively delay creating a new task. This
+ * decision is based on an estimation of round-trip time, and the uncompleted background query's data arrival rate.
  *
  * <p><b>Configuration</b></p>
  *
  * <p>
  * Instances are configured with limits on {@linkplain #setMaxRanges the maximum number of contiguous key/value ranges},
  * {@linkplain #setMaxRangeBytes the maximum amount of data to preload into a single contiguous key/value range},
- * and {@linkplain #setMaxTotalBytes the maximum total amount of data to cache}. When these limits are exceeded,
+ * and {@linkplain #setMaxTotalBytes the maximum total amount of data to cache}. Once these limits are exceeded,
  * stored ranges are discarded on a least-recently-used basis.
+ *
+ * <p><b>Consistency Assumptions</b></p>
+ *
+ * <p>
+ * This class assumes the underlying key/value store is read-only and unchanging, so that cached values are always
+ * up-to-date. Attempts to modify the key/value store will result in an {@link UnsupportedOperationException}.
+ *
+ * <p>
+ * <b>Warning:</b> this class assumes that the underlying {@link KVStore} provides fully consistent
+ * reads: the data returned by any two read operations, no matter when they occur, will be consistent.
+ * Enabling assertions on this package may detect some violations of this assumption.
  */
-public class BatchingKVStore extends CloseableForwardingKVStore {
+public class CachingKVStore extends CloseableForwardingKVStore implements CachingConfig {
 
 /*
 
@@ -89,7 +106,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
     Each Loader has an associated Future<?> representing the completion of the retrieval of the next key/value pair.
     If the Loader is no longer active, this is set to null, and setting it to null effectively cancels the Loader
-    (it should also be explicitly cancel()'d).
+    (it should also be explicitly cancel()'d first).
 
     Primoridal KVRanges always have at least one Loader; any Loader(s) associated with a primoridal KVRange has yet
     to receive its first result from the getRange() query.
@@ -185,9 +202,12 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
     private final TreeSet<KVRange> ranges = new TreeSet<>(SORT_BY_MIN);         // ranges ordered by key range minimum
     private final RingEntry<KVRange> lru = new RingEntry<>(null);               // ranges ordered by recency (MRU first, LRU last)
 
+    // CachingConfig
     private int maxRanges = DEFAULT_MAX_RANGES;
     private long maxRangeBytes = DEFAULT_MAX_RANGE_BYTES;
     private long maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES;
+    private boolean readAhead = DEFAULT_READ_AHEAD;
+
     private long totalBytes;
     private KVException error;
 
@@ -202,7 +222,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
      * @throws IllegalArgumentException if either parameter is null
      * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
-    public BatchingKVStore(KVStore kvstore, ExecutorService executor, int rttEstimate) {
+    public CachingKVStore(KVStore kvstore, ExecutorService executor, int rttEstimate) {
         this(kvstore, null, executor, rttEstimate);
     }
 
@@ -215,11 +235,11 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
      * @throws IllegalArgumentException if either parameter is null
      * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
-    public BatchingKVStore(CloseableKVStore kvstore, ExecutorService executor, int rttEstimate) {
+    public CachingKVStore(CloseableKVStore kvstore, ExecutorService executor, int rttEstimate) {
         this(kvstore, kvstore, executor, rttEstimate);
     }
 
-    private BatchingKVStore(KVStore kvstore, Closeable closeable, ExecutorService executor, int rttEstimate) {
+    private CachingKVStore(KVStore kvstore, Closeable closeable, ExecutorService executor, int rttEstimate) {
         super(kvstore, closeable);
         Preconditions.checkArgument(executor != null, "null executor");
         Preconditions.checkArgument(rttEstimate >= 0, "rttEstimate < 0");
@@ -227,49 +247,49 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         this.rtt = new MovingAverage(RTT_DECAY_FACTOR, TimeUnit.MILLISECONDS.toNanos(rttEstimate));
     }
 
-// Accessors
+// CachingConfig
 
-    /**
-     * Configure the maximum number of bytes to cache in a single contiguous range of key/value pairs.
-     *
-     * <p>
-     * Default is {@value #DEFAULT_MAX_RANGE_BYTES}.
-     *
-     * @param maxRangeBytes maximum bytes in any one range
-     * @throws IllegalArgumentException if {@code maxRangeBytes <= 0}
-     */
-    public synchronized void setMaxRangeBytes(int maxRangeBytes) {
+    @Override
+    public synchronized long getMaxRangeBytes() {
+        return this.maxRangeBytes;
+    }
+
+    @Override
+    public synchronized void setMaxRangeBytes(long maxRangeBytes) {
         Preconditions.checkArgument(maxRanges > 0, "maxRangeBytes <= 0");
         this.maxRangeBytes = maxRangeBytes;
     }
 
-    /**
-     * Configure thmum total number of bytes to cache. This is an overal maximum incluging all ranges.
-     *
-     * <p>
-     * Default is {@value #DEFAULT_MAX_TOTAL_BYTES}.
-     *
-     * @param maxTotalBytes maximum cached ranges
-     * @throws IllegalArgumentException if {@code maxTotalBytes <= 0}
-     */
-    public synchronized void setMaxTotalBytes(int maxTotalBytes) {
+    @Override
+    public synchronized long getMaxTotalBytes() {
+        return this.maxTotalBytes;
+    }
+
+    @Override
+    public synchronized void setMaxTotalBytes(long maxTotalBytes) {
         Preconditions.checkArgument(maxTotalBytes > 0, "maxTotalBytes <= 0");
         this.maxTotalBytes = maxTotalBytes;
     }
 
-    /**
-     * Configure the maximum number of contiguous ranges of key/value pairs to allow before we start purging the
-     * least recently used ones.
-     *
-     * <p>
-     * Default is {@value #DEFAULT_MAX_RANGES}.
-     *
-     * @param maxRanges maximum cached ranges
-     * @throws IllegalArgumentException if {@code maxRanges <= 0}
-     */
+    @Override
+    public synchronized int getMaxRanges() {
+        return this.maxRanges;
+    }
+
+    @Override
     public synchronized void setMaxRanges(int maxRanges) {
         Preconditions.checkArgument(maxRanges > 0, "maxRanges <= 0");
         this.maxRanges = maxRanges;
+    }
+
+    @Override
+    public synchronized boolean isReadAhead() {
+        return this.readAhead;
+    }
+
+    @Override
+    public synchronized void setReadAhead(boolean readAhead) {
+        this.readAhead = readAhead;
     }
 
 // KVStore
@@ -303,6 +323,21 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         if (KeyRange.compare(minKey, maxKey) >= 0)
             return null;
         return this.find(maxKey, minKey, true);
+    }
+
+    @Override
+    public void put(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void remove(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        throw new UnsupportedOperationException();
     }
 
 // Closeable
@@ -509,14 +544,20 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                 if (loader == null) {
                     assert range.getLoader(reverse) == null : "" + range;
 
-                    // Extend our range query all the way to the neighboring range, or inifinity if there is none
+                    // Extend our range query all the way to the neighboring range, or to read-ahead limit if there is none
                     byte[] actualLimit = limit;
                     if (reverse && limit.length > 0) {
                         final KVRange nextRange = this.ranges.lower(range);
-                        actualLimit = nextRange != null && !nextRange.isPrimordial() ? nextRange.getMax() : ByteUtil.EMPTY;
+                        if (nextRange != null && !nextRange.isPrimordial())
+                            actualLimit = nextRange.getMax();
+                        else if (this.readAhead)
+                            actualLimit = ByteUtil.EMPTY;
                     } else if (!reverse && limit != null) {
                         final KVRange nextRange = this.ranges.higher(range);
-                        actualLimit = nextRange != null && !nextRange.isPrimordial() ? nextRange.getMin() : null;
+                        if (nextRange != null && !nextRange.isPrimordial())
+                            actualLimit = nextRange.getMin();
+                        else if (this.readAhead)
+                            actualLimit = null;
                     }
 
                     // Create new loader
@@ -674,7 +715,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
         private static final double RATE_DECAY_FACTOR = 0.10;
 
-        private final Logger log = BatchingKVStore.this.log;
+        private final Logger log = CachingKVStore.this.log;
         private final long startTime = System.nanoTime();
 
         private final KVRange range;                    // the range that we are extending
@@ -689,7 +730,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         private MovingAverage arrivalRate = new MovingAverage(RATE_DECAY_FACTOR);
 
         Loader(KVRange range, boolean reverse, byte[] limit) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert range != null;
             this.range = range;
             this.reverse = reverse;
@@ -698,7 +739,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
               KeyRange.compare(limit, this.start) < 0 :
               KeyRange.compare(limit, this.start) > 0;
             this.future = new CompletableFuture<>();
-            this.taskFuture = BatchingKVStore.this.executor.submit(this);
+            this.taskFuture = CachingKVStore.this.executor.submit(this);
             this.range.setLoader(this.reverse, this);
             this.limit = limit;
         }
@@ -714,7 +755,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Determine the direction of loading.
          */
         public boolean isReverse() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.reverse;
         }
 
@@ -722,7 +763,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get the estimated key arrival rate in key-space-units/nanosecond.
          */
         public double getArrivalRate() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.arrivalRate.get();
         }
 
@@ -736,11 +777,11 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * @return task {@link Future}, or null if no task is currently loading this range
          */
         public CompletableFuture<?> getFuture() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.future;
         }
         public boolean isStopped() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.future == null;
         }
 
@@ -748,7 +789,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Stop the task that's loading this range, if any.
          */
         public void stop() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             if (this.future != null) {
                 this.future.cancel(true);
                 this.future = null;
@@ -773,24 +814,24 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
                 // Get iterator, load key/value pairs, then close iterator
                 try (final CloseableIterator<KVPair> iterator = this.reverse ?
-                  BatchingKVStore.super.getRange(this.limit, this.start, true) :
-                  BatchingKVStore.super.getRange(this.start, this.limit, false)) {
+                  CachingKVStore.super.getRange(this.limit, this.start, true) :
+                  CachingKVStore.super.getRange(this.start, this.limit, false)) {
                     this.load(iterator);
                 }
             } catch (Throwable t) {
                 if (this.log.isTraceEnabled())
                     this.trace("exception in task", t);
-                synchronized (BatchingKVStore.this) {
+                synchronized (CachingKVStore.this) {
                     if (!this.isStopped()) {
-                        if (BatchingKVStore.this.error == null) {
-                            BatchingKVStore.this.error = t instanceof KVException ? (KVException)t : new KVException(t);
-                            BatchingKVStore.this.close();
+                        if (CachingKVStore.this.error == null) {
+                            CachingKVStore.this.error = t instanceof KVException ? (KVException)t : new KVException(t);
+                            CachingKVStore.this.close();
                         }
-                        throw BatchingKVStore.this.error.rethrow();
+                        throw CachingKVStore.this.error.rethrow();
                     }
                 }
             } finally {
-                synchronized (BatchingKVStore.this) {
+                synchronized (CachingKVStore.this) {
                     this.stop();
                 }
             }
@@ -810,14 +851,18 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                 byte[] val = pair != null ? pair.getValue() : null;
                 if (key != null) {
                     if (this.reverse) {
-                        synchronized (BatchingKVStore.this) {
-                            assert KeyRange.compare(key, this.getBase()) < 0 : "key=" + ByteUtil.toString(key);
-                            assert KeyRange.compare(key, this.limit) >= 0 : "key=" + ByteUtil.toString(key);
+                        synchronized (CachingKVStore.this) {
+                            assert KeyRange.compare(key, this.getBase()) < 0 :
+                              "key=" + ByteUtil.toString(key) + " >= " + ByteUtil.toString(this.getBase());
+                            assert KeyRange.compare(key, this.limit) >= 0 :
+                              "key=" + ByteUtil.toString(key) + " < " + ByteUtil.toString(this.limit);
                         }
                     } else {
-                        synchronized (BatchingKVStore.this) {
-                            assert KeyRange.compare(key, this.getBase()) >= 0 : "key=" + ByteUtil.toString(key);
-                            assert KeyRange.compare(key, this.limit) < 0 : "key=" + ByteUtil.toString(key);
+                        synchronized (CachingKVStore.this) {
+                            assert KeyRange.compare(key, this.getBase()) >= 0 :
+                              "key=" + ByteUtil.toString(key) + " < " + ByteUtil.toString(this.getBase());
+                            assert KeyRange.compare(key, this.limit) < 0 :
+                              "key=" + ByteUtil.toString(key) + " >= " + ByteUtil.toString(this.limit);
                         }
                     }
                 }
@@ -829,14 +874,14 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                 }
 
                 // Update our range
-                synchronized (BatchingKVStore.this) {
+                synchronized (CachingKVStore.this) {
 
                     // Sanity check
-                    assert BatchingKVStore.this.sanityCheck();
+                    assert CachingKVStore.this.sanityCheck();
 
                     // Debug
                     if (this.log.isTraceEnabled())
-                        this.trace("handle key={} ranges={}", ByteUtil.toString(key), BatchingKVStore.this.ranges);
+                        this.trace("handle key={} ranges={}", ByteUtil.toString(key), CachingKVStore.this.ranges);
 
                     // Check for stoppage
                     if (this.isStopped()) {
@@ -851,8 +896,8 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                     byte[] extentMin = !reverse ? this.getBase() : key != null ? key : this.limit;
                     byte[] extentMax = reverse ? this.getBase() : key != null ? ByteUtil.getNextKey(key) : this.limit;
                     boolean stopLoading = key == null;
-                    for (Iterator<KVRange> i = BatchingKVStore.this.ranges.tailSet(
-                      BatchingKVStore.this.key(extentMin), true).iterator(); i.hasNext(); ) {
+                    for (Iterator<KVRange> i = CachingKVStore.this.ranges.tailSet(
+                      CachingKVStore.this.key(extentMin), true).iterator(); i.hasNext(); ) {
                         final KVRange contained = i.next();
                         assert ByteUtil.compare(contained.getMin(), extentMin) >= 0;
 
@@ -874,13 +919,13 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                         if (this.log.isTraceEnabled())
                             this.trace("discarding contained range {}", contained);
                         i.remove();
-                        BatchingKVStore.this.discard(contained, false);
+                        CachingKVStore.this.discard(contained, false);
                     }
 
                     // If our extent partially overlaps an existing range, truncate our extent so there's no overlap
                     if (reverse) {
                         final KVRange overlap = this.last(
-                          BatchingKVStore.this.ranges.headSet(BatchingKVStore.this.key(extentMin), false));
+                          CachingKVStore.this.ranges.headSet(CachingKVStore.this.key(extentMin), false));
                         assert overlap == null || overlap == this.range || KeyRange.compare(overlap.getMin(), extentMin) < 0;
                         if (overlap != null && overlap != this.range && KeyRange.compare(overlap.getMax(), extentMin) > 0) {
 
@@ -896,8 +941,8 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                         }
                     } else {
                         final KVRange overlap = this.last(extentMax != null ?
-                          BatchingKVStore.this.ranges.headSet(BatchingKVStore.this.key(extentMax), false) :
-                          BatchingKVStore.this.ranges);
+                          CachingKVStore.this.ranges.headSet(CachingKVStore.this.key(extentMax), false) :
+                          CachingKVStore.this.ranges);
                         assert overlap == null || overlap == this.range || KeyRange.compare(overlap.getMin(), extentMax) < 0;
                         if (overlap != null && overlap != this.range) {
                             assert KeyRange.compare(overlap.getMax(), extentMax) > 0;         // or else should have been discarded
@@ -955,59 +1000,59 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
                     KVRange mergedRange = null;
                     if (reverse && extentMin.length > 0) {
                         final KVRange neighbor
-                          = this.last(BatchingKVStore.this.ranges.headSet(BatchingKVStore.this.key(extentMin), false));
+                          = this.last(CachingKVStore.this.ranges.headSet(CachingKVStore.this.key(extentMin), false));
                         if (neighbor != null && ByteUtil.compare(neighbor.getMax(), extentMin) == 0) {
                             if (neighbor.isPrimordial()) {
                                 assert neighbor.isEmpty();
                                 if (this.log.isTraceEnabled())
                                     this.trace("merging primordial {} -> {}", neighbor, this.range);
-                                BatchingKVStore.this.discard(neighbor, true);
+                                CachingKVStore.this.discard(neighbor, true);
                             } else {
                                 if (this.log.isTraceEnabled())
                                     this.trace("merging {} + {}", neighbor, this.range);
                                 mergedRange = neighbor.merge(this.range);
                                 if (this.log.isTraceEnabled())
                                     this.trace("result of merge: {}", mergedRange);
-                                BatchingKVStore.this.discard(neighbor, true);
-                                BatchingKVStore.this.discard(this.range, true);
-                                BatchingKVStore.this.ranges.add(mergedRange);
-                                mergedRange.getLruEntry().attachAfter(BatchingKVStore.this.lru);
+                                CachingKVStore.this.discard(neighbor, true);
+                                CachingKVStore.this.discard(this.range, true);
+                                CachingKVStore.this.ranges.add(mergedRange);
+                                mergedRange.getLruEntry().attachAfter(CachingKVStore.this.lru);
                                 assert mergedRange.sanityCheck();
                             }
-                            assert BatchingKVStore.this.sanityCheck();
+                            assert CachingKVStore.this.sanityCheck();
                         }
                     } else if (!reverse && extentMax != null) {
                         final KVRange neighbor
-                          = this.first(BatchingKVStore.this.ranges.tailSet(BatchingKVStore.this.key(extentMax), true));
+                          = this.first(CachingKVStore.this.ranges.tailSet(CachingKVStore.this.key(extentMax), true));
                         if (neighbor != null && ByteUtil.compare(neighbor.getMin(), extentMax) == 0) {
                             if (neighbor.isPrimordial()) {
                                 assert neighbor.isEmpty();
                                 if (this.log.isTraceEnabled())
                                     this.trace("merging primordial {} <- {}", this.range, neighbor);
-                                BatchingKVStore.this.discard(neighbor, true);
+                                CachingKVStore.this.discard(neighbor, true);
                             } else {
                                 if (this.log.isTraceEnabled())
                                     this.trace("merging {} + {}", this.range, neighbor);
                                 mergedRange = this.range.merge(neighbor);
                                 if (this.log.isTraceEnabled())
                                     this.trace("result of merge: {}", mergedRange);
-                                BatchingKVStore.this.discard(this.range, true);
-                                BatchingKVStore.this.discard(neighbor, true);
-                                BatchingKVStore.this.ranges.add(mergedRange);
-                                mergedRange.getLruEntry().attachAfter(BatchingKVStore.this.lru);
+                                CachingKVStore.this.discard(this.range, true);
+                                CachingKVStore.this.discard(neighbor, true);
+                                CachingKVStore.this.ranges.add(mergedRange);
+                                mergedRange.getLruEntry().attachAfter(CachingKVStore.this.lru);
                                 assert mergedRange.sanityCheck();
                             }
-                            assert BatchingKVStore.this.sanityCheck();
+                            assert CachingKVStore.this.sanityCheck();
                         }
                     }
 
                     // Stop if we merged into another range, or if our range has gotten too big
-                    stopLoading |= mergedRange != null || this.range.getTotalBytes() > BatchingKVStore.this.maxRangeBytes;
+                    stopLoading |= mergedRange != null || this.range.getTotalBytes() > CachingKVStore.this.maxRangeBytes;
 
                     // Stop if done
                     if (stopLoading) {
                         this.stop();
-                        assert BatchingKVStore.this.sanityCheck();
+                        assert CachingKVStore.this.sanityCheck();
                         break;
                     }
 
@@ -1047,7 +1092,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
         @Override
         public String toString() {
-            synchronized (BatchingKVStore.this) {
+            synchronized (CachingKVStore.this) {
                 return "Loader"
                   + "[" + (this.reverse ? "reverse" : "forward")
                   + ",base=" + ByteUtil.toString(this.getBase())
@@ -1096,11 +1141,11 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * @return lower limit of known range (inclusive)
          */
         public byte[] getMin() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.min;
         }
         public void setMin(byte[] min) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert min != null;
             assert ByteUtil.compare(min, this.min) <= 0;                // KVRanges can only get bigger, not smaller
             this.min = min;
@@ -1112,17 +1157,17 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * @return upper limit of known range (exclusive); null means infinity
          */
         public byte[] getMax() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.max;
         }
         public void setMax(byte[] max) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert KeyRange.compare(max, this.max) >= 0;                // KVRanges can only get bigger, not smaller
             this.max = max;
         }
 
         public KeyRange getKeyRange() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return new KeyRange(this.min, this.max);
         }
 
@@ -1130,26 +1175,26 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get last known index of this entry in the 'ranges' list.
          */
         public int getLastKnownRangesIndex() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.lastKnownRangesIndex;
         }
         public void setLastKnownRangesIndex(int lastKnownRangesIndex) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert lastKnownRangesIndex >= 0;
             this.lastKnownRangesIndex = lastKnownRangesIndex;
         }
 
         public Loader getLoader(boolean reverse) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.loaders[reverse ? 1 : 0];
         }
         public void setLoader(boolean reverse, Loader loader) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert this.loaders[reverse ? 1 : 0] == null || this.loaders[reverse ? 1 : 0].isStopped();
             this.loaders[reverse ? 1 : 0] = loader;
         }
         public void stopLoader(boolean reverse) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             final Loader loader = this.getLoader(reverse);
             if (loader != null)
                 loader.stop();
@@ -1159,7 +1204,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Find the entry with at least (inclusive) the given key.
          */
         public KVPair getAtLeast(byte[] key) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             int index = Arrays.binarySearch(this.keys, this.minIndex, this.maxIndex, key, ByteUtil.COMPARATOR);
             if (index < 0) {
                 if ((index = ~index) >= this.maxIndex)
@@ -1172,7 +1217,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Find the entry with at most (exclusive) the given key.
          */
         public KVPair getAtMost(byte[] key) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             int index = Arrays.binarySearch(this.keys, this.minIndex, this.maxIndex, key, KeyRange::compare);
             if (index < 0)
                 index = ~index;
@@ -1185,7 +1230,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get the number of key/value pairs contained in this range.
          */
         public int size() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.maxIndex - this.minIndex;
         }
 
@@ -1193,7 +1238,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get whether the set of key/value pairs contained in this range is empty.
          */
         public boolean isEmpty() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.maxIndex == this.minIndex;
         }
 
@@ -1201,7 +1246,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get whether this range is primoridal (i.e., spans zero keys).
          */
         public boolean isPrimordial() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return KeyRange.compare(this.min, this.max) == 0;
         }
 
@@ -1209,7 +1254,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get the total amount of key and value data stored.
          */
         public long getTotalBytes() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.totalBytes;
         }
 
@@ -1217,7 +1262,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get the time of creation of this range.
          */
         public long getCreationTime() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.creationTime;
         }
 
@@ -1225,12 +1270,12 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
          * Get LRU list entry.
          */
         public RingEntry<KVRange> getLruEntry() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             return this.lruEntry;
         }
 
-        public BatchingKVStore getKVStore() {
-            return BatchingKVStore.this;
+        public CachingKVStore getKVStore() {
+            return CachingKVStore.this;
         }
 
         /**
@@ -1239,7 +1284,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         public void add(byte[] key, byte[] val) {
 
             // Sanity check
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert !this.getKeyRange().contains(key);
             assert key != null && val != null;
 
@@ -1340,7 +1385,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         }
 
         private void growArrays() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             final int size = this.size();
             final byte[][] newKeys = new byte[(int)(size * ARRAY_GROWTH_FACTOR) + 30][];
             final byte[][] newVals = new byte[newKeys.length][];
@@ -1355,20 +1400,20 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         }
 
         public boolean sanityCheck() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert this.sanityCheckInternal();
-            assert BatchingKVStore.this.ranges.contains(this) : this + " not in " + BatchingKVStore.this.ranges;
+            assert CachingKVStore.this.ranges.contains(this) : this + " not in " + CachingKVStore.this.ranges;
             assert this.lruEntry.isAttached() : this + " not in LRU";
             return true;
         }
 
         private boolean sanityCheckInternal() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             assert KeyRange.compare(this.min, this.max) <= 0;
             assert this.keys != null;
             assert this.vals != null;
             assert this.size() >= 0;
-            assert this.lastKnownRangesIndex >= 0 : "range=" + this + " ranges=" + BatchingKVStore.this.ranges;
+            assert this.lastKnownRangesIndex >= 0 : "range=" + this + " ranges=" + CachingKVStore.this.ranges;
             assert this.keys.length == this.vals.length;
             assert this.size() <= this.keys.length;
             for (int i = this.minIndex; i < this.maxIndex; i++) {
@@ -1384,7 +1429,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
         // Invalidate this range so sanityCheck() will fail
         private boolean invalidate() {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             this.keys = null;
             this.vals = null;
             this.minIndex = -1;
@@ -1396,7 +1441,7 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
 
         // Verify key is the only key in the given range (if key is not null), or the given range is empty (if key is null)
         public boolean containsOnlyKeyInRange(byte[] key, byte[] min, byte[] max) {
-            assert Thread.holdsLock(BatchingKVStore.this);
+            assert Thread.holdsLock(CachingKVStore.this);
             if (KeyRange.compare(key, this.min) < 0 || KeyRange.compare(key, this.max) >= 0)
                 key = null;
             assert KeyRange.compare(min, max) <= 0;
@@ -1412,18 +1457,18 @@ public class BatchingKVStore extends CloseableForwardingKVStore {
         }
 
         private void debug(String msg, Object... params) {
-            BatchingKVStore.this.log.debug(this + ": " + msg, params);
+            CachingKVStore.this.log.debug(this + ": " + msg, params);
         }
 
         private void trace(String msg, Object... params) {
-            BatchingKVStore.this.log.trace(this + ": " + msg, params);
+            CachingKVStore.this.log.trace(this + ": " + msg, params);
         }
 
     // Object
 
         @Override
         public String toString() {
-            synchronized (BatchingKVStore.this) {
+            synchronized (CachingKVStore.this) {
                 final StringBuilder keysBuf = new StringBuilder();
                 if (!this.isEmpty()) {
                     for (int i = this.minIndex; i < this.maxIndex; i++) {

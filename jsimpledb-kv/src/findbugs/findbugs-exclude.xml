@@ -19,10 +19,4 @@
         <Method name="findNext"/>
         <Bug pattern="DC_DOUBLECHECK"/>
     </Match>
-    <Match>
-        <!-- https://github.com/findbugsproject/findbugs/issues/79 -->
-        <Class name="org.jsimpledb.kv.util.BatchingKVStore$Loader"/>
-        <Method name="load"/>
-        <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
-    </Match>
 </FindBugsFilter>

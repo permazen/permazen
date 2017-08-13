@@ -28,7 +28,7 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.util.BatchingKVStore;
+import org.jsimpledb.kv.caching.CachingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.jsimpledb.util.CloseableIterator;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     @GuardedBy("this")
     private ReadWriteSpannerView view;
     @GuardedBy("this")
-    private BatchingKVStore batcher;
+    private CachingKVStore batcher;
     @GuardedBy("this")
     private State state = State.INITIAL;
 

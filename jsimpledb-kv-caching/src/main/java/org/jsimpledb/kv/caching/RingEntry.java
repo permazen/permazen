@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.util;
+package org.jsimpledb.kv.caching;
 
 /**
  * An entry in a doubly-linked circular ring of entries, each with an associated owner.

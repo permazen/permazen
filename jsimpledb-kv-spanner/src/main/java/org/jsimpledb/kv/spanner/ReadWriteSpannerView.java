@@ -23,9 +23,9 @@ import java.util.function.Function;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.caching.CachingKVStore;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Writes;
-import org.jsimpledb.kv.util.BatchingKVStore;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Use {@link #bufferMutations bufferMutations()} to transfer outstanding mutations into a {@link TransactionContext}.
  *
  * @see ReadOnlySpannerView
- * @see org.jsimpledb.kv.util.BatchingKVStore
+ * @see org.jsimpledb.kv.caching.CachingKVStore
  */
 public class ReadWriteSpannerView extends MutableView implements CloseableKVStore {
 
@@ -76,7 +76,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
     public ReadWriteSpannerView(String tableName, ReadContext context,
       Function<? super SpannerException, RuntimeException> exceptionMapper, ExecutorService executor, int rttEstimate) {
         this(tableName,
-          new BatchingKVStore(new ReadOnlySpannerView(tableName, context, exceptionMapper), executor, rttEstimate), null);
+          new CachingKVStore(new ReadOnlySpannerView(tableName, context, exceptionMapper), executor, rttEstimate), null);
     }
 
     private ReadWriteSpannerView(String tableName, KVStore view,

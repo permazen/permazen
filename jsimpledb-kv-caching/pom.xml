@@ -10,9 +10,9 @@
         <artifactId>jsimpledb</artifactId>
         <version>3.5.4-SNAPSHOT</version>
     </parent>
-    <artifactId>jsimpledb-kv-spanner</artifactId>
-    <name>JSimpleDB Google Cloud Spanner Key/Value Store</name>
-    <description>JSimpleDB key/value store implementation based on Google Cloud Spanner.</description>
+    <artifactId>jsimpledb-kv-caching</artifactId>
+    <name>JSimpleDB Key/Value Caching Layer</name>
+    <description>JSimpleDB key/value store classes related to caching.</description>
     <distributionManagement>
         <site>
             <id>${project.artifactId}-site</id>
@@ -26,7 +26,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-kv-caching</artifactId>
+            <artifactId>${project.parent.artifactId}-kv-array</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -38,20 +39,12 @@
             <artifactId>${project.parent.artifactId}-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-spanner</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
 </project>

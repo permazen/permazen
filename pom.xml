@@ -25,6 +25,7 @@
         <module>jsimpledb-jsck</module>
         <module>jsimpledb-kv-array</module>
         <module>jsimpledb-kv-bdb</module>
+        <module>jsimpledb-kv-caching</module>
         <module>jsimpledb-kv-cockroach</module>
         <module>jsimpledb-kv-fdb</module>
         <module>jsimpledb-kv-leveldb</module>
@@ -470,6 +471,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-caching</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
                 <artifactId>jsimpledb-kv-cockroach</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -729,6 +735,9 @@
                         <!--
                         <berkeleyDirPrefix>BerkeleyDbJava</berkeleyDirPrefix>
                         -->
+
+                        <!-- kv-caching -->
+                        <testCachingKV>true</testCachingKV>
 
                         <!-- kv-cockroach -->
                         <!--

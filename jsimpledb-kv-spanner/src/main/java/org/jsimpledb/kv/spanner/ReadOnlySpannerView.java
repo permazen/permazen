@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Provides a (read-only) {@link org.jsimpledb.kv.KVStore} view of a {@link ReadContext}.
  *
  * <p>
- * For best performance, consider wrapping an instance of this class in a {@link org.jsimpledb.kv.util.BatchingKVStore}.
+ * For best performance, consider wrapping an instance of this class in a {@link org.jsimpledb.kv.caching.CachingKVStore}.
  *
  * @see ReadWriteSpannerView
  */
