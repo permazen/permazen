@@ -21,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVException;
@@ -221,11 +220,11 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
      *
      * @param kvstore underlying key/value store
      * @param executor executor for performing asynchronous batch queries
-     * @param rttEstimate estimated round trip time in milliseconds
+     * @param rttEstimate initial round trip time estimate in nanoseconds
      * @throws IllegalArgumentException if either parameter is null
      * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
-    public CachingKVStore(KVStore kvstore, ExecutorService executor, int rttEstimate) {
+    public CachingKVStore(KVStore kvstore, ExecutorService executor, long rttEstimate) {
         this(kvstore, null, executor, rttEstimate);
     }
 
@@ -234,20 +233,20 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
      *
      * @param kvstore underlying key/value store; will be closed on {@link #close}
      * @param executor executor for performing asynchronous batch queries
-     * @param rttEstimate estimated round trip time in milliseconds
+     * @param rttEstimate initial round trip time estimate in nanoseconds
      * @throws IllegalArgumentException if either parameter is null
      * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
-    public CachingKVStore(CloseableKVStore kvstore, ExecutorService executor, int rttEstimate) {
+    public CachingKVStore(CloseableKVStore kvstore, ExecutorService executor, long rttEstimate) {
         this(kvstore, kvstore, executor, rttEstimate);
     }
 
-    private CachingKVStore(KVStore kvstore, Closeable closeable, ExecutorService executor, int rttEstimate) {
+    private CachingKVStore(KVStore kvstore, Closeable closeable, ExecutorService executor, long rttEstimate) {
         super(kvstore, closeable);
         Preconditions.checkArgument(executor != null, "null executor");
         Preconditions.checkArgument(rttEstimate >= 0, "rttEstimate < 0");
         this.executor = executor;
-        this.rtt = new MovingAverage(RTT_DECAY_FACTOR, TimeUnit.MILLISECONDS.toNanos(rttEstimate));
+        this.rtt = new MovingAverage(RTT_DECAY_FACTOR, rttEstimate);
     }
 
 // CachingConfig
@@ -364,6 +363,17 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
             this.ranges.clear();
         }
         super.close();
+    }
+
+// Other methods
+
+    /**
+     * Get the current round trip time estimate.
+     *
+     * @return current RTT estimate in nanoseconds
+     */
+    public double getRttEstimate() {
+        return this.rtt.get();
     }
 
 // Internal methods

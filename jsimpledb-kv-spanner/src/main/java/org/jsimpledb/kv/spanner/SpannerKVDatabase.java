@@ -33,6 +33,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.util.MovingAverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +53,11 @@ import org.slf4j.LoggerFactory;
  * with your environment. The default database ID ({@value #DEFAULT_DATABASE_ID}) and table name ({@value #DEFAULT_TABLE_NAME})
  * may also be overridden.
  *
- * <p><b>Batch Loading</b></p>
+ * <p><b>Caching</b></p>
  *
  * <p>
  * Because Spanner has relatively high latency vs. throughput, instances utilize a {@link org.jsimpledb.kv.caching.CachingKVStore}
- * for batch loading and read-ahead.
+ * for caching and batch loading read-ahead.
  *
  * <p><b>Consistency Levels</b></p>
  *
@@ -134,6 +135,10 @@ public class SpannerKVDatabase implements KVDatabase {
     private static final String DATABASE_ID_PATTERN = "[a-z][-_A-Za-z0-9]*[a-z0-9]";
     private static final String TABLE_NAME_PATTERN = "[A-Za-z][_A-Za-z0-9]*";
 
+    // RTT
+    private static final int INITIAL_RTT_ESTIMATE_MILLIS = 50;                          // 50 ms
+    private static final double RTT_ESTIMATE_DECAY_FACTOR = 0.025;
+
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @GuardedBy("this")
@@ -153,6 +158,8 @@ public class SpannerKVDatabase implements KVDatabase {
     private String tableName = DEFAULT_TABLE_NAME;
     @GuardedBy("this")
     private int threadPoolSize = 10;                // TODO: make configurable
+    @GuardedBy("this")
+    private MovingAverage rtt;
 
     /**
      * Configure {@link SpannerOptions}.
@@ -266,6 +273,9 @@ public class SpannerKVDatabase implements KVDatabase {
                 return thread;
             });
 
+            // Initialize RTT
+            this.rtt = new MovingAverage(RTT_ESTIMATE_DECAY_FACTOR, INITIAL_RTT_ESTIMATE_MILLIS);
+
             // Done
             success = true;
         } finally {
@@ -301,6 +311,23 @@ public class SpannerKVDatabase implements KVDatabase {
             this.executor = null;
         }
         this.client = null;
+    }
+
+// RTT estimate
+
+    /**
+     * Get the current round trip time estimate.
+     *
+     * @return current RTT estimate in nanoseconds
+     * @throws IllegalStateException if this instance has never {@link #start}ed
+     */
+    public synchronized double getRttEstimate() {
+        Preconditions.checkState(this.rtt != null, "instance has never started");
+        return this.rtt.get();
+    }
+
+    synchronized void updateRttEstimate(double rtt) {
+        this.rtt.add(rtt);
     }
 
 // Setup

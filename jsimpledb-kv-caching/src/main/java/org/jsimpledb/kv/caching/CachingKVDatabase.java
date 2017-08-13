@@ -10,8 +10,12 @@ import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.util.MovingAverage;
 
 /**
  * A wrapper around an inner {@link KVDatabase} that adds a caching layer to transactions by wrapping them
@@ -28,16 +32,16 @@ import org.jsimpledb.kv.KVDatabase;
  * within any given transaction. A corollary is that transactions must be fully isolated from each other.
  * Enabling assertions on this package may detect some violations of this assumption.
  *
- * @see KVTransaction
+ * @see CachingKVStore
  */
 public class CachingKVDatabase extends AbstractCachingConfig implements KVDatabase {
 
     /**
-     * Default for round-trip time estimate in milliseconds.
+     * Default for the initial round-trip time estimate in milliseconds.
      *
-     * @see #setRttEstimate
+     * @see #setInitialRttEstimate
      */
-    public static final int DEFAULT_RTT_MILLIS = 200;
+    public static final int DEFAULT_INITIAL_RTT_ESTIMATE_MILLIS = 50;
 
     /**
      * Default thread pool size when no {@link ExecutorService} is explicitly configured.
@@ -46,12 +50,15 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
      */
     public static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
+    private static final double RTT_ESTIMATE_DECAY_FACTOR = 0.025;
+
     private KVDatabase inner;
-    private int rttEstimate;
+    private long initialRttEstimate = TimeUnit.MILLISECONDS.toNanos(DEFAULT_INITIAL_RTT_ESTIMATE_MILLIS);
     private ExecutorService executor;
 
     private boolean started;
     private boolean privateExecutor;
+    private MovingAverage rtt;
 
     /**
      * Default constructor.
@@ -74,28 +81,35 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
 // Accessors
 
     /**
-     * Get the estimated round trip time.
+     * Get the initial round trip time estimate.
      *
      * <p>
-     * Default is {@value #DEFAULT_RTT_MILLIS} ms.
+     * Default is {@value #DEFAULT_INITIAL_RTT_ESTIMATE_MILLIS} ms.
      *
-     * @return estimated round trip time in millseconds
+     * @return initial round trip time estimate in nanoseconds
      */
-    public synchronized int getRttEstimate() {
-        return this.rttEstimate;
+    public synchronized long getInitialRttEstimate() {
+        return this.initialRttEstimate;
     }
 
     /**
-     * Set the estimated round trip time.
+     * Set the initial round trip time estimate.
      *
      * <p>
-     * Default is {@value #DEFAULT_RTT_MILLIS} ms.
+     * This is just an initial estimate. The actual value used adjusts dynamically as transactions occur
+     * and actual RTT measurements are made.
      *
-     * @param rttEstimate estimated round trip time in millseconds
-     * @throws IllegalArgumentException if {@code rttEstimate < 0}
+     * <p>
+     * Default is {@value #DEFAULT_INITIAL_RTT_ESTIMATE_MILLIS} ms.
+     *
+     * @param initialRttEstimate initial round trip time estimate in nanoseconds
+     * @throws IllegalStateException if this instance is already started
+     * @throws IllegalArgumentException if {@code initialRttEstimate < 0}
      */
-    public synchronized void setRttEstimate(int rttEstimate) {
-        this.rttEstimate = rttEstimate;
+    public synchronized void setInitialRttEstimate(long initialRttEstimate) {
+        Preconditions.checkArgument(initialRttEstimate >= 0, "initialRttEstimate < 0");
+        Preconditions.checkState(!this.started, "already started");
+        this.initialRttEstimate = initialRttEstimate;
     }
 
     /**
@@ -106,7 +120,7 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
     }
 
     /**
-     * Configure the inner {@link KVDatabase}.
+     * Configure the underlying {@link KVDatabase}.
      *
      * @throws IllegalStateException if this instance is already started
      */
@@ -128,6 +142,8 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
         this.executor = executor;
     }
 
+// Lifecycle
+
     @Override
     public synchronized void start() {
         Preconditions.checkState(this.inner != null, "no inner KVDatabase configured");
@@ -136,31 +152,64 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
         this.privateExecutor = this.executor == null;
         if (this.privateExecutor)
             this.executor = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
-        this.inner.start();
-        this.started = true;
+        this.rtt = new MovingAverage(RTT_ESTIMATE_DECAY_FACTOR, this.initialRttEstimate);
+        try {
+            this.inner.start();
+            this.started = true;
+        } finally {
+            if (!this.started)
+                this.shutdown();
+        }
     }
 
     @Override
     public synchronized void stop() {
         if (!this.started)
             return;
-        if (this.privateExecutor) {
-            this.executor.shutdown();
-            this.executor = null;
-        }
-        this.inner.stop();
+        this.shutdown();
         this.started = false;
     }
 
+    private synchronized void shutdown() {
+        if (this.executor != null) {
+            if (this.privateExecutor)
+                this.executor.shutdown();
+            this.executor = null;
+        }
+        this.inner.stop();
+    }
+
+// Transactions
+
     @Override
-    public synchronized CachingKVTransaction createTransaction() {
-        Preconditions.checkState(this.started, "not started");
-        return new CachingKVTransaction(this, this.inner.createTransaction(), this.executor, this.rttEstimate);
+    public CachingKVTransaction createTransaction() {
+        return this.createTransaction(this.inner::createTransaction);
     }
 
     @Override
-    public synchronized CachingKVTransaction createTransaction(Map<String, ?> options) {
+    public CachingKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction(() -> this.inner.createTransaction(options));
+    }
+
+    protected synchronized CachingKVTransaction createTransaction(Supplier<? extends KVTransaction> innerTxCreator) {
         Preconditions.checkState(this.started, "not started");
-        return new CachingKVTransaction(this, this.inner.createTransaction(options), this.executor, this.rttEstimate);
+        return new CachingKVTransaction(this, innerTxCreator.get(), this.executor, (long)this.rtt.get());
+    }
+
+// RTT estimate
+
+    /**
+     * Get the current round trip time estimate.
+     *
+     * @return current RTT estimate in nanoseconds
+     * @throws IllegalStateException if this instance has never {@link #start}ed
+     */
+    public synchronized double getRttEstimate() {
+        Preconditions.checkState(this.rtt != null, "instance has never started");
+        return this.rtt.get();
+    }
+
+    synchronized void updateRttEstimate(double rtt) {
+        this.rtt.add(rtt);
     }
 }

@@ -70,11 +70,12 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      * @param context read context
      * @param exceptionMapper mapper for any thrown {@link SpannerException}s, or null for none
      * @param executor asynchronous load task executor
-     * @param rttEstimate initial RTT estimate in milliseconds
+     * @param rttEstimate initial RTT estimate in nanoseconds
      * @throws IllegalArgumentException if {@code tableName}, {@code context} or {@code executor} is null
+     * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
     public ReadWriteSpannerView(String tableName, ReadContext context,
-      Function<? super SpannerException, RuntimeException> exceptionMapper, ExecutorService executor, int rttEstimate) {
+      Function<? super SpannerException, RuntimeException> exceptionMapper, ExecutorService executor, long rttEstimate) {
         this(tableName,
           new CachingKVStore(new ReadOnlySpannerView(tableName, context, exceptionMapper), executor, rttEstimate), null);
     }
@@ -84,6 +85,15 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
         super(view, null, new Writes());
         this.tableName = tableName;
         this.exceptionMapper = exceptionMapper;
+    }
+
+    /**
+     * Get the current RTT estimate.
+     *
+     * @return current RTT estimate in nanoseconds
+     */
+    public double getRttEstimate() {
+        return ((CachingKVStore)this.getKVStore()).getRttEstimate();
     }
 
     /**

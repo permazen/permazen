@@ -79,6 +79,7 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
 
     @Override
     public void close() {
+        this.kvdb.updateRttEstimate(this.cachingKV.getRttEstimate());
         this.cachingKV.close();
         this.inner.rollback();
     }

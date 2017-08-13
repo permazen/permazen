@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 public class SpannerKVTransaction extends ForwardingKVStore implements KVTransaction {
 
+    // Lock order: (1) SpannerKVTransaction, (2) SpannerKVDatabase
+
     private enum State {
         INITIAL,                    // transaction is open, but no data has been accessed yet
         ACCESSED,                   // transaction is open, and some data has been queried from spanner
         CLOSED                      // transaction is closed
     };
-
-    private static final int INITIAL_RTT_ESTIMATE = 50;                                 // 50 ms
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final SpannerKVDatabase kvdb;
@@ -210,7 +210,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         } catch (SpannerException e) {
             throw this.wrapException(e);
         } finally {
-            this.cleanup();
+            this.cleanupAccessed();
         }
     }
 
@@ -243,11 +243,19 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
             if (this.log.isDebugEnabled())
                 this.log.debug("got exception during rollback (ignoring)", e);
         } finally {
-            this.cleanup();
+            this.cleanupAccessed();
         }
     }
 
-    private void cleanup() {
+    private void cleanupAccessed() {
+
+        // Sanity check
+        assert Thread.holdsLock(this);
+        assert State.ACCESSED.equals(this.state);
+
+        // Update database RTT estimate
+        this.kvdb.updateRttEstimate(this.view.getRttEstimate());
+
         try {
             this.view.close();
         } finally {
@@ -355,7 +363,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         if (this.log.isTraceEnabled())
             this.log.trace("creating delegate: context=" + this.context);
         this.view = new ReadWriteSpannerView(this.tableName, context,
-          this::wrapException, this.kvdb.getExecutorService(), INITIAL_RTT_ESTIMATE);
+          this::wrapException, this.kvdb.getExecutorService(), (long)this.kvdb.getRttEstimate());
 
         // Done
         this.state = State.ACCESSED;
