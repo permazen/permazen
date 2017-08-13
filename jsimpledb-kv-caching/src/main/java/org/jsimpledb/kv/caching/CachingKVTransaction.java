@@ -12,6 +12,7 @@ import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.mvcc.MutableView;
+import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.util.CloseableIterator;
 
 /**
@@ -27,12 +28,27 @@ import org.jsimpledb.util.CloseableIterator;
  */
 public class CachingKVTransaction extends AbstractCachingConfig implements KVTransaction, CloseableKVStore {
 
-    private final CachingKVDatabase kvdb;
-    private final KVTransaction inner;
-    private final CachingKVStore cachingKV;
-    private final MutableView view;
+    /**
+     * The associated database.
+     */
+    protected final CachingKVDatabase kvdb;
 
-    CachingKVTransaction(CachingKVDatabase kvdb, KVTransaction inner, ExecutorService executor, int rttEstimate) {
+    /**
+     * The {@link MutableView} that accumulates any mutations.
+     */
+    protected final MutableView view;
+
+    /**
+     * The caching layer for the transaction.
+     */
+    protected final CachingKVStore cachingKV;
+
+    /**
+     * The underlying transaction.
+     */
+    protected final KVTransaction inner;
+
+    CachingKVTransaction(CachingKVDatabase kvdb, KVTransaction inner, ExecutorService executor, long rttEstimate) {
         this.kvdb = kvdb;
         this.inner = inner;
         this.cachingKV = new CachingKVStore(inner, executor, rttEstimate);
@@ -149,8 +165,7 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
     @Override
     public void commit() {
         try {
-            if (!this.inner.isReadOnly())
-                this.view.getWrites().applyTo(this.inner);
+            this.applyWritesBeforeCommitIfNotReadOnly(this.view.getWrites());
             this.inner.commit();
         } finally {
             this.close();
@@ -169,5 +184,19 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
     @Override
     public CloseableKVStore mutableSnapshot() {
         return this.inner.mutableSnapshot();
+    }
+
+// Other methods
+
+    /**
+     * Apply accumulated mutations just prior to {@link commit commit()}'ing the transaction.
+     *
+     * <p>
+     * The implementation in {@link CachingKVTransaction} checks whether the inner transaction {@link #isReadOnly},
+     * and if so invokes {@link Writes#applyTo Writes.applyTo}.
+     */
+    protected void applyWritesBeforeCommitIfNotReadOnly(Writes writes) {
+        if (!this.inner.isReadOnly())
+            writes.applyTo(this.inner);
     }
 }
