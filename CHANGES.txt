@@ -3,6 +3,7 @@ Version Next
     - Allow JSimpleDB annotations to be configured as Spring "meta-annotations"
     - Fixed bug where untyped references were sometimes incorrectly cleared on upgrade
     - Fixed bug where inverted references paths might not filter to target type
+    - Fixed bug in Spanner key/value database where some exceptions were not retryable
     - Added @FollowPath annotation
 
 Version 3.5.3 Released August 1, 2017
