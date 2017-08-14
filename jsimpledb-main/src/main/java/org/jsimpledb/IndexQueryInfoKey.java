@@ -9,28 +9,35 @@ import java.util.Arrays;
 
 class IndexQueryInfoKey {
 
-    private final Class<?>[] types;
+    private final Class<?> targetType;
+    private final Class<?>[] valueTypes;
     private final boolean composite;
     private final String name;
 
-    IndexQueryInfoKey(String name, boolean composite, Class<?>... types) {
+    IndexQueryInfoKey(String name, boolean composite, Class<?> targetType, Class<?>... valueTypes) {
+        assert name != null;
+        assert targetType != null;
+        assert valueTypes != null;
+        assert valueTypes.length > 0;
         this.name = name;
         this.composite = composite;
-        this.types = types;
+        this.targetType = targetType;
+        this.valueTypes = valueTypes;
     }
 
     public IndexQueryInfo getIndexQueryInfo(JSimpleDB jdb) {
 
         // Handle composite index
         if (this.composite)
-            return new IndexQueryInfo(jdb, this.types[0], this.name, Arrays.copyOfRange(this.types, 1, this.types.length));
+            return new IndexQueryInfo(jdb, this.targetType, this.name, this.valueTypes);
 
         // Handle map value index
-        if (this.types.length == 3)
-            return new IndexQueryInfo(jdb, this.types[0], this.name, this.types[1], this.types[2]);
+        if (this.valueTypes.length == 2)
+            return new IndexQueryInfo(jdb, this.targetType, this.name, this.valueTypes[0], this.valueTypes[1]);
 
         // Handle all others
-        return new IndexQueryInfo(jdb, this.types[0], this.name, this.types[1]);
+        assert this.valueTypes.length == 1;
+        return new IndexQueryInfo(jdb, this.targetType, this.name, this.valueTypes[0]);
     }
 
 // Object
@@ -44,14 +51,16 @@ class IndexQueryInfoKey {
         final IndexQueryInfoKey that = (IndexQueryInfoKey)obj;
         return this.name.equals(that.name)
           && this.composite == that.composite
-          && Arrays.equals(this.types, that.types);
+          && this.targetType.equals(that.targetType)
+          && Arrays.equals(this.valueTypes, that.valueTypes);
     }
 
     @Override
     public int hashCode() {
         return this.name.hashCode()
           ^ (this.composite ? ~0 : 0)
-          ^ Arrays.hashCode(this.types);
+          ^ this.targetType.hashCode()
+          ^ Arrays.hashCode(this.valueTypes);
     }
 }
 
