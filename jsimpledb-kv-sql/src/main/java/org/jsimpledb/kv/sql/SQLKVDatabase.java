@@ -14,6 +14,8 @@ import java.sql.SQLTimeoutException;
 import java.sql.SQLTransientException;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
 import org.jsimpledb.kv.KVDatabase;
@@ -223,6 +225,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     @Override
+    @PostConstruct
     public void start() {
         try (final Connection connection = this.createTransactionConnection()) {
             this.initializeDatabaseIfNecessary(connection);
@@ -232,6 +235,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     @Override
+    @PreDestroy
     public void stop() {
     }
 

@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.util.MovingAverage;
@@ -197,6 +200,7 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
 // Lifecycle
 
     @Override
+    @PostConstruct
     public synchronized void start() {
         Preconditions.checkState(this.inner != null, "no inner KVDatabase configured");
         if (this.started)
@@ -220,6 +224,7 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
     }
 
     @Override
+    @PreDestroy
     public synchronized void stop() {
         if (!this.started)
             return;

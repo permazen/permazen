@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
@@ -184,10 +187,12 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 // KVDatabase
 
     @Override
+    @PostConstruct
     public synchronized void start() {
     }
 
     @Override
+    @PreDestroy
     public synchronized void stop() {
         if (this.keyWatchTracker != null) {
             this.keyWatchTracker.close();

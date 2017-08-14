@@ -33,6 +33,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
@@ -304,6 +306,7 @@ public class FallbackKVDatabase implements KVDatabase {
 // KVDatabase
 
     @Override
+    @PostConstruct
     public synchronized void start() {
 
         // Already started?
@@ -378,6 +381,7 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     @Override
+    @PreDestroy
     public synchronized void stop() {
 
         // Already stopped?
