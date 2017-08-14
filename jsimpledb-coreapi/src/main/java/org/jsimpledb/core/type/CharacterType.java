@@ -71,7 +71,7 @@ public class CharacterType extends PrimitiveType<Character> {
     public Character fromParseableString(ParseContext context) {
         final String s = StringEncoder.dequote(context.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
         if (s.length() != 1)
-            throw new IllegalArgumentException("more than one character found within quotation marks");
+            throw context.buildException("more than one character found within quotation marks");
         return s.charAt(0);
     }
 

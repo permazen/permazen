@@ -89,7 +89,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
     public EnumValue fromParseableString(ParseContext context) {
         final Matcher matcher = context.tryPattern(Pattern.compile(EnumFieldType.IDENT_PATTERN));
         if (matcher == null)
-            throw new IllegalArgumentException("invalid enum identifier");
+            throw context.buildException("expected enum identifier");
         final String ident = matcher.group();
         return this.fromString(ident);
     }
