@@ -79,6 +79,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
             if (value != null) {
                 Assert.assertEquals(fieldType.toString(value2), fieldType.toString(value));
                 final String s = fieldType.toString(value);
+                this.checkValidString(value, s);
                 final T value3 = fieldType.fromString(s);
                 this.assertEquals(fieldType, value3, value);
             } else {
@@ -113,6 +114,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
             // Parseable string encoding
             Assert.assertEquals(fieldType.toParseableString(value2), fieldType.toParseableString(value));
             final String s2 = fieldType.toParseableString(value);
+            this.checkValidString(value, s2);
             final ParseContext ctx = new ParseContext(s2 + ",abcd");
             final T value4 = fieldType.fromParseableString(ctx);
             this.assertEquals(fieldType, value4, value);
@@ -125,6 +127,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 // Parseable string encoding
                 Assert.assertEquals(arrayType.toParseableString(value2, false), arrayType.toParseableString(value, false));
                 final String s3 = arrayType.toParseableString(value, false);
+                this.checkValidString(value, s3);
                 final ParseContext ctx2 = new ParseContext(s3 + ",abcd");
                 final T value5 = arrayType.fromParseableString(ctx2);
                 this.assertEquals(arrayType, value5, value);
@@ -149,6 +152,25 @@ public class FieldTypeTest extends CoreAPITestSupport {
                   + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
                 Assert.assertEquals(bytesLessThan, fieldLessThan, "less-than mismatch @ " + i + ": "
                   + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+            }
+        }
+    }
+
+    private void checkValidString(Object value, String s) {
+        for (int i = 0; i < s.length(); i++) {
+            final int ch = s.charAt(i);
+            switch (ch) {
+            case '\t':
+            case '\n':
+            case '\r':
+                break;
+            default:
+                if (ch >= '\u0020' && ch <= '\ud7ff')
+                    break;
+                if (ch >= '\ue000' && ch <= '\uffdf')
+                    break;
+                assert false : String.format(
+                  "string encoding \"%s\" of value %s contains illegal character 0x%04x at index %d", s, value, ch, i);
             }
         }
     }
