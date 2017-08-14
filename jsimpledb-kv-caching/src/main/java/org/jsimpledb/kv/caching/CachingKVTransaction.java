@@ -165,8 +165,17 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
 
     @Override
     public void commit() {
+
+        // Grab transaction reads & writes, set to immutable
+        final Writes writes;
+        synchronized (this.view) {
+            writes = this.view.getWrites();
+            this.view.setReadOnly();
+        }
+
+        // Apply writes and commit tx
         try {
-            this.applyWritesBeforeCommitIfNotReadOnly(this.view.getWrites());
+            this.applyWritesBeforeCommitIfNotReadOnly(writes);
             this.inner.commit();
         } finally {
             this.close();
