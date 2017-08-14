@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import org.jsimpledb.kv.KVDatabase;
@@ -52,7 +53,10 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
 
     private static final double RTT_ESTIMATE_DECAY_FACTOR = 0.025;
 
+    private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
+
     private KVDatabase inner;
+    private int threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
     private long initialRttEstimate = TimeUnit.MILLISECONDS.toNanos(DEFAULT_INITIAL_RTT_ESTIMATE_MILLIS);
     private ExecutorService executor;
 
@@ -130,16 +134,64 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
     }
 
     /**
+     * Get the configured {@link ExecutorService}, if any.
+     *
+     * @return caller-supplied executor to use for background tasks, or null for none
+     */
+    public synchronized ExecutorService getExecutorService() {
+        return this.executor;
+    }
+
+    /**
      * Configure a {@link ExecutorService} to use for asynchronous queries to the underlying database.
      *
      * <p>
-     * This property is optional; if none is configured, a private thread pool will be used.
+     * This property is optional; if none is configured, a private thread pool will be
+     * automatically created and setup internally by {@link #start} and torn down by {@link #stop}.
+     * If an outside executor is configured here, then it will <i>not</i> be shutdown by {@link #stop}.
      *
+     * @param executor caller-supplied executor to use for background tasks, or null for none
      * @throws IllegalStateException if this instance is already started
      */
     public synchronized void setExecutorService(ExecutorService executor) {
         Preconditions.checkState(!this.started, "already started");
         this.executor = executor;
+    }
+
+    /**
+     * Get the number of threads in the internally-created thread pool.
+     *
+     * <p>
+     * This property is ignored if a custom {@link ExecutorService} is configured via
+     * {@link #setExecutorService setExecutorService()}.
+     *
+     * <p>
+     * Default value is {@value #DEFAULT_THREAD_POOL_SIZE}.
+     *
+     * @return number of threads in thread pool
+     */
+    public synchronized int getThreadPoolSize() {
+        return this.threadPoolSize;
+    }
+
+    /**
+     * Set the number of threads in the internally-created thread pool.
+     *
+     * <p>
+     * This property is ignored if a custom {@link ExecutorService} is configured via
+     * {@link #setExecutorService setExecutorService()}.
+     *
+     * <p>
+     * Default value is {@value #DEFAULT_THREAD_POOL_SIZE}.
+     *
+     * @param threadPoolSize number of threads in thread pool
+     * @throws IllegalStateException if this instance is already started
+     * @throws IllegalArgumentException if {@code threadPoolSize <= 0}
+     */
+    public synchronized void setThreadPoolSize(int threadPoolSize) {
+        Preconditions.checkArgument(threadPoolSize > 0, "threadPoolSize <= 0");
+        Preconditions.checkState(!this.started, "already started");
+        this.threadPoolSize = threadPoolSize;
     }
 
 // Lifecycle
@@ -150,8 +202,13 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
         if (this.started)
             return;
         this.privateExecutor = this.executor == null;
-        if (this.privateExecutor)
-            this.executor = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
+        if (this.privateExecutor) {
+            this.executor = Executors.newFixedThreadPool(this.threadPoolSize, r -> {
+                final Thread thread = new Thread(r);
+                thread.setName(this.getClass().getSimpleName() + "-" + THREAD_COUNTER.incrementAndGet());
+                return thread;
+            });
+        }
         this.rtt = new MovingAverage(RTT_ESTIMATE_DECAY_FACTOR, this.initialRttEstimate);
         try {
             this.inner.start();

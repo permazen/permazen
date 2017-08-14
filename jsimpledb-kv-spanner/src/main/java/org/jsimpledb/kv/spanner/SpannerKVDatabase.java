@@ -130,6 +130,11 @@ public class SpannerKVDatabase implements KVDatabase {
      */
     public static final String DEFAULT_TABLE_NAME = "KV";
 
+    /**
+     * Default background task thread pool size.
+     */
+    public static final int DEFAULT_THREAD_POOL_SIZE = 10;
+
     // Patterns for validation
     private static final String INSTANCE_ID_PATTERN = "[a-z][-_A-Za-z0-9]*[a-z0-9]";
     private static final String DATABASE_ID_PATTERN = "[a-z][-_A-Za-z0-9]*[a-z0-9]";
@@ -138,6 +143,8 @@ public class SpannerKVDatabase implements KVDatabase {
     // RTT
     private static final int INITIAL_RTT_ESTIMATE_MILLIS = 50;                          // 50 ms
     private static final double RTT_ESTIMATE_DECAY_FACTOR = 0.025;
+
+    private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -157,7 +164,7 @@ public class SpannerKVDatabase implements KVDatabase {
     @GuardedBy("this")
     private String tableName = DEFAULT_TABLE_NAME;
     @GuardedBy("this")
-    private int threadPoolSize = 10;                // TODO: make configurable
+    private int threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
     @GuardedBy("this")
     private MovingAverage rtt;
 
@@ -266,10 +273,9 @@ public class SpannerKVDatabase implements KVDatabase {
             this.client = this.spanner.getDatabaseClient(did);
 
             // Create thread pool
-            final AtomicInteger threadCounter = new AtomicInteger();
             this.executor = Executors.newFixedThreadPool(this.threadPoolSize, r -> {
                 final Thread thread = new Thread(r);
-                thread.setName(this.getClass().getSimpleName() + "-" + threadCounter.incrementAndGet());
+                thread.setName(this.getClass().getSimpleName() + "-" + THREAD_COUNTER.incrementAndGet());
                 return thread;
             });
 
@@ -311,6 +317,36 @@ public class SpannerKVDatabase implements KVDatabase {
             this.executor = null;
         }
         this.client = null;
+    }
+
+// Accessors
+
+    /**
+     * Get the number of threads in the background task thread pool.
+     *
+     * <p>
+     * Default value is {@value #DEFAULT_THREAD_POOL_SIZE}.
+     *
+     * @return number of threads in thread pool
+     */
+    public synchronized int getThreadPoolSize() {
+        return this.threadPoolSize;
+    }
+
+    /**
+     * Set the number of threads in the background task thread pool.
+     *
+     * <p>
+     * Default value is {@value #DEFAULT_THREAD_POOL_SIZE}.
+     *
+     * @param threadPoolSize number of threads in thread pool
+     * @throws IllegalStateException if this instance is already started
+     * @throws IllegalArgumentException if {@code threadPoolSize <= 0}
+     */
+    public synchronized void setThreadPoolSize(int threadPoolSize) {
+        Preconditions.checkArgument(threadPoolSize > 0, "threadPoolSize <= 0");
+        Preconditions.checkState(this.spanner == null, "already started");
+        this.threadPoolSize = threadPoolSize;
     }
 
 // RTT estimate
