@@ -5,7 +5,10 @@ Version Next
     - Fixed bug where inverted references paths might not filter to target type
     - Added sub-project jsimpledb-kv-caching supporting caching for key/value stores
     - Fixed bug in Spanner key/value database where some exceptions were not retryable
+    - Replaced @JField.uniqueExcludeNull() with @JField.uniqueExclude = JField.NULL (*)
     - Added @FollowPath annotation
+
+    (*) Backwards-incompatible change
 
 Version 3.5.3 Released August 1, 2017
 

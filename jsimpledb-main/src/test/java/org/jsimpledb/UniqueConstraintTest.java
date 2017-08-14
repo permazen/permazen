@@ -115,7 +115,7 @@ public class UniqueConstraintTest extends TestSupport {
 
             jtx.validate();
 
-        // Check uniqueExcludeNull
+        // Check uniqueExclude of null
 
             final UniqueNull null1 = jtx.create(UniqueNull.class);
             final UniqueNull null2 = jtx.create(UniqueNull.class);
@@ -466,7 +466,7 @@ public class UniqueConstraintTest extends TestSupport {
     @JSimpleClass
     public abstract static class UniqueNull implements JObject {
 
-        @JField(indexed = true, unique = true, uniqueExcludeNull = true)
+        @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
         public abstract Date getDate();
         public abstract void setDate(Date date);
     }

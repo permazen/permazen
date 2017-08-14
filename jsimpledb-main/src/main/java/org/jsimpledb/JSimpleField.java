@@ -61,16 +61,18 @@ public class JSimpleField extends JField {
         this.upgradeConversion = annotation.upgradeConversion();
 
         // Parse uniqueExcludes
-        final int numExcludes = annotation.uniqueExclude().length + (annotation.uniqueExcludeNull() ? 1 : 0);
+        final int numExcludes = annotation.uniqueExclude().length;
         if (numExcludes > 0) {
             this.uniqueExcludes = new ArrayList<>(numExcludes);
-            if (annotation.uniqueExcludeNull())
-                this.uniqueExcludes.add(null);
             for (String string : annotation.uniqueExclude()) {
-                try {
-                    this.uniqueExcludes.add(this.fieldType.fromString(string));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
+                if (string.equals(org.jsimpledb.annotation.JField.NULL))
+                    this.uniqueExcludes.add(null);
+                else {
+                    try {
+                        this.uniqueExcludes.add(this.fieldType.fromString(string));
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
+                    }
                 }
             }
             Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.fieldType);

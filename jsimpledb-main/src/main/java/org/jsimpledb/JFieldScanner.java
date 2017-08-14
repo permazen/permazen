@@ -107,10 +107,6 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return new String[0];
         }
         @Override
-        public boolean uniqueExcludeNull() {
-            return false;
-        }
-        @Override
         public String[] cascades() {
             return new String[0];
         }

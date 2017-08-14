@@ -161,11 +161,11 @@ public class JFieldConflictTest extends TestSupport {
     }
 
     public interface UniqueExcludeNullConflict1 {
-        @JField(indexed = true, unique = true, uniqueExcludeNull = false)
+        @JField(indexed = true, unique = true)
         Float getFloat();
     }
     public interface UniqueExcludeNullConflict2 {
-        @JField(indexed = true, unique = true, uniqueExcludeNull = true)
+        @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
         Float getFloat();
     }
     @JSimpleClass

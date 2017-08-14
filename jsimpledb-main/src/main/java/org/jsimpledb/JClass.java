@@ -13,6 +13,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -550,8 +551,6 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");
         if (annotation.uniqueExclude().length > 0 && !annotation.unique())
             throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");
-        if (annotation.uniqueExcludeNull() && !annotation.unique())
-            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExcludeNull() requires unique = true");
 
         // See if field type encompasses one or more JClass types and is therefore a reference type
         final Class<?> fieldRawType = fieldTypeToken.getRawType();
@@ -636,9 +635,10 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");
         if (!isReferenceType && annotation.unique() && !annotation.indexed())
             throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");
-        if (nonReferenceType != null && nonReferenceType.getTypeToken().isPrimitive() && annotation.uniqueExcludeNull()) {
-            throw new IllegalArgumentException("invalid " + description + ": uniqueExcludeNull() is incompatible with fields"
-              + " having primitive type");
+        if (nonReferenceType != null && nonReferenceType.getTypeToken().isPrimitive()
+          && Arrays.asList(annotation.uniqueExclude()).contains(org.jsimpledb.annotation.JField.NULL)) {
+            throw new IllegalArgumentException("invalid " + description + ": uniqueExclude() = JField.NULL is incompatible"
+              + " with fields having primitive type");
         }
         if (!isReferenceType && annotation.cascades().length != 0)
             throw new IllegalArgumentException("invalid " + description + ": cascades() only allowed on reference fields");

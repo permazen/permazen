@@ -130,7 +130,7 @@ import org.jsimpledb.core.DeleteAction;
  * <p>
  * Optionally, specific field values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
  * If so, the specified values may appear in multiple objects without violating the constraint. Because null values
- * are not allowed in annotations, {@link #uniqueExcludeNull} is provided to exclude the null value.
+ * are not allowed in annotations, include {@link #NULL} to indicate that null values should be excluded.
  *
  * <p>
  * In {@link org.jsimpledb.ValidationMode#AUTOMATIC}, any upgraded {@link org.jsimpledb.JObject}s are automatically
@@ -153,6 +153,11 @@ import org.jsimpledb.core.DeleteAction;
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface JField {
+
+    /**
+     * Value for use with {@link #uniqueExclude} to represent a null value.
+     */
+    String NULL = "\u0000";     // note: this is non-conflicting because \u0000 is invalid in return from FieldType.toString(T)
 
     /**
      * The name of this field.
@@ -327,7 +332,6 @@ public @interface JField {
      *
      * @return whether the field's value should be unique
      * @see #uniqueExclude
-     * @see #uniqueExcludeNull
      * @see org.jsimpledb.UniquenessConstraints
      */
     boolean unique() default false;
@@ -336,10 +340,14 @@ public @interface JField {
      * Specify field value(s) which are excluded from the uniqueness constraint.
      *
      * <p>
-     * The specified values must be valid {@link String} encodings of the associated field. For example:
+     * The specified values must be valid {@link String} encodings of the associated field, or {@link #NULL}
+     * to indicate null values. For example:
      * <pre>
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
      *  public abstract float getPriority();
+     *
+     *  &#64;JField(indexed = true, unique = true, uniqueExclude = { JField.NULL })
+     *  public abstract String getName();
      * </pre>
      *
      * <p>
@@ -347,21 +355,8 @@ public @interface JField {
      *
      * @return values to exclude from the uniqueness constraint
      * @see #unique
-     * @see #uniqueExcludeNull
      */
     String[] uniqueExclude() default {};
-
-    /**
-     * Specify that the null value is excluded from the uniqueness constraint.
-     *
-     * <p>
-     * This property must be left false when {@link #unique} is false or the field has primitive type.
-     *
-     * @return whether null should be excluded from the uniqueness constraint
-     * @see #unique
-     * @see #uniqueExclude
-     */
-    boolean uniqueExcludeNull() default false;
 
     /**
      * Allow assignment to deleted objects in normal transactions.

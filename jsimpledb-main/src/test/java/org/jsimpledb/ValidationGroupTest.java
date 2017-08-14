@@ -181,7 +181,7 @@ public class ValidationGroupTest extends TestSupport {
         public abstract String getFieldD();
         public abstract void setFieldD(String fieldD);
 
-        @JField(indexed = true, unique = true, uniqueExcludeNull = true)
+        @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
         public abstract String getFieldE();
         public abstract void setFieldE(String fieldE);
 
