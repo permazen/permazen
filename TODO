@@ -2,11 +2,6 @@
 SHORT TERM
 ==========
 
-- Auto-generated reference path view methods?
-
-    @JReferencePathView("^Node:parent^")
-    public abstract NavigableSet<Node> getChildren();
-
 - @JCompositeIndex(unique = true) ?
     - What to do with uniqueExclude and uniqueExcludeNull ?
 
