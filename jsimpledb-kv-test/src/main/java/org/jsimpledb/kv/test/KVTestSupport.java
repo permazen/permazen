@@ -43,13 +43,13 @@ public abstract class KVTestSupport extends TestSupport {
     private final TreeMap<String, AtomicInteger> retryReasons = new TreeMap<>();
 
     @BeforeClass
-    public void setup() throws Exception {
+    public void setupTransactionAttemptCounters() throws Exception {
         this.numTransactionAttempts.set(0);
         this.numTransactionRetries.set(0);
     }
 
     @AfterClass
-    public void teardown() throws Exception {
+    public void teardownTransactionAttemptCounters() throws Exception {
         final double retryRate = (double)this.numTransactionRetries.get() / (double)this.numTransactionAttempts.get();
         this.log.info("\n\n****************\n");
         this.log.info(String.format("Retry rate: %.2f%% (%d / %d)",

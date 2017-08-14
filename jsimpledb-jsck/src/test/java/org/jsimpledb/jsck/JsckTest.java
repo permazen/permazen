@@ -57,7 +57,7 @@ public class JsckTest extends KVTestSupport {
     private JSimpleDB jdb;
 
     @BeforeClass
-    private void setup() {
+    private void setupTestDatabase() {
         this.jdb = new JSimpleDB(Person.class, Pet.class);
     }
 

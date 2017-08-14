@@ -46,7 +46,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     protected ExecutorService executor;
 
     @BeforeClass(dependsOnGroups = "configure")
-    public void setup() throws Exception {
+    public void setupExecutorAndDatabases() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
         for (KVDatabase[] kvdb : this.getDBs()) {
             if (kvdb.length > 0)
@@ -55,7 +55,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     }
 
     @AfterClass
-    public void teardown() throws Exception {
+    public void teardownExecutorAndDatabases() throws Exception {
         this.executor.shutdown();
         for (KVDatabase[] kvdb : this.getDBs()) {
             if (kvdb.length > 0)

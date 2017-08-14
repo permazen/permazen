@@ -32,8 +32,7 @@ public class XMLKVDatabaseTest extends KVDatabaseTest {
     }
 
     @AfterClass
-    public void teardown() throws Exception {
-        super.teardown();
+    public void teardownRemoveXMLFile() throws Exception {
         if (this.xmlFile != null)
             this.xmlFile.delete();
     }

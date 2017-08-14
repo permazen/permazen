@@ -232,9 +232,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     }
 
     @AfterClass
-    @Override
-    public void teardown() throws Exception {
-        super.teardown();
+    public void teardownRafts() throws Exception {
         if (this.rafts != null) {
 
             // Shut them down
