@@ -6,7 +6,7 @@
 package org.jsimpledb.core;
 
 /**
- * Thrown when a field of a deleted object is accessed.
+ * Thrown when an object is accessed but the object does not exist in its associated transaction.
  */
 @SuppressWarnings("serial")
 public class DeletedObjectException extends DatabaseException {
