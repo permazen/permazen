@@ -25,7 +25,7 @@ import org.jsimpledb.UpgradeConversionPolicy;
  * The following annotations on the getter methods of a {@link JSimpleClass &#64;JSimpleClass}-annotated class
  * configure database fields:
  * <ul>
- *  <li>{@link JField &#64;JField} - defines a simple value or reference field
+ *  <li>{@link JField &#64;JField} - defines a simple value, reference, or {@link org.jsimpledb.Counter} field
  *  <li>{@link JSetField &#64;JSetField} - defines a {@link java.util.NavigableSet} field
  *  <li>{@link JListField &#64;JListField} - defines a {@link java.util.List} field
  *  <li>{@link JMapField &#64;JMapField} - defines a {@link java.util.NavigableMap} field

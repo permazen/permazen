@@ -14,6 +14,11 @@ import java.lang.annotation.Target;
 /**
  * Annotation for methods that are to be invoked whenever an object's schema version has just changed.
  *
+ * <p>
+ * The annotated method is given access to all of the previous object version's fields, including fields that have
+ * been deleted or whose types have changed in the new schema version. This allows the object to perform any
+ * schema migration "fixups" required before the old information is lost.
+ *
  * <p><b>Method Parameters</b></p>
  *
  * <p>

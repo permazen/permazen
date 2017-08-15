@@ -24,12 +24,14 @@ import org.jsimpledb.core.DeleteAction;
  *  <li>To describe a <b>simple</b> or <b>counter</b> database field by annotating the corresponding abstract Java bean
  *      property `getter' method</li>
  *  <li>To describe the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
- *      a collection element field, or a map key or value field. In this case this annotation nests within the corresponding
- *      {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField}, or {@link JMapField &#64;JMapField} annotation.</li>
+ *      a collection {@code element} field, or a map {@code key} or {@code value} field. In this case this annotation
+ *      nests within the corresponding {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField},
+ *      or {@link JMapField &#64;JMapField} annotation.</li>
  * </ul>
  *
  * <p>
- * This annotation can be applied to superclass and interface methods to have the corresponding field defined in all sub-types.
+ * This annotation can be applied to superclass and interface methods to have the corresponding field defined in all
+ * {@link JSimpleClass &#64;JSimpleClass}-annotated sub-types.
  *
  * <p>
  * When auto-generation of properties is enabled, use of this annotation is not required unless you need to override
@@ -42,17 +44,21 @@ import org.jsimpledb.core.DeleteAction;
  * in the case of complex sub-fields, the generic type of the collection class. The name of the property type
  * must be registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}),
  * and the corresponding {@link org.jsimpledb.core.FieldType} is then used to encode/decode field values.
+ * See {@link org.jsimpledb.core.FieldTypeRegistry} for a list of built-in (pre-defined) field types.
  * The type name may also be specified explicitly by {@link #name}.
  *
  * <p>
  * Simple fields may be {@link #indexed}; see {@link org.jsimpledb.index} for information on querying indexes.
  * {@link org.jsimpledb.Counter} fields may not be indexed.
  *
+ * <p>
+ * Two or more simple fields may be indexed together in a composite index; see {@link JCompositeIndex &#64;JCompositeIndex}.
+ *
  * <p><b>Reference Fields</b></p>
  *
  * <p>
  * If the type of the field is (assignable to) a {@link JSimpleClass &#64;JsimpleClass}-annotated Java model object type,
- * then the field is a reference field.
+ * or any supertype thereof, then the field is a reference field.
  *
  * <p>
  * Reference fields are always indexed; the value of {@link #indexed} is ignored.
@@ -143,6 +149,12 @@ import org.jsimpledb.core.DeleteAction;
  * previously valid to suddenly become invalid, and these invalid objects would not be detected until they are validated in some
  * future transaction and a validation exception is thrown.
  *
+ * <p><b>Upgrade Conversions</b></p>
+ *
+ * <p>
+ * When a field's type has changed in a new schema version, the old field value can be automatically converted into the
+ * new type. See {@link #upgradeConversion} for how to control this behavior.
+ *
  * <p><b>Meta-Annotations</b></p>
  *
  * <p>
@@ -157,8 +169,12 @@ public @interface JField {
 
     /**
      * Value for use with {@link #uniqueExclude} to represent a null value.
+     *
+     * <p>
+     * Note: this particular {@link String} will never conflict with any actual field values because it contains a character
+     * that is not allowed in the return value from {@link org.jsimpledb.core.FieldType#toString(Object) FieldType.toString()}.
      */
-    String NULL = "\u0000";     // note: this is non-conflicting because \u0000 is invalid in return from FieldType.toString(T)
+    String NULL = "\u0000";
 
     /**
      * The name of this field.
@@ -240,13 +256,13 @@ public @interface JField {
      *
      * <p>
      * Setting this property to true creates a simple index on this field. To have this field participate in
-     * a composite index on multiple fields, use {@link JCompositeIndex}.
+     * a composite index on multiple fields, use {@link JCompositeIndex &#64;JCompositeIndex}.
      *
      * <p>
      * Note: reference fields are always indexed (for reference fields, this property is ignored).
      *
      * @return whether the field is indexed
-     * @see JCompositeIndex
+     * @see JCompositeIndex &#64;JCompositeIndex
      */
     boolean indexed() default false;
 
@@ -342,7 +358,8 @@ public @interface JField {
      * Specify field value(s) which are excluded from the uniqueness constraint.
      *
      * <p>
-     * The specified values must be valid {@link String} encodings of the associated field, or {@link #NULL}
+     * The specified values must be valid {@link String} encodings of the associated field (as returned by
+     * {@link org.jsimpledb.core.FieldType#toString(Object) FieldType.toString()}), the constant {@link #NULL}
      * to indicate null values. For example:
      * <pre>
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
