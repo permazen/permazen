@@ -63,6 +63,7 @@ public class JSimpleField extends JField {
         // Parse uniqueExcludes
         final int numExcludes = annotation.uniqueExclude().length;
         if (numExcludes > 0) {
+            assert this.unique;
             this.uniqueExcludes = new ArrayList<>(numExcludes);
             for (String string : annotation.uniqueExclude()) {
                 if (string.equals(org.jsimpledb.annotation.JField.NULL))
