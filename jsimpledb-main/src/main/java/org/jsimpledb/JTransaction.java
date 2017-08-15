@@ -803,6 +803,9 @@ public class JTransaction {
      * specified in the corresponding annotation property. See {@link org.jsimpledb.annotation.JField &#64;JField} for details.
      *
      * <p>
+     * All objects found will be {@linkplain #updateSchemaVersion upgraded} if necessary.
+     *
+     * <p>
      * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
      * measured in the number of reference field "hops" from the given object.
      *
@@ -829,6 +832,9 @@ public class JTransaction {
      * Upon invocation {@code visitedIds} contains the ID's of objects already visited; these objects will not be traversed.
      * In particular, if {@code id} is in {@code visitedIds}, then this method does nothing.
      * Upon return, {@code visitedIds} will also contain the ID's of all new objects found.
+     *
+     * <p>
+     * All objects found will be {@linkplain #updateSchemaVersion upgraded} if necessary.
      *
      * <p>
      * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
@@ -870,6 +876,11 @@ public class JTransaction {
             // Find all new objects reachable in one hop from any object in 'toVisitIds'
             final ObjIdSet newIds = new ObjIdSet();
             for (ObjId toVisitId : toVisitIds) {
+
+                // Upgrade object if needed
+                this.tx.updateSchemaVersion(toVisitId);
+
+                // Gather references
                 this.gatherForwardCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
                 this.gatherInverseCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
             }
