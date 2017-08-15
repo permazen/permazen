@@ -87,7 +87,8 @@ public class StorageIdTest extends TestSupport {
         void setFriend(Foo friend);
     }
 
-    @JSimpleClass(compositeIndexes = @JCompositeIndex(name = "index", fields = { "string", "friend" }))
+    @JCompositeIndex(name = "index", fields = { "string", "friend" })
+    @JSimpleClass
     public abstract static class Foo implements JObject, Friendly {
 
         public abstract String getString();

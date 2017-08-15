@@ -2,9 +2,6 @@
 SHORT TERM
 ==========
 
-- @JCompositeIndex(unique = true) ?
-    - What to do with uniqueExclude and uniqueExcludeNull ?
-
 - Connection pooling in SQL k/v implementations
 
 - CLI:

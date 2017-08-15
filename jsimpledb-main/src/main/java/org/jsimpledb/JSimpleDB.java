@@ -11,6 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.lang.annotation.Annotation;
@@ -32,6 +33,7 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 import org.dellroad.stuff.util.LongMap;
+import org.jsimpledb.annotation.JCompositeIndexes;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
@@ -283,22 +285,35 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.createFields(this);
 
+        // Add composite indexes to class; like fields, indexes are inherited (duplicated) from supertypes
+        for (JClass<?> jclass : this.jclasses.values()) {
+            for (Class<?> supertype : TypeToken.of(jclass.type).getTypes().rawTypes()) {
+                final org.jsimpledb.annotation.JCompositeIndex[] annotations;
+                final JCompositeIndexes container = Util.getAnnotation(supertype, JCompositeIndexes.class);
+                if (container != null)
+                    annotations = container.value();
+                else {
+                    org.jsimpledb.annotation.JCompositeIndex annotation = Util.getAnnotation(supertype,
+                      org.jsimpledb.annotation.JCompositeIndex.class);
+                    if (annotation == null)
+                        continue;
+                    annotations = new org.jsimpledb.annotation.JCompositeIndex[] { annotation };
+                }
+                for (org.jsimpledb.annotation.JCompositeIndex annotation : annotations) {
+                    if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
+                        throw new IllegalArgumentException("invalid @JCompositeIndex annotation on "
+                          + supertype + ": use of uniqueExclude() requires unique = true");
+                    }
+                    jclass.addCompositeIndex(this, supertype, annotation);
+                }
+            }
+        }
+
         // Find all fields that require default validation
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
                 if (jfield.requiresDefaultValidation)
                     this.fieldsRequiringDefaultValidation.add(jfield.storageId);
-            }
-        }
-
-        // Add composite indexes to class; like fields, indexes are inherited (duplicated) from superclasses
-        for (JClass<?> jclass : this.jclasses.values()) {
-            for (Class<?> type = jclass.type; type != null; type = type.getSuperclass()) {
-                final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
-                if (annotation != null) {
-                    for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : annotation.compositeIndexes())
-                        jclass.addCompositeIndex(this, indexAnnotation);
-                }
             }
         }
 

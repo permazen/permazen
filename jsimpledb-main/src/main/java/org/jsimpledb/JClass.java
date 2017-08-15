@@ -55,6 +55,7 @@ public class JClass<T> extends JSchemaObject {
     final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
+    final ArrayList<JCompositeIndex> uniqueConstraintCompositeIndexes = new ArrayList<>();
     final ArrayList<JField> upgradeConversionFields = new ArrayList<>();                // contains only simple and counter fields
     final HashMap<String, List<JReferenceField>> forwardCascadeMap = new HashMap<>();
 
@@ -121,6 +122,15 @@ public class JClass<T> extends JSchemaObject {
      */
     public SortedMap<String, JField> getJFieldsByName() {
         return Collections.unmodifiableSortedMap(this.jfieldsByName);
+    }
+
+    /**
+     * Get all {@link JCompositeIndex}'s defined on this {@link JClass}.
+     *
+     * @return read-only mapping from name to {@link JCompositeIndex}
+     */
+    public SortedMap<String, JCompositeIndex> getJCompositeIndexesByName() {
+        return Collections.unmodifiableSortedMap(this.jcompositeIndexesByName);
     }
 
     /**
@@ -374,7 +384,7 @@ public class JClass<T> extends JSchemaObject {
           .collect(Collectors.toList()));
     }
 
-    void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
+    void addCompositeIndex(JSimpleDB jdb, Class<?> declaringType, org.jsimpledb.annotation.JCompositeIndex annotation) {
 
         // Get info
         final String indexName = annotation.name();
@@ -405,11 +415,18 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Create and add index
-        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, indexFields);
+        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, declaringType, annotation, indexFields);
         if (this.jcompositeIndexes.put(index.storageId, index) != null)
             throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
         if (this.jcompositeIndexesByName.put(index.name, index) != null)
             throw this.invalidIndex(annotation, "duplicate use of composite index name `" + index.name + "'");
+
+        // Remember unique constraint composite indexes and trigger validation when any indexed field changes
+        if (index.unique) {
+            this.uniqueConstraintCompositeIndexes.add(index);
+            for (JSimpleField jfield : index.jfields)
+                jfield.requiresDefaultValidation = true;
+        }
     }
 
     void scanAnnotations() {
@@ -448,8 +465,14 @@ public class JClass<T> extends JSchemaObject {
             return;
         }
 
-        // Check for any uniqueness constraints
+        // Check for any simple index uniqueness constraints
         if (!this.uniqueConstraintFields.isEmpty()) {
+            this.requiresDefaultValidation = true;
+            return;
+        }
+
+        // Check for any composite index uniqueness constraints
+        if (!this.uniqueConstraintCompositeIndexes.isEmpty()) {
             this.requiresDefaultValidation = true;
             return;
         }

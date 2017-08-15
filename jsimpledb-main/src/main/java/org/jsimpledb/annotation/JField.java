@@ -138,9 +138,10 @@ import org.jsimpledb.core.DeleteAction;
  * when any object is upgraded.
  *
  * <p>
- * Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
- * Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
- * To avoid this possibililty, change the schema version number and update them manually.
+ * Beware however, that like all other types of validation constraint, uniqueness constraints can be added or changed on a field
+ * without any schema version change. Therefore, after such changes, it's possible for pre-existing database objects that were
+ * previously valid to suddenly become invalid, and these invalid objects would not be detected until they are validated in some
+ * future transaction and a validation exception is thrown.
  *
  * <p><b>Meta-Annotations</b></p>
  *
@@ -239,12 +240,13 @@ public @interface JField {
      *
      * <p>
      * Setting this property to true creates a simple index on this field. To have this field participate in
-     * a composite index on multiple fields, use {@link JSimpleClass#compositeIndexes}.
+     * a composite index on multiple fields, use {@link JCompositeIndex}.
      *
      * <p>
      * Note: reference fields are always indexed (for reference fields, this property is ignored).
      *
      * @return whether the field is indexed
+     * @see JCompositeIndex
      */
     boolean indexed() default false;
 

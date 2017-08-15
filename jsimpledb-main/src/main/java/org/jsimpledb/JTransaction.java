@@ -70,6 +70,9 @@ import org.jsimpledb.index.Index4;
 import org.jsimpledb.kv.KVDatabaseException;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
+import org.jsimpledb.tuple.Tuple2;
+import org.jsimpledb.tuple.Tuple3;
+import org.jsimpledb.tuple.Tuple4;
 import org.jsimpledb.util.CloseableIterator;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
@@ -1813,8 +1816,10 @@ public class JTransaction {
             }
 
             // Do uniqueness validation
-            if (!jclass.uniqueConstraintFields.isEmpty()
+            if ((!jclass.uniqueConstraintFields.isEmpty() || !jclass.uniqueConstraintCompositeIndexes.isEmpty())
               && Util.isAnyGroupBeingValidated(DEFAULT_AND_UNIQUENESS_CLASS_ARRAY, validationGroups)) {
+
+                // Check simple index uniqueness constraints
                 for (JSimpleField jfield : jclass.uniqueConstraintFields) {
                     assert jfield.indexed;
                     assert jfield.unique;
@@ -1834,21 +1839,78 @@ public class JTransaction {
                     final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(jfield.storageId));
 
                     // Seach for other objects with the same value in the field and report violation if any are found
-                    final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
-                    for (ObjId conflictor : index.asMap().get(value)) {
-                        if (conflictor.equals(id))                          // ignore jobj's own index entry
-                            continue;
-                        conflictors.add(conflictor);
-                        if (conflictors.size() >= MAX_UNIQUE_CONFLICTORS)
-                            break;
-                    }
+                    final List<ObjId> conflictors = this.findUniqueConflictors(id, index.asMap().get(value));
                     if (!conflictors.isEmpty()) {
                         throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed for object "
                           + id + ": field value " + value + " is also shared by object(s) " + conflictors);
                     }
                 }
+
+                // Check composite index uniqueness constraints
+                for (JCompositeIndex index : jclass.uniqueConstraintCompositeIndexes) {
+                    assert index.unique;
+
+                    // Get field (core API) values
+                    final int numFields = index.jfields.size();
+                    final List<Object> values = new ArrayList<>(numFields);
+                    for (JSimpleField jfield : index.jfields)
+                        values.add(this.tx.readSimpleField(id, jfield.storageId, false));
+
+                    // Compare to excluded value combinations list
+                    if (index.uniqueExcludes != null
+                      && Collections.binarySearch(index.uniqueExcludes, values, index.uniqueComparator) >= 0)
+                        continue;
+
+                    // Query core API index to find all objects with the same values in the fields
+                    final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
+                      new IndexQueryInfoKey(index.name, true, index.declaringType, index.getQueryInfoValueTypes()));
+                    final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
+                    final NavigableSet<ObjId> ids;
+                    switch (numFields) {
+                    case 2:
+                        final CoreIndex2<Object, Object, ObjId> coreIndex2
+                          = (CoreIndex2<Object, Object, ObjId>)this.tx.queryCompositeIndex2(indexInfo.storageId);
+                        ids = info.applyFilters(coreIndex2).asMap().get(new Tuple2<Object, Object>(values.get(0), values.get(1)));
+                        break;
+                    case 3:
+                        final CoreIndex3<Object, Object, Object, ObjId> coreIndex3
+                          = (CoreIndex3<Object, Object, Object, ObjId>)this.tx.queryCompositeIndex3(indexInfo.storageId);
+                        ids = info.applyFilters(coreIndex3).asMap().get(
+                          new Tuple3<Object, Object, Object>(values.get(0), values.get(1), values.get(2)));
+                        break;
+                    case 4:
+                        final CoreIndex4<Object, Object, Object, Object, ObjId> coreIndex4
+                          = (CoreIndex4<Object, Object, Object, Object, ObjId>)this.tx.queryCompositeIndex4(indexInfo.storageId);
+                        ids = info.applyFilters(coreIndex4).asMap().get(
+                          new Tuple4<Object, Object, Object, Object>(values.get(0), values.get(1), values.get(2), values.get(3)));
+                        break;
+                    // COMPOSITE-INDEX
+                    default:
+                        throw new RuntimeException("internal error");
+                    }
+
+                    // Seach for other objects with the same values in the same fields and report violation if any are found
+                    final List<ObjId> conflictors = this.findUniqueConflictors(id, ids);
+                    if (!conflictors.isEmpty()) {
+                        throw new ValidationException(jobj, "uniqueness constraint on composite index `" + index.name
+                          + "' failed for object " + id + ": field value combination " + values + " is also shared by object(s) "
+                          + conflictors);
+                    }
+                }
             }
         }
+    }
+
+    private ArrayList<ObjId> findUniqueConflictors(ObjId id, NavigableSet<ObjId> ids) {
+        final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
+        for (ObjId conflictor : ids) {
+            if (conflictor.equals(id))                          // ignore object's own index entry
+                continue;
+            conflictors.add(conflictor);
+            if (conflictors.size() >= MAX_UNIQUE_CONFLICTORS)
+                break;
+        }
+        return conflictors;
     }
 
 // InternalCreateListener
