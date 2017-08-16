@@ -56,6 +56,10 @@ SHORT TERM
 LONG TERM
 =========
 
+- Non-annotation configuration
+    - Supports use with legacy code that can't easily be modified
+    - https://github.com/archiecobbs/jsimpledb/issues/16
+
 - Add a network accessible API for KVDatabase
     - New "over the network" KVDatabase client
         - Includes server-side classes as well for embeddability
