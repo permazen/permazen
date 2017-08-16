@@ -171,6 +171,7 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
         synchronized (this.view) {
             writes = this.view.getWrites();
             this.view.setReadOnly();
+            this.cachingKV.close();                 // this tells background read-ahead threads to ignore subsequent exceptions
         }
 
         // Apply writes and commit tx
