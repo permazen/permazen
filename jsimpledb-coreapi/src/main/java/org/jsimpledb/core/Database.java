@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
@@ -387,16 +388,20 @@ public class Database {
         final boolean uninitialized;
         try (final CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(Layout.getMetaDataKeyRange())) {
 
+            // Pretend user meta-data is not there
+            final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(Layout.getUserMetaDataKeyPrefix(), key);
+
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
             byte[] formatVersionBytes = null;
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
                 assert Layout.getMetaDataKeyRange().contains(pair.getKey());
-                if (!Arrays.equals(pair.getKey(), Layout.getFormatVersionKey())) {
+                if (Arrays.equals(pair.getKey(), Layout.getFormatVersionKey()))
+                    formatVersionBytes = pair.getValue();
+                else if (!userMetaData.test(pair.getKey())) {
                     throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
                       + ByteUtil.toString(pair.getKey()) + ")");
                 }
-                formatVersionBytes = pair.getValue();
             }
 
             // Get database format object; check for an uninitialized database
@@ -404,13 +409,27 @@ public class Database {
             if (uninitialized) {
 
                 // Sanity checks
-                if (kvstore.getAtLeast(new byte[0], null) != null)
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-                if (kvstore.getAtMost(new byte[] { (byte)0xff }, null) != null)
+                final KVPair first = kvstore.getAtLeast(new byte[0], null);
+                final KVPair last = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
+                if (first != null && !userMetaData.test(first.getKey())) {
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                      + ByteUtil.toString(first.getKey()) + ")");
+                }
+                if (last != null && !userMetaData.test(last.getKey())) {
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                      + ByteUtil.toString(last.getKey()) + ")");
+                }
+                if ((first != null) != (last != null) || (first != null && ByteUtil.compare(first.getKey(), last.getKey()) > 0))
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
                 try (CloseableIterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff })) {
-                    if (testIterator.hasNext())
+                    if (testIterator.hasNext() ?
+                      first == null || !Arrays.equals(testIterator.next().getKey(), first.getKey()) : first != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+                }
+                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff }, true)) {
+                    if (testIterator.hasNext() ?
+                      last == null || !Arrays.equals(testIterator.next().getKey(), last.getKey()) : last != null)
+                        throw new InconsistentDatabaseException("inconsistent results from getAtMost() and getRange()");
                 }
                 this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
@@ -427,7 +446,7 @@ public class Database {
                 final KVPair lower = kvstore.getAtLeast(new byte[0], null);
                 if (lower == null || !lower.equals(new KVPair(Layout.getFormatVersionKey(), encodedFormatVersion)))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
-                final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
+                final KVPair upper = kvstore.getAtMost(Layout.getUserMetaDataKeyPrefix(), null);
                 if (upper == null || !upper.equals(new KVPair(Layout.getFormatVersionKey(), encodedFormatVersion)))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
             } else {
