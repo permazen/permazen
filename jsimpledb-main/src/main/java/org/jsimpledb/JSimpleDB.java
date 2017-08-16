@@ -545,7 +545,30 @@ public class JSimpleDB {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  createTransaction(allowNewSchema, validationMode, null)
+     *  {@link #createTransaction(boolean, ValidationMode, Map) createTransaction}(true, {@link ValidationMode#AUTOMATIC}, null)
+     *  </pre></blockquote>
+     *
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema does not match what's recorded in the
+     *  database for the schema version provided to the constructor
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
+     *  is not recorded in the database and {@code allowNewSchema} is false
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
+     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
+     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
+     *  incompatibly between schema versions)
+     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     */
+    public JTransaction createTransaction() {
+        return this.createTransaction(true, ValidationMode.AUTOMATIC, null);
+    }
+
+    /**
+     * Create a new transaction.
+     *
+     * <p>
+     * Convenience method; equivalent to:
+     *  <blockquote><pre>
+     *  {@link #createTransaction(boolean, ValidationMode, Map) createTransaction}(allowNewSchema, validationMode, null)
      *  </pre></blockquote>
      *
      * @param allowNewSchema whether creating a new schema version is allowed
