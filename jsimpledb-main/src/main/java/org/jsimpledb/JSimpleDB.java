@@ -160,8 +160,8 @@ public class JSimpleDB {
 
     /**
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
-     * Generates a database schema by introspecting the {@code classes}; schema version number {@code 1} is assumed
-     * and a {@link DefaultStorageIdGenerator} is used to auto-generate storage ID's where necessary.
+     * Generates a database schema by introspecting the {@code classes}; auto-generates a schema version number
+     * and uses a {@link DefaultStorageIdGenerator} to auto-generate storage ID's.
      *
      * <p>
      * This constructor can also be used just to validate the annotations on the given classes.
@@ -173,7 +173,7 @@ public class JSimpleDB {
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     public JSimpleDB(Iterable<? extends Class<?>> classes) {
-        this(new Database(new SimpleKVDatabase()), 1, new DefaultStorageIdGenerator(), classes);
+        this(new Database(new SimpleKVDatabase()), -1, new DefaultStorageIdGenerator(), classes);
     }
 
     /**

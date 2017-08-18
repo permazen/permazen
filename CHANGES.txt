@@ -7,6 +7,7 @@ Version Next
     - Fixed bug in Spanner key/value database where some exceptions were not retryable
     - Replaced @JField.uniqueExcludeNull() with @JField.uniqueExclude = JField.NULL (*)
     - Allow repeating @JCompositeIndex on any type instead of nested within @JSimpleClass (*)
+    - Changed JSimpleDBFactory default schema version to -1
     - Added support for uniqueness constraints on composite indexes
     - Added @FollowPath annotation
 

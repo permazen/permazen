@@ -26,7 +26,7 @@ import org.jsimpledb.kv.simple.SimpleKVDatabase;
 public class JSimpleDBFactory {
 
     private Database database;
-    private int schemaVersion;
+    private int schemaVersion = -1;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Iterable<? extends Class<?>> modelClasses;
     private ValidatorFactory validatorFactory;
@@ -79,13 +79,14 @@ public class JSimpleDBFactory {
      *
      * <p>
      * A value of zero means to use whatever is the highest version already recorded in the database.
-     * However, if this instance has no {@link Database} configured, then an empty
-     * {@link SimpleKVDatabase} is used and therefore a schema version of {@code 1} is assumed.
      *
      * <p>
      * A value of -1 means to {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion auto-generate}
      * a version number based on the {@linkplain org.jsimpledb.schema.SchemaModel#compatibilityHash compatibility hash}
      * of the {@link org.jsimpledb.schema.SchemaModel} generated from the {@linkplain #setModelClasses configured model classes}.
+     *
+     * <p>
+     * Default is -1.
      *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
      *  zero to use the highest version already recorded in the database,
@@ -118,6 +119,9 @@ public class JSimpleDBFactory {
      * Configure a custom {@link ValidatorFactory} used to create {@link javax.validation.Validator}s
      * for validation within transactions.
      *
+     * <p>
+     * The default is to use the result from {@link javax.validation.Validation#buildDefaultValidatorFactory}.
+     *
      * @param validatorFactory factory for validators
      * @return this instance
      * @throws IllegalArgumentException if {@code validatorFactory} is null
@@ -137,13 +141,9 @@ public class JSimpleDBFactory {
      */
     public JSimpleDB newJSimpleDB() {
         Database database1 = this.database;
-        int schemaVersion1 = this.schemaVersion;
-        if (database1 == null) {
+        if (database1 == null)
             database1 = new Database(new SimpleKVDatabase());
-            if (schemaVersion1 == 0)
-                schemaVersion1 = 1;
-        }
-        final JSimpleDB jdb = new JSimpleDB(database1, schemaVersion1, this.storageIdGenerator, this.modelClasses);
+        final JSimpleDB jdb = new JSimpleDB(database1, this.schemaVersion, this.storageIdGenerator, this.modelClasses);
         if (this.validatorFactory != null)
             jdb.setValidatorFactory(this.validatorFactory);
         return jdb;
