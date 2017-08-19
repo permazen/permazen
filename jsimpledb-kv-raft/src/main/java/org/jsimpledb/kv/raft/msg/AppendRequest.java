@@ -86,9 +86,9 @@ public class AppendRequest extends Message {
         this.checkArguments();
     }
 
-    AppendRequest(ByteBuffer buf) {
-        super(Message.APPEND_REQUEST_TYPE, buf);
-        this.leaderTimestamp = Message.getTimestamp(buf);
+    AppendRequest(ByteBuffer buf, int version) {
+        super(Message.APPEND_REQUEST_TYPE, buf, version);
+        this.leaderTimestamp = Message.getTimestamp(buf, version);
         this.leaderLeaseTimeout = Message.getBoolean(buf) ? this.leaderTimestamp.offset((int)LongEncoder.read(buf)) : null;
         this.leaderCommit = LongEncoder.read(buf);
         this.prevLogTerm = LongEncoder.read(buf);
@@ -178,10 +178,10 @@ public class AppendRequest extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
+    public void writeTo(ByteBuffer dest, int version) {
         Preconditions.checkState(!this.mutationDataInvalid);
-        super.writeTo(dest);
-        Message.putTimestamp(dest, this.leaderTimestamp);
+        super.writeTo(dest, version);
+        Message.putTimestamp(dest, this.leaderTimestamp, version);
         Message.putBoolean(dest, this.leaderLeaseTimeout != null);
         if (this.leaderLeaseTimeout != null)
             LongEncoder.write(dest, this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp));
@@ -197,10 +197,10 @@ public class AppendRequest extends Message {
     }
 
     @Override
-    protected int calculateSize() {
+    protected int calculateSize(int version) {
         Preconditions.checkState(!this.mutationDataInvalid);
-        return super.calculateSize()
-          + Message.calculateSize(this.leaderTimestamp)
+        return super.calculateSize(version)
+          + Message.calculateSize(this.leaderTimestamp, version)
           + 1
           + (this.leaderLeaseTimeout != null ?
             LongEncoder.encodeLength(this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp)) : 0)

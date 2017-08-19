@@ -7,6 +7,7 @@ package org.jsimpledb.kv.raft.msg;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.jsimpledb.kv.KeyRanges;
@@ -14,6 +15,7 @@ import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.test.TestSupport;
+import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -22,10 +24,18 @@ public class MessageTest extends TestSupport {
 
     @Test(dataProvider = "msgs")
     public void testMessage(Message msg1) {
-        final ByteBuffer buf1 = msg1.encode();
-        final Message msg2 = Message.decode(buf1.duplicate());
-        final ByteBuffer buf2 = msg2.encode();
-        Assert.assertEquals(buf1, buf2);
+        for (int version = 1; version <= Message.getCurrentProtocolVersion(); version++) {
+            final ByteBuffer buf1 = msg1.encode(version);
+            final ByteBuffer buf1b = buf1.duplicate();
+            final int decodedVersion = Message.decodeProtocolVersion(buf1b);
+            final Message msg2 = Message.decode(buf1b, decodedVersion);
+            final ByteBuffer buf2 = msg2.encode(version);
+            Assert.assertEquals(buf1, buf2, "bad version " + version + " encode/decode for:"
+              + "\n  msg1=" + msg1
+              + "\n  msg2=" + msg2
+              + "\n  buf1=" + ByteUtil.toString(Arrays.copyOfRange(buf1.array(), buf1.arrayOffset(), buf1.remaining()))
+              + "\n  buf2=" + ByteUtil.toString(Arrays.copyOfRange(buf2.array(), buf2.arrayOffset(), buf2.remaining())));
+        }
     }
 
     @DataProvider(name = "msgs")

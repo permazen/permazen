@@ -38,8 +38,8 @@ public class RequestVote extends Message {
         this.checkArguments();
     }
 
-    RequestVote(ByteBuffer buf) {
-        super(Message.REQUEST_VOTE_TYPE, buf);
+    RequestVote(ByteBuffer buf, int version) {
+        super(Message.REQUEST_VOTE_TYPE, buf, version);
         this.lastLogTerm = LongEncoder.read(buf);
         this.lastLogIndex = LongEncoder.read(buf);
         this.checkArguments();
@@ -70,15 +70,15 @@ public class RequestVote extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
-        super.writeTo(dest);
+    public void writeTo(ByteBuffer dest, int version) {
+        super.writeTo(dest, version);
         LongEncoder.write(dest, this.lastLogTerm);
         LongEncoder.write(dest, this.lastLogIndex);
     }
 
     @Override
-    protected int calculateSize() {
-        return super.calculateSize()
+    protected int calculateSize(int version) {
+        return super.calculateSize(version)
           + LongEncoder.encodeLength(this.lastLogTerm)
           + LongEncoder.encodeLength(this.lastLogIndex);
     }

@@ -135,7 +135,7 @@ public class CandidateRole extends NonLeaderRole {
         if (this.log.isDebugEnabled())
             this.debug("rec'd " + msg + " in " + this + "; reverting to follower");
         this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
-        this.raft.receiveMessage(this.raft.returnAddress, msg, newLogEntry);
+        this.raft.receiveMessage(this.raft.returnAddress, msg, -1, newLogEntry);
     }
 
 // MessageSwitch

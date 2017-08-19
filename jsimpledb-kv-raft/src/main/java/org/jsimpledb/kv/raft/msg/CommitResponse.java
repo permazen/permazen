@@ -98,12 +98,12 @@ public class CommitResponse extends Message {
         this.checkArguments();
     }
 
-    CommitResponse(ByteBuffer buf) {
-        super(Message.COMMIT_RESPONSE_TYPE, buf);
+    CommitResponse(ByteBuffer buf, int version) {
+        super(Message.COMMIT_RESPONSE_TYPE, buf, version);
         this.txId = LongEncoder.read(buf);
         this.commitTerm = LongEncoder.read(buf);
         this.commitIndex = LongEncoder.read(buf);
-        this.commitLeaderLeaseTimeout = Message.getBoolean(buf) ? Message.getTimestamp(buf) : null;
+        this.commitLeaderLeaseTimeout = Message.getBoolean(buf) ? Message.getTimestamp(buf, version) : null;
         this.errorMessage = Message.getBoolean(buf) ? Message.getString(buf) : null;
         this.checkArguments();
     }
@@ -186,27 +186,27 @@ public class CommitResponse extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
-        super.writeTo(dest);
+    public void writeTo(ByteBuffer dest, int version) {
+        super.writeTo(dest, version);
         LongEncoder.write(dest, this.txId);
         LongEncoder.write(dest, this.commitTerm);
         LongEncoder.write(dest, this.commitIndex);
         Message.putBoolean(dest, this.commitLeaderLeaseTimeout != null);
         if (this.commitLeaderLeaseTimeout != null)
-            Message.putTimestamp(dest, this.commitLeaderLeaseTimeout);
+            Message.putTimestamp(dest, this.commitLeaderLeaseTimeout, version);
         Message.putBoolean(dest, this.errorMessage != null);
         if (this.errorMessage != null)
             Message.putString(dest, this.errorMessage);
     }
 
     @Override
-    protected int calculateSize() {
-        return super.calculateSize()
+    protected int calculateSize(int version) {
+        return super.calculateSize(version)
           + LongEncoder.encodeLength(this.txId)
           + LongEncoder.encodeLength(this.commitTerm)
           + LongEncoder.encodeLength(this.commitIndex)
           + 1
-          + (this.commitLeaderLeaseTimeout != null ? Message.calculateSize(this.commitLeaderLeaseTimeout) : 0)
+          + (this.commitLeaderLeaseTimeout != null ? Message.calculateSize(this.commitLeaderLeaseTimeout, version) : 0)
           + 1
           + (this.errorMessage != null ? Message.calculateSize(this.errorMessage) : 0);
     }

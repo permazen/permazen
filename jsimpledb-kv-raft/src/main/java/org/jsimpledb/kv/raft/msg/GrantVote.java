@@ -26,8 +26,8 @@ public class GrantVote extends Message {
         super(Message.GRANT_VOTE_TYPE, clusterId, senderId, recipientId, term);
     }
 
-    GrantVote(ByteBuffer buf) {
-        super(Message.GRANT_VOTE_TYPE, buf);
+    GrantVote(ByteBuffer buf, int version) {
+        super(Message.GRANT_VOTE_TYPE, buf, version);
     }
 
 // Message

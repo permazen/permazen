@@ -439,6 +439,7 @@ public class RaftKVDatabase implements KVDatabase {
     final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
     Map<String, String> lastAppliedConfig;                              // key/value store last applied config (empty if none)
     Map<String, String> currentConfig;                                  // most recent cluster config (empty if unconfigured)
+    Map<String, Integer> protocolVersionMap = new HashMap<>();          // peer message encoding protocol versions
 
     // Non-Raft runtime state
     AtomicKVStore kv;
@@ -1094,6 +1095,9 @@ public class RaftKVDatabase implements KVDatabase {
             this.flipflop = this.decodeBoolean(FLIP_FLOP_KEY);
             this.currentConfig = this.buildCurrentConfig();
 
+            // Reset protocol version info
+            this.protocolVersionMap.clear();
+
             // If we crashed part way through a snapshot install, recover by discarding partial install
             if (this.discardFlipFloppedStateMachine() && this.log.isDebugEnabled())
                 this.debug("detected partially applied snapshot install, discarding");
@@ -1269,6 +1273,7 @@ public class RaftKVDatabase implements KVDatabase {
         Arrays.fill(this.appliedTerms, 0);
         this.lastAppliedConfig = null;
         this.currentConfig = null;
+        this.protocolVersionMap.clear();
         if (this.keyWatchTracker != null) {
             this.keyWatchTracker.close();
             this.keyWatchTracker = null;
@@ -2042,9 +2047,11 @@ public class RaftKVDatabase implements KVDatabase {
     private void handle(String sender, ByteBuffer buf) {
 
         // Decode message
+        final int protocolVersion;
         final Message msg;
         try {
-            msg = Message.decode(buf);
+            protocolVersion = Message.decodeProtocolVersion(buf);
+            msg = Message.decode(buf, protocolVersion);
         } catch (IllegalArgumentException e) {
             this.error("rec'd bogus message from " + sender + ", ignoring", e);
             return;
@@ -2087,7 +2094,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Handle message
         try {
-            this.receiveMessage(sender, msg, newLogEntry);
+            this.receiveMessage(sender, msg, protocolVersion, newLogEntry);
         } finally {
             if (newLogEntry != null)
                 newLogEntry.cleanup(this);
@@ -2132,10 +2139,22 @@ public class RaftKVDatabase implements KVDatabase {
             return false;
         }
 
-        // Send message
+        // Determine protocol version to use
+        final int protocolVersion = this.protocolVersionMap.getOrDefault(peer, Message.getCurrentProtocolVersion());
+
+        // Encode messagse
         if (this.log.isTraceEnabled())
-            this.trace("XMIT " + msg + " to " + address);
-        if (this.network.send(address, msg.encode())) {
+            this.trace("XMIT " + msg + " to " + address + " (version " + protocolVersion + ")");
+        final ByteBuffer encodedMessage;
+        try {
+            encodedMessage = msg.encode(protocolVersion);
+        } catch (IllegalArgumentException e) {                                      // can happen if peer running older code
+            this.warn("can't send " + msg + " to peer \"" + peer + "\": " + e, e);
+            return false;
+        }
+
+        // Send message
+        if (this.network.send(address, encodedMessage)) {
             this.transmitting.add(address);
             return true;
         }
@@ -2145,7 +2164,7 @@ public class RaftKVDatabase implements KVDatabase {
         return false;
     }
 
-    synchronized void receiveMessage(String address, Message msg, final NewLogEntry newLogEntry) {
+    synchronized void receiveMessage(String address, Message msg, int protocolVersion, final NewLogEntry newLogEntry) {
 
         // Sanity check newLogEntry
         assert newLogEntry == null || (msg instanceof AppendRequest || msg instanceof CommitRequest);
@@ -2184,6 +2203,13 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         }
 
+        // Update sender's protocol version
+        if (protocolVersion != -1) {
+            final Integer previousVersion = this.protocolVersionMap.put(peer, protocolVersion);
+            if (!((Integer)protocolVersion).equals(previousVersion) && this.log.isDebugEnabled())
+                this.debug("set protocol encoding version for peer \"" + peer + "\" to " + protocolVersion);
+        }
+
         // Is my term too low? If so update and revert to follower
         if (msg.getTerm() > this.currentTerm) {
 
@@ -2218,7 +2244,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Debug
         if (this.log.isTraceEnabled())
-            this.trace("RECV " + msg + " in " + this.role + " from " + address);
+            this.trace("RECV " + msg + " in " + this.role + " from " + address + " (protocol version " + protocolVersion + ")");
 
         // Handle message
         this.returnAddress = address;

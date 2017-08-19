@@ -30,8 +30,8 @@ public class PingRequest extends AbstractPingMessage {
         this.checkArguments();
     }
 
-    PingRequest(ByteBuffer buf) {
-        super(Message.PING_REQUEST_TYPE, buf);
+    PingRequest(ByteBuffer buf, int version) {
+        super(Message.PING_REQUEST_TYPE, buf, version);
         this.checkArguments();
     }
 

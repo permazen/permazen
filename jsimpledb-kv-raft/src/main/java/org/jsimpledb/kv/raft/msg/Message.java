@@ -33,8 +33,9 @@ public abstract class Message {
     static final byte MAX_TYPE = 10;
 
     // Serialization version number
-    private static final byte VERSION_1 = 1;
-    private static final byte VERSION_2 = 2;
+    static final int VERSION_1 = 1;
+    static final int VERSION_2 = 2;
+    static final int VERSION_3 = 3;
 
     // Minimum buffer size to use a direct buffer
     private static final int MIN_DIRECT_BUFFER_SIZE = 128;
@@ -53,7 +54,7 @@ public abstract class Message {
         this.term = term;
     }
 
-    protected Message(byte type, ByteBuffer buf) {
+    protected Message(byte type, ByteBuffer buf, int version) {
         this.type = type;
         this.clusterId = buf.getInt();
         this.senderId = Message.getString(buf);
@@ -127,61 +128,87 @@ public abstract class Message {
 
 // (De)serialization methods
 
+    // Check encoding format version
+    static void checkVersion(int version) {
+        switch (version) {
+        case Message.VERSION_1:
+        case Message.VERSION_2:
+        case Message.VERSION_3:
+            break;
+        default:
+            throw new IllegalArgumentException("unrecognized message format version " + version);
+        }
+    }
+
     /**
-     * Decode a message from the given input.
+     * Get the current (i.e., maximum known) protocol version number.
+     *
+     * @return latest message protocol version
+     */
+    public static int getCurrentProtocolVersion() {
+        return Message.VERSION_3;
+    }
+
+    /**
+     * Read the protocol version number header from the message encoded in the given input.
+     *
+     * @param buf source for encoded message
+     * @return decoded message protocol version
+     */
+    public static int decodeProtocolVersion(ByteBuffer buf) {
+        return buf.get() & 0xff;
+    }
+
+    /**
+     * Decode a message from the given input. The protocol version number header should already have been read.
      *
      * <p>
      * Note that data is not necessarily copied out of {@code buf}, so the returned instance may become invalid
      * if the data in {@code buf} gets overwritten.
      *
      * @param buf source for encoded message
+     * @param version message version
      * @return decoded message
      * @throws java.nio.BufferUnderflowException if there is not enough data
+     * @throws IllegalArgumentException if {@code version} is bogus
      * @throws IllegalArgumentException if encoded message is bogus
      * @throws IllegalArgumentException if there is trailing garbage
      */
-    public static Message decode(ByteBuffer buf) {
+    public static Message decode(ByteBuffer buf, int version) {
 
         // Check encoding format version
-        final byte version = buf.get();
-        switch (version) {
-        case Message.VERSION_1:
-        case Message.VERSION_2:
-            break;
-        default:
-            throw new IllegalArgumentException("unrecognized message format version " + version);
-        }
+        Message.checkVersion(version);
 
         // Read type and decode message
         final Message msg;
         final byte type = buf.get();
         switch (type) {
         case APPEND_REQUEST_TYPE:
-            msg = new AppendRequest(buf);
+            msg = new AppendRequest(buf, version);
             break;
         case APPEND_RESPONSE_TYPE:
-            msg = new AppendResponse(buf);
+            msg = new AppendResponse(buf, version);
             break;
         case COMMIT_REQUEST_TYPE:
-            msg = new CommitRequest(buf, version > Message.VERSION_1);
+            msg = new CommitRequest(buf, version);
             break;
         case COMMIT_RESPONSE_TYPE:
-            msg = new CommitResponse(buf);
+            msg = new CommitResponse(buf, version);
             break;
         case GRANT_VOTE_TYPE:
-            msg = new GrantVote(buf);
+            msg = new GrantVote(buf, version);
             break;
         case INSTALL_SNAPSHOT_TYPE:
-            msg = new InstallSnapshot(buf);
+            msg = new InstallSnapshot(buf, version);
             break;
         case REQUEST_VOTE_TYPE:
-            msg = new RequestVote(buf);
+            msg = new RequestVote(buf, version);
             break;
         case PING_REQUEST_TYPE:
-            msg = new PingRequest(buf);
+            msg = new PingRequest(buf, version);
             break;
         case PING_RESPONSE_TYPE:
-            msg = new PingResponse(buf);
+            msg = new PingResponse(buf, version);
             break;
         default:
             throw new IllegalArgumentException("invalid message type " + type);
@@ -198,12 +225,21 @@ public abstract class Message {
     /**
      * Serialize this instance.
      *
+     * @param version protocol encoding version number
+     * @throws IllegalArgumentException if {@code version} is bogus
      * @return encoded message
      */
-    public ByteBuffer encode() {
-        final int size = this.calculateSize();
+    public ByteBuffer encode(int version) {
+
+        // Check encoding format version
+        Message.checkVersion(version);
+
+        // Allocate buffer
+        final int size = this.calculateSize(version);
         final ByteBuffer buf = size >= MIN_DIRECT_BUFFER_SIZE ? ByteBuffer.allocateDirect(size) : ByteBuffer.allocate(size);
-        this.writeTo(buf);
+
+        // Encode message
+        this.writeTo(buf, version);
         if (buf.hasRemaining())
             throw new RuntimeException("internal error: " + buf.remaining() + " remaining bytes in buffer from " + this);
         return (ByteBuffer)buf.flip();
@@ -213,10 +249,13 @@ public abstract class Message {
      * Serialize this instance into the given buffer.
      *
      * @param buf destination for encoded data
+     * @param version protocol encoding version number
      * @throws java.nio.BufferOverflowException if data overflows {@code buf}
+     * @throws IllegalArgumentException if {@code version} is bogus
      */
-    public void writeTo(ByteBuffer buf) {
-        buf.put(Message.VERSION_2);
+    public void writeTo(ByteBuffer buf, int version) {
+        Message.checkVersion(version);
+        buf.put((byte)version);
         buf.put(this.type);
         buf.putInt(this.clusterId);
         Message.putString(buf, this.senderId);
@@ -229,10 +268,11 @@ public abstract class Message {
      *
      * @return an upper bound on the number of encoded bytes
      */
-    protected int calculateSize() {
-        return 1
-          + 1
-          + 4
+    protected int calculateSize(int version) {
+        Message.checkVersion(version);
+        return 1                                                                    // protocol encoding version
+          + 1                                                                       // message type
+          + 4                                                                       // cluster ID
           + Message.calculateSize(this.senderId)
           + Message.calculateSize(this.recipientId)
           + LongEncoder.encodeLength(this.term);
@@ -396,31 +436,41 @@ public abstract class Message {
      *
      * @param dest destination for encoded data
      * @param timestamp value to encode
+     * @param version protocol encoding version
      * @throws java.nio.ReadOnlyBufferException if {@code dest} is read only
      * @throws java.nio.BufferOverflowException if {@code dest} overflows
      * @throws IllegalArgumentException if {@code dest} or {@code timestamp} is null
      */
-    protected static void putTimestamp(ByteBuffer dest, Timestamp timestamp) {
+    protected static void putTimestamp(ByteBuffer dest, Timestamp timestamp, int version) {
         Preconditions.checkArgument(dest != null, "null dest");
         Preconditions.checkArgument(timestamp != null, "null timestamp");
-        UnsignedIntEncoder.write(dest, timestamp.getMillis());
+        Message.checkVersion(version);
+        if (version > Message.VERSION_2)
+            LongEncoder.write(dest, timestamp.getMillis());
+        else
+            UnsignedIntEncoder.write(dest, timestamp.getMillis());
     }
 
     /**
      * Deserialize a {@link Timestamp} value previously serialized by {@link #putTimestamp putTimestamp()} from the buffer.
      *
      * @param buf source for encoded data
+     * @param version protocol encoding version
      * @return decoded value
      * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if input is bogus
      */
-    protected static Timestamp getTimestamp(ByteBuffer buf) {
+    protected static Timestamp getTimestamp(ByteBuffer buf, int version) {
         Preconditions.checkArgument(buf != null, "null buf");
-        return new Timestamp(UnsignedIntEncoder.read(buf));
+        Message.checkVersion(version);
+        return new Timestamp(version > VERSION_2 ? (int)LongEncoder.read(buf) : UnsignedIntEncoder.read(buf));
     }
 
-    protected static int calculateSize(Timestamp timestamp) {
-        return UnsignedIntEncoder.encodeLength(timestamp.getMillis());
+    protected static int calculateSize(Timestamp timestamp, int version) {
+        Preconditions.checkArgument(timestamp != null, "null timestamp");
+        Message.checkVersion(version);
+        final int millis = timestamp.getMillis();
+        return version > VERSION_2 ? LongEncoder.encodeLength(millis) : UnsignedIntEncoder.encodeLength(millis);
     }
 
 // Debugging

@@ -53,8 +53,8 @@ public class InstallSnapshot extends Message {
         this.checkArguments();
     }
 
-    InstallSnapshot(ByteBuffer buf) {
-        super(Message.INSTALL_SNAPSHOT_TYPE, buf);
+    InstallSnapshot(ByteBuffer buf, int version) {
+        super(Message.INSTALL_SNAPSHOT_TYPE, buf, version);
         this.snapshotTerm = LongEncoder.read(buf);
         this.snapshotIndex = LongEncoder.read(buf);
         this.pairIndex = LongEncoder.read(buf);
@@ -113,8 +113,8 @@ public class InstallSnapshot extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
-        super.writeTo(dest);
+    public void writeTo(ByteBuffer dest, int version) {
+        super.writeTo(dest, version);
         LongEncoder.write(dest, this.snapshotTerm);
         LongEncoder.write(dest, this.snapshotIndex);
         LongEncoder.write(dest, this.pairIndex);
@@ -125,8 +125,8 @@ public class InstallSnapshot extends Message {
     }
 
     @Override
-    protected int calculateSize() {
-        return super.calculateSize()
+    protected int calculateSize(int version) {
+        return super.calculateSize(version)
           + LongEncoder.encodeLength(this.snapshotTerm)
           + LongEncoder.encodeLength(this.snapshotIndex)
           + LongEncoder.encodeLength(this.pairIndex)

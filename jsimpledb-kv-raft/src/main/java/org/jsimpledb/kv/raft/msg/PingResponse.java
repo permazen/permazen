@@ -30,8 +30,8 @@ public class PingResponse extends AbstractPingMessage {
         this.checkArguments();
     }
 
-    PingResponse(ByteBuffer buf) {
-        super(Message.PING_RESPONSE_TYPE, buf);
+    PingResponse(ByteBuffer buf, int version) {
+        super(Message.PING_RESPONSE_TYPE, buf, version);
         this.checkArguments();
     }
 

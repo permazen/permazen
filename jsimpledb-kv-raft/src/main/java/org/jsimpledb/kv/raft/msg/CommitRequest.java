@@ -7,8 +7,11 @@ package org.jsimpledb.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.util.LongEncoder;
 
 /**
@@ -52,11 +55,12 @@ public class CommitRequest extends Message {
         this.checkArguments();
     }
 
-    CommitRequest(ByteBuffer buf, boolean readsOptional) {
-        super(Message.COMMIT_REQUEST_TYPE, buf);
+    CommitRequest(ByteBuffer buf, int version) {
+        super(Message.COMMIT_REQUEST_TYPE, buf, version);
         this.txId = LongEncoder.read(buf);
         this.baseTerm = LongEncoder.read(buf);
         this.baseIndex = LongEncoder.read(buf);
+        final boolean readsOptional = version > Message.VERSION_1;
         this.readsData = !readsOptional || Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
         this.mutationData = Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
         this.readOnly = this.mutationData == null;
@@ -123,31 +127,45 @@ public class CommitRequest extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
+    public void writeTo(ByteBuffer dest, int version) {
         Preconditions.checkState(!this.mutationDataInvalid);
-        super.writeTo(dest);
+        super.writeTo(dest, version);
         LongEncoder.write(dest, this.txId);
         LongEncoder.write(dest, this.baseTerm);
         LongEncoder.write(dest, this.baseIndex);
-        Message.putBoolean(dest, this.readsData != null);
-        if (this.readsData != null)
-            Message.putByteBuffer(dest, this.readsData);
+        if (version > Message.VERSION_1) {
+            Message.putBoolean(dest, this.readsData != null);
+            if (this.readsData != null)
+                Message.putByteBuffer(dest, this.readsData);
+        } else
+            Message.putByteBuffer(dest, this.readsData != null ? this.readsData : this.getEmptyReadsByteBuffer());
         Message.putBoolean(dest, this.mutationData != null);
         if (this.mutationData != null)
             Message.putByteBuffer(dest, this.mutationData);
     }
 
     @Override
-    protected int calculateSize() {
+    protected int calculateSize(int version) {
         Preconditions.checkState(!this.mutationDataInvalid);
-        return super.calculateSize()
+        return super.calculateSize(version)
           + LongEncoder.encodeLength(this.txId)
           + LongEncoder.encodeLength(this.baseTerm)
           + LongEncoder.encodeLength(this.baseIndex)
-          + 1
-          + (this.readsData != null ? Message.calculateSize(this.readsData) : 0)
+          + (version > Message.VERSION_1 ?
+              1 + (this.readsData != null ? Message.calculateSize(this.readsData) : 0) :
+              Message.calculateSize(this.readsData != null ? this.readsData : this.getEmptyReadsByteBuffer()))
           + 1
           + (this.mutationData != null ? Message.calculateSize(this.mutationData) : 0);
+    }
+
+    private ByteBuffer getEmptyReadsByteBuffer() {
+        final Reads reads = new Reads();
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            reads.serialize(output);
+            return ByteBuffer.wrap(output.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
     }
 
 // Object

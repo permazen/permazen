@@ -27,9 +27,9 @@ abstract class AbstractPingMessage extends Message {
         this.timestamp = timestamp;
     }
 
-    AbstractPingMessage(byte type, ByteBuffer buf) {
-        super(type, buf);
-        this.timestamp = Message.getTimestamp(buf);
+    AbstractPingMessage(byte type, ByteBuffer buf, int version) {
+        super(type, buf, version);
+        this.timestamp = Message.getTimestamp(buf, version);
     }
 
     @Override
@@ -52,15 +52,15 @@ abstract class AbstractPingMessage extends Message {
 // Message
 
     @Override
-    public void writeTo(ByteBuffer dest) {
-        super.writeTo(dest);
-        Message.putTimestamp(dest, this.timestamp);
+    public void writeTo(ByteBuffer dest, int version) {
+        super.writeTo(dest, version);
+        Message.putTimestamp(dest, this.timestamp, version);
     }
 
     @Override
-    protected int calculateSize() {
-        return super.calculateSize()
-          + Message.calculateSize(this.timestamp);
+    protected int calculateSize(int version) {
+        return super.calculateSize(version)
+          + Message.calculateSize(this.timestamp, version);
     }
 
 // Object

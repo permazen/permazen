@@ -49,9 +49,9 @@ public class AppendResponse extends Message {
         this.checkArguments();
     }
 
-    AppendResponse(ByteBuffer buf) {
-        super(Message.APPEND_RESPONSE_TYPE, buf);
-        this.leaderTimestamp = Message.getTimestamp(buf);
+    AppendResponse(ByteBuffer buf, int version) {
+        super(Message.APPEND_RESPONSE_TYPE, buf, version);
+        this.leaderTimestamp = Message.getTimestamp(buf, version);
         this.success = Message.getBoolean(buf);
         this.matchIndex = LongEncoder.read(buf);
         this.lastLogIndex = LongEncoder.read(buf);
@@ -116,18 +116,18 @@ public class AppendResponse extends Message {
     }
 
     @Override
-    public void writeTo(ByteBuffer dest) {
-        super.writeTo(dest);
-        Message.putTimestamp(dest, this.leaderTimestamp);
+    public void writeTo(ByteBuffer dest, int version) {
+        super.writeTo(dest, version);
+        Message.putTimestamp(dest, this.leaderTimestamp, version);
         Message.putBoolean(dest, this.success);
         LongEncoder.write(dest, this.matchIndex);
         LongEncoder.write(dest, this.lastLogIndex);
     }
 
     @Override
-    protected int calculateSize() {
-        return super.calculateSize()
-          + Message.calculateSize(this.leaderTimestamp)
+    protected int calculateSize(int version) {
+        return super.calculateSize(version)
+          + Message.calculateSize(this.leaderTimestamp, version)
           + 1
           + LongEncoder.encodeLength(this.matchIndex)
           + LongEncoder.encodeLength(this.lastLogIndex);
