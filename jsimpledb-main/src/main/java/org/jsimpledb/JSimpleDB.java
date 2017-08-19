@@ -548,6 +548,7 @@ public class JSimpleDB {
      *  {@link #createTransaction(boolean, ValidationMode, Map) createTransaction}(true, {@link ValidationMode#AUTOMATIC}, null)
      *  </pre></blockquote>
      *
+     * @return the newly created transaction
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor

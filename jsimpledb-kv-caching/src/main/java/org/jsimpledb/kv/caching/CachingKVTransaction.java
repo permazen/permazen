@@ -205,6 +205,8 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
      * <p>
      * The implementation in {@link CachingKVTransaction} checks whether the inner transaction {@link #isReadOnly},
      * and if so invokes {@link Writes#applyTo Writes.applyTo}.
+     *
+     * @param writes the mutations to apply
      */
     protected void applyWritesBeforeCommitIfNotReadOnly(Writes writes) {
         if (!this.inner.isReadOnly())

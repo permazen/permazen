@@ -77,6 +77,9 @@ public final class Util {
      * to find annotations that are either <i>present</i> or <i>meta-present</i> on the element, and includes support for
      * <i>annotation attribute overrides</i>; otherwise, it just invokes {@link AnnotatedElement#getAnnotation(Class)}.
      *
+     * @param element element with annotation or meta-present annotation
+     * @param annotationType type of the annotation to find
+     * @param <A> annotation type
      * @return the annotation found, or null if not found
      */
     public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationType) {

@@ -187,6 +187,8 @@ public abstract class AbstractCommand implements Command {
      * @param node parsed parameter
      * @param name parameter name
      * @param type expected type
+     * @param <T> expected result type
+     * @return parameter value
      */
     protected <T> T getExprParam(CliSession session, Node node, String name, Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
@@ -206,6 +208,8 @@ public abstract class AbstractCommand implements Command {
      * @param node parsed parameter
      * @param name parameter name
      * @param validator validates value, or throws {@link IllegalArgumentException} if value is invalid
+     * @param <T> expected result type
+     * @return parameter value
      */
     protected <T> T getExprParam(CliSession session, Node node, String name, Function<Object, T> validator) {
         Preconditions.checkArgument(session != null, "null session");

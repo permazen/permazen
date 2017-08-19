@@ -43,7 +43,7 @@ import java.lang.annotation.Target;
  * <p><b>Method Return Type</b></p>
  *
  * <p>
- * The annotated method should return {@link java.util.NavigableSet NavigableSet<T>}, where {@code T} is any super-type of
+ * The annotated method should return {@link java.util.NavigableSet NavigableSet&lt;T&gt;}, where {@code T} is any super-type of
  * the type(s) at the other end of the reference path.
  *
  * <p>
@@ -157,8 +157,10 @@ public @interface FollowPath {
      *
      * <p>
      * If this property is true, then the annotated method's return type must be {@code java.util.Optional}{@code <T>},
-     * or if false, it must be {@link NavigableSet}{@code <T>}, where {@code T} is some super-type of the type(s) at the
-     * remote end of the reference path.
+     * or if false, it must be {@link java.util.NavigableSet}{@code <T>}, where {@code T} is some super-type of the type(s)
+     * at the remote end of the reference path.
+     *
+     * @return whether to return only the first object
      */
     boolean firstOnly() default false;
 }

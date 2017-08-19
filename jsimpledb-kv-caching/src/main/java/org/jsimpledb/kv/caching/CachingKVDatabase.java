@@ -121,6 +121,8 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
 
     /**
      * Get the inner {@link KVDatabase}.
+     *
+     * @return the underlying {@link KVDatabase}
      */
     public synchronized KVDatabase getKVDatabase() {
         return this.inner;
@@ -129,6 +131,7 @@ public class CachingKVDatabase extends AbstractCachingConfig implements KVDataba
     /**
      * Configure the underlying {@link KVDatabase}.
      *
+     * @param inner the underlying {@link KVDatabase}
      * @throws IllegalStateException if this instance is already started
      */
     public synchronized void setKVDatabase(KVDatabase inner) {
