@@ -1,3 +1,4 @@
+
 org.jsimpledb
 org.jsimpledb.annotation
 org.jsimpledb.ant
@@ -18,6 +19,7 @@ org.jsimpledb.jsck.cmd
 org.jsimpledb.kv
 org.jsimpledb.kv.array
 org.jsimpledb.kv.bdb
+org.jsimpledb.kv.caching
 org.jsimpledb.kv.cockroach
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.leveldb
