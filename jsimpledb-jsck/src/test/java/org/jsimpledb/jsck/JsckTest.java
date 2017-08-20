@@ -356,8 +356,8 @@ public class JsckTest extends KVTestSupport {
         void setName(String name);
     }
 
-    @JSimpleClass(storageId = 0x10,
-      compositeIndexes = @JCompositeIndex(storageId = 0xef, name = "compidx", fields = { "DOB", "name" }))
+    @JCompositeIndex(storageId = 0xef, name = "compidx", fields = { "DOB", "name" })
+    @JSimpleClass(storageId = 0x10)
     public interface Person extends JObject, HasName, Mammal {
 
         @JField(storageId = 0xbb)
