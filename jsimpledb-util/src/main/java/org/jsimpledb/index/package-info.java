@@ -54,7 +54,7 @@
  * <p>
  * A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
  * or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
- * any prefix of the indexed fields.
+ * any prefix of the indexed fields; for example, see {@link org.jsimpledb.index.Index2#asIndex}.
  *
  * <p>
  * <b>Complex Sub-Fields</b>
@@ -68,7 +68,7 @@
  * For those complex sub-fields that can contain duplicate values (namely, {@link java.util.List} element and
  * {@link java.util.Map} value), the associated distinguishing value (respectively, {@link java.util.List} index
  * and {@link java.util.Map} key) is appended to the index and becomes the new target type.
- * Therefore the resulting index types associated with indexes on complex sub-fields are follows:
+ * Therefore the resulting index types associated with indexes on complex sub-fields are as follows:
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Index Types">

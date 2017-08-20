@@ -950,7 +950,7 @@ public class JTransaction {
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
      *
      * <p>
-     * A non-null object is always returned, but the corresponding object may not actually exist in this transaction.
+     * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
      * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
      * Use {@link JObject#exists JObject.exists()} to check.
      *
@@ -975,8 +975,9 @@ public class JTransaction {
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
      *
      * <p>
-     * A non-null object is always returned, but the corresponding object may not actually exist in this transaction.
+     * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
      * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
      * This method just invoke {@link #get(ObjId)} and then casts the result.
@@ -1000,8 +1001,11 @@ public class JTransaction {
      *
      * <p>
      * This method can be thought of as a "refresh" operation for objects being imported from other transactions into this one.
-     * Note however that this method always returns a non-null value, even if the object does not actually exist in this
-     * transaction; you can use {@link JObject#exists} to check for existence.
+     *
+     * <p>
+     * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
+     * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
      * This method is equivalent to {@code get(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
