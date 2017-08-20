@@ -1,4 +1,4 @@
-Version 3.4.0 Released August 19, 2017
+Version 3.6.0 Released August 19, 2017
 
     - Allow JSimpleDB annotations to be configured as Spring "meta-annotations"
     - Fixed bug where untyped references were sometimes incorrectly cleared on upgrade
