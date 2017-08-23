@@ -48,6 +48,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
 
     private final ArrayList<Object[]> constructorParamList = new ArrayList<>();
 
+    private final String name;
     private final QName outerTag;
     private final QName innerTag;
 
@@ -62,6 +63,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
         this.outerTag = new QName(name + "-implementations");
         this.innerTag = new QName(name + "-implementation");
         this.constructorParamList.add(new Object[0]);
+        this.name = name;
     }
 
     /**
@@ -143,7 +145,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
         while (enumeration.hasMoreElements()) {
             final URL url = enumeration.nextElement();
             if (this.log.isDebugEnabled())
-                this.log.debug("reading key/value implementations from " + url);
+                this.log.debug("reading " + this.name + " implementations from " + url);
             try (final InputStream input = url.openStream()) {
               classLoop:
                 for (String className : this.parse(input)) {
