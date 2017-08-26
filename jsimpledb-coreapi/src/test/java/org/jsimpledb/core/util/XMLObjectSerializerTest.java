@@ -156,6 +156,9 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         s2.write(buf, true, true);
         this.compareResult(tx, buf.toByteArray(), "test4.xml");
 
+        // Check we properly ignore XML tags in other namespaces
+        this.compareParse(tx, this.readResource(this.getClass().getResource("test4b.xml")).trim());
+
         tx.commit();
     }
 
@@ -173,10 +176,13 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         Assert.assertEquals(new String(buf, "UTF-8"), text);
 
         // Parse XML back into a snapshot transaction
-        if (!reparse)
-            return;
-        final Transaction stx = tx.createSnapshotTransaction();
+        if (reparse)
+            this.compareParse(tx, text);
+    }
 
+    private void compareParse(Transaction tx, String text) throws Exception {
+
+        final Transaction stx = tx.createSnapshotTransaction();
         XMLObjectSerializer s = new XMLObjectSerializer(stx);
         s.read(new ByteArrayInputStream(text.getBytes("UTF-8")));
 
@@ -193,4 +199,3 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         }
     }
 }
-

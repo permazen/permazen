@@ -47,10 +47,6 @@ public abstract class AbstractXMLStreaming {
                 return false;
             }
         }
-        if (names.length == 0) {
-            throw new XMLStreamException("expected closing tag but found opening <"
-              + reader.getName() + "> tag instead", reader.getLocation());
-        }
         if (!Arrays.asList(names).contains(reader.getName())) {
             throw new XMLStreamException("expected " + this.description(names)
               + " but found <" + reader.getName() + "> instead", reader.getLocation());
@@ -59,7 +55,54 @@ public abstract class AbstractXMLStreaming {
     }
 
     /**
+     * Skip forward until either the next opening tag is reached, or the currently open tag is closed.
+     *
+     * @param reader XML input
+     * @return the XML opening tag found, or null if a closing tag was seen first
+     * @throws XMLStreamException if no opening tag is found before the current tag closes
+     * @throws XMLStreamException if something unexpected is encountered
+     */
+    protected QName next(XMLStreamReader reader) throws XMLStreamException {
+        while (true) {
+            if (!reader.hasNext())
+                throw new XMLStreamException("unexpected end of input", reader.getLocation());
+            final int eventType = reader.next();
+            if (eventType == XMLStreamConstants.END_ELEMENT)
+                return null;
+            if (eventType == XMLStreamConstants.START_ELEMENT)
+                return reader.getName();
+        }
+    }
+
+    /**
+     * Skip over the remainder of the current XML element, including any nested elements,
+     * until the closing XML tag is seen and consumed.
+     *
+     * @param reader XML input
+     * @throws XMLStreamException if something unexpected is encountered
+     */
+    protected void skip(XMLStreamReader reader) throws XMLStreamException {
+        for (int depth = 1; depth > 0; ) {
+            if (!reader.hasNext())
+                throw new XMLStreamException("unexpected end of input", reader.getLocation());
+            switch (reader.next()) {
+            case XMLStreamConstants.START_ELEMENT:
+                depth++;
+                break;
+            case XMLStreamConstants.END_ELEMENT:
+                depth--;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    /**
      * Scan forward expecting to see a closing tag.
+     *
+     * <p>
+     * Equivalant to: {@link #expect expect}{@code (reader, true)}.
      *
      * @param reader XML input
      * @throws XMLStreamException if something other than a closing tag is encountered

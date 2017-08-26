@@ -114,9 +114,22 @@ import org.jsimpledb.util.ByteWriter;
  *      on first occurrence, and on subsequent occurences the previously generated ID is recalled. This facilitates
  *      input generated via XSL and the {@code generate-id()} function.
  *      The {@linkplain #getGeneratedIdCache configured} {@link GeneratedIdCache} keeps track of generated IDs.</li>
+ *  <li>XML elements and annotations are expected to be in the null namespace; elements and annotations in other
+ *      namespaces are ignored</li>
  * </ul>
  */
 public class XMLObjectSerializer extends AbstractXMLStreaming {
+
+    /**
+     * The supported XML namespace URI.
+     *
+     * <p>
+     * Currently this is {@link XMLConstants#NULL_NS_URI}, i.e., the null/default namespace.
+     *
+     * <p>
+     * XML tags and attributes whose names are in other namespaces are ignored.
+     */
+    public static final String NS_URI = XMLConstants.NULL_NS_URI;
 
     public static final QName ELEMENT_TAG = new QName("element");
     public static final QName ENTRY_TAG = new QName("entry");
@@ -816,15 +829,17 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         writer.writeAttribute(attr.getNamespaceURI(), attr.getLocalPart(), "" + value);
     }
 
-    private QName next(XMLStreamReader reader) throws XMLStreamException {
+    /**
+     * Skip forward until either the next opening tag is reached, or the currently open tag is closed.
+     * This override ignores XML tags that are not in our namespace.
+     */
+    @Override
+    protected QName next(XMLStreamReader reader) throws XMLStreamException {
         while (true) {
-            if (!reader.hasNext())
-                throw new XMLStreamException("unexpected end of input", reader.getLocation());
-            final int eventType = reader.next();
-            if (eventType == XMLStreamConstants.END_ELEMENT)
-                return null;
-            if (eventType == XMLStreamConstants.START_ELEMENT)
-                return reader.getName();
+            final QName name = super.next(reader);
+            if (name == null || NS_URI.equals(name.getNamespaceURI()))
+                return name;
+            this.skip(reader);
         }
     }
 }

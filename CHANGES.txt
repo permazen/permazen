@@ -1,3 +1,7 @@
+Version Next
+
+    - Made XMLObjectSerializer ignore XML tags in other namespaces
+
 Version 3.6.0 Released August 19, 2017
 
     - Allow JSimpleDB annotations to be configured as Spring "meta-annotations"

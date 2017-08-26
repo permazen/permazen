@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects xmlns:foo="http://example.com/foo">
+    <foo:blah1/>
+    <foo:blah2 jam="jar">
+        <Bizbop/>
+    </foo:blah2>
+    <Foo id="0100000000000001" version="1">
+        <foo:blah3>
+            <foo:bla4>asdf</foo:bla4>
+            <foo>bar</foo>
+        </foo:blah3>
+        <b>-7</b>
+        <c>\n</c>
+        <d>1.2345E39</d>
+        <date>2014-05-09T03:02:48Z</date>
+        <f>123.45</f>
+        <foo:blah3>
+            <foo:bla4>asdf</foo:bla4>
+        </foo:blah3>
+        <i>123</i>
+        <j>99999999999</j>
+        <r>0100000000000001</r>
+        <str>hello dolly</str>
+        <z>true</z>
+    </Foo>
+    <Foo id="1400000000000001" version="2">
+        <list>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+                <foo>bar</foo>
+            </foo:blah3>
+            <element>789</element>
+            <element null="true"/>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+            <element>101112</element>
+        </list>
+        <map>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+            <entry>
+                <foo:blah3>
+                    <foo:bla4>asdf</foo:bla4>
+                </foo:blah3>
+                <key>55</key>
+                <value>fifty
+five</value>
+            </entry>
+            <entry>
+                <key>73</key>
+                <foo:blah3>
+                    <foo:bla4>asdf</foo:bla4>
+                </foo:blah3>
+                <value>seventy three</value>
+            </entry>
+            <entry>
+                <key>99</key>
+                <value null="true"/>
+                <foo:blah3>
+                    <foo:bla4>asdf</foo:bla4>
+                </foo:blah3>
+            </entry>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+        </map>
+        <set>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+            <element>123</element>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+            <element>456</element>
+            <foo:blah3>
+                <foo:bla4>asdf</foo:bla4>
+            </foo:blah3>
+        </set>
+    </Foo>
+</objects>
