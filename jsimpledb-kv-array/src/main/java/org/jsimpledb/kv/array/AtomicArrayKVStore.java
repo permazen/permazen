@@ -61,7 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link AtomicKVStore} based on {@link ArrayKVStore} with background compaction.
+ * {@link AtomicKVStore} based on {@link ArrayKVStore} plus a write-ahead log and background compaction.
  *
  * <p>
  * This implementation is designed to maximize the speed of reads and minimize the amount of memory overhead per key/value pair.
@@ -112,6 +112,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances may be stopped and (re)started multiple times.
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Write-ahead_logging">Write-ahead logging</a>
  */
 @ThreadSafe
 public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore {

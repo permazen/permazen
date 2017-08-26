@@ -63,6 +63,17 @@ import org.jsimpledb.core.DeleteAction;
  * <p>
  * Reference fields are always indexed; the value of {@link #indexed} is ignored.
  *
+ * <p><b>Referential Integrity</b></p>
+ *
+ * <p>
+ * In general, reference fields may reference objects that don't actually exist. This can happen in one of two ways:
+ * (a) a field is set to an invalid reference, or (b) a field references a valid object that is subsequently deleted.
+ * The {@link #allowDeleted} and {@link #onDelete} properties, respectively, control whether (a) or (b) is permitted.
+ *
+ * <p>
+ * By default, neither (a) nor (b) is allowed; if attempted, a {@link org.jsimpledb.core.DeletedObjectException} is thrown.
+ * This ensures references are always valid.
+ *
  * <p><b>Copy Cascades</b></p>
  *
  * <p>
@@ -378,15 +389,15 @@ public @interface JField {
     String[] uniqueExclude() default {};
 
     /**
-     * Allow assignment to deleted objects in normal transactions.
+     * Allow the field to reference non-existent objects in normal transactions.
      *
      * <p>
      * For non-reference fields, this property must be equal to its default value.
      *
      * <p>
-     * For reference fields, when true this property prevents setting this field to reference a deleted object,
-     * causing a {@link org.jsimpledb.core.DeletedObjectException} to be thrown instead. Used together with
-     * {@link DeleteAction#EXCEPTION} (see {@link #onDelete}), this guarantees this field won't contain any dangling references.
+     * Otherwise, if this property is set to false, the field is disallowed from ever referring to a non-existent object;
+     * instead, a {@link org.jsimpledb.core.DeletedObjectException} will be thrown. When used together with
+     * {@link DeleteAction#EXCEPTION} (see {@link #onDelete}), the field is guaranteed to never be a dangling reference.
      *
      * <p>
      * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
@@ -403,7 +414,7 @@ public @interface JField {
     boolean allowDeleted() default false;
 
     /**
-     * Allow assignment to deleted objects in snapshot transactions.
+     * Allow the field to reference non-existent objects in snapshot transactions.
      *
      * <p>
      * For non-reference fields, this property must be equal to its default value.
