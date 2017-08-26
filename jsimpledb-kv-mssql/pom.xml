@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.1-SNAPSHOT</version>
     </parent>
     <artifactId>jsimpledb-kv-mssql</artifactId>
     <name>JSimpleDB Microsoft SQL Server Key/Value Store</name>
