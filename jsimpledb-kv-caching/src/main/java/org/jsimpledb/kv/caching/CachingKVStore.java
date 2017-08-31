@@ -190,7 +190,6 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
     private static final byte[][] EMPTY_BYTES = new byte[0][];
 
     private static final double RTT_DECAY_FACTOR = 0.025;
-    private static final double WAIT_VS_RTT_FACTOR = 1.5;
 
     private static final int INITIAL_ARRAY_CAPACITY = 32;
     private static final float ARRAY_GROWTH_FACTOR = 1.5f;
@@ -209,6 +208,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
     private long maxRangeBytes = DEFAULT_MAX_RANGE_BYTES;
     private long maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES;
     private boolean readAhead = DEFAULT_READ_AHEAD;
+    private double waitFactor = DEFAULT_WAIT_FACTOR;
 
     private long totalBytes;
     private KVException error;
@@ -282,6 +282,18 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
     public synchronized void setMaxRanges(int maxRanges) {
         Preconditions.checkArgument(maxRanges > 0, "maxRanges <= 0");
         this.maxRanges = maxRanges;
+    }
+
+    @Override
+    public double getWaitFactor() {
+        return this.waitFactor;
+    }
+
+    @Override
+    public void setWaitFactor(double waitFactor) {
+        Preconditions.checkArgument(Double.isFinite(waitFactor), "non-finite waitFactor");
+        Preconditions.checkArgument(waitFactor >= 0, "waitFactor < 0");
+        this.waitFactor = waitFactor;
     }
 
     @Override
@@ -388,7 +400,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         long waitTimeRemain;
         synchronized (this) {
             assert this.sanityCheck();
-            waitTimeRemain = (long)(WAIT_VS_RTT_FACTOR * this.rtt.get());
+            waitTimeRemain = (long)(this.waitFactor * this.rtt.get());
         }
         assert waitTimeRemain >= 0;
 
@@ -512,7 +524,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                         if (range.size() < 2)
                             eta = (long)(System.nanoTime() - (loader.getStartTime() + this.rtt.get()));
                         else {
-                            final double arrivalRate = loader.getArrivalRate();
+                            final double arrivalRate = loader.getArrivalRate();                     // will be NaN if no data yet
                             final byte[] loaderBase = reverse ? range.getMin() : range.getMax();
                             eta = arrivalRate > 0 ?
                               (long)(Math.abs(this.measure(start) - this.measure(loaderBase)) / arrivalRate) : -1;

@@ -15,22 +15,37 @@ public interface CachingConfig {
     /**
      * Default maximum number of contiguous ranges of key/value pairs to allow before we start purging the
      * least recently used ones ({@value #DEFAULT_MAX_RANGES}).
+     *
+     * @see #getMaxRanges
      */
     int DEFAULT_MAX_RANGES = 256;
 
     /**
      * Default maximum number of bytes to cache in a single contiguous range of key/value pairs
      * ({@value #DEFAULT_MAX_RANGE_BYTES}).
+     *
+     * @see #getMaxRangeBytes
      */
     long DEFAULT_MAX_RANGE_BYTES = 10 * 1024 * 1024;
 
     /**
      * Default maximum total number of bytes to cache including all ranges ({@value #DEFAULT_MAX_TOTAL_BYTES}).
+     *
+     * @see #getMaxTotalBytes
      */
     long DEFAULT_MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 
     /**
+     * Default wait factor ({@value #DEFAULT_WAIT_FACTOR}).
+     *
+     * @see #getWaitFactor
+     */
+    double DEFAULT_WAIT_FACTOR = 1.5;
+
+    /**
      * Default for whether read-ahead is enabled.
+     *
+     * @see #isReadAhead
      */
     boolean DEFAULT_READ_AHEAD = true;
 
@@ -98,6 +113,33 @@ public interface CachingConfig {
      * @throws IllegalArgumentException if {@code maxRanges <= 0}
      */
     void setMaxRanges(int maxRanges);
+
+    /**
+     * Get the wait factor.
+     *
+     * <p>
+     * The wait factor, when multiplied by the estimated amount of time we expect to have to wait for incoming data that's
+     * already on its way, is how long we will actually wait for that data before initiating a new query. A value of zero
+     * means never wait, i.e., always start a new query immediately; a value of 1.0 would mean to wait up to the estimated
+     * amount of time; a very high value would mean wait until the outstanding query either produces the data or completes.
+     *
+     * <p>
+     * Default is {@value #DEFAULT_WAIT_FACTOR}.
+     *
+     * @return wait factor
+     */
+    double getWaitFactor();
+
+    /**
+     * Set the wait factor.
+     *
+     * <p>
+     * Default is {@value #DEFAULT_WAIT_FACTOR}.
+     *
+     * @param waitFactor wait factor
+     * @throws IllegalArgumentException if {@code waitFactor} is negative or not finite
+     */
+    void setWaitFactor(double waitFactor);
 
     /**
      * Get whether this instance is configured to perform read-ahead.
