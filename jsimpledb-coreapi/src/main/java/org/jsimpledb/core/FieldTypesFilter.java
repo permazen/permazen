@@ -158,6 +158,10 @@ class FieldTypesFilter implements KeyFilter {
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         for (int i = 0; i < this.fieldTypes.length; i++) {
 
+            // If zero bytes are left, we have to stop at the next key (zero bytes can never be valid)
+            if (reader.remain() == 0)
+                return ByteUtil.getNextKey(reader.getBytes(0, reader.getOffset()));
+
             // Attempt to decode next field value
             final int fieldStart = reader.getOffset();
             switch (this.decode(this.fieldTypes[i], reader)) {
