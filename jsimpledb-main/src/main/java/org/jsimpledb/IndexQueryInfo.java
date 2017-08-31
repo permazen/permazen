@@ -292,7 +292,7 @@ class IndexQueryInfo {
                 }
                 throw new IllegalArgumentException("invalid " + this.description + " " + actualType.getName()
                   + " for " + queryDescription + " in " + startType + ": should be a super-type"
-                  + (this.reference ? " or sub-type " : "") + " of " + expectedTypesDescription);
+                  + (this.reference ? " or sub-type" : "") + " of " + expectedTypesDescription);
             }
 
             // For non reference fields, we don't have any restrictions on 'type'
