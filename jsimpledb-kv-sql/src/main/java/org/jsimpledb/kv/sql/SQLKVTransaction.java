@@ -301,16 +301,28 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 // Helper methods
 
     protected byte[] queryBytes(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
+        final byte[] result = this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
+        if (this.log.isTraceEnabled())
+            this.log.trace("SQL query returned " + (result != null ? result.length + " bytes" : "not found"));
+        return result;
     }
 
     protected KVPair queryKVPair(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(rs.getBytes(1)), rs.getBytes(2)) : null,
+        final KVPair pair = this.query(stmtType,
+          (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(rs.getBytes(1)), rs.getBytes(2)) : null,
           true, params);
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("SQL query returned "
+              + (pair != null ? "(" + pair.getKey().length + ", " + pair.getValue().length + ") bytes" : "not found"));
+        }
+        return pair;
     }
 
     protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
-        return this.query(stmtType, ResultSetIterator::new, false, params);
+        final CloseableIterator<KVPair> i = this.query(stmtType, ResultSetIterator::new, false, params);
+        if (this.log.isTraceEnabled())
+            this.log.trace("SQL query returned " + (i.hasNext() ? "non-" : "") + "empty iterator");
+        return i;
     }
 
     protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
