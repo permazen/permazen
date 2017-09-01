@@ -324,7 +324,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("executing SQL query: " + preparedStatement + " in " + this);
+                this.log.trace("executing SQL query");
             final ResultSet resultSet = preparedStatement.executeQuery();
             final T result = resultSetFunction.apply(preparedStatement, resultSet);
             if (close) {
@@ -347,7 +347,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("executing SQL update: " + preparedStatement + " in " + this);
+                this.log.trace("executing SQL update");
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw this.handleException(e);
