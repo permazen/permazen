@@ -519,19 +519,28 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                         }
                     } else if (!startOnEdge) {
 
-                        // There is space between range and our start point: estimate the arrival time of our start key
-                        final long eta;
-                        if (range.size() < 2)
-                            eta = (long)(System.nanoTime() - (loader.getStartTime() + this.rtt.get()));
-                        else {
-                            final double arrivalRate = loader.getArrivalRate();                     // will be NaN if no data yet
-                            final byte[] loaderBase = reverse ? range.getMin() : range.getMax();
-                            eta = arrivalRate > 0 ?
-                              (long)(Math.abs(this.measure(start) - this.measure(loaderBase)) / arrivalRate) : -1;
+                        // There is space between range and our start point: estimate the arrival time of our start key and decide
+                        // max time to wait for the range to reach our start point, or else don't wait and start a new range now
+                        final boolean startNewRange;
+                        long eta = -1;
+                        if (range.size() < 2) {
+
+                            // Wait at least 1.2 * RTT from when range started before deciding what to do
+                            startNewRange = waitTimeRemain == 0 || now >= loader.getStartTime() + 1.2 * this.rtt.get();
+                        } else {
+
+                            // Get loader's rate of progress (if known) and base estimated arrival time on that
+                            final double arrivalRate = loader.getArrivalRate();
+                            if (!Double.isNaN(arrivalRate) && arrivalRate > 0) {
+                                final byte[] loaderBase = reverse ? range.getMin() : range.getMax();
+                                eta = (long)(Math.abs(this.measure(start) - this.measure(loaderBase)) / arrivalRate);
+                                startNewRange = eta >= waitTimeRemain;
+                            } else
+                                startNewRange = true;               // arrival rate is unknown or very slow
                         }
 
                         // If wait is too long, create a new range and loader (i.e., don't wait for the existing loader to reach us)
-                        if (eta >= waitTimeRemain) {
+                        if (startNewRange) {
                             range = null;                                                   // create a new range
                             loader = null;                                                  // ... and a new loader obviously
                             if (this.log.isTraceEnabled()) {
