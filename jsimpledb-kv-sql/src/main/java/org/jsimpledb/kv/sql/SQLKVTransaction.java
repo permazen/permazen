@@ -406,16 +406,85 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         @Override
         public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+
+            // Avoid range query when only a single key is in the range
+            if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
+                final byte[] value = this.get(minKey);
+                return value != null ? new KVPair(minKey, value) : null;
+            }
             return SQLKVTransaction.this.getAtLeastSQL(minKey, maxKey);
         }
 
         @Override
         public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+
+            // Avoid range query when only a single key is in the range
+            if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
+                final byte[] value = this.get(minKey);
+                return value != null ? new KVPair(minKey, value) : null;
+            }
             return SQLKVTransaction.this.getAtMostSQL(maxKey, minKey);
         }
 
         @Override
-        public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        public CloseableIterator<KVPair> getRange(final byte[] minKey, final byte[] maxKey, final boolean reverse) {
+
+            // Avoid range query when only a single key is in the range
+            if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
+                final byte[] value = this.get(minKey);
+                if (value == null) {
+                    return new CloseableIterator<KVPair>() {
+
+                        @Override
+                        public boolean hasNext() {
+                            return false;
+                        }
+
+                        @Override
+                        public KVPair next() {
+                            throw new NoSuchElementException();
+                        }
+
+                        @Override
+                        public void remove() {
+                            throw new NoSuchElementException();
+                        }
+
+                        @Override
+                        public void close() {
+                        }
+                    };
+                } else {
+                    return new CloseableIterator<KVPair>() {
+
+                        private boolean gotten;
+
+                        @Override
+                        public boolean hasNext() {
+                            return !this.gotten;
+                        }
+
+                        @Override
+                        public KVPair next() {
+                            if (this.gotten)
+                                throw new NoSuchElementException();
+                            this.gotten = true;
+                            return new KVPair(minKey, value);
+                        }
+
+                        @Override
+                        public void remove() {
+                            if (!this.gotten)
+                                throw new NoSuchElementException();
+                            SQLView.this.remove(minKey);
+                        }
+
+                        @Override
+                        public void close() {
+                        }
+                    };
+                }
+            }
             return SQLKVTransaction.this.getRangeSQL(minKey, maxKey, reverse);
         }
 
