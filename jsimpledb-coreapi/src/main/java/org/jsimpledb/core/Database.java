@@ -365,7 +365,7 @@ public class Database {
      * @param version schema version number
      * @param allowNewSchema whether creating a new schema version is allowed
      */
-    Schemas verifySchemas(KVStore kvstore, SchemaModel schemaModel, int version, boolean allowNewSchema) {
+    private Schemas verifySchemas(KVStore kvstore, SchemaModel schemaModel, int version, boolean allowNewSchema) {
 
         // Sanity check
         Preconditions.checkArgument(kvstore != null, "null kvstore");
