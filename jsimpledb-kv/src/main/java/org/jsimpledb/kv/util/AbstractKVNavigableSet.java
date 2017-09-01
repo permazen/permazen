@@ -25,7 +25,7 @@ import org.jsimpledb.util.CloseableIterator;
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
  * keys in a {@link KVStore} and whose sort order is consistent with their {@code byte[]} key encoding.
  * There must be an equivalence between elements and {@code byte[]} key encodings (i.e., there must be
- * only one valid encoding per set element).
+ * only one valid encoding per set element). The values corresponding to the keys are ignored.
  *
  * <p><b>Subclass Methods</b></p>
  *
