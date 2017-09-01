@@ -754,7 +754,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         protected PreparedStatement prepare(Connection c, String sql, Logger log) throws SQLException {
             if (log.isTraceEnabled())
                 log.trace("preparing SQL statement: " + sql);
-            return c.prepareStatement(sql);
+            return c.prepareStatement(sql,
+              ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         }
     }
 }
