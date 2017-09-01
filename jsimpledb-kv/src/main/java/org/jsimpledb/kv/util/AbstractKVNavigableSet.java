@@ -8,6 +8,7 @@ package org.jsimpledb.kv.util;
 import com.google.common.base.Preconditions;
 
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
@@ -166,6 +167,121 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         this.reversed = reversed;
         this.keyRange = keyRange;
         this.keyFilter = keyFilter;
+    }
+
+// NavigableSet
+
+    @Override
+    public boolean isEmpty() {
+        return this.firstPair() == null;
+    }
+
+    @Override
+    public E first() {
+        final KVPair pair = this.firstPair();
+        if (pair == null)
+            throw new NoSuchElementException();
+        return this.decode(new ByteReader(pair.getKey()));
+    }
+
+    @Override
+    public E last() {
+        final KVPair pair = this.lastPair();
+        if (pair == null)
+            throw new NoSuchElementException();
+        return this.decode(new ByteReader(pair.getKey()));
+    }
+
+    @Override
+    public E pollFirst() {
+        final KVPair pair = this.firstPair();
+        if (pair == null)
+            return null;
+        final byte[] key = pair.getKey();
+        final E elem = this.decode(new ByteReader(key));
+        this.kv.remove(key);
+        return elem;
+    }
+
+    @Override
+    public E pollLast() {
+        final KVPair pair = this.lastPair();
+        if (pair == null)
+            return null;
+        final byte[] key = pair.getKey();
+        final E elem = this.decode(new ByteReader(key));
+        this.kv.remove(key);
+        return elem;
+    }
+
+    private KVPair firstPair() {
+        KVPair pair = null;
+        if (this.keyFilter == null) {
+            pair = this.keyRange != null ?
+              this.kv.getAtLeast(this.keyRange.getMin(), this.keyRange.getMax()) :
+              this.kv.getAtLeast(null, null);
+        } else {
+            final byte[][] bounds = this.initialBounds();
+            if (bounds == null)
+                return null;
+            while (true) {
+                if ((pair = this.kv.getAtLeast(bounds[0], bounds[1])) == null)
+                    return null;
+                final byte[] key = pair.getKey();
+                assert this.keyRange == null || this.keyRange.contains(key);
+                if (this.keyFilter.contains(key))
+                    break;
+                bounds[0] = ByteUtil.getNextKey(key);
+                if (!this.seekHigher(bounds))
+                    return null;
+            }
+        }
+        return pair;
+    }
+
+    private KVPair lastPair() {
+        KVPair pair = null;
+        if (this.keyFilter == null) {
+            pair = this.keyRange != null ?
+              this.kv.getAtMost(this.keyRange.getMax(), this.keyRange.getMin()) :
+              this.kv.getAtMost(null, null);
+        } else {
+            final byte[][] bounds = this.initialBounds();
+            if (bounds == null)
+                return null;
+            while (true) {
+                if ((pair = this.kv.getAtMost(bounds[1], bounds[0])) == null)
+                    return null;
+                final byte[] key = pair.getKey();
+                assert this.keyRange == null || this.keyRange.contains(key);
+                if (this.keyFilter.contains(key))
+                    break;
+                bounds[0] = key;
+                if (!this.seekLower(bounds))
+                    return null;
+            }
+        }
+        return pair;
+    }
+
+    private byte[][] initialBounds() {
+        assert this.keyFilter != null;
+        final byte[][] bounds = this.keyRange != null ?
+          new byte[][] { this.keyRange.getMin(), this.keyRange.getMax() } :
+          new byte[][] { ByteUtil.EMPTY, null };
+        if (!seekHigher(bounds) || !seekLower(bounds))
+            return null;
+        return bounds;
+    }
+
+    private boolean seekHigher(byte[][] bounds) {
+        return (bounds[0] = this.keyFilter.seekHigher(bounds[0])) != null;
+    }
+
+    private boolean seekLower(byte[][] bounds) {
+        final byte[] startKey = bounds[1] != null ? bounds[1] : ByteUtil.EMPTY;
+        final byte[] boundKey = this.keyFilter.seekLower(startKey);
+        return (bounds[1] = boundKey.length != 0 ? boundKey : null) != null;
     }
 
     @Override
