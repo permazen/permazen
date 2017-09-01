@@ -361,6 +361,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             if (this.log.isTraceEnabled())
                 this.log.trace("executing SQL update");
             preparedStatement.executeUpdate();
+            if (this.log.isTraceEnabled())
+                this.log.trace("SQL update completed");
         } catch (SQLException e) {
             throw this.handleException(e);
         }
