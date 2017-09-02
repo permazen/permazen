@@ -54,7 +54,7 @@ public final class ObjDumper {
      *
      * @param tx transaction containing the object
      * @param id the ID of the object
-     * @param maxCollectionEntries maximum number of elements to display in any collection field
+     * @param maxCollectionEntries maximum number of elements to display in any collection field or -1 to not display any fields
      * @return contents of the specified object, or just object type and ID if {@code tx} is no longer valid
      * @throws IllegalArgumentException if {@code tx} or {@code id} is null
      */
@@ -66,21 +66,27 @@ public final class ObjDumper {
 
         // Get object info
         /*final*/ Schema schema;
+        boolean deleted = false;
         try {
             schema = tx.getSchemas().getVersion(tx.getSchemaVersion(id));
         } catch (IllegalArgumentException | StaleTransactionException | DeletedObjectException e) {
             schema = tx.getSchema();
+            deleted = e instanceof DeletedObjectException;
         }
         final ObjType type;
         try {
             type = schema.getObjType(id.getStorageId());
         } catch (UnknownTypeException e) {
-            return "type#" + id.getStorageId() + "@" + id;
+            return "type#" + id.getStorageId() + "@" + id + " [unknown type]";
         }
 
         // Is transaction valid?
         if (!tx.isValid())
             return type.getName() + "@" + id + " [stale tx]";
+
+        // Is object deleted?
+        if (deleted)
+            return type.getName() + "@" + id + " [does not exist]";
 
         // Format object
         final StringWriter buf = new StringWriter();
@@ -103,7 +109,7 @@ public final class ObjDumper {
      * @param writer output destination
      * @param tx transaction containing the object
      * @param id the ID of the object
-     * @param maxCollectionEntries maximum number of elements to display in any collection field
+     * @param maxCollectionEntries maximum number of elements to display in any collection field or -1 to not display any fields
      * @throws DeletedObjectException if the object does not exist in {@code tx}
      * @throws StaleTransactionException if {@code tx} is no longer usable
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
@@ -123,6 +129,10 @@ public final class ObjDumper {
 
         // Print headline
         writer.println("object " + id + " type " + type.getName() + "#" + type.getStorageId() + " version " + schemaVersion);
+        if (maxCollectionEntries < 0) {
+            writer.flush();
+            return;
+        }
 
         // Calculate indent amount
         int nameFieldSize = 0;
