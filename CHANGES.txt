@@ -2,6 +2,7 @@ Version Next
 
     - Made XMLObjectSerializer ignore XML tags in other namespaces
     - Changed <jsimpledb:jsimpledb> default schema version to -1
+    - Added index query primitive type compatibility for Kotlin (issue #27)
 
 Version 3.6.0 Released August 19, 2017
 

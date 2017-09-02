@@ -270,7 +270,8 @@ class IndexQueryInfo {
 
             // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
             // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).
-            boolean match = this.expectedTypes.contains(this.actualType);
+            boolean match = this.expectedTypes.contains(this.actualType)
+              || this.expectedTypes.contains(TypeToken.of(this.actualType).wrap().getRawType());
             if (!match) {
                 for (Class<?> expectedType : this.expectedTypes) {
                     if (this.actualType.isAssignableFrom(expectedType)

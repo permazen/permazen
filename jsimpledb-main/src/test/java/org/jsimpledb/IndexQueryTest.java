@@ -44,6 +44,7 @@ public class IndexQueryTest extends TestSupport {
 
             Jam j1 = jtx.create(Jam.class);
             j1.setAccount(a1);
+            j1.setAge(123);
 
             f1.setAccount(a1);
             f2.setAccount(a2);
@@ -72,6 +73,12 @@ public class IndexQueryTest extends TestSupport {
 
             TestSupport.checkMap(jtx.queryIndex(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
+
+            TestSupport.checkMap(jtx.queryIndex(Jam.class, "age", Integer.class).asMap(),
+              buildMap(123, buildSet(j1)));
+
+            TestSupport.checkMap(jtx.queryIndex(Jam.class, "age", int.class).asMap(),
+              buildMap(123, buildSet(j1)));
 
         // JObject.getReferring()
 
@@ -192,6 +199,10 @@ public class IndexQueryTest extends TestSupport {
 
     @JSimpleClass(storageId = 30)
     public abstract static class Jam implements HasAccount {
+
+        @JField(indexed = true)
+        public abstract int getAge();
+        public abstract void setAge(int age);
 
         @Override
         public String toString() {
