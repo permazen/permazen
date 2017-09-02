@@ -23,6 +23,7 @@ import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.util.ObjDumper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -71,6 +72,7 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_GET_JSIMPLEDB_METHOD;
     static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_INVERT_REFERENCE_PATH_METHOD;
+    static final Method JTRANSACTION_GET_TRANSACTION;
 
     // JSimpleDB method handles
     static final Method JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD;
@@ -86,11 +88,20 @@ class ClassGenerator<T> {
     static final Method TRANSACTION_READ_SIMPLE_FIELD_METHOD;
     static final Method TRANSACTION_WRITE_SIMPLE_FIELD_METHOD;
 
+    // ObjDumper method handles
+    static final Method OBJ_DUMPER_TO_STRING_METHOD;
+
     // Collections method handles
     static final Method COLLECTIONS_SINGLETON_METHOD;
     static final Method OPTIONAL_OF_METHOD;
     static final Method OPTIONAL_EMPTY_METHOD;
     static final Method SORTED_SET_FIRST_METHOD;
+
+    // Object method handles
+    static final Method OBJECT_TO_STRING_METHOD;
+
+    // Max number of collection entries for ObjDumper.toString()
+    private static final int TO_STRING_MAX_COLLECTION_ENTRIES = 16;
 
     static {
         try {
@@ -118,6 +129,7 @@ class ClassGenerator<T> {
               ReferencePath.class, Iterable.class);
             JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
               ReferencePath.class, Iterable.class);
+            JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
 
             // JSimpleDB methods
             JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD = JSimpleDB.class.getMethod("parseReferencePath",
@@ -136,11 +148,17 @@ class ClassGenerator<T> {
             // EnumConverter
             ENUM_CONVERTER_CREATE_METHOD = EnumConverter.class.getMethod("createEnumConverter", Class.class);
 
+            // ObjDumper
+            OBJ_DUMPER_TO_STRING_METHOD = ObjDumper.class.getMethod("toString", Transaction.class, ObjId.class, int.class);
+
             // Collections
             COLLECTIONS_SINGLETON_METHOD = Collections.class.getMethod("singleton", Object.class);
             OPTIONAL_OF_METHOD = Optional.class.getMethod("of", Object.class);
             OPTIONAL_EMPTY_METHOD = Optional.class.getMethod("empty");
             SORTED_SET_FIRST_METHOD = SortedSet.class.getMethod("first");
+
+            // Object
+            OBJECT_TO_STRING_METHOD = Object.class.getMethod("toString");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
         }
@@ -418,6 +436,32 @@ class ClassGenerator<T> {
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+
+        // Add JObject.toString() - if not already overridden
+        final Method modelClassToString;
+        if (this.modelClass.isInterface())
+            modelClassToString = OBJECT_TO_STRING_METHOD;
+        else {
+            try {
+                modelClassToString = this.modelClass.getMethod("toString");
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("unexpected exception", e);
+            }
+        }
+        if (modelClassToString.equals(OBJECT_TO_STRING_METHOD)) {
+            mv = this.startMethod(cw, OBJECT_TO_STRING_METHOD);
+            mv.visitCode();
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            this.emitInvoke(mv, JOBJECT_GET_TRANSACTION);
+            this.emitInvoke(mv, JTRANSACTION_GET_TRANSACTION);
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+            mv.visitLdcInsn(TO_STRING_MAX_COLLECTION_ENTRIES);
+            this.emitInvoke(mv, OBJ_DUMPER_TO_STRING_METHOD);
+            mv.visitInsn(Opcodes.ARETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
 
         // If no associated JClass, we're done
         if (this.jclass == null)
