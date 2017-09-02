@@ -23,7 +23,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
 
     private KVDatabase kvstore;
-    private int schemaVersion;
+    private int schemaVersion = -1;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Iterable<? extends Class<?>> modelClasses;
     private Iterable<? extends Class<? extends FieldType<?>>> fieldTypeClasses;
@@ -71,11 +71,8 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
         // Apply defaults
         KVDatabase kvstore1 = this.kvstore;
         int schemaVersion1 = this.schemaVersion;
-        if (kvstore1 == null) {
+        if (kvstore1 == null)
             kvstore1 = new SimpleKVDatabase();
-            if (schemaVersion1 == 0)
-                schemaVersion1 = 1;
-        }
         final Database db = new Database(kvstore1);
 
         // Add custom field types

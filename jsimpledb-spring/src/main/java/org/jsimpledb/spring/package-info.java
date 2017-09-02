@@ -90,8 +90,8 @@
  *  <td>{@code schema-version}</td>
  *  <td>Integer</td>
  *  <td>No</td>
- *  <td>The schema version corresponding to the configured Java model classes. A value of zero (the default)
- *      means to use whatever is the highest schema version already recorded in the database. A value of -1
+ *  <td>The schema version corresponding to the configured Java model classes. A value of zero means to use
+ *      whatever is the highest schema version already recorded in the database. A value of -1 (the default)
  *      means to {@linkplain org.jsimpledb.schema.SchemaModel#autogenerateVersion auto-generate} a version number
  *      based on the {@linkplain org.jsimpledb.schema.SchemaModel#compatibilityHash compatibility hash} of the
  *      {@link org.jsimpledb.schema.SchemaModel} generated from the Java model classes.</td>
@@ -134,7 +134,7 @@
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
  *     &lt;!-- Define the JSimpleDB database on top of that --&gt;
- *     &lt;<b>jsimpledb:jsimpledb</b> id="jsimpledb" kvstore="kvdb" schema-version="-1"&gt;
+ *     &lt;<b>jsimpledb:jsimpledb</b> id="jsimpledb" kvstore="kvdb"&gt;
  *
  *         &lt;!-- These are our Java model classes --&gt;
  *         &lt;<b>jsimpledb:scan-classes</b> base-package="com.example.myapp"&gt;
