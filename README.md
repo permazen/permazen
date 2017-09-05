@@ -106,7 +106,7 @@ Documentation and links:
   * [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction)
   * [Getting Started](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted)
   * [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ)
-  * [API Javadocs](http://archiecobbs.github.io/jsimpledb/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html)
+  * [API Javadocs](http://permazen.github.io/permazen/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html)
   * Bullet-point [JPA Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison)
   * [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group
-  * Auto-generated [Maven Site](http://archiecobbs.github.io/jsimpledb/site/)
+  * Auto-generated [Maven Site](http://permazen.github.io/permazen/site/)
