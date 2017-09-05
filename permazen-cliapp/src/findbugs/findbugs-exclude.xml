@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.cli.app.Main"/>
+        <Method name="run"/>
+        <Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+</FindBugsFilter>

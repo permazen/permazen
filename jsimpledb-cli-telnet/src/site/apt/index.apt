@@ -1,7 +1,0 @@
-
-CLI Telnet Interface
-
-  This module adds the ability to make the embedded the command line interface (CLI) in your application accessible via telnet.
-
-  See the {{{./../apidocs/index.html?org/jsimpledb/cli/telnet/TelnetConsole.html}TelnetConsole API Javadoc}} for more information.
-

@@ -1,7 +1,0 @@
-<FindBugsFilter>
-    <Match>
-        <Class name="org.jsimpledb.kv.sql.SQLKVTransaction"/>
-        <Method name="query"/>
-        <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
-    </Match>
-</FindBugsFilter>

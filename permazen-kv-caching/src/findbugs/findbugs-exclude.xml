@@ -1,0 +1,8 @@
+<FindBugsFilter>
+    <Match>
+        <!-- https://github.com/findbugsproject/findbugs/issues/79 -->
+        <Class name="io.permazen.kv.caching.CachingKVStore$Loader"/>
+        <Method name="load"/>
+        <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
+    </Match>
+</FindBugsFilter>

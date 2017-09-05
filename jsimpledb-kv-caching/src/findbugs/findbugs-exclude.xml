@@ -1,8 +1,0 @@
-<FindBugsFilter>
-    <Match>
-        <!-- https://github.com/findbugsproject/findbugs/issues/79 -->
-        <Class name="org.jsimpledb.kv.caching.CachingKVStore$Loader"/>
-        <Method name="load"/>
-        <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
-    </Match>
-</FindBugsFilter>

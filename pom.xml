@@ -5,47 +5,47 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.jsimpledb</groupId>
-    <artifactId>jsimpledb</artifactId>
-    <name>JSimpleDB</name>
+    <groupId>io.permazen</groupId>
+    <artifactId>permazen</artifactId>
+    <name>Permazen</name>
     <version>3.6.1</version>
     <packaging>pom</packaging>
-    <description>JSimpleDB is a better persistence layer for Java.</description>
-    <url>https://github.com/archiecobbs/jsimpledb/</url>
+    <description>Permazen is a better persistence layer for Java.</description>
+    <url>https://github.com/permazen/permazen/</url>
 
     <modules>
-        <module>jsimpledb-ant</module>
-        <module>jsimpledb-app</module>
-        <module>jsimpledb-cli</module>
-        <module>jsimpledb-cli-telnet</module>
-        <module>jsimpledb-cliapp</module>
-        <module>jsimpledb-coreapi</module>
-        <module>jsimpledb-demo</module>
-        <module>jsimpledb-guiapp</module>
-        <module>jsimpledb-jsck</module>
-        <module>jsimpledb-kv-array</module>
-        <module>jsimpledb-kv-bdb</module>
-        <module>jsimpledb-kv-caching</module>
-        <module>jsimpledb-kv-cockroach</module>
-        <module>jsimpledb-kv-fdb</module>
-        <module>jsimpledb-kv-leveldb</module>
-        <module>jsimpledb-kv-mssql</module>
-        <module>jsimpledb-kv-mysql</module>
-        <module>jsimpledb-kv-raft</module>
-        <module>jsimpledb-kv-rocksdb</module>
-        <module>jsimpledb-kv-simple</module>
-        <module>jsimpledb-kv-spanner</module>
-        <module>jsimpledb-kv-sql</module>
-        <module>jsimpledb-kv-sqlite</module>
-        <module>jsimpledb-kv-test</module>
-        <module>jsimpledb-kv</module>
-        <module>jsimpledb-main</module>
-        <module>jsimpledb-maven-plugin</module>
-        <module>jsimpledb-parse</module>
-        <module>jsimpledb-spring</module>
-        <module>jsimpledb-test</module>
-        <module>jsimpledb-util</module>
-        <module>jsimpledb-vaadin</module>
+        <module>permazen-ant</module>
+        <module>permazen-app</module>
+        <module>permazen-cli</module>
+        <module>permazen-cli-telnet</module>
+        <module>permazen-cliapp</module>
+        <module>permazen-coreapi</module>
+        <module>permazen-demo</module>
+        <module>permazen-guiapp</module>
+        <module>permazen-jsck</module>
+        <module>permazen-kv-array</module>
+        <module>permazen-kv-bdb</module>
+        <module>permazen-kv-caching</module>
+        <module>permazen-kv-cockroach</module>
+        <module>permazen-kv-fdb</module>
+        <module>permazen-kv-leveldb</module>
+        <module>permazen-kv-mssql</module>
+        <module>permazen-kv-mysql</module>
+        <module>permazen-kv-raft</module>
+        <module>permazen-kv-rocksdb</module>
+        <module>permazen-kv-simple</module>
+        <module>permazen-kv-spanner</module>
+        <module>permazen-kv-sql</module>
+        <module>permazen-kv-sqlite</module>
+        <module>permazen-kv-test</module>
+        <module>permazen-kv</module>
+        <module>permazen-main</module>
+        <module>permazen-maven-plugin</module>
+        <module>permazen-parse</module>
+        <module>permazen-spring</module>
+        <module>permazen-test</module>
+        <module>permazen-util</module>
+        <module>permazen-vaadin</module>
     </modules>
     <licenses>
         <license>
@@ -56,12 +56,12 @@
     </licenses>
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/archiecobbs/jsimpledb/issues</url>
+        <url>https://github.com/permazen/permazen/issues</url>
     </issueManagement>
     <scm>
-        <url>https://github.com/archiecobbs/jsimpledb/</url>
-        <connection>scm:git:git://github.com/archiecobbs/jsimpledb.git</connection>
-        <developerConnection>scm:git:git://github.com/archiecobbs/jsimpledb.git</developerConnection>
+        <url>https://github.com/permazen/permazen/</url>
+        <connection>scm:git:git://github.com/permazen/permazen.git</connection>
+        <developerConnection>scm:git:git://github.com/permazen/permazen.git</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -415,148 +415,148 @@
 
             <!-- Sibling JARs -->
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-app</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-cli</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-cli</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-cliapp</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-cliapp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-coreapi</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-coreapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-demo</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-demo</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-guiapp</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-guiapp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-jsck</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-jsck</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-main</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-main</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-array</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-array</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-bdb</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-bdb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-caching</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-caching</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-cockroach</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-cockroach</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-fdb</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-fdb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-leveldb</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-leveldb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-mssql</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-mssql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-mysql</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-mysql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-raft</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-raft</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-rocksdb</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-rocksdb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-simple</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-simple</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-sql</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-sql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-spanner</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-spanner</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-sqlite</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-sqlite</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-kv-test</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-parse</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-parse</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-spring</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-test</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-util</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jsimpledb</groupId>
-                <artifactId>jsimpledb-vaadin</artifactId>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-vaadin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -575,7 +575,7 @@
     </repositories>
 
     <distributionManagement>
-        <downloadUrl>https://github.com/archiecobbs/jsimpledb</downloadUrl>
+        <downloadUrl>https://github.com/permazen/permazen</downloadUrl>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -720,7 +720,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <deleteTempDirs>true</deleteTempDirs>
-                        <org.jsimpledb.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>true</org.jsimpledb.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>
+                        <io.permazen.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>true</io.permazen.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>
                         <randomSeed/>
 
                         <!-- These properties are used by KVDatabase tests. Uncomment one or more to include time-consuming tests. -->
@@ -741,7 +741,7 @@
 
                         <!-- kv-cockroach -->
                         <!--
-                        <cockroachURL>jdbc:postgresql://127.0.0.1:26257/jsimpledb?sslmode=disable&amp;user=root</cockroachURL>
+                        <cockroachURL>jdbc:postgresql://127.0.0.1:26257/permazen?sslmode=disable&amp;user=root</cockroachURL>
                         -->
 
                         <!-- kv-fdb -->
@@ -751,7 +751,7 @@
 
                         <!-- kv-spanner -->
                         <!--
-                        <spannerInstance>jsimpledb-test</spannerInstance>
+                        <spannerInstance>permazen-test</spannerInstance>
                         -->
 
                         <!-- kv-leveldb -->
@@ -759,12 +759,12 @@
 
                         <!-- kv-mssql -->
                         <!--
-                        <mssqlURL>jdbc:sqlserver://127.0.01:1433;database=jsimpledb;user=SA;password=foobar123!</mssqlURL>
+                        <mssqlURL>jdbc:sqlserver://127.0.01:1433;database=permazen;user=SA;password=foobar123!</mssqlURL>
                         -->
 
                         <!-- kv-mysql -->
                         <!--
-                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.cj.core.log.Slf4JLogger&amp;serverTimezone=US/Central</mysqlURL>
+                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/permazen?user=permazen&amp;password=permazen&amp;logger=com.mysql.cj.core.log.Slf4JLogger&amp;serverTimezone=US/Central</mysqlURL>
                         -->
 
                         <!-- kv-raft -->

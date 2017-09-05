@@ -4,6 +4,8 @@ SHORT TERM
 
 - Support @OnVersionChange without version number parameters
 
+- Only do extra DB sanity checks during the first transaction
+
 - Connection pooling in SQL k/v implementations
 
 - CLI:

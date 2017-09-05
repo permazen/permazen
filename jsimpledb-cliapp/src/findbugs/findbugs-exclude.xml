@@ -1,7 +1,0 @@
-<FindBugsFilter>
-    <Match>
-        <Class name="org.jsimpledb.cli.app.Main"/>
-        <Method name="run"/>
-        <Bug pattern="DM_DEFAULT_ENCODING"/>
-    </Match>
-</FindBugsFilter>

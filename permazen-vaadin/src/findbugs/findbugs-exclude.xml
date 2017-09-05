@@ -1,0 +1,6 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="io.permazen.vaadin"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>

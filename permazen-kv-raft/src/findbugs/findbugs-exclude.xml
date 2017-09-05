@@ -1,0 +1,20 @@
+<FindBugsFilter>
+    <!-- https://sourceforge.net/p/findbugs/bugs/1463/ -->
+    <Match>
+        <Class name="io.permazen.kv.raft.Role"/>
+        <Method name="applyCommittedLogEntries"/>
+        <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
+    </Match>
+    <!-- https://mailman.cs.umd.edu/pipermail/findbugs-discuss/2016-August/004305.html -->
+    <Match>
+        <Or>
+            <Class name="io.permazen.kv.raft.FollowerRole"/>
+            <Class name="io.permazen.kv.raft.LeaderRole"/>
+            <Class name="io.permazen.kv.raft.NonLeaderRole"/>
+            <Class name="io.permazen.kv.raft.RaftKVDatabase"/>
+            <Class name="io.permazen.kv.raft.Role"/>
+            <Class name="io.permazen.kv.raft.Timer"/>
+        </Or>
+        <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+</FindBugsFilter>

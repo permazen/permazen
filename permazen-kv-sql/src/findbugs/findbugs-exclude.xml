@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.kv.sql.SQLKVTransaction"/>
+        <Method name="query"/>
+        <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+    </Match>
+</FindBugsFilter>

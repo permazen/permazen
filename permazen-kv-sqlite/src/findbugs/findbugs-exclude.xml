@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.kv.sqlite.SQLiteKVDatabase"/>
+        <Method name="initializeDatabaseIfNecessary"/>
+        <Bug pattern="SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE"/>
+    </Match>
+</FindBugsFilter>

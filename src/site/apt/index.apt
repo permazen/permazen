@@ -1,5 +1,5 @@
 
-JSimpleDB is a better persistence layer for Java
+Permazen is a better persistence layer for Java
 
   Mainstream persistence solutions such as JPA and JDO fail to address many important issues that are <inherent> to persistence programming. This is because they were not designed to address these issues; they were designed merely to give Java programmers access to existing database functionality.
 
@@ -33,9 +33,9 @@ JSimpleDB is a better persistence layer for Java
 
   []
 
-  JSimpleDB addresses all of these issues, this without sacrificing flexibility or scalability.
+  Permazen addresses all of these issues, this without sacrificing flexibility or scalability.
 
-  JSimpleDB does this by treating the database as just a sorted key/value store, and implementing the following in Java:
+  Permazen does this by treating the database as just a sorted key/value store, and implementing the following in Java:
 
   * Encoding/decoding of field values
 
@@ -55,7 +55,7 @@ JSimpleDB is a better persistence layer for Java
 
   []
 
-  JSimpleDB also adds some new features that traditional databases don't provide.
+  Permazen also adds some new features that traditional databases don't provide.
 
   * Designed from the ground up to be Java-centric; 100% type-safe at all times.
 
@@ -79,9 +79,9 @@ JSimpleDB is a better persistence layer for Java
 
   []
 
-JSimpleDB Paper
+Permazen Paper
 
-  The paper {{{https://cdn.rawgit.com/archiecobbs/jsimpledb/master/jsimpledb-language-driven.pdf}JSimpleDB: Language-Driven Persistence for Java}} describes the issues that are inherent to persistence programming and how JSimpleDB addresses them.
+  The paper {{{https://cdn.rawgit.com/permazen/permazen/master/jsimpledb-language-driven.pdf}JSimpleDB: Language-Driven Persistence for Java}} describes the issues that are inherent to persistence programming and how Permazen addresses them.
 
   Abstract:
 
@@ -89,34 +89,34 @@ JSimpleDB Paper
 
   <In Java, the mainstream solution for basic persistence is the Java Persistence API (JPA). While popular, it also measures poorly on how well it addresses many of these inherent issues. We identify several examples, and generalize them into criteria for evaluating how well any solution serves the programmer’s persistence needs, in any language. We introduce JSimpleDB, a persistence layer for ordered key/value stores that, by integrating the data encoding, query, and indexing functions, provides a more complete, type-safe, and language-driven framework for managing persistence in Java, and addresses all of the issues we identify.>
 
-JSimpleDB Maven Artifacts
+Permazen Maven Artifacts
 
-  JSimpleDB is built into several modular components, including:
+  Permazen is built into several modular components, including:
 
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-main/index.html}<<<jsimpledb-main>>>}}     | This is the main artifact and the only one that is strictly required (it will pull in some of the others below as dependencies).
+| {{{./permazen-main/index.html}<<<permazen-main>>>}}     | This is the main artifact and the only one that is strictly required (it will pull in some of the others below as dependencies).
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-coreapi/index.html}<<<jsimpledb-coreapi>>>}} | Core API classes
+| {{{./permazen-coreapi/index.html}<<<permazen-coreapi>>>}} | Core API classes
 *-----------------------------------------------------------*--------------+
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-kv/index.html}<<<jsimpledb-kv>>>}}         | Key/value store API
+| {{{./permazen-kv/index.html}<<<permazen-kv>>>}}         | Key/value store API
 *-----------------------------------------------------------*--------------+
-| <<<jsimpledb-kv-*>>>                                      | Various key/value store implementations. You will need one of these if you are doing anything serious.
+| <<<permazen-kv-*>>>                                      | Various key/value store implementations. You will need one of these if you are doing anything serious.
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-spring/index.html}<<<jsimpledb-spring>>>}} | Spring-related functionalty, including a JSimpleDB <<<PlatformTransactionManager>>> implementation.
+| {{{./permazen-spring/index.html}<<<permazen-spring>>>}} | Spring-related functionalty, including a Permazen <<<PlatformTransactionManager>>> implementation.
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-parse/index.html}<<<jsimpledb-parse>>>}}   | Java expression parsing code (used by the CLI)
+| {{{./permazen-parse/index.html}<<<permazen-parse>>>}}   | Java expression parsing code (used by the CLI)
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-vaadin/index.html}<<<jsimpledb-vaadin>>>}} | Vaadin-related functionalty
+| {{{./permazen-vaadin/index.html}<<<permazen-vaadin>>>}} | Vaadin-related functionalty
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-cli/index.html}<<<jsimpledb-cli>>>}}       | Command line interface (CLI) classes
+| {{{./permazen-cli/index.html}<<<permazen-cli>>>}}       | Command line interface (CLI) classes
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-cliapp/index.html}<<<jsimpledb-cliapp>>>}} | Command line interface (CLI) application main class
+| {{{./permazen-cliapp/index.html}<<<permazen-cliapp>>>}} | Command line interface (CLI) application main class
 *-----------------------------------------------------------*--------------+
-| {{{./jsimpledb-guiapp/index.html}<<<jsimpledb-guiapp>>>}} | Graphical user interface (GUI) application main class
+| {{{./permazen-guiapp/index.html}<<<permazen-guiapp>>>}} | Graphical user interface (GUI) application main class
 *-----------------------------------------------------------*--------------+
 
 For More Information
 
-  More information is available on the {{{https://github.com/archiecobbs/jsimpledb}Github site}}.
+  More information is available on the {{{https://github.com/permazen/permazen}Github site}}.
 

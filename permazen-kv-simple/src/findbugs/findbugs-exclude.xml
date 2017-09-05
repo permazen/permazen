@@ -1,0 +1,12 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.kv.simple.SimpleKVDatabase"/>
+        <Field name="kv"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.kv.simple.XMLKVDatabase"/>
+        <Field name="repository"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>

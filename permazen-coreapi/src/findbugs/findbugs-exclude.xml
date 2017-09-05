@@ -1,0 +1,70 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.schema.SchemaObjectType"/>
+        <Method name="differencesFrom"/>
+        <Local name="thisField"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.FileType$FileConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.PatternType$PatternConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.URIType$URIConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.InternetAddressType$InternetAddressConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.ZoneIdType$ZoneIdConverter"/>
+        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.EnumType"/>
+        <Field name="enumValueList"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.type.EnumType"/>
+        <Field name="identifierMap"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.util.ObjIdMap$Entry"/>
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.util.ObjIdMap"/>
+        <Field name="modcount"/>
+        <Bug pattern="VO_VOLATILE_INCREMENT"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.util.ObjIdBiMultiMap"/>
+        <Method name="clone"/>
+        <Bug pattern="ML_SYNC_ON_UPDATED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.Transaction"/>
+        <!-- <Method name="hasFieldMonitor"/> -->
+        <Field name="monitorMap"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.Transaction"/>
+        <!-- <Method name="hasFieldMonitor"/> -->
+        <Field name="hasFieldMonitorCache"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.Transaction"/>
+        <!-- <Method name="doCopyFields, changeVersion"/> -->
+        <Field name="versionChangeListeners"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
+    </Match>
+</FindBugsFilter>

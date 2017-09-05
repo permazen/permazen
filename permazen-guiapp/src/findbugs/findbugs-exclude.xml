@@ -1,0 +1,31 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.vaadin.app.MainUI"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.MainUI"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_BAD_FIELD_STORE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.ReferenceFieldField"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.vaadin.app.JObjectEditorWindow$CounterProperty"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>
