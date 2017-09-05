@@ -1,6 +1,6 @@
 ### JSimpleDB is a better persistence layer for Java
 
-**NOTE: JSimpleDB is currently being renamed to **Permazen**
+## NOTE: JSimpleDB is currently being renamed to **Permazen** ##
 
 Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
 
