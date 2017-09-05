@@ -1,7 +1,11 @@
-Version Next
+Version 4.0.0
 
+    - Rebranded project: JSimpleDB -> Permazen (*)
+      See https://github.com/permazen/permazen/wiki/MigrationToPermazen
     - Added ability to set bounds on index value(s) and target
     - Fixed bugs in views of indexes having type/value restritions
+
+    (*) Backwards-incompatible change
 
 Version 3.6.1 Released September 5, 2017
 
