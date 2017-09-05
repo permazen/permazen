@@ -1,4 +1,4 @@
-## JSimpleDB is a better persistence layer for Java
+## Permazen is a better persistence layer for Java
 
 ### NOTE: JSimpleDB is currently being renamed to **Permazen**
 
