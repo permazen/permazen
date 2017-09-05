@@ -1,5 +1,7 @@
 ### JSimpleDB is a better persistence layer for Java
 
+**NOTE: JSimpleDB is currently being renamed to **Permazen**
+
 Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
 
 Mainstream Java solutions such as JDBC, JPA and JDO were designed simply to give Java programmers _access_ to existing database functionality. They address the "storage" problem, but leave many other important issues that are inherent to persistence programming poorly addressed, or not addressed at all.
