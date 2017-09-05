@@ -5,11 +5,11 @@
 
 package io.permazen.core;
 
-import java.util.List;
-
 import io.permazen.kv.KVPairIterator;
 import io.permazen.util.ByteReader;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.List;
 
 class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E, ListField<E>> {
 

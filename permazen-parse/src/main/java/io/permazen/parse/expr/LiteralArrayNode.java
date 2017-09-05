@@ -7,15 +7,15 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.ParseUtil;
 import io.permazen.parse.SpaceParser;
 import io.permazen.util.ParseContext;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Node representing a literal array instantiation expression, i.e., with curly braces initial values.

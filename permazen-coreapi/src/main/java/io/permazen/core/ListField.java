@@ -9,13 +9,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * List field.

@@ -7,6 +7,10 @@ package io.permazen.vaadin.app;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.JSimpleDB;
+import io.permazen.app.AbstractMain;
+import io.permazen.core.Database;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayDeque;
@@ -23,9 +27,6 @@ import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import io.permazen.JSimpleDB;
-import io.permazen.app.AbstractMain;
-import io.permazen.core.Database;
 
 /**
  * GUI main entry point.

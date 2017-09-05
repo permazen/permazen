@@ -7,9 +7,6 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.NavigableSet;
-import java.util.NoSuchElementException;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
@@ -21,6 +18,9 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+
+import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}

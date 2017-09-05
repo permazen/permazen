@@ -8,13 +8,13 @@ package io.permazen.kv.array;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
-import java.nio.ByteBuffer;
-import java.util.NoSuchElementException;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+
+import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
 
 /**
  * A simple read-only {@link io.permazen.kv.KVStore} based on a sorted array of key/value pairs.

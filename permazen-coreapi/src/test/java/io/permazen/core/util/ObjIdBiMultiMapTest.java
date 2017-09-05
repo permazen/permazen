@@ -5,11 +5,12 @@
 
 package io.permazen.core.util;
 
+import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.ObjId;
+
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.ObjId;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

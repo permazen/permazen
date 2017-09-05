@@ -6,6 +6,7 @@
 package io.permazen.kv.rocksdb;
 
 import io.permazen.kv.CloseableKVStore;
+
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.Snapshot;

@@ -7,6 +7,8 @@ package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.ObjId;
+
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -17,8 +19,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-import io.permazen.core.ObjId;
 
 /**
  * A map with {@link ObjId} keys.

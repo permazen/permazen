@@ -7,9 +7,6 @@ package io.permazen.vaadin;
 
 import com.google.common.collect.Iterators;
 
-import java.util.Collections;
-import java.util.Iterator;
-
 import io.permazen.JObject;
 import io.permazen.Session;
 import io.permazen.parse.ParseException;
@@ -19,6 +16,9 @@ import io.permazen.parse.expr.ExprParser;
 import io.permazen.parse.expr.Node;
 import io.permazen.util.CastFunction;
 import io.permazen.util.ParseContext;
+
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * {@link QueryJObjectContainer} whose query is defined by a Java expression.

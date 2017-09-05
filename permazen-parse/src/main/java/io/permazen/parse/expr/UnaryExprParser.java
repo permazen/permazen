@@ -5,12 +5,12 @@
 
 package io.permazen.parse.expr;
 
-import java.util.regex.Matcher;
-
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.Parser;
 import io.permazen.parse.SpaceParser;
 import io.permazen.util.ParseContext;
+
+import java.util.regex.Matcher;
 
 /**
  * Parses unary expressions using one of {@code !}, {@code ~}, {@code +}, {@code -}, {@code ++}, {@code --}.

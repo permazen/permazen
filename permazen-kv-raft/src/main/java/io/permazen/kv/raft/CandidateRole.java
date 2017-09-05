@@ -5,15 +5,15 @@
 
 package io.permazen.kv.raft;
 
-import java.util.HashSet;
-
-import javax.annotation.concurrent.GuardedBy;
-
 import io.permazen.kv.raft.msg.AppendRequest;
 import io.permazen.kv.raft.msg.CommitResponse;
 import io.permazen.kv.raft.msg.GrantVote;
 import io.permazen.kv.raft.msg.InstallSnapshot;
 import io.permazen.kv.raft.msg.RequestVote;
+
+import java.util.HashSet;
+
+import javax.annotation.concurrent.GuardedBy;
 
 /**
  * Raft candidate role.

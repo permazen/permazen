@@ -7,13 +7,13 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import java.time.MonthDay;
-import java.util.regex.Pattern;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.time.MonthDay;
+import java.util.regex.Pattern;
 
 /**
  * Non-null {@link MonthDay} type. Null values are not supported by this class.

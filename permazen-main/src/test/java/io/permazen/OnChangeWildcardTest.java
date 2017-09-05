@@ -5,11 +5,6 @@
 
 package io.permazen;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnChange;
@@ -19,6 +14,12 @@ import io.permazen.change.SetFieldChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

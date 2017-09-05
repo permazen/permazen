@@ -5,13 +5,13 @@
 
 package io.permazen.annotation;
 
+import io.permazen.UpgradeConversionPolicy;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import io.permazen.UpgradeConversionPolicy;
 
 /**
  * Java annotation for Java classes that are {@link io.permazen.JSimpleDB} object model types.

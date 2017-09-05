@@ -8,6 +8,9 @@ package io.permazen.core;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
+
 import java.io.ByteArrayInputStream;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -22,8 +25,6 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

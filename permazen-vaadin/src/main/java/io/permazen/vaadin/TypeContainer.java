@@ -9,6 +9,10 @@ import com.google.common.base.Preconditions;
 import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
 
+import io.permazen.JClass;
+import io.permazen.JSimpleDB;
+import io.permazen.Util;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,9 +23,6 @@ import java.util.stream.Collectors;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
-import io.permazen.JClass;
-import io.permazen.JSimpleDB;
-import io.permazen.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

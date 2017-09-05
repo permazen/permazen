@@ -7,11 +7,11 @@ package io.permazen.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.LongEncoder;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.permazen.util.LongEncoder;
 
 /**
  * Sent from leader to follower to with a chunk of key/value pairs that will wholesale replace the follower's key/value store.

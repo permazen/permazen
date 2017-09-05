@@ -5,14 +5,14 @@
 
 package io.permazen.annotation;
 
+import io.permazen.UpgradeConversionPolicy;
+import io.permazen.core.DeleteAction;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import io.permazen.UpgradeConversionPolicy;
-import io.permazen.core.DeleteAction;
 
 /**
  * Java annotation for defining simple fields, including reference fields that refer to other Java model object types,

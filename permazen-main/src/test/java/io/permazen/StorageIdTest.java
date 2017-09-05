@@ -5,11 +5,6 @@
 
 package io.permazen;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.SortedSet;
-
 import io.permazen.annotation.JCompositeIndex;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
@@ -17,6 +12,12 @@ import io.permazen.annotation.JSimpleClass;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.SortedSet;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

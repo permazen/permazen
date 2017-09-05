@@ -5,10 +5,10 @@
 
 package io.permazen.cli.cmd;
 
-import java.io.File;
-
 import io.permazen.parse.ParseException;
 import io.permazen.util.ParseContext;
+
+import java.io.File;
 
 class InputFileParser extends AbstractFileParser {
 

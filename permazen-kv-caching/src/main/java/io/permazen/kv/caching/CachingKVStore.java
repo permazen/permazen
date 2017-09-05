@@ -7,6 +7,17 @@ package io.permazen.kv.caching;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVException;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVPairIterator;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+import io.permazen.util.MovingAverage;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,16 +33,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVException;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVPairIterator;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
-import io.permazen.util.MovingAverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

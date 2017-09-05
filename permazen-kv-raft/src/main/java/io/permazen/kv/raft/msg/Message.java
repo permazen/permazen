@@ -7,13 +7,13 @@ package io.permazen.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
-import java.io.StringWriter;
-import java.nio.ByteBuffer;
-
 import io.permazen.kv.raft.Timestamp;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.io.StringWriter;
+import java.nio.ByteBuffer;
 
 /**
  * Support superclass for Raft messages.

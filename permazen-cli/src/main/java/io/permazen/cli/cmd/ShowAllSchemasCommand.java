@@ -5,13 +5,13 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.Map;
-
 import io.permazen.cli.CliSession;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ParseContext;
+
+import java.util.Map;
 
 public class ShowAllSchemasCommand extends AbstractSchemaCommand {
 

@@ -5,10 +5,6 @@
 
 package io.permazen;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
@@ -16,6 +12,11 @@ import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

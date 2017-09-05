@@ -8,6 +8,22 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
+import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.util.ObjIdMap;
+import io.permazen.core.util.ObjIdSet;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVTransaction;
+import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteWriter;
+import io.permazen.util.CloseableIterator;
+import io.permazen.util.NavigableSets;
+import io.permazen.util.UnsignedIntEncoder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,21 +43,6 @@ import java.util.function.Predicate;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.permazen.core.type.ReferenceFieldType;
-import io.permazen.core.util.ObjIdMap;
-import io.permazen.core.util.ObjIdSet;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVTransaction;
-import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.KeyRanges;
-import io.permazen.kv.util.NavigableMapKVStore;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.CloseableIterator;
-import io.permazen.util.NavigableSets;
-import io.permazen.util.UnsignedIntEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

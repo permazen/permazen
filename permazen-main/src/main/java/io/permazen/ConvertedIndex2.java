@@ -8,8 +8,8 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import io.permazen.index.Index2;
 import io.permazen.index.Index;
+import io.permazen.index.Index2;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.util.Bounds;

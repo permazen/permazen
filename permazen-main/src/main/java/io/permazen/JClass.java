@@ -9,6 +9,18 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.FollowPath;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.core.DeleteAction;
+import io.permazen.core.FieldType;
+import io.permazen.core.ListField;
+import io.permazen.core.MapField;
+import io.permazen.core.SetField;
+import io.permazen.core.UnknownFieldException;
+import io.permazen.schema.SchemaCompositeIndex;
+import io.permazen.schema.SchemaField;
+import io.permazen.schema.SchemaObjectType;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -25,17 +37,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import io.permazen.annotation.FollowPath;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.core.DeleteAction;
-import io.permazen.core.FieldType;
-import io.permazen.core.ListField;
-import io.permazen.core.MapField;
-import io.permazen.core.SetField;
-import io.permazen.core.UnknownFieldException;
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

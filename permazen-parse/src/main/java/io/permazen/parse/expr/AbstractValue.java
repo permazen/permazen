@@ -9,15 +9,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.permazen.parse.ParseSession;
+import io.permazen.util.NavigableSets;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.NavigableSet;
 import java.util.Set;
-
-import io.permazen.parse.ParseSession;
-import io.permazen.util.NavigableSets;
 
 /**
  * {@link Value} implementation superclass with implementations for all methods other than {@link #get get()}.

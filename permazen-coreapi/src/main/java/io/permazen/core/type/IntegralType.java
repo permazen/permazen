@@ -7,10 +7,11 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import org.dellroad.stuff.java.Primitive;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
+
+import org.dellroad.stuff.java.Primitive;
 
 /**
  * Support superclass for the integral types encoded via {@link LongEncoder}.

@@ -7,10 +7,6 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
 import io.permazen.ValidationMode;
@@ -18,6 +14,11 @@ import io.permazen.core.DatabaseException;
 import io.permazen.core.Transaction;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.CannotCreateTransactionException;

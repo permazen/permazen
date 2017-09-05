@@ -17,9 +17,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
-import java.io.Closeable;
-import java.util.concurrent.Future;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
@@ -31,6 +28,9 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+
+import java.io.Closeable;
+import java.util.concurrent.Future;
 
 /**
  * FoundationDB transaction.

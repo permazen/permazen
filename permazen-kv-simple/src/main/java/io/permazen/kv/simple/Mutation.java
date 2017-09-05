@@ -7,11 +7,11 @@ package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.util.KeyWatchTracker;
+
+import java.util.Arrays;
 
 /**
  * Represents an outstanding {@link SimpleKVTransaction} mutation.

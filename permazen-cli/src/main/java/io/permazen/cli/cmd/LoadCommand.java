@@ -5,11 +5,6 @@
 
 package io.permazen.cli.cmd;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Map;
-
 import io.permazen.Session;
 import io.permazen.cli.CliSession;
 import io.permazen.core.ObjId;
@@ -17,6 +12,11 @@ import io.permazen.core.Transaction;
 import io.permazen.core.util.XMLObjectSerializer;
 import io.permazen.parse.Parser;
 import io.permazen.util.ParseContext;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Map;
 
 public class LoadCommand extends AbstractCommand {
 

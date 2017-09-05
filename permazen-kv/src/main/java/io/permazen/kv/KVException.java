@@ -5,9 +5,9 @@
 
 package io.permazen.kv;
 
-import java.util.Arrays;
-
 import io.permazen.util.ThrowableUtil;
+
+import java.util.Arrays;
 
 /**
  * Superclass of unchecked exceptions relating to {@link KVStore}s, etc.

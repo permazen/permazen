@@ -7,10 +7,6 @@ package io.permazen.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ScheduledFuture;
-
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.raft.Follower;
 import io.permazen.kv.raft.LeaderRole;
@@ -18,6 +14,11 @@ import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.Role;
 import io.permazen.kv.raft.Timestamp;
 import io.permazen.util.ByteUtil;
+
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

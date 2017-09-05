@@ -5,14 +5,14 @@
 
 package io.permazen.kv.raft.cmd;
 
-import java.util.EnumSet;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.cli.cmd.AbstractCommand;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.fallback.FallbackKVDatabase;
+
+import java.util.EnumSet;
 
 public abstract class AbstractRaftCommand extends AbstractCommand {
 

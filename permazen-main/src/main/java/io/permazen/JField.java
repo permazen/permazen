@@ -8,13 +8,14 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.ObjId;
+import io.permazen.schema.SchemaField;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import io.permazen.core.ObjId;
-import io.permazen.schema.SchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;

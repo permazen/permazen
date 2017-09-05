@@ -7,14 +7,15 @@ package io.permazen;
 
 import com.google.common.primitives.Ints;
 
-import java.util.List;
-import java.util.NavigableMap;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.test.TestSupport;
+
+import java.util.List;
+import java.util.NavigableMap;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

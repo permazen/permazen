@@ -8,15 +8,15 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
+import io.permazen.core.ObjId;
+import io.permazen.core.util.ObjIdMap;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
-import io.permazen.core.ObjId;
-import io.permazen.core.util.ObjIdMap;
 
 @ThreadSafe
 class JObjectCache {

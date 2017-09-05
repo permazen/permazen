@@ -5,13 +5,14 @@
 
 package io.permazen;
 
-import java.util.NavigableSet;
-import java.util.UUID;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
+
+import java.util.NavigableSet;
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 public class IndexQuerySetsTest extends TestSupport {

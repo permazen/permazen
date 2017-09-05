@@ -5,9 +5,10 @@
 
 package io.permazen.core.type;
 
-import org.dellroad.stuff.java.Primitive;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import org.dellroad.stuff.java.Primitive;
 
 /**
  * {@link void} primitive type.

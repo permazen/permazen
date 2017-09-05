@@ -7,6 +7,14 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KeyRange;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteWriter;
+import io.permazen.util.CloseableIterator;
+import io.permazen.util.UnsignedIntEncoder;
+
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,14 +24,6 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.stream.Collectors;
-
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KeyRange;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.CloseableIterator;
-import io.permazen.util.UnsignedIntEncoder;
 
 /**
  * {@link List} implementation for {@link ListField}s.

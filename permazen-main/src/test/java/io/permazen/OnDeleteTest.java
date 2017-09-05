@@ -5,15 +5,16 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnDelete;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

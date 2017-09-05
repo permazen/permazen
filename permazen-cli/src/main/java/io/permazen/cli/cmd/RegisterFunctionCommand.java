@@ -5,14 +5,14 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.EnumSet;
-import java.util.Map;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.parse.expr.Node;
 import io.permazen.parse.func.Function;
 import io.permazen.util.ParseContext;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 public class RegisterFunctionCommand extends AbstractCommand {
 

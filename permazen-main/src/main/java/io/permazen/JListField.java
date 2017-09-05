@@ -10,14 +10,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import io.permazen.change.ListFieldAdd;
 import io.permazen.change.ListFieldClear;
 import io.permazen.change.ListFieldRemove;
 import io.permazen.change.ListFieldReplace;
 import io.permazen.schema.ListSchemaField;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Represents a list field in a {@link JClass}.

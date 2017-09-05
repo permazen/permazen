@@ -5,12 +5,13 @@
 
 package io.permazen;
 
-import java.util.Date;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
+
+import java.util.Date;
+
 import org.testng.annotations.Test;
 
 public class DoubleInheritFieldTest extends TestSupport {

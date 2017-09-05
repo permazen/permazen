@@ -7,15 +7,16 @@ package io.permazen;
 
 import com.google.common.reflect.TypeToken;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

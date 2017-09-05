@@ -5,15 +5,16 @@
 
 package io.permazen.core;
 
+import io.permazen.core.util.ObjIdMap;
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.schema.SchemaModel;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.permazen.core.util.ObjIdMap;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.kv.util.NavigableMapKVStore;
-import io.permazen.schema.SchemaModel;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

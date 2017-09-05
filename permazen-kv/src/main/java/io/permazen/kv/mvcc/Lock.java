@@ -7,10 +7,10 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Comparator;
-
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteUtil;
+
+import java.util.Comparator;
 
 /**
  * Read/write lock of a {@link KeyRange}.

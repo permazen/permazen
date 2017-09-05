@@ -11,6 +11,7 @@ import io.permazen.JTransaction;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.StaleTransactionException;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.Assert;
 import org.testng.annotations.Test;

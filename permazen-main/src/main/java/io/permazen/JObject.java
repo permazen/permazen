@@ -7,11 +7,11 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
-import java.util.NavigableSet;
-
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.util.NavigableSets;
+
+import java.util.NavigableSet;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.

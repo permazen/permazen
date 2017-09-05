@@ -7,12 +7,12 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import java.util.Objects;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.type.ReferenceFieldType;
+
+import java.util.Objects;
 
 /**
  * Represents an index on the {@code value} sub-field of a {@link JMapField}.

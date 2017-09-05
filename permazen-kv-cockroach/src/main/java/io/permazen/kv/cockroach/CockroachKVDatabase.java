@@ -5,14 +5,14 @@
 
 package io.permazen.kv.cockroach;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * {@link io.permazen.kv.KVDatabase} implementation based on CockroachDB.

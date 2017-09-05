@@ -5,13 +5,13 @@
 
 package io.permazen.core;
 
+import io.permazen.core.util.XMLObjectSerializer;
+import io.permazen.kv.test.KVTestSupport;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 import javax.xml.stream.XMLStreamException;
-
-import io.permazen.core.util.XMLObjectSerializer;
-import io.permazen.kv.test.KVTestSupport;
 
 /**
  * Base class for core API unit tests.

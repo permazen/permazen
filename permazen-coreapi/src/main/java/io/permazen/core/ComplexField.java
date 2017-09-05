@@ -8,9 +8,6 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.List;
-import java.util.SortedSet;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
@@ -18,6 +15,9 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.List;
+import java.util.SortedSet;
 
 /**
  * A complex {@link Field}, such as a collection or map field.

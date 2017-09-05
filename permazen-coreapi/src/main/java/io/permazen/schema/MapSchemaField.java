@@ -5,6 +5,10 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.MapField;
+import io.permazen.util.DiffGenerating;
+import io.permazen.util.Diffs;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -12,10 +16,6 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
-import io.permazen.core.MapField;
-import io.permazen.util.DiffGenerating;
-import io.permazen.util.Diffs;
 
 /**
  * A map field in one version of a {@link SchemaObjectType}.

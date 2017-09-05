@@ -5,11 +5,11 @@
 
 package io.permazen.kv.raft.fallback;
 
-import java.util.Date;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Date;
 
 /**
  * {@link MergeStrategy} that completely overwrites the destination database with the content of the source database.

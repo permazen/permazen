@@ -8,10 +8,6 @@ package io.permazen.kv.simple;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Arrays;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
@@ -25,6 +21,11 @@ import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.slf4j.LoggerFactory;
 
 /**

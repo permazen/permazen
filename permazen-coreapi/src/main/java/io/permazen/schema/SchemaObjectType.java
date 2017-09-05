@@ -5,6 +5,11 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.util.DiffGenerating;
+import io.permazen.util.Diffs;
+import io.permazen.util.NavigableSets;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,11 +25,6 @@ import java.util.TreeMap;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.util.DiffGenerating;
-import io.permazen.util.Diffs;
-import io.permazen.util.NavigableSets;
 
 /**
  * One object type in a {@link SchemaModel}.

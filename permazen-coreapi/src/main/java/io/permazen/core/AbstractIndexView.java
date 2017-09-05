@@ -7,12 +7,12 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRanges;
 import io.permazen.util.ByteUtil;
+
+import java.util.Arrays;
 
 /**
  * Common superclass for index view classes. Represents an index with optional filters on each field in the index.

@@ -14,6 +14,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.util.ByteUtil;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.Mutations;
-import io.permazen.util.ByteUtil;
 import org.slf4j.LoggerFactory;
 
 /**

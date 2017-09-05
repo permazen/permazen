@@ -5,6 +5,8 @@
 
 package io.permazen.maven;
 
+import io.permazen.JSimpleDB;
+
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -12,7 +14,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import io.permazen.JSimpleDB;
 
 /**
  * Generates a schema XML file from a set of JSimpleDB model classes.

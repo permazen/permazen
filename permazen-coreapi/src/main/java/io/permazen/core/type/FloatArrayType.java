@@ -9,16 +9,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Floats;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.FieldTypeRegistry;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteWriter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import io.permazen.core.FieldTypeRegistry;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
 
 /**
  * {@code float[]} array type. Does not support null arrays.

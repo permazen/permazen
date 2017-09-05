@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import java.lang.reflect.Method;
-
 import io.permazen.annotation.OnCreate;
+
+import java.lang.reflect.Method;
 
 /**
  * Scans for {@link OnCreate &#64;OnCreate} annotations.

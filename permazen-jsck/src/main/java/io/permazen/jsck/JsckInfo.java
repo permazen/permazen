@@ -5,11 +5,6 @@
 
 package io.permazen.jsck;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.type.EnumFieldType;
 import io.permazen.core.type.ReferenceFieldType;
@@ -26,6 +21,11 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 /**
  * Runtime information used by {@link Jsck}.

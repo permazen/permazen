@@ -7,15 +7,15 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.KeyRanges;
-import io.permazen.util.ByteUtil;
 
 /**
  * Holds a set of reads from a {@link io.permazen.kv.KVStore}.

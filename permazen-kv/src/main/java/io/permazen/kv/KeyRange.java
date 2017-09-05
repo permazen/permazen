@@ -8,10 +8,10 @@ package io.permazen.kv;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
+import io.permazen.util.ByteUtil;
+
 import java.util.Arrays;
 import java.util.Comparator;
-
-import io.permazen.util.ByteUtil;
 
 /**
  * Represents a contiguous range of {@code byte[]} keys, when keys are sorted in unsigned lexical order.

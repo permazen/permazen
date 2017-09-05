@@ -5,11 +5,6 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSimpleClass;
@@ -18,6 +13,12 @@ import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+
 import org.testng.annotations.Test;
 
 public class TypeSafetyTest2 extends TestSupport {

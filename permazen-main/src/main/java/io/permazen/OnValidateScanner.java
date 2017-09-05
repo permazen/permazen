@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import java.lang.reflect.Method;
-
 import io.permazen.annotation.OnValidate;
+
+import java.lang.reflect.Method;
 
 /**
  * Scans for {@link OnValidate &#64;OnValidate} annotations.

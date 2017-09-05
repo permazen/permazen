@@ -11,13 +11,14 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Image;
 
+import io.permazen.vaadin.NullableField;
+import io.permazen.vaadin.SizedLabel;
+
 import java.io.ByteArrayInputStream;
 
 import org.dellroad.stuff.vaadin7.BlobField;
 import org.dellroad.stuff.vaadin7.FieldBuilder;
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
-import io.permazen.vaadin.NullableField;
-import io.permazen.vaadin.SizedLabel;
 
 /**
  * Support superclass for {@code Body} implementations.

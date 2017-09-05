@@ -5,17 +5,17 @@
 
 package io.permazen.core.type;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidReferenceException;
 import io.permazen.core.ObjId;
 import io.permazen.util.ByteWriter;
+
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * The {@link FieldType} for {@link io.permazen.core.ReferenceField}s. Instances support object type restriction.

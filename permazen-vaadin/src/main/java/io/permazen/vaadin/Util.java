@@ -7,11 +7,11 @@ package io.permazen.vaadin;
 
 import com.google.common.base.Preconditions;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import io.permazen.JClass;
 import io.permazen.JField;
+
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Utility routines.

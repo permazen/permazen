@@ -5,11 +5,6 @@
 
 package io.permazen;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
@@ -19,6 +14,12 @@ import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

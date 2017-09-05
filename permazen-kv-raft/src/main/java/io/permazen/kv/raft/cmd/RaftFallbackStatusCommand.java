@@ -5,19 +5,19 @@
 
 package io.permazen.kv.raft.cmd;
 
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.cli.cmd.AbstractCommand;
 import io.permazen.kv.raft.fallback.FallbackKVDatabase;
 import io.permazen.kv.raft.fallback.FallbackTarget;
 import io.permazen.util.ParseContext;
+
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 public class RaftFallbackStatusCommand extends AbstractCommand {
 

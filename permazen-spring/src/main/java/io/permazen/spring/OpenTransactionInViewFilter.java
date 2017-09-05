@@ -7,6 +7,10 @@ package io.permazen.spring;
 
 import com.google.common.base.Throwables;
 
+import io.permazen.JSimpleDB;
+import io.permazen.JTransaction;
+import io.permazen.ValidationMode;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -14,9 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.permazen.JSimpleDB;
-import io.permazen.JTransaction;
-import io.permazen.ValidationMode;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.web.context.WebApplicationContext;

@@ -8,6 +8,8 @@ package io.permazen.parse.expr;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
@@ -17,8 +19,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * {@link Node} representing an unbound method reference like {@code String::valueOf} or {@code String::length}.

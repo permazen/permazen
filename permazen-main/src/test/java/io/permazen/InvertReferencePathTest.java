@@ -5,12 +5,13 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.test.TestSupport;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.NavigableSet;
 
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.test.TestSupport;
 import org.testng.annotations.Test;
 
 public class InvertReferencePathTest extends TestSupport {

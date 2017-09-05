@@ -9,6 +9,7 @@ import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
+
 import org.testng.annotations.Test;
 
 public class RecursiveLoadTest extends TestSupport {

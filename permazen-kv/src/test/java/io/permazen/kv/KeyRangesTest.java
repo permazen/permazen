@@ -5,12 +5,13 @@
 
 package io.permazen.kv;
 
+import io.permazen.util.ByteUtil;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import io.permazen.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

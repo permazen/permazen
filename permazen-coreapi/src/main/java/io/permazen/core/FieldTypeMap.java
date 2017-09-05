@@ -7,9 +7,6 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Collections;
-import java.util.Comparator;
-
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
@@ -18,6 +15,9 @@ import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * {@link AbstractKVNavigableMap} implementation that uses a {@link FieldType} to order and encode/decode keys.

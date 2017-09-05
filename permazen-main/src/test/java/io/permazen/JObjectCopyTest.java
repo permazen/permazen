@@ -5,10 +5,11 @@
 
 package io.permazen;
 
-import java.util.List;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.test.TestSupport;
+
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

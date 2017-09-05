@@ -5,10 +5,6 @@
 
 package io.permazen;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import java.util.Map;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnVersionChange;
@@ -20,6 +16,11 @@ import io.permazen.core.Transaction;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

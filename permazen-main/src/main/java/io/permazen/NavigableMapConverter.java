@@ -8,9 +8,9 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import java.util.NavigableMap;
-
 import io.permazen.util.ConvertedNavigableMap;
+
+import java.util.NavigableMap;
 
 /**
  * Converts {@link NavigableMap}s into {@link ConvertedNavigableMap}s using the provided element {@link Converter}.

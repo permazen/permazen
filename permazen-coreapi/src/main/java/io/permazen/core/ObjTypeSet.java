@@ -5,12 +5,12 @@
 
 package io.permazen.core;
 
-import java.util.NavigableSet;
-
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
 import io.permazen.util.ByteUtil;
+
+import java.util.NavigableSet;
 
 /**
  * Sets containing all objects of a given type, with the ability to {@link #remove remove()} elements,

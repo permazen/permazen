@@ -5,12 +5,6 @@
 
 package io.permazen;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
-
 import io.permazen.annotation.JCompositeIndex;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
@@ -21,6 +15,13 @@ import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -5,13 +5,14 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.test.TestSupport;
+
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

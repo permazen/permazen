@@ -5,14 +5,15 @@
 
 package io.permazen;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.JTransient;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

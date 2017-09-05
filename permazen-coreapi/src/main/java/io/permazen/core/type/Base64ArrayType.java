@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.util.ParseContext;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -17,7 +19,6 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
-import io.permazen.util.ParseContext;
 
 /**
  * For Primitive array types encode to {@link String} via Base-64 encoding of raw data. Does not support null arrays.

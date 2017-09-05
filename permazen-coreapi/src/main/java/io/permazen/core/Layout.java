@@ -8,14 +8,6 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
@@ -23,6 +15,14 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Constants and utility methods relating to the encoding and layout of a {@link Database} in a key/value store.

@@ -5,10 +5,11 @@
 
 package io.permazen.core;
 
-import java.io.ByteArrayInputStream;
-
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
+
+import java.io.ByteArrayInputStream;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -7,9 +7,9 @@ package io.permazen.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
-import java.nio.ByteBuffer;
-
 import io.permazen.util.LongEncoder;
+
+import java.nio.ByteBuffer;
 
 /**
  * Send from candidates to other nodes to request a vote during an election.

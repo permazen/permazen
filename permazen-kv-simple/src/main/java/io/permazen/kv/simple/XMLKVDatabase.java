@@ -7,6 +7,10 @@ package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabaseException;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.util.XMLSerializer;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,9 +28,6 @@ import javax.xml.stream.XMLStreamException;
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.io.FileStreamRepository;
 import org.dellroad.stuff.io.StreamRepository;
-import io.permazen.kv.KVDatabaseException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.util.XMLSerializer;
 
 /**
  * Simple persistent {@link io.permazen.kv.KVDatabase} backed by an XML file stored in a {@link StreamRepository}.

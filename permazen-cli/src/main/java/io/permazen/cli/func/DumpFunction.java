@@ -5,8 +5,6 @@
 
 package io.permazen.cli.func;
 
-import java.io.PrintWriter;
-
 import io.permazen.JObject;
 import io.permazen.cli.CliSession;
 import io.permazen.core.ObjId;
@@ -14,6 +12,8 @@ import io.permazen.core.Transaction;
 import io.permazen.core.util.ObjDumper;
 import io.permazen.parse.expr.EvalException;
 import io.permazen.parse.expr.Value;
+
+import java.io.PrintWriter;
 
 public class DumpFunction extends SimpleCliFunction {
 

@@ -8,12 +8,13 @@ package io.permazen.kv;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import io.permazen.kv.util.NavigableMapKVStore;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.permazen.kv.util.NavigableMapKVStore;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

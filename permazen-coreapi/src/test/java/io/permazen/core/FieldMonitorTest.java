@@ -5,6 +5,10 @@
 
 package io.permazen.core;
 
+import io.permazen.kv.KeyRanges;
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +17,6 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import io.permazen.kv.KeyRanges;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

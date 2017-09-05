@@ -8,11 +8,11 @@ package io.permazen.kv.spanner;
 import com.google.cloud.spanner.SpannerOptions;
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayDeque;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
+
+import java.util.ArrayDeque;
 
 public class SpannerKVImplementation extends KVImplementation {
 

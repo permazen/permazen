@@ -7,11 +7,11 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.util.ByteWriter;
+
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * A simple {@link Field}.

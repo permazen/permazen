@@ -8,16 +8,17 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.DeleteAction;
+import io.permazen.core.ObjId;
+import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.schema.ReferenceSchemaField;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import io.permazen.core.DeleteAction;
-import io.permazen.core.ObjId;
-import io.permazen.core.type.ReferenceFieldType;
-import io.permazen.schema.ReferenceSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

@@ -8,16 +8,16 @@ package io.permazen.kv.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 
+import io.permazen.kv.KVPair;
+import io.permazen.util.LongEncoder;
+import io.permazen.util.UnsignedIntEncoder;
+
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-
-import io.permazen.kv.KVPair;
-import io.permazen.util.LongEncoder;
-import io.permazen.util.UnsignedIntEncoder;
 
 /**
  * Serializes a sequence of {@code byte[]} arrays, compressing consecutive common prefixes.

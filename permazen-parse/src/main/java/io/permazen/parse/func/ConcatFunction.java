@@ -7,13 +7,13 @@ package io.permazen.parse.func;
 
 import com.google.common.collect.Iterables;
 
-import java.util.EnumSet;
-
 import io.permazen.SessionMode;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.AbstractValue;
 import io.permazen.parse.expr.EvalException;
 import io.permazen.parse.expr.Value;
+
+import java.util.EnumSet;
 
 public class ConcatFunction extends SimpleFunction {
 

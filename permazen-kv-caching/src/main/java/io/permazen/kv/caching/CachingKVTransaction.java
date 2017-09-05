@@ -5,15 +5,15 @@
 
 package io.permazen.kv.caching;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.util.CloseableIterator;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * A transaction associated with a {@link CachingKVDatabase}.

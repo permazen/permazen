@@ -9,12 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
-import java.util.List;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import java.util.List;
 
 /**
  * {@code char[]} array type. Does not support null arrays.

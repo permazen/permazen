@@ -7,11 +7,11 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 /**
  * An {@link java.util.Iterator} that iterates over all key/value pairs in a {@link KVStore} within a range of keys,

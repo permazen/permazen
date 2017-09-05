@@ -7,6 +7,11 @@ package io.permazen.schema;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.util.DiffGenerating;
+import io.permazen.util.Diffs;
+import io.permazen.util.NavigableSets;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -37,10 +42,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.util.DiffGenerating;
-import io.permazen.util.Diffs;
-import io.permazen.util.NavigableSets;
 
 /**
  * Models one JSimpleDB {@link io.permazen.core.Database} schema version.

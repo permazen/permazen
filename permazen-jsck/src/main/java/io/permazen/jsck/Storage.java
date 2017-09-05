@@ -7,14 +7,14 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.Arrays;
 
 /**
  * Represents a storage ID used for stored information.

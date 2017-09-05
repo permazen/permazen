@@ -8,11 +8,11 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.ArrayList;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
+
+import java.util.ArrayList;
 
 /**
  * Array type for integral primitive element types. Does not support null arrays.

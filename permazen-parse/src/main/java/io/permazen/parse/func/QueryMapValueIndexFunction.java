@@ -5,8 +5,6 @@
 
 package io.permazen.parse.func;
 
-import java.util.function.Predicate;
-
 import io.permazen.JTransaction;
 import io.permazen.core.Field;
 import io.permazen.core.MapField;
@@ -16,6 +14,8 @@ import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.AbstractValue;
 import io.permazen.parse.expr.Value;
 import io.permazen.util.ParseContext;
+
+import java.util.function.Predicate;
 
 public class QueryMapValueIndexFunction extends AbstractQueryFunction {
 

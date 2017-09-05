@@ -10,6 +10,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.OnValidate;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +34,6 @@ import java.util.regex.Pattern;
 import javax.validation.Constraint;
 import javax.validation.groups.Default;
 
-import io.permazen.annotation.OnValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

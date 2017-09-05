@@ -5,11 +5,11 @@
 
 package io.permazen.change;
 
-import java.util.List;
-import java.util.Objects;
-
 import io.permazen.JObject;
 import io.permazen.JTransaction;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Notification object that gets passed to {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated methods

@@ -8,11 +8,12 @@ package io.permazen.kv.util;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import io.permazen.test.TestSupport;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.permazen.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

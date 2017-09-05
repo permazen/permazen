@@ -5,6 +5,13 @@
 
 package io.permazen.cli.cmd;
 
+import io.permazen.Session;
+import io.permazen.SessionMode;
+import io.permazen.cli.CliSession;
+import io.permazen.kv.util.XMLSerializer;
+import io.permazen.parse.Parser;
+import io.permazen.util.ParseContext;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,12 +26,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
-import io.permazen.kv.util.XMLSerializer;
-import io.permazen.parse.Parser;
-import io.permazen.util.ParseContext;
 
 public class KVSaveCommand extends AbstractCommand {
 

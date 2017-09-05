@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import java.lang.reflect.Method;
-
 import io.permazen.annotation.OnDelete;
+
+import java.lang.reflect.Method;
 
 /**
  * Scans for {@link OnDelete &#64;OnDelete} annotations.

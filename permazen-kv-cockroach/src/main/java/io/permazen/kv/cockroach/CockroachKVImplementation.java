@@ -5,9 +5,9 @@
 
 package io.permazen.kv.cockroach;
 
-import java.util.ArrayDeque;
-
 import io.permazen.kv.sql.SQLDriverKVImplementation;
+
+import java.util.ArrayDeque;
 
 public class CockroachKVImplementation extends SQLDriverKVImplementation {
 

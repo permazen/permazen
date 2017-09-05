@@ -5,9 +5,6 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-import java.util.NavigableSet;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
@@ -17,6 +14,10 @@ import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
+
+import java.util.Arrays;
+import java.util.NavigableSet;
+
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 

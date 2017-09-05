@@ -9,17 +9,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.permazen.core.EnumValue;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This is the inner, non-null supporting {@link io.permazen.core.FieldType} for {@link EnumFieldType}.

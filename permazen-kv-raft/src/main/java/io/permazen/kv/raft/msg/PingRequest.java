@@ -5,9 +5,9 @@
 
 package io.permazen.kv.raft.msg;
 
-import java.nio.ByteBuffer;
-
 import io.permazen.kv.raft.Timestamp;
+
+import java.nio.ByteBuffer;
 
 /**
  * Sent from hermits to other nodes when trying to establish communication with a majority.

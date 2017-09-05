@@ -7,9 +7,10 @@ package io.permazen.core.type;
 
 import com.google.common.reflect.TypeToken;
 
-import org.dellroad.stuff.java.Primitive;
 import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
+
+import org.dellroad.stuff.java.Primitive;
 
 /**
  * Support superclass for primitive types.

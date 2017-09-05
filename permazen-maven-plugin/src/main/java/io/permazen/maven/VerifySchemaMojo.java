@@ -5,6 +5,8 @@
 
 package io.permazen.maven;
 
+import io.permazen.JSimpleDB;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -20,7 +22,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import io.permazen.JSimpleDB;
 
 /**
  * Verify the JSimpleDB schema auto-generated from user-supplied model classes.

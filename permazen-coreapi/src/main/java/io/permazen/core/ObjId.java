@@ -7,17 +7,17 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Serializable;
-import java.security.SecureRandom;
-import java.util.regex.Pattern;
-
-import javax.annotation.concurrent.Immutable;
-
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.io.Serializable;
+import java.security.SecureRandom;
+import java.util.regex.Pattern;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Object IDs. Instances identify individual {@link Database} objects.

@@ -5,12 +5,13 @@
 
 package io.permazen.core;
 
-import java.io.ByteArrayInputStream;
-import java.util.NavigableSet;
-
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.util.NavigableSet;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

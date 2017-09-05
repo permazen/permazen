@@ -7,17 +7,17 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Database;
+import io.permazen.core.FieldType;
+import io.permazen.schema.SchemaCompositeIndex;
+import io.permazen.util.ParseContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-
-import io.permazen.core.Database;
-import io.permazen.core.FieldType;
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.util.ParseContext;
 
 /**
  * A composite index.

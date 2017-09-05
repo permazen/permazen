@@ -8,12 +8,12 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.FieldType;
+import io.permazen.util.ParseContext;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.permazen.core.FieldType;
-import io.permazen.util.ParseContext;
 
 /**
  * Superclass for all array {@link FieldType}s.

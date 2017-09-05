@@ -7,11 +7,12 @@ package io.permazen.parse;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ParseContext;
+
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
 import org.dellroad.stuff.java.EnumUtil;
-import io.permazen.util.ParseContext;
 
 public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
 

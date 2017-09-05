@@ -7,13 +7,13 @@ package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
+
 import java.util.HashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
-import io.permazen.core.ObjId;
-import io.permazen.core.Transaction;
 
 /**
  * Cache for randomly generated object IDs based on unique strings.

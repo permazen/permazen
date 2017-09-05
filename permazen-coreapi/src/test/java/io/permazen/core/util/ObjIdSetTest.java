@@ -7,12 +7,13 @@ package io.permazen.core.util;
 
 import com.google.common.collect.Iterators;
 
-import java.util.HashSet;
-import java.util.Iterator;
-
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.ObjId;
 import io.permazen.test.TestSupport;
+
+import java.util.HashSet;
+import java.util.Iterator;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

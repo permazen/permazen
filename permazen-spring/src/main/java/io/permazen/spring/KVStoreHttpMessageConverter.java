@@ -7,14 +7,15 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.util.KeyListEncoder;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.CloseableIterator;
+
+import java.io.IOException;
+import java.util.Iterator;
+
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;

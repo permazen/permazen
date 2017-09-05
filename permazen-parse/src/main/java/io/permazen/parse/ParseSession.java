@@ -7,14 +7,6 @@ package io.permazen.parse;
 
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import io.permazen.JSimpleDB;
 import io.permazen.Session;
 import io.permazen.core.Database;
@@ -23,6 +15,14 @@ import io.permazen.parse.expr.Node;
 import io.permazen.parse.expr.Value;
 import io.permazen.parse.func.Function;
 import io.permazen.util.ImplementationsReader;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * A {@link Session} with support for parsing Java expressions.

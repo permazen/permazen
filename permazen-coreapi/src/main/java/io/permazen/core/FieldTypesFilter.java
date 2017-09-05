@@ -8,15 +8,15 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
-import java.util.Arrays;
-import java.util.List;
-
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRanges;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A {@link KeyFilter} that accepts any key that is the concatenation of some prefix plus valid {@link FieldType} encoded values,

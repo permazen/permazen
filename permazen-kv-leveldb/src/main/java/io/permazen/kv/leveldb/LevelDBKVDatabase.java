@@ -5,11 +5,12 @@
 
 package io.permazen.kv.leveldb;
 
-import org.iq80.leveldb.DBException;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.SnapshotKVDatabase;
 import io.permazen.kv.mvcc.SnapshotKVTransaction;
+
+import org.iq80.leveldb.DBException;
 
 /**
  * {@link io.permazen.kv.KVDatabase} implementation based on a {@link LevelDBAtomicKVStore}, providing concurrent transactions

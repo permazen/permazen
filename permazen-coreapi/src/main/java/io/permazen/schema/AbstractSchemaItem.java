@@ -7,6 +7,10 @@ package io.permazen.schema;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.core.SchemaItem;
+import io.permazen.util.Diffs;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -17,10 +21,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.SchemaItem;
-import io.permazen.util.Diffs;
 
 /**
  * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.

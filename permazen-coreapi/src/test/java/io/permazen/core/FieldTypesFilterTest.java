@@ -7,9 +7,6 @@ package io.permazen.core;
 
 import com.google.common.collect.Lists;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-
 import io.permazen.core.type.UnsignedIntType;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
@@ -19,6 +16,10 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -5,14 +5,14 @@
 
 package io.permazen.kv.mssql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Microsoft SQL Server variant of {@link SQLKVDatabase}.

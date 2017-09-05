@@ -16,11 +16,6 @@ import com.google.cloud.spanner.TransactionContext;
 import com.google.cloud.spanner.TransactionRunner;
 import com.google.common.base.Preconditions;
 
-import java.util.concurrent.Future;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -30,6 +25,12 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.CloseableIterator;
+
+import java.util.concurrent.Future;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

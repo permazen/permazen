@@ -7,12 +7,13 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Map;
-
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.Layout;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaModel;
+
+import java.util.Map;
+
 import org.slf4j.LoggerFactory;
 
 /**

@@ -5,12 +5,13 @@
 
 package io.permazen.spring;
 
+import io.permazen.kv.simple.XMLKVDatabase;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.dellroad.stuff.io.StreamRepository;
-import io.permazen.kv.simple.XMLKVDatabase;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 

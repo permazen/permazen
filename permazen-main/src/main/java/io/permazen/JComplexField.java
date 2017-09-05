@@ -7,10 +7,11 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.schema.ComplexSchemaField;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
-import io.permazen.schema.ComplexSchemaField;
 import org.objectweb.asm.ClassWriter;
 
 /**

@@ -10,13 +10,13 @@ import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.util.NavigableSet;
-import java.util.TreeSet;
-
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 /**
  * Set field.

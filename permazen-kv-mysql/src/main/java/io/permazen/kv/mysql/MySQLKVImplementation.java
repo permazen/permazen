@@ -5,9 +5,9 @@
 
 package io.permazen.kv.mysql;
 
-import java.util.ArrayDeque;
-
 import io.permazen.kv.sql.SQLDriverKVImplementation;
+
+import java.util.ArrayDeque;
 
 public class MySQLKVImplementation extends SQLDriverKVImplementation {
 

@@ -7,13 +7,14 @@ package io.permazen.kv.array;
 
 import com.google.common.collect.Lists;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

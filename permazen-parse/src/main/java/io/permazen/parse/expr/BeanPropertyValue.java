@@ -7,10 +7,10 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * {@link Value} that reflects a bean property in some object.

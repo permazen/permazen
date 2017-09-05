@@ -8,6 +8,10 @@ package io.permazen.schema;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.core.type.EnumFieldType;
+import io.permazen.util.Diffs;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +24,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.string.StringEncoder;
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.type.EnumFieldType;
-import io.permazen.util.Diffs;
 
 /**
  * An enum field in a {@link SchemaObjectType}.

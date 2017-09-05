@@ -9,12 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
-import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -26,6 +20,13 @@ import io.permazen.kv.mvcc.SnapshotRefs;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

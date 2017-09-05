@@ -5,12 +5,13 @@
 
 package io.permazen.kv.mvcc;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

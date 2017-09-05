@@ -5,6 +5,14 @@
 
 package io.permazen.cli.app;
 
+import io.permazen.JSimpleDB;
+import io.permazen.SessionMode;
+import io.permazen.app.AbstractMain;
+import io.permazen.cli.CliSession;
+import io.permazen.cli.Console;
+import io.permazen.core.Database;
+import io.permazen.schema.SchemaModel;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -20,13 +28,6 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into the jline jar
-import io.permazen.JSimpleDB;
-import io.permazen.SessionMode;
-import io.permazen.app.AbstractMain;
-import io.permazen.cli.CliSession;
-import io.permazen.cli.Console;
-import io.permazen.core.Database;
-import io.permazen.schema.SchemaModel;
 
 /**
  * CLI main entry point.

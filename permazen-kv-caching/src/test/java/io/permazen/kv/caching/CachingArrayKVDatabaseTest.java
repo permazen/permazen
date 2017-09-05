@@ -5,13 +5,14 @@
 
 package io.permazen.kv.caching;
 
-import java.io.File;
-import java.io.IOException;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.array.ArrayKVDatabase;
 import io.permazen.kv.array.AtomicArrayKVStore;
 import io.permazen.kv.test.KVDatabaseTest;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;

@@ -8,12 +8,12 @@ package io.permazen.parse.expr;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Type;
 import java.util.List;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * Superclass of {@link Node}s that invokes a Java method or constructor.

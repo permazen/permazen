@@ -19,6 +19,9 @@ import com.google.cloud.spanner.SpannerOptions;
 import com.google.cloud.spanner.TimestampBound;
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.util.MovingAverage;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,8 +35,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.util.MovingAverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

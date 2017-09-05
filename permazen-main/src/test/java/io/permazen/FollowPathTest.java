@@ -7,15 +7,16 @@ package io.permazen;
 
 import com.google.common.primitives.Ints;
 
+import io.permazen.annotation.FollowPath;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.test.TestSupport;
+import io.permazen.util.NavigableSets;
+
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Optional;
 
-import io.permazen.annotation.FollowPath;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.test.TestSupport;
-import io.permazen.util.NavigableSets;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

@@ -7,12 +7,6 @@ package io.permazen.parse;
 
 import com.google.common.collect.Iterables;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NavigableSet;
-import java.util.regex.Matcher;
-
 import io.permazen.Session;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
@@ -20,6 +14,12 @@ import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NavigableSet;
+import java.util.regex.Matcher;
 
 /**
  * Parses object IDs.

@@ -14,11 +14,6 @@ import com.sleepycat.je.LockConflictException;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-import java.io.Closeable;
-import java.util.NoSuchElementException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
@@ -29,6 +24,12 @@ import io.permazen.kv.StaleTransactionException;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
+
+import java.io.Closeable;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

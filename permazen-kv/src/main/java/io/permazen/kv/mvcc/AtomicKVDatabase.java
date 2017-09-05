@@ -7,9 +7,6 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
@@ -22,6 +19,10 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.util.ByteUtil;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.LoggerFactory;
 
 /**

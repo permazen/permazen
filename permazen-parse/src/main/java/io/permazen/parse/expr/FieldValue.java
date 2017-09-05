@@ -7,10 +7,10 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
-import java.lang.reflect.Field;
-
 import io.permazen.core.ObjId;
 import io.permazen.parse.ParseSession;
+
+import java.lang.reflect.Field;
 
 /**
  * {@link Value} that reflects a core API {@link io.permazen.core.Field} in some database object.

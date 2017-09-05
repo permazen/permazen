@@ -5,14 +5,14 @@
 
 package io.permazen.jsck;
 
-import java.util.Arrays;
-
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.ObjId;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.Arrays;
 
 class ListElementIndex extends CollectionElementIndex {
 

@@ -7,6 +7,10 @@ package io.permazen.kv.caching;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
+import io.permazen.util.MovingAverage;
+
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,10 +20,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransaction;
-import io.permazen.util.MovingAverage;
 
 /**
  * A wrapper around an inner {@link KVDatabase} that adds a caching layer to transactions by wrapping them

@@ -7,6 +7,8 @@ package io.permazen.kv.raft;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.mvcc.Writes;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,8 +22,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.permazen.kv.mvcc.Writes;
 
 /**
  * Represents one unapplied Raft log entry.

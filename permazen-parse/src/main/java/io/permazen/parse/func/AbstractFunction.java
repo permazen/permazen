@@ -7,10 +7,6 @@ package io.permazen.parse.func;
 
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
 import io.permazen.SessionMode;
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
@@ -18,6 +14,11 @@ import io.permazen.parse.SpaceParser;
 import io.permazen.parse.expr.ExprParser;
 import io.permazen.parse.expr.Node;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

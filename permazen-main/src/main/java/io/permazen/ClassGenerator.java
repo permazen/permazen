@@ -9,6 +9,11 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+import io.permazen.core.DatabaseException;
+import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
+import io.permazen.core.util.ObjDumper;
+
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -20,10 +25,6 @@ import java.util.Optional;
 import java.util.SortedSet;
 
 import org.dellroad.stuff.java.Primitive;
-import io.permazen.core.DatabaseException;
-import io.permazen.core.ObjId;
-import io.permazen.core.Transaction;
-import io.permazen.core.util.ObjDumper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;

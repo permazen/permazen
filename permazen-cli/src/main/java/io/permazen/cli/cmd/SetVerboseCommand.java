@@ -5,10 +5,10 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.Map;
-
 import io.permazen.cli.CliSession;
 import io.permazen.util.ParseContext;
+
+import java.util.Map;
 
 public class SetVerboseCommand extends AbstractCommand {
 

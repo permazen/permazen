@@ -5,8 +5,6 @@
 
 package io.permazen.core.util;
 
-import java.io.ByteArrayInputStream;
-
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
@@ -14,6 +12,9 @@ import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
+
+import java.io.ByteArrayInputStream;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

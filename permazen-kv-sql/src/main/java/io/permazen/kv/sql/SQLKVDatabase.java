@@ -7,6 +7,12 @@ package io.permazen.kv.sql;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVDatabaseException;
+import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.TransactionTimeoutException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -18,11 +24,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVDatabaseException;
-import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

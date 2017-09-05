@@ -5,9 +5,9 @@
 
 package io.permazen.core.type;
 
-import java.net.Inet6Address;
-
 import io.permazen.util.ByteReader;
+
+import java.net.Inet6Address;
 
 /**
  * Non-null {@link Inet6Address} type. Null values are not supported by this class.

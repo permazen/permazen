@@ -5,14 +5,6 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.SortedSet;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
@@ -27,6 +19,15 @@ import io.permazen.index.Index2;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.SortedSet;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

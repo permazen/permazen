@@ -5,9 +5,9 @@
 
 package io.permazen.kv.mvcc;
 
-import java.util.Map;
-
 import io.permazen.kv.KeyRange;
+
+import java.util.Map;
 
 /**
  * Represents a set of mutations that can be applied to a {@link io.permazen.kv.KVStore}.

@@ -5,11 +5,11 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.EnumSet;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.parse.Parser;
+
+import java.util.EnumSet;
 
 /**
  * {@link io.permazen.cli.CliSession} command.

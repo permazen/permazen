@@ -5,15 +5,15 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.CollectionField;
+import io.permazen.util.Diffs;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
-import io.permazen.core.CollectionField;
-import io.permazen.util.Diffs;
 
 /**
  * A collection field in one version of a {@link SchemaObjectType}.

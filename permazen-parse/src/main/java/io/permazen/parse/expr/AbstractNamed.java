@@ -7,9 +7,9 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
-import java.util.regex.Pattern;
-
 import io.permazen.parse.ParseUtil;
+
+import java.util.regex.Pattern;
 
 /**
  * Support superclass for things with a name.

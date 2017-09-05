@@ -5,14 +5,14 @@
 
 package io.permazen;
 
+import io.permazen.core.ListField;
+import io.permazen.core.MapField;
+import io.permazen.core.SetField;
+
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import io.permazen.core.ListField;
-import io.permazen.core.MapField;
-import io.permazen.core.SetField;
 
 /**
  * Default {@link StorageIdGenerator} implementation.

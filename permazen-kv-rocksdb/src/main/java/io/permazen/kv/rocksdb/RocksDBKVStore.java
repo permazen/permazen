@@ -7,15 +7,16 @@ package io.permazen.kv.rocksdb;
 
 import com.google.common.base.Preconditions;
 
-import java.io.Closeable;
-import java.util.NoSuchElementException;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
+
+import java.io.Closeable;
+import java.util.NoSuchElementException;
+
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;

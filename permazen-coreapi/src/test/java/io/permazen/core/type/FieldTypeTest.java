@@ -7,6 +7,14 @@ package io.permazen.core.type;
 
 import com.google.common.net.InetAddresses;
 
+import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteWriter;
+import io.permazen.util.ParseContext;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,13 +44,6 @@ import java.util.regex.Pattern;
 
 import javax.mail.internet.InternetAddress;
 
-import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

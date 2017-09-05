@@ -5,9 +5,9 @@
 
 package io.permazen.kv.mssql;
 
-import java.util.ArrayDeque;
-
 import io.permazen.kv.sql.SQLDriverKVImplementation;
+
+import java.util.ArrayDeque;
 
 public class MSSQLKVImplementation extends SQLDriverKVImplementation {
 

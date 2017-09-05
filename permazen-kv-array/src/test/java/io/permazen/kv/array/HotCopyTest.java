@@ -5,13 +5,14 @@
 
 package io.permazen.kv.array;
 
+import io.permazen.kv.KVPair;
+import io.permazen.test.TestSupport;
+import io.permazen.util.ByteUtil;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import io.permazen.kv.KVPair;
-import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

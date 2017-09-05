@@ -8,14 +8,14 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Arrays;
-import java.util.List;
-
 import io.permazen.core.FieldType;
 import io.permazen.tuple.Tuple;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Superclass for {@link FieldType}s created from the concatenation of other {@link FieldType}s.

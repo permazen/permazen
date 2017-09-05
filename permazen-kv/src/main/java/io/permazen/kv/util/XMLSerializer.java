@@ -7,6 +7,12 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.util.AbstractXMLStreaming;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -19,11 +25,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.util.AbstractXMLStreaming;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
 
 /**
  * Utility methods for serializing and deserializing the contents of a {@link io.permazen.kv.KVStore} to/from XML.

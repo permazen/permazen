@@ -16,11 +16,6 @@ import com.google.cloud.spanner.Struct;
 import com.google.cloud.spanner.TransactionContext;
 import com.google.common.base.Preconditions;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.caching.CachingKVStore;
@@ -29,6 +24,12 @@ import io.permazen.kv.mvcc.Writes;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

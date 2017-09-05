@@ -7,13 +7,6 @@ package io.permazen;
 
 import com.google.common.collect.Iterables;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Set;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
@@ -29,6 +22,14 @@ import io.permazen.core.Transaction;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

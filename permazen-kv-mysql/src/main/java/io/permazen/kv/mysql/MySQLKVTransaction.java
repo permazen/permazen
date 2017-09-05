@@ -5,12 +5,12 @@
 
 package io.permazen.kv.mysql;
 
+import io.permazen.kv.sql.SQLKVDatabase;
+import io.permazen.kv.sql.SQLKVTransaction;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import io.permazen.kv.sql.SQLKVDatabase;
-import io.permazen.kv.sql.SQLKVTransaction;
 
 /**
  * MySQL variant of {@link SQLKVTransaction}.

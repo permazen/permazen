@@ -7,12 +7,12 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Database;
+import io.permazen.kv.simple.SimpleKVDatabase;
+
 import java.util.Arrays;
 
 import javax.validation.ValidatorFactory;
-
-import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
 
 /**
  * Factory for {@link JSimpleDB} instances.

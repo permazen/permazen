@@ -7,13 +7,6 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -25,6 +18,14 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.Diffs;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.function.Predicate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

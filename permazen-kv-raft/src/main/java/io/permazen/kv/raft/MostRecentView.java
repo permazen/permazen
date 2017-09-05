@@ -5,14 +5,14 @@
 
 package io.permazen.kv.raft;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.PrefixKVStore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A view of the database based on the most recent log entry, if any, otherwise directly on the committed key/value store.

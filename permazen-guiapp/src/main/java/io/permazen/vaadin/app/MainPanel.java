@@ -14,7 +14,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
-import org.dellroad.stuff.spring.RetryTransaction;
 import io.permazen.CopyState;
 import io.permazen.JClass;
 import io.permazen.JObject;
@@ -28,6 +27,8 @@ import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.JObjectChooser;
 import io.permazen.vaadin.JObjectContainer;
 import io.permazen.vaadin.SizedLabel;
+
+import org.dellroad.stuff.spring.RetryTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;

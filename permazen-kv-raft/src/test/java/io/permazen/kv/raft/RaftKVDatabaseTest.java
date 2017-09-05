@@ -5,6 +5,15 @@
 
 package io.permazen.kv.raft;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
+import io.permazen.kv.array.AtomicArrayKVStore;
+import io.permazen.kv.leveldb.LevelDBAtomicKVStore;
+import io.permazen.kv.mvcc.AtomicKVDatabase;
+import io.permazen.kv.rocksdb.RocksDBAtomicKVStore;
+import io.permazen.kv.sqlite.SQLiteKVDatabase;
+import io.permazen.kv.test.KVDatabaseTest;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -16,14 +25,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransaction;
-import io.permazen.kv.array.AtomicArrayKVStore;
-import io.permazen.kv.leveldb.LevelDBAtomicKVStore;
-import io.permazen.kv.mvcc.AtomicKVDatabase;
-import io.permazen.kv.rocksdb.RocksDBAtomicKVStore;
-import io.permazen.kv.sqlite.SQLiteKVDatabase;
-import io.permazen.kv.test.KVDatabaseTest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

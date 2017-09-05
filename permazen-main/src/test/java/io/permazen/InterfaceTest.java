@@ -5,13 +5,14 @@
 
 package io.permazen;
 
-import java.util.Set;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
+
+import java.util.Set;
+
 import org.testng.annotations.Test;
 
 public class InterfaceTest extends TestSupport {

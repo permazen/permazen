@@ -5,8 +5,6 @@
 
 package io.permazen.parse.expr;
 
-import java.util.function.Consumer;
-
 import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
@@ -15,6 +13,9 @@ import io.permazen.annotation.JSimpleClass;
 import io.permazen.parse.ParseSession;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ParseContext;
+
+import java.util.function.Consumer;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

@@ -7,11 +7,6 @@ package io.permazen.kv.raft.cmd;
 
 import com.google.common.base.Preconditions;
 
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import io.permazen.cli.CliSession;
 import io.permazen.kv.raft.CandidateRole;
 import io.permazen.kv.raft.Follower;
@@ -23,6 +18,11 @@ import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.kv.raft.Role;
 import io.permazen.kv.raft.Timestamp;
 import io.permazen.util.ParseContext;
+
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class RaftStatusCommand extends AbstractRaftCommand {
 

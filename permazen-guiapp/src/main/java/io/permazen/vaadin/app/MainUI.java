@@ -7,8 +7,9 @@ package io.permazen.vaadin.app;
 
 import com.vaadin.ui.Component;
 
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import io.permazen.vaadin.SizedLabel;
+
+import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

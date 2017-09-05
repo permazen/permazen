@@ -5,15 +5,16 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.core.DeleteAction;
+import io.permazen.test.TestSupport;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.core.DeleteAction;
-import io.permazen.test.TestSupport;
 import org.springframework.core.annotation.AliasFor;
 import org.testng.Assert;
 import org.testng.annotations.Test;

@@ -7,6 +7,17 @@ package io.permazen.cli.cmd;
 
 import com.google.common.collect.Iterables;
 
+import io.permazen.JObject;
+import io.permazen.Session;
+import io.permazen.cli.CliSession;
+import io.permazen.core.ObjId;
+import io.permazen.core.util.XMLObjectSerializer;
+import io.permazen.parse.Parser;
+import io.permazen.parse.expr.Node;
+import io.permazen.parse.expr.Value;
+import io.permazen.parse.util.ParseCastFunction;
+import io.permazen.util.ParseContext;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,16 +31,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.JObject;
-import io.permazen.Session;
-import io.permazen.cli.CliSession;
-import io.permazen.core.ObjId;
-import io.permazen.core.util.XMLObjectSerializer;
-import io.permazen.parse.Parser;
-import io.permazen.parse.expr.Node;
-import io.permazen.parse.expr.Value;
-import io.permazen.parse.util.ParseCastFunction;
-import io.permazen.util.ParseContext;
 
 public class SaveCommand extends AbstractCommand {
 

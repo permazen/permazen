@@ -8,13 +8,13 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.CollectionField;
+import io.permazen.schema.CollectionSchemaField;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import io.permazen.core.CollectionField;
-import io.permazen.schema.CollectionSchemaField;
 
 /**
  * Represents a collection field in a {@link JClass}.

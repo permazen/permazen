@@ -7,12 +7,12 @@ package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVStore;
+import io.permazen.kv.util.KeyWatchTracker;
+
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
-
-import io.permazen.kv.KVStore;
-import io.permazen.kv.util.KeyWatchTracker;
 
 /**
  * Represents the addition or changing of a key/value pair in a {@link SimpleKVTransaction}.

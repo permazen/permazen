@@ -5,11 +5,6 @@
 
 package io.permazen;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnVersionChange;
@@ -18,6 +13,12 @@ import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

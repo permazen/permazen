@@ -5,15 +5,6 @@
 
 package io.permazen;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
@@ -25,6 +16,16 @@ import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

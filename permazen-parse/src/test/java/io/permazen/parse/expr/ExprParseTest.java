@@ -5,10 +5,6 @@
 
 package io.permazen.parse.expr;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -16,6 +12,11 @@ import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ParseContext;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

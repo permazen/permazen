@@ -5,10 +5,10 @@
 
 package io.permazen.kv;
 
-import java.util.Arrays;
-
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
+
+import java.util.Arrays;
 
 /**
  * Test support superclass adding key range utility methods.

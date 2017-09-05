@@ -10,17 +10,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NavigableMap;
-
 import io.permazen.change.MapFieldAdd;
 import io.permazen.change.MapFieldClear;
 import io.permazen.change.MapFieldRemove;
 import io.permazen.change.MapFieldReplace;
 import io.permazen.core.MapField;
 import io.permazen.schema.MapSchemaField;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NavigableMap;
 
 /**
  * Represents a map field in a {@link JClass}.

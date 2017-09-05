@@ -7,13 +7,6 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -21,6 +14,13 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Provides a mutable view of an underlying, read-only {@link KVStore}.

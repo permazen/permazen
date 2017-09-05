@@ -7,15 +7,6 @@ package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.Field;
@@ -31,6 +22,15 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 /**
  * Utility classes for printing database objects and fields in a human-readable format.

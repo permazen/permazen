@@ -5,10 +5,10 @@
 
 package io.permazen.schema;
 
-import javax.xml.namespace.QName;
-
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
+
+import javax.xml.namespace.QName;
 
 /**
  * A list field in one version of a {@link SchemaObjectType}.

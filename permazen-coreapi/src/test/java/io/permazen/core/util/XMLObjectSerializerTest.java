@@ -5,14 +5,6 @@
 
 package io.permazen.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
@@ -21,6 +13,15 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.CloseableIterator;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

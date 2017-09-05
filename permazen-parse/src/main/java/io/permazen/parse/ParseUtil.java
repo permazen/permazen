@@ -7,16 +7,17 @@ package io.permazen.parse;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Collection;
-import java.util.stream.Stream;
-
-import org.dellroad.stuff.java.Primitive;
 import io.permazen.JClass;
 import io.permazen.JField;
 import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
 import io.permazen.core.UnknownTypeException;
+
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import org.dellroad.stuff.java.Primitive;
 
 /**
  * Parsing utility routines.

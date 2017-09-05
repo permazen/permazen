@@ -7,14 +7,14 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
+
+import java.util.Arrays;
 
 /**
  * A {@link KeyFilter} based on an {@link AbstractIndexView}. A prefix of the fields is used to filter the key directly,

@@ -5,13 +5,14 @@
 
 package io.permazen.core;
 
-import java.io.ByteArrayInputStream;
-
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
+
+import java.io.ByteArrayInputStream;
+
 import org.testng.annotations.Test;
 
 public class CompositeIndexTest extends CoreAPITestSupport {

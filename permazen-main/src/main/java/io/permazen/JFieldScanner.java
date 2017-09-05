@@ -5,15 +5,15 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.core.DeleteAction;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.core.DeleteAction;
 
 /**
  * Scans for {@link JField &#64;JField} annotations.

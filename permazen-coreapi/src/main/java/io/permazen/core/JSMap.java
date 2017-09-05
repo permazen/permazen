@@ -7,18 +7,18 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 /**
  * Implements the {@link NavigableMap} view of a {@link MapField}.

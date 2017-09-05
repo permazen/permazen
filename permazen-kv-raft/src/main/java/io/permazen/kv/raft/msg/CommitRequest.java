@@ -7,12 +7,12 @@ package io.permazen.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.mvcc.Reads;
+import io.permazen.util.LongEncoder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import io.permazen.kv.mvcc.Reads;
-import io.permazen.util.LongEncoder;
 
 /**
  * Sent from followers to leaders to start the commit of a transaction.

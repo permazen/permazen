@@ -5,12 +5,12 @@
 
 package io.permazen.parse;
 
-import java.util.SortedMap;
-import java.util.regex.Matcher;
-
 import io.permazen.core.CompositeIndex;
 import io.permazen.core.ObjType;
 import io.permazen.util.ParseContext;
+
+import java.util.SortedMap;
+import java.util.regex.Matcher;
 
 /**
  * Parses a composite index.

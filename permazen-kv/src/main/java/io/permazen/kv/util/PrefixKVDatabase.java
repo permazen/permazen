@@ -7,9 +7,9 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Map;
-
 import io.permazen.kv.KVDatabase;
+
+import java.util.Map;
 
 /**
  * Prefix {@link KVDatabase} implementation.

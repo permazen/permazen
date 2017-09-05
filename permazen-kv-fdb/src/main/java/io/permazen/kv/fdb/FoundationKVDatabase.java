@@ -11,14 +11,14 @@ import com.foundationdb.FDBException;
 import com.foundationdb.NetworkOptions;
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVDatabaseException;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVDatabaseException;
 
 /**
  * FoundationDB {@link KVDatabase} implementation.

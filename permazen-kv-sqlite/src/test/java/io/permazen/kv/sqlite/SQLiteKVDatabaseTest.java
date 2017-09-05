@@ -5,12 +5,13 @@
 
 package io.permazen.kv.sqlite;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.test.KVDatabaseTest;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.test.KVDatabaseTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;

@@ -5,13 +5,14 @@
 
 package io.permazen.demo;
 
+import io.permazen.JObject;
+import io.permazen.annotation.JField;
+import io.permazen.vaadin.JObjectContainer;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
-import io.permazen.JObject;
-import io.permazen.annotation.JField;
-import io.permazen.vaadin.JObjectContainer;
 
 /**
  * Implemented by all heavenly bodies.

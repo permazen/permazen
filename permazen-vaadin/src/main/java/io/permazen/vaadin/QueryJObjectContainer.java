@@ -7,14 +7,14 @@ package io.permazen.vaadin;
 
 import com.google.common.collect.Iterators;
 
-import java.util.Iterator;
-
 import io.permazen.CopyState;
 import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
+
+import java.util.Iterator;
 
 /**
  * Vaadin {@link com.vaadin.data.Container} backed by {@link JSimpleDB} Java model objects acquired by performing

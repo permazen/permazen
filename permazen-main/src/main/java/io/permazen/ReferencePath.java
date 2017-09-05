@@ -9,6 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.ObjId;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.schema.SchemaObjectType;
+import io.permazen.util.ParseContext;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,11 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.permazen.core.ObjId;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.KeyRanges;
-import io.permazen.schema.SchemaObjectType;
-import io.permazen.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

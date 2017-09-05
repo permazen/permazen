@@ -5,16 +5,6 @@
 
 package io.permazen.parse.expr;
 
-import java.beans.BeanInfo;
-import java.beans.IndexedPropertyDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.regex.Matcher;
-
 import io.permazen.JField;
 import io.permazen.JObject;
 import io.permazen.JSimpleField;
@@ -26,6 +16,16 @@ import io.permazen.parse.ParseUtil;
 import io.permazen.parse.Parser;
 import io.permazen.parse.SpaceParser;
 import io.permazen.util.ParseContext;
+
+import java.beans.BeanInfo;
+import java.beans.IndexedPropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.regex.Matcher;
 
 /**
  * Parses basic left-associative Java expressions such as auto-increment expressions, array access, field access, invocation, etc.

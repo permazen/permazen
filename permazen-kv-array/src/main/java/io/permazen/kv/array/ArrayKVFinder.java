@@ -7,10 +7,10 @@ package io.permazen.kv.array;
 
 import com.google.common.base.Preconditions;
 
-import java.nio.ByteBuffer;
-
 import io.permazen.kv.KVPair;
 import io.permazen.util.ByteUtil;
+
+import java.nio.ByteBuffer;
 
 /**
  * Performs searches into an {@link ArrayKVStore}.

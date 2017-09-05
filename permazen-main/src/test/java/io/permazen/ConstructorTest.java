@@ -8,6 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.ObjId;
 import io.permazen.test.TestSupport;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

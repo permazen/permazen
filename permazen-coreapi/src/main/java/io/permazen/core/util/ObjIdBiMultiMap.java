@@ -7,14 +7,14 @@ package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.ObjId;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
-import io.permazen.core.ObjId;
 
 /**
  * A bi-directional, many-to-many mapping between {@link ObjId}s.

@@ -9,10 +9,11 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import org.dellroad.stuff.string.StringEncoder;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
+
+import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * {@link io.permazen.core.FieldType} for any Java type that can be encoded and ordered as a {@link String}.

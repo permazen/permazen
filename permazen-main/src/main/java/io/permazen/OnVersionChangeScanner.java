@@ -7,13 +7,13 @@ package io.permazen;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.OnVersionChange;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import io.permazen.annotation.OnVersionChange;
 
 /**
  * Scans for {@link OnVersionChange &#64;OnVersionChange} annotations.

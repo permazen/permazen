@@ -8,6 +8,14 @@ package io.permazen.kv.mvcc;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.kv.util.KeyWatchTracker;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,13 +26,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
-import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.kv.util.KeyWatchTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

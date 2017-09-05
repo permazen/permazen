@@ -7,10 +7,10 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.FieldType;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import io.permazen.core.FieldType;
 
 /**
  * Represents a composite index.

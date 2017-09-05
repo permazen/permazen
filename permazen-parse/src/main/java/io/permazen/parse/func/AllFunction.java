@@ -5,8 +5,6 @@
 
 package io.permazen.parse.func;
 
-import java.util.regex.Pattern;
-
 import io.permazen.JClass;
 import io.permazen.JTransaction;
 import io.permazen.core.UnknownTypeException;
@@ -20,6 +18,8 @@ import io.permazen.parse.expr.ExprParser;
 import io.permazen.parse.expr.Node;
 import io.permazen.parse.expr.Value;
 import io.permazen.util.ParseContext;
+
+import java.util.regex.Pattern;
 
 public class AllFunction extends AbstractFunction {
 

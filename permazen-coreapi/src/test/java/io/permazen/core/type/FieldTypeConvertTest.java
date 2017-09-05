@@ -7,6 +7,14 @@ package io.permazen.core.type;
 
 import com.google.common.net.InetAddresses;
 
+import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteWriter;
+import io.permazen.util.ParseContext;
+
 import java.io.File;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -16,13 +24,6 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

@@ -8,16 +8,16 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+import io.permazen.schema.SchemaCompositeIndex;
+import io.permazen.schema.SchemaField;
+import io.permazen.schema.SchemaObjectType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaObjectType;
 
 /**
  * Represents a {@link Database} object type.

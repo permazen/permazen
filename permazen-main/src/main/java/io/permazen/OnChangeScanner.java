@@ -8,16 +8,6 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NavigableSet;
-
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.ListFieldAdd;
@@ -41,6 +31,16 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NavigableSet;
 
 /**
  * Scans for {@link OnChange &#64;OnChange} annotations.

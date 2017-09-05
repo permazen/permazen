@@ -7,12 +7,6 @@ package io.permazen.cli.cmd;
 
 import com.google.common.base.Preconditions;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.cli.ParamParser;
@@ -24,6 +18,13 @@ import io.permazen.parse.Parser;
 import io.permazen.parse.expr.ExprParser;
 import io.permazen.parse.expr.Node;
 import io.permazen.util.ParseContext;
+
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

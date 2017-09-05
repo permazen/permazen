@@ -8,6 +8,20 @@ package io.permazen.kv.array;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ForwardingFuture;
 
+import io.permazen.kv.AbstractKVStore;
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.kv.mvcc.Writes;
+import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -44,19 +58,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
-import io.permazen.kv.AbstractKVStore;
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.KeyRanges;
-import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.mvcc.Mutations;
-import io.permazen.kv.mvcc.Writes;
-import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

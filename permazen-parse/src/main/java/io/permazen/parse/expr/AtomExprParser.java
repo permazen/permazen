@@ -5,6 +5,14 @@
 
 package io.permazen.parse.expr;
 
+import io.permazen.parse.ParseException;
+import io.permazen.parse.ParseSession;
+import io.permazen.parse.ParseUtil;
+import io.permazen.parse.Parser;
+import io.permazen.parse.SpaceParser;
+import io.permazen.parse.func.Function;
+import io.permazen.util.ParseContext;
+
 import java.beans.BeanInfo;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
@@ -21,13 +29,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import io.permazen.parse.ParseException;
-import io.permazen.parse.ParseSession;
-import io.permazen.parse.ParseUtil;
-import io.permazen.parse.Parser;
-import io.permazen.parse.SpaceParser;
-import io.permazen.parse.func.Function;
-import io.permazen.util.ParseContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;

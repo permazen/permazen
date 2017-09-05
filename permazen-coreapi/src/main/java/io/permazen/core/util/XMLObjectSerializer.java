@@ -8,6 +8,29 @@ package io.permazen.core.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
+import io.permazen.core.CollectionField;
+import io.permazen.core.CounterField;
+import io.permazen.core.DeletedObjectException;
+import io.permazen.core.Field;
+import io.permazen.core.FieldType;
+import io.permazen.core.ListField;
+import io.permazen.core.MapField;
+import io.permazen.core.ObjId;
+import io.permazen.core.ObjType;
+import io.permazen.core.ReferenceField;
+import io.permazen.core.Schema;
+import io.permazen.core.SetField;
+import io.permazen.core.SimpleField;
+import io.permazen.core.SnapshotTransaction;
+import io.permazen.core.Transaction;
+import io.permazen.core.UnknownTypeException;
+import io.permazen.schema.NameIndex;
+import io.permazen.schema.SchemaField;
+import io.permazen.schema.SchemaModel;
+import io.permazen.schema.SchemaObjectType;
+import io.permazen.util.AbstractXMLStreaming;
+import io.permazen.util.ByteWriter;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -33,28 +56,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.core.CollectionField;
-import io.permazen.core.CounterField;
-import io.permazen.core.DeletedObjectException;
-import io.permazen.core.Field;
-import io.permazen.core.FieldType;
-import io.permazen.core.ListField;
-import io.permazen.core.MapField;
-import io.permazen.core.ObjId;
-import io.permazen.core.ObjType;
-import io.permazen.core.ReferenceField;
-import io.permazen.core.Schema;
-import io.permazen.core.SetField;
-import io.permazen.core.SimpleField;
-import io.permazen.core.SnapshotTransaction;
-import io.permazen.core.Transaction;
-import io.permazen.core.UnknownTypeException;
-import io.permazen.schema.NameIndex;
-import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaModel;
-import io.permazen.schema.SchemaObjectType;
-import io.permazen.util.AbstractXMLStreaming;
-import io.permazen.util.ByteWriter;
 
 /**
  * Utility methods for serializing and deserializing objects in a {@link Transaction} to/from XML.

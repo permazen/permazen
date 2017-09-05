@@ -12,9 +12,6 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 
-import java.util.Date;
-
-import org.dellroad.stuff.vaadin7.EnumComboBox;
 import io.permazen.JReferenceField;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
@@ -22,6 +19,10 @@ import io.permazen.core.FieldType;
 import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.NullableField;
 import io.permazen.vaadin.SimpleFieldConverter;
+
+import java.util.Date;
+
+import org.dellroad.stuff.vaadin7.EnumComboBox;
 
 /**
  * Builds {@link Field}s for editing {@link JSimpleField} values.

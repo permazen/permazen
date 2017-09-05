@@ -27,18 +27,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.validation.constraints.NotNull;
-
-import org.dellroad.stuff.spring.RetryTransaction;
-import org.dellroad.stuff.vaadin7.EnumComboBox;
-import org.dellroad.stuff.vaadin7.FieldBuilder;
-import org.dellroad.stuff.vaadin7.VaadinUtil;
 import io.permazen.CopyState;
 import io.permazen.Counter;
 import io.permazen.JClass;
@@ -61,6 +49,19 @@ import io.permazen.vaadin.ConfirmWindow;
 import io.permazen.vaadin.NullableField;
 import io.permazen.vaadin.ReloadableJObjectContainer;
 import io.permazen.vaadin.SimpleFieldConverter;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.validation.constraints.NotNull;
+
+import org.dellroad.stuff.spring.RetryTransaction;
+import org.dellroad.stuff.vaadin7.EnumComboBox;
+import org.dellroad.stuff.vaadin7.FieldBuilder;
+import org.dellroad.stuff.vaadin7.VaadinUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.UnexpectedRollbackException;

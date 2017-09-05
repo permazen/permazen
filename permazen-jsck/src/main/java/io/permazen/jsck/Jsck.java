@@ -9,12 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.function.Consumer;
-
 import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.Layout;
@@ -30,6 +24,12 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Applies consistency checks to, and optionally repairs corruption of, a JSimpleDB key/value database.

@@ -5,11 +5,11 @@
 
 package io.permazen.core;
 
-import java.util.Set;
-import java.util.function.Predicate;
-
 import io.permazen.kv.KVPairIterator;
 import io.permazen.util.ByteReader;
+
+import java.util.Set;
+import java.util.function.Predicate;
 
 class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K, V>> {
 

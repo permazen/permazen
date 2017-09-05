@@ -5,12 +5,12 @@
 
 package io.permazen.kv.simple;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
+
+import java.util.ArrayDeque;
+import java.util.Iterator;
 
 public class MemoryKVImplementation extends KVImplementation {
 

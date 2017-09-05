@@ -7,6 +7,9 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,8 +19,6 @@ import java.util.TreeSet;
 
 import org.dellroad.stuff.java.Predicate;
 import org.dellroad.stuff.java.TimedWait;
-import io.permazen.kv.KeyRanges;
-import io.permazen.util.ByteUtil;
 
 /**
  * Manager of read/write locks on {@code byte[]} key ranges that ensures isolation and serialization while allowing concurrent

@@ -5,6 +5,18 @@
 
 package io.permazen.ant;
 
+import io.permazen.DefaultStorageIdGenerator;
+import io.permazen.JSimpleDBFactory;
+import io.permazen.StorageIdGenerator;
+import io.permazen.annotation.JFieldType;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.core.Database;
+import io.permazen.core.FieldType;
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
+import io.permazen.spring.JSimpleDBClassScanner;
+import io.permazen.spring.JSimpleDBFieldTypeScanner;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,17 +36,6 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.types.Resource;
-import io.permazen.DefaultStorageIdGenerator;
-import io.permazen.JSimpleDBFactory;
-import io.permazen.StorageIdGenerator;
-import io.permazen.annotation.JFieldType;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.core.Database;
-import io.permazen.core.FieldType;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
 
 /**
  * Ant task for schema XML generation and/or verification.

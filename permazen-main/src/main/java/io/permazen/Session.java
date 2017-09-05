@@ -7,8 +7,6 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Map;
-
 import io.permazen.core.Database;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
@@ -17,6 +15,9 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaModel;
+
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

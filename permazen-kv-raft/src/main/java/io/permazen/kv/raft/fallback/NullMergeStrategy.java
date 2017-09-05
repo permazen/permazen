@@ -5,9 +5,9 @@
 
 package io.permazen.kv.raft.fallback;
 
-import java.util.Date;
-
 import io.permazen.kv.KVTransaction;
+
+import java.util.Date;
 
 /**
  * {@link MergeStrategy} that does nothing, i.e., it leaves the destination database unmodified.

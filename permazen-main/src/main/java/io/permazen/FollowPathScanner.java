@@ -8,13 +8,13 @@ package io.permazen;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.FollowPath;
+import io.permazen.annotation.JSetField;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.NavigableSet;
 import java.util.Optional;
-
-import io.permazen.annotation.FollowPath;
-import io.permazen.annotation.JSetField;
 
 /**
  * Scans for {@link FollowPath &#64;FollowPath} annotations.

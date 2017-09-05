@@ -10,9 +10,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.EnumHashBiMap;
 import com.google.common.collect.Maps;
 
-import java.util.EnumSet;
-
 import io.permazen.core.EnumValue;
+
+import java.util.EnumSet;
 
 /**
  * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.

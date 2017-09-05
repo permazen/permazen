@@ -5,18 +5,6 @@
 
 package io.permazen.jsck;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.SortedSet;
-import java.util.function.Consumer;
-
 import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.JSimpleDB;
@@ -44,6 +32,19 @@ import io.permazen.tuple.Tuple3;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.SortedSet;
+import java.util.function.Consumer;
+
 import org.slf4j.event.Level;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

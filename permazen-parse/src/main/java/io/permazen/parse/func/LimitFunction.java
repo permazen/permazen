@@ -8,14 +8,14 @@ package io.permazen.parse.func;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
-import java.util.EnumSet;
-import java.util.Iterator;
-
 import io.permazen.SessionMode;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.AbstractValue;
 import io.permazen.parse.expr.EvalException;
 import io.permazen.parse.expr.Value;
+
+import java.util.EnumSet;
+import java.util.Iterator;
 
 public class LimitFunction extends SimpleFunction {
 

@@ -5,9 +5,9 @@
 
 package io.permazen.kv.raft.fallback;
 
-import java.util.Date;
-
 import io.permazen.kv.KVTransaction;
+
+import java.util.Date;
 
 /**
  * Merge strategy used by a {@link FallbackKVDatabase} when migrating from one underlying database to another.

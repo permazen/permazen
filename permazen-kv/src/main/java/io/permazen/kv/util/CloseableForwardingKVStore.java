@@ -7,11 +7,12 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVStore;
+
 import java.io.Closeable;
 import java.io.IOException;
 
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,15 +7,15 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 import io.permazen.core.ObjId;
 import io.permazen.kv.KVStore;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ParseContext;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Represents a point of corruption or inconsistency in a JSimpleDB key/value database.

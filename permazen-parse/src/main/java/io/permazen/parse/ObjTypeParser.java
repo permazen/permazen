@@ -7,8 +7,6 @@ package io.permazen.parse;
 
 import com.google.common.reflect.TypeToken;
 
-import java.util.regex.Matcher;
-
 import io.permazen.Session;
 import io.permazen.core.Database;
 import io.permazen.core.ObjType;
@@ -18,6 +16,8 @@ import io.permazen.core.UnknownTypeException;
 import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.ParseContext;
+
+import java.util.regex.Matcher;
 
 /**
  * Parses an object type name.

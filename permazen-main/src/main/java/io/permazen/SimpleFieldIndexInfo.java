@@ -7,9 +7,9 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import java.util.Objects;
-
 import io.permazen.core.FieldType;
+
+import java.util.Objects;
 
 /**
  * Support superclass for simple indexes on simple fields.

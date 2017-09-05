@@ -11,6 +11,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.raft.Consistency;
+import io.permazen.kv.raft.RaftKVDatabase;
+import io.permazen.kv.raft.RaftKVTransaction;
+import io.permazen.kv.raft.Timestamp;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -38,13 +46,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.raft.Consistency;
-import io.permazen.kv.raft.RaftKVDatabase;
-import io.permazen.kv.raft.RaftKVTransaction;
-import io.permazen.kv.raft.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

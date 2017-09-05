@@ -5,17 +5,17 @@
 
 package io.permazen.cli.cmd;
 
-import java.io.PrintWriter;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Map;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.parse.Parser;
 import io.permazen.parse.WordParser;
 import io.permazen.parse.func.Function;
 import io.permazen.util.ParseContext;
+
+import java.io.PrintWriter;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Map;
 
 public class HelpCommand extends AbstractCommand {
 

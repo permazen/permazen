@@ -5,11 +5,11 @@
 
 package io.permazen.parse.expr;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * Java expression operators.

@@ -8,9 +8,9 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import java.util.NavigableSet;
-
 import io.permazen.util.ConvertedNavigableSet;
+
+import java.util.NavigableSet;
 
 /**
  * Converts {@link NavigableSet}s into {@link ConvertedNavigableSet}s using the provided element {@link Converter}.

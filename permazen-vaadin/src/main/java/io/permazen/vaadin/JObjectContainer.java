@@ -13,19 +13,6 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.SortedMap;
-
-import org.dellroad.stuff.vaadin7.PropertyDef;
-import org.dellroad.stuff.vaadin7.PropertyExtractor;
-import org.dellroad.stuff.vaadin7.ProvidesPropertyScanner;
-import org.dellroad.stuff.vaadin7.SimpleItem;
-import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import io.permazen.CopyState;
 import io.permazen.JCollectionField;
 import io.permazen.JCounterField;
@@ -41,6 +28,20 @@ import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.util.ObjIdSet;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.SortedMap;
+
+import org.dellroad.stuff.vaadin7.PropertyDef;
+import org.dellroad.stuff.vaadin7.PropertyExtractor;
+import org.dellroad.stuff.vaadin7.ProvidesPropertyScanner;
+import org.dellroad.stuff.vaadin7.SimpleItem;
+import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

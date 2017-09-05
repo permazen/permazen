@@ -8,10 +8,10 @@ package io.permazen.kv.util;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
-import java.util.concurrent.Future;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVTransaction;
+
+import java.util.concurrent.Future;
 
 /**
  * {@link KVTransaction} view of all keys having a common {@code byte[]} prefix in a containing {@link KVTransaction}.

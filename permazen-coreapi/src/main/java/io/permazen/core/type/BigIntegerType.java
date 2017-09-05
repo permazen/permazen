@@ -7,12 +7,12 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import java.math.BigInteger;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.ParseContext;
+
+import java.math.BigInteger;
 
 /**
  * {@link BigInteger} type. Null values are not supported by this class.

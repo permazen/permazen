@@ -8,6 +8,11 @@ package io.permazen.kv;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
+import io.permazen.kv.util.KeyListEncoder;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ImmutableNavigableSet;
+import io.permazen.util.UnsignedIntEncoder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,11 +25,6 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-
-import io.permazen.kv.util.KeyListEncoder;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ImmutableNavigableSet;
-import io.permazen.util.UnsignedIntEncoder;
 
 /**
  * A fixed set of {@link KeyRange} instances that can be treated as a unified whole, in particular as a {@link KeyFilter}.

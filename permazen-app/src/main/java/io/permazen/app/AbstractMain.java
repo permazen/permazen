@@ -5,6 +5,16 @@
 
 package io.permazen.app;
 
+import io.permazen.JSimpleDBFactory;
+import io.permazen.annotation.JFieldType;
+import io.permazen.core.Database;
+import io.permazen.core.FieldType;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVImplementation;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.spring.JSimpleDBClassScanner;
+import io.permazen.spring.JSimpleDBFieldTypeScanner;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -19,15 +29,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import org.dellroad.stuff.main.MainClass;
-import io.permazen.JSimpleDBFactory;
-import io.permazen.annotation.JFieldType;
-import io.permazen.core.Database;
-import io.permazen.core.FieldType;
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVImplementation;
-import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
 
 /**
  * Support superclass for main entry point classes of JSimpleDB-related applications.

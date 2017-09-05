@@ -5,6 +5,12 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.JListField;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.OnValidate;
+import io.permazen.test.TestSupport;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,11 +25,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.annotation.OnValidate;
-import io.permazen.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

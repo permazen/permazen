@@ -7,14 +7,14 @@ package io.permazen.parse.util;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.util.ParseContext;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-
-import io.permazen.util.ParseContext;
 
 /**
  * Recreates {@link TypeToken}s from the output of {@link TypeToken#toString}.

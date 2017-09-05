@@ -7,6 +7,14 @@ package io.permazen.vaadin;
 
 import com.vaadin.ui.DefaultFieldFactory;
 
+import io.permazen.JClass;
+import io.permazen.JComplexField;
+import io.permazen.JField;
+import io.permazen.JObject;
+import io.permazen.JSimpleDB;
+import io.permazen.JSimpleField;
+import io.permazen.parse.ParseSession;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,13 +23,6 @@ import java.util.SortedMap;
 import org.dellroad.stuff.string.StringEncoder;
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SelfKeyedContainer;
-import io.permazen.JClass;
-import io.permazen.JComplexField;
-import io.permazen.JField;
-import io.permazen.JObject;
-import io.permazen.JSimpleDB;
-import io.permazen.JSimpleField;
-import io.permazen.parse.ParseSession;
 
 /**
  * Container that contains all possible sort keys for a given {@link JClass}.

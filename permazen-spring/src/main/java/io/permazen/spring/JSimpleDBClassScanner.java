@@ -6,6 +6,7 @@
 package io.permazen.spring;
 
 import io.permazen.annotation.JSimpleClass;
+
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.ClassMetadata;

@@ -7,10 +7,10 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * {@link Value} that reflects a non-static field in some Java object.

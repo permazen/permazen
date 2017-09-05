@@ -5,12 +5,6 @@
 
 package io.permazen;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.Database;
@@ -18,6 +12,13 @@ import io.permazen.core.Transaction;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
 import org.testng.annotations.Test;
 
 public class ValidateOnUpdateTest extends TestSupport {

@@ -7,10 +7,6 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.NavigableMap;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
@@ -19,6 +15,10 @@ import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.NavigableMap;
 
 /**
  * A {@link java.util.NavigableMap} view of the keys and values in a {@link KVStore}.

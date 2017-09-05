@@ -8,14 +8,14 @@ package io.permazen.kv.mysql;
 import com.mysql.cj.core.exceptions.MysqlErrorNumbers;
 import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * MySQL variant of {@link SQLKVDatabase}.

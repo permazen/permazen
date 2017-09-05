@@ -7,12 +7,13 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.string.StringEncoder;
 import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
+
+import org.dellroad.stuff.java.Primitive;
+import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * {@link Character} type.

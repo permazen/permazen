@@ -8,9 +8,9 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import java.util.List;
-
 import io.permazen.util.ConvertedList;
+
+import java.util.List;
 
 /**
  * Converts {@link List}s into {@link ConvertedList}s using the provided element {@link Converter}.

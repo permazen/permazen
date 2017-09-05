@@ -7,6 +7,11 @@ package io.permazen.cli.telnet;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.JSimpleDB;
+import io.permazen.cli.Console;
+import io.permazen.core.Database;
+import io.permazen.kv.KVDatabase;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,10 +21,6 @@ import jline.TerminalFactory;
 
 import org.dellroad.nvt4j.Terminal;
 import org.dellroad.nvt4j.impl.TerminalImpl;
-import io.permazen.JSimpleDB;
-import io.permazen.cli.Console;
-import io.permazen.core.Database;
-import io.permazen.kv.KVDatabase;
 
 /**
  * A {@link Console} connected to a telnet client via a {@link Socket}.

@@ -7,12 +7,13 @@ package io.permazen.util;
 
 import com.google.common.collect.Sets;
 
+import io.permazen.test.TestSupport;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
-import io.permazen.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

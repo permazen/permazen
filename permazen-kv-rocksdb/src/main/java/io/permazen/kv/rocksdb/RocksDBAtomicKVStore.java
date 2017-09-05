@@ -7,6 +7,12 @@ package io.permazen.kv.rocksdb;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteUtil;
+
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,11 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.Mutations;
-import io.permazen.kv.util.ForwardingKVStore;
-import io.permazen.util.ByteUtil;
 import org.rocksdb.InfoLogLevel;
 import org.rocksdb.Options;
 import org.rocksdb.ReadOptions;

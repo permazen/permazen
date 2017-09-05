@@ -7,9 +7,9 @@ package io.permazen.kv.raft.msg;
 
 import com.google.common.base.Preconditions;
 
-import java.nio.ByteBuffer;
-
 import io.permazen.kv.raft.Timestamp;
+
+import java.nio.ByteBuffer;
 
 abstract class AbstractPingMessage extends Message {
 

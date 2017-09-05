@@ -7,14 +7,6 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.AbstractMap;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
@@ -26,6 +18,14 @@ import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+
+import java.util.AbstractMap;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.Set;
 
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}

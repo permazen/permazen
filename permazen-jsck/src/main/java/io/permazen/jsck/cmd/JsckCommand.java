@@ -5,13 +5,6 @@
 
 package io.permazen.jsck.cmd;
 
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.permazen.Session;
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
@@ -24,6 +17,13 @@ import io.permazen.kv.KVStore;
 import io.permazen.parse.expr.Node;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ParseContext;
+
+import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JsckCommand extends AbstractCommand {
 

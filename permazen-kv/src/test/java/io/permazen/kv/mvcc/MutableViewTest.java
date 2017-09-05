@@ -7,9 +7,6 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.collect.Lists;
 
-import java.util.Iterator;
-import java.util.List;
-
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRanges;
@@ -17,6 +14,10 @@ import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
+
+import java.util.Iterator;
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

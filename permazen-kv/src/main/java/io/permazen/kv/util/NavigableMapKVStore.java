@@ -8,17 +8,17 @@ package io.permazen.kv.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
+import io.permazen.kv.AbstractKVStore;
+import io.permazen.kv.KVPair;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import io.permazen.kv.AbstractKVStore;
-import io.permazen.kv.KVPair;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
 
 /**
  * Provides a {@link io.permazen.kv.KVStore} view of an underlying

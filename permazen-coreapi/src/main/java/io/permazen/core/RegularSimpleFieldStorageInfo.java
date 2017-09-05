@@ -5,11 +5,11 @@
 
 package io.permazen.core;
 
+import io.permazen.core.type.ReferenceFieldType;
+
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import io.permazen.core.type.ReferenceFieldType;
 
 /**
  * Represents an index on a regular simple field (not a sub-field of a complex field).

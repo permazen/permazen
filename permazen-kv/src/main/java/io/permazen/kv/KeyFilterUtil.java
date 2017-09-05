@@ -7,10 +7,10 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ByteUtil;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import io.permazen.util.ByteUtil;
 
 /**
  * Utility methods for dealing with {@link KeyFilter}s.

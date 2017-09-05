@@ -8,12 +8,12 @@ package io.permazen.parse.expr;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * {@link Node} representing a bound method reference like {@code "foobar"::indexOf}.

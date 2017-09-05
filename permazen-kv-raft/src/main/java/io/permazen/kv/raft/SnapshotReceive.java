@@ -9,6 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.primitives.Bytes;
 
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.kv.raft.msg.InstallSnapshot;
+import io.permazen.kv.util.KeyListEncoder;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
@@ -16,11 +22,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.Mutations;
-import io.permazen.kv.raft.msg.InstallSnapshot;
-import io.permazen.kv.util.KeyListEncoder;
 
 /**
  * Represents and in-progress snapshot installation from the follower's point of view.

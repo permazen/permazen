@@ -8,10 +8,10 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+import io.permazen.kv.KeyRanges;
+
 import java.util.Arrays;
 import java.util.Comparator;
-
-import io.permazen.kv.KeyRanges;
 
 /**
  * A monitor for changes within a {@link Transaction} of the value of a specific field, as seen through a path of references.

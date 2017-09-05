@@ -7,15 +7,15 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.Parser;
 import io.permazen.parse.SpaceParser;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Support superclass for tail-recursive binary expression parsers for expressions of the form {@code ARG1 OP ARG2}.

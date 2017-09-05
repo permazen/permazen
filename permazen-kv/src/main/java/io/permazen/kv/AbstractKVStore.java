@@ -7,12 +7,12 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Arrays;
 
 /**
  * Support superclass for {@link KVStore} implementations.

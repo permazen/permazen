@@ -5,9 +5,6 @@
 
 package io.permazen.kv.raft.cmd;
 
-import java.util.Collections;
-import java.util.Map;
-
 import io.permazen.Session;
 import io.permazen.cli.CliSession;
 import io.permazen.kv.KVTransaction;
@@ -15,6 +12,9 @@ import io.permazen.kv.raft.Consistency;
 import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.kv.raft.fallback.FallbackKVTransaction;
+
+import java.util.Collections;
+import java.util.Map;
 
 public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand {
 

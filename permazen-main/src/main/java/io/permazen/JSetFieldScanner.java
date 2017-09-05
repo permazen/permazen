@@ -5,15 +5,15 @@
 
 package io.permazen;
 
-import java.lang.reflect.Method;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.SortedSet;
-
 import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.JSimpleClass;
+
+import java.lang.reflect.Method;
+import java.util.NavigableSet;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * Scans for {@link JSetField &#64;JSetField} annotations.

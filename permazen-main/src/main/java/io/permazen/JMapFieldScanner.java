@@ -5,14 +5,14 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.JMapField;
+import io.permazen.annotation.JSimpleClass;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.SortedMap;
-
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
 
 /**
  * Scans for {@link JMapField &#64;JMapField} annotations.

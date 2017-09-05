@@ -10,14 +10,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.NavigableSet;
-
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldClear;
 import io.permazen.change.SetFieldRemove;
 import io.permazen.schema.SetSchemaField;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.NavigableSet;
 
 /**
  * Represents a set field in a {@link JClass}.

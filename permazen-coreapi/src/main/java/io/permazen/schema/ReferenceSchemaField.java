@@ -5,6 +5,11 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.DeleteAction;
+import io.permazen.core.FieldType;
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.util.Diffs;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -15,11 +20,6 @@ import java.util.TreeSet;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import io.permazen.core.DeleteAction;
-import io.permazen.core.FieldType;
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.util.Diffs;
 
 /**
  * A reference field in a {@link SchemaObjectType}.

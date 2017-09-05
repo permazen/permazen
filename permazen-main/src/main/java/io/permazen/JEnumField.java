@@ -8,13 +8,14 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
-
-import org.dellroad.stuff.java.EnumUtil;
 import io.permazen.core.EnumValue;
 import io.permazen.core.type.EnumFieldType;
 import io.permazen.schema.EnumSchemaField;
 import io.permazen.schema.SimpleSchemaField;
+
+import java.lang.reflect.Method;
+
+import org.dellroad.stuff.java.EnumUtil;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

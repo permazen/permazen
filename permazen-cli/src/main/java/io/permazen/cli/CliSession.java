@@ -7,12 +7,6 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import io.permazen.JSimpleDB;
 import io.permazen.Session;
 import io.permazen.cli.cmd.Command;
@@ -21,6 +15,12 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.util.ImplementationsReader;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Represents one CLI console session.

@@ -5,8 +5,6 @@
 
 package io.permazen.jsck;
 
-import java.util.Arrays;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.ObjId;
@@ -14,6 +12,8 @@ import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
+
+import java.util.Arrays;
 
 class CompositeIndex extends Index {
 

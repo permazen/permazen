@@ -8,13 +8,13 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Support superclass for {@link InetAddress} types. Null values are not supported by this class.

@@ -5,12 +5,6 @@
 
 package io.permazen.parse.expr;
 
-import java.math.BigInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.string.StringEncoder;
 import io.permazen.JTransaction;
 import io.permazen.UntypedJObject;
 import io.permazen.core.ObjId;
@@ -22,6 +16,13 @@ import io.permazen.parse.ParseUtil;
 import io.permazen.parse.Parser;
 import io.permazen.parse.SpaceParser;
 import io.permazen.util.ParseContext;
+
+import java.math.BigInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.dellroad.stuff.java.Primitive;
+import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * Parses literal values.

@@ -8,9 +8,9 @@ package io.permazen.vaadin;
 import com.google.common.base.Preconditions;
 import com.vaadin.data.util.converter.Converter;
 
-import java.util.Locale;
-
 import io.permazen.core.FieldType;
+
+import java.util.Locale;
 
 /**
  * Vaadin {@link Converter} for {@link FieldType}s to/from {@link String}.

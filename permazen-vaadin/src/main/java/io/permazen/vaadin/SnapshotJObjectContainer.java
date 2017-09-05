@@ -5,8 +5,6 @@
 
 package io.permazen.vaadin;
 
-import java.util.Iterator;
-
 import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
@@ -14,6 +12,8 @@ import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.Transaction;
 import io.permazen.kv.CloseableKVStore;
+
+import java.util.Iterator;
 
 /**
  * Specialized {@link JObjectContainer} for use with key/value stores that implement

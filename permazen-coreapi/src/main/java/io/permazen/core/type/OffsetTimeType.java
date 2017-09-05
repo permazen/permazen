@@ -5,12 +5,12 @@
 
 package io.permazen.core.type;
 
+import io.permazen.util.ParseContext;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
-
-import io.permazen.util.ParseContext;
 
 /**
  * Non-null {@link OffsetTime} type. Null values are not supported by this class.

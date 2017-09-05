@@ -5,9 +5,9 @@
 
 package io.permazen.core;
 
-import java.util.List;
-
 import io.permazen.core.type.EnumFieldType;
+
+import java.util.List;
 
 /**
  * A field that contains one entry in an ordered list of unique {@link String} identifiers.

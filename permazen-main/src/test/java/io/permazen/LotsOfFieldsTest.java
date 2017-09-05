@@ -5,12 +5,13 @@
 
 package io.permazen;
 
-import java.util.Collections;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.test.TestSupport;
+
+import java.util.Collections;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

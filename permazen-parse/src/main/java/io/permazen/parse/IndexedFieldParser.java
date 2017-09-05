@@ -5,15 +5,15 @@
 
 package io.permazen.parse;
 
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-
 import io.permazen.core.ComplexField;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitchAdapter;
 import io.permazen.core.ObjType;
 import io.permazen.core.SimpleField;
 import io.permazen.util.ParseContext;
+
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
 
 /**
  * Parses the name of an indexed field.

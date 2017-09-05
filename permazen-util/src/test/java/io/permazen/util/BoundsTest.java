@@ -5,10 +5,11 @@
 
 package io.permazen.util;
 
+import io.permazen.test.TestSupport;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
-import io.permazen.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

@@ -7,15 +7,16 @@ package io.permazen.core;
 
 import com.google.common.collect.Lists;
 
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.schema.SchemaModel;
+import io.permazen.test.TestSupport;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.kv.util.NavigableMapKVStore;
-import io.permazen.schema.SchemaModel;
-import io.permazen.test.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

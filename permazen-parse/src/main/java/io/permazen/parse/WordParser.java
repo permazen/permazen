@@ -7,11 +7,11 @@ package io.permazen.parse;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ParseContext;
+
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
-
-import io.permazen.util.ParseContext;
 
 /**
  * Parses a word (one or more non-whitespace characters).

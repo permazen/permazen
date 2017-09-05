@@ -5,15 +5,15 @@
 
 package io.permazen.parse.expr;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.regex.Matcher;
-
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.ParseUtil;
 import io.permazen.parse.Parser;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
 
 /**
  * Parses lambda expressions.

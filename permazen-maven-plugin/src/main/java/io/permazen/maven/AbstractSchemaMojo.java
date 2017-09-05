@@ -5,6 +5,20 @@
 
 package io.permazen.maven;
 
+import io.permazen.DefaultStorageIdGenerator;
+import io.permazen.JSimpleDB;
+import io.permazen.JSimpleDBFactory;
+import io.permazen.StorageIdGenerator;
+import io.permazen.annotation.JFieldType;
+import io.permazen.annotation.JSimpleClass;
+import io.permazen.core.Database;
+import io.permazen.core.FieldType;
+import io.permazen.core.InvalidSchemaException;
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
+import io.permazen.spring.JSimpleDBClassScanner;
+import io.permazen.spring.JSimpleDBFieldTypeScanner;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -32,19 +46,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import io.permazen.DefaultStorageIdGenerator;
-import io.permazen.JSimpleDB;
-import io.permazen.JSimpleDBFactory;
-import io.permazen.StorageIdGenerator;
-import io.permazen.annotation.JFieldType;
-import io.permazen.annotation.JSimpleClass;
-import io.permazen.core.Database;
-import io.permazen.core.FieldType;
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
 
 /**
  * Generates a schema XML file from a set of JSimpleDB model classes.

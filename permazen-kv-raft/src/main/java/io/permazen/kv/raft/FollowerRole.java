@@ -5,6 +5,21 @@
 
 package io.permazen.kv.raft;
 
+import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.mvcc.Reads;
+import io.permazen.kv.mvcc.Writes;
+import io.permazen.kv.raft.msg.AppendRequest;
+import io.permazen.kv.raft.msg.AppendResponse;
+import io.permazen.kv.raft.msg.CommitRequest;
+import io.permazen.kv.raft.msg.CommitResponse;
+import io.permazen.kv.raft.msg.GrantVote;
+import io.permazen.kv.raft.msg.InstallSnapshot;
+import io.permazen.kv.raft.msg.Message;
+import io.permazen.kv.raft.msg.PingRequest;
+import io.permazen.kv.raft.msg.PingResponse;
+import io.permazen.kv.raft.msg.RequestVote;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,20 +35,6 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.dellroad.stuff.util.LongMap;
-import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.mvcc.Reads;
-import io.permazen.kv.mvcc.Writes;
-import io.permazen.kv.raft.msg.AppendRequest;
-import io.permazen.kv.raft.msg.AppendResponse;
-import io.permazen.kv.raft.msg.CommitRequest;
-import io.permazen.kv.raft.msg.CommitResponse;
-import io.permazen.kv.raft.msg.GrantVote;
-import io.permazen.kv.raft.msg.InstallSnapshot;
-import io.permazen.kv.raft.msg.Message;
-import io.permazen.kv.raft.msg.PingRequest;
-import io.permazen.kv.raft.msg.PingResponse;
-import io.permazen.kv.raft.msg.RequestVote;
 
 /**
  * Raft follower role.

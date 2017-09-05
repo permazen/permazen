@@ -7,9 +7,9 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
-import java.lang.reflect.Field;
-
 import io.permazen.parse.ParseSession;
+
+import java.lang.reflect.Field;
 
 /**
  * {@link Value} that reflects a Java field in some class or object.

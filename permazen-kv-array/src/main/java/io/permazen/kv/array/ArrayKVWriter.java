@@ -7,6 +7,12 @@ package io.permazen.kv.array;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.util.ByteUtil;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -14,12 +20,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.Mutations;
-import io.permazen.util.ByteUtil;
 
 /**
  * Writes {@link ArrayKVStore} index, key, and value data, given a sorted sequence of key/value pairs.

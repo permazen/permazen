@@ -7,17 +7,17 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.schema.SchemaModel;
+import io.permazen.schema.SchemaObjectType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.KeyRanges;
-import io.permazen.schema.SchemaModel;
-import io.permazen.schema.SchemaObjectType;
 
 /**
  * Contains information describing one schema version.

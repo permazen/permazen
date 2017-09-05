@@ -5,11 +5,11 @@
 
 package io.permazen.kv.raft.cmd;
 
-import java.util.Map;
-
 import io.permazen.cli.CliSession;
 import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.util.ParseContext;
+
+import java.util.Map;
 
 public class RaftRemoveCommand extends AbstractTransactionRaftCommand {
 

@@ -5,12 +5,12 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.Map;
-
 import io.permazen.cli.CliSession;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.Diffs;
 import io.permazen.util.ParseContext;
+
+import java.util.Map;
 
 public class CompareSchemasCommand extends AbstractSchemaCommand {
 

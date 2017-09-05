@@ -5,12 +5,13 @@
 
 package io.permazen;
 
-import javax.validation.constraints.Min;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.test.TestSupport;
+
+import javax.validation.constraints.Min;
+
 import org.testng.annotations.Test;
 
 public class ValidationExceptionTest extends TestSupport {

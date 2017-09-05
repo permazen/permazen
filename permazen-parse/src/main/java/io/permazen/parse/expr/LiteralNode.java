@@ -5,9 +5,9 @@
 
 package io.permazen.parse.expr;
 
-import java.util.Objects;
-
 import io.permazen.parse.ParseSession;
+
+import java.util.Objects;
 
 /**
  * A parsed literal value. Evaluates to a {@link ConstValue}.

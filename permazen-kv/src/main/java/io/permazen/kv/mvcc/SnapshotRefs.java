@@ -7,13 +7,14 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVStore;
+
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVStore;
 import org.slf4j.LoggerFactory;
 
 /**

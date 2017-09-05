@@ -7,17 +7,18 @@ package io.permazen.kv.raft;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.util.KeyListEncoder;
+import io.permazen.util.CloseableIterator;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.util.KeyListEncoder;
-import io.permazen.util.CloseableIterator;
 
 /**
  * Represents an in-progress snapshot installation from the leader's point of view.

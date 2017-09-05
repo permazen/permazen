@@ -5,13 +5,13 @@
 
 package io.permazen.jsck;
 
-import java.util.Arrays;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import java.util.Arrays;
 
 class MapValueIndex extends ComplexFieldIndex {
 

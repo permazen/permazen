@@ -7,12 +7,13 @@ package io.permazen.core;
 
 import com.google.common.base.Converter;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-
 import io.permazen.core.type.StringEncodedType;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

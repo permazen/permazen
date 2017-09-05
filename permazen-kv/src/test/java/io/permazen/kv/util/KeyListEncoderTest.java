@@ -7,15 +7,16 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Converter;
 
+import io.permazen.kv.KVPair;
+import io.permazen.test.TestSupport;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ConvertedNavigableMap;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 import java.util.NavigableMap;
 
-import io.permazen.kv.KVPair;
-import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ConvertedNavigableMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

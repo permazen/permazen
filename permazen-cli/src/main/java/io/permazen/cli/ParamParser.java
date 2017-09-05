@@ -7,16 +7,6 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.parse.ParseException;
@@ -26,6 +16,16 @@ import io.permazen.parse.Parser;
 import io.permazen.parse.SpaceParser;
 import io.permazen.parse.WordParser;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses command line parameters, including optional flags, based on a specification string.

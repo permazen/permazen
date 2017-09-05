@@ -10,6 +10,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.change.SimpleFieldChange;
+import io.permazen.core.FieldType;
+import io.permazen.core.ObjId;
+import io.permazen.schema.SimpleSchemaField;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,10 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.dellroad.stuff.java.Primitive;
-import io.permazen.change.SimpleFieldChange;
-import io.permazen.core.FieldType;
-import io.permazen.core.ObjId;
-import io.permazen.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

@@ -8,13 +8,6 @@ package io.permazen.kv.mvcc;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.Closeable;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
@@ -22,6 +15,14 @@ import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
 import io.permazen.kv.util.ForwardingKVStore;
+
+import java.io.Closeable;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

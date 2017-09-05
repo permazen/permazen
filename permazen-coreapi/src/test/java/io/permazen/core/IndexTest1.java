@@ -5,6 +5,12 @@
 
 package io.permazen.core;
 
+import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
+import io.permazen.test.TestSupport;
+import io.permazen.tuple.Tuple2;
+import io.permazen.tuple.Tuple3;
+
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -16,11 +22,6 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
-import io.permazen.test.TestSupport;
-import io.permazen.tuple.Tuple2;
-import io.permazen.tuple.Tuple3;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

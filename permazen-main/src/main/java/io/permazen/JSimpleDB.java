@@ -14,25 +14,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import org.dellroad.stuff.util.LongMap;
 import io.permazen.annotation.JCompositeIndexes;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.core.Database;
@@ -52,6 +33,26 @@ import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
+import org.dellroad.stuff.util.LongMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

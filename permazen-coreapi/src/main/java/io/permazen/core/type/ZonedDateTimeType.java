@@ -5,12 +5,12 @@
 
 package io.permazen.core.type;
 
+import io.permazen.util.ParseContext;
+
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.regex.Matcher;
-
-import io.permazen.util.ParseContext;
 
 /**
  * Non-null {@link ZonedDateTime} type. Null values are not supported by this class.

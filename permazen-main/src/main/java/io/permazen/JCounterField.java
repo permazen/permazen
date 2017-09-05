@@ -9,10 +9,11 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.schema.CounterSchemaField;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
-import io.permazen.schema.CounterSchemaField;
 import org.objectweb.asm.ClassWriter;
 
 /**

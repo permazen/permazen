@@ -5,13 +5,6 @@
 
 package io.permazen.kv.raft;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayDeque;
-
-import org.dellroad.stuff.net.TCPNetwork;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
@@ -20,6 +13,14 @@ import io.permazen.kv.raft.fallback.FallbackTarget;
 import io.permazen.kv.raft.fallback.MergeStrategy;
 import io.permazen.kv.raft.fallback.NullMergeStrategy;
 import io.permazen.kv.raft.fallback.OverwriteMergeStrategy;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayDeque;
+
+import org.dellroad.stuff.net.TCPNetwork;
 
 public class RaftKVImplementation extends KVImplementation {
 

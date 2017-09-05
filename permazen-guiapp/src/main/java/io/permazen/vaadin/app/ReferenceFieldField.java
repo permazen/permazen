@@ -17,7 +17,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
-import org.dellroad.stuff.spring.RetryTransaction;
 import io.permazen.CopyState;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
@@ -28,6 +27,8 @@ import io.permazen.vaadin.JObjectChooser;
 import io.permazen.vaadin.JObjectContainer;
 import io.permazen.vaadin.SizedLabel;
 import io.permazen.vaadin.SmallButton;
+
+import org.dellroad.stuff.spring.RetryTransaction;
 
 /**
  * A Vaadin {@link com.vaadin.ui.Field} that edits a database object reference. Supports displaying,

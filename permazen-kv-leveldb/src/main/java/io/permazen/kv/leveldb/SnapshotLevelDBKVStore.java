@@ -5,10 +5,11 @@
 
 package io.permazen.kv.leveldb;
 
+import io.permazen.kv.CloseableKVStore;
+
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.ReadOptions;
 import org.iq80.leveldb.Snapshot;
-import io.permazen.kv.CloseableKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

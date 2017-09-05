@@ -5,11 +5,11 @@
 
 package io.permazen.core;
 
-import java.util.NavigableSet;
-
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.NavigableSet;
 
 abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends SimpleFieldStorageInfo<T> {
 

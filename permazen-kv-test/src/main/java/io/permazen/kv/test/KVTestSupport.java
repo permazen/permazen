@@ -5,6 +5,17 @@
 
 package io.permazen.kv.test;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.KVTransaction;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.util.XMLSerializer;
+import io.permazen.test.TestSupport;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ConvertedNavigableMap;
+import io.permazen.util.ConvertedNavigableSet;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -19,16 +30,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.util.XMLSerializer;
-import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ConvertedNavigableMap;
-import io.permazen.util.ConvertedNavigableSet;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 

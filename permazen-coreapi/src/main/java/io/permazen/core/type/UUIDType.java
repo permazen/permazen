@@ -7,12 +7,12 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import java.util.UUID;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
+
+import java.util.UUID;
 
 /**
  * Non-null {@link UUID} type. Null values are not supported by this class.

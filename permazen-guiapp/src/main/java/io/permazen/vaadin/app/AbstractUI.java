@@ -22,6 +22,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import io.permazen.vaadin.SizedLabel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

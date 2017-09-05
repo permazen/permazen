@@ -8,10 +8,11 @@ package io.permazen.parse.expr;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.java.PrimitiveSwitchAdapter;
 import io.permazen.core.FieldType;
 import io.permazen.parse.ParseSession;
+
+import org.dellroad.stuff.java.Primitive;
+import org.dellroad.stuff.java.PrimitiveSwitchAdapter;
 
 /**
  * A parsed cast expression.

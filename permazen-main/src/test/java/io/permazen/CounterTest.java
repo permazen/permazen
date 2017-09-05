@@ -5,12 +5,13 @@
 
 package io.permazen;
 
-import java.util.NavigableMap;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.test.TestSupport;
+
+import java.util.NavigableMap;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

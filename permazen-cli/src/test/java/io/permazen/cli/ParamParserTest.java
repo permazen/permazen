@@ -5,8 +5,6 @@
 
 package io.permazen.cli;
 
-import java.util.Map;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.parse.FieldTypeParser;
@@ -14,6 +12,9 @@ import io.permazen.parse.ParseException;
 import io.permazen.parse.Parser;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ParseContext;
+
+import java.util.Map;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

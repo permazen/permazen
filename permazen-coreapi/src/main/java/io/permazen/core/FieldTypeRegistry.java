@@ -8,15 +8,6 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.java.PrimitiveSwitch;
 import io.permazen.core.type.ArrayType;
 import io.permazen.core.type.BigDecimalType;
 import io.permazen.core.type.BigIntegerType;
@@ -68,6 +59,16 @@ import io.permazen.core.type.YearType;
 import io.permazen.core.type.ZoneIdType;
 import io.permazen.core.type.ZoneOffsetType;
 import io.permazen.core.type.ZonedDateTimeType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.dellroad.stuff.java.Primitive;
+import org.dellroad.stuff.java.PrimitiveSwitch;
 
 /**
  * A registry of {@link FieldType}s.

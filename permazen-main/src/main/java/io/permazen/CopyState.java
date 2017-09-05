@@ -8,17 +8,17 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceField;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Maintains state about a multi-object copy operation.

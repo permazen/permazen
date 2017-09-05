@@ -6,6 +6,7 @@
 package io.permazen.spring;
 
 import io.permazen.test.TestSupport;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

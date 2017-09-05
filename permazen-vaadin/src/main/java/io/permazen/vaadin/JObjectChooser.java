@@ -18,14 +18,15 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 
-import java.util.Collections;
-import java.util.HashSet;
-
 import io.permazen.JClass;
 import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.core.ObjId;
 import io.permazen.parse.ParseSession;
+
+import java.util.Collections;
+import java.util.HashSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

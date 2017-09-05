@@ -9,8 +9,8 @@ import com.google.common.collect.Lists;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.kv.test.AtomicKVStoreTest;
+import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 
 import java.io.ByteArrayOutputStream;

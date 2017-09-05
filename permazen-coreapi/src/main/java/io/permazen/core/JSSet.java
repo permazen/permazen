@@ -7,13 +7,13 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Iterator;
-import java.util.NavigableSet;
-
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
 import io.permazen.util.ByteUtil;
+
+import java.util.Iterator;
+import java.util.NavigableSet;
 
 /**
  * Implements the {@link NavigableSet} view of a {@link SetField}.

@@ -5,12 +5,13 @@
 
 package io.permazen.core;
 
-import java.io.ByteArrayInputStream;
-import java.util.UUID;
-
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
+
+import java.io.ByteArrayInputStream;
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 public class CopyToWrongTypeTest extends CoreAPITestSupport {

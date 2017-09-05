@@ -5,11 +5,6 @@
 
 package io.permazen.cli.cmd;
 
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Map;
-
 import io.permazen.Session;
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
@@ -17,6 +12,11 @@ import io.permazen.parse.expr.EvalException;
 import io.permazen.parse.expr.Node;
 import io.permazen.parse.expr.Value;
 import io.permazen.util.ParseContext;
+
+import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Map;
 
 public class EvalCommand extends AbstractCommand {
 

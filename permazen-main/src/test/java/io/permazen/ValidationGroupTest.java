@@ -5,13 +5,14 @@
 
 package io.permazen;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.groups.Default;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnValidate;
 import io.permazen.test.TestSupport;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
+
 import org.testng.annotations.Test;
 
 public class ValidationGroupTest extends TestSupport {

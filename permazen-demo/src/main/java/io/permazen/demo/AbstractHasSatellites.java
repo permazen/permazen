@@ -5,10 +5,10 @@
 
 package io.permazen.demo;
 
-import java.util.NavigableSet;
-
 import io.permazen.JObject;
 import io.permazen.util.NavigableSets;
+
+import java.util.NavigableSet;
 
 /**
  * Support superclass for {@link HasSatellites} implementations.

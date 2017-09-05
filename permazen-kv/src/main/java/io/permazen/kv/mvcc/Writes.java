@@ -8,14 +8,6 @@ package io.permazen.kv.mvcc;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.TreeMap;
-
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
@@ -25,6 +17,14 @@ import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ImmutableNavigableMap;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.TreeMap;
 
 /**
  * Holds a set of writes to a {@link KVStore}.

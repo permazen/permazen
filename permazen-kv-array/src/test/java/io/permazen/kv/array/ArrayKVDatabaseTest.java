@@ -5,14 +5,15 @@
 
 package io.permazen.kv.array;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.test.KVDatabaseTest;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.test.KVDatabaseTest;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;

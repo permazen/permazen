@@ -5,6 +5,8 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.InvalidSchemaException;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -13,8 +15,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import io.permazen.core.InvalidSchemaException;
 
 /**
  * A complex field in one version of a {@link SchemaObjectType}.

@@ -5,11 +5,11 @@
 
 package io.permazen.parse.expr;
 
-import java.lang.reflect.Array;
-import java.util.List;
-
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.ParseUtil;
+
+import java.lang.reflect.Array;
+import java.util.List;
 
 /**
  * Node representing an "empty" array instantiation expression, i.e., with dimensions but no literal values.

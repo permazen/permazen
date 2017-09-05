@@ -5,9 +5,9 @@
 
 package io.permazen.kv.array;
 
-import java.io.File;
-
 import io.permazen.kv.test.AtomicKVStoreTest;
+
+import java.io.File;
 
 public class AtomicArrayKVStoreTest extends AtomicKVStoreTest {
 

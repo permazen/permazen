@@ -8,11 +8,6 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import io.permazen.core.CoreIndex;
 import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
@@ -21,6 +16,11 @@ import io.permazen.core.FieldType;
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Information used for index queries.

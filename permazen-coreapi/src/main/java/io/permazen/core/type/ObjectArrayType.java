@@ -9,13 +9,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Array type for object arrays having non-primitive element types. Does not support null arrays.

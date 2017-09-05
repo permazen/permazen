@@ -7,6 +7,9 @@ package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.ObjId;
+import io.permazen.util.ImmutableNavigableSet;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Arrays;
@@ -14,9 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-import io.permazen.core.ObjId;
-import io.permazen.util.ImmutableNavigableSet;
 
 /**
  * A set of {@link ObjId}s.

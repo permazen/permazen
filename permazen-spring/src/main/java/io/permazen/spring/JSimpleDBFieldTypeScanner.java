@@ -6,6 +6,7 @@
 package io.permazen.spring;
 
 import io.permazen.annotation.JFieldType;
+
 import org.springframework.core.env.Environment;
 
 /**

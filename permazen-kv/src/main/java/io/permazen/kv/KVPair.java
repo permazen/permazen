@@ -7,10 +7,10 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ByteUtil;
+
 import java.util.Arrays;
 import java.util.Map;
-
-import io.permazen.util.ByteUtil;
 
 /**
  * A key/value pair.

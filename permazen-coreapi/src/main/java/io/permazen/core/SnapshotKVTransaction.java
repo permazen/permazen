@@ -5,13 +5,13 @@
 
 package io.permazen.core;
 
-import java.util.concurrent.Future;
-
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.util.ForwardingKVStore;
+
+import java.util.concurrent.Future;
 
 /**
  * A dummy {@link KVTransaction} implementation wrapping a provided {@link io.permazen.kv.KVStore}.

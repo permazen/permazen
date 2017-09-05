@@ -5,6 +5,17 @@
 
 package io.permazen.kv.test;
 
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Writes;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+import io.permazen.util.LongEncoder;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -17,16 +28,6 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
-import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.mvcc.Writes;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
-import io.permazen.util.LongEncoder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;

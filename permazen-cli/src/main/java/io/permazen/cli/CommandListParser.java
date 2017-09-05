@@ -7,13 +7,13 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.permazen.parse.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.Parser;
 import io.permazen.util.ParseContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandListParser implements Parser<List<CliSession.Action>> {
 

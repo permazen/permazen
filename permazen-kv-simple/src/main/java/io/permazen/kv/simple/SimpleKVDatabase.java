@@ -9,18 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.SortedSet;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -34,6 +22,19 @@ import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

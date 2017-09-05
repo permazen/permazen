@@ -8,6 +8,13 @@ package io.permazen.cli;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import io.permazen.JSimpleDB;
+import io.permazen.cli.cmd.EvalCommand;
+import io.permazen.core.Database;
+import io.permazen.kv.KVDatabase;
+import io.permazen.parse.ParseException;
+import io.permazen.util.ParseContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,12 +35,6 @@ import jline.console.completer.Completer;
 import jline.console.history.FileHistory;
 
 import org.dellroad.stuff.java.ProcessRunner;
-import io.permazen.JSimpleDB;
-import io.permazen.cli.cmd.EvalCommand;
-import io.permazen.core.Database;
-import io.permazen.kv.KVDatabase;
-import io.permazen.parse.ParseException;
-import io.permazen.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,11 +5,11 @@
 
 package io.permazen.cli.func;
 
-import java.util.EnumSet;
-
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.parse.expr.Value;
+
+import java.util.EnumSet;
 
 public class PrintFunction extends SimpleCliFunction {
 

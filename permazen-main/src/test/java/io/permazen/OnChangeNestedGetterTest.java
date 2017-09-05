@@ -5,12 +5,13 @@
 
 package io.permazen;
 
-import java.util.UUID;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
+
+import java.util.UUID;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

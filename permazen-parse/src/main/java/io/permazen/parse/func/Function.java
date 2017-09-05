@@ -5,12 +5,12 @@
 
 package io.permazen.parse.func;
 
-import java.util.EnumSet;
-
 import io.permazen.SessionMode;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.Value;
 import io.permazen.util.ParseContext;
+
+import java.util.EnumSet;
 
 /**
  * Function hook in a {@link io.permazen.parse.ParseSession}.

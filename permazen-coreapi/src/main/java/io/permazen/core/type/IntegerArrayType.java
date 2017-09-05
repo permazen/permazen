@@ -7,12 +7,12 @@ package io.permazen.core.type;
 
 import com.google.common.primitives.Ints;
 
+import io.permazen.core.FieldTypeRegistry;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import io.permazen.core.FieldTypeRegistry;
 
 /**
  * {@code int[]} primitive array type. Does not support null arrays.

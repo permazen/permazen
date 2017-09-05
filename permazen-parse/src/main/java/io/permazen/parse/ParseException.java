@@ -5,13 +5,14 @@
 
 package io.permazen.parse;
 
+import io.permazen.util.ParseContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.dellroad.stuff.string.StringEncoder;
-import io.permazen.util.ParseContext;
 
 @SuppressWarnings("serial")
 public class ParseException extends RuntimeException {

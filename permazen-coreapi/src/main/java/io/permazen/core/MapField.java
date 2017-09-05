@@ -10,6 +10,11 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.util.ObjIdMap;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteWriter;
+import io.permazen.util.CloseableIterator;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,11 +22,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
-
-import io.permazen.core.util.ObjIdMap;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.CloseableIterator;
 
 /**
  * Map field.

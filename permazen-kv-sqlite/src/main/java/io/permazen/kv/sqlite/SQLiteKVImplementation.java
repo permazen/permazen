@@ -5,13 +5,13 @@
 
 package io.permazen.kv.sqlite;
 
-import java.io.File;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
+
+import java.io.File;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 public class SQLiteKVImplementation extends KVImplementation {
 

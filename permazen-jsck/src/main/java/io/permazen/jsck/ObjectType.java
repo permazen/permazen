@@ -7,9 +7,6 @@ package io.permazen.jsck;
 
 import com.google.common.collect.PeekingIterator;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import io.permazen.core.FieldType;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
@@ -33,6 +30,9 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 class ObjectType extends Storage {
 

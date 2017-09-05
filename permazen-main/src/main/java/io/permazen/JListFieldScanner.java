@@ -5,12 +5,12 @@
 
 package io.permazen;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JSimpleClass;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Scans for {@link JListField &#64;JListField} annotations.

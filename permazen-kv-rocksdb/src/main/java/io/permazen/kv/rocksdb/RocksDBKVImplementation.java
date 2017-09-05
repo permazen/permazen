@@ -5,12 +5,12 @@
 
 package io.permazen.kv.rocksdb;
 
-import java.io.File;
-import java.util.ArrayDeque;
-
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
+
+import java.io.File;
+import java.util.ArrayDeque;
 
 public class RocksDBKVImplementation extends KVImplementation {
 

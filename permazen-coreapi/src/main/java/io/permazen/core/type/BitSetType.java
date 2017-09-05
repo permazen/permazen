@@ -7,13 +7,13 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import java.util.BitSet;
-
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
+
+import java.util.BitSet;
 
 /**
  * {@link BitSet} type. Null values are not supported by this class.

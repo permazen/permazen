@@ -5,16 +5,17 @@
 
 package io.permazen.kv.sqlite;
 
+import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.sql.SQLKVDatabase;
+import io.permazen.kv.sql.SQLKVTransaction;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.sql.SQLKVDatabase;
-import io.permazen.kv.sql.SQLKVTransaction;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteErrorCode;

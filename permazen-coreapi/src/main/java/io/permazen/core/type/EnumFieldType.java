@@ -7,13 +7,14 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EnumValue;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.dellroad.stuff.java.EnumUtil;
-import io.permazen.core.EnumValue;
 
 /**
  * The {@link io.permazen.core.FieldType} for {@link EnumValue}, which is the data type used by

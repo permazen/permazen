@@ -9,6 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
+
 import org.testng.annotations.Test;
 
 public class RawTypeTest extends TestSupport {

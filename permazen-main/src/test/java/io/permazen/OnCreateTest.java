@@ -5,14 +5,15 @@
 
 package io.permazen;
 
-import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.OnCreate;
 import io.permazen.test.TestSupport;
+
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -5,11 +5,12 @@
 
 package io.permazen;
 
-import java.util.NavigableSet;
-
 import io.permazen.annotation.JSimpleClass;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
+
+import java.util.NavigableSet;
+
 import org.testng.annotations.Test;
 
 public class VersionIntersectTest extends TestSupport {

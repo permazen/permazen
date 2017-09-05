@@ -5,15 +5,15 @@
 
 package io.permazen.cli.cmd;
 
-import java.util.EnumSet;
-import java.util.Map;
-
 import io.permazen.Session;
 import io.permazen.SessionMode;
 import io.permazen.cli.CliSession;
 import io.permazen.kv.KVTransaction;
 import io.permazen.parse.ParseException;
 import io.permazen.util.ParseContext;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 public class KVRemoveCommand extends AbstractKVCommand {
 

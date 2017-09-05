@@ -8,12 +8,6 @@ package io.permazen.kv.raft;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Bytes;
 
-import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryTransactionException;
@@ -31,6 +25,13 @@ import io.permazen.kv.raft.msg.PingRequest;
 import io.permazen.kv.raft.msg.PingResponse;
 import io.permazen.kv.raft.msg.RequestVote;
 import io.permazen.util.LongEncoder;
+
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 
 /**

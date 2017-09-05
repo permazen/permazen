@@ -5,9 +5,6 @@
 
 package io.permazen.core;
 
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
 import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
@@ -18,6 +15,9 @@ import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
+
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 /**
  * Support superclass for the various {@link NavigableMap} views of indexes.

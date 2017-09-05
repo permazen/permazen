@@ -7,11 +7,11 @@ package io.permazen.parse.expr;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.parse.ParseSession;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-
-import io.permazen.parse.ParseSession;
 
 /**
  * {@link Node} that invokes a Java method when evaluated.

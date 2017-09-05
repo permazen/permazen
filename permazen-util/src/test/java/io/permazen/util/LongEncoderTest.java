@@ -5,11 +5,13 @@
 
 package io.permazen.util;
 
+import io.permazen.test.TestSupport;
+
 import java.util.ArrayList;
 
-import io.permazen.test.TestSupport;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
 import static org.testng.Assert.assertEquals;
 
 public class LongEncoderTest extends TestSupport {

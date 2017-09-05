@@ -8,11 +8,11 @@ package io.permazen.vaadin;
 import com.google.common.base.Preconditions;
 import com.vaadin.data.util.converter.Converter;
 
-import java.util.Locale;
-
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.core.ObjId;
+
+import java.util.Locale;
 
 /**
  * Vaadin {@link Converter} for that converts between {@link ObjId}'s and {@link JObject}s.
