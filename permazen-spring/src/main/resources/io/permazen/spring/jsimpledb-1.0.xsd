@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xsd:schema xmlns="http://jsimpledb.googlecode.com/schema/jsimpledb"
+<xsd:schema xmlns="http://permazen.io/schema/spring/permazen"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:context="http://www.springframework.org/schema/context"
-    targetNamespace="http://jsimpledb.googlecode.com/schema/jsimpledb"
+    targetNamespace="http://permazen.io/schema/spring/permazen"
     elementFormDefault="qualified" attributeFormDefault="unqualified">
 
     <xsd:import namespace="http://www.springframework.org/schema/beans"
@@ -14,16 +14,16 @@
 
     <xsd:annotation>
         <xsd:documentation><![CDATA[
-    Defines the JSimpleDB XML configuration elements for the Spring Framework.
+    Defines the Permazen XML configuration elements for the Spring Framework.
         ]]></xsd:documentation>
     </xsd:annotation>
 
 <!-- Elements -->
 
-    <xsd:element name="jsimpledb">
+    <xsd:element name="permazen">
         <xsd:annotation>
             <xsd:documentation><![CDATA[
-    Defines a JSimpleDB database.
+    Defines a Permazen database.
             ]]></xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
