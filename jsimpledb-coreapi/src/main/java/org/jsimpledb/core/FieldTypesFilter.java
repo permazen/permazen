@@ -138,6 +138,7 @@ class FieldTypesFilter implements KeyFilter {
     @Override
     public boolean contains(byte[] key) {
         final byte[] next = this.seekHigher(key);
+        assert next == null || ByteUtil.compare(next, key) >= 0;
         return next != null && Arrays.equals(next, key);
     }
 
@@ -179,6 +180,7 @@ class FieldTypesFilter implements KeyFilter {
                 continue;
             final byte[] fieldValue = Arrays.copyOfRange(key, fieldStart, reader.getOffset());
             final byte[] next = filter.seekHigher(fieldValue);
+            assert next == null || ByteUtil.compare(next, fieldValue) >= 0;
             if (next == null)
                 return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, fieldStart));
             if (!Arrays.equals(next, fieldValue))
@@ -234,6 +236,7 @@ class FieldTypesFilter implements KeyFilter {
 
             // Apply filter to the (partially) decoded field value; if null returned, retreat to previous field
             final byte[] next = filter.seekLower(fieldValue);
+            assert next == null || fieldValue.length == 0 || ByteUtil.compare(next, fieldValue) <= 0;
             if (next == null)
                 break;
 

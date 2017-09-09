@@ -128,6 +128,8 @@ public final class KeyFilterUtil {
         for (int i = 0; i < keyFilters.length; i++) {
             final KeyFilter keyFilter = keyFilters[i];
             final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
+            assert next == null
+              || (seekHigher ? ByteUtil.compare(next, key) >= 0 : key.length == 0 || ByteUtil.compare(next, key) <= 0);
             if (i == 0)
                 best = next;
             if (next == null) {

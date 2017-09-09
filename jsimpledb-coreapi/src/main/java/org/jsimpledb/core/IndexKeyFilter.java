@@ -89,6 +89,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check prefix fields
         final byte[] next = this.prefixFilter.seekHigher(key);
+        assert next == null || ByteUtil.compare(next, key) >= 0;
         if (next == null || !Arrays.equals(next, key))
             return false;
 
@@ -117,6 +118,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check prefix fields
         final byte[] next = this.prefixFilter.seekHigher(key);
+        assert next == null || ByteUtil.compare(next, key) >= 0;
         if (next == null || !Arrays.equals(next, key))
             return next;
 
@@ -149,6 +151,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check prefix fields
         final byte[] next = this.prefixFilter.seekLower(key);
+        assert next == null || key.length == 0 || ByteUtil.compare(next, key) <= 0;
         if (next == null)
             return null;
 

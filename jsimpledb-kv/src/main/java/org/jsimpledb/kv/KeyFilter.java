@@ -59,6 +59,10 @@ public interface KeyFilter {
      * {@code byte[]} keys. This interpretation applies both to the {@code key} parameter and returned value. Note that
      * this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).
      *
+     * <p>
+     * This method must either return null or a value less than or equal to {@code key} (using the above interpretation
+     * for empty arrays).
+     *
      * @param key starting key, or an empty array to indicate a maximal upper bound
      * @return an upper bound (exclusive) for contained keys strictly less that {@code key},
      *  null if no key strictly less than {@code key} is contained by this instance, or an empty {@code byte[]} array

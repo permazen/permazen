@@ -275,12 +275,15 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     private boolean seekHigher(byte[][] bounds) {
-        return (bounds[0] = this.keyFilter.seekHigher(bounds[0])) != null;
+        final byte[] higherKey = this.keyFilter.seekHigher(bounds[0]);
+        assert higherKey == null || ByteUtil.compare(higherKey, bounds[0]) >= 0;
+        return (bounds[0] = higherKey) != null;
     }
 
     private boolean seekLower(byte[][] bounds) {
         final byte[] startKey = bounds[1] != null ? bounds[1] : ByteUtil.EMPTY;
         final byte[] boundKey = this.keyFilter.seekLower(startKey);
+        assert boundKey == null || startKey.length == 0 || ByteUtil.compare(boundKey, startKey) <= 0;
         return (bounds[1] = boundKey.length != 0 ? boundKey : null) != null;
     }
 

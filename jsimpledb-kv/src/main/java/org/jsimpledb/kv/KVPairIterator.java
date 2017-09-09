@@ -264,6 +264,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
                 if (this.keyFilter.contains(key))
                     break;
                 this.nextKey = key.length > 0 ? this.keyFilter.seekLower(key) : null;
+                assert this.nextKey == null || key.length == 0 || ByteUtil.compare(this.nextKey, key) <= 0;
             }
 
             // We have skipped over the filtered-out key range, so try again if there is any left
