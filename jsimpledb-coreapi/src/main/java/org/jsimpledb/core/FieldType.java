@@ -11,7 +11,11 @@ import com.google.common.reflect.TypeToken;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.util.BoundType;
+import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
+import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.ParseContext;
 
@@ -448,6 +452,52 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      */
     public FieldType<T> genericizeForIndex() {
         return this;
+    }
+
+    /**
+     * Calculate the {@link KeyRange} that includes exactly those encoded values that lie within the given bounds.
+     *
+     * @param bounds bounds to impose
+     * @return {@link KeyRange} corresponding to {@code bounds}
+     * @throws IllegalArgumentException if {@code bounds} is null
+     */
+    public KeyRange getKeyRange(Bounds<? extends T> bounds) {
+
+        // Sanity check
+        Preconditions.checkArgument(bounds != null);
+
+        // Get inclusive byte[] lower bound
+        byte[] lowerBound = ByteUtil.EMPTY;
+        final BoundType lowerBoundType = bounds.getLowerBoundType();
+        if (!BoundType.NONE.equals(lowerBoundType)) {
+            final ByteWriter writer = new ByteWriter();
+            try {
+                this.write(writer, bounds.getLowerBound());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid lower bound " + bounds.getLowerBound() + " for " + this, e);
+            }
+            lowerBound = writer.getBytes();
+            if (!lowerBoundType.isInclusive())
+                lowerBound = ByteUtil.getNextKey(lowerBound);
+        }
+
+        // Get exclusive byte[] upper bound
+        byte[] upperBound = null;
+        final BoundType upperBoundType = bounds.getUpperBoundType();
+        if (!BoundType.NONE.equals(upperBoundType)) {
+            final ByteWriter writer = new ByteWriter();
+            try {
+                this.write(writer, bounds.getUpperBound());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid upper bound " + bounds.getUpperBound() + " for " + this, e);
+            }
+            upperBound = writer.getBytes();
+            if (upperBoundType.isInclusive())
+                upperBound = ByteUtil.getNextKey(upperBound);
+        }
+
+        // Done
+        return new KeyRange(lowerBound, upperBound);
     }
 
     FieldTypeRegistry.Key toKey() {
