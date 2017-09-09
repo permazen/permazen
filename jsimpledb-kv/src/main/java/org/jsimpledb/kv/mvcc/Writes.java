@@ -154,8 +154,15 @@ public class Writes implements Cloneable, Mutations {
     public static void apply(Mutations mutations, KVStore target) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         Preconditions.checkArgument(target != null, "null target");
-        for (KeyRange remove : mutations.getRemoveRanges())
-            target.removeRange(remove.getMin(), remove.getMax());
+        for (KeyRange remove : mutations.getRemoveRanges()) {
+            final byte[] min = remove.getMin();
+            final byte[] max = remove.getMax();
+            assert min != null;
+            if (max != null && ByteUtil.isConsecutive(min, max))
+                target.remove(min);
+            else
+                target.removeRange(min, max);
+        }
         for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
             target.put(entry.getKey(), entry.getValue());
         for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
