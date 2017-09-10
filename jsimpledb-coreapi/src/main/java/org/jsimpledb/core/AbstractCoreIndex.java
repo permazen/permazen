@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.util.Bounds;
 
 /**
  * Support superclass for the various core index classes.
@@ -55,5 +58,18 @@ abstract class AbstractCoreIndex {
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public abstract AbstractCoreIndex filter(int index, KeyFilter keyFilter);
+
+    /**
+     * Get a view of this index with the specified value restricted using the given bounds.
+     *
+     * @param index value's position in index
+     * @param bounds bounds to impose on value
+     * @return filtered view of this instance
+     */
+    <T> AbstractCoreIndex filter(int index, FieldType<T> fieldType, Bounds<T> bounds) {
+        assert fieldType == this.indexView.fieldTypes[index];
+        final KeyRange range = fieldType.getKeyRange(bounds);
+        return !range.isFull() ? this.filter(index, new KeyRanges(range)) : this;
+    }
 }
 

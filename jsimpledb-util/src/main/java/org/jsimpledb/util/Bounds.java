@@ -53,6 +53,19 @@ public class Bounds<T> {
     }
 
     /**
+     * Create two-sided bounds.
+     *
+     * @param lowerBound lower bound restriction value (inclusive)
+     * @param lowerInclusive true if {@code lowerBound} is inclusive, false if {@code lowerBound} is exclusive
+     * @param upperBound upper bound restriction value (exclusive)
+     * @param upperInclusive true if {@code upperBound} is inclusive, false if {@code upperBound} is exclusive
+     */
+    public Bounds(T lowerBound, boolean lowerInclusive, T upperBound, boolean upperInclusive) {
+        this(lowerBound, lowerInclusive ? BoundType.INCLUSIVE : BoundType.EXCLUSIVE,
+             upperBound, upperInclusive ? BoundType.INCLUSIVE : BoundType.EXCLUSIVE);
+    }
+
+    /**
      * Primary constructor.
      *
      * @param lowerBound lower bound restriction value; ignored if {@code lowerBoundType} is {@link BoundType#NONE}
@@ -68,6 +81,24 @@ public class Bounds<T> {
         this.upperBound = upperBoundType != BoundType.NONE ? upperBound : null;
         this.lowerBoundType = lowerBoundType;
         this.upperBoundType = upperBoundType;
+    }
+
+    /**
+     * Determine whether this instance has a lower bound.
+     *
+     * @return false if this instance's {@linkplain #getLowerBoundType lower bound type} is {@link BoundType#NONE}, otherwise true
+     */
+    public boolean hasLowerBound() {
+        return this.lowerBoundType != BoundType.NONE;
+    }
+
+    /**
+     * Determine whether this instance has an upper bound.
+     *
+     * @return false if this instance's {@linkplain #getUpperBoundType upper bound type} is {@link BoundType#NONE}, otherwise true
+     */
+    public boolean hasUpperBound() {
+        return this.upperBoundType != BoundType.NONE;
     }
 
     /**

@@ -13,6 +13,7 @@ import org.jsimpledb.index.Index;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
+import org.jsimpledb.util.Bounds;
 
 /**
  * Core API {@link Index} implementation representing a index on a single field.
@@ -76,6 +77,18 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
 
         // Done
         return indexMap;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex<V, T> withValueBounds(Bounds<V> bounds) {
+        return (CoreIndex<V, T>)this.filter(0, this.getIndexView().getValueType(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex<V, T> withTargetBounds(Bounds<T> bounds) {
+        return (CoreIndex<V, T>)this.filter(1, this.getIndexView().getTargetType(), bounds);
     }
 }
 

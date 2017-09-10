@@ -19,6 +19,7 @@ import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
 import org.jsimpledb.tuple.Tuple4;
 import org.jsimpledb.tuple.Tuple5;
+import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
 
@@ -119,5 +120,35 @@ class ConvertedIndex4<V1, V2, V3, V4, T, WV1, WV2, WV3, WV4, WT> implements Inde
     public Index<V1, V2> asIndex() {
         return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
     }
-}
 
+    @Override
+    public Index4<V1, V2, V3, V4, T> withValue1Bounds(Bounds<V1> bounds) {
+        return this.convert(this.index.withValue1Bounds(ConvertedIndex.convert(bounds, this.value1Converter)));
+    }
+
+    @Override
+    public Index4<V1, V2, V3, V4, T> withValue2Bounds(Bounds<V2> bounds) {
+        return this.convert(this.index.withValue2Bounds(ConvertedIndex.convert(bounds, this.value2Converter)));
+    }
+
+    @Override
+    public Index4<V1, V2, V3, V4, T> withValue3Bounds(Bounds<V3> bounds) {
+        return this.convert(this.index.withValue3Bounds(ConvertedIndex.convert(bounds, this.value3Converter)));
+    }
+
+    @Override
+    public Index4<V1, V2, V3, V4, T> withValue4Bounds(Bounds<V4> bounds) {
+        return this.convert(this.index.withValue4Bounds(ConvertedIndex.convert(bounds, this.value4Converter)));
+    }
+
+    @Override
+    public Index4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds) {
+        return this.convert(this.index.withTargetBounds(ConvertedIndex.convert(bounds, this.targetConverter)));
+    }
+
+    private Index4<V1, V2, V3, V4, T> convert(Index4<WV1, WV2, WV3, WV4, WT> boundedIndex) {
+        return boundedIndex == this.index ? this :
+          new ConvertedIndex4<V1, V2, V3, V4, T, WV1, WV2, WV3, WV4, WT>(boundedIndex,
+           this.value1Converter, this.value2Converter, this.value3Converter, this.value4Converter, this.targetConverter);
+    }
+}

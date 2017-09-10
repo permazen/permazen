@@ -15,6 +15,7 @@ import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
+import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
 
@@ -69,6 +70,27 @@ class ConvertedIndex2<V1, V2, T, WV1, WV2, WT> implements Index2<V1, V2, T> {
     @Override
     public Index<V1, V2> asIndex() {
         return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
+    }
+
+    @Override
+    public Index2<V1, V2, T> withValue1Bounds(Bounds<V1> bounds) {
+        return this.convert(this.index.withValue1Bounds(ConvertedIndex.convert(bounds, this.value1Converter)));
+    }
+
+    @Override
+    public Index2<V1, V2, T> withValue2Bounds(Bounds<V2> bounds) {
+        return this.convert(this.index.withValue2Bounds(ConvertedIndex.convert(bounds, this.value2Converter)));
+    }
+
+    @Override
+    public Index2<V1, V2, T> withTargetBounds(Bounds<T> bounds) {
+        return this.convert(this.index.withTargetBounds(ConvertedIndex.convert(bounds, this.targetConverter)));
+    }
+
+    private Index2<V1, V2, T> convert(Index2<WV1, WV2, WT> boundedIndex) {
+        return boundedIndex == this.index ? this :
+          new ConvertedIndex2<V1, V2, T, WV1, WV2, WT>(boundedIndex,
+           this.value1Converter, this.value2Converter, this.targetConverter);
     }
 }
 

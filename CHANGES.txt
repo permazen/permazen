@@ -1,3 +1,7 @@
+Version Next
+
+    - Added ability to set bounds on index value(s) and target
+
 Version 3.6.1 Released September 5, 2017
 
     - Made XMLObjectSerializer ignore XML tags in other namespaces

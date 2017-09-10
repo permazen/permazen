@@ -12,6 +12,8 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.test.TestSupport;
+import org.jsimpledb.util.BoundType;
+import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.NavigableSets;
 import org.testng.annotations.Test;
 
@@ -132,6 +134,111 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testBoundedIndexes() throws Exception {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasNameAndAge.class);
+        final JTransaction jtx = jdb.createTransaction();
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final HasNameAndAge alice = jtx.get(new ObjId("07aaaaaaaaaaaaaa"), HasNameAndAge.class);
+            final HasNameAndAge bob = jtx.get(new ObjId("07bbbbbbbbbbbbbb"), HasNameAndAge.class);
+            final HasNameAndAge bobby = jtx.get(new ObjId("07bbbbbbbbbbbbbc"), HasNameAndAge.class);
+            final HasNameAndAge eve = jtx.get(new ObjId("07eeeeeeeeeeeeee"), HasNameAndAge.class);
+
+            alice.recreate();
+            alice.setName("alice");
+            alice.setAge(12);
+
+            bob.recreate();
+            bob.setName("bob");
+            bob.setAge(42);
+
+            bobby.recreate();
+            bobby.setName("bob");
+            bobby.setAge(8);
+
+            eve.recreate();
+            eve.setName("eve");
+            eve.setAge(73);
+
+            final Index<String, HasNameAndAge> nameIndex = jtx.queryIndex(HasNameAndAge.class, "name", String.class);
+            final Index<Integer, HasNameAndAge> ageIndex = jtx.queryIndex(HasNameAndAge.class, "age", Integer.class);
+
+        // Restrict name
+
+            TestSupport.checkMap(nameIndex.asMap(), buildMap(
+              "alice", buildSet(alice),
+              "bob", buildSet(bob, bobby),
+              "eve", buildSet(eve)));
+
+            TestSupport.checkMap(nameIndex.withValueBounds(new Bounds<>()).asMap(), buildMap(
+              "alice", buildSet(alice),
+              "bob", buildSet(bob, bobby),
+              "eve", buildSet(eve)));
+
+            TestSupport.checkMap(nameIndex.withValueBounds(new Bounds<>("darla", "doris")).asMap(), buildMap());
+
+            TestSupport.checkMap(nameIndex.withValueBounds(new Bounds<>("bob", "boc")).asMap(), buildMap(
+              "bob", buildSet(bob, bobby)));
+
+            TestSupport.checkMap(
+              nameIndex.withValueBounds(new Bounds<>("bob", false, "boba", false)).asMap(), buildMap());
+
+            TestSupport.checkMap(
+              nameIndex.withValueBounds(new Bounds<>("bob", true, "boba", false)).asMap(), buildMap(
+              "bob", buildSet(bob, bobby)));
+
+        // Restrict age
+
+            TestSupport.checkMap(ageIndex.asMap(), buildMap(
+              12, buildSet(alice),
+              42, buildSet(bob),
+              8,  buildSet(bobby),
+              73, buildSet(eve)));
+
+            TestSupport.checkMap(ageIndex.withValueBounds(new Bounds<>(10, BoundType.INCLUSIVE, false)).asMap(), buildMap(
+              12, buildSet(alice),
+              42, buildSet(bob),
+              73, buildSet(eve)));
+
+            TestSupport.checkMap(ageIndex.withValueBounds(new Bounds<>(10, 50)).asMap(), buildMap(
+              12, buildSet(alice),
+              42, buildSet(bob)));
+
+            TestSupport.checkMap(ageIndex.withValueBounds(new Bounds<>(12, 42)).asMap(), buildMap(
+              12, buildSet(alice)));
+
+            TestSupport.checkMap(
+              ageIndex.withValueBounds(new Bounds<>(12, false, 42, true)).asMap(), buildMap(
+              42, buildSet(bob)));
+
+        // Restrict target
+
+            TestSupport.checkMap(nameIndex.withTargetBounds(new Bounds<>(bob, bobby)).asMap(), buildMap(
+              "bob", buildSet(bob)));
+
+            TestSupport.checkMap(nameIndex.withTargetBounds(new Bounds<>(bob, true, bobby, true)).asMap(), buildMap(
+              "bob", buildSet(bob, bobby)));
+
+            TestSupport.checkMap(nameIndex.withTargetBounds(new Bounds<>(bob, false, bobby, true)).asMap(), buildMap(
+              "bob", buildSet(bobby)));
+
+            TestSupport.checkMap(nameIndex.withTargetBounds(new Bounds<>(bob, false, bobby, false)).asMap(), buildMap());
+
+            TestSupport.checkMap(nameIndex.withTargetBounds(new Bounds<>(alice, eve)).asMap(), buildMap(
+              "alice", buildSet(alice),
+              "bob", buildSet(bob, bobby)));
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     public interface FooBar {
@@ -197,12 +304,15 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 30)
-    public abstract static class Jam implements HasAccount {
+    public interface HasAge {
 
         @JField(indexed = true)
         public abstract int getAge();
         public abstract void setAge(int age);
+    }
+
+    @JSimpleClass(storageId = 30)
+    public abstract static class Jam implements HasAccount, HasAge {
 
         @Override
         public String toString() {
@@ -233,6 +343,10 @@ public class IndexQueryTest extends TestSupport {
         public abstract String getName();
         @Override
         public abstract void setName(String name);
+    }
+
+    @JSimpleClass(storageId = 7)
+    public abstract static class HasNameAndAge implements JObject, HasName, HasAge {
     }
 }
 

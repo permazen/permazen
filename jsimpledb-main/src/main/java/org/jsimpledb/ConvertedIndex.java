@@ -13,6 +13,7 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
 import org.jsimpledb.tuple.Tuple2;
+import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
 
@@ -49,6 +50,27 @@ class ConvertedIndex<V, T, WV, WT> implements Index<V, T> {
     public NavigableMap<V, NavigableSet<T>> asMap() {
         return new ConvertedNavigableMap<V, NavigableSet<T>, WV, NavigableSet<WT>>(this.index.asMap(),
           this.valueConverter, new NavigableSetConverter<T, WT>(this.targetConverter));
+    }
+
+    @Override
+    public Index<V, T> withValueBounds(Bounds<V> bounds) {
+        return this.convert(this.index.withValueBounds(ConvertedIndex.convert(bounds, this.valueConverter)));
+    }
+
+    @Override
+    public Index<V, T> withTargetBounds(Bounds<T> bounds) {
+        return this.convert(this.index.withTargetBounds(ConvertedIndex.convert(bounds, this.targetConverter)));
+    }
+
+    private Index<V, T> convert(Index<WV, WT> boundedIndex) {
+        return boundedIndex == this.index ? this :
+          new ConvertedIndex<V, T, WV, WT>(boundedIndex, this.valueConverter, this.targetConverter);
+    }
+
+    static <T1, T2> Bounds<T2> convert(Bounds<T1> bounds, Converter<T1, T2> converter) {
+        final T2 lowerBound = bounds.hasLowerBound() ? converter.convert(bounds.getLowerBound()) : null;
+        final T2 upperBound = bounds.hasUpperBound() ? converter.convert(bounds.getUpperBound()) : null;
+        return new Bounds<T2>(lowerBound, bounds.getLowerBoundType(), upperBound, bounds.getUpperBoundType());
     }
 }
 

@@ -12,6 +12,7 @@ import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
 import org.jsimpledb.tuple.Tuple4;
 import org.jsimpledb.tuple.Tuple5;
+import org.jsimpledb.util.Bounds;
 
 /**
  * An index on a four fields.
@@ -83,5 +84,45 @@ public interface Index4<V1, V2, V3, V4, T> {
      * @return prefix of this index
      */
     Index<V1, V2> asIndex();
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the first indexed value.
+     *
+     * @param bounds bounds to impose on the first indexed value
+     * @return a view of this index in which only first values within {@code bounds} are visible
+     */
+    Index4<V1, V2, V3, V4, T> withValue1Bounds(Bounds<V1> bounds);
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the second indexed value.
+     *
+     * @param bounds bounds to impose on the second indexed value
+     * @return a view of this index in which only second values within {@code bounds} are visible
+     */
+    Index4<V1, V2, V3, V4, T> withValue2Bounds(Bounds<V2> bounds);
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the third indexed value.
+     *
+     * @param bounds bounds to impose on the third indexed value
+     * @return a view of this index in which only third values within {@code bounds} are visible
+     */
+    Index4<V1, V2, V3, V4, T> withValue3Bounds(Bounds<V3> bounds);
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the fourth indexed value.
+     *
+     * @param bounds bounds to impose on the fourth indexed value
+     * @return a view of this index in which only fourth values within {@code bounds} are visible
+     */
+    Index4<V1, V2, V3, V4, T> withValue4Bounds(Bounds<V4> bounds);
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the target value.
+     *
+     * @param bounds bounds to impose on the target value
+     * @return a view of this index in which only target values within {@code bounds} are visible
+     */
+    Index4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds);
 }
 

@@ -15,6 +15,7 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
+import org.jsimpledb.util.Bounds;
 
 /**
  * Core API {@link Index} implementation representing a composite index on two fields.
@@ -103,6 +104,24 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
     @Override
     public CoreIndex<V1, V2> asIndex() {
         return new CoreIndex<>(this.kv, this.getIndex2View().asIndexView());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex2<V1, V2, T> withValue1Bounds(Bounds<V1> bounds) {
+        return (CoreIndex2<V1, V2, T>)this.filter(0, this.getIndex2View().getValue1Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex2<V1, V2, T> withValue2Bounds(Bounds<V2> bounds) {
+        return (CoreIndex2<V1, V2, T>)this.filter(1, this.getIndex2View().getValue2Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex2<V1, V2, T> withTargetBounds(Bounds<T> bounds) {
+        return (CoreIndex2<V1, V2, T>)this.filter(2, this.getIndex2View().getTargetType(), bounds);
     }
 }
 

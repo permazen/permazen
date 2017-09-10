@@ -19,6 +19,7 @@ import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
 import org.jsimpledb.tuple.Tuple4;
 import org.jsimpledb.tuple.Tuple5;
+import org.jsimpledb.util.Bounds;
 
 /**
  * Core API {@link Index} implementation representing a composite index on three fields.
@@ -157,6 +158,36 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
     @Override
     public CoreIndex<V1, V2> asIndex() {
         return new CoreIndex<>(this.kv, this.getIndex4View().asIndex3View().asIndex2View().asIndexView());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex4<V1, V2, V3, V4, T> withValue1Bounds(Bounds<V1> bounds) {
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(0, this.getIndex4View().getValue1Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex4<V1, V2, V3, V4, T> withValue2Bounds(Bounds<V2> bounds) {
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(1, this.getIndex4View().getValue2Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex4<V1, V2, V3, V4, T> withValue3Bounds(Bounds<V3> bounds) {
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(2, this.getIndex4View().getValue3Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex4<V1, V2, V3, V4, T> withValue4Bounds(Bounds<V4> bounds) {
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(3, this.getIndex4View().getValue4Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds) {
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(4, this.getIndex4View().getTargetType(), bounds);
     }
 }
 

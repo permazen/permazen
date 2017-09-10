@@ -17,6 +17,7 @@ import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
 import org.jsimpledb.tuple.Tuple4;
+import org.jsimpledb.util.Bounds;
 
 /**
  * Core API {@link Index} implementation representing a composite index on three fields.
@@ -130,6 +131,30 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
     @Override
     public CoreIndex<V1, V2> asIndex() {
         return new CoreIndex<>(this.kv, this.getIndex3View().asIndex2View().asIndexView());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex3<V1, V2, V3, T> withValue1Bounds(Bounds<V1> bounds) {
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(0, this.getIndex3View().getValue1Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex3<V1, V2, V3, T> withValue2Bounds(Bounds<V2> bounds) {
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(1, this.getIndex3View().getValue2Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex3<V1, V2, V3, T> withValue3Bounds(Bounds<V3> bounds) {
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(2, this.getIndex3View().getValue3Type(), bounds);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public CoreIndex3<V1, V2, V3, T> withTargetBounds(Bounds<T> bounds) {
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(3, this.getIndex3View().getTargetType(), bounds);
     }
 }
 

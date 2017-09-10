@@ -9,6 +9,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.tuple.Tuple2;
+import org.jsimpledb.util.Bounds;
 
 /**
  * An index on a single field.
@@ -35,5 +36,21 @@ public interface Index<V, T> {
      * @return {@link NavigableMap} from indexed value to the corresponding set of target objects
      */
     NavigableMap<V, NavigableSet<T>> asMap();
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the indexed value.
+     *
+     * @param bounds bounds to impose on the indexed value
+     * @return a view of this index in which only values within {@code bounds} are visible
+     */
+    Index<V, T> withValueBounds(Bounds<V> bounds);
+
+    /**
+     * Impose {@link Bounds} that restrict the range of the target value.
+     *
+     * @param bounds bounds to impose on the target value
+     * @return a view of this index in which only target values within {@code bounds} are visible
+     */
+    Index<V, T> withTargetBounds(Bounds<T> bounds);
 }
 
