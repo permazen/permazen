@@ -105,12 +105,9 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
-        if (!i.hasNext())
-            return false;
-
-        // Done
-        return true;
+        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
+            return i.hasNext();
+        }
     }
 
     @Override
@@ -134,13 +131,10 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false);
-        i.setNextTarget(key);
-        if (!i.hasNext())
-            return ByteUtil.getKeyAfterPrefix(suffixPrefix);
-
-        // Done
-        return i.next().getKey();
+        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
+            i.setNextTarget(key);
+            return i.hasNext() ? i.next().getKey() : ByteUtil.getKeyAfterPrefix(suffixPrefix);
+        }
     }
 
     @Override
@@ -171,13 +165,10 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check suffix fields
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true);
-        i.setNextTarget(next);
-        if (i.hasNext())
-            return ByteUtil.getNextKey(i.next().getKey());
-
-        // No suffix match
-        return suffixPrefix;
+        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true)) {
+            i.setNextTarget(next);
+            return i.hasNext() ? ByteUtil.getNextKey(i.next().getKey()) : suffixPrefix;
+        }
     }
 
     private FieldTypesFilter buildSuffixFilter(byte[] suffixPrefix) {
