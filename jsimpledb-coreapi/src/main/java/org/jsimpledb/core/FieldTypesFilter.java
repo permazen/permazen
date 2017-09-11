@@ -159,9 +159,10 @@ class FieldTypesFilter implements KeyFilter {
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         for (int i = 0; i < this.fieldTypes.length; i++) {
 
-            // If zero bytes are left, we have to stop at the next key (zero bytes can never be valid)
+            // If zero bytes are left, we have to stop at the next key (zero bytes can never be a valid encoded field value)
+            final int fieldStart = reader.getOffset();
             if (reader.remain() == 0)
-                return ByteUtil.getNextKey(reader.getBytes(0, reader.getOffset()));
+                return ByteUtil.getNextKey(reader.getBytes(0, fieldStart));
 
             // Attempt to decode next field value
             final int fieldStart = reader.getOffset();
@@ -178,11 +179,19 @@ class FieldTypesFilter implements KeyFilter {
             final KeyFilter filter = this.filters[i];
             if (filter == null)
                 continue;
+
+            // Get the bytes corresponding to the decoded field value
             final byte[] fieldValue = Arrays.copyOfRange(key, fieldStart, reader.getOffset());
+
+            // Determine whether those bytes are contained in this field's filter, or if not, get lower bound on next value that is
             final byte[] next = filter.seekHigher(fieldValue);
             assert next == null || ByteUtil.compare(next, fieldValue) >= 0;
+
+            // If field value is beyond upper limit of filter, advance to the next possible value of the previous field (if any)
             if (next == null)
                 return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, fieldStart));
+
+            // If field's filter does not contain the field value, advance to the next possible encoded value
             if (!Arrays.equals(next, fieldValue))
                 return Bytes.concat(reader.getBytes(0, fieldStart), next);
         }
