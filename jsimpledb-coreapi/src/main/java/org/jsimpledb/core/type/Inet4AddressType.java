@@ -14,6 +14,8 @@ import org.jsimpledb.util.ByteReader;
  */
 public class Inet4AddressType extends AbstractInetAddressType<Inet4Address> {
 
+    public static final int LENGTH = 4;
+
     static final String PATTERN = "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+";
 
     private static final long serialVersionUID = -1737266234876361236L;
@@ -24,7 +26,7 @@ public class Inet4AddressType extends AbstractInetAddressType<Inet4Address> {
 
     @Override
     protected int getLength(ByteReader reader) {
-        return 4;
+        return LENGTH;
     }
 }
 

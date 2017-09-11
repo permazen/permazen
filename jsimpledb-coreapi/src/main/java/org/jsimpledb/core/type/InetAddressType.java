@@ -42,9 +42,9 @@ public class InetAddressType extends AbstractInetAddressType<InetAddress> {
     protected int getLength(ByteReader reader) {
         switch (reader.readByte()) {
         case PREFIX_IPV4:
-            return 4;
+            return Inet4AddressType.LENGTH;
         case PREFIX_IPV6:
-            return 16;
+            return Inet6AddressType.LENGTH;
         default:
             throw new IllegalArgumentException("invalid encoded InetAddress");
         }
@@ -56,10 +56,10 @@ public class InetAddressType extends AbstractInetAddressType<InetAddress> {
         Preconditions.checkArgument(addr != null);
         final byte[] bytes = addr.getAddress();
         switch (bytes.length) {
-        case 4:
+        case Inet4AddressType.LENGTH:
             writer.writeByte(PREFIX_IPV4);
             break;
-        case 16:
+        case Inet6AddressType.LENGTH:
             writer.writeByte(PREFIX_IPV6);
             break;
         default:
