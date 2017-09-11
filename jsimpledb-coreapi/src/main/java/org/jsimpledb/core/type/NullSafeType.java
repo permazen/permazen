@@ -25,8 +25,8 @@ import org.jsimpledb.util.ParseContext;
  * for any value.
  *
  * <p>
- * This class will automatically "inline" the {@code 0xff} for null values if the wrapped {@link FieldType}'s
- * {@link FieldType#hasPrefix0xff} method returns false.
+ * This class will automatically "inline" the {@code 0xff} for null values and omit the {@code 0x01} for non-null values
+ * if the wrapped {@link FieldType}'s {@link FieldType#hasPrefix0xff} method returns false.
  */
 public class NullSafeType<T> extends FieldType<T> {
 
