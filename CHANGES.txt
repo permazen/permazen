@@ -1,6 +1,7 @@
 Version Next
 
     - Added ability to set bounds on index value(s) and target
+    - Fixed bugs in views of indexes having type/value restritions
 
 Version 3.6.1 Released September 5, 2017
 
