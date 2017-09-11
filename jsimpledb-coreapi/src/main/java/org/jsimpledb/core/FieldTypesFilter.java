@@ -27,10 +27,6 @@ import org.jsimpledb.util.ByteWriter;
  */
 class FieldTypesFilter implements KeyFilter {
 
-    private static final int OK = 0;
-    private static final int INVALID = 1;
-    private static final int TOOSHORT = 2;
-
     private final byte[] prefix;
     private final FieldType<?>[] fieldTypes;
     private final KeyFilter[] filters;
@@ -165,15 +161,8 @@ class FieldTypesFilter implements KeyFilter {
                 return ByteUtil.getNextKey(reader.getBytes(0, fieldStart));
 
             // Attempt to decode next field value
-            final int fieldStart = reader.getOffset();
-            switch (this.decode(this.fieldTypes[i], reader)) {
-            case INVALID:
+            if (!this.decodeValue(this.fieldTypes[i], reader))
                 return ByteUtil.getNextKey(reader.getBytes(0, reader.getOffset()));
-            case TOOSHORT:
-                return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, reader.getOffset()));
-            default:
-                break;
-            }
 
             // Check filter, if any
             final KeyFilter filter = this.filters[i];
@@ -188,12 +177,22 @@ class FieldTypesFilter implements KeyFilter {
             assert next == null || ByteUtil.compare(next, fieldValue) >= 0;
 
             // If field value is beyond upper limit of filter, advance to the next possible value of the previous field (if any)
-            if (next == null)
-                return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, fieldStart));
+            if (next == null) {
+                if (i == 0)                                                     // we've gone past the range of this.prefix
+                    return null;
+                assert fieldStart > 0;
+                try {
+                    return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, fieldStart));
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            }
 
             // If field's filter does not contain the field value, advance to the next possible encoded value
-            if (!Arrays.equals(next, fieldValue))
-                return Bytes.concat(reader.getBytes(0, fieldStart), next);
+            if (!Arrays.equals(next, fieldValue)) {
+                final byte[] keyFromNext = Bytes.concat(reader.getBytes(0, fieldStart), next);
+                return ByteUtil.compare(keyFromNext, key) > 0 ? keyFromNext : ByteUtil.getNextKey(key);
+            }
         }
 
         // All fields decoded OK - return original key
@@ -213,8 +212,13 @@ class FieldTypesFilter implements KeyFilter {
                 return null;
             fromTheTop = true;
         }
-        if (fromTheTop)
-            return ByteUtil.getKeyAfterPrefix(this.prefix);
+        if (fromTheTop) {
+            try {
+                return ByteUtil.getKeyAfterPrefix(this.prefix);
+            } catch (IllegalArgumentException e) {
+                return ByteUtil.EMPTY;                              // prefix is empty or all 0xff's
+            }
+        }
 
         // Check fields in order, building a concatenated upper bound. We can only proceed from one field to the next
         // when the first field is validly decoded, the corresponding filter exists, and filter.nextLower() returns
@@ -228,7 +232,7 @@ class FieldTypesFilter implements KeyFilter {
 
             // Attempt to decode next field value
             final int fieldStart = reader.getOffset();
-            final boolean decodeOK = this.decode(fieldType, reader) == OK;
+            final boolean decodeOK = this.decodeValue(fieldType, reader);
             final int fieldStop = reader.getOffset();
 
             // Get (partially) decoded field value
@@ -265,15 +269,13 @@ class FieldTypesFilter implements KeyFilter {
 
 // Internal methods
 
-    private int decode(FieldType<?> fieldType, ByteReader reader) {
+    private boolean decodeValue(FieldType<?> fieldType, ByteReader reader) {
         try {
-            fieldType.skip(reader);
-        } catch (IllegalArgumentException e) {
-            return INVALID;
-        } catch (IndexOutOfBoundsException e) {
-            return TOOSHORT;
+            fieldType.read(reader);
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+            return false;
         }
-        return OK;
+        return true;
     }
 }
 
