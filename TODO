@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Support @OnVersionChange without version number parameters
+
 - Connection pooling in SQL k/v implementations
 
 - CLI:
