@@ -4,6 +4,6 @@
  */
 
 /**
- * Support for JSimpleDB command line interface (CLI) applications.
+ * Support for Permazen command line interface (CLI) applications.
  */
 package io.permazen.cli.app;

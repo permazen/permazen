@@ -32,7 +32,7 @@ public class KVRemoveCommand extends AbstractKVCommand {
           + " the specified key/value pair is deleted. Otherwise, `key' is the minimum key (inclusive) and `maxKey'"
           + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"
           + " as hexadecimal strings or C-style doubly-quoted strings."
-          + "\n\nWARNING: this command can corrupt a JSimpleDB database.";
+          + "\n\nWARNING: this command can corrupt a Permazen database.";
     }
 
     @Override

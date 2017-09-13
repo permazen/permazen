@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Applies consistency checks to, and optionally repairs corruption of, a JSimpleDB key/value database.
+ * Applies consistency checks to, and optionally repairs corruption of, a Permazen key/value database.
  */
 public class Jsck {
 
@@ -51,7 +51,7 @@ public class Jsck {
      * @param kv key/value database
      * @param consumer recipient of any issues found; or null for none
      * @return the number of issues encountered
-     * @throws IllegalArgumentException if database is not a JSimpleDB database
+     * @throws IllegalArgumentException if database is not a Permazen database
      *  (i.e., no {@linkplain Layout#getFormatVersionKey format version key})
      * @throws IllegalArgumentException if a {@linkplain JsckConfig#getForceSchemaVersions forced schema version} is invalid
      * @throws IllegalArgumentException if the database's recorded schemas are mutually inconsistent
@@ -98,17 +98,17 @@ public class Jsck {
         try {
             if (val == null) {
                 throw new IllegalArgumentException(kv.getAtLeast(ByteUtil.EMPTY, null) == null ? "database is empty" :
-                  "missing JSimpleDB signature/format version key " + Jsck.ds(formatVersionKey));
+                  "missing Permazen signature/format version key " + Jsck.ds(formatVersionKey));
             }
             final ByteReader reader = new ByteReader(val);
             try {
                 info.setFormatVersion(UnsignedIntEncoder.read(reader));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid JSimpleDB signature/format version value "
+                throw new IllegalArgumentException("invalid Permazen signature/format version value "
                   + Jsck.ds(val) + ": can't decode version number");
             }
             if (reader.remain() > 0) {
-                throw new IllegalArgumentException("invalid JSimpleDB signature/format version value "
+                throw new IllegalArgumentException("invalid Permazen signature/format version value "
                   + Jsck.ds(val) + ": trailing garbage " + Jsck.ds(reader, reader.getOffset())
                   + " follows format version number " + info.getFormatVersion());
             }
@@ -117,7 +117,7 @@ public class Jsck {
             case Layout.FORMAT_VERSION_2:
                 break;
             default:
-                throw new IllegalArgumentException("invalid JSimpleDB signature/format version key value "
+                throw new IllegalArgumentException("invalid Permazen signature/format version key value "
                   + Jsck.ds(val) + ": unrecognized format version number " + info.getFormatVersion());
             }
         } catch (IllegalArgumentException e) {

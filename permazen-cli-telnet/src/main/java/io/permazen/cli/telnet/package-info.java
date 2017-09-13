@@ -4,6 +4,6 @@
  */
 
 /**
- * Support for JSimpleDB Command Line Interface (CLI) over telnet connections.
+ * Support for Permazen Command Line Interface (CLI) over telnet connections.
  */
 package io.permazen.cli.telnet;

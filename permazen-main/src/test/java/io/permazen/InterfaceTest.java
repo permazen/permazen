@@ -20,7 +20,7 @@ public class InterfaceTest extends TestSupport {
     @Test
     public void testInterface() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class, Dog.class, Cat.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class, Dog.class, Cat.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -52,7 +52,7 @@ public class InterfaceTest extends TestSupport {
     @Test
     public void testInterfaceModelClasses() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
+        final Permazen jdb = BasicTest.getPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

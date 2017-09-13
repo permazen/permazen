@@ -20,16 +20,16 @@ import java.util.concurrent.ExecutionException;
  */
 class ReferencePathCache {
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final LoadingCache<Key, ReferencePath> cache;
 
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} against which to resolve object and field names
+     * @param jdb {@link Permazen} against which to resolve object and field names
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    ReferencePathCache(JSimpleDB jdb) {
+    ReferencePathCache(Permazen jdb) {
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
         this.cache = CacheBuilder.newBuilder().softValues().build(new CacheLoader<Key, ReferencePath>() {

@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for programmatic {@link JSimpleDB} database access.
+ * Utility class for programmatic {@link Permazen} database access.
  *
  * <p>
  * Instances operate in one of three modes; see {@link SessionMode}.
@@ -52,7 +52,7 @@ public class Session {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final KVDatabase kvdb;
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final Database db;
 
     private SessionMode mode;
@@ -101,11 +101,11 @@ public class Session {
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    public Session(JSimpleDB jdb) {
+    public Session(Permazen jdb) {
         this(jdb, jdb != null ? jdb.getDatabase() : null, jdb != null ? jdb.getDatabase().getKVDatabase() : null);
     }
 
-    private Session(JSimpleDB jdb, Database db, KVDatabase kvdb) {
+    private Session(Permazen jdb, Database db, KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         if (jdb != null) {
             Preconditions.checkArgument(db != null, "null db");
@@ -135,7 +135,7 @@ public class Session {
      *
      * @param mode new {@link SessionMode}
      * @throws IllegalArgumentException if {@code mode} is null
-     * @throws IllegalArgumentException if {@code mode} requires a {@link JSimpleDB} (i.e., {@link SessionMode#JSIMPLEDB}),
+     * @throws IllegalArgumentException if {@code mode} requires a {@link Permazen} (i.e., {@link SessionMode#JSIMPLEDB}),
      *  or {@link Database} (i.e., {@link SessionMode#CORE_API}) instance, but none was provided at construction
      */
     public void setMode(SessionMode mode) {
@@ -147,7 +147,7 @@ public class Session {
             Preconditions.checkArgument(this.db != null, "session is not configured with a Core API Database instance");
             break;
         case JSIMPLEDB:
-            Preconditions.checkArgument(this.jdb != null, "session is not configured with a JSimpleDB instance");
+            Preconditions.checkArgument(this.jdb != null, "session is not configured with a Permazen instance");
             break;
         default:
             throw new IllegalArgumentException("internal error");
@@ -175,11 +175,11 @@ public class Session {
     }
 
     /**
-     * Get the associated {@link JSimpleDB}, if any.
+     * Get the associated {@link Permazen}, if any.
      *
-     * @return the associated {@link JSimpleDB} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
+     * @return the associated {@link Permazen} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
      */
-    public JSimpleDB getJSimpleDB() {
+    public Permazen getPermazen() {
         return this.jdb;
     }
 
@@ -218,7 +218,7 @@ public class Session {
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
      */
     public JTransaction getJTransaction() {
-        Preconditions.checkState(this.mode.hasJSimpleDB(), "JSimpleDB not available in " + this.mode + " mode");
+        Preconditions.checkState(this.mode.hasPermazen(), "Permazen not available in " + this.mode + " mode");
         return JTransaction.getCurrent();
     }
 
@@ -419,7 +419,7 @@ public class Session {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
-        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in JSimpleDB mode");
+        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in Permazen mode");
 
         // Check for re-entrant invocation, otherwise verify no other transaction is associated
         final Transaction currentTx = JTransaction.getCurrent().getTransaction();
@@ -581,7 +581,7 @@ public class Session {
                 break;
             case JSIMPLEDB:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
-                  "a JSimpleDB transaction is already open in the current thread");
+                  "a Permazen transaction is already open in the current thread");
                 if (this.schemaVersion != 0)
                     this.jdb.setConfiguredVersion(this.schemaVersion);
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,

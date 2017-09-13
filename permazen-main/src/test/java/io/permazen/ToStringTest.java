@@ -18,7 +18,7 @@ public class ToStringTest extends TestSupport {
 
     @Test(dataProvider = "cases")
     private <T extends Person> void testToString(Class<T> cl, String pattern) throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(cl);
+        final Permazen jdb = BasicTest.getPermazen(cl);
         final JTransaction jtx = jdb.createTransaction();
         JTransaction.setCurrent(jtx);
         try {

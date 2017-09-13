@@ -36,7 +36,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test
     public void testMultiFieldChange() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class, Person2.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class, Person2.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -72,7 +72,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test(dataProvider = "invalidClasses")
     public void testInvalidOnChange(List<Class<?>> classes) throws Exception {
         try {
-            BasicTest.getJSimpleDB(classes);
+            BasicTest.getPermazen(classes);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected " + e);
@@ -82,7 +82,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test(dataProvider = "validClasses")
     public void testValidOnChange(List<Class<?>> classes) throws Exception {
         try {
-            BasicTest.getJSimpleDB(classes);
+            BasicTest.getPermazen(classes);
         } catch (Exception e) {
             assert false;
         }

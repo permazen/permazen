@@ -47,11 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A JSimpleDB {@link Database} transaction.
+ * A Permazen {@link Database} transaction.
  *
  * <p>
- * Note: this is the lower level, core API for {@link io.permazen.JSimpleDB}. In most cases this API
- * will only be used indirectly through the higher level {@link io.permazen.JSimpleDB}, {@link io.permazen.JTransaction},
+ * Note: this is the lower level, core API for {@link io.permazen.Permazen}. In most cases this API
+ * will only be used indirectly through the higher level {@link io.permazen.Permazen}, {@link io.permazen.JTransaction},
  * and {@link io.permazen.JObject} APIs.
  *
  * <p>
@@ -571,7 +571,7 @@ public class Transaction {
      * Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>.
      *
      * <p>
-     * Note: if you are using Spring for transaction demarcation (via {@link io.permazen.spring.JSimpleDBTransactionManager}),
+     * Note: if you are using Spring for transaction demarcation (via {@link io.permazen.spring.PermazenTransactionManager}),
      * then you may also use Spring's
      * {@link org.springframework.transaction.support.TransactionSynchronizationManager#registerSynchronization
      * TransactionSynchronizationManager.registerSynchronization()} instead of this method.
@@ -2411,7 +2411,7 @@ public class Transaction {
      * field is also in some other listener's reference path, and both listeners are watching the same field.
      *
      * <p>
-     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
      * which the field associated with {@code storageId} is not a {@link SimpleField}. In such cases, {@code listener}
      * will receive notifications about those changes if it also happens to implement the other listener interface.
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
@@ -2439,7 +2439,7 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
      * which the field associated with {@code storageId} is not a {@link SetField}. In such cases, {@code listener}
      * will receive notifications about those changes if it also happens to implement the other listener interface.
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
@@ -2466,7 +2466,7 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
      * which the field associated with {@code storageId} is not a {@link ListField}. In such cases, {@code listener}
      * will receive notifications about those changes if it also happens to implement the other listener interface.
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
@@ -2493,7 +2493,7 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * JSimpleDB allows a field's type to change across schema versions, therefore some schema version may exist in
+     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
      * which the field associated with {@code storageId} is not a {@link MapField}. In such cases, {@code listener}
      * will receive notifications about those changes if it also happens to implement the other listener interface.
      * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
@@ -2520,7 +2520,7 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * JSimpleDB allows a field's type to change across schema versions, therefore in different schema versions the
+     * Permazen allows a field's type to change across schema versions, therefore in different schema versions the
      * specified field may have different types. The {@code listener} will receive notifications about a field change
      * if it implements the interface appropriate for the field's current type (i.e., {@link SimpleFieldChangeListener},
      * {@link ListFieldChangeListener}, {@link SetFieldChangeListener}, or {@link MapFieldChangeListener}) at the time

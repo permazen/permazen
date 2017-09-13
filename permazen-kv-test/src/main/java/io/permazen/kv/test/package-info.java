@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB key/value unit test support classes.
+ * Permazen key/value unit test support classes.
  */
 package io.permazen.kv.test;

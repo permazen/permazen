@@ -7,7 +7,7 @@ package io.permazen.parse;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.Session;
 import io.permazen.core.Database;
 import io.permazen.kv.KVDatabase;
@@ -96,7 +96,7 @@ public class ParseSession extends Session {
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    public ParseSession(JSimpleDB jdb) {
+    public ParseSession(Permazen jdb) {
         super(jdb);
         this.imports.add("java.lang.*");
     }

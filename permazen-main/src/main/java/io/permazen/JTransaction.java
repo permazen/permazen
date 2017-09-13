@@ -81,7 +81,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A transaction associated with a {@link JSimpleDB} instance.
+ * A transaction associated with a {@link Permazen} instance.
  *
  * <p>
  * Commonly used methods in this class can be divided into the following categories:
@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Transaction Meta-Data</b>
  * <ul>
- *  <li>{@link #getJSimpleDB getJSimpleDB()} - Get the associated {@link JSimpleDB} instance</li>
+ *  <li>{@link #getPermazen getPermazen()} - Get the associated {@link Permazen} instance</li>
  *  <li>{@link #getTransaction} - Get the core API {@link Transaction} underlying this instance</li>
  * </ul>
  *
@@ -212,7 +212,7 @@ public class JTransaction {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JSimpleDB jdb;
+    final Permazen jdb;
     final Transaction tx;
     final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<>(this, JObject.class);
 
@@ -233,7 +233,7 @@ public class JTransaction {
      *
      * @throws IllegalArgumentException if any parameter is null
      */
-    JTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
+    JTransaction(Permazen jdb, Transaction tx, ValidationMode validationMode) {
 
         // Initialization
         Preconditions.checkArgument(jdb != null, "null jdb");
@@ -259,7 +259,7 @@ public class JTransaction {
     }
 
     // Register listeners for the given situation
-    private static void registerListeners(JSimpleDB jdb, Transaction tx, boolean automaticValidation, boolean isSnapshot) {
+    private static void registerListeners(Permazen jdb, Transaction tx, boolean automaticValidation, boolean isSnapshot) {
 
         // Register listeners for @OnCreate and validation on creation
         if (jdb.hasOnCreateMethods || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
@@ -322,11 +322,11 @@ public class JTransaction {
 // Accessors
 
     /**
-     * Get the {@link JSimpleDB} associated with this instance.
+     * Get the {@link Permazen} associated with this instance.
      *
      * @return the associated database
      */
-    public JSimpleDB getJSimpleDB() {
+    public Permazen getPermazen() {
         return this.jdb;
     }
 
@@ -1014,7 +1014,7 @@ public class JTransaction {
      * @param jobj Java model object
      * @param <T> expected Java type
      * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
-     * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link JSimpleDB} database object
+     * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link Permazen} database object
      * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
      * @see #get(ObjId)
      * @see #get(ObjId, Class)
@@ -1201,7 +1201,7 @@ public class JTransaction {
 
     /**
      * Update the schema version of the specified object, if necessary, so that its version matches
-     * the schema version associated with this instance's {@link JSimpleDB}.
+     * the schema version associated with this instance's {@link Permazen}.
      *
      * <p>
      * If a version change occurs, matching {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}
@@ -2202,7 +2202,7 @@ public class JTransaction {
 
     /**
      * Builds a {@link Converter} for core API {@link Field} that converts, in the forward direction, core API values
-     * into {@link JSimpleDB} values, based only on the core API {@link Field}. That means we don't convert
+     * into {@link Permazen} values, based only on the core API {@link Field}. That means we don't convert
      * {@link io.permazen.core.EnumValue}s. In the case of reference fields, the original Java type may no
      * longer be available; such values are converted to {@link UntypedJObject}.
      *

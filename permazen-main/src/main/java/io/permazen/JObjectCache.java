@@ -217,7 +217,7 @@ class JObjectCache {
             if (cause instanceof InvocationTargetException)
                 cause = ((InvocationTargetException)cause).getTargetException();
             Throwables.throwIfUnchecked(cause);
-            throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
+            throw new PermazenException("can't instantiate object for ID " + id, cause);
         } finally {
 
             // Get object registered in the meantime, if any

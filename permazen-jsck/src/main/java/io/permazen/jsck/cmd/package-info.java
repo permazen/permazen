@@ -4,7 +4,7 @@
  */
 
 /**
- * Classes associated with {@link Jsck}, the JSimpleDB key/value database consistency checker.
+ * Classes associated with {@link Jsck}, the Permazen key/value database consistency checker.
  *
  * @see Jsck
  */

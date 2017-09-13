@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB Command Line Interface (CLI) classes.
+ * Permazen Command Line Interface (CLI) classes.
  */
 package io.permazen.cli;

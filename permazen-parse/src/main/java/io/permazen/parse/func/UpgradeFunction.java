@@ -43,7 +43,7 @@ public class UpgradeFunction extends SimpleFunction {
 
         // Upgrade object
         try {
-            return new ConstValue(session.getMode().hasJSimpleDB() ?
+            return new ConstValue(session.getMode().hasPermazen() ?
               JTransaction.getCurrent().get(id).upgrade() : session.getTransaction().updateSchemaVersion(id));
         } catch (DeletedObjectException e) {
             throw new EvalException("invalid upgrade() operation on non-existent object " + id);

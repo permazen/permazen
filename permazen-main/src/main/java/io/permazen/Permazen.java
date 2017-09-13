@@ -57,10 +57,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JSimpleDB Java persistence layer.
+ * Permazen Java persistence layer.
  *
  * <p>
- * JSimpleDB is a Java persistence solution built on three layers of abstraction:
+ * Permazen is a Java persistence solution built on three layers of abstraction:
  *  <ul>
  *  <li>At the bottom layer is a simple {@code byte[]} <b>key/value</b> database represented by the
  *      {@link io.permazen.kv.KVDatabase} class. Transactions are supported at this layer and are accessed
@@ -76,19 +76,19 @@ import org.slf4j.LoggerFactory;
  *      It sits on top of the core API layer and provides a fully type-safe Java view of a core API {@link Transaction},
  *      where all access is through user-supplied Java model classes. Database types and fields, and Java listener methods
  *      are all declared using {@linkplain io.permazen.annotation Java annotations}. Incremental JSR 303 validation is supported.
- *      The {@link JSimpleDB} class represents an instance of this top layer database, and {@link JTransaction}
+ *      The {@link Permazen} class represents an instance of this top layer database, and {@link JTransaction}
  *      represents the corresonding transactions.</li>
  *  </ul>
  *
  * <p>
  * User-provided Java model classes define database fields by declaring abstract Java bean property methods.
- * {@link JSimpleDB} generates concrete subclasses of the user-provided abstract model classes at runtime.
+ * {@link Permazen} generates concrete subclasses of the user-provided abstract model classes at runtime.
  * These runtime classes implement the abstract bean property methods, as well as the {@link JObject} interface.
  * Java model class instances are always associated with a specific {@link JTransaction}, and all of their database
  * state derives from that the underlying key/value {@link io.permazen.kv.KVTransaction}.
  *
  * <p>
- * All Java model class instances have a unique {@link ObjId} which represents database identity. {@link JSimpleDB}
+ * All Java model class instances have a unique {@link ObjId} which represents database identity. {@link Permazen}
  * guarantees that at most one Java model class instance instance will exist for any given {@link JTransaction} and {@link ObjId}.
  * Instance creation, index queries, and certain other database-related tasks are initiated using a {@link JTransaction}.
  *
@@ -102,19 +102,19 @@ import org.slf4j.LoggerFactory;
  * {@link JObject#copyIn JObject.copyIn()}.
  *
  * <p>
- * Instances of this class are usually created using a {@link JSimpleDBFactory}.
+ * Instances of this class are usually created using a {@link PermazenFactory}.
  *
  * @see JObject
  * @see JTransaction
- * @see JSimpleDBFactory
+ * @see PermazenFactory
  * @see io.permazen.annotation
  */
-public class JSimpleDB {
+public class Permazen {
 
     /**
-     * The suffix that is appended to Java model class names to get the corresponding JSimpleDB generated class name.
+     * The suffix that is appended to Java model class names to get the corresponding Permazen generated class name.
      */
-    public static final String GENERATED_CLASS_NAME_SUFFIX = "$$JSimpleDB";
+    public static final String GENERATED_CLASS_NAME_SUFFIX = "$$Permazen";
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -150,7 +150,7 @@ public class JSimpleDB {
       .maximumSize(1000).build(new CacheLoader<IndexQueryInfoKey, IndexQueryInfo>() {
         @Override
         public IndexQueryInfo load(IndexQueryInfoKey key) {
-            return key.getIndexQueryInfo(JSimpleDB.this);
+            return key.getIndexQueryInfo(Permazen.this);
         }
     });
 
@@ -173,7 +173,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code classes} contains a class with no suitable subclass constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JSimpleDB(Iterable<? extends Class<?>> classes) {
+    public Permazen(Iterable<? extends Class<?>> classes) {
         this(new Database(new SimpleKVDatabase()), -1, new DefaultStorageIdGenerator(), classes);
     }
 
@@ -181,12 +181,12 @@ public class JSimpleDB {
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
      *
      * <p>
-     * Equivalent to {@link #JSimpleDB(Iterable) JSimpleDB}{@code (Arrays.asList(classes))}.
+     * Equivalent to {@link #Permazen(Iterable) Permazen}{@code (Arrays.asList(classes))}.
      *
      * @param classes classes annotated with {@link PermazenType &#64;PermazenType} annotations
-     * @see #JSimpleDB(Iterable)
+     * @see #Permazen(Iterable)
      */
-    public JSimpleDB(Class<?>... classes) {
+    public Permazen(Class<?>... classes) {
         this(Arrays.asList(classes));
     }
 
@@ -204,7 +204,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JSimpleDB(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
+    public Permazen(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
 
         // Initialize
         Preconditions.checkArgument(database != null, "null database");
@@ -215,7 +215,7 @@ public class JSimpleDB {
         this.loader = AccessController.doPrivileged(new PrivilegedAction<Loader>() {
             @Override
             public Loader run() {
-                return JSimpleDB.this.new Loader();
+                return Permazen.this.new Loader();
             }
         });
 
@@ -365,7 +365,7 @@ public class JSimpleDB {
                         for (String cascadeName : field.forwardCascades)
                             this.addCascade(jclass.forwardCascadeMap, cascadeName, field);
                         for (String cascadeName : field.inverseCascades)
-                            this.addCascade(JSimpleDB.this.inverseCascadeMap, cascadeName, field);
+                            this.addCascade(Permazen.this.inverseCascadeMap, cascadeName, field);
                         return null;
                     }
 
@@ -524,7 +524,7 @@ public class JSimpleDB {
      * Get the Java model class of the given {@link JObject}.
      *
      * <p>
-     * If {@code jobj} is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
+     * If {@code jobj} is an instance of a Permazen-generated subclass of a user-supplied Java model class,
      * this returns the original Java model class.
      *
      * @param jobj database instance
@@ -685,7 +685,7 @@ public class JSimpleDB {
      * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
      * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
      *
-     * @param kvstore key/value store, empty or having content compatible with this transaction's {@link JSimpleDB}
+     * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Permazen}
      * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
      * @param validationMode the {@link ValidationMode} to use for the snapshot transaction
      * @return snapshot transaction based on {@code kvstore}
@@ -715,7 +715,7 @@ public class JSimpleDB {
             }
             this.schemaModel = model;
             this.schemaModel.lockDown();
-            this.log.debug("JSimpleDB schema generated from annotated classes:\n{}", this.schemaModel);
+            this.log.debug("Permazen schema generated from annotated classes:\n{}", this.schemaModel);
         }
         return this.schemaModel;
     }
@@ -951,7 +951,7 @@ public class JSimpleDB {
         try {
             this.validatorFactory = Validation.buildDefaultValidatorFactory();
         } catch (Exception e) {
-            throw new JSimpleDBException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
+            throw new PermazenException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
               + " but creation of default ValidatorFactory failed; is there a JSR 303 validation implementation on the classpath?",
               e);
         }
@@ -1117,7 +1117,7 @@ public class JSimpleDB {
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
             byte[] bytes = null;
-            for (ClassGenerator<?> generator : JSimpleDB.this.classGenerators) {
+            for (ClassGenerator<?> generator : Permazen.this.classGenerators) {
                 if (name.equals(generator.getClassName().replace('/', '.'))) {
                     bytes = generator.generateBytecode();
                     break;

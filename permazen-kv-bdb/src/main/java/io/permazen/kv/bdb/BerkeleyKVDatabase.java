@@ -48,7 +48,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      *
      * @see #setDatabaseName setDatabaseName()
      */
-    public static final String DEFAULT_DATABASE_NAME = "JSimpleDB";
+    public static final String DEFAULT_DATABASE_NAME = "Permazen";
 
     private static final ThreadLocal<TransactionConfig> NEXT_TX_CONFIG = new ThreadLocal<>();
 

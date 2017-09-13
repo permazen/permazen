@@ -24,12 +24,12 @@ import org.springframework.dao.QueryTimeoutException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 
 /**
- * JSimpleDB implementation of Spring's {@link PersistenceExceptionTranslator} interface.
+ * Permazen implementation of Spring's {@link PersistenceExceptionTranslator} interface.
  *
  * @see io.permazen.spring
  */
 @SuppressWarnings("serial")
-public class JSimpleDBExceptionTranslator implements PersistenceExceptionTranslator {
+public class PermazenExceptionTranslator implements PersistenceExceptionTranslator {
 
     @Override
     public DataAccessException translateExceptionIfPossible(RuntimeException e0) {

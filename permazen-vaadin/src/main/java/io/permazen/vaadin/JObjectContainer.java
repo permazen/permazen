@@ -20,9 +20,9 @@ import io.permazen.JField;
 import io.permazen.JFieldSwitchAdapter;
 import io.permazen.JMapField;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.ValidationMode;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Vaadin {@link com.vaadin.data.Container} backed by {@link JSimpleDB} Java model objects.
+ * Vaadin {@link com.vaadin.data.Container} backed by {@link Permazen} Java model objects.
  *
  * <p>
  * Automatically creates container properties for object ID, database type, schema version, and all fields, as well as any custom
@@ -75,12 +75,12 @@ import org.slf4j.LoggerFactory;
  * Instances have the following container properties:
  * <ul>
  *  <li>{@link #OBJECT_ID_PROPERTY}: Object {@link ObjId}</li>
- *  <li>{@link #TYPE_PROPERTY}: Object type name (JSimpleDB type name, not Java type name, though the former
+ *  <li>{@link #TYPE_PROPERTY}: Object type name (Permazen type name, not Java type name, though the former
  *      is by default the simple Java type name)</li>
  *  <li>{@link #VERSION_PROPERTY}: Object schema version</li>
  *  <li>{@link #REFERENCE_LABEL_PROPERTY}: Object <b>reference label</b>, which is a short description identifying the
  *      object. Reference labels are used to provide "names" for objects that are more meaningful than object ID's
- *      and are used as such in other {@link JSimpleDB} GUI classes, for example when displaying the object in a list.
+ *      and are used as such in other {@link Permazen} GUI classes, for example when displaying the object in a list.
  *      To customize the reference label for a Java model class,
  *      annotate a method with {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}{@code (}{@link
  *      JObjectContainer#REFERENCE_LABEL_PROPERTY REFERENCE_LABEL_PROPERTY}{@code )};
@@ -88,7 +88,7 @@ import org.slf4j.LoggerFactory;
  *      customized reference labels will need to be included in the snapshot transaction also if they are referenced
  *      by an object actually in the container.
  *      </li>
- *  <li>A property for every {@link JSimpleDB} field that is common to all object types that sub-type
+ *  <li>A property for every {@link Permazen} field that is common to all object types that sub-type
  *      this containers's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
  *          <li>For simple fields, their {@linkplain io.permazen.core.FieldType#toString(Object) string form}</li>
@@ -127,9 +127,9 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * The associated {@link JSimpleDB}.
+     * The associated {@link Permazen}.
      */
-    protected final JSimpleDB jdb;
+    protected final Permazen jdb;
 
     private final ObjIdPropertyDef objIdPropertyDef = new ObjIdPropertyDef();
     private final ObjTypePropertyDef objTypePropertyDef = new ObjTypePropertyDef();
@@ -143,11 +143,11 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    protected JObjectContainer(JSimpleDB jdb, Class<?> type) {
+    protected JObjectContainer(Permazen jdb, Class<?> type) {
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
         this.setType(type);
@@ -420,7 +420,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 // ObjFieldPropertyDef
 
     /**
-     * Implements a property reflecting the value of a {@link JSimpleDB} field.
+     * Implements a property reflecting the value of a {@link Permazen} field.
      */
     public class ObjFieldPropertyDef extends ObjPropertyDef<Component> {
 

@@ -8,7 +8,7 @@ package io.permazen.jsck;
 import io.permazen.kv.KVPair;
 
 /**
- * Represents an invalid/unexpected value in a JSimpleDB key/value database under an otherwise valid key.
+ * Represents an invalid/unexpected value in a Permazen key/value database under an otherwise valid key.
  */
 public class InvalidValue extends Issue {
 

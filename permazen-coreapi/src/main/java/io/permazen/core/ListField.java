@@ -21,7 +21,7 @@ import java.util.List;
  * List field.
  *
  * <p>
- * JSimpleDB list fields have performance characteristics similar to {@link ArrayList}.
+ * Permazen list fields have performance characteristics similar to {@link ArrayList}.
  *
  * @param <E> Java type for the list elements
  */

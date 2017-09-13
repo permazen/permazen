@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.Session;
 
 /**
@@ -18,16 +18,16 @@ import io.permazen.Session;
 @SuppressWarnings("serial")
 public class JObjectTable extends AbstractTable<JObjectContainer> {
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final JObjectContainer container;
     private final Session session;
     private final boolean showFields;
 
-    public JObjectTable(JSimpleDB jdb, JObjectContainer container, Session session) {
+    public JObjectTable(Permazen jdb, JObjectContainer container, Session session) {
         this(jdb, container, session, true);
     }
 
-    public JObjectTable(JSimpleDB jdb, JObjectContainer container, Session session, boolean showFields) {
+    public JObjectTable(Permazen jdb, JObjectContainer container, Session session, boolean showFields) {
         Preconditions.checkArgument(jdb != null, "null jdb");
         Preconditions.checkArgument(container != null, "null container");
         Preconditions.checkArgument(session != null, "null session");

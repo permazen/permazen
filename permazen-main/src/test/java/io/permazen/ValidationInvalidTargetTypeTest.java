@@ -16,7 +16,7 @@ public class ValidationInvalidTargetTypeTest extends TestSupport {
     @Test
     public void testValidationInvalidTargetType() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person1.class, Person2.class);
+        final Permazen jdb = BasicTest.getPermazen(Person1.class, Person2.class);
 
         JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);

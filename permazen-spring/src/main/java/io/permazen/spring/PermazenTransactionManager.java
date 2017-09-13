@@ -7,8 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.ValidationMode;
 import io.permazen.core.DatabaseException;
 import io.permazen.core.Transaction;
@@ -35,10 +35,10 @@ import org.springframework.transaction.support.SmartTransactionObject;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 /**
- * JSimpleDB implementation of Spring's
+ * Permazen implementation of Spring's
  * {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} interface,
  * allowing methods annotated with Spring's {@link org.springframework.transaction.annotation.Transactional &#64;Transactional}
- * annotation to perform transactions on a {@link JSimpleDB} database.
+ * annotation to perform transactions on a {@link Permazen} database.
  *
  * <p>
  * Properly integrates with {@link JTransaction#getCurrent JTransaction.getCurrent()} to participate in
@@ -52,7 +52,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * @see io.permazen.spring
  */
 @SuppressWarnings("serial")
-public class JSimpleDBTransactionManager extends AbstractPlatformTransactionManager
+public class PermazenTransactionManager extends AbstractPlatformTransactionManager
   implements ResourceTransactionManager, InitializingBean {
 
     /**
@@ -70,9 +70,9 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
     public static final ValidationMode DEFAULT_VALIDATION_MODE = ValidationMode.AUTOMATIC;
 
     /**
-     * The configured {@link JSimpleDB} from which transactions are created.
+     * The configured {@link Permazen} from which transactions are created.
      */
-    protected transient JSimpleDB jdb;
+    protected transient Permazen jdb;
 
     /**
      * Whether a new schema version is allowed. Default true.
@@ -89,18 +89,18 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
     @Override
     public void afterPropertiesSet() throws Exception {
         if (this.jdb == null)
-            throw new Exception("no JSimpleDB configured");
+            throw new Exception("no Permazen configured");
     }
 
     /**
-     * Configure the {@link JSimpleDB} that this instance will operate on.
+     * Configure the {@link Permazen} that this instance will operate on.
      *
      * <p>
      * Required property.
      *
      * @param jdb associated database
      */
-    public void setJSimpleDB(JSimpleDB jdb) {
+    public void setPermazen(Permazen jdb) {
         this.jdb = jdb;
     }
 
@@ -189,22 +189,22 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             break;
         }
 
-        // Create JSimpleDB transaction
+        // Create Permazen transaction
         final JTransaction jtx;
         try {
             jtx = this.createTransaction(options);
         } catch (DatabaseException e) {
-            throw new CannotCreateTransactionException("error creating new JSimpleDB transaction", e);
+            throw new CannotCreateTransactionException("error creating new Permazen transaction", e);
         }
 
-        // Configure JSimpleDB transaction and bind to current thread; but if we fail, roll it back
+        // Configure Permazen transaction and bind to current thread; but if we fail, roll it back
         boolean succeeded = false;
         try {
             this.configureTransaction(jtx, txDef);
             JTransaction.setCurrent(jtx);
             succeeded = true;
         } catch (DatabaseException e) {
-            throw new CannotCreateTransactionException("error configuring JSimpleDB transaction", e);
+            throw new CannotCreateTransactionException("error configuring Permazen transaction", e);
         } finally {
             if (!succeeded) {
                 JTransaction.setCurrent(null);
@@ -224,8 +224,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * Create the underlying {@link JTransaction} for a new transaction.
      *
      * <p>
-     * The implementation in {@link JSimpleDBTransactionManager} just delegates to
-     * {@link JSimpleDB#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
+     * The implementation in {@link PermazenTransactionManager} just delegates to
+     * {@link Permazen#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
      * settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options
@@ -251,7 +251,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Suspend it
         if (this.logger.isTraceEnabled())
-            this.logger.trace("suspending current JSimpleDB transaction " + jtx);
+            this.logger.trace("suspending current Permazen transaction " + jtx);
         JTransaction.setCurrent(null);
 
         // Done
@@ -271,7 +271,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Resume transaction
         final JTransaction jtx = (JTransaction)suspendedResources;
         if (this.logger.isTraceEnabled())
-            this.logger.trace("resuming JSimpleDB transaction " + jtx);
+            this.logger.trace("resuming Permazen transaction " + jtx);
         JTransaction.setCurrent(jtx);
     }
 
@@ -279,7 +279,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * Configure a new transaction.
      *
      * <p>
-     * The implementation in {@link JSimpleDBTransactionManager} sets the transaction's timeout and read-only properties.
+     * The implementation in {@link PermazenTransactionManager} sets the transaction's timeout and read-only properties.
      *
      * @param jtx transaction to configure
      * @param txDef transaction definition
@@ -321,7 +321,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Validate
         if (this.validateBeforeCommit) {
             if (this.logger.isTraceEnabled())
-                this.logger.trace("triggering validation prior to commit of JSimpleDB transaction " + jtx);
+                this.logger.trace("triggering validation prior to commit of Permazen transaction " + jtx);
             jtx.validate();
         }
     }
@@ -341,7 +341,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Commit
         try {
             if (this.logger.isTraceEnabled())
-                this.logger.trace("committing JSimpleDB transaction " + jtx);
+                this.logger.trace("committing Permazen transaction " + jtx);
             jtx.commit();
         } catch (RetryTransactionException e) {
             throw new PessimisticLockingFailureException("transaction must be retried", e);
@@ -369,7 +369,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Rollback
         try {
             if (this.logger.isTraceEnabled())
-                this.logger.trace("rolling back JSimpleDB transaction " + jtx);
+                this.logger.trace("rolling back Permazen transaction " + jtx);
             jtx.rollback();
         } catch (StaleTransactionException e) {
             throw new TransactionTimedOutException("transaction is no longer usable", e);
@@ -394,7 +394,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Set rollback only
         if (this.logger.isTraceEnabled())
-            this.logger.trace("marking JSimpleDB transaction " + jtx + " for rollback-only");
+            this.logger.trace("marking Permazen transaction " + jtx + " for rollback-only");
         jtx.getTransaction().setRollbackOnly();
     }
 

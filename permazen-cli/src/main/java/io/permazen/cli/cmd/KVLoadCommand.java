@@ -34,7 +34,7 @@ public class KVLoadCommand extends AbstractKVCommand {
     public String getHelpDetail() {
         return "Imports key/value pairs from an XML file created previously via `kvsave'. Does NOT remove any key/value pairs"
           + "already in the database unless the `-R' flag is given, in which case the database is completely wiped first."
-          + "\n\nWARNING: this command can corrupt a JSimpleDB database.";
+          + "\n\nWARNING: this command can corrupt a Permazen database.";
     }
 
     @Override

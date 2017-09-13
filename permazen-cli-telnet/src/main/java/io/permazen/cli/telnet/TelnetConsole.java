@@ -7,7 +7,7 @@ package io.permazen.cli.telnet;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.cli.Console;
 import io.permazen.core.Database;
 import io.permazen.kv.KVDatabase;
@@ -45,7 +45,7 @@ public final class TelnetConsole extends Console {
     /**
      * Internal constructor.
      */
-    private TelnetConsole(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    private TelnetConsole(KVDatabase kvdb, Database db, Permazen jdb, InputStream input, OutputStream output,
       jline.Terminal terminal, String encoding, String appName) throws IOException {
         super(kvdb, db, jdb, input, output, terminal, encoding, appName);
     }
@@ -77,12 +77,12 @@ public final class TelnetConsole extends Console {
     /**
      * Simplified factory method for {@link io.permazen.SessionMode#JSIMPLEDB} mode.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param socket socket connected to telnet client
      * @return new telnet console instance
      * @throws IOException if an I/O error occurs
      */
-    public static TelnetConsole create(JSimpleDB jdb, Socket socket) throws IOException {
+    public static TelnetConsole create(Permazen jdb, Socket socket) throws IOException {
         return TelnetConsole.create(null, null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);
     }
 
@@ -91,7 +91,7 @@ public final class TelnetConsole extends Console {
      *
      * @param kvdb {@link KVDatabase} for {@link io.permazen.SessionMode#KEY_VALUE} (otherwise must be null)
      * @param db {@link Database} for {@link io.permazen.SessionMode#CORE_API} (otherwise must be null)
-     * @param jdb {@link JSimpleDB} for {@link io.permazen.SessionMode#JSIMPLEDB} (otherwise must be null)
+     * @param jdb {@link Permazen} for {@link io.permazen.SessionMode#JSIMPLEDB} (otherwise must be null)
      * @param input console input
      * @param output console output
      * @param encoding character encoding for {@code terminal}, or null for default
@@ -100,7 +100,7 @@ public final class TelnetConsole extends Console {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if not exactly one of {@code kvdb}, {@code db} or {@code jdb} is not null
      */
-    public static TelnetConsole create(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    public static TelnetConsole create(KVDatabase kvdb, Database db, Permazen jdb, InputStream input, OutputStream output,
       String encoding, String appName) throws IOException {
 
         // Set up nvt4j; ignore the initial clear & reposition

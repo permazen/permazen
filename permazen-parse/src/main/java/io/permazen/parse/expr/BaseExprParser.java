@@ -156,7 +156,7 @@ public class BaseExprParser implements Parser<Node> {
         final Class<?> cl = target.getClass();
 
         // Handle properties of database objects (i.e., database fields)
-        if (session.getMode().hasJSimpleDB() && target instanceof JObject) {
+        if (session.getMode().hasPermazen() && target instanceof JObject) {
 
             // Get object and ID
             final JObject jobj = (JObject)target;

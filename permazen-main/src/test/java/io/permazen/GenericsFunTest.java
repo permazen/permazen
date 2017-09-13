@@ -24,7 +24,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Widget.class);
+        final Permazen jdb = BasicTest.getPermazen(Widget.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -36,7 +36,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics2() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(AccountEvent.class, Account.class);
+        final Permazen jdb = BasicTest.getPermazen(AccountEvent.class, Account.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -50,7 +50,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics3() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Class2.class, Class3.class);
+        final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -65,7 +65,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics4() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Class2.class, Class3.class);
+        final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -83,7 +83,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics5() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(ListSub1.class, ListSub2.class);
+        final Permazen jdb = BasicTest.getPermazen(ListSub1.class, ListSub2.class);
 
         final ReferencePath path1 = jdb.parseReferencePath(ListSub1.class, "list.element");
         final ReferencePath path2 = jdb.parseReferencePath(ListSub2.class, "list.element");
@@ -108,12 +108,12 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics6() throws Exception {
-        BasicTest.getJSimpleDB(GenericBeanProperty.class);
+        BasicTest.getPermazen(GenericBeanProperty.class);
     }
 
     @Test
     public void testGenerics7() throws Exception {
-        BasicTest.getJSimpleDB(GenericBeanProperty2.class);
+        BasicTest.getPermazen(GenericBeanProperty2.class);
     }
 
 // Model Classes #1

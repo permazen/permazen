@@ -6,7 +6,7 @@
 package io.permazen.ant;
 
 import io.permazen.DefaultStorageIdGenerator;
-import io.permazen.JSimpleDBFactory;
+import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.JFieldType;
 import io.permazen.annotation.PermazenType;
@@ -14,8 +14,8 @@ import io.permazen.core.Database;
 import io.permazen.core.FieldType;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
+import io.permazen.spring.PermazenClassScanner;
+import io.permazen.spring.PermazenFieldTypeScanner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -250,7 +250,7 @@ import org.apache.tools.ant.types.Resource;
  *  &lt;/permazen:schema&gt;
  * </pre>
  *
- * @see io.permazen.JSimpleDB
+ * @see io.permazen.Permazen
  * @see io.permazen.schema.SchemaModel
  */
 public class SchemaGeneratorTask extends Task {
@@ -385,7 +385,7 @@ public class SchemaGeneratorTask extends Task {
 
                 // Scan for @PermazenType classes
                 this.log("scanning for @PermazenType annotations in packages: " + packageNames);
-                for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
+                for (String className : new PermazenClassScanner().scanForClasses(packageNames)) {
                     this.log("adding Permazen model class " + className);
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
@@ -396,7 +396,7 @@ public class SchemaGeneratorTask extends Task {
 
                 // Scan for @JFieldType classes
                 this.log("scanning for @JFieldType annotations in packages: " + packageNames);
-                for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(packageNames)) {
+                for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
                     this.log("adding Permazen field type class `" + className + "'");
                     try {
                         fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
@@ -464,7 +464,7 @@ public class SchemaGeneratorTask extends Task {
             }
 
             // Set up factory
-            final JSimpleDBFactory factory = new JSimpleDBFactory();
+            final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
             factory.setStorageIdGenerator(storageIdGenerator);
@@ -474,7 +474,7 @@ public class SchemaGeneratorTask extends Task {
             this.log("generating Permazen schema from schema classes");
             final SchemaModel schemaModel;
             try {
-                schemaModel = factory.newJSimpleDB().getSchemaModel();
+                schemaModel = factory.newPermazen().getSchemaModel();
             } catch (Exception e) {
                 throw new BuildException("schema generation failed: " + e, e);
             }

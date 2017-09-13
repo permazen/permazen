@@ -37,7 +37,7 @@ public class BasicTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testBasicStuff() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB();
+        final Permazen jdb = BasicTest.getPermazen();
 
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
@@ -266,16 +266,16 @@ public class BasicTest extends TestSupport {
         TestSupport.checkMap(t.getRatings(), buildMap(ratingKeyValues));
     }
 
-    public static JSimpleDB getJSimpleDB() {
-        return BasicTest.getJSimpleDB(MeanPerson.class, Person.class);
+    public static Permazen getPermazen() {
+        return BasicTest.getPermazen(MeanPerson.class, Person.class);
     }
 
-    public static JSimpleDB getJSimpleDB(Class<?>... classes) {
-        return BasicTest.getJSimpleDB(Arrays.<Class<?>>asList(classes));
+    public static Permazen getPermazen(Class<?>... classes) {
+        return BasicTest.getPermazen(Arrays.<Class<?>>asList(classes));
     }
 
-    public static JSimpleDB getJSimpleDB(Iterable<Class<?>> classes) {
-        return new JSimpleDB(classes);
+    public static Permazen getPermazen(Iterable<Class<?>> classes) {
+        return new Permazen(classes);
     }
 
 // Person queries

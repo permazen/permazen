@@ -31,7 +31,7 @@ public class OnChangeWildcardTest extends TestSupport {
     @Test
     public void testWildcardChanges() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -137,7 +137,7 @@ public class OnChangeWildcardTest extends TestSupport {
     @Test(dataProvider = "bogusPaths")
     public void testBogusPaths(Class<? extends JObject> cl) throws Exception {
         try {
-            BasicTest.getJSimpleDB(Person.class, cl);
+            BasicTest.getPermazen(Person.class, cl);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected exception from " + cl + ": " + e);

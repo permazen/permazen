@@ -19,7 +19,7 @@ public class ValidationGroupTest extends TestSupport {
 
     @Test
     public void testValidationGroups() {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foobar.class);
+        final Permazen jdb = BasicTest.getPermazen(Foobar.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {

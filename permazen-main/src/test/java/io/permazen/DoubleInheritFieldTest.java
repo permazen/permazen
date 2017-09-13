@@ -18,21 +18,21 @@ public class DoubleInheritFieldTest extends TestSupport {
 
     @Test
     public void testDoubleInherit1() throws Exception {
-        final JSimpleDBFactory factory = new JSimpleDBFactory();
+        final PermazenFactory factory = new PermazenFactory();
         factory.setDatabase(new Database(new SimpleKVDatabase()));
         factory.setSchemaVersion(1);
         factory.setModelClasses(Foo1.class);
-        factory.newJSimpleDB();
+        factory.newPermazen();
     }
 
     @Test
     public void testDoubleInherit2() throws Exception {
-        final JSimpleDBFactory factory = new JSimpleDBFactory();
+        final PermazenFactory factory = new PermazenFactory();
         factory.setDatabase(new Database(new SimpleKVDatabase()));
         factory.setSchemaVersion(1);
         factory.setModelClasses(Foo2.class);
         try {
-            factory.newJSimpleDB();
+            factory.newPermazen();
             assert false;
         } catch (IllegalArgumentException e) {
             // expected

@@ -25,7 +25,7 @@ public class DeleteCascadeTest extends TestSupport {
     @Test
     public void testDeleteCascade() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -112,7 +112,7 @@ public class DeleteCascadeTest extends TestSupport {
     @Test
     public void testDeleteCircular() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

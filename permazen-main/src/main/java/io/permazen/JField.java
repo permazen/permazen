@@ -33,7 +33,7 @@ public abstract class JField extends JSchemaObject {
     JSchemaObject parent;                               // either JClass or JComplexField
     boolean requiresDefaultValidation;
 
-    JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+    JField(Permazen jdb, String name, int storageId, String description, Method getter) {
         super(jdb, name, storageId, description);
         this.getter = getter;
     }
@@ -66,7 +66,7 @@ public abstract class JField extends JSchemaObject {
     }
 
     @Override
-    abstract SchemaField toSchemaItem(JSimpleDB jdb);
+    abstract SchemaField toSchemaItem(Permazen jdb);
 
     /**
      * Get the getter method associated with this field.

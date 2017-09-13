@@ -9,7 +9,7 @@ class ScanFieldTypesFactoryBean extends ScanClassPathFactoryBean {
 
     @Override
     AnnotatedClassScanner createScanner() {
-        return new JSimpleDBFieldTypeScanner(this.useDefaultFilters, this.environment);
+        return new PermazenFieldTypeScanner(this.useDefaultFilters, this.environment);
     }
 }
 

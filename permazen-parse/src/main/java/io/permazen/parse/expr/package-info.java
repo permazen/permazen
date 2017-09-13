@@ -4,6 +4,6 @@
  */
 
 /**
- * Classes for parsing Java expressions with JSimpleDB-specific extensions.
+ * Classes for parsing Java expressions with Permazen-specific extensions.
  */
 package io.permazen.parse.expr;

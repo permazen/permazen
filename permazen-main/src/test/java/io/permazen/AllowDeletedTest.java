@@ -21,7 +21,7 @@ public class AllowDeletedTest extends TestSupport {
     @Test
     public void testAllowDeleted() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -48,7 +48,7 @@ public class AllowDeletedTest extends TestSupport {
     @Test
     public void testCopy() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

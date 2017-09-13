@@ -34,7 +34,7 @@ public class CompositeIndexTest extends TestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        final JSimpleDB jdb = new JSimpleDB(db, 2, null, this.getClasses());
+        final Permazen jdb = new Permazen(db, 2, null, this.getClasses());
 
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
@@ -139,7 +139,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex2() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(IndexedOn2.class);
+        final Permazen jdb = BasicTest.getPermazen(IndexedOn2.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -203,7 +203,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex3() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(IndexedOn3.class);
+        final Permazen jdb = BasicTest.getPermazen(IndexedOn3.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -318,7 +318,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex4() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(IndexedOn4.class);
+        final Permazen jdb = BasicTest.getPermazen(IndexedOn4.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -406,7 +406,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndexSubTypes() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(A.class, B.class);
+        final Permazen jdb = BasicTest.getPermazen(A.class, B.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -456,7 +456,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeInitialUnique() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(C.class, D.class);
+        final Permazen jdb = BasicTest.getPermazen(C.class, D.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

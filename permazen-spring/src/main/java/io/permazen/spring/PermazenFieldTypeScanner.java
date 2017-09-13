@@ -12,12 +12,12 @@ import org.springframework.core.env.Environment;
 /**
  * Scans the classpath for types annotated as {@link JFieldType &#64;JFieldType}.
  */
-public class JSimpleDBFieldTypeScanner extends AnnotatedClassScanner {
+public class PermazenFieldTypeScanner extends AnnotatedClassScanner {
 
     /**
      * Constructor.
      */
-    public JSimpleDBFieldTypeScanner() {
+    public PermazenFieldTypeScanner() {
         super(JFieldType.class);
     }
 
@@ -27,7 +27,7 @@ public class JSimpleDBFieldTypeScanner extends AnnotatedClassScanner {
      * @param useDefaultFilters whether to register the default filters for {@link JFieldType &#64;JFieldType} type annotations
      * @param environment environment to use
      */
-    public JSimpleDBFieldTypeScanner(boolean useDefaultFilters, Environment environment) {
+    public PermazenFieldTypeScanner(boolean useDefaultFilters, Environment environment) {
         super(useDefaultFilters, environment, JFieldType.class);
     }
 }

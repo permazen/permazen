@@ -41,14 +41,14 @@ public class JSimpleField extends JField {
     final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
-    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
+    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
         this(jdb, name, storageId, typeToken,
           jdb.db.getFieldTypeRegistry().getFieldType(typeName), indexed, annotation, description, getter, setter);
     }
 
     @SuppressWarnings("unchecked")
-    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
+    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, description, getter);
         Preconditions.checkArgument(typeToken != null, "null typeToken");
@@ -189,7 +189,7 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    SimpleSchemaField toSchemaItem(JSimpleDB jdb) {
+    SimpleSchemaField toSchemaItem(Permazen jdb) {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
         this.initialize(jdb, schemaField);
         return schemaField;
@@ -209,7 +209,7 @@ public class JSimpleField extends JField {
         this.requiresDefaultValidation |= this.unique;
     }
 
-    void initialize(JSimpleDB jdb, SimpleSchemaField schemaField) {
+    void initialize(Permazen jdb, SimpleSchemaField schemaField) {
         super.initialize(jdb, schemaField);
         schemaField.setType(this.fieldType.getName());
         schemaField.setIndexed(this.indexed);

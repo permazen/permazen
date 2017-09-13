@@ -4,12 +4,12 @@
  */
 
 /**
- * Annotations used for automatic creation of a {@link io.permazen.JSimpleDB} and corresponding
+ * Annotations used for automatic creation of a {@link io.permazen.Permazen} and corresponding
  * schema configuration of the underlying {@link io.permazen.core.Database} from annotated classes,
  * as well as automatic registration of various listeners, etc.
  *
  * <p>
- * All JSimpleDB annotations may be configured indirectly as a Spring
+ * All Permazen annotations may be configured indirectly as a Spring
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  */

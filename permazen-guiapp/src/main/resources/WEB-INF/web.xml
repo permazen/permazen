@@ -12,7 +12,7 @@
 
     <!-- Vaadin servlet -->
     <servlet>
-        <servlet-name>JSimpleDBGUI</servlet-name>
+        <servlet-name>PermazenGUI</servlet-name>
         <servlet-class>org.dellroad.stuff.vaadin7.SpringVaadinServlet</servlet-class>
         <init-param>
             <param-name>productionMode</param-name>
@@ -37,11 +37,11 @@
         <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
-        <servlet-name>JSimpleDBGUI</servlet-name>
+        <servlet-name>PermazenGUI</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>JSimpleDBGUI</servlet-name>
+        <servlet-name>PermazenGUI</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 

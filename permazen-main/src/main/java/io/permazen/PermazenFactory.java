@@ -15,15 +15,15 @@ import java.util.Arrays;
 import javax.validation.ValidatorFactory;
 
 /**
- * Factory for {@link JSimpleDB} instances.
+ * Factory for {@link Permazen} instances.
  *
  * <p>
- * If no {@link Database} is configured, newly created {@link JSimpleDB} instances will use an initially empty,
+ * If no {@link Database} is configured, newly created {@link Permazen} instances will use an initially empty,
  * in-memory {@link SimpleKVDatabase}.
  *
- * @see JSimpleDB
+ * @see Permazen
  */
-public class JSimpleDBFactory {
+public class PermazenFactory {
 
     private Database database;
     private int schemaVersion = -1;
@@ -41,7 +41,7 @@ public class JSimpleDBFactory {
      * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
      * @return this instance
      */
-    public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
+    public PermazenFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
         this.modelClasses = modelClasses;
         return this;
     }
@@ -56,7 +56,7 @@ public class JSimpleDBFactory {
      * @return this instance
      * @see #setModelClasses(Iterable)
      */
-    public JSimpleDBFactory setModelClasses(Class<?>... modelClasses) {
+    public PermazenFactory setModelClasses(Class<?>... modelClasses) {
         return this.setModelClasses(Arrays.asList(modelClasses));
     }
 
@@ -69,7 +69,7 @@ public class JSimpleDBFactory {
      * @param database core API database to use
      * @return this instance
      */
-    public JSimpleDBFactory setDatabase(Database database) {
+    public PermazenFactory setDatabase(Database database) {
         this.database = database;
         return this;
     }
@@ -93,7 +93,7 @@ public class JSimpleDBFactory {
      *  or -1 to use an {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion auto-generated} schema version
      * @return this instance
      */
-    public JSimpleDBFactory setSchemaVersion(int schemaVersion) {
+    public PermazenFactory setSchemaVersion(int schemaVersion) {
         this.schemaVersion = schemaVersion;
         return this;
     }
@@ -110,7 +110,7 @@ public class JSimpleDBFactory {
      * @param storageIdGenerator storage ID generator, or null to disable auto-generation of storage ID's
      * @return this instance
      */
-    public JSimpleDBFactory setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
+    public PermazenFactory setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
         this.storageIdGenerator = storageIdGenerator;
         return this;
     }
@@ -126,24 +126,24 @@ public class JSimpleDBFactory {
      * @return this instance
      * @throws IllegalArgumentException if {@code validatorFactory} is null
      */
-    public JSimpleDBFactory setValidatorFactory(ValidatorFactory validatorFactory) {
+    public PermazenFactory setValidatorFactory(ValidatorFactory validatorFactory) {
         Preconditions.checkArgument(validatorFactory != null, "null validatorFactory");
         this.validatorFactory = validatorFactory;
         return this;
     }
 
     /**
-     * Construct a {@link JSimpleDB} instance using this instance's configuration.
+     * Construct a {@link Permazen} instance using this instance's configuration.
      *
-     * @return newly created {@link JSimpleDB} database
+     * @return newly created {@link Permazen} database
      * @throws IllegalArgumentException if this instance has an incomplete or invalid configuration
      * @throws IllegalArgumentException if any Java model class has an invalid annotation
      */
-    public JSimpleDB newJSimpleDB() {
+    public Permazen newPermazen() {
         Database database1 = this.database;
         if (database1 == null)
             database1 = new Database(new SimpleKVDatabase());
-        final JSimpleDB jdb = new JSimpleDB(database1, this.schemaVersion, this.storageIdGenerator, this.modelClasses);
+        final Permazen jdb = new Permazen(database1, this.schemaVersion, this.storageIdGenerator, this.modelClasses);
         if (this.validatorFactory != null)
             jdb.setValidatorFactory(this.validatorFactory);
         return jdb;

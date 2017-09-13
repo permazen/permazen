@@ -22,7 +22,7 @@ import io.permazen.util.ParseContext;
 /**
  * Support superclass for index queries (simple or composite). Function parameters take one of these forms:
  * <ol>
- * <li>{@code function(object-type, name, value-type, ...)} (JSimpleDB mode only)\n"
+ * <li>{@code function(object-type, name, value-type, ...)} (Permazen mode only)\n"
  * <li>{@code function(name)}</li>
  * <li>{@code function(storage-id)}</li>
  * </ol>
@@ -66,9 +66,9 @@ abstract class AbstractQueryFunction extends AbstractFunction {
         }
         ctx.setIndex(typeStart);
 
-        // Attempt to parse first form with type name (JSimpleDB mode only)
+        // Attempt to parse first form with type name (Permazen mode only)
         Node param1 = null;
-        if (session.getMode().hasJSimpleDB()) {
+        if (session.getMode().hasPermazen()) {
             try {
                 final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
                 final int mark = ctx.getIndex();
@@ -76,7 +76,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
                 if (!ctx.tryLiteral(","))                   // verify this is the first form
                     throw new ParseException(ctx);
                 ctx.setIndex(mark);
-                param1 = new LiteralNode(session.getJSimpleDB().getJClass(objType.getStorageId()).getType());
+                param1 = new LiteralNode(session.getPermazen().getJClass(objType.getStorageId()).getType());
             } catch (ParseException e) {
                 ctx.setIndex(typeStart);
             }
@@ -91,9 +91,9 @@ abstract class AbstractQueryFunction extends AbstractFunction {
         if (ctx.tryLiteral(")"))
             return param1;
 
-        // Multi-parameter form requires JSimpleDB mode
-        if (!session.getMode().hasJSimpleDB())
-            throw new ParseException(ctx, "expected `)' (JSimpleDB mode required for multiple params)").addCompletion(") ");
+        // Multi-parameter form requires Permazen mode
+        if (!session.getMode().hasPermazen())
+            throw new ParseException(ctx, "expected `)' (Permazen mode required for multiple params)").addCompletion(") ");
         if (!ctx.tryLiteral(","))
             throw new ParseException(ctx, "expected `,' between " + this.getName() + "() function parameters").addCompletion(", ");
         this.spaceParser.parse(ctx, complete);
@@ -152,7 +152,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
         return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
-                if (session.getMode().hasJSimpleDB())
+                if (session.getMode().hasPermazen())
                     return JTransaction.getCurrent().queryIndex(storageId);
                 else
                     return session.getTransaction().queryIndex(storageId);

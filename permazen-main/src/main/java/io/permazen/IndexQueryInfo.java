@@ -37,12 +37,12 @@ class IndexQueryInfo {
 // Constructors
 
     // Constructor for regular simple index queries
-    IndexQueryInfo(JSimpleDB jdb, Class<?> startType, String fieldName, Class<?> valueType) {
+    IndexQueryInfo(Permazen jdb, Class<?> startType, String fieldName, Class<?> valueType) {
         this(jdb, startType, fieldName, valueType, null);
     }
 
     // Primary constructor (keyType is null except for map value simple index queries)
-    IndexQueryInfo(JSimpleDB jdb, Class<?> startType, String fieldName, Class<?> valueType, Class<?> keyType) {
+    IndexQueryInfo(Permazen jdb, Class<?> startType, String fieldName, Class<?> valueType, Class<?> keyType) {
 
         // Sanity check
         Preconditions.checkArgument(jdb != null, "null jdb");
@@ -87,7 +87,7 @@ class IndexQueryInfo {
     }
 
     // Constructor for composite index queries
-    IndexQueryInfo(JSimpleDB jdb, Class<?> startType, String indexName, Class<?>... valueTypes) {
+    IndexQueryInfo(Permazen jdb, Class<?> startType, String indexName, Class<?>... valueTypes) {
 
         // Sanity check
         Preconditions.checkArgument(jdb != null, "null jdb");
@@ -120,11 +120,11 @@ class IndexQueryInfo {
           .forEach(this.filters::add);
     }
 
-    private Set<TypeToken<?>> getTypeTokens(JSimpleDB jdb, Class<?> context, int storageId) {
+    private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, int storageId) {
         return this.getTypeTokens(jdb, context, storageId, 0);
     }
 
-    private Set<TypeToken<?>> getTypeTokens(JSimpleDB jdb, Class<?> context, int storageId, int parentStorageId) {
+    private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, int storageId, int parentStorageId) {
         final HashSet<TypeToken<?>> contextFieldTypes = new HashSet<>();
         for (JClass<?> jclass : jdb.jclasses.values()) {
 
@@ -160,7 +160,7 @@ class IndexQueryInfo {
         return classes;
     }
 
-    private static CompositeIndexInfo findCompositeIndex(JSimpleDB jdb, Class<?> startType, String indexName, int numValues) {
+    private static CompositeIndexInfo findCompositeIndex(Permazen jdb, Class<?> startType, String indexName, int numValues) {
         CompositeIndexInfo indexInfo = null;
         for (JClass<?> jclass : jdb.getJClasses(startType)) {
             final JCompositeIndex index = jclass.jcompositeIndexesByName.get(indexName);
@@ -266,7 +266,7 @@ class IndexQueryInfo {
             this(description, actualType, Collections.<Class<?>>singleton(expectedType));
         }
 
-        public KeyRanges checkAndGetKeyRanges(JSimpleDB jdb, Class<?> startType, String queryDescription) {
+        public KeyRanges checkAndGetKeyRanges(Permazen jdb, Class<?> startType, String queryDescription) {
 
             // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
             // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).

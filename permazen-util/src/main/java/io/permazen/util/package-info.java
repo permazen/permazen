@@ -4,6 +4,6 @@
  */
 
 /**
- * General utility classes used with JSimpleDB.
+ * General utility classes used with Permazen.
  */
 package io.permazen.util;

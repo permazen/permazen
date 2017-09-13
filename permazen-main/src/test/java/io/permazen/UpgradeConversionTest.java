@@ -56,7 +56,7 @@ public class UpgradeConversionTest extends TestSupport {
         final int f19 = -12345678;
         final long f21 = 0x3373373373L;
 
-        JSimpleDB jdb = new JSimpleDB(db, 1, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person1.class));
+        Permazen jdb = new Permazen(db, 1, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person1.class));
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -97,7 +97,7 @@ public class UpgradeConversionTest extends TestSupport {
 
     // Version 2
 
-        jdb = new JSimpleDB(db, 2, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person2.class));
+        jdb = new Permazen(db, 2, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person2.class));
         jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

@@ -25,7 +25,7 @@ public class FollowPathTest extends TestSupport {
 
     @Test
     public void testFollowPath() {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Family.class, Car.class, Bike.class, Dad.class, Mom.class, GoodChild.class);
+        final Permazen jdb = BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, GoodChild.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -115,7 +115,7 @@ public class FollowPathTest extends TestSupport {
     @Test(dataProvider = "badChildClasses")
     public void testBadChild(Class<?> badChildClass) {
         try {
-            BasicTest.getJSimpleDB(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badChildClass);
+            BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badChildClass);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected " + e);

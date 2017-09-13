@@ -20,7 +20,7 @@ public class InvertReferencePathTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB();
+        final Permazen jdb = BasicTest.getPermazen();
 
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
@@ -89,7 +89,7 @@ public class InvertReferencePathTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath2() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(A.class, B.class, C.class);
+        final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -119,7 +119,7 @@ public class InvertReferencePathTest extends TestSupport {
 
     private NavigableSet<JObject> invertRefPath(JTransaction jtx,
       Class<?> startType, String path, Iterable<? extends JObject> objs) {
-        final ReferencePath refPath = jtx.getJSimpleDB().parseReferencePath(startType, path, false);
+        final ReferencePath refPath = jtx.getPermazen().parseReferencePath(startType, path, false);
         return jtx.invertReferencePath(refPath, objs);
     }
 

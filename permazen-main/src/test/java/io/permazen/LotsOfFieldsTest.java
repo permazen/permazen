@@ -34,7 +34,7 @@ public class LotsOfFieldsTest extends TestSupport {
             Fields64.class,
             Fields65.class
         };
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(classes);
+        final Permazen jdb = BasicTest.getPermazen(classes);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -77,7 +77,7 @@ public class LotsOfFieldsTest extends TestSupport {
     @Test
     public void testCopyCacheReset() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Fields65.class);
+        final Permazen jdb = BasicTest.getPermazen(Fields65.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

@@ -4,6 +4,6 @@
  */
 
 /**
- * Classes for modeling JSimpleDB {@link io.permazen.core.Database} schemas.
+ * Classes for modeling Permazen {@link io.permazen.core.Database} schemas.
  */
 package io.permazen.schema;

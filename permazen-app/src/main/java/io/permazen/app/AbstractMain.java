@@ -5,15 +5,15 @@
 
 package io.permazen.app;
 
-import io.permazen.JSimpleDBFactory;
+import io.permazen.PermazenFactory;
 import io.permazen.annotation.JFieldType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
+import io.permazen.spring.PermazenClassScanner;
+import io.permazen.spring.PermazenFieldTypeScanner;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -31,7 +31,7 @@ import java.util.LinkedHashSet;
 import org.dellroad.stuff.main.MainClass;
 
 /**
- * Support superclass for main entry point classes of JSimpleDB-related applications.
+ * Support superclass for main entry point classes of Permazen-related applications.
  */
 public abstract class AbstractMain extends MainClass {
 
@@ -247,8 +247,8 @@ public abstract class AbstractMain extends MainClass {
         return this.databaseDescription;
     }
 
-    public JSimpleDBFactory getJSimpleDBFactory(Database db) {
-        return new JSimpleDBFactory()
+    public PermazenFactory getPermazenFactory(Database db) {
+        return new PermazenFactory()
           .setModelClasses(this.schemaClasses)
           .setSchemaVersion(this.schemaVersion)
           .setDatabase(db);
@@ -297,7 +297,7 @@ public abstract class AbstractMain extends MainClass {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
-        new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+        new PermazenClassScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
           .peek(name -> this.log.debug("loading Java model class " + name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
@@ -310,7 +310,7 @@ public abstract class AbstractMain extends MainClass {
         if (this.fieldTypeClasses == null)
             this.fieldTypeClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
-        new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+        new PermazenFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
           .peek(name -> this.log.debug("loading custom FieldType class " + name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
@@ -409,7 +409,7 @@ public abstract class AbstractMain extends MainClass {
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--schema-version, -v num",       "Specify schema version (default highest recorded; `auto' to auto-generate)" },
-            { "--model-pkg package",            "Scan for @PermazenType model classes under Java package (=> JSimpleDB mode)" },
+            { "--model-pkg package",            "Scan for @PermazenType model classes under Java package (=> Permazen mode)" },
             { "--type-pkg package",             "Scan for @JFieldType types under Java package to register custom types" },
             { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },
             { "--help, -h",                     "Show this help message" },

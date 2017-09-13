@@ -19,7 +19,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testUniqueConstraint() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
 
         JTransaction.setCurrent(jtx);
@@ -161,7 +161,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyClone() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
@@ -195,7 +195,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyIn() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
@@ -240,7 +240,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyOnTopOf() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
         JTransaction jtx;
 
         final ObjId id1;
@@ -314,7 +314,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testSameStorageIdUnique() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class, UniqueName2.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName.class, UniqueName2.class);
         JTransaction jtx;
 
         // test 1
@@ -374,7 +374,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testSameStorageIdInherited() throws Exception {
 
-        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName3.class, UniqueName4.class);
+        Permazen jdb = BasicTest.getPermazen(UniqueName3.class, UniqueName4.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);

@@ -24,7 +24,7 @@ public class IndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testSharedStorageId() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Account.class, Foo.class, Bar.class, Jam.class);
+        final Permazen jdb = BasicTest.getPermazen(Account.class, Foo.class, Bar.class, Jam.class);
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
@@ -102,7 +102,7 @@ public class IndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testQueryIndexType() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasNameImpl.class);
+        final Permazen jdb = BasicTest.getPermazen(HasNameImpl.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -139,7 +139,7 @@ public class IndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testBoundedIndexes() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasNameAndAge.class);
+        final Permazen jdb = BasicTest.getPermazen(HasNameAndAge.class);
         final JTransaction jtx = jdb.createTransaction();
         JTransaction.setCurrent(jtx);
         try {

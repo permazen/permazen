@@ -8,7 +8,7 @@ package io.permazen.spring;
 import com.google.common.base.Preconditions;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationException;
 import io.permazen.ValidationMode;
@@ -47,16 +47,16 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      */
     public static final MediaType MIME_TYPE = new MediaType("application", "x-jsimpledb-transaction");
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
 
     private Class<?>[] validationGroups;
 
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} instance defining the convertible types
+     * @param jdb {@link Permazen} instance defining the convertible types
      */
-    public SnapshotJTransactionHttpMessageConverter(JSimpleDB jdb) {
+    public SnapshotJTransactionHttpMessageConverter(Permazen jdb) {
         super(MIME_TYPE);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
@@ -104,7 +104,7 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
 
 // Utility methods
 
-    static SnapshotJTransaction readSnapshotTransaction(JSimpleDB jdb, HttpInputMessage input, Class<?>[] validationGroups)
+    static SnapshotJTransaction readSnapshotTransaction(Permazen jdb, HttpInputMessage input, Class<?>[] validationGroups)
       throws IOException {
 
         // Decode key/value store

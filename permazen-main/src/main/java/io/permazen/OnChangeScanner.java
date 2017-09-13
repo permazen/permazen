@@ -75,7 +75,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             super(method, annotation);
 
             // Get database
-            final JSimpleDB jdb = OnChangeScanner.this.jclass.jdb;
+            final Permazen jdb = OnChangeScanner.this.jclass.jdb;
 
             // Get start type
             Class<?> startType = method.getDeclaringClass();

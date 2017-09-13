@@ -6,7 +6,7 @@
 package io.permazen.jsck;
 
 /**
- * Represents a missing key in a JSimpleDB key/value database.
+ * Represents a missing key in a Permazen key/value database.
  */
 public class MissingKey extends Issue {
 

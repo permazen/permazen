@@ -23,12 +23,12 @@ public class SetValidationModeCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Sets the validation mode for JSimpleDB transactions";
+        return "Sets the validation mode for Permazen transactions";
     }
 
     @Override
     public String getHelpDetail() {
-        return "Sets the validation mode for JSimpleDB transactions, one of `disabled', `manual', or `automatic' (the default).";
+        return "Sets the validation mode for Permazen transactions, one of `disabled', `manual', or `automatic' (the default).";
     }
 
     @Override

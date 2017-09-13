@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a JSimpleDB model class method that should be invoked any time the associated model object is validated.
+ * Annotates a Permazen model class method that should be invoked any time the associated model object is validated.
  *
  * <p>
  * This annotation does not change when an object will be enqueued for validation. It only affects the behavior once validation

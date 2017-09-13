@@ -12,12 +12,12 @@ package io.permazen;
  * <b>Type Changes</b>
  *
  * <p>
- * JSimpleDB fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
+ * Permazen fields are identified by their {@linkplain JSimpleField#getStorageId storage ID's}, which is typically
  * {@linkplain StorageIdGenerator derived automatically} from the field's name.
  * With one restriction<sup>*</sup>, the type of a field may change arbitrarily between schema versions.
  *
  * <p>
- * When changing an object's schema version, JSimpleDB supports optional automatic conversion of simple field
+ * When changing an object's schema version, Permazen supports optional automatic conversion of simple field
  * values from the old type to the new type. For example, an {@code int} field value {@code 1234} can be automatically
  * converted into {@link String} field value {@code "1234"}.
  *
@@ -36,7 +36,7 @@ package io.permazen;
  * <b>References and Enums</b>
  *
  * <p>
- * JSimpleDB considers {@link Enum} types with different identifier lists as different types. However, automatic
+ * Permazen considers {@link Enum} types with different identifier lists as different types. However, automatic
  * conversion of {@link Enum} values will work if the existing value's name is valid for the new {@link Enum} type.
  *
  * <p>

@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB unit test support classes.
+ * Permazen unit test support classes.
  */
 package io.permazen.test;

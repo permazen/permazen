@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB Maven plugins.
+ * Permazen Maven plugins.
  */
 package io.permazen.maven;

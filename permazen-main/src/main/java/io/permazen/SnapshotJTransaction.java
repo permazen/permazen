@@ -15,7 +15,7 @@ import io.permazen.core.SnapshotTransaction;
  * Each {@link SnapshotJTransaction} contains its own set of "snapshot" {@link JObject}s that are (usually) copies of
  * the corresponding "real" database {@link JObject}s. Because a {@link SnapshotJTransaction}
  * lives indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
- * In addition, {@link JSimpleDB} features such as indexing, listeners, validation, etc. also continue to work normally.
+ * In addition, {@link Permazen} features such as indexing, listeners, validation, etc. also continue to work normally.
  *
  * <p>
  * For convenience, each {@link JTransaction} has a default {@link SnapshotJTransaction} instance
@@ -28,12 +28,12 @@ import io.permazen.core.SnapshotTransaction;
  * {@link io.permazen.kv.KVTransaction#mutableSnapshot} allows an efficient copying of the entire database.
  *
  * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
- * @see JSimpleDB#createSnapshotTransaction JSimpleDB.createSnapshotTransaction()
+ * @see Permazen#createSnapshotTransaction Permazen.createSnapshotTransaction()
  * @see io.permazen.core.SnapshotTransaction
  */
 public class SnapshotJTransaction extends JTransaction {
 
-    SnapshotJTransaction(JSimpleDB jdb, SnapshotTransaction tx, ValidationMode validationMode) {
+    SnapshotJTransaction(Permazen jdb, SnapshotTransaction tx, ValidationMode validationMode) {
         super(jdb, tx, validationMode);
     }
 

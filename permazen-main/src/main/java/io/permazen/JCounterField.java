@@ -25,7 +25,7 @@ public class JCounterField extends JField {
 
     final UpgradeConversionPolicy upgradeConversion;
 
-    JCounterField(JSimpleDB jdb, String name, int storageId,
+    JCounterField(Permazen jdb, String name, int storageId,
       io.permazen.annotation.JField annotation, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
         this.upgradeConversion = annotation.upgradeConversion();
@@ -43,7 +43,7 @@ public class JCounterField extends JField {
     }
 
     @Override
-    CounterSchemaField toSchemaItem(JSimpleDB jdb) {
+    CounterSchemaField toSchemaItem(Permazen jdb) {
         final CounterSchemaField schemaField = new CounterSchemaField();
         this.initialize(jdb, schemaField);
         return schemaField;

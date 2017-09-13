@@ -4,7 +4,7 @@
  */
 
 /**
- * CLI commands associated with {@link io.permazen.jsck.Jsck}, the JSimpleDB key/value database consistency checker.
+ * CLI commands associated with {@link io.permazen.jsck.Jsck}, the Permazen key/value database consistency checker.
  *
  * @see io.permazen.jsck
  */

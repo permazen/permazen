@@ -17,7 +17,7 @@ public class RecursiveLoadTest extends TestSupport {
     @Test
     public void testRecursiveLoad() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

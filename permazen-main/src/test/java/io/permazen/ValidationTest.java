@@ -33,7 +33,7 @@ public class ValidationTest extends TestSupport {
     @Test
     public void testValidation() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
 
         // Transaction with validation disabled
         JTransaction tx = jdb.createTransaction(true, ValidationMode.DISABLED);
@@ -243,7 +243,7 @@ public class ValidationTest extends TestSupport {
     @Test
     public void testValidationOnCreate() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
 
         // Transaction with validation disabled
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
@@ -293,7 +293,7 @@ public class ValidationTest extends TestSupport {
 
     private <T extends NameThing> void testNameThing(Class<T> type) {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(type);
+        final Permazen jdb = BasicTest.getPermazen(type);
 
         // Transaction with validation enabled
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);

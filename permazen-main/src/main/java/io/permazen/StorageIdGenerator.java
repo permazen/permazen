@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  * explicitly in the corresponding {@link io.permazen.annotation.PermazenType &#64;PermazenType},
  * {@link io.permazen.annotation.JField &#64;JField}, etc., annotations.
  *
- * @see JSimpleDBFactory#setStorageIdGenerator JSimpleDBFactory.setStorageIdGenerator()
+ * @see PermazenFactory#setStorageIdGenerator PermazenFactory.setStorageIdGenerator()
  */
 public interface StorageIdGenerator {
 

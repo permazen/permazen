@@ -5,7 +5,7 @@
 
 package io.permazen.spring;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
@@ -18,7 +18,7 @@ import org.w3c.dom.NodeList;
  *
  * @see io.permazen.spring
  */
-class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final String KVSTORE_ATTRIBUTE = "kvstore";
     private static final String SCHEMA_VERSION_ATTRIBUTE = "schema-version";
@@ -26,8 +26,8 @@ class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE = "auto-generate-storage-ids";
 
     @Override
-    protected Class<JSimpleDB> getBeanClass(Element element) {
-        return JSimpleDB.class;
+    protected Class<Permazen> getBeanClass(Element element) {
+        return Permazen.class;
     }
 
     @Override
@@ -56,8 +56,8 @@ class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             builder.addPropertyReference("storageIdGenerator", element.getAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE));
         }
 
-        // Construct JSimpleDBFactoryBean bean definition
-        builder.getRawBeanDefinition().setBeanClass(JSimpleDBFactoryBean.class);
+        // Construct PermazenFactoryBean bean definition
+        builder.getRawBeanDefinition().setBeanClass(PermazenFactoryBean.class);
 
         // Look for nested <scan-classes> and <scan-field-types>
         final NodeList nodeList = element.getChildNodes();
@@ -65,11 +65,11 @@ class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             if (!(nodeList.item(i) instanceof Element))
                 continue;
             final Element child = (Element)nodeList.item(i);
-            if (!JSimpleDBNamespaceHandler.JSIMPLEDB_NAMESPACE_URI.equals(child.getNamespaceURI()))
+            if (!PermazenNamespaceHandler.JSIMPLEDB_NAMESPACE_URI.equals(child.getNamespaceURI()))
                 continue;
-            if (child.getLocalName().equals(JSimpleDBNamespaceHandler.SCAN_CLASSES_TAG))
+            if (child.getLocalName().equals(PermazenNamespaceHandler.SCAN_CLASSES_TAG))
                 builder.addPropertyValue("modelClasses", new ScanClassesBeanDefinitionParser().parse(child, parserContext));
-            else if (child.getLocalName().equals(JSimpleDBNamespaceHandler.SCAN_FIELD_TYPES_TAG)) {
+            else if (child.getLocalName().equals(PermazenNamespaceHandler.SCAN_FIELD_TYPES_TAG)) {
                 builder.addPropertyValue("fieldTypeClasses",
                   new ScanFieldTypesBeanDefinitionParser().parse(child, parserContext));
             } else {

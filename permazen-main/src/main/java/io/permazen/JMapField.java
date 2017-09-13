@@ -30,7 +30,7 @@ public class JMapField extends JComplexField {
     final JSimpleField keyField;
     final JSimpleField valueField;
 
-    JMapField(JSimpleDB jdb, String name, int storageId,
+    JMapField(Permazen jdb, String name, int storageId,
       JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
         Preconditions.checkArgument(keyField != null, "null keyField");
@@ -105,7 +105,7 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    MapSchemaField toSchemaItem(JSimpleDB jdb) {
+    MapSchemaField toSchemaItem(Permazen jdb) {
         final MapSchemaField schemaField = new MapSchemaField();
         super.initialize(jdb, schemaField);
         schemaField.setKeyField(this.keyField.toSchemaItem(jdb));

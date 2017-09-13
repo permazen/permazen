@@ -50,12 +50,12 @@ import org.slf4j.LoggerFactory;
  * See {@link Transaction} for further details on the above functionality.
  *
  * <p>
- * This class defines an abstraction layer that usually sits below a {@link io.permazen.JSimpleDB} but is completely
- * independent of {@link io.permazen.JSimpleDB} and can be used on its own.
- * Compared to {@link io.permazen.JSimpleDB}, a {@link Database} has these differences:
+ * This class defines an abstraction layer that usually sits below a {@link io.permazen.Permazen} but is completely
+ * independent of {@link io.permazen.Permazen} and can be used on its own.
+ * Compared to {@link io.permazen.Permazen}, a {@link Database} has these differences:
  * <ul>
  *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a
- *      {@link io.permazen.JSimpleDB} the schema is derived automatically from annotated Java model classes.</li>
+ *      {@link io.permazen.Permazen} the schema is derived automatically from annotated Java model classes.</li>
  *  <li>Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type.
  *      However, reference fields may be configured with a restricted set of referrable types.</li>
  *  <li>All object types and fields are referenced by explicit storage ID.</li>

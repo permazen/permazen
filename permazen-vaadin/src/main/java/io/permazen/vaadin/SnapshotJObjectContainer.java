@@ -6,8 +6,8 @@
 package io.permazen.vaadin;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.Transaction;
@@ -39,11 +39,11 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    protected SnapshotJObjectContainer(JSimpleDB jdb, Class<?> type) {
+    protected SnapshotJObjectContainer(Permazen jdb, Class<?> type) {
         super(jdb, type);
     }
 

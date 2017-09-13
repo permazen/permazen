@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class JListField extends JCollectionField {
 
-    JListField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+    JListField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
         super(jdb, name, storageId, elementField, description, getter);
     }
 
@@ -40,7 +40,7 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    ListSchemaField toSchemaItem(JSimpleDB jdb) {
+    ListSchemaField toSchemaItem(Permazen jdb) {
         final ListSchemaField schemaField = new ListSchemaField();
         super.initialize(jdb, schemaField);
         return schemaField;

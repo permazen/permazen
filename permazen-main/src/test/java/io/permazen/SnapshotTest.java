@@ -39,7 +39,7 @@ public class SnapshotTest extends TestSupport {
     @Test(dataProvider = "shapshotCases")
     public void testSnapshot1(Class<? extends Person> personClass) throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(personClass);
+        final Permazen jdb = BasicTest.getPermazen(personClass);
 
         Person p1;
         Person p2;
@@ -207,7 +207,7 @@ public class SnapshotTest extends TestSupport {
     @Test
     public void testSnapshotInvalid() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
@@ -250,7 +250,7 @@ public class SnapshotTest extends TestSupport {
     @Test
     public void testCopyRelated() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class);
+        final Permazen jdb = BasicTest.getPermazen(Foo.class);
 
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         final JTransaction stx = tx.getSnapshotTransaction();
@@ -295,7 +295,7 @@ public class SnapshotTest extends TestSupport {
     @Test
     public void testDanglingReference() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class, Foo2.class);
+        final Permazen jdb = BasicTest.getPermazen(Foo.class, Foo2.class);
 
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         final JTransaction stx = tx.getSnapshotTransaction();

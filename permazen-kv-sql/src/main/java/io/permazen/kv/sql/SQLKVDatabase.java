@@ -318,7 +318,7 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SQLKVDatabase} supports an {@link IsolationLevel} under the key {@link #OPTION_ISOLATION};
      * also, the {@link IsolationLevel} may be configured by the Spring
-     * {@link io.permazen.spring.JSimpleDBTransactionManager}, for example, using the
+     * {@link io.permazen.spring.PermazenTransactionManager}, for example, using the
      * {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation.
      *
      * @param options transaction options
@@ -329,7 +329,7 @@ public class SQLKVDatabase implements KVDatabase {
         // Start with the default
         IsolationLevel txIsolationLevel = this.isolationLevel;
 
-        // Look for isolation option from the JSimpleDBTransactionManager
+        // Look for isolation option from the PermazenTransactionManager
         Object isolation = options.get("org.springframework.transaction.annotation.Isolation");
         if (isolation instanceof Enum)
             isolation = ((Enum<?>)isolation).name();

@@ -20,7 +20,7 @@ public class QuitCommand extends AbstractCommand implements CliSession.Action {
 
     @Override
     public String getHelpSummary() {
-        return "Quits out of the JSimpleDB command line";
+        return "Quits out of the Permazen command line";
     }
 
     @Override

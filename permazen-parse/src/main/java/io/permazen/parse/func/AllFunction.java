@@ -40,8 +40,8 @@ public class AllFunction extends AbstractFunction {
     @Override
     public String getHelpDetail() {
         return "Retrieves all instances of the specified type, or all database objects if no type is given. The type may either"
-          + " be the name of a JSimpleDB Java model type (as an identifier) or any expression which evaluates to a java.lang.Class"
-          + " object (when in JSimpleDB mode) or an integer storage ID.";
+          + " be the name of a Permazen Java model type (as an identifier) or any expression which evaluates to a java.lang.Class"
+          + " object (when in Permazen mode) or an integer storage ID.";
     }
 
     @Override
@@ -83,7 +83,7 @@ public class AllFunction extends AbstractFunction {
             return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {
-                    return session.getMode().hasJSimpleDB() ?
+                    return session.getMode().hasPermazen() ?
                       JTransaction.getCurrent().getAll(Object.class) : session.getTransaction().getAll();
                 }
             };
@@ -98,7 +98,7 @@ public class AllFunction extends AbstractFunction {
             final Object obj = ((Node)param).evaluate(session).checkNotNull(session, "all()");
             if (obj instanceof Number)
                 return this.getAll(session, ((Number)obj).intValue());
-            if (obj instanceof Class && session.getMode().hasJSimpleDB()) {
+            if (obj instanceof Class && session.getMode().hasPermazen()) {
                 return new AbstractValue() {
                     @Override
                     public Object get(ParseSession session) {
@@ -116,7 +116,7 @@ public class AllFunction extends AbstractFunction {
     private Value getAll(ParseSession session, final int storageId) {
 
         // Handle core-only case
-        if (!session.getMode().hasJSimpleDB()) {
+        if (!session.getMode().hasPermazen()) {
             return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {
@@ -129,10 +129,10 @@ public class AllFunction extends AbstractFunction {
             };
         }
 
-        // Handle JSimpleDB case
+        // Handle Permazen case
         final JClass<?> jclass;
         try {
-            jclass = JTransaction.getCurrent().getJSimpleDB().getJClass(storageId);
+            jclass = JTransaction.getCurrent().getPermazen().getJClass(storageId);
         } catch (UnknownTypeException e) {
             throw new EvalException(e.getMessage(), e);
         }

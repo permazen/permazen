@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates JSimpleDB model class methods that are to be invoked whenever a database object is newly created.
+ * Annotates Permazen model class methods that are to be invoked whenever a database object is newly created.
  *
  * <p>
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and

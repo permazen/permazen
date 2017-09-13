@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates JSimpleDB model class methods that are to be invoked whenever an object is about to be deleted.
+ * Annotates Permazen model class methods that are to be invoked whenever an object is about to be deleted.
  *
  * <p>
  * Notifications are delivered in the same thread that deletes the object, before the delete actually occurs.

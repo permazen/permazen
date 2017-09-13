@@ -14,7 +14,7 @@ import com.google.common.base.Preconditions;
  * <p>
  * Note that it's possible, using the core API, to change a field without first updating the containing object's schema version.
  * As older schema versions may have different fields than the schema version associated with a particular
- * {@link io.permazen.JSimpleDB} instance, it's therefore possible to receive change notifications about changes to fields
+ * {@link io.permazen.Permazen} instance, it's therefore possible to receive change notifications about changes to fields
  * not present in the current schema. This will not happen unless the lower level core API is used directly, {@link FieldChange}
  * events are being generated manually, etc.
  *

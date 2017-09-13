@@ -21,7 +21,7 @@ public class IndexQuerySetsTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testNavigableSets() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class);
+        final Permazen jdb = BasicTest.getPermazen(Foo.class);
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);

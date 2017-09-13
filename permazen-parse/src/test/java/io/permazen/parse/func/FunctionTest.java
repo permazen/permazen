@@ -6,7 +6,7 @@
 package io.permazen.parse.func;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.JTransaction;
 import io.permazen.Session;
 import io.permazen.ValidationMode;
@@ -31,7 +31,7 @@ public class FunctionTest extends TestSupport {
     public void testFunctions() throws Exception {
 
         // Set up data
-        final JSimpleDB jdb = new JSimpleDB(Parent.class, Child.class);
+        final Permazen jdb = new Permazen(Parent.class, Child.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

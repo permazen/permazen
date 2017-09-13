@@ -19,13 +19,13 @@ import org.objectweb.asm.ClassWriter;
  */
 public abstract class JComplexField extends JField {
 
-    JComplexField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+    JComplexField(Permazen jdb, String name, int storageId, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
         Preconditions.checkArgument(name != null, "null name");
     }
 
     @Override
-    abstract ComplexSchemaField toSchemaItem(JSimpleDB jdb);
+    abstract ComplexSchemaField toSchemaItem(Permazen jdb);
 
     /**
      * Get the sub-fields associated with this field.

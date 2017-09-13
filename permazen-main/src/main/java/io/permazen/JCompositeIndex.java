@@ -41,7 +41,7 @@ public class JCompositeIndex extends JSchemaObject {
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JCompositeIndex(JSimpleDB jdb, String name, int storageId, Class<?> declaringType,
+    JCompositeIndex(Permazen jdb, String name, int storageId, Class<?> declaringType,
       io.permazen.annotation.JCompositeIndex annotation, JSimpleField... jfields) {
         super(jdb, name, storageId, "composite index `" + name + "' on fields " + Arrays.asList(jfields));
         Preconditions.checkArgument(name != null, "null name");
@@ -119,13 +119,13 @@ public class JCompositeIndex extends JSchemaObject {
     }
 
     @Override
-    SchemaCompositeIndex toSchemaItem(JSimpleDB jdb) {
+    SchemaCompositeIndex toSchemaItem(Permazen jdb) {
         final SchemaCompositeIndex schemaIndex = new SchemaCompositeIndex();
         this.initialize(jdb, schemaIndex);
         return schemaIndex;
     }
 
-    void initialize(JSimpleDB jdb, SchemaCompositeIndex schemaIndex) {
+    void initialize(Permazen jdb, SchemaCompositeIndex schemaIndex) {
         super.initialize(jdb, schemaIndex);
         for (JSimpleField jfield : this.jfields)
             schemaIndex.getIndexedFields().add(jfield.getStorageId());

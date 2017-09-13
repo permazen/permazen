@@ -7,7 +7,7 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.Session;
 import io.permazen.cli.cmd.Command;
 import io.permazen.core.Database;
@@ -94,7 +94,7 @@ public class CliSession extends ParseSession {
      * @param console associated console if any, otherwise null
      * @throws IllegalArgumentException if {@code jdb} or {@code writer} is null
      */
-    public CliSession(JSimpleDB jdb, PrintWriter writer, Console console) {
+    public CliSession(Permazen jdb, PrintWriter writer, Console console) {
         super(jdb);
         Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;

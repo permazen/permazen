@@ -4,7 +4,7 @@
  */
 
 /**
- * JSimpleDB core API utility classes.
+ * Permazen core API utility classes.
  *
  * @see io.permazen.core
  */

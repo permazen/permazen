@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Contains JSimpleDB library version information.
+ * Contains Permazen library version information.
  */
 public final class Version {
 

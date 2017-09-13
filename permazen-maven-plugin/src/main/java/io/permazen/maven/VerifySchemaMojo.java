@@ -5,7 +5,7 @@
 
 package io.permazen.maven;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,10 +24,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
- * Verify the JSimpleDB schema auto-generated from user-supplied model classes.
+ * Verify the Permazen schema auto-generated from user-supplied model classes.
  *
  * <p>
- * This goal verifies that the JSimpleDB schema can be successfully auto-generated from user-supplied model classes.
+ * This goal verifies that the Permazen schema can be successfully auto-generated from user-supplied model classes.
  * It also checks that the schema will not lead to any {@link io.permazen.core.SchemaMismatchException}s at runtime.
  *
  * <p>
@@ -60,7 +60,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  *  <li>The old expected schema XML file should be moved into the old schemas directory;</li>
  *  <li>the new expected schema XML file (found in the location configured by {@code <actualSchemaFile>})
  *      should be copied to the current expected schema XML file;</li>
- *  <li>Any manually configured JSimpleDB schema version number should be incremented.</li>
+ *  <li>Any manually configured Permazen schema version number should be incremented.</li>
  * </ul>
  *
  * <p>
@@ -103,7 +103,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
      *
      * <p>
      * Two schemas that are equivalent except for names are considered compatible, because the core API uses
-     * storage ID's, not names, to encode fields. However, if names change then some JSimpleDB layer operations,
+     * storage ID's, not names, to encode fields. However, if names change then some Permazen layer operations,
      * such as index queries and reference path inversion, may need to be updated.
      */
     @Parameter(defaultValue = "true")
@@ -116,7 +116,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
     private File oldSchemasDirectory;
 
     @Override
-    protected void execute(JSimpleDB jdb) throws MojoExecutionException, MojoFailureException {
+    protected void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException {
 
         // Handle the case where the expected schema file doesn't exist
         if (!this.expectedSchemaFile.exists()) {
@@ -133,7 +133,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
               + "  (b) Otherwise:\n"
               + "      1. Move " + this.expectedSchemaFile + " into " + this.oldSchemasDirectory + "\n"
               + "      2. Copy " + this.actualSchemaFile + " to " + this.expectedSchemaFile + "\n"
-              + "      3. Update your configured JSimpleDB schema version number (or use -1 to auto-generate)");
+              + "      3. Update your configured Permazen schema version number (or use -1 to auto-generate)");
         }
 
         // Gather old schema files

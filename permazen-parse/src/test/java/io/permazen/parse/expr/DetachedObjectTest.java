@@ -6,7 +6,7 @@
 package io.permazen.parse.expr;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.JTransaction;
 import io.permazen.Session;
 import io.permazen.annotation.PermazenType;
@@ -26,7 +26,7 @@ public class DetachedObjectTest extends TestSupport {
 
     @BeforeClass
     public void setup() throws Exception {
-        final JSimpleDB jdb = new JSimpleDB(Person.class);
+        final Permazen jdb = new Permazen(Person.class);
         this.session = new ParseSession(jdb);
         this.session.setSchemaVersion(1);
         this.session.setAllowNewSchema(true);

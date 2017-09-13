@@ -145,7 +145,7 @@ public final class Layout {
      * Get the key under which the database format version is encoded.
      *
      * <p>
-     * The existence of this key also serves to identify a JSimpleDB database.
+     * The existence of this key also serves to identify a Permazen database.
      *
      * @return meta-data prefix bytes
      */

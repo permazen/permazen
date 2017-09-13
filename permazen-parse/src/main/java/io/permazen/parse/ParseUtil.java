@@ -75,7 +75,7 @@ public final class ParseUtil {
         Preconditions.checkArgument(session != null, "null session");
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(session.getMode().hasJSimpleDB(), "session mode has no JSimpleDB");
+        Preconditions.checkArgument(session.getMode().hasPermazen(), "session mode has no Permazen");
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
@@ -86,7 +86,7 @@ public final class ParseUtil {
         // Find JClass
         final JClass<?> jclass;
         try {
-            jclass = session.getJSimpleDB().getJClass(objType.getStorageId());
+            jclass = session.getPermazen().getJClass(objType.getStorageId());
         } catch (UnknownTypeException e) {
             throw new IllegalArgumentException("error accessing field `" + name + "': " + e.getMessage(), e);
         }

@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Eliminates the annotated method from consideration for JSimpleDB field auto-generation.
+ * Eliminates the annotated method from consideration for Permazen field auto-generation.
  *
  * <p>
  * This annotation is ignored on methods that also have a {@link JField &#64;JField}, {@link JSetField &#64;JSetField},

@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Information about a Java class that is used to represent a specific JSimpleDB object type.
+ * Information about a Java class that is used to represent a specific Permazen object type.
  *
  * @param <T> the Java class
  */
@@ -75,14 +75,14 @@ public class JClass<T> extends JSchemaObject {
     /**
      * Constructor.
      *
-     * @param jdb the associated {@link JSimpleDB}
+     * @param jdb the associated {@link Permazen}
      * @param name the name of the object type
      * @param storageId object type storage ID
      * @param type object type Java model class
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JClass(JSimpleDB jdb, String name, int storageId, Class<T> type) {
+    JClass(Permazen jdb, String name, int storageId, Class<T> type) {
         super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(!UntypedJObject.class.isAssignableFrom(type),
@@ -159,7 +159,7 @@ public class JClass<T> extends JSchemaObject {
 
 // Internal methods
 
-    void createFields(JSimpleDB jdb) {
+    void createFields(Permazen jdb) {
 
         // Auto-generate properties?
         final PermazenType jsimpleClass = Util.getAnnotation(this.type, PermazenType.class);
@@ -385,7 +385,7 @@ public class JClass<T> extends JSchemaObject {
           .collect(Collectors.toList()));
     }
 
-    void addCompositeIndex(JSimpleDB jdb, Class<?> declaringType, io.permazen.annotation.JCompositeIndex annotation) {
+    void addCompositeIndex(Permazen jdb, Class<?> declaringType, io.permazen.annotation.JCompositeIndex annotation) {
 
         // Get info
         final String indexName = annotation.name();
@@ -480,7 +480,7 @@ public class JClass<T> extends JSchemaObject {
     }
 
     @Override
-    SchemaObjectType toSchemaItem(JSimpleDB jdb) {
+    SchemaObjectType toSchemaItem(Permazen jdb) {
         final SchemaObjectType schemaObjectType = new SchemaObjectType();
         this.initialize(jdb, schemaObjectType);
         for (JField field : this.jfields.values()) {

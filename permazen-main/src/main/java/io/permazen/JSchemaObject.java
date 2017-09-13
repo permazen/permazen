@@ -11,16 +11,16 @@ import io.permazen.schema.AbstractSchemaItem;
 
 /**
  * Superclass for the {@link JClass} and {@link JField} classes which define the schema
- * associated with a {@link JSimpleDB}.
+ * associated with a {@link Permazen}.
  */
 public abstract class JSchemaObject {
 
-    final JSimpleDB jdb;
+    final Permazen jdb;
     final String name;
     final int storageId;
     final String description;
 
-    JSchemaObject(JSimpleDB jdb, String name, int storageId, String description) {
+    JSchemaObject(Permazen jdb, String name, int storageId, String description) {
         Preconditions.checkArgument(jdb != null, "null jdb");
         Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
         Preconditions.checkArgument(description != null, "null description");
@@ -33,11 +33,11 @@ public abstract class JSchemaObject {
 // Public API
 
     /**
-     * Get the {@link JSimpleDB} with which this instance is associated.
+     * Get the {@link Permazen} with which this instance is associated.
      *
      * @return the associated database
      */
-    public JSimpleDB getJSimpleDB() {
+    public Permazen getPermazen() {
         return this.jdb;
     }
 
@@ -65,9 +65,9 @@ public abstract class JSchemaObject {
         throw new UnsupportedOperationException();
     }
 
-    abstract AbstractSchemaItem toSchemaItem(JSimpleDB jdb);
+    abstract AbstractSchemaItem toSchemaItem(Permazen jdb);
 
-    void initialize(JSimpleDB jdb, AbstractSchemaItem schemaItem) {
+    void initialize(Permazen jdb, AbstractSchemaItem schemaItem) {
         schemaItem.setName(this.name);
         schemaItem.setStorageId(this.storageId);
     }

@@ -24,7 +24,7 @@ import java.util.NavigableSet;
  */
 public class JSetField extends JCollectionField {
 
-    JSetField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+    JSetField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
         super(jdb, name, storageId, elementField, description, getter);
     }
 
@@ -40,7 +40,7 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    SetSchemaField toSchemaItem(JSimpleDB jdb) {
+    SetSchemaField toSchemaItem(Permazen jdb) {
         final SetSchemaField schemaField = new SetSchemaField();
         super.initialize(jdb, schemaField);
         return schemaField;

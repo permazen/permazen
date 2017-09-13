@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generates JSimpleDB model classes.
+ * Generates Permazen model classes.
  *
  * <p>
  * The generated classes are subclasses of the the user-provided Java object classes (typically these are abstract classes).
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 class ClassGenerator<T> {
 
      // String to use for the "source file" attribute in generated classes.
-    static final String GEN_SOURCE = "[GeneratedByJSimpleDB]";
+    static final String GEN_SOURCE = "[GeneratedByPermazen]";
 
     // Names of generated fields
     static final String TX_FIELD_NAME = "$tx";
@@ -75,7 +75,7 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_INVERT_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_GET_TRANSACTION;
 
-    // JSimpleDB method handles
+    // Permazen method handles
     static final Method JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD;
 
     // Converter method handles
@@ -125,15 +125,15 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
-            JTRANSACTION_GET_JSIMPLEDB_METHOD = JTransaction.class.getMethod("getJSimpleDB");
+            JTRANSACTION_GET_JSIMPLEDB_METHOD = JTransaction.class.getMethod("getPermazen");
             JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Iterable.class);
             JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
               ReferencePath.class, Iterable.class);
             JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
 
-            // JSimpleDB methods
-            JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD = JSimpleDB.class.getMethod("parseReferencePath",
+            // Permazen methods
+            JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath",
               Class.class, String.class, boolean.class);
 
             // Transaction methods
@@ -167,7 +167,7 @@ class ClassGenerator<T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected final JSimpleDB jdb;
+    protected final Permazen jdb;
     protected final JClass<T> jclass;
     protected final Class<T> modelClass;
 
@@ -185,14 +185,14 @@ class ClassGenerator<T> {
     /**
      * Constructor for a "JObject" class with no fields.
      */
-    ClassGenerator(JSimpleDB jdb, Class<T> modelClass) {
+    ClassGenerator(Permazen jdb, Class<T> modelClass) {
         this(jdb, null, modelClass);
     }
 
     /**
      * Internal constructor.
      */
-    private ClassGenerator(JSimpleDB jdb, JClass<T> jclass, Class<T> modelClass) {
+    private ClassGenerator(Permazen jdb, JClass<T> jclass, Class<T> modelClass) {
         this.jdb = jdb;
         this.jclass = jclass;
         this.modelClass = modelClass;
@@ -260,7 +260,7 @@ class ClassGenerator<T> {
      * Get class internal name. Note: this name contains slashes, not dots.
      */
     public String getClassName() {
-        return Type.getInternalName(this.modelClass) + JSimpleDB.GENERATED_CLASS_NAME_SUFFIX;
+        return Type.getInternalName(this.modelClass) + Permazen.GENERATED_CLASS_NAME_SUFFIX;
     }
 
     /**

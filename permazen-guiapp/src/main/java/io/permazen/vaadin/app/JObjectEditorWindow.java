@@ -262,7 +262,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
                 final TextField field = new TextField();
                 field.setWidth("100%");
                 field.setNullSettingAllowed(false);
-                field.setConverter(new SimpleFieldConverter<Long>(JObjectEditorWindow.this.jclass.getJSimpleDB()
+                field.setConverter(new SimpleFieldConverter<Long>(JObjectEditorWindow.this.jclass.getPermazen()
                   .getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(long.class))));
                 return field;
             }

@@ -8,8 +8,8 @@ package io.permazen.spring;
 import com.google.common.base.Preconditions;
 
 import io.permazen.DefaultStorageIdGenerator;
-import io.permazen.JSimpleDB;
-import io.permazen.JSimpleDBFactory;
+import io.permazen.Permazen;
+import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 /**
  * Factory bean created by <code>&lt;jsimpledb:jsimpledb&gt;</code> tags.
  */
-class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
+class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
     private KVDatabase kvstore;
     private int schemaVersion = -1;
@@ -63,11 +63,11 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
 
     @Override
     public Class<?> getObjectType() {
-        return JSimpleDB.class;
+        return Permazen.class;
     }
 
     @Override
-    protected JSimpleDB createInstance() {
+    protected Permazen createInstance() {
 
         // Apply defaults
         KVDatabase kvstore1 = this.kvstore;
@@ -80,13 +80,13 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
         if (this.fieldTypeClasses != null)
             db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
 
-        // Build JSimpleDB
-        return new JSimpleDBFactory()
+        // Build Permazen
+        return new PermazenFactory()
           .setDatabase(db)
           .setSchemaVersion(schemaVersion1)
           .setStorageIdGenerator(this.storageIdGenerator)
           .setModelClasses(this.modelClasses)
-          .newJSimpleDB();
+          .newPermazen();
     }
 }
 

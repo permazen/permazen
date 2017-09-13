@@ -26,7 +26,7 @@ public class MainUI extends AbstractUI {
 
     @Override
     protected String getTitle() {
-        return "JSimpleDB Viewer";
+        return "Permazen Viewer";
     }
 
     @Override

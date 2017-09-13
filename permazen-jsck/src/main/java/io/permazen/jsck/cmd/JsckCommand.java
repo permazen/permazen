@@ -57,7 +57,7 @@ public class JsckCommand extends AbstractCommand {
           + "   -kv\n"
           + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
           + "   -registry\n"
-          + "       Specify a custom field type registry. If this flag is not given, in JSimpleDB and Core API modes,\n"
+          + "       Specify a custom field type registry. If this flag is not given, in Permazen and Core API modes,\n"
           + "       the configured registry will be used; in key/value database CLI mode, a default instances is used.\n"
           + "       The parameter must be a Java expression returning a FieldTypeRegistry.\n"
           + "   -force-schemas\n"

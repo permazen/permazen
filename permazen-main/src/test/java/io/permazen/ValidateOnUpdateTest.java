@@ -46,7 +46,7 @@ public class ValidateOnUpdateTest extends TestSupport {
 
     // Version 2
 
-        JSimpleDB jdb = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Foo.class));
+        Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Foo.class));
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

@@ -7,7 +7,7 @@ package io.permazen.vaadin.app;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.app.AbstractMain;
 import io.permazen.core.Database;
 
@@ -37,7 +37,7 @@ public class Main extends AbstractMain implements GUIConfig {
 
     private static Main instance;
 
-    private JSimpleDB jdb;
+    private Permazen jdb;
     private Server server;
     private int port = DEFAULT_HTTP_PORT;
     private URI root;
@@ -110,8 +110,8 @@ public class Main extends AbstractMain implements GUIConfig {
         final Database db = this.startupKVDatabase();
         try {
 
-            // Create JSimpleDB instance
-            this.jdb = this.getJSimpleDBFactory(db).newJSimpleDB();
+            // Create Permazen instance
+            this.jdb = this.getPermazenFactory(db).newPermazen();
 
             // Create web server with Spring application context
             this.server = new Server(this.port);
@@ -145,7 +145,7 @@ public class Main extends AbstractMain implements GUIConfig {
     }
 
     @Override
-    public JSimpleDB getJSimpleDB() {
+    public Permazen getPermazen() {
         return this.jdb;
     }
 

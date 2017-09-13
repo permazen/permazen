@@ -8,7 +8,7 @@ package io.permazen.spring;
 import com.google.common.base.Preconditions;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.core.ObjId;
 
@@ -44,17 +44,17 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
      */
     public static final String ROOT_OBJECT_ID_PARAMETER_NAME = "root";
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
 
     private Class<?>[] validationGroups;
 
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} instance
+     * @param jdb {@link Permazen} instance
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    public JObjectHttpMessageConverter(JSimpleDB jdb) {
+    public JObjectHttpMessageConverter(Permazen jdb) {
         super(SnapshotJTransactionHttpMessageConverter.MIME_TYPE);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;

@@ -44,7 +44,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 
 /**
- * Models one JSimpleDB {@link io.permazen.core.Database} schema version.
+ * Models one Permazen {@link io.permazen.core.Database} schema version.
  */
 public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaModel> {
 

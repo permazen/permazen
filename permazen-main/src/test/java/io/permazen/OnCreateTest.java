@@ -24,7 +24,7 @@ public class OnCreateTest extends TestSupport {
     @Test
     public void testOnCreate1() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -51,7 +51,7 @@ public class OnCreateTest extends TestSupport {
     @Test
     public void testOnCreate2() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasUUID.class);
+        final Permazen jdb = BasicTest.getPermazen(HasUUID.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

@@ -17,7 +17,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  *
  * @see io.permazen.spring
  */
-public class JSimpleDBNamespaceHandler extends NamespaceHandlerSupport {
+public class PermazenNamespaceHandler extends NamespaceHandlerSupport {
 
     public static final String JSIMPLEDB_NAMESPACE_URI = "http://jsimpledb.googlecode.com/schema/jsimpledb";
 
@@ -27,7 +27,7 @@ public class JSimpleDBNamespaceHandler extends NamespaceHandlerSupport {
 
     @Override
     public void init() {
-        this.registerBeanDefinitionParser(JSIMPLEDB_TAG, new JSimpleDBBeanDefinitionParser());
+        this.registerBeanDefinitionParser(JSIMPLEDB_TAG, new PermazenBeanDefinitionParser());
         this.registerBeanDefinitionParser(SCAN_CLASSES_TAG, new ScanClassesBeanDefinitionParser());
         this.registerBeanDefinitionParser(SCAN_FIELD_TYPES_TAG, new ScanFieldTypesBeanDefinitionParser());
     }

@@ -37,7 +37,7 @@ public class FieldTypesConflictTest extends TestSupport {
     @Test
     public void testFieldTypesNoConflict() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(FieldTypes1.class, FieldTypes2.class, FieldTypes3.class);
+        final Permazen jdb = BasicTest.getPermazen(FieldTypes1.class, FieldTypes2.class, FieldTypes3.class);
 
         FieldTypes1 ft1;
         FieldTypes2 ft2;
@@ -100,14 +100,14 @@ public class FieldTypesConflictTest extends TestSupport {
     public void testFieldTypesConflict() {
 
         try {
-            BasicTest.getJSimpleDB(Conflictor1.class, Conflictor2.class);
+            BasicTest.getPermazen(Conflictor1.class, Conflictor2.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             // expected
         }
 
         try {
-            BasicTest.getJSimpleDB(Conflictor3.class, Conflictor4.class);
+            BasicTest.getPermazen(Conflictor3.class, Conflictor4.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             // expected
@@ -117,7 +117,7 @@ public class FieldTypesConflictTest extends TestSupport {
 
     @Test
     public void testFieldTypesNoConflict2() {
-        BasicTest.getJSimpleDB(NonConflictor1.class, NonConflictor2.class);
+        BasicTest.getPermazen(NonConflictor1.class, NonConflictor2.class);
     }
 
 // Model Classes

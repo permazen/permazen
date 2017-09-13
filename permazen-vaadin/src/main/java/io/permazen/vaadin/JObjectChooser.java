@@ -20,7 +20,7 @@ import com.vaadin.ui.TextArea;
 
 import io.permazen.JClass;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.core.ObjId;
 import io.permazen.parse.ParseSession;
 
@@ -41,7 +41,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
     private final Button showButton = new Button("Show", e -> this.showButtonClicked());
     private final CheckBox reverseCheckBox = new CheckBox("Reverse sort");
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final ParseSession session;
     private final boolean showFields;
     private final TypeContainer typeContainer;
@@ -66,7 +66,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
      */
     public JObjectChooser(ParseSession session, Class<?> type, boolean showFields) {
         Preconditions.checkArgument(session != null, "null session");
-        this.jdb = session.getJSimpleDB();
+        this.jdb = session.getPermazen();
         this.session = session;
         this.showFields = showFields;
         this.typeContainer = new TypeContainer(this.jdb, type);

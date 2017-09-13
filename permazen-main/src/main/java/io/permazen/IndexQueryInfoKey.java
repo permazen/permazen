@@ -25,7 +25,7 @@ class IndexQueryInfoKey {
         this.valueTypes = valueTypes;
     }
 
-    public IndexQueryInfo getIndexQueryInfo(JSimpleDB jdb) {
+    public IndexQueryInfo getIndexQueryInfo(Permazen jdb) {
 
         // Handle composite index
         if (this.composite)

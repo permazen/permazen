@@ -11,8 +11,8 @@ import io.permazen.JClass;
 import io.permazen.JComplexField;
 import io.permazen.JField;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
 import io.permazen.JSimpleField;
+import io.permazen.Permazen;
 import io.permazen.parse.ParseSession;
 
 import java.util.ArrayList;
@@ -32,19 +32,19 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
     public static final String DESCRIPTION_PROPERTY = "description";
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final JClass<?> jclass;
     private final Class<?> type;
 
-    SortKeyContainer(JSimpleDB jdb, JClass<?> jclass) {
+    SortKeyContainer(Permazen jdb, JClass<?> jclass) {
         this(jdb, jclass, jclass.getType());
     }
 
-    SortKeyContainer(JSimpleDB jdb, Class<?> type) {
+    SortKeyContainer(Permazen jdb, Class<?> type) {
         this(jdb, null, type);
     }
 
-    private SortKeyContainer(JSimpleDB jdb, JClass<?> jclass, Class<?> type) {
+    private SortKeyContainer(Permazen jdb, JClass<?> jclass, Class<?> type) {
         super(SortKey.class);
         this.jdb = jdb;
         this.jclass = jclass;

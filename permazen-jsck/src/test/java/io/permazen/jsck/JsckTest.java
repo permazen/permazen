@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.Counter;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.JTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.annotation.JCompositeIndex;
@@ -55,11 +55,11 @@ public class JsckTest extends KVTestSupport {
 
     private static final int SNAPSHOT_VERSION = 1;
 
-    private JSimpleDB jdb;
+    private Permazen jdb;
 
     @BeforeClass
     private void setupTestDatabase() {
-        this.jdb = new JSimpleDB(Person.class, Pet.class);
+        this.jdb = new Permazen(Person.class, Pet.class);
     }
 
     @Test(dataProvider = "cases")
@@ -132,7 +132,7 @@ public class JsckTest extends KVTestSupport {
     @Test
     public void testSchemaCompat() throws Exception {
         final NavigableMapKVStore kv = new NavigableMapKVStore();
-        final JSimpleDB refsDB = new JSimpleDB(Refs1.class, Refs2.class, Person.class, Pet.class);
+        final Permazen refsDB = new Permazen(Refs1.class, Refs2.class, Person.class, Pet.class);
         final JTransaction jtx = refsDB.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
 
         final Person person1 = this.create(jtx, Person.class, 0x1011111111111111L);

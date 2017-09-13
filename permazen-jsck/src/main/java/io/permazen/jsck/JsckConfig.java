@@ -162,7 +162,7 @@ public class JsckConfig {
      * <b>Warning</b>: use of this property is dangerous, because it affects how {@link Jsck} interprets all other key/value
      * data in the database. This property should only be used if:
      * <ul>
-     *  <li>This {@link Jsck} utility is at least as current as the any version of JSimpleDB that has written to the database</li>
+     *  <li>This {@link Jsck} utility is at least as current as the any version of Permazen that has written to the database</li>
      *  <li>It is known that the {@linkplain Layout#getFormatVersionKey format version key/value entry}
      *      has been somehow corrupted or deleted; and</li>
      *  <li>The actual format version is known and configured here.</li>

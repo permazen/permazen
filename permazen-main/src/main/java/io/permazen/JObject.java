@@ -14,10 +14,10 @@ import io.permazen.util.NavigableSets;
 import java.util.NavigableSet;
 
 /**
- * Interface implemented by {@link JSimpleDB} Java model objects.
+ * Interface implemented by {@link Permazen} Java model objects.
  *
  * <p>
- * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of user-provided Java model types.
+ * All {@link Permazen} database objects are instances of runtime-generated sub-classes of user-provided Java model types.
  * These generated subclasses will always implement this interface, providing convenient access to database operations.
  * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
  * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
@@ -50,7 +50,7 @@ import java.util.NavigableSet;
 public interface JObject {
 
     /**
-     * Get this instance's unique JSimpleDB object identifier.
+     * Get this instance's unique Permazen object identifier.
      *
      * <p>
      * This method always succeeds, even if the object does not {@linkplain #exists exist}.
@@ -485,7 +485,7 @@ public interface JObject {
      * @return associated {@link JClass}
      */
     default JClass<?> getJClass() {
-        return this.getTransaction().getJSimpleDB().getJClass(this.getObjId());
+        return this.getTransaction().getPermazen().getJClass(this.getObjId());
     }
 
     /**

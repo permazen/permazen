@@ -17,8 +17,8 @@ import com.vaadin.ui.VerticalLayout;
 import io.permazen.CopyState;
 import io.permazen.JClass;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.UntypedJObject;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
@@ -41,7 +41,7 @@ public class MainPanel extends VerticalLayout {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final ParseSession session;
     private final JObjectChooser objectChooser;
 
@@ -69,8 +69,8 @@ public class MainPanel extends VerticalLayout {
     public MainPanel(ParseSession session) {
         Preconditions.checkArgument(session != null, "null session");
         this.session = session;
-        this.jdb = session.getJSimpleDB();
-        Preconditions.checkArgument(this.jdb != null, "session is not a JSimpleDB session");
+        this.jdb = session.getPermazen();
+        Preconditions.checkArgument(this.jdb != null, "session is not a Permazen session");
 
         // Setup object chooser
         this.objectChooser = new JObjectChooser(this.session, null, true);
@@ -301,10 +301,10 @@ public class MainPanel extends VerticalLayout {
         private final GUIConfig guiConfig;
 
         GUISession(GUIConfig guiConfig) {
-            super(guiConfig.getJSimpleDB());
+            super(guiConfig.getPermazen());
             this.guiConfig = guiConfig;
             this.setReadOnly(this.guiConfig.isReadOnly());
-            this.setSchemaModel(this.guiConfig.getJSimpleDB().getSchemaModel());
+            this.setSchemaModel(this.guiConfig.getPermazen().getSchemaModel());
             this.setSchemaVersion(this.guiConfig.getSchemaVersion());
             this.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
             this.loadFunctionsFromClasspath();

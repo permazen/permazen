@@ -20,7 +20,7 @@ public class CopyCascadeTest extends TestSupport {
 
     @Test
     public void testNullCopyCascade() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Node.class);
+        final Permazen jdb = BasicTest.getPermazen(Node.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -41,7 +41,7 @@ public class CopyCascadeTest extends TestSupport {
 
     @Test
     public void testCopyCascades() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Node.class, Other.class);
+        final Permazen jdb = BasicTest.getPermazen(Node.class, Other.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
         JTransaction.setCurrent(jtx);

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * Java annotation for declaring methods that should return objects found by traversing a {@link io.permazen.ReferencePath}.
  *
  * <p>
- * This annotation can be used as a convenience to let JSimpleDB auto-generate reference path traversal code.
+ * This annotation can be used as a convenience to let Permazen auto-generate reference path traversal code.
  * A common use case is inverting references, e.g., from a parent back to a child in a one-to-many relationship.
  *
  * <p>
@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * <pre>
  *
  *      public NavigableSet&lt;TreeNode&gt; getChildren() {
- *          final JSimpleDB jdb = /* the JSimpleDB instance associated with this instance *&#47;
+ *          final Permazen jdb = /* the Permazen instance associated with this instance *&#47;
  *          final ReferencePath path = jdb.parseReferencePath(this.getClass(), "^TreeNode:parent^", false);
  *          return jdb.followReferencePath(path, Collections.singleton(this));
  *      }

@@ -16,7 +16,7 @@ public class ConstructorTest extends TestSupport {
 
     @Test
     public void testConstrutorWithParam() {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -30,7 +30,7 @@ public class ConstructorTest extends TestSupport {
     @Test
     public void testPrivateConstrutor() {
         try {
-            BasicTest.getJSimpleDB(Person2.class);
+            BasicTest.getPermazen(Person2.class);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
@@ -40,7 +40,7 @@ public class ConstructorTest extends TestSupport {
     @Test
     public void testMissingConstrutor() {
         try {
-            BasicTest.getJSimpleDB(Person3.class);
+            BasicTest.getPermazen(Person3.class);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected

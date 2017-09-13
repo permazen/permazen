@@ -5,7 +5,7 @@
 
 package io.permazen.maven;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 
 import java.io.File;
 
@@ -16,7 +16,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
- * Generates a schema XML file from a set of JSimpleDB model classes.
+ * Generates a schema XML file from a set of Permazen model classes.
  *
  * <p>
  * Such a file can be used to detect schema changes that require a new schema version number
@@ -37,7 +37,7 @@ public class GenerateSchemaMojo extends AbstractMainSchemaMojo {
     private File schemaFile;
 
     @Override
-    protected void execute(JSimpleDB jdb) throws MojoExecutionException, MojoFailureException {
+    protected void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException {
         this.generate(jdb.getSchemaModel(), this.schemaFile);
     }
 }

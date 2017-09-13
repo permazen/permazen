@@ -9,14 +9,14 @@ package io.permazen;
  * {@link Session} modes.
  *
  * <p>
- * The three {@link SessionMode} values correspond to the three layers of abstraction in JSimpleDB.
+ * The three {@link SessionMode} values correspond to the three layers of abstraction in Permazen.
  * In order from bottom to top these are:
  * <ul>
  *  <li>The key/value database layer, providing {@link io.permazen.kv.KVDatabase}
  *      and {@link io.permazen.kv.KVTransaction} and represented by {@link #KEY_VALUE}</li>
  *  <li>The core API database layer, providing {@link io.permazen.core.Database}
  *      and {@link io.permazen.core.Transaction} and represented by {@link #CORE_API}</li>
- *  <li>The JSimpleDB (or "Java") layer, providing {@link io.permazen.JSimpleDB}
+ *  <li>The Permazen (or "Java") layer, providing {@link io.permazen.Permazen}
  *      and {@link io.permazen.JTransaction} and represented by {@link #JSIMPLEDB}</li>
  * </ul>
  */
@@ -54,7 +54,7 @@ public enum SessionMode {
     CORE_API(false, true),
 
     /**
-     * JSimpleDB (or "Java") mode.
+     * Permazen (or "Java") mode.
      *
      * <p>
      * Provides
@@ -67,21 +67,21 @@ public enum SessionMode {
      */
     JSIMPLEDB(true, true);
 
-    private final boolean hasJSimpleDB;
+    private final boolean hasPermazen;
     private final boolean hasCoreAPI;
 
-    SessionMode(boolean hasJSimpleDB, boolean hasCoreAPI) {
-        this.hasJSimpleDB = hasJSimpleDB;
+    SessionMode(boolean hasPermazen, boolean hasCoreAPI) {
+        this.hasPermazen = hasPermazen;
         this.hasCoreAPI = hasCoreAPI;
     }
 
     /**
-     * Determine whether the JSimpleDB (or "Java") API (e.g., {@link io.permazen.JTransaction}) is available in this mode.
+     * Determine whether the Permazen (or "Java") API (e.g., {@link io.permazen.JTransaction}) is available in this mode.
      *
-     * @return true if the JSimpleDB "Java" API is available
+     * @return true if the Permazen "Java" API is available
      */
-    public boolean hasJSimpleDB() {
-        return this.hasJSimpleDB;
+    public boolean hasPermazen() {
+        return this.hasPermazen;
     }
 
     /**

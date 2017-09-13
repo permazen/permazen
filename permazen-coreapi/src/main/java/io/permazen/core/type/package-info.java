@@ -4,7 +4,7 @@
  */
 
 /**
- * JSimpleDB {@link io.permazen.core.FieldType}s.
+ * Permazen {@link io.permazen.core.FieldType}s.
  *
  * @see io.permazen.core
  */

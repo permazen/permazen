@@ -4,7 +4,7 @@
  */
 
 /**
- * JSimpleDB index classes. These classes define the Java interface to database indexes.
+ * Permazen index classes. These classes define the Java interface to database indexes.
  *
  * <p>
  * Indexes provide fast lookup of objects based on field value(s). The {@code Index*} interfaces in this package have

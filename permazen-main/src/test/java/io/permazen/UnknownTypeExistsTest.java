@@ -20,11 +20,11 @@ public class UnknownTypeExistsTest extends TestSupport {
     public void testUnknownTypeExists() throws Exception {
 
         final Database db = new Database(new SimpleKVDatabase());
-        final JSimpleDBFactory factory1 = new JSimpleDBFactory();
+        final PermazenFactory factory1 = new PermazenFactory();
         factory1.setDatabase(db);
         factory1.setSchemaVersion(1);
         factory1.setModelClasses(Foo.class);
-        final JSimpleDB jdb1 = factory1.newJSimpleDB();
+        final Permazen jdb1 = factory1.newPermazen();
 
         JTransaction jtx;
 
@@ -50,11 +50,11 @@ public class UnknownTypeExistsTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        final JSimpleDBFactory factory2 = new JSimpleDBFactory();
+        final PermazenFactory factory2 = new PermazenFactory();
         factory2.setDatabase(db);
         factory2.setSchemaVersion(2);
         factory2.setModelClasses(Bar.class);
-        final JSimpleDB jdb2 = factory2.newJSimpleDB();
+        final Permazen jdb2 = factory2.newPermazen();
 
         jtx = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);

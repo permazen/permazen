@@ -22,12 +22,12 @@ public class SchemaGenerationTest extends TestSupport {
 
     @Test(dataProvider = "invalidCases")
     public void testBogusAbstract(Class<?>[] classes) throws Exception {
-        final JSimpleDBFactory factory = new JSimpleDBFactory();
+        final PermazenFactory factory = new PermazenFactory();
         factory.setDatabase(new Database(new SimpleKVDatabase()));
         factory.setSchemaVersion(1);
         factory.setModelClasses(Foo.class, BogusAbstract.class);
         try {
-            factory.newJSimpleDB();
+            factory.newPermazen();
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected " + e);
@@ -36,12 +36,12 @@ public class SchemaGenerationTest extends TestSupport {
 
     @Test(dataProvider = "validCases")
     public void testSchemaGeneration(String expected, Class<?>[] types) throws Exception {
-        final JSimpleDBFactory factory = new JSimpleDBFactory();
+        final PermazenFactory factory = new PermazenFactory();
         factory.setDatabase(new Database(new SimpleKVDatabase()));
         factory.setSchemaVersion(1);
         factory.setModelClasses(types);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        factory.newJSimpleDB().getSchemaModel().toXML(buf, true);
+        factory.newPermazen().getSchemaModel().toXML(buf, true);
         final String actual = new String(buf.toByteArray(), StandardCharsets.UTF_8);
         Assert.assertEquals(actual.replaceAll("\\r\\n?", "\n"), expected);
     }

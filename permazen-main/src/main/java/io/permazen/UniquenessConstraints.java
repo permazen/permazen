@@ -6,7 +6,7 @@
 package io.permazen;
 
 /**
- * JSR 303 validation group for JSimpleDB uniqueness constraints.
+ * JSR 303 validation group for Permazen uniqueness constraints.
  *
  * <p>
  * Explicit use of this class only needed if you wish to manually trigger validation of uniqueness constraints only,

@@ -17,7 +17,7 @@ public class JObjectCopyTest extends TestSupport {
 
     @Test
     public void testCopyWithPath() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
         JTransaction.setCurrent(jtx);
@@ -53,7 +53,7 @@ public class JObjectCopyTest extends TestSupport {
 
     @Test
     public void testCopyMultiplePath() throws Exception {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
         JTransaction.setCurrent(jtx);

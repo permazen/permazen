@@ -9,15 +9,15 @@ import com.google.common.collect.Iterators;
 
 import io.permazen.CopyState;
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 
 import java.util.Iterator;
 
 /**
- * Vaadin {@link com.vaadin.data.Container} backed by {@link JSimpleDB} Java model objects acquired by performing
+ * Vaadin {@link com.vaadin.data.Container} backed by {@link Permazen} Java model objects acquired by performing
  * a transactional query and copying out the results into a {@link SnapshotJTransaction}.
  *
  * <p>
@@ -65,11 +65,11 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    protected QueryJObjectContainer(JSimpleDB jdb, Class<?> type) {
+    protected QueryJObjectContainer(Permazen jdb, Class<?> type) {
         super(jdb, type);
     }
 
@@ -147,7 +147,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      *
      * <p>
      * The implementation in {@link JObjectContainer} returns all objects that are directly referenced by {@code jobj},
-     * delegating to {@link JSimpleDB#getReferencedObjects JSimpleDB.getReferencedObjects()}.
+     * delegating to {@link Permazen#getReferencedObjects Permazen.getReferencedObjects()}.
      * Subclasses may override this method to refine the selection.
      *
      * @param jobj the object being copied

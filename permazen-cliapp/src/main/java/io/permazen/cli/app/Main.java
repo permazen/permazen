@@ -5,7 +5,7 @@
 
 package io.permazen.cli.app;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.SessionMode;
 import io.permazen.app.AbstractMain;
 import io.permazen.cli.CliSession;
@@ -121,8 +121,8 @@ public class Main extends AbstractMain {
         // Set up Database
         final Database db = this.startupKVDatabase();
 
-        // Load JSimpleDB layer, if specified
-        final JSimpleDB jdb = this.schemaClasses != null ? this.getJSimpleDBFactory(db).newJSimpleDB() : null;
+        // Load Permazen layer, if specified
+        final Permazen jdb = this.schemaClasses != null ? this.getPermazenFactory(db).newPermazen() : null;
 
         // Sanity check consistent schema model if both --schema-file and --model-pkg were specified
         if (jdb != null) {
@@ -137,7 +137,7 @@ public class Main extends AbstractMain {
                 schemaModel = jdb.getSchemaModel();
         }
 
-        // Downgrade to Core API mode from JSimpleDB mode if no Java model classes provided
+        // Downgrade to Core API mode from Permazen mode if no Java model classes provided
         if (jdb == null && this.mode.equals(SessionMode.JSIMPLEDB)) {
             System.err.println(this.getName() + ": entering core API mode because no Java model classes were specified");
             this.mode = SessionMode.CORE_API;

@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * <p><b>Incompatible Schema Changes</b></p>
  *
  * <p>
- * JSimpleDB supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.
+ * Permazen supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.
  * As a result, it's possible for the previous version of an object to contain reference fields whose Java types no longer exist
  * in the current Java model. Specifically, this can happen in two ways:
  * <ul>

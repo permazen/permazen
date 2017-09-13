@@ -275,7 +275,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * In Spring applications, the transaction {@link Consistency} level may be configured through the Spring
- * {@link io.permazen.spring.JSimpleDBTransactionManager} by (ab)using the transaction isolation level setting,
+ * {@link io.permazen.spring.PermazenTransactionManager} by (ab)using the transaction isolation level setting,
  * for example, via the {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation's
  * {@link org.springframework.transaction.annotation.Transactional#isolation isolation()} property.
  * All Raft consistency levels are made available this way, though the mapping from Spring's isolation levels to
@@ -1406,7 +1406,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (options == null)
             return this.createTransaction(Consistency.LINEARIZABLE);
 
-        // Look for options from the JSimpleDBTransactionManager
+        // Look for options from the PermazenTransactionManager
         Consistency consistency = null;
         Object isolation = options.get("org.springframework.transaction.annotation.Isolation");
         if (isolation instanceof Enum)

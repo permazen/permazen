@@ -186,7 +186,7 @@ import java.lang.annotation.Target;
  * <p><b>Fields of Sub-Types</b>
  *
  * <p>
- * The same field can appear in multiple sub-types, e.g., when implementing a Java interface containing a JSimpleDB field.
+ * The same field can appear in multiple sub-types, e.g., when implementing a Java interface containing a Permazen field.
  * This can lead to some subtleties: for example, in some cases, a field may not exist in a Java object type, but it does
  * exist in a some sub-type of that type:
  *

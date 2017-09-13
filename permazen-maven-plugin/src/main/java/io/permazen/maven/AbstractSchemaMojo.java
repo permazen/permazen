@@ -6,8 +6,8 @@
 package io.permazen.maven;
 
 import io.permazen.DefaultStorageIdGenerator;
-import io.permazen.JSimpleDB;
-import io.permazen.JSimpleDBFactory;
+import io.permazen.Permazen;
+import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.JFieldType;
 import io.permazen.annotation.PermazenType;
@@ -16,8 +16,8 @@ import io.permazen.core.FieldType;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
-import io.permazen.spring.JSimpleDBClassScanner;
-import io.permazen.spring.JSimpleDBFieldTypeScanner;
+import io.permazen.spring.PermazenClassScanner;
+import io.permazen.spring.PermazenFieldTypeScanner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -48,7 +48,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Generates a schema XML file from a set of JSimpleDB model classes.
+ * Generates a schema XML file from a set of Permazen model classes.
  */
 public abstract class AbstractSchemaMojo extends AbstractMojo {
 
@@ -74,7 +74,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
      * <p>
-     * The {@link StorageIdGenerator} to use for generating JSimpleDB storage ID's.
+     * The {@link StorageIdGenerator} to use for generating Permazen storage ID's.
      * By default, a {@link DefaultStorageIdGenerator} is used.
      *
      * <p>
@@ -124,7 +124,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     protected abstract void addDependencyClasspathElements(List<String> elements) throws DependencyResolutionRequiredException;
 
-    protected abstract void execute(JSimpleDB jdb) throws MojoExecutionException, MojoFailureException;
+    protected abstract void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -210,8 +210,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
                 // Scan for @PermazenType classes
                 this.getLog().info("scanning for @PermazenType annotations in packages: " + packageNames);
-                for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
-                    this.getLog().info("adding JSimpleDB model class " + className);
+                for (String className : new PermazenClassScanner().scanForClasses(packageNames)) {
+                    this.getLog().info("adding Permazen model class " + className);
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
@@ -221,8 +221,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
                 // Scan for @JFieldType classes
                 this.getLog().info("scanning for @JFieldType annotations in packages: " + packageNames);
-                for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(packageNames)) {
-                    this.getLog().info("adding JSimpleDB field type class `" + className + "'");
+                for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
+                    this.getLog().info("adding Permazen field type class `" + className + "'");
                     try {
                         fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (Exception e) {
@@ -245,13 +245,13 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
                     // Add model classes
                     if (cl.isAnnotationPresent(PermazenType.class)) {
-                        this.getLog().info("adding JSimpleDB model " + cl);
+                        this.getLog().info("adding Permazen model " + cl);
                         modelClasses.add(cl);
                     }
 
                     // Add field types
                     if (cl.isAnnotationPresent(JFieldType.class)) {
-                        this.getLog().info("adding JSimpleDB field type " + cl);
+                        this.getLog().info("adding Permazen field type " + cl);
                         fieldTypeClasses.add(cl);
                     }
                 }
@@ -295,18 +295,18 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             }
 
             // Set up factory
-            final JSimpleDBFactory factory = new JSimpleDBFactory();
+            final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
             factory.setStorageIdGenerator(storageIdGenerator);
             factory.setModelClasses(modelClasses);
 
             // Construct database and schema model
-            this.getLog().info("generating JSimpleDB schema from schema classes");
-            final JSimpleDB jdb;
+            this.getLog().info("generating Permazen schema from schema classes");
+            final Permazen jdb;
             final SchemaModel schema;
             try {
-                jdb = factory.newJSimpleDB();
+                jdb = factory.newPermazen();
                 schema = jdb.getSchemaModel();
             } catch (Exception e) {
                 throw new MojoFailureException("schema generation failed: " + e, e);
@@ -348,7 +348,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         }
 
         // Write schema model to file
-        this.getLog().info("writing JSimpleDB schema to `" + file + "'");
+        this.getLog().info("writing Permazen schema to `" + file + "'");
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
             schema.toXML(output, true);
         } catch (IOException e) {
@@ -369,7 +369,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected boolean verify(SchemaModel schema, File file, boolean matchNames) throws MojoExecutionException {
 
         // Read file
-        this.getLog().info("verifying JSimpleDB schema matches `" + file + "'");
+        this.getLog().info("verifying Permazen schema matches `" + file + "'");
         final SchemaModel verifyModel;
         try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
             verifyModel = SchemaModel.fromXML(input);
@@ -397,7 +397,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
      * @return true if verification succeeded, otherwise false
      * @throws MojoExecutionException if an unexpected error occurs
      */
-    protected boolean verify(JSimpleDB jdb, Iterator<? extends File> otherVersionFiles) throws MojoExecutionException {
+    protected boolean verify(Permazen jdb, Iterator<? extends File> otherVersionFiles) throws MojoExecutionException {
         boolean success = true;
         while (otherVersionFiles.hasNext()) {
 

@@ -30,7 +30,7 @@ public class JEnumField extends JSimpleField {
     final EnumConverter<?> converter;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    JEnumField(JSimpleDB jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
+    JEnumField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),
           new EnumFieldType((Class)enumType), annotation.indexed(), annotation, description, getter, setter);
@@ -64,7 +64,7 @@ public class JEnumField extends JSimpleField {
     }
 
     @Override
-    EnumSchemaField toSchemaItem(JSimpleDB jdb) {
+    EnumSchemaField toSchemaItem(Permazen jdb) {
         final EnumSchemaField schemaField = new EnumSchemaField();
         this.initialize(jdb, schemaField);
         return schemaField;
@@ -72,7 +72,7 @@ public class JEnumField extends JSimpleField {
 
     @Override
     @SuppressWarnings("unchecked")
-    void initialize(JSimpleDB jdb, SimpleSchemaField schemaField0) {
+    void initialize(Permazen jdb, SimpleSchemaField schemaField0) {
         super.initialize(jdb, schemaField0);
         final EnumSchemaField schemaField = (EnumSchemaField)schemaField0;
         schemaField.setType(null);                                          // core API ignores "type" of Enum fields

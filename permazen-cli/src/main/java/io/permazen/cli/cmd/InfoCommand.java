@@ -53,7 +53,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         writer.println("  Schema Model: "
           + (schemaModel != null ? schemaModel.getSchemaObjectTypes().size() + " object type(s)" : "Undefined"));
         writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "Yes" : "No"));
-        if (session.getJSimpleDB() != null) {
+        if (session.getPermazen() != null) {
             writer.println("  Validation Mode: " + (session.getValidationMode() != null ?
               session.getValidationMode() : ValidationMode.AUTOMATIC));
         }
@@ -61,18 +61,18 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
 
     static int getSchemaVersion(CliSession session) {
         int schemaVersion = session.getSchemaVersion();
-        if (schemaVersion == 0 && session.getJSimpleDB() != null) {
-            schemaVersion = session.getJSimpleDB().getActualVersion();
+        if (schemaVersion == 0 && session.getPermazen() != null) {
+            schemaVersion = session.getPermazen().getActualVersion();
             if (schemaVersion == 0)
-                schemaVersion = session.getJSimpleDB().getConfiguredVersion();
+                schemaVersion = session.getPermazen().getConfiguredVersion();
         }
         return schemaVersion;
     }
 
     static SchemaModel getSchemaModel(CliSession session) {
         SchemaModel schemaModel = session.getSchemaModel();
-        if (schemaModel == null && session.getJSimpleDB() != null)
-            schemaModel = session.getJSimpleDB().getSchemaModel();
+        if (schemaModel == null && session.getPermazen() != null)
+            schemaModel = session.getPermazen().getSchemaModel();
         return schemaModel;
     }
 }

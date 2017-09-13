@@ -29,7 +29,7 @@ public class QueryListElementIndexFunction extends AbstractQueryFunction {
 
     @Override
     public String getUsage() {
-        return this.getName() + "(object-type, field-name, value-type) (JSimpleDB mode only)\n"
+        return this.getName() + "(object-type, field-name, value-type) (Permazen mode only)\n"
           + "       " + this.getName() + "(type-name.field-name)\n"
           + "       " + this.getName() + "(storage-id)";
     }
@@ -43,7 +43,7 @@ public class QueryListElementIndexFunction extends AbstractQueryFunction {
           + " The value-type is the list element value type; in the case of reference fields,"
           + " a super-type or more restrictive sub-type may also be specified, otherwise the type must exactly"
           + " match the list element type."
-          + "\n\nThe first form is only valid in JSimpleDB mode; the second and third forms may be used in either JSimpleDB"
+          + "\n\nThe first form is only valid in Permazen mode; the second and third forms may be used in either Permazen"
           + " mode or Core API mode.";
     }
 

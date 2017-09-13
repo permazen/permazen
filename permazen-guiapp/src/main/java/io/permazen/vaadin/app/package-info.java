@@ -4,6 +4,6 @@
  */
 
 /**
- * Support for JSimpleDB GUI applications based on Vaadin.
+ * Support for Permazen GUI applications based on Vaadin.
  */
 package io.permazen.vaadin.app;

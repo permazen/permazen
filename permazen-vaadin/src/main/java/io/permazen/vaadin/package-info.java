@@ -4,7 +4,7 @@
  */
 
 /**
- * Classes to facilitate Vaadin applications that interact with a JSimpleDB database.
+ * Classes to facilitate Vaadin applications that interact with a Permazen database.
  *
  * @see <a href="https://vaadin.com/home">Vaadin</a>
  */

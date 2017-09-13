@@ -10,7 +10,7 @@ import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
 
 import io.permazen.JClass;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.Util;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final JSimpleDB jdb;
+    private final Permazen jdb;
     private final Class<?> rootType;
     private final ArrayList<Node> rootList = new ArrayList<>();
 
@@ -47,7 +47,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
      *
      * @param jdb underlying database
      */
-    public TypeContainer(JSimpleDB jdb) {
+    public TypeContainer(Permazen jdb) {
         this(jdb, null);
     }
 
@@ -57,7 +57,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
      * @param jdb underlying database
      * @param type type restrictions, or null for none
      */
-    public TypeContainer(JSimpleDB jdb, Class<?> type) {
+    public TypeContainer(Permazen jdb, Class<?> type) {
         super(Node.class);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;

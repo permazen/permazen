@@ -23,11 +23,11 @@ import org.testng.annotations.Test;
 
 public class ReferencePathTest extends TestSupport {
 
-    private JSimpleDB jdb;
+    private Permazen jdb;
 
     @BeforeClass
     public void setup() {
-        this.jdb = BasicTest.getJSimpleDB(Person.class, MeanPerson.class);
+        this.jdb = BasicTest.getPermazen(Person.class, MeanPerson.class);
     }
 
     @Test(dataProvider = "paths")
@@ -140,7 +140,7 @@ public class ReferencePathTest extends TestSupport {
 
     @Test
     public void testWackyPaths() throws Exception {
-        final JSimpleDB jdb2 = BasicTest.getJSimpleDB(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
+        final Permazen jdb2 = BasicTest.getPermazen(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
 
         // this should be OK - two hops through two reference fields: foo->element->name
         new ReferencePath(jdb2, WackyPaths1.class, "foo.element.name", true, null);

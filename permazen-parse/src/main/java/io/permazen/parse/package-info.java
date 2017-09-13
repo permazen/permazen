@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB parsing related classes.
+ * Permazen parsing related classes.
  */
 package io.permazen.parse;

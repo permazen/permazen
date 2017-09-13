@@ -7,8 +7,8 @@ package io.permazen.vaadin;
 
 import com.vaadin.server.VaadinSession;
 
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.core.Transaction;
 
 /**
@@ -27,11 +27,11 @@ public abstract class ReloadableJObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    protected ReloadableJObjectContainer(JSimpleDB jdb, Class<?> type) {
+    protected ReloadableJObjectContainer(Permazen jdb, Class<?> type) {
         super(jdb, type);
     }
 

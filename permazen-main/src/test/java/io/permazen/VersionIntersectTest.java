@@ -19,7 +19,7 @@ public class VersionIntersectTest extends TestSupport {
     @Test
     public void testVersionIntersect() throws Exception {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class, Bar.class);
+        final Permazen jdb = BasicTest.getPermazen(Foo.class, Bar.class);
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);

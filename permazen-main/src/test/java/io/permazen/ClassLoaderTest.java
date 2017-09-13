@@ -27,7 +27,7 @@ public class ClassLoaderTest extends TestSupport {
 */
     @Test
     public void testClassLoaderTest() {
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class);
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

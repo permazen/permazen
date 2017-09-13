@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * In Spring applications, the transaction consistency level may be configured through the Spring
- * {@link io.permazen.spring.JSimpleDBTransactionManager} by (ab)using the transaction isolation level setting,
+ * {@link io.permazen.spring.PermazenTransactionManager} by (ab)using the transaction isolation level setting,
  * for example, via the {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation's
  * {@link org.springframework.transaction.annotation.Transactional#isolation isolation()} property:
  *
@@ -448,7 +448,7 @@ public class SpannerKVDatabase implements KVDatabase {
         // Any options?
         if (options != null) {
 
-            // Look for options from the JSimpleDBTransactionManager
+            // Look for options from the PermazenTransactionManager
             Object isolation = options.get("org.springframework.transaction.annotation.Isolation");
             if (isolation instanceof Enum)
                 isolation = ((Enum<?>)isolation).name();

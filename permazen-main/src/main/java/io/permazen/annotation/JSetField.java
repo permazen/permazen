@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for the getter methods of Java bean properties reflecting {@link io.permazen.JSimpleDB}
+ * Java annotation for the getter methods of Java bean properties reflecting {@link io.permazen.Permazen}
  * {@link java.util.Set} fields.
  *
  * <p>

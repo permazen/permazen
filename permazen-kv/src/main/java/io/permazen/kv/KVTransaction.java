@@ -122,7 +122,7 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
-     * single key that is used to consolidate modifications to some set of keys; at the JSimpleDB layer, modification
+     * single key that is used to consolidate modifications to some set of keys; at the Permazen layer, modification
      * to multiple objects and/or fields can detected and consolidated using an
      * {@link io.permazen.annotation.OnChange &#64;OnChange} method that increments a single {@link io.permazen.Counter}
      * field, whose key is then watched (to determine the key corresponding to a Java model object field, use

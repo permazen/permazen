@@ -14,12 +14,12 @@ import org.springframework.core.type.ClassMetadata;
 /**
  * Scans the classpath for types annotated as {@link PermazenType &#64;PermazenType}.
  */
-public class JSimpleDBClassScanner extends AnnotatedClassScanner {
+public class PermazenClassScanner extends AnnotatedClassScanner {
 
     /**
      * Constructor.
      */
-    public JSimpleDBClassScanner() {
+    public PermazenClassScanner() {
         super(PermazenType.class);
     }
 
@@ -29,7 +29,7 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      * @param useDefaultFilters whether to register the default filters for {@link PermazenType &#64;PermazenType} type annotations
      * @param environment environment to use
      */
-    public JSimpleDBClassScanner(boolean useDefaultFilters, Environment environment) {
+    public PermazenClassScanner(boolean useDefaultFilters, Environment environment) {
         super(useDefaultFilters, environment, PermazenType.class);
     }
 
@@ -37,7 +37,7 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      * Determine if the given bean definition is a possible search candidate.
      *
      * <p>
-     * This method is overridden in {@link JSimpleDBClassScanner} to allow abstract classes and interfaces.
+     * This method is overridden in {@link PermazenClassScanner} to allow abstract classes and interfaces.
      */
     @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {

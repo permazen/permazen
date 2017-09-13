@@ -4,6 +4,6 @@
  */
 
 /**
- * JSimpleDB CLI pre-defined {@link io.permazen.parse.func.Function}s.
+ * Permazen CLI pre-defined {@link io.permazen.parse.func.Function}s.
  */
 package io.permazen.cli.func;

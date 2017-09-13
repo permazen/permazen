@@ -5,7 +5,7 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.cli.CliSession;
 import io.permazen.core.Schema;
 import io.permazen.core.SchemaMismatchException;
@@ -25,7 +25,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         if (version == 0) {
             SchemaModel schemaModel = session.getSchemaModel();
             if (schemaModel == null) {
-                final JSimpleDB jdb = session.getJSimpleDB();
+                final Permazen jdb = session.getPermazen();
                 if (jdb != null)
                     schemaModel = jdb.getSchemaModel();
             }

@@ -46,7 +46,7 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
      * @param type type restriction, or null for no restriction
      */
     public ExprQueryJObjectContainer(ParseSession session, Class<?> type) {
-        super(session.getJSimpleDB(), type);
+        super(session.getPermazen(), type);
         this.session = session;
     }
 

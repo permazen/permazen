@@ -220,7 +220,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Using Reference Paths</b>
  *
  * <p>
- * Reference paths may be explicitly created via {@link JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()}
+ * Reference paths may be explicitly created via {@link Permazen#parseReferencePath Permazen.parseReferencePath()}
  * and traversed in the forward direction via {@link JTransaction#followReferencePath JTransaction.followReferencePath()}
  * or in the inverse direction via {@link JTransaction#invertReferencePath JTransaction.invertReferencePath()}.
  *
@@ -229,7 +229,7 @@ import org.slf4j.LoggerFactory;
  * specify non-local objects for change monitoring, and by {@link io.permazen.annotation.FollowPath &#64;FollowPath}
  * annotations.
  *
- * @see JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()
+ * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see JTransaction#followReferencePath JTransaction.followReferencePath()
  * @see JTransaction#invertReferencePath JTransaction.invertReferencePath()
  * @see io.permazen.annotation.OnChange &#64;OnChange
@@ -243,7 +243,7 @@ public class ReferencePath {
     private static final String FWD_STEP = "(" + IDENT_ID + ")";
     private static final String REV_STEP = "\\^((" + IDENTS + "):(" + IDENT_ID_1OR2 + "))\\^";
 
-    final JSimpleDB jdb;
+    final Permazen jdb;
     final Class<?> startType;
     final ArrayList<Set<Class<?>>> pathTypes;
     final Set<TypeToken<?>> targetFieldTypes;
@@ -260,7 +260,7 @@ public class ReferencePath {
     /**
      * Constructor.
      *
-     * @param jdb {@link JSimpleDB} against which to resolve object and field names
+     * @param jdb {@link Permazen} against which to resolve object and field names
      * @param startType starting Java type for the path
      * @param path dot-separated path of zero or more reference fields, followed by a target field
      * @param withTargetField true if this path has a target field
@@ -270,7 +270,7 @@ public class ReferencePath {
      * @throws IllegalArgumentException if {@code startType} is not compatible with any Java model types
      * @throws IllegalArgumentException if {@code path} is invalid
      */
-    ReferencePath(JSimpleDB jdb, Class<?> startType, String path, boolean withTargetField, Boolean lastIsSubField) {
+    ReferencePath(Permazen jdb, Class<?> startType, String path, boolean withTargetField, Boolean lastIsSubField) {
 
         // Sanity check
         Preconditions.checkArgument(jdb != null, "null jdb");

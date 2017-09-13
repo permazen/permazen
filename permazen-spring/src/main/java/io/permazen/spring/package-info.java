@@ -16,12 +16,12 @@
  *  <li>A Spring {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} that integrates
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
- *      {@link io.permazen.JSimpleDB} transactions.</li>
+ *      {@link io.permazen.Permazen} transactions.</li>
  *  <li>A {@link org.springframework.dao.support.PersistenceExceptionTranslator}
- *      {@linkplain io.permazen.spring.JSimpleDBExceptionTranslator implementation} suitable for use with JSimpleDB</li>
- *  <li>{@link io.permazen.spring.OpenTransactionInViewFilter}, which allows {@link io.permazen.JSimpleDB}
+ *      {@linkplain io.permazen.spring.PermazenExceptionTranslator implementation} suitable for use with Permazen</li>
+ *  <li>{@link io.permazen.spring.OpenTransactionInViewFilter}, which allows {@link io.permazen.Permazen}
  *      transactions to span an entire web request.</li>
- *  <li>Various {@link org.springframework.http.converter.HttpMessageConverter}'s that bring JSimpleDB's encoding,
+ *  <li>Various {@link org.springframework.http.converter.HttpMessageConverter}'s that bring Permazen's encoding,
  *      indexing, and schema management features to data being sent over a network:
  *      <ul>
  *      <li>{@link io.permazen.spring.KVStoreHttpMessageConverter} for encoding/decoding a raw
@@ -34,10 +34,10 @@
  *  </li>
  * </ul>
  *
- * <p><b>JSimpleDB XML Tags</b></p>
+ * <p><b>Permazen XML Tags</b></p>
  *
  * <p>
- * JSimpleDB makes available the following XML tags to Spring declarative XML. All elements live in the
+ * Permazen makes available the following XML tags to Spring declarative XML. All elements live in the
  * {@code http://jsimpledb.googlecode.com/schema/jsimpledb} XML namespace:
  *
  * <div style="margin-left: 20px;">
@@ -60,7 +60,7 @@
  * </tr>
  * <tr>
  *  <td>{@code <jsimpledb:jsimpledb>}</td>
- *  <td>Simplifies defining and configuring a {@link io.permazen.JSimpleDB} database.</td>
+ *  <td>Simplifies defining and configuring a {@link io.permazen.Permazen} database.</td>
  * </tr>
  * </table>
  * </div>
@@ -133,7 +133,7 @@
  *     &lt;!-- Define the underlying key/value database --&gt;
  *     &lt;bean id="kvdb" class="io.permazen.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
- *     &lt;!-- Define the JSimpleDB database on top of that --&gt;
+ *     &lt;!-- Define the Permazen database on top of that --&gt;
  *     &lt;<b>jsimpledb:jsimpledb</b> id="jsimpledb" kvstore="kvdb"&gt;
  *
  *         &lt;!-- These are our Java model classes --&gt;
@@ -145,9 +145,9 @@
  *         &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
  *     &lt;/<b>jsimpledb:jsimpledb</b>&gt;
  *
- *     &lt;!-- Create a JSimpleDB transaction manager --&gt;
- *     &lt;bean id="transactionManager" class="io.permazen.spring.JSimpleDBTransactionManager"
- *       p:JSimpleDB-ref="jsimpledb" p:allowNewSchema="true"/&gt;
+ *     &lt;!-- Create a Permazen transaction manager --&gt;
+ *     &lt;bean id="transactionManager" class="io.permazen.spring.PermazenTransactionManager"
+ *       p:Permazen-ref="jsimpledb" p:allowNewSchema="true"/&gt;
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
  *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;

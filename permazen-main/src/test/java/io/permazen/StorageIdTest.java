@@ -75,7 +75,7 @@ public class StorageIdTest extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final SchemaModel actual = new JSimpleDB(Foo.class).getSchemaModel();
+        final SchemaModel actual = new Permazen(Foo.class).getSchemaModel();
 
         Assert.assertEquals(actual, expected);
     }

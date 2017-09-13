@@ -6,7 +6,7 @@
 package io.permazen.spring;
 
 import io.permazen.JObject;
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.JTransaction;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
@@ -46,7 +46,7 @@ public class SimpleSpringTest extends SpringTest {
 
     @Test
     public void testFilter() {
-        final JSimpleDB db = this.context.getBean(JSimpleDB.class);
+        final Permazen db = this.context.getBean(Permazen.class);
         Assert.assertTrue(db.getJClasses().keySet().contains(100));
         Assert.assertFalse(db.getJClasses().keySet().contains(200));
     }

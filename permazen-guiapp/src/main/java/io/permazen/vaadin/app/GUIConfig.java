@@ -5,19 +5,19 @@
 
 package io.permazen.vaadin.app;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 
 /**
- * Configuration object for the JSimpleDB GUI application.
+ * Configuration object for the Permazen GUI application.
  */
 public interface GUIConfig {
 
     /**
-     * Get the {@link JSimpleDB}.
+     * Get the {@link Permazen}.
      *
      * @return configured database
      */
-    JSimpleDB getJSimpleDB();
+    Permazen getPermazen();
 
     /**
      * Get a short description of the database.
@@ -27,7 +27,7 @@ public interface GUIConfig {
     String getDatabaseDescription();
 
     /**
-     * Determine the schema version associated with the {@link JSimpleDB}.
+     * Determine the schema version associated with the {@link Permazen}.
      *
      * @return configured schema version
      */

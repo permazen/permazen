@@ -19,7 +19,7 @@ public class ValidationExceptionTest extends TestSupport {
     @Test
     public void testValidationException() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Retryer.class);
+        final Permazen jdb = BasicTest.getPermazen(Retryer.class);
 
         // Transaction with validation disabled
         JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);

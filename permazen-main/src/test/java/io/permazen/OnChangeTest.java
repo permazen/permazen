@@ -52,7 +52,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testSimpleFieldChange() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class, MeanPerson.class, NicePerson.class);
+        final Permazen jdb = BasicTest.getPermazen(Person.class, MeanPerson.class, NicePerson.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -135,7 +135,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testColorChange() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(ColorHolder.class);
+        final Permazen jdb = BasicTest.getPermazen(ColorHolder.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -162,7 +162,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testNoParamChange() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person2.class);
+        final Permazen jdb = BasicTest.getPermazen(Person2.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -205,7 +205,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testNonGenericParameter() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(NonGenericChange.class);
+        final Permazen jdb = BasicTest.getPermazen(NonGenericChange.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -229,7 +229,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testInversePaths() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(InversePaths.class);
+        final Permazen jdb = BasicTest.getPermazen(InversePaths.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -267,7 +267,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testInverseRestrictedTypes() {
 
-        final JSimpleDB jdb = BasicTest.getJSimpleDB(A.class, B.class, C.class, D.class);
+        final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class, D.class);
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

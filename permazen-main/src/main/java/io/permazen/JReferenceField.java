@@ -37,7 +37,7 @@ public class JReferenceField extends JSimpleField {
     final String[] forwardCascades;
     final String[] inverseCascades;
 
-    JReferenceField(JSimpleDB jdb, String name, int storageId, String description, TypeToken<?> typeToken,
+    JReferenceField(Permazen jdb, String name, int storageId, String description, TypeToken<?> typeToken,
       io.permazen.annotation.JField annotation, Method getter, Method setter) {
         super(jdb, name, storageId, typeToken, new ReferenceFieldType(), true, annotation, description, getter, setter);
         this.onDelete = annotation.onDelete();
@@ -144,7 +144,7 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
-    ReferenceSchemaField toSchemaItem(JSimpleDB jdb) {
+    ReferenceSchemaField toSchemaItem(Permazen jdb) {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
         super.initialize(jdb, schemaField);
         schemaField.setOnDelete(this.onDelete);

@@ -545,7 +545,7 @@ public final class Util {
     }
 
     /**
-     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.
+     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link PermazenException}.
      *
      * @param method method to invoke
      * @param target instance, or null if method is static
@@ -557,10 +557,10 @@ public final class Util {
             return method.invoke(target, params);
         } catch (InvocationTargetException e) {
             Throwables.throwIfUnchecked(e.getCause());
-            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
+            throw new PermazenException("unexpected error invoking method " + method + " on " + target, e);
         } catch (Exception e) {
             Throwables.throwIfUnchecked(e);
-            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
+            throw new PermazenException("unexpected error invoking method " + method + " on " + target, e);
         }
     }
 

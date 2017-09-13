@@ -145,9 +145,9 @@ public class LiteralExprParser implements Parser<Node> {
         }
 
         // Try to match object literal
-        if ((session.getMode().hasCoreAPI() || session.getMode().hasJSimpleDB()) && ctx.tryLiteral("@")) {
+        if ((session.getMode().hasCoreAPI() || session.getMode().hasPermazen()) && ctx.tryLiteral("@")) {
             final ObjId id = new ObjIdParser().parse(session, ctx, complete);
-            return !session.getMode().hasJSimpleDB() ? new LiteralNode(id) : new Node() {
+            return !session.getMode().hasPermazen() ? new LiteralNode(id) : new Node() {
                 @Override
                 public Value evaluate(ParseSession session) {
                     return new ConstValue(JTransaction.getCurrent().get(id));
@@ -156,7 +156,7 @@ public class LiteralExprParser implements Parser<Node> {
                 @Override
                 public Class<?> getType(ParseSession session) {
                     try {
-                        return session.getJSimpleDB().getJClass(id).getType();
+                        return session.getPermazen().getJClass(id).getType();
                     } catch (TypeNotInSchemaVersionException e) {
                         return UntypedJObject.class;
                     } catch (IllegalArgumentException e) {

@@ -70,10 +70,10 @@ public class QueryVersionFunction extends AbstractFunction {
         return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
-                if (session.getMode().hasJSimpleDB()) {
+                if (session.getMode().hasPermazen()) {
                     final Class<?> type =
                       param instanceof ObjType ?
-                        session.getJSimpleDB().getJClass(((ObjType)param).getStorageId()).getType() :
+                        session.getPermazen().getJClass(((ObjType)param).getStorageId()).getType() :
                       param instanceof Node ?
                         ((Node)param).evaluate(session).checkType(session, QueryVersionFunction.this.getName(), Class.class) :
                         Object.class;

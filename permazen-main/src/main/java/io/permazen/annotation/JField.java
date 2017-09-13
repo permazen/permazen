@@ -140,7 +140,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Fields that are not complex sub-fields may be marked as {@link #unique} to impose a uniqueness constraint on the value.
- * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the JSimpleDB layer and function as
+ * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the Permazen layer and function as
  * an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
  * and is affected by the transaction's configured {@link io.permazen.ValidationMode}.
  *
@@ -441,7 +441,7 @@ public @interface JField {
      * Specify the {@link UpgradeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
      *
      * <p>
-     * With one restriction<sup>*</sup>, JSimpleDB supports schema changes that alter a field's type, and in some cases
+     * With one restriction<sup>*</sup>, Permazen supports schema changes that alter a field's type, and in some cases
      * can automatically convert field values from the old to the new type (for example, from the {@code int} value {@code 1234}
      * to the {@link String} value {@code "1234"}).
      *

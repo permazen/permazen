@@ -8,7 +8,7 @@ package io.permazen.cli;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import io.permazen.JSimpleDB;
+import io.permazen.Permazen;
 import io.permazen.cli.cmd.EvalCommand;
 import io.permazen.core.Database;
 import io.permazen.kv.KVDatabase;
@@ -79,12 +79,12 @@ public class Console {
     /**
      * Simplified constructor for {@link io.permazen.SessionMode#JSIMPLEDB} mode.
      *
-     * @param jdb {@link JSimpleDB} database
+     * @param jdb {@link Permazen} database
      * @param input console input
      * @param output console output
      * @throws IOException if an I/O error occurs
      */
-    public Console(JSimpleDB jdb, InputStream input, OutputStream output) throws IOException {
+    public Console(Permazen jdb, InputStream input, OutputStream output) throws IOException {
         this(null, null, jdb, input, output, null, null, null);
     }
 
@@ -93,7 +93,7 @@ public class Console {
      *
      * @param kvdb {@link KVDatabase} for {@link io.permazen.SessionMode#KEY_VALUE} (otherwise must be null)
      * @param db {@link Database} for {@link io.permazen.SessionMode#CORE_API} (otherwise must be null)
-     * @param jdb {@link JSimpleDB} for {@link io.permazen.SessionMode#JSIMPLEDB} (otherwise must be null)
+     * @param jdb {@link Permazen} for {@link io.permazen.SessionMode#JSIMPLEDB} (otherwise must be null)
      * @param input console input
      * @param output console output
      * @param terminal JLine terminal interface, or null for default
@@ -102,7 +102,7 @@ public class Console {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if not exactly one of {@code kvdb}, {@code db} or {@code jdb} is not null
      */
-    public Console(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    public Console(KVDatabase kvdb, Database db, Permazen jdb, InputStream input, OutputStream output,
       Terminal terminal, String encoding, String appName) throws IOException {
         Preconditions.checkArgument((kvdb != null ? 1 : 0) + (db != null ? 1 : 0) + (jdb != null ? 1 : 0) == 1,
           "exactly one of kvdb, db or jdb must be not null");
@@ -262,7 +262,7 @@ public class Console {
             prompt = "CoreAPI> ";
             break;
         case JSIMPLEDB:
-            prompt = "JSimpleDB> ";
+            prompt = "Permazen> ";
             break;
         default:
             throw new RuntimeException("internal error");
@@ -271,7 +271,7 @@ public class Console {
         // Main command loop
         try {
 
-            this.console.println("Welcome to JSimpleDB. You are in " + this.session.getMode() + " mode. Type `help' for help.");
+            this.console.println("Welcome to Permazen. You are in " + this.session.getMode() + " mode. Type `help' for help.");
             this.console.println();
             while (!session.isDone()) {
 

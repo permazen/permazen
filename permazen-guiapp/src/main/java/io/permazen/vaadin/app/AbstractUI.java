@@ -61,7 +61,7 @@ public abstract class AbstractUI extends UI {
 // Layout construction
 
     protected String getTitle() {
-        return "JSimpleDB";
+        return "Permazen";
     }
 
     protected Component getTopRightLabel() {
@@ -121,7 +121,7 @@ public abstract class AbstractUI extends UI {
         final Label spacer = new Label();
         footerLayout.addComponent(spacer);
         footerLayout.setExpandRatio(spacer, 1);
-        footerLayout.addComponent(new SizedLabel("JSimpleDB Viewer"));
+        footerLayout.addComponent(new SizedLabel("Permazen Viewer"));
         layout.addComponent(footerLayout);
 
         // Done

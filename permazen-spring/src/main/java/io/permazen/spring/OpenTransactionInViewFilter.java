@@ -7,8 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Throwables;
 
-import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.ValidationMode;
 
 import java.io.IOException;
@@ -25,42 +25,42 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A servlet {@link javax.servlet.Filter} binds a {@link JSimpleDB} {@link JTransaction} to the current thread
+ * A servlet {@link javax.servlet.Filter} binds a {@link Permazen} {@link JTransaction} to the current thread
  * for the entire processing of the request. Intended for the "Open Session in View" pattern, i.e. to allow
  * for lazy loading in web views despite the original transactions already being completed.
  *
  * <p>
  * This filter makes {@link JTransaction}s available via the current thread, which will be autodetected by
- * a {@link JSimpleDBTransactionManager}.
+ * a {@link PermazenTransactionManager}.
  *
  * <p>
- * Looks up the {@link JSimpleDB} in Spring's root web application context. Supports a {@code "JSimpleDBBeanName"}
+ * Looks up the {@link Permazen} in Spring's root web application context. Supports a {@code "PermazenBeanName"}
  * filter init-param in web.xml; the default bean name is {@code "jsimpledb"}. Also supports setting the following
  * filter init-params:
  * <ul>
  *  <li>{@code "transactionAttributes"} - configures {@link TransactionAttribute}s; value should be
  *      a string compatible with {@link org.springframework.transaction.interceptor.TransactionAttributeEditor}.</li>
  *  <li>{@code "allowNewSchema"} - whether creation of a new schema version in the database is allowed.
- *      (see {@link JSimpleDB#createTransaction JSimpleDB.createTransaction()}). Default false.</li>
+ *      (see {@link Permazen#createTransaction Permazen.createTransaction()}). Default false.</li>
  *  <li>{@code "validationMode"} - validation mode for the transaction
- *      (see {@link JSimpleDB#createTransaction JSimpleDB.createTransaction()}). Default {@link ValidationMode#AUTOMATIC}.</li>
+ *      (see {@link Permazen#createTransaction Permazen.createTransaction()}). Default {@link ValidationMode#AUTOMATIC}.</li>
  * </ul>
  */
 public class OpenTransactionInViewFilter extends OncePerRequestFilter {
 
     /**
-     * The default name of the {@link JSimpleDB} bean: <code>{@value}</code>.
+     * The default name of the {@link Permazen} bean: <code>{@value}</code>.
      *
      * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
      */
     public static final String DEFAULT_JSIMPLEDB_BEAN_NAME = "jsimpledb";
 
     /**
-     * Filter init parameter that specifies the name of the {@link JSimpleDB} bean: <code>{@value}</code>.
+     * Filter init parameter that specifies the name of the {@link Permazen} bean: <code>{@value}</code>.
      *
      * @see #DEFAULT_JSIMPLEDB_BEAN_NAME
      */
-    public static final String JSIMPLEDB_BEAN_NAME_PARAMETER = "JSimpleDBBeanName";
+    public static final String JSIMPLEDB_BEAN_NAME_PARAMETER = "PermazenBeanName";
 
     /**
      * Filter init parameter that specifies transaction attributes: <code>{@value}</code>.
@@ -84,26 +84,26 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     private boolean allowNewSchema;
     private ValidationMode validationMode = ValidationMode.AUTOMATIC;
 
-    private volatile JSimpleDB jdb;
+    private volatile Permazen jdb;
 
     /**
-     * Get the name of the {@link JSimpleDB} bean to find in the Spring root application context.
+     * Get the name of the {@link Permazen} bean to find in the Spring root application context.
      *
      * @return bean name
      * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
      */
-    public String getJSimpleDBBeanName() {
+    public String getPermazenBeanName() {
         return this.jsimpledbBeanName;
     }
 
     /**
-     * Set the name of the {@link JSimpleDB} bean to find in the Spring root application context.
+     * Set the name of the {@link Permazen} bean to find in the Spring root application context.
      * Default is {@link #DEFAULT_JSIMPLEDB_BEAN_NAME}.
      *
-     * @param jsimpledbBeanName {@link JSimpleDB} bean name
+     * @param jsimpledbBeanName {@link Permazen} bean name
      * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
      */
-    public void setJSimpleDBBeanName(String jsimpledbBeanName) {
+    public void setPermazenBeanName(String jsimpledbBeanName) {
         this.jsimpledbBeanName = jsimpledbBeanName;
     }
 
@@ -170,15 +170,15 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Look up the {@link JSimpleDB} that this filter should use.
+     * Look up the {@link Permazen} that this filter should use.
      *
-     * @return the JSimpleDB to use
-     * @see #getJSimpleDBBeanName
+     * @return the Permazen to use
+     * @see #getPermazenBeanName
      */
-    protected JSimpleDB lookupJSimpleDB() {
+    protected Permazen lookupPermazen() {
         if (this.jdb == null) {
             final WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
-            this.jdb = wac.getBean(this.getJSimpleDBBeanName(), JSimpleDB.class);
+            this.jdb = wac.getBean(this.getPermazenBeanName(), Permazen.class);
         }
         return this.jdb;
     }
@@ -201,7 +201,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
             attr = new DefaultTransactionAttribute();
 
         // Create transaction
-        final JTransaction jtx = this.lookupJSimpleDB().createTransaction(this.allowNewSchema, this.validationMode);
+        final JTransaction jtx = this.lookupPermazen().createTransaction(this.allowNewSchema, this.validationMode);
 
         // Configure it
         if (attr.isReadOnly())

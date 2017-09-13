@@ -38,7 +38,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 1
 
-        JSimpleDB jdb = new JSimpleDB(db, 1, null, Arrays.<Class<?>>asList(Person1.class));
+        Permazen jdb = new Permazen(db, 1, null, Arrays.<Class<?>>asList(Person1.class));
         JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -92,7 +92,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 2
 
-        jdb = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Person2.class));
+        jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Person2.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -165,7 +165,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 3
 
-        jdb = new JSimpleDB(db, 3, null, Arrays.<Class<?>>asList(Person3.class));
+        jdb = new Permazen(db, 3, null, Arrays.<Class<?>>asList(Person3.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -195,7 +195,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 4
 
-        jdb = new JSimpleDB(db, 4, null, Arrays.<Class<?>>asList(Person4.class, Name.class));
+        jdb = new Permazen(db, 4, null, Arrays.<Class<?>>asList(Person4.class, Name.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

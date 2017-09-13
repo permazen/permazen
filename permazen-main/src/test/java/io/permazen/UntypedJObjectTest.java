@@ -30,11 +30,11 @@ public class UntypedJObjectTest extends TestSupport {
         final ObjId fooId;
         final ObjId barId;
 
-        final JSimpleDBFactory factory1 = new JSimpleDBFactory();
+        final PermazenFactory factory1 = new PermazenFactory();
         factory1.setDatabase(db);
         factory1.setSchemaVersion(1);
         factory1.setModelClasses(Foo.class, Bar.class);
-        final JSimpleDB jdb1 = factory1.newJSimpleDB();
+        final Permazen jdb1 = factory1.newPermazen();
         final JTransaction jtx1 = jdb1.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx1);
         try {
@@ -57,11 +57,11 @@ public class UntypedJObjectTest extends TestSupport {
 
     // Query getAll() in schema version 2 transaction
 
-        final JSimpleDBFactory factory2 = new JSimpleDBFactory();
+        final PermazenFactory factory2 = new PermazenFactory();
         factory2.setDatabase(db);
         factory2.setSchemaVersion(2);
         factory2.setModelClasses(Foo.class);
-        final JSimpleDB jdb2 = factory2.newJSimpleDB();
+        final Permazen jdb2 = factory2.newPermazen();
         final JTransaction jtx2 = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx2);
         try {

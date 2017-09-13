@@ -23,7 +23,7 @@ public abstract class JCollectionField extends JComplexField {
 
     final JSimpleField elementField;
 
-    JCollectionField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+    JCollectionField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
         Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
@@ -72,9 +72,9 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
-    abstract CollectionSchemaField toSchemaItem(JSimpleDB jdb);
+    abstract CollectionSchemaField toSchemaItem(Permazen jdb);
 
-    void initialize(JSimpleDB jdb, CollectionSchemaField schemaField) {
+    void initialize(Permazen jdb, CollectionSchemaField schemaField) {
         super.initialize(jdb, schemaField);
         schemaField.setElementField(this.elementField.toSchemaItem(jdb));
     }

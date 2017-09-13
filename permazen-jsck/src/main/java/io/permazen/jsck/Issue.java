@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Represents a point of corruption or inconsistency in a JSimpleDB key/value database.
+ * Represents a point of corruption or inconsistency in a Permazen key/value database.
  *
  * <p>
  * {@link Issue}s are specific to a single key/value pair in the database.
