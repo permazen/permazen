@@ -75,7 +75,7 @@ public enum SessionMode {
     }
 
     /**
-     * Determine whether the Permazen Java API (e.g., {@link io.permazen.JTransaction}) based on a {@link Permzen}
+     * Determine whether the Permazen Java API (e.g., {@link io.permazen.JTransaction}) based on a {@link Permazen}
      * instance is available in this mode.
      *
      * @return true if the Permazen Java API is available
