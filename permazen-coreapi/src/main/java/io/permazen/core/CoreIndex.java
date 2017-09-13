@@ -15,9 +15,6 @@ import io.permazen.util.Bounds;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
 /**
  * Core API {@link Index} implementation representing a index on a single field.
  *

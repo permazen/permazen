@@ -6,10 +6,10 @@
 package io.permazen.core;
 
 import io.permazen.core.type.Tuple5FieldType;
+import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
-import io.permazen.index.Index;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.tuple.Tuple2;
@@ -17,9 +17,6 @@ import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
 import io.permazen.tuple.Tuple5;
 import io.permazen.util.Bounds;
-
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import java.util.NavigableMap;
 import java.util.NavigableSet;
