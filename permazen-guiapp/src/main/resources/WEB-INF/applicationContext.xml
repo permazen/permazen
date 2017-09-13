@@ -18,7 +18,7 @@
    http://www.springframework.org/schema/util
      http://www.springframework.org/schema/util/spring-util.xsd
    http://permazen.io/schema/spring/permazen
-     http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd">
+     http://permazen.github.io/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd">
 
     <!-- Activate Spring annotation support -->
     <context:annotation-config/>

@@ -126,7 +126,7 @@
  *   xmlns:c="http://www.springframework.org/schema/c"
  *   xsi:schemaLocation="
  *      <b>http://permazen.io/schema/spring/permazen
- *        http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd</b>
+ *        http://permazen.github.io/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd</b>
  *      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
  *      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"&gt;
  *
