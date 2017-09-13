@@ -72,7 +72,7 @@ public abstract class AbstractUI extends UI {
 
         // Logo
         final Link logo = new Link(null, new ExternalResource(MainUI.URI_PATH));
-        logo.setIcon(new ThemeResource("img/jsimpledb-logo-48x48.png"));
+        logo.setIcon(new ThemeResource("img/permazen-logo-48x48.png"));
         final HorizontalLayout logoLayout = new HorizontalLayout();
         logoLayout.addStyleName("jsdb-upper-bar-company-logo-layout");
         logoLayout.setWidth(48, Sizeable.Unit.PIXELS);
