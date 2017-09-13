@@ -20,6 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import jline.Terminal;
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
+import jline.console.completer.Completer;
+import jline.console.history.FileHistory;
+
 import org.dellroad.stuff.java.ProcessRunner;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.cmd.EvalCommand;
@@ -29,13 +36,6 @@ import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jline.Terminal;
-import jline.TerminalFactory;
-import jline.console.ConsoleReader;
-import jline.console.UserInterruptException;
-import jline.console.completer.Completer;
-import jline.console.history.FileHistory;
 
 /**
  * CLI console.

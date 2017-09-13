@@ -5,8 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

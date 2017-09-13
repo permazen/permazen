@@ -15,8 +15,8 @@ import java.util.Iterator;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
-import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.kv.test.AtomicKVStoreTest;
+import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;

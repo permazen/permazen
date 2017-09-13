@@ -9,13 +9,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
+import jline.console.completer.FileNameCompleter;
+
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.util.ParseCastFunction;
 import org.jsimpledb.util.ParseContext;
-
-import jline.console.completer.FileNameCompleter;
 
 abstract class AbstractFileParser implements Parser<File> {
 

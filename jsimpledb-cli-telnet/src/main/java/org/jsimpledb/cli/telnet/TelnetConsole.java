@@ -12,14 +12,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import jline.TerminalFactory;
+
 import org.dellroad.nvt4j.Terminal;
 import org.dellroad.nvt4j.impl.TerminalImpl;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.Console;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
-
-import jline.TerminalFactory;
 
 /**
  * A {@link Console} connected to a telnet client via a {@link Socket}.

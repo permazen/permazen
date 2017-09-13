@@ -8,10 +8,10 @@ package org.jsimpledb.core.type;
 import com.google.common.net.InetAddresses;
 
 import java.io.File;
-import java.net.URI;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
