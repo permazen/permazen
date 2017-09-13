@@ -392,7 +392,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
             {   URI.class.getName(), new URI[] {
                 new URI("/foobar"),
                 new URI("http://www.google.com/"),
-                new URI("http://www.google.com/?q=jsimpledb"),
+                new URI("http://www.google.com/?q=permazen"),
                 null
             }},
 

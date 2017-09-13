@@ -41,7 +41,7 @@ public abstract class KVImplementation {
      * <p>
      * Instances must have a public default constructor.
      */
-    public static final String XML_DESCRIPTOR_RESOURCE = "META-INF/jsimpledb/kv-implementations.xml";
+    public static final String XML_DESCRIPTOR_RESOURCE = "META-INF/permazen/kv-implementations.xml";
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 

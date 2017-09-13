@@ -16,14 +16,14 @@ package io.permazen;
  *      and {@link io.permazen.kv.KVTransaction} and represented by {@link #KEY_VALUE}</li>
  *  <li>The core API database layer, providing {@link io.permazen.core.Database}
  *      and {@link io.permazen.core.Transaction} and represented by {@link #CORE_API}</li>
- *  <li>The Permazen (or "Java") layer, providing {@link io.permazen.Permazen}
- *      and {@link io.permazen.JTransaction} and represented by {@link #JSIMPLEDB}</li>
+ *  <li>The Permazen Java layer, providing {@link io.permazen.Permazen}
+ *      and {@link io.permazen.JTransaction} and represented by {@link #PERMAZEN}</li>
  * </ul>
  */
 public enum SessionMode {
 
     /**
-     * Key/value database mode.
+     * Permazen key/value database mode.
      *
      * <p>
      * This is the lowest level CLI mode, where only the raw {@code byte[]} key/value store is available.
@@ -35,7 +35,7 @@ public enum SessionMode {
     KEY_VALUE(false, false),
 
     /**
-     * Core API mode.
+     * Permazen Core API mode.
      *
      * <p>
      * Supports access to low level schema information, core API "objects" and fields, but no Java-specific operations.
@@ -48,24 +48,23 @@ public enum SessionMode {
      * case these classes will be otherwise ignored.
      *
      * <p>
-     * In this mode, database objects are represented by {@link io.permazen.core.ObjId}'s and enum values by
+     * In this mode, database objects are represented by {@link io.permazen.core.ObjId}'s and {@code enum} values by
      * {@link io.permazen.core.EnumValue}'s.
      */
     CORE_API(false, true),
 
     /**
-     * Permazen (or "Java") mode.
+     * Permazen Java mode.
      *
      * <p>
-     * Provides
-     * i.e., when the there are no {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated Java model
-     * classes defined and the core {@link io.permazen.core.Database} API is used.
+     * Provides database access through standard Java model objects and transaction access via {@link io.permazen.JTransaction}.
+     * Requires and provides a {@link Permazen} instance and its associated Java model classes.
      *
      * <p>
      * In this mode, database objects are represented by Java model class instances and enum values by corresponding
      * Java model {@link Enum} class instances.
      */
-    JSIMPLEDB(true, true);
+    PERMAZEN(true, true);
 
     private final boolean hasPermazen;
     private final boolean hasCoreAPI;
@@ -76,9 +75,10 @@ public enum SessionMode {
     }
 
     /**
-     * Determine whether the Permazen (or "Java") API (e.g., {@link io.permazen.JTransaction}) is available in this mode.
+     * Determine whether the Permazen Java API (e.g., {@link io.permazen.JTransaction}) based on a {@link Permzen}
+     * instance is available in this mode.
      *
-     * @return true if the Permazen "Java" API is available
+     * @return true if the Permazen Java API is available
      */
     public boolean hasPermazen() {
         return this.hasPermazen;

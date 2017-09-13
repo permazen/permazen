@@ -36,9 +36,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KVStore> {
 
     /**
-     * Default MIME type supported by this instance: {@code application/x-jsimpledb-kvstore}.
+     * Default MIME type supported by this instance: {@code application/x-permazen-kvstore}.
      */
-    public static final MediaType DEFAULT_MIME_TYPE = new MediaType("application", "x-jsimpledb-kvstore");
+    public static final MediaType DEFAULT_MIME_TYPE = new MediaType("application", "x-permazen-kvstore");
 
     /**
      * Constructor.

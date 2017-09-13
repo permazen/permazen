@@ -19,7 +19,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
- * Factory bean created by <code>&lt;jsimpledb:jsimpledb&gt;</code> tags.
+ * Factory bean created by <code>&lt;permazen:permazen&gt;</code> tags.
  */
 class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 

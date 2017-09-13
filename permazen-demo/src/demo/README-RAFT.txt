@@ -8,7 +8,7 @@ who collects and distributes updates and provides for consistent
 reads. As long as as a node is part of a majority, the state machine
 is fully operational.
 
-Here's how to set up a Raft key/value store with JSimpleDB using
+Here's how to set up a Raft key/value store with Permazen using
 AtomicArrayKVStore as the local persistent store.
 
 Let A, B, C, ... represent the nodes in the cluster. In this example
@@ -24,7 +24,7 @@ or by using the `--raft-port' flag.
  2. On each machine X run this command (all on one line), replacing
     "X" with the appropriate letter (A, B, C, ...):
 
-        $ java -jar jsimpledb-cli.jar
+        $ java -jar permazen-cli.jar
             --kv-mode                               # Start CLI in key/value mode
             --raft-dir ~/.raftX                     # Raft persistent state dir
             --raft-identity nodeX                   # Raft node identity

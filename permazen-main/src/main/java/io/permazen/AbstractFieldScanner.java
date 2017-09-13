@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
  */
 abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationScanner<T, A> {
 
-    protected final PermazenType jsimpleClass;
+    protected final PermazenType permazenType;
 
-    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, PermazenType jsimpleClass) {
+    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, PermazenType permazenType) {
         super(jclass, annotationType);
-        this.jsimpleClass = jsimpleClass;
+        this.permazenType = permazenType;
     }
 
     protected abstract A getDefaultAnnotation();
@@ -66,13 +66,13 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
     }
 
     protected boolean isAutoPropertyCandidate(Method method) {
-        if (!this.jsimpleClass.autogenFields())
+        if (!this.permazenType.autogenFields())
             return false;
         if ((method.getModifiers() & Modifier.STATIC) != 0)
             return false;
         if (this.hasJTransientAnnotation(method))
             return false;
-        if (!this.jsimpleClass.autogenNonAbstract() && this.isOverriddenByConcreteMethod(method))
+        if (!this.permazenType.autogenNonAbstract() && this.isOverriddenByConcreteMethod(method))
             return false;
         if ((method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0)
             return false;

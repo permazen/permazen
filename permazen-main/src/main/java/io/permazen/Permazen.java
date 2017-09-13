@@ -220,7 +220,7 @@ public class Permazen {
         });
 
         // Inventory classes; automatically add all @PermazenType-annotated superclasses of @PermazenType-annotated classes
-        final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
+        final HashSet<Class<?>> permazenTypes = new HashSet<>();
         for (Class<?> type : classes) {
 
             // Sanity check
@@ -241,12 +241,12 @@ public class Permazen {
                 }
 
                 // Add class
-                jsimpleClasses.add(type);
+                permazenTypes.add(type);
             } while ((type = type.getSuperclass()) != null);
         }
 
         // Add Java model classes
-        for (Class<?> type : jsimpleClasses) {
+        for (Class<?> type : permazenTypes) {
 
             // Get annotation
             final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);

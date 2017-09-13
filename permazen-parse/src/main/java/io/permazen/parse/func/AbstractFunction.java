@@ -70,13 +70,13 @@ public abstract class AbstractFunction implements Function {
      *
      * <p>
      * The implementation in {@link AbstractFunction} returns an {@link EnumSet} containing
-     * {@link SessionMode#CORE_API} and {@link SessionMode#JSIMPLEDB}.
+     * {@link SessionMode#CORE_API} and {@link SessionMode#PERMAZEN}.
      *
      * @return supported {@link SessionMode}s
      */
     @Override
     public EnumSet<SessionMode> getSessionModes() {
-        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.JSIMPLEDB);
+        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.PERMAZEN);
     }
 
     /**

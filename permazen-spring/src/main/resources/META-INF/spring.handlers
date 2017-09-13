@@ -1,1 +1,1 @@
-http\://permazen.io/schema/spring/permazen=io.permazen.spring.JSimpleDBNamespaceHandler
+http\://permazen.io/schema/spring/permazen=io.permazen.spring.PermazenNamespaceHandler

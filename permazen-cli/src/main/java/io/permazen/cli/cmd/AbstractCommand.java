@@ -111,13 +111,13 @@ public abstract class AbstractCommand implements Command {
      *
      * <p>
      * The implementation in {@link AbstractCommand} returns an {@link EnumSet} containing
-     * {@link SessionMode#CORE_API} and {@link SessionMode#JSIMPLEDB}.
+     * {@link SessionMode#CORE_API} and {@link SessionMode#PERMAZEN}.
      *
      * @return set of supported {@link SessionMode}s
      */
     @Override
     public EnumSet<SessionMode> getSessionModes() {
-        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.JSIMPLEDB);
+        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.PERMAZEN);
     }
 
     /**

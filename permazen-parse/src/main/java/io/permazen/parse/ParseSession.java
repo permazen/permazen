@@ -45,7 +45,7 @@ public class ParseSession extends Session {
      *
      * @see #loadFunctionsFromClasspath
      */
-    public static final String PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE = "META-INF/jsimpledb/parse-function-implementations.xml";
+    public static final String PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE = "META-INF/permazen/parse-function-implementations.xml";
 
     private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES = new HashMap<>(9);
     static {
@@ -91,7 +91,7 @@ public class ParseSession extends Session {
     }
 
     /**
-     * Constructor for {@link io.permazen.SessionMode#JSIMPLEDB} mode.
+     * Constructor for {@link io.permazen.SessionMode#PERMAZEN} mode.
      *
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
@@ -321,7 +321,7 @@ public class ParseSession extends Session {
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if {@code action} threw an exception
      * @throws IllegalStateException if there is a different open transaction already associated with this instance
-     * @throws IllegalStateException if this instance is not in mode {@link io.permazen.SessionMode#JSIMPLEDB}
+     * @throws IllegalStateException if this instance is not in mode {@link io.permazen.SessionMode#PERMAZEN}
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean performParseSessionActionWithCurrentTransaction(final Action action) {

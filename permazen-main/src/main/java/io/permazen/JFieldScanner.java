@@ -20,13 +20,13 @@ import java.util.Set;
  */
 class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
 
-    JFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
-        super(jclass, JField.class, jsimpleClass);
+    JFieldScanner(JClass<T> jclass, PermazenType permazenType) {
+        super(jclass, JField.class, permazenType);
     }
 
     @Override
     protected JField getDefaultAnnotation() {
-        return JFieldScanner.getDefaultJField(this.jsimpleClass);
+        return JFieldScanner.getDefaultJField(this.permazenType);
     }
 
     @Override
@@ -54,24 +54,24 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             } catch (IllegalArgumentException e) {
                 return false;
             }
-            if (!this.jsimpleClass.autogenNonAbstract() && (setter.getModifiers() & Modifier.ABSTRACT) == 0)
+            if (!this.permazenType.autogenNonAbstract() && (setter.getModifiers() & Modifier.ABSTRACT) == 0)
                 return false;
         }
         return true;
     }
 
-    public static final JField getDefaultJField(final PermazenType jsimpleClass) {
-        return new DefaultJField(jsimpleClass);
+    public static final JField getDefaultJField(final PermazenType permazenType) {
+        return new DefaultJField(permazenType);
     }
 
 // DefaultJField
 
     public static class DefaultJField implements JField {
 
-        private PermazenType jsimpleClass;
+        private PermazenType permazenType;
 
-        DefaultJField(PermazenType jsimpleClass) {
-            this.jsimpleClass = jsimpleClass;
+        DefaultJField(PermazenType permazenType) {
+            this.permazenType = permazenType;
         }
 
         @Override
@@ -124,15 +124,15 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         }
         @Override
         public boolean allowDeleted() {
-            return this.jsimpleClass.autogenAllowDeleted();
+            return this.permazenType.autogenAllowDeleted();
         }
         @Override
         public boolean allowDeletedSnapshot() {
-            return this.jsimpleClass.autogenAllowDeletedSnapshot();
+            return this.permazenType.autogenAllowDeletedSnapshot();
         }
         @Override
         public UpgradeConversionPolicy upgradeConversion() {
-            return this.jsimpleClass.autogenUpgradeConversion();
+            return this.permazenType.autogenUpgradeConversion();
         }
     };
 }

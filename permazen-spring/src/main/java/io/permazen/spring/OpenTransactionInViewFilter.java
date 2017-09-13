@@ -35,7 +35,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * <p>
  * Looks up the {@link Permazen} in Spring's root web application context. Supports a {@code "PermazenBeanName"}
- * filter init-param in web.xml; the default bean name is {@code "jsimpledb"}. Also supports setting the following
+ * filter init-param in web.xml; the default bean name is {@code "permazen"}. Also supports setting the following
  * filter init-params:
  * <ul>
  *  <li>{@code "transactionAttributes"} - configures {@link TransactionAttribute}s; value should be
@@ -51,35 +51,35 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * The default name of the {@link Permazen} bean: <code>{@value}</code>.
      *
-     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
+     * @see #PERMAZEN_BEAN_NAME_PARAMETER
      */
-    public static final String DEFAULT_JSIMPLEDB_BEAN_NAME = "jsimpledb";
+    public static final String DEFAULT_PERMAZEN_BEAN_NAME = "permazen";
 
     /**
      * Filter init parameter that specifies the name of the {@link Permazen} bean: <code>{@value}</code>.
      *
-     * @see #DEFAULT_JSIMPLEDB_BEAN_NAME
+     * @see #DEFAULT_PERMAZEN_BEAN_NAME
      */
-    public static final String JSIMPLEDB_BEAN_NAME_PARAMETER = "PermazenBeanName";
+    public static final String PERMAZEN_BEAN_NAME_PARAMETER = "PermazenBeanName";
 
     /**
      * Filter init parameter that specifies transaction attributes: <code>{@value}</code>.
      */
-    public static final String JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER = "transactionAttributes";
+    public static final String PERMAZEN_TRANSACTION_ATTRIBUTE_PARAMETER = "transactionAttributes";
 
     /**
      * Filter init parameter that specifies whether creation of a new schema version in the database is allowed.
      * Default false.
      */
-    public static final String JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER = "allowNewSchema";
+    public static final String PERMAZEN_ALLOW_NEW_SCHEMA_PARAMETER = "allowNewSchema";
 
     /**
      * Filter init parameter that specifies the validation mode for the transaction.
      * Default {@link ValidationMode#AUTOMATIC}.
      */
-    public static final String JSIMPLEDB_VALIDATION_MODE_PARAMETER = "validationMode";
+    public static final String PERMAZEN_VALIDATION_MODE_PARAMETER = "validationMode";
 
-    private String jsimpledbBeanName = DEFAULT_JSIMPLEDB_BEAN_NAME;
+    private String permazenBeanName = DEFAULT_PERMAZEN_BEAN_NAME;
     private TransactionAttribute transactionAttributes;
     private boolean allowNewSchema;
     private ValidationMode validationMode = ValidationMode.AUTOMATIC;
@@ -90,28 +90,28 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Get the name of the {@link Permazen} bean to find in the Spring root application context.
      *
      * @return bean name
-     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
+     * @see #PERMAZEN_BEAN_NAME_PARAMETER
      */
     public String getPermazenBeanName() {
-        return this.jsimpledbBeanName;
+        return this.permazenBeanName;
     }
 
     /**
      * Set the name of the {@link Permazen} bean to find in the Spring root application context.
-     * Default is {@link #DEFAULT_JSIMPLEDB_BEAN_NAME}.
+     * Default is {@link #DEFAULT_PERMAZEN_BEAN_NAME}.
      *
-     * @param jsimpledbBeanName {@link Permazen} bean name
-     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
+     * @param permazenBeanName {@link Permazen} bean name
+     * @see #PERMAZEN_BEAN_NAME_PARAMETER
      */
-    public void setPermazenBeanName(String jsimpledbBeanName) {
-        this.jsimpledbBeanName = jsimpledbBeanName;
+    public void setPermazenBeanName(String permazenBeanName) {
+        this.permazenBeanName = permazenBeanName;
     }
 
     /**
      * Get the transaction attributes.
      *
      * @return transaction attributes
-     * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER
+     * @see #PERMAZEN_TRANSACTION_ATTRIBUTE_PARAMETER
      */
     public TransactionAttribute getTransactionAttributes() {
         return this.transactionAttributes;
@@ -121,7 +121,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Set the transaction attributes.
      *
      * @param transactionAttributes transaction attributes
-     * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER
+     * @see #PERMAZEN_TRANSACTION_ATTRIBUTE_PARAMETER
      */
     public void setTransactionAttributes(TransactionAttribute transactionAttributes) {
         this.transactionAttributes = transactionAttributes;
@@ -131,7 +131,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Get whether new scheme creation is allowed.
      *
      * @return whether to allow recording new schema versions
-     * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER
+     * @see #PERMAZEN_ALLOW_NEW_SCHEMA_PARAMETER
      */
     public boolean isAllowNewSchema() {
         return this.allowNewSchema;
@@ -141,7 +141,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Set whether new scheme creation is allowed.
      *
      * @param allowNewSchema whether to allow recording new schema versions
-     * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER
+     * @see #PERMAZEN_ALLOW_NEW_SCHEMA_PARAMETER
      */
     public void setAllowNewSchema(boolean allowNewSchema) {
         this.allowNewSchema = allowNewSchema;
@@ -151,7 +151,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Get transaction validation mode.
      *
      * @return validation mode for transactions
-     * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER
+     * @see #PERMAZEN_VALIDATION_MODE_PARAMETER
      */
     public ValidationMode getValidationMode() {
         return this.validationMode;
@@ -161,7 +161,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Set transaction validation mode.
      *
      * @param validationMode validation mode for transactions
-     * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER
+     * @see #PERMAZEN_VALIDATION_MODE_PARAMETER
      */
     public void setValidationMode(ValidationMode validationMode) {
         if (validationMode == null)

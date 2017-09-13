@@ -33,7 +33,7 @@ public class SetValidationModeCommand extends AbstractCommand {
 
     @Override
     public EnumSet<SessionMode> getSessionModes() {
-        return EnumSet.of(SessionMode.JSIMPLEDB);
+        return EnumSet.of(SessionMode.PERMAZEN);
     }
 
     @Override

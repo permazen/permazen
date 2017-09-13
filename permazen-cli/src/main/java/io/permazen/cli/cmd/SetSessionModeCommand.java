@@ -27,7 +27,7 @@ public class SetSessionModeCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Changes the current CLI session mode. Specify JSIMPLEDB, CORE_API, or KEY_VALUE.";
+        return "Changes the current CLI session mode. Specify PERMAZEN, CORE_API, or KEY_VALUE.";
     }
 
     @Override

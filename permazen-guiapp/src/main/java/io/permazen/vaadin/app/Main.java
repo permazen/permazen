@@ -156,7 +156,7 @@ public class Main extends AbstractMain implements GUIConfig {
 
     @Override
     protected String getName() {
-        return "jsimpledb-gui";
+        return "permazen-gui";
     }
 
     @Override

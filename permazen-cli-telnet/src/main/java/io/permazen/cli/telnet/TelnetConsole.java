@@ -75,7 +75,7 @@ public final class TelnetConsole extends Console {
     }
 
     /**
-     * Simplified factory method for {@link io.permazen.SessionMode#JSIMPLEDB} mode.
+     * Simplified factory method for {@link io.permazen.SessionMode#PERMAZEN} mode.
      *
      * @param jdb {@link Permazen} database
      * @param socket socket connected to telnet client
@@ -91,7 +91,7 @@ public final class TelnetConsole extends Console {
      *
      * @param kvdb {@link KVDatabase} for {@link io.permazen.SessionMode#KEY_VALUE} (otherwise must be null)
      * @param db {@link Database} for {@link io.permazen.SessionMode#CORE_API} (otherwise must be null)
-     * @param jdb {@link Permazen} for {@link io.permazen.SessionMode#JSIMPLEDB} (otherwise must be null)
+     * @param jdb {@link Permazen} for {@link io.permazen.SessionMode#PERMAZEN} (otherwise must be null)
      * @param input console input
      * @param output console output
      * @param encoding character encoding for {@code terminal}, or null for default

@@ -20,13 +20,13 @@ import java.util.SortedSet;
  */
 class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
-    JSetFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
-        super(jclass, JSetField.class, jsimpleClass);
+    JSetFieldScanner(JClass<T> jclass, PermazenType permazenType) {
+        super(jclass, JSetField.class, permazenType);
     }
 
     @Override
     protected JSetField getDefaultAnnotation() {
-        return new DefaultJSetField(this.jsimpleClass);
+        return new DefaultJSetField(this.permazenType);
     }
 
     @Override
@@ -48,10 +48,10 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
     private static class DefaultJSetField implements JSetField {
 
-        private PermazenType jsimpleClass;
+        private PermazenType permazenType;
 
-        DefaultJSetField(PermazenType jsimpleClass) {
-            this.jsimpleClass = jsimpleClass;
+        DefaultJSetField(PermazenType permazenType) {
+            this.permazenType = permazenType;
         }
 
         @Override
@@ -68,7 +68,7 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
         }
         @Override
         public JField element() {
-            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+            return JFieldScanner.getDefaultJField(this.permazenType);
         }
     }
 }

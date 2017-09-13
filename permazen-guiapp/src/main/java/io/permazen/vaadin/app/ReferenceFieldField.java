@@ -138,7 +138,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
 
         @Override
         @RetryTransaction
-        @org.springframework.transaction.annotation.Transactional("jsimpledbGuiTransactionManager")
+        @org.springframework.transaction.annotation.Transactional("permazenGuiTransactionManager")
         protected boolean execute() {
             final ObjId id = this.objectChooser.getObjId();
             if (id == null)

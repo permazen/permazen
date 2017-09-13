@@ -19,13 +19,13 @@ import java.util.SortedMap;
  */
 class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
-    JMapFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
-        super(jclass, JMapField.class, jsimpleClass);
+    JMapFieldScanner(JClass<T> jclass, PermazenType permazenType) {
+        super(jclass, JMapField.class, permazenType);
     }
 
     @Override
     protected JMapField getDefaultAnnotation() {
-        return new DefaultJMapField(this.jsimpleClass);
+        return new DefaultJMapField(this.permazenType);
     }
 
     @Override
@@ -45,10 +45,10 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
     private static class DefaultJMapField implements JMapField {
 
-        private PermazenType jsimpleClass;
+        private PermazenType permazenType;
 
-        DefaultJMapField(PermazenType jsimpleClass) {
-            this.jsimpleClass = jsimpleClass;
+        DefaultJMapField(PermazenType permazenType) {
+            this.permazenType = permazenType;
         }
 
         @Override
@@ -65,11 +65,11 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
         }
         @Override
         public JField key() {
-            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+            return JFieldScanner.getDefaultJField(this.permazenType);
         }
         @Override
         public JField value() {
-            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+            return JFieldScanner.getDefaultJField(this.permazenType);
         }
     }
 }

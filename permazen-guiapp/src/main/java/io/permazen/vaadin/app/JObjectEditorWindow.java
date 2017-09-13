@@ -198,13 +198,13 @@ public class JObjectEditorWindow extends ConfirmWindow {
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     private JObject doCreateForEdit() {
         return (JObject)JTransaction.getCurrent().getSnapshotTransaction().create(this.jclass);
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     protected boolean writeBack() {
 
         // Find/create target object in current transaction

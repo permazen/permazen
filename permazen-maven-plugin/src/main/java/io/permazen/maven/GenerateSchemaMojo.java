@@ -27,8 +27,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
   threadSafe = true)
 public class GenerateSchemaMojo extends AbstractMainSchemaMojo {
 
-    public static final String JSIMPLEDB_DIRECTORY_DEFAULT = "${basedir}/src/main/jsimpledb";
-    public static final String EXPECTED_SCHEMA_DEFAULT = JSIMPLEDB_DIRECTORY_DEFAULT + "/current-schema.xml";
+    public static final String PERMAZEN_DIRECTORY_DEFAULT = "${basedir}/src/main/permazen";
+    public static final String EXPECTED_SCHEMA_DEFAULT = PERMAZEN_DIRECTORY_DEFAULT + "/current-schema.xml";
 
     /**
      * The schema XML file that you want to generate.

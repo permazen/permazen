@@ -34,11 +34,11 @@ import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into
  */
 public class Main extends AbstractMain {
 
-    public static final String HISTORY_FILE = ".jsimpledb_history";
+    public static final String HISTORY_FILE = ".permazen_history";
 
     private File schemaFile;
     private File historyFile = new File(new File(System.getProperty("user.home")), HISTORY_FILE);
-    private SessionMode mode = SessionMode.JSIMPLEDB;
+    private SessionMode mode = SessionMode.PERMAZEN;
     private final ArrayList<String> execCommands = new ArrayList<>();
     private final ArrayList<String> execFiles = new ArrayList<>();
     private boolean keyboardInput = Main.isWindows() || CLibrary.isatty(0) != 0;                // i.e., if stdin is a terminal
@@ -138,7 +138,7 @@ public class Main extends AbstractMain {
         }
 
         // Downgrade to Core API mode from Permazen mode if no Java model classes provided
-        if (jdb == null && this.mode.equals(SessionMode.JSIMPLEDB)) {
+        if (jdb == null && this.mode.equals(SessionMode.PERMAZEN)) {
             System.err.println(this.getName() + ": entering core API mode because no Java model classes were specified");
             this.mode = SessionMode.CORE_API;
         }
@@ -152,7 +152,7 @@ public class Main extends AbstractMain {
         case CORE_API:
             console = new Console(db, new FileInputStream(FileDescriptor.in), System.out);
             break;
-        case JSIMPLEDB:
+        case PERMAZEN:
             console = new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
             break;
         default:
@@ -220,7 +220,7 @@ public class Main extends AbstractMain {
 
     @Override
     protected String getName() {
-        return "jsimpledb";
+        return "permazen";
     }
 
     @Override

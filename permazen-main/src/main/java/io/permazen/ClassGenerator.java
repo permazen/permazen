@@ -70,13 +70,13 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_GET_TRANSACTION_METHOD;
     static final Method JTRANSACTION_GET_METHOD;
     static final Method JTRANSACTION_REGISTER_JOBJECT_METHOD;
-    static final Method JTRANSACTION_GET_JSIMPLEDB_METHOD;
+    static final Method JTRANSACTION_GET_PERMAZEN_METHOD;
     static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_INVERT_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_GET_TRANSACTION;
 
     // Permazen method handles
-    static final Method JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD;
+    static final Method PERMAZEN_PARSE_REFERENCE_PATH_METHOD;
 
     // Converter method handles
     static final Method CONVERTER_CONVERT_METHOD;
@@ -125,7 +125,7 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
-            JTRANSACTION_GET_JSIMPLEDB_METHOD = JTransaction.class.getMethod("getPermazen");
+            JTRANSACTION_GET_PERMAZEN_METHOD = JTransaction.class.getMethod("getPermazen");
             JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Iterable.class);
             JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
@@ -133,7 +133,7 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
 
             // Permazen methods
-            JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath",
+            PERMAZEN_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath",
               Class.class, String.class, boolean.class);
 
             // Transaction methods
@@ -490,11 +490,11 @@ class ClassGenerator<T> {
         final ReferencePath path = info.getReferencePath();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_JSIMPLEDB_METHOD);
+        this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_PERMAZEN_METHOD);
         mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(path.getStartType())));
         mv.visitLdcInsn(path.toString());
         mv.visitInsn(Opcodes.ICONST_0);
-        this.emitInvoke(mv, ClassGenerator.JSIMPLEDB_PARSE_REFERENCE_PATH_METHOD);
+        this.emitInvoke(mv, ClassGenerator.PERMAZEN_PARSE_REFERENCE_PATH_METHOD);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
 
         // Traverse the path

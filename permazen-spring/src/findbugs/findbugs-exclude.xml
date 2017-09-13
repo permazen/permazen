@@ -5,7 +5,7 @@
         <Bug pattern="UR_UNINIT_READ_CALLED_FROM_SUPER_CONSTRUCTOR"/>
     </Match>
     <Match>
-        <Class name="io.permazen.spring.JSimpleDBTransactionManager"/>
+        <Class name="io.permazen.spring.PermazenTransactionManager"/>
         <Bug pattern="SE_NO_SERIALVERSIONID"/>
     </Match>
     <Match>

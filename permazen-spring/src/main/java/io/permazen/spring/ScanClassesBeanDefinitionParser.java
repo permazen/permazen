@@ -6,7 +6,7 @@
 package io.permazen.spring;
 
 /**
- * Parses <code>&lt;jsimpledb:scan-classes&gt;</code> tags.
+ * Parses <code>&lt;permazen:scan-classes&gt;</code> tags.
  */
 class ScanClassesBeanDefinitionParser extends ScanClassPathBeanDefinitionParser {
 

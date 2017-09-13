@@ -189,7 +189,7 @@ public class MainPanel extends VerticalLayout {
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     private JObject doCopyForEdit(ObjId id) {
 
         // Find object
@@ -241,7 +241,7 @@ public class MainPanel extends VerticalLayout {
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     private boolean doDelete(ObjId id) {
         final boolean deleted = JTransaction.getCurrent().get(id).delete();
         if (deleted)
@@ -272,7 +272,7 @@ public class MainPanel extends VerticalLayout {
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     private int doUpgrade(ObjId id) {
         final JObject jobj = JTransaction.getCurrent().get(id);
         final int oldVersion;
@@ -288,7 +288,7 @@ public class MainPanel extends VerticalLayout {
     }
 
     @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
+    @Transactional("permazenGuiTransactionManager")
     private boolean canUpgrade(ObjId id) {
         final JObject jobj = JTransaction.getCurrent().get(id);
         return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getActualVersion();

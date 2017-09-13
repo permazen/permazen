@@ -7,7 +7,7 @@
   xmlns:util="http://www.springframework.org/schema/util"
   xmlns:p="http://www.springframework.org/schema/p"
   xmlns:c="http://www.springframework.org/schema/c"
-  xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"
+  xmlns:permazen="http://permazen.io/schema/spring/permazen"
   xsi:schemaLocation="
    http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -18,7 +18,7 @@
    http://www.springframework.org/schema/util
      http://www.springframework.org/schema/util/spring-util.xsd
    http://permazen.io/schema/spring/permazen
-     http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/jsimpledb-1.0.xsd"
+     http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd">
 
     <!-- Activate Spring annotation support -->
     <context:annotation-config/>
@@ -30,27 +30,27 @@
     <context:property-placeholder/>
 
     <!-- Expose the command line Main object so we can access its properties -->
-    <bean id="jsimpledbGuiMain" class="io.permazen.vaadin.app.Main" factory-method="getInstance"/>
+    <bean id="permazenGuiMain" class="io.permazen.vaadin.app.Main" factory-method="getInstance"/>
 
-    <!-- Get JSimpleDB database from Main object -->
-    <bean id="jsimpledbGuiJSimpleDB" factory-bean="jsimpledbGuiMain" factory-method="getJSimpleDB"/>
+    <!-- Get Permazen database from Main object -->
+    <bean id="permazenGuiPermazen" factory-bean="permazenGuiMain" factory-method="getPermazen"/>
 
     <!-- Define TransactionManager -->
-    <bean id="jsimpledbGuiTransactionManager" class="io.permazen.spring.JSimpleDBTransactionManager"
-      p:JSimpleDB-ref="jsimpledbGuiJSimpleDB">
+    <bean id="permazenGuiTransactionManager" class="io.permazen.spring.PermazenTransactionManager"
+      p:permazen-ref="permazenGuiPermazen">
         <property name="allowNewSchema">
-            <bean factory-bean="jsimpledbGuiMain" factory-method="isAllowNewSchema"/>
+            <bean factory-bean="permazenGuiMain" factory-method="isAllowNewSchema"/>
         </property>
     </bean>
 
     <!-- Activate @Transactional -->
-    <tx:annotation-driven transaction-manager="jsimpledbGuiTransactionManager" mode="aspectj"/>
+    <tx:annotation-driven transaction-manager="permazenGuiTransactionManager" mode="aspectj"/>
 
     <!-- Activate @RetryTransaction -->
     <bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf"
       p:maxRetriesDefault="5" p:initialDelayDefault="25" p:maximumDelayDefault="1000">
         <property name="persistenceExceptionTranslator">
-            <bean class="io.permazen.spring.JSimpleDBExceptionTranslator"/>
+            <bean class="io.permazen.spring.PermazenExceptionTranslator"/>
         </property>
     </bean>
 

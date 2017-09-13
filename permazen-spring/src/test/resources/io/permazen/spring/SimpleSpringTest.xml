@@ -3,13 +3,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
-  xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"
+  xmlns:permazen="http://permazen.io/schema/spring/permazen"
   xmlns:tx="http://www.springframework.org/schema/tx"
   xmlns:p="http://www.springframework.org/schema/p"
   xmlns:c="http://www.springframework.org/schema/c"
   xsi:schemaLocation="
      http://permazen.io/schema/spring/permazen
-       http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/jsimpledb-1.0.xsd
+       http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
@@ -18,16 +18,16 @@
 
      <bean id="kvdb" class="io.permazen.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
 
-     <jsimpledb:scan-classes base-package="io.permazen.demo"/>
+     <permazen:scan-classes base-package="io.permazen.demo"/>
 
-     <jsimpledb:jsimpledb id="jsimpledb" kvstore="kvdb" schema-version="1">
-         <jsimpledb:scan-classes base-package="io.permazen.spring">
-             <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
-         </jsimpledb:scan-classes>
-         <jsimpledb:scan-field-types base-package="io.permazen.spring"/>
-     </jsimpledb:jsimpledb>
+     <permazen:permazen id="permazen" kvstore="kvdb" schema-version="1">
+         <permazen:scan-classes base-package="io.permazen.spring">
+             <permazen:exclude-filter type="regex" expression=".*Banana.*"/>
+         </permazen:scan-classes>
+         <permazen:scan-field-types base-package="io.permazen.spring"/>
+     </permazen:permazen>
 
-     <bean id="transactionManager" class="io.permazen.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb"/>
+     <bean id="transactionManager" class="io.permazen.spring.PermazenTransactionManager" p:permazen-ref="permazen"/>
 
      <tx:annotation-driven transaction-manager="transactionManager"/>
 

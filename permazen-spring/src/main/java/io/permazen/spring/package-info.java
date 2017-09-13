@@ -38,7 +38,7 @@
  *
  * <p>
  * Permazen makes available the following XML tags to Spring declarative XML. All elements live in the
- * {@code http://jsimpledb.googlecode.com/schema/jsimpledb} XML namespace:
+ * {@code http://permazen.io/schema/spring/permazen} XML namespace:
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Elements">
@@ -47,28 +47,28 @@
  *  <th align="left">Description</th>
  * </tr>
  * <tr>
- *  <td>{@code <jsimpledb:scan-classes>}</td>
+ *  <td>{@code <permazen:scan-classes>}</td>
  *  <td>Works just like Spring's {@code <context:component-scan>} but finds
  *      {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated Java model classes.
  *      Returns the classes found in a {@link java.util.List}.</td>
  * </tr>
  * <tr>
- *  <td>{@code <jsimpledb:scan-field-types>}</td>
+ *  <td>{@code <permazen:scan-field-types>}</td>
  *  <td>Works just like Spring's {@code <context:component-scan>} but finds
  *      {@link io.permazen.annotation.JFieldType &#64;JFieldType}-annotated custom {@link io.permazen.core.FieldType} classes.
  *      Returns the classes found in a {@link java.util.List}.</td>
  * </tr>
  * <tr>
- *  <td>{@code <jsimpledb:jsimpledb>}</td>
+ *  <td>{@code <permazen:permazen>}</td>
  *  <td>Simplifies defining and configuring a {@link io.permazen.Permazen} database.</td>
  * </tr>
  * </table>
  * </div>
  *
  * <p>
- * The {@code <jsimpledb:jsimpledb>} element requires a nested {@code <jsimpledb:scan-classes>} element to configure
- * the Java model classes. A nested {@code <jsimpledb:scan-field-types>} may also be included.
- * The {@code <jsimpledb:jsimpledb>} element supports the following attributes:
+ * The {@code <permazen:permazen>} element requires a nested {@code <permazen:scan-classes>} element to configure
+ * the Java model classes. A nested {@code <permazen:scan-field-types>} may also be included.
+ * The {@code <permazen:permazen>} element supports the following attributes:
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Attributes">
@@ -120,13 +120,13 @@
  * <pre>
  * &lt;beans xmlns="http://www.springframework.org/schema/beans"
  *   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- *   <b>xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"</b>
+ *   <b>xmlns:permazen="http://permazen.io/schema/spring/permazen"</b>
  *   xmlns:tx="http://www.springframework.org/schema/tx"
  *   xmlns:p="http://www.springframework.org/schema/p"
  *   xmlns:c="http://www.springframework.org/schema/c"
  *   xsi:schemaLocation="
  *      <b>http://permazen.io/schema/spring/permazen
- *        http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/jsimpledb-1.0.xsd</b>
+ *        http://permazen.github.io/permazen-spring/permazen-spring/src/main/resources/io/permazen/spring/permazen-1.0.xsd</b>
  *      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
  *      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"&gt;
  *
@@ -134,20 +134,20 @@
  *     &lt;bean id="kvdb" class="io.permazen.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
  *     &lt;!-- Define the Permazen database on top of that --&gt;
- *     &lt;<b>jsimpledb:jsimpledb</b> id="jsimpledb" kvstore="kvdb"&gt;
+ *     &lt;<b>permazen:permazen</b> id="permazen" kvstore="kvdb"&gt;
  *
  *         &lt;!-- These are our Java model classes --&gt;
- *         &lt;<b>jsimpledb:scan-classes</b> base-package="com.example.myapp"&gt;
- *             &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
- *         &lt;/<b>jsimpledb:scan-classes</b>&gt;
+ *         &lt;<b>permazen:scan-classes</b> base-package="com.example.myapp"&gt;
+ *             &lt;<b>permazen:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
+ *         &lt;/<b>permazen:scan-classes</b>&gt;
  *
  *         &lt;!-- We have some custom FieldType's here too --&gt;
- *         &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
- *     &lt;/<b>jsimpledb:jsimpledb</b>&gt;
+ *         &lt;<b>permazen:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
+ *     &lt;/<b>permazen:permazen</b>&gt;
  *
  *     &lt;!-- Create a Permazen transaction manager --&gt;
  *     &lt;bean id="transactionManager" class="io.permazen.spring.PermazenTransactionManager"
- *       p:Permazen-ref="jsimpledb" p:allowNewSchema="true"/&gt;
+ *       p:Permazen-ref="permazen" p:allowNewSchema="true"/&gt;
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
  *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;

@@ -19,8 +19,8 @@ public final class Version {
      */
     public static final String VERSION;
 
-    private static final String PROPERTIES_RESOURCE = "/jsimpledb.properties";
-    private static final String VERSION_PROPERTY_NAME = "jsimpledb.version";
+    private static final String PROPERTIES_RESOURCE = "/permazen.properties";
+    private static final String VERSION_PROPERTY_NAME = "permazen.version";
 
     static {
         final Properties properties = new Properties();

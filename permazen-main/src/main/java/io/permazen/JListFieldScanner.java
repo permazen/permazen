@@ -17,13 +17,13 @@ import java.util.List;
  */
 class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
-    JListFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
-        super(jclass, JListField.class, jsimpleClass);
+    JListFieldScanner(JClass<T> jclass, PermazenType permazenType) {
+        super(jclass, JListField.class, permazenType);
     }
 
     @Override
     protected JListField getDefaultAnnotation() {
-        return new DefaultJListField(this.jsimpleClass);
+        return new DefaultJListField(this.permazenType);
     }
 
     @Override
@@ -43,10 +43,10 @@ class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
     private static class DefaultJListField implements JListField {
 
-        private PermazenType jsimpleClass;
+        private PermazenType permazenType;
 
-        DefaultJListField(PermazenType jsimpleClass) {
-            this.jsimpleClass = jsimpleClass;
+        DefaultJListField(PermazenType permazenType) {
+            this.permazenType = permazenType;
         }
 
         @Override
@@ -63,7 +63,7 @@ class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
         }
         @Override
         public JField element() {
-            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+            return JFieldScanner.getDefaultJField(this.permazenType);
         }
     }
 }

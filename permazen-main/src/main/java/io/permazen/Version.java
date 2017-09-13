@@ -17,10 +17,10 @@ public final class Version {
     /**
      * The version of this library.
      */
-    public static final String JSIMPLEDB_VERSION;
+    public static final String PERMAZEN_VERSION;
 
-    private static final String PROPERTIES_RESOURCE = "/jsimpledb.properties";
-    private static final String VERSION_PROPERTY_NAME = "jsimpledb.version";
+    private static final String PROPERTIES_RESOURCE = "/permazen.properties";
+    private static final String VERSION_PROPERTY_NAME = "permazen.version";
 
     static {
         Properties properties = new Properties();
@@ -38,7 +38,7 @@ public final class Version {
                 // ignore
             }
         }
-        JSIMPLEDB_VERSION = properties.getProperty(VERSION_PROPERTY_NAME, "?");
+        PERMAZEN_VERSION = properties.getProperty(VERSION_PROPERTY_NAME, "?");
     }
 
     private Version() {

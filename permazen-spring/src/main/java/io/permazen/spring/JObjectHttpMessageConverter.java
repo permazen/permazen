@@ -27,7 +27,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * backed by a {@link io.permazen.kv.util.NavigableMapKVStore}.
  *
  * <p>
- * The payload MIME type is set to {@code application/x-jsimpledb-transaction} with an additional {@code root}
+ * The payload MIME type is set to {@code application/x-permazen-transaction} with an additional {@code root}
  * parameter specifying the root {@link JObject} in the encoded transaction.
  * There may of course be arbitrarily many other supporting {@link JObject}s riding along with it.
  *

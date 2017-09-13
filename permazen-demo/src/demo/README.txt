@@ -1,8 +1,8 @@
 
-Welcome to JSimpleDB
-====================
+Welcome to Permazen
+===================
 
-JSimpleDB is a better persistence layer for Java
+Permazen is a better persistence layer for Java
 
 Mainstream persistence solutions such as JPA and JDO fail to address many important issues that are _inherent_ to persistence programming. This is because they were not designed to address these issues; they were designed merely to give Java programmers access to existing database functionality.
 
@@ -22,9 +22,9 @@ In particular:
   * [Cross-object validation] Is it possible to define validation constraints that span multiple objects/records?
   * [Language-level data maintainability] Can data maintenance tasks be performed using the normal Java types and values? Are there convenient tools for manual and scripted use?
 
-JSimpleDB addresses all of these issues, this without sacrificing flexibility or scalability.
+Permazen addresses all of these issues, this without sacrificing flexibility or scalability.
 
-JSimpleDB does this by treating the database as just a sorted key/value store, and implementing the following in Java:
+Permazen does this by treating the database as just a sorted key/value store, and implementing the following in Java:
 
   * Encoding/decoding of field values
   * Enforcing referential integrity; forward/reverse delete cascades
@@ -35,7 +35,7 @@ JSimpleDB does this by treating the database as just a sorted key/value store, a
   * Validation queues
   * Command line interface
 
-JSimpleDB also adds some new features that traditional databases don't provide.
+Permazen also adds some new features that traditional databases don't provide.
 
   * Designed from the ground up to be Java-centric; 100% type-safe at all times.
   * Works on top of any database that can function as a key/value store (SQL, NoSQL, etc.)
@@ -54,7 +54,7 @@ Running the Demo
 ================
 
 This distribution includes a simple example database containing objects in the
-solar system. The JSimpleDB command line interface (CLI) and automatic graphical
+solar system. The Permazen command line interface (CLI) and automatic graphical
 user interface (GUI) tools will auto-detect the presence of the demonstration
 database in the current directory on startup when no other configuration is specified.
 
@@ -72,14 +72,14 @@ files in "object XML" format (in this case, the file was "demo-objs.xml").
 
 To view the demo database in the auto-generated Vaadin GUI:
 
-    java -jar jsimpledb-gui.jar
+    java -jar permazen-gui.jar
 
 Then connect to port 8080. If you already have something running on port 8080,
 add the "--port XXXX" flag. Add the "--help" flag to see other options.
 
 To view the demo database in the CLI:
 
-    java -jar jsimpledb-cli.jar
+    java -jar permazen-cli.jar
 
 Use the "help" command to see all commands and functions. In particular, the
 "expr" command evaluates any Java 8 expression and is used for database queries.

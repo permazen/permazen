@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  * <p><b>Reference Fields</b></p>
  *
  * <p>
- * If the type of the field is (assignable to) a {@link PermazenType &#64;JsimpleClass}-annotated Java model object type,
+ * If the type of the field is (assignable to) a {@link PermazenType &#64;PermazenType}-annotated Java model object type,
  * or any supertype thereof, then the field is a reference field.
  *
  * <p>

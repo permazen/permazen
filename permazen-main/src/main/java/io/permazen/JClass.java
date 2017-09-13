@@ -162,10 +162,10 @@ public class JClass<T> extends JSchemaObject {
     void createFields(Permazen jdb) {
 
         // Auto-generate properties?
-        final PermazenType jsimpleClass = Util.getAnnotation(this.type, PermazenType.class);
+        final PermazenType permazenType = Util.getAnnotation(this.type, PermazenType.class);
 
         // Scan for Simple and Counter fields
-        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<>(this, jsimpleClass);
+        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<>(this, permazenType);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -229,7 +229,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Set fields
-        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<>(this, jsimpleClass);
+        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<>(this, permazenType);
         for (JSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -269,7 +269,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for List fields
-        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<>(this, jsimpleClass);
+        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<>(this, permazenType);
         for (JListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -309,7 +309,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Map fields
-        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<>(this, jsimpleClass);
+        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<>(this, permazenType);
         for (JMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info

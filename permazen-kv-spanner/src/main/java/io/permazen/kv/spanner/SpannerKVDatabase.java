@@ -124,7 +124,7 @@ public class SpannerKVDatabase implements KVDatabase {
     /**
      * Default database ID: {@value #DEFAULT_DATABASE_ID}.
      */
-    public static final String DEFAULT_DATABASE_ID = "jsimpledb";
+    public static final String DEFAULT_DATABASE_ID = "permazen";
 
     /**
      * Default table name: {@value #DEFAULT_TABLE_NAME}.

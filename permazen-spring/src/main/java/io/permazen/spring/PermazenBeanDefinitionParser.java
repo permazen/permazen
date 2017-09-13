@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Parses <code>&lt;jsimpledb:jsimpledb&gt;</code> tags.
+ * Parses <code>&lt;permazen:permazen&gt;</code> tags.
  *
  * @see io.permazen.spring
  */
@@ -65,7 +65,7 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             if (!(nodeList.item(i) instanceof Element))
                 continue;
             final Element child = (Element)nodeList.item(i);
-            if (!PermazenNamespaceHandler.JSIMPLEDB_NAMESPACE_URI.equals(child.getNamespaceURI()))
+            if (!PermazenNamespaceHandler.PERMAZEN_NAMESPACE_URI.equals(child.getNamespaceURI()))
                 continue;
             if (child.getLocalName().equals(PermazenNamespaceHandler.SCAN_CLASSES_TAG))
                 builder.addPropertyValue("modelClasses", new ScanClassesBeanDefinitionParser().parse(child, parserContext));

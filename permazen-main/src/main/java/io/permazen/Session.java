@@ -96,7 +96,7 @@ public class Session {
     }
 
     /**
-     * Constructor for {@link SessionMode#JSIMPLEDB}.
+     * Constructor for {@link SessionMode#PERMAZEN}.
      *
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
@@ -109,7 +109,7 @@ public class Session {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         if (jdb != null) {
             Preconditions.checkArgument(db != null, "null db");
-            this.mode = SessionMode.JSIMPLEDB;
+            this.mode = SessionMode.PERMAZEN;
         } else if (db != null)
             this.mode = SessionMode.CORE_API;
         else
@@ -135,7 +135,7 @@ public class Session {
      *
      * @param mode new {@link SessionMode}
      * @throws IllegalArgumentException if {@code mode} is null
-     * @throws IllegalArgumentException if {@code mode} requires a {@link Permazen} (i.e., {@link SessionMode#JSIMPLEDB}),
+     * @throws IllegalArgumentException if {@code mode} requires a {@link Permazen} (i.e., {@link SessionMode#PERMAZEN}),
      *  or {@link Database} (i.e., {@link SessionMode#CORE_API}) instance, but none was provided at construction
      */
     public void setMode(SessionMode mode) {
@@ -146,7 +146,7 @@ public class Session {
         case CORE_API:
             Preconditions.checkArgument(this.db != null, "session is not configured with a Core API Database instance");
             break;
-        case JSIMPLEDB:
+        case PERMAZEN:
             Preconditions.checkArgument(this.jdb != null, "session is not configured with a Permazen instance");
             break;
         default:
@@ -167,7 +167,7 @@ public class Session {
     /**
      * Get the associated {@link Database}, if any.
      *
-     * @return the associated {@link Database} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
+     * @return the associated {@link Database} or null if this instance is not in {@link SessionMode#PERMAZEN}
      *  or {@link SessionMode#CORE_API}
      */
     public Database getDatabase() {
@@ -177,7 +177,7 @@ public class Session {
     /**
      * Get the associated {@link Permazen}, if any.
      *
-     * @return the associated {@link Permazen} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
+     * @return the associated {@link Permazen} or null if this instance is not in {@link SessionMode#PERMAZEN}
      */
     public Permazen getPermazen() {
         return this.jdb;
@@ -199,7 +199,7 @@ public class Session {
      *
      * @return the open {@link Transaction} in which to do work
      * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#JSIMPLEDB}
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#PERMAZEN}
      */
     public Transaction getTransaction() {
         Preconditions.checkState(this.mode.hasCoreAPI(), "core API not available in " + this.mode + " mode");
@@ -215,7 +215,7 @@ public class Session {
      *
      * @return the open {@link JTransaction} in which to do work
      * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#PERMAZEN}
      */
     public JTransaction getJTransaction() {
         Preconditions.checkState(this.mode.hasPermazen(), "Permazen not available in " + this.mode + " mode");
@@ -282,7 +282,7 @@ public class Session {
      * If this is left unconfigured, {@link ValidationMode#AUTOMATIC} is used for new transactions.
      *
      * <p>
-     * This property is only relevant in {@link SessionMode#JSIMPLEDB}.
+     * This property is only relevant in {@link SessionMode#PERMAZEN}.
      *
      * @return the validation mode used by this session
      */
@@ -401,7 +401,7 @@ public class Session {
      * and then false returned.
      *
      * <p>
-     * This instance must be in {@link SessionMode#JSIMPLEDB}, there must be a {@link JTransaction} open and
+     * This instance must be in {@link SessionMode#PERMAZEN}, there must be a {@link JTransaction} open and
      * {@linkplain JTransaction#getCurrent associated with the current thread}, and this instance must not already
      * have a different {@link JTransaction} associated with it (it may already have the same {@link JTransaction}
      * associated with it). The {@link JTransaction} will be left open when this method returns.
@@ -412,14 +412,14 @@ public class Session {
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if {@code action} threw an exception
      * @throws IllegalStateException if there is a different open transaction already associated with this instance
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#PERMAZEN}
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean performSessionActionWithCurrentTransaction(Action action) {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
-        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in Permazen mode");
+        Preconditions.checkArgument(SessionMode.PERMAZEN.equals(this.mode), "session is not in Permazen mode");
 
         // Check for re-entrant invocation, otherwise verify no other transaction is associated
         final Transaction currentTx = JTransaction.getCurrent().getTransaction();
@@ -579,7 +579,7 @@ public class Session {
                 this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema, options);
                 this.kvt = this.tx.getKVTransaction();
                 break;
-            case JSIMPLEDB:
+            case PERMAZEN:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a Permazen transaction is already open in the current thread");
                 if (this.schemaVersion != 0)
@@ -626,7 +626,7 @@ public class Session {
         try {
             Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
             switch (currentMode) {
-            case JSIMPLEDB:
+            case PERMAZEN:
                 if (commit && !this.tx.isRollbackOnly())
                     JTransaction.getCurrent().commit();
                 else
@@ -658,7 +658,7 @@ public class Session {
     }
 
     private void cleanupTx(SessionMode mode) {
-        if (mode.compareTo(SessionMode.JSIMPLEDB) >= 0) {
+        if (mode.compareTo(SessionMode.PERMAZEN) >= 0) {
             try {
                 JTransaction.getCurrent().rollback();
             } catch (IllegalStateException e) {

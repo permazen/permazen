@@ -43,7 +43,7 @@ public class CliSession extends ParseSession {
      *
      * @see #loadCommandsFromClasspath
      */
-    public static final String CLI_COMMANDS_DESCRIPTOR_RESOURCE = "META-INF/jsimpledb/cli-command-implementations.xml";
+    public static final String CLI_COMMANDS_DESCRIPTOR_RESOURCE = "META-INF/permazen/cli-command-implementations.xml";
 
     private final Console console;
     private final PrintWriter writer;
@@ -87,7 +87,7 @@ public class CliSession extends ParseSession {
     }
 
     /**
-     * Constructor for {@link io.permazen.SessionMode#JSIMPLEDB} mode.
+     * Constructor for {@link io.permazen.SessionMode#PERMAZEN} mode.
      *
      * @param jdb database
      * @param writer CLI output
@@ -251,7 +251,7 @@ public class CliSession extends ParseSession {
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if {@code action} threw an exception
      * @throws IllegalStateException if there is a different open transaction already associated with this instance
-     * @throws IllegalStateException if this instance is not in mode {@link io.permazen.SessionMode#JSIMPLEDB}
+     * @throws IllegalStateException if this instance is not in mode {@link io.permazen.SessionMode#PERMAZEN}
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean performCliSessionActionWithCurrentTransaction(final Action action) {

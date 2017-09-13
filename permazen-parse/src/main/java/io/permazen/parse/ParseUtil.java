@@ -67,7 +67,7 @@ public final class ParseUtil {
      * @throws IllegalArgumentException if object's type does not exist in schema
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code state} is not in {@link io.permazen.SessionMode#JSIMPLEDB}
+     * @throws IllegalArgumentException if {@code state} is not in {@link io.permazen.SessionMode#PERMAZEN}
      */
     public static JField resolveJField(ParseSession session, ObjId id, String name) {
 
