@@ -31,11 +31,11 @@ import java.lang.annotation.Target;
  *
  * <p>
  * This annotation can be applied to superclass and interface methods to have the corresponding field defined in all
- * {@link JSimpleClass &#64;JSimpleClass}-annotated sub-types.
+ * {@link PermazenType &#64;PermazenType}-annotated sub-types.
  *
  * <p>
  * When auto-generation of properties is enabled, use of this annotation is not required unless you need to override
- * the defaults; see {@link JSimpleClass#autogenFields}.
+ * the defaults; see {@link PermazenType#autogenFields}.
  *
  * <p><b>Non-Reference Fields</b></p>
  *
@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  * <p><b>Reference Fields</b></p>
  *
  * <p>
- * If the type of the field is (assignable to) a {@link JSimpleClass &#64;JsimpleClass}-annotated Java model object type,
+ * If the type of the field is (assignable to) a {@link PermazenType &#64;JsimpleClass}-annotated Java model object type,
  * or any supertype thereof, then the field is a reference field.
  *
  * <p>
@@ -92,7 +92,7 @@ import java.lang.annotation.Target;
  * <p>
  * For example:
  * <pre>
- *  &#64;JSimpleClass
+ *  &#64;PermazenType
  *  public interface TreeNode extends JObject {
  *
  *      /**
@@ -215,7 +215,7 @@ public @interface JField {
      * FieldTypeRegistry.getFieldType()}.
      *
      * <p>
-     * For reference fields (i.e., methods with return value equal to a {@link JSimpleClass &#64;JSimpleClass}-annotated class),
+     * For reference fields (i.e., methods with return value equal to a {@link PermazenType &#64;PermazenType}-annotated class),
      * this property must be left unset.
      *
      * <p>
@@ -250,7 +250,7 @@ public @interface JField {
      *
      * <p>
      * If zero, the configured {@link io.permazen.StorageIdGenerator} will be consulted to auto-generate a value
-     * unless {@link JSimpleClass#autogenFields} is false (in which case an error occurs).
+     * unless {@link PermazenType#autogenFields} is false (in which case an error occurs).
      *
      * @see io.permazen.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      * @see io.permazen.StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
@@ -409,7 +409,7 @@ public @interface JField {
      * @return whether the reference field should allow assignment to deleted objects in normal transactions
      * @see #onDelete
      * @see #allowDeletedSnapshot
-     * @see JSimpleClass#autogenAllowDeleted
+     * @see PermazenType#autogenAllowDeleted
      */
     boolean allowDeleted() default false;
 
@@ -433,7 +433,7 @@ public @interface JField {
      * @return whether the reference field should allow assignment to deleted objects in snapshot transactions
      * @see #onDelete
      * @see #allowDeleted
-     * @see JSimpleClass#autogenAllowDeletedSnapshot
+     * @see PermazenType#autogenAllowDeletedSnapshot
      */
     boolean allowDeletedSnapshot() default true;
 

@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
 
@@ -138,7 +138,7 @@ public class DeleteCascadeTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true)

@@ -10,7 +10,7 @@ import io.permazen.JSimpleDB;
 import io.permazen.JSimpleDBFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.JFieldType;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
 import io.permazen.core.InvalidSchemaException;
@@ -53,7 +53,7 @@ import org.apache.maven.project.MavenProject;
 public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
-     * Specifies Java package names under which to search for classes with @{@code JSimpleClass} or @{@code JFieldType} annotations.
+     * Specifies Java package names under which to search for classes with @{@code PermazenType} or @{@code JFieldType} annotations.
      *
      * <p>
      * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
@@ -63,7 +63,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected String[] packages;
 
     /**
-     * Specifies the names of specific Java classes to search for @{@code JSimpleClass} or @{@code JFieldType} annotations.
+     * Specifies the names of specific Java classes to search for @{@code PermazenType} or @{@code JFieldType} annotations.
      *
      * <p>
      * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
@@ -208,8 +208,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 }
                 final String packageNames = buf.toString();
 
-                // Scan for @JSimpleClass classes
-                this.getLog().info("scanning for @JSimpleClass annotations in packages: " + packageNames);
+                // Scan for @PermazenType classes
+                this.getLog().info("scanning for @PermazenType annotations in packages: " + packageNames);
                 for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
                     this.getLog().info("adding JSimpleDB model class " + className);
                     try {
@@ -244,7 +244,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                     }
 
                     // Add model classes
-                    if (cl.isAnnotationPresent(JSimpleClass.class)) {
+                    if (cl.isAnnotationPresent(PermazenType.class)) {
                         this.getLog().info("adding JSimpleDB model " + cl);
                         modelClasses.add(cl);
                     }

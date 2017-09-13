@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public class JObjectCopyTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         public abstract Person getRef();

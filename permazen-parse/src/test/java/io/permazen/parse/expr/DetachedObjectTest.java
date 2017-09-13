@@ -9,7 +9,7 @@ import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
 import io.permazen.Session;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.parse.ParseSession;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ParseContext;
@@ -99,7 +99,7 @@ public class DetachedObjectTest extends TestSupport {
 
 // Model classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         public abstract String getName();

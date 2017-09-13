@@ -5,12 +5,12 @@
 
 package io.permazen.demo;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 
 /**
  * Represents a planet.
  */
-@JSimpleClass
+@PermazenType
 public abstract class Planet extends AbstractHasSatellites<Moon> implements Satellite<Star> {
 
     protected Planet() {

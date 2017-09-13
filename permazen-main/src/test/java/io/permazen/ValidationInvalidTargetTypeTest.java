@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import org.testng.annotations.Test;
@@ -51,11 +51,11 @@ public class ValidationInvalidTargetTypeTest extends TestSupport {
     public abstract static class Person implements JObject {
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person1 extends Person implements HasFriend {
     }
 
-    @JSimpleClass(storageId = 101)
+    @PermazenType(storageId = 101)
     public abstract static class Person2 extends Person implements HasFriend {
     }
 }

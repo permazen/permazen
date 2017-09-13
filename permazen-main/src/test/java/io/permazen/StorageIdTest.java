@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JCompositeIndex;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
@@ -89,7 +89,7 @@ public class StorageIdTest extends TestSupport {
     }
 
     @JCompositeIndex(name = "index", fields = { "string", "friend" })
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo implements JObject, Friendly {
 
         public abstract String getString();

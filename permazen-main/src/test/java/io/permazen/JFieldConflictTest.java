@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
 
@@ -39,7 +39,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(indexed = true)
         float getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface IndexedConflict extends IndexedConflict1, IndexedConflict2 {
         void setRef(float x);
     }
@@ -65,7 +65,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(onDelete = DeleteAction.EXCEPTION)
         OnDeleteConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface OnDeleteConflict extends OnDeleteConflict1, OnDeleteConflict2 {
         void setRef(OnDeleteConflict x);
     }
@@ -91,7 +91,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(cascadeDelete = false)
         CascadeDeleteConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface CascadeDeleteConflict extends CascadeDeleteConflict1, CascadeDeleteConflict2 {
         void setRef(CascadeDeleteConflict x);
     }
@@ -117,7 +117,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(unique = true)
         UniqueConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface UniqueConflict extends UniqueConflict1, UniqueConflict2 {
         void setRef(UniqueConflict x);
     }
@@ -143,7 +143,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(indexed = true, unique = true, uniqueExclude = { "+Infinity", "-Infinity" })
         float getFloat();
     }
-    @JSimpleClass
+    @PermazenType
     public interface UniqueExcludeConflict extends UniqueExcludeConflict1, UniqueExcludeConflict2 {
         void setFloat(float x);
     }
@@ -169,7 +169,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
         Float getFloat();
     }
-    @JSimpleClass
+    @PermazenType
     public interface UniqueExcludeNullConflict extends UniqueExcludeNullConflict1, UniqueExcludeNullConflict2 {
         void setFloat(Float x);
     }
@@ -194,7 +194,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         String getString();
     }
-    @JSimpleClass
+    @PermazenType
     public interface UpgradeConversionConflict extends UpgradeConversionConflict1, UpgradeConversionConflict2 {
         void setString(String x);
     }
@@ -219,7 +219,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(allowDeleted = false)
         AllowDeletedConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface AllowDeletedConflict extends AllowDeletedConflict1, AllowDeletedConflict2 {
         void setRef(AllowDeletedConflict x);
     }
@@ -244,7 +244,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(allowDeletedSnapshot = false)
         AllowDeletedSnapshotConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface AllowDeletedSnapshotConflict extends AllowDeletedSnapshotConflict1, AllowDeletedSnapshotConflict2 {
         void setRef(AllowDeletedSnapshotConflict x);
     }
@@ -270,7 +270,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(cascades = { })
         ForwardCascadesConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface ForwardCascadesConflict extends ForwardCascadesConflict1, ForwardCascadesConflict2 {
         void setRef(ForwardCascadesConflict x);
     }
@@ -296,7 +296,7 @@ public class JFieldConflictTest extends TestSupport {
         @JField(inverseCascades = { "foo", "bar" })
         InverseCascadesConflict getRef();
     }
-    @JSimpleClass
+    @PermazenType
     public interface InverseCascadesConflict extends InverseCascadesConflict1, InverseCascadesConflict2 {
         void setRef(InverseCascadesConflict x);
     }

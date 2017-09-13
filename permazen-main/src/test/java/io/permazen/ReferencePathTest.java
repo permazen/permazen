@@ -10,7 +10,7 @@ import com.google.common.primitives.Ints;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.List;
@@ -173,7 +173,7 @@ public class ReferencePathTest extends TestSupport {
         void setFriend(Person x);
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements HasFriend, JObject {
 
         @JField(storageId = 101)
@@ -186,7 +186,7 @@ public class ReferencePathTest extends TestSupport {
         public abstract NavigableMap<Person, Float> getRatings();
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
         @JListField(storageId = 150, element = @JField(storageId = 151))
@@ -195,7 +195,7 @@ public class ReferencePathTest extends TestSupport {
 
 // Wacky paths
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class WackyPaths1 implements JObject {
 
         @JField(storageId = 123)
@@ -206,14 +206,14 @@ public class ReferencePathTest extends TestSupport {
         public abstract void setName(String x);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class WackyPaths2 implements JObject {
 
         public abstract JObject getElement();
         public abstract void setElement(JObject x);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class WackyPaths3 implements JObject {
 
         @JListField(storageId = 456)

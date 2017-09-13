@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SimpleFieldChange;
@@ -136,11 +136,11 @@ public class GenericsFunTest extends TestSupport {
         public abstract void setAccount(Account name);
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class Account extends AbstractData<Account> {
     }
 
-    @JSimpleClass(storageId = 300)
+    @PermazenType(storageId = 300)
     public abstract static class AccountEvent extends AbstractAccountData<AccountEvent> {
 
         @JField(storageId = 301)
@@ -148,7 +148,7 @@ public class GenericsFunTest extends TestSupport {
         public abstract void setEventId(int eventId);
     }
 
-    @JSimpleClass(storageId = 400)
+    @PermazenType(storageId = 400)
     public abstract static class Widget extends AbstractData<Widget> {
     }
 
@@ -165,11 +165,11 @@ public class GenericsFunTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Class2 extends Class1<Class3> {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Class3 extends Class1<Class2> {
     }
 
@@ -185,11 +185,11 @@ public class GenericsFunTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ListSub1 extends ListSuper<ListSub2> {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ListSub2 extends ListSuper<ListSub1> {
     }
 
@@ -201,7 +201,7 @@ public class GenericsFunTest extends TestSupport {
         void setProperty(T value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class GenericBeanProperty implements GenericBeanPropertySupport<String> {
 
         @Override
@@ -209,7 +209,7 @@ public class GenericsFunTest extends TestSupport {
         public abstract String getProperty();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class GenericBeanProperty2 implements GenericBeanPropertySupport<String> {
 
         @Override

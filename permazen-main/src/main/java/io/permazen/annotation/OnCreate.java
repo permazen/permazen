@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * <p>
  * For example, instead of this:
  * <pre>
- *  &#64;JSimpleClass
+ *  &#64;PermazenType
  *  public abstract class Event {
  *
  *      protected Event() {
@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  * <p>
  * do this:
  * <pre>
- *  &#64;JSimpleClass
+ *  &#64;PermazenType
  *  public abstract class Event {
  *
  *      &#64;OnCreate

@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
  * Considering the following model classes:
  *
  * <pre>
- * &#64;JSimpleClass
+ * &#64;PermazenType
  * public class Employee {
  *
  *     public abstract String getName();
@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
  *     public abstract Set&lt;Asset&gt; getAssets();
  * }
  *
- * &#64;JSimpleClass
+ * &#64;PermazenType
  * public class Asset {
  *
  *     public abstract int getAssetId();

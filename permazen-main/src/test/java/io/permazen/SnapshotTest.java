@@ -11,7 +11,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
@@ -328,7 +328,7 @@ public class SnapshotTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements JObject {
 
         @JField(storageId = 101)
@@ -356,7 +356,7 @@ public class SnapshotTest extends TestSupport {
         public abstract Map<Float, Person> getMap2();
     }
 
-    @JSimpleClass(storageId = 150)
+    @PermazenType(storageId = 150)
     public abstract static class Person2 extends Person {
 
         private boolean flag;
@@ -372,7 +372,7 @@ public class SnapshotTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class Foo implements JObject {
 
         @JField(storageId = 201, onDelete = DeleteAction.NOTHING, allowDeleted = true)
@@ -398,7 +398,7 @@ public class SnapshotTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 300)
+    @PermazenType(storageId = 300)
     public abstract static class Foo2 extends Foo {
 
         @Override

@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnValidate;
 import io.permazen.test.TestSupport;
 
@@ -314,7 +314,7 @@ public class ValidationTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements JObject {
 
         private int checks;
@@ -362,14 +362,14 @@ public class ValidationTest extends TestSupport {
 
 // This class has only a type-level JSR 303 constraint
 
-    @JSimpleClass
+    @PermazenType
     @NonEmptyToString
     public abstract static class NameThing1 extends NameThing {
     }
 
 // This class has only a @OnValidate method
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NameThing2 extends NameThing {
         @OnValidate
         public void validateMe() {
@@ -379,7 +379,7 @@ public class ValidationTest extends TestSupport {
 
 // This class extends a class with only a type-level JSR 303 constraint
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NameThing3 extends NameThing1 {
     }
 
@@ -390,7 +390,7 @@ public class ValidationTest extends TestSupport {
         Object getFoo();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NameThing4 extends NameThing implements Foobar {
         public Object getFoo() {
             return null;
@@ -404,7 +404,7 @@ public class ValidationTest extends TestSupport {
         void validateMe();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NameThing5 extends NameThing implements ValidateMe {
         public void validateMe() {
             throw new ValidationException(this, "sorry");
@@ -413,7 +413,7 @@ public class ValidationTest extends TestSupport {
 
 // This class extends a class with only a @OnValidate method
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NameThing6 extends NameThing2 {
         @Override
         public void validateMe() {

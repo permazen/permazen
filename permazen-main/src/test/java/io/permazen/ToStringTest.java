@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
@@ -63,15 +63,15 @@ public class ToStringTest extends TestSupport {
         void setAge(int x);
     }
 
-    @JSimpleClass
+    @PermazenType
     public interface Person1 extends Person {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person2 implements Person {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person3 implements Person {
 
         @Override

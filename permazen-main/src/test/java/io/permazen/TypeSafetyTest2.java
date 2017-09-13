@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.index.Index;
 import io.permazen.index.Index2;
@@ -90,7 +90,7 @@ public class TypeSafetyTest2 extends TestSupport {
         BLUE;
     };
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class Vehicle implements JObject {
 
         @Override
@@ -99,16 +99,16 @@ public class TypeSafetyTest2 extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 30)
+    @PermazenType(storageId = 30)
     public abstract static class Car extends Vehicle {
     }
 
-    @JSimpleClass(storageId = 40)
+    @PermazenType(storageId = 40)
     public abstract static class Boat extends Vehicle {
     }
 
     // Version 1
-    @JSimpleClass(storageId = 50)
+    @PermazenType(storageId = 50)
     public abstract static class Inventory1 extends Vehicle {
 
         @JMapField(storageId = 51, key = @JField(storageId = 52), value = @JField(storageId = 53, indexed = true))
@@ -116,7 +116,7 @@ public class TypeSafetyTest2 extends TestSupport {
     }
 
     // Version 2
-    @JSimpleClass(storageId = 50)
+    @PermazenType(storageId = 50)
     public abstract static class Inventory2 extends Vehicle {
 
         @JMapField(storageId = 51, key = @JField(storageId = 52), value = @JField(storageId = 53, indexed = true))

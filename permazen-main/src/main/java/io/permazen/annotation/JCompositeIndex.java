@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation defining a composite index on all {@link JSimpleClass}-annotated sub-types.
+ * Java annotation defining a composite index on all {@link PermazenType}-annotated sub-types.
  *
  * <p>
  * A composite index is an index on two or more fields (to define a single-field index,
@@ -22,8 +22,8 @@ import java.lang.annotation.Target;
  *
  * <p>
  * {@link JCompositeIndex &#64;JCompositeIndex} is a {@linkplain Repeatable repeatable annotation}. Instances
- * may annotate any {@link JSimpleClass &#64;JSimpleClass}-annotated class or supertype thereof. Put another way,
- * instances of a {@link JSimpleClass &#64;JSimpleClass}-annotated class that is a subtype of a
+ * may annotate any {@link PermazenType &#64;PermazenType}-annotated class or supertype thereof. Put another way,
+ * instances of a {@link PermazenType &#64;PermazenType}-annotated class that is a subtype of a
  * {@link JCompositeIndex &#64;JCompositeIndex}-annotated type will be included in the corresponding composite index.
  *
  * <p><b>Uniqueness Constraints</b></p>
@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * excluded from the uniqueness constraint by specifying the corresponding comma-separated {@link String} encoded tuples
  * in {@link #uniqueExclude}.
  *
- * @see JSimpleClass
+ * @see PermazenType
  * @see JField#indexed
  */
 @Repeatable(JCompositeIndexes.class)
@@ -101,7 +101,7 @@ public @interface JCompositeIndex {
      * For example:
      *
      * <pre>
-     * &#64;JSimpleClass(compositeIndexes =
+     * &#64;PermazenType(compositeIndexes =
      *  &#64;JCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
      *                      <b>unique = true, uniqueExclude = "\"Unknown\", \"Unknown\""</b>))
      *  public abstract class Person {
@@ -119,7 +119,7 @@ public @interface JCompositeIndex {
      * self-delimiting string form} of the null value (this is almost always the string {@code "null"}):
      *
      * <pre>
-     * &#64;JSimpleClass(compositeIndexes =
+     * &#64;PermazenType(compositeIndexes =
      *  &#64;JCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
      *                      <b>unique = true, uniqueExclude = "null, null"</b>))
      *  public abstract class Person {

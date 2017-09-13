@@ -44,7 +44,7 @@ public enum SessionMode {
      *
      * <p>
      * Schema information may be provided either by a schema XML file or by
-     * {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model classes; however, in the latter
+     * {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated Java model classes; however, in the latter
      * case these classes will be otherwise ignored.
      *
      * <p>
@@ -58,7 +58,7 @@ public enum SessionMode {
      *
      * <p>
      * Provides
-     * i.e., when the there are no {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
+     * i.e., when the there are no {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated Java model
      * classes defined and the core {@link io.permazen.core.Database} API is used.
      *
      * <p>

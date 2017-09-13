@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.Database;
 import io.permazen.core.EnumField;
@@ -159,7 +159,7 @@ public class EnumFieldTest extends TestSupport {
         JAN;    // 2
     }
 
-    @JSimpleClass(storageId = 1)
+    @PermazenType(storageId = 1)
     public abstract static class Foo implements JObject {
 
         @JField(storageId = 2)
@@ -191,7 +191,7 @@ public class EnumFieldTest extends TestSupport {
         CCC;
     }
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class EnumNoConflict1 implements JObject {
 
         @JField(storageId = 2)
@@ -199,7 +199,7 @@ public class EnumFieldTest extends TestSupport {
         public abstract void setEnumField(Enum1 value);
     }
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class EnumNoConflict2 implements JObject {
 
         @JField(storageId = 2)
@@ -207,7 +207,7 @@ public class EnumFieldTest extends TestSupport {
         public abstract void setEnumField(Enum2 value);
     }
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class EnumConflict1 implements JObject {
 
         @JField(storageId = 2, indexed = true)
@@ -215,7 +215,7 @@ public class EnumFieldTest extends TestSupport {
         public abstract void setEnumField(Enum1 value);
     }
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class EnumConflict2 implements JObject {
 
         @JField(storageId = 2, indexed = true)

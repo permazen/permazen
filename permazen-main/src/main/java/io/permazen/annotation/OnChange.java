@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * <p><b>Examples</b></p>
  *
  * <pre>
- *   &#64;JSimpleClass
+ *   &#64;PermazenType
  *   public abstract class Account implements JObject {
  *
  *   // Database fields
@@ -81,7 +81,7 @@ import java.lang.annotation.Target;
  *       }
  *   }
  *
- *   &#64;JSimpleClass
+ *   &#64;PermazenType
  *   public abstract class User implements JObject {
  *
  *   // Database fields
@@ -191,7 +191,7 @@ import java.lang.annotation.Target;
  * exist in a some sub-type of that type:
  *
  * <pre>
- * &#64;JSimpleClass
+ * &#64;PermazenType
  * public class Person {
  *
  *     public abstract Set&lt;Person&gt; <b>getFriends</b>();
@@ -202,7 +202,7 @@ import java.lang.annotation.Target;
  *     }
  * }
  *
- * &#64;JSimpleClass
+ * &#64;PermazenType
  * public class NamedPerson extends Person {
  *
  *     public abstract String <b>getName</b>();

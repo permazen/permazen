@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
 
@@ -56,7 +56,7 @@ public class MetaAnnotationsTest extends TestSupport {
 
 // Meta-Annotations
 
-    @JSimpleClass
+    @PermazenType
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface ModelClass {

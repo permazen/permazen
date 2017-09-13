@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.ListFieldChange;
@@ -176,7 +176,7 @@ public class OnChangeWildcardTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         private final HashSet<Pair> changes1 = new HashSet<>();
@@ -270,7 +270,7 @@ public class OnChangeWildcardTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bogus1 implements JObject {
 
         public abstract Person getFriend();
@@ -283,7 +283,7 @@ public class OnChangeWildcardTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bogus2 implements JObject {
 
         public abstract List<Person> getFriends();
@@ -295,7 +295,7 @@ public class OnChangeWildcardTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bogus3 implements JObject {
 
         public abstract List<Person> getFriends();
@@ -307,7 +307,7 @@ public class OnChangeWildcardTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bogus4 implements JObject {
 
         public abstract List<Person> getFriends();
@@ -319,7 +319,7 @@ public class OnChangeWildcardTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bogus5 implements JObject {
 
         public abstract List<Person> getFriends();

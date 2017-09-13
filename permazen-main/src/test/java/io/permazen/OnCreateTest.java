@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnCreate;
 import io.permazen.test.TestSupport;
 
@@ -68,7 +68,7 @@ public class OnCreateTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public static class Person {
 
         private int createInvokes;
@@ -96,7 +96,7 @@ public class OnCreateTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class HasUUID {
 
         @JField(storageId = 101)

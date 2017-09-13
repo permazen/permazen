@@ -49,7 +49,7 @@
  * <tr>
  *  <td>{@code <jsimpledb:scan-classes>}</td>
  *  <td>Works just like Spring's {@code <context:component-scan>} but finds
- *      {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model classes.
+ *      {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated Java model classes.
  *      Returns the classes found in a {@link java.util.List}.</td>
  * </tr>
  * <tr>

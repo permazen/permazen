@@ -9,7 +9,7 @@ import io.permazen.JObject;
 import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.StaleTransactionException;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +78,7 @@ public class SimpleSpringTest extends SpringTest {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements JObject {
 
         @JField(storageId = 109)
@@ -90,7 +90,7 @@ public class SimpleSpringTest extends SpringTest {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class Banana implements JObject {
 
         @JField(storageId = 201)

@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JCompositeIndex;
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -484,7 +484,7 @@ public class CompositeIndexTest extends TestSupport {
 
     @JCompositeIndex(storageId = 11, name = "index1", fields = { "ref1", "string" })
     @JCompositeIndex(storageId = 12, name = "index2", fields = { "int", "ref2" })
-    @JSimpleClass(storageId = 99)
+    @PermazenType(storageId = 99)
     public abstract static class Top implements JObject {
 
         @JField(storageId = 1, onDelete = DeleteAction.UNREFERENCE)
@@ -509,15 +509,15 @@ public class CompositeIndexTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class Foo1 extends Top {
     }
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class Foo2 extends Top {
     }
 
-    @JSimpleClass(storageId = 30)
+    @PermazenType(storageId = 30)
     public abstract static class Foo3 extends Top {
     }
 
@@ -543,7 +543,7 @@ public class CompositeIndexTest extends TestSupport {
       fields = { "field1", "field2" },
       unique = true,
       uniqueExclude = "null, TERMINATED")
-    @JSimpleClass
+    @PermazenType
     public interface IndexedOn2 extends Fields {
     }
 
@@ -552,7 +552,7 @@ public class CompositeIndexTest extends TestSupport {
       fields = { "field1", "field2", "field3" },
       unique = true,
       uniqueExclude = "null, TERMINATED, -1234")
-    @JSimpleClass
+    @PermazenType
     public interface IndexedOn3 extends Fields {
     }
 
@@ -567,17 +567,17 @@ public class CompositeIndexTest extends TestSupport {
         "null, NEW, -1234, \"foobar\"",
         "null, TERMINATED, -1234, \"foobar\""
       })
-    @JSimpleClass
+    @PermazenType
     public interface IndexedOn4 extends Fields {
     }
 
 // Model Classes #3
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class A implements IndexedOn2 {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class B implements IndexedOn2 {
     }
 
@@ -587,11 +587,11 @@ public class CompositeIndexTest extends TestSupport {
     public interface Unique {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class C implements Fields, Unique {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class D implements Fields, Unique {
     }
 }

@@ -15,7 +15,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
@@ -358,7 +358,7 @@ public class JsckTest extends KVTestSupport {
     }
 
     @JCompositeIndex(storageId = 0xef, name = "compidx", fields = { "DOB", "name" })
-    @JSimpleClass(storageId = 0x10)
+    @PermazenType(storageId = 0x10)
     public interface Person extends JObject, HasName, Mammal {
 
         @JField(storageId = 0xbb)
@@ -372,7 +372,7 @@ public class JsckTest extends KVTestSupport {
         NavigableMap<Person, Float> getAmountOwed();
     }
 
-    @JSimpleClass(storageId = 0x20)
+    @PermazenType(storageId = 0x20)
     public interface Pet extends JObject, HasName, Mammal {
 
         @JField(storageId = 0xee)
@@ -396,11 +396,11 @@ public class JsckTest extends KVTestSupport {
         NavigableMap<T2, T1> getMap2();
     }
 
-    @JSimpleClass(storageId = 0x50)
+    @PermazenType(storageId = 0x50)
     public abstract static class Refs1 implements Refs<Person, Pet> {
     }
 
-    @JSimpleClass(storageId = 0x60)
+    @PermazenType(storageId = 0x60)
     public abstract static class Refs2 implements Refs<Pet, Person> {
     }
 }

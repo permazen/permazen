@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.JTransient;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -85,18 +85,18 @@ public class SchemaGenerationTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 1)
+    @PermazenType(storageId = 1)
     public abstract static class Foo implements JObject {
 
         protected abstract long getValue();
         protected abstract void setValue(long value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class BogusAbstract extends Foo implements Comparable<Foo> {
     }
 
-    @JSimpleClass(storageId = 2)
+    @PermazenType(storageId = 2)
     public abstract static class Foo2 extends Foo {
 
         @JTransient
@@ -104,7 +104,7 @@ public class SchemaGenerationTest extends TestSupport {
         protected abstract void setNotAField(int x);
     }
 
-    @JSimpleClass(storageId = 3, autogenNonAbstract = true)
+    @PermazenType(storageId = 3, autogenNonAbstract = true)
     public abstract static class Foo3 extends Foo {
 
         private int x;

@@ -19,8 +19,8 @@ import java.lang.annotation.Target;
  * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation.
  *
  * <p>
- * It is only useful on non-abstract methods in classes for which both {@link JSimpleClass#autogenFields}
- * and {@link JSimpleClass#autogenNonAbstract} are true.
+ * It is only useful on non-abstract methods in classes for which both {@link PermazenType#autogenFields}
+ * and {@link PermazenType#autogenNonAbstract} are true.
  *
  * <p><b>Meta-Annotations</b></p>
  *
@@ -29,8 +29,8 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see JSimpleClass#autogenFields
- * @see JSimpleClass#autogenNonAbstract
+ * @see PermazenType#autogenFields
+ * @see PermazenType#autogenNonAbstract
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })

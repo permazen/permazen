@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.SetFieldRemove;
 import io.permazen.change.SimpleFieldChange;
@@ -92,7 +92,7 @@ public class TypeSafetyTest3 extends TestSupport {
         BLUE;
     };
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class Vehicle implements JObject {
 
         @JField(storageId = 21)
@@ -105,16 +105,16 @@ public class TypeSafetyTest3 extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 30)
+    @PermazenType(storageId = 30)
     public abstract static class Car extends Vehicle {
     }
 
-    @JSimpleClass(storageId = 40)
+    @PermazenType(storageId = 40)
     public abstract static class Boat extends Vehicle {
     }
 
     // Version 1
-    @JSimpleClass(storageId = 50)
+    @PermazenType(storageId = 50)
     public abstract static class Inventory1 extends Vehicle {
 
         @JSetField(storageId = 51, element = @JField(storageId = 52))
@@ -122,7 +122,7 @@ public class TypeSafetyTest3 extends TestSupport {
     }
 
     // Version 2
-    @JSimpleClass(storageId = 50)
+    @PermazenType(storageId = 50)
     public abstract static class Inventory2 extends Vehicle {
 
         @JSetField(storageId = 51, element = @JField(storageId = 52))

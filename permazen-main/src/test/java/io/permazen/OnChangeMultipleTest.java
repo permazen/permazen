@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
@@ -113,7 +113,7 @@ public class OnChangeMultipleTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements JObject {
 
         @JField(storageId = 101)
@@ -129,7 +129,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class Person2 extends Person {
 
         @OnChange("friends.element.name")
@@ -140,7 +140,7 @@ public class OnChangeMultipleTest extends TestSupport {
 
 // Valid/Invalid Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class InvalidClass1 implements JObject {
 
         @JField(storageId = 101)
@@ -156,7 +156,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class InvalidClass2 implements JObject {
 
         @JField(storageId = 101)
@@ -167,7 +167,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class InvalidClass3 implements JObject {
 
         @OnChange
@@ -175,7 +175,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class InvalidClass4 implements JObject {
 
         @JField(storageId = 102)
@@ -187,7 +187,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class ValidClass1 implements JObject {
 
         @JField(storageId = 101)
@@ -203,7 +203,7 @@ public class OnChangeMultipleTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class ValidClass2 implements JObject {
 
         @JField(storageId = 102)

@@ -409,7 +409,7 @@ public abstract class AbstractMain extends MainClass {
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--schema-version, -v num",       "Specify schema version (default highest recorded; `auto' to auto-generate)" },
-            { "--model-pkg package",            "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
+            { "--model-pkg package",            "Scan for @PermazenType model classes under Java package (=> JSimpleDB mode)" },
             { "--type-pkg package",             "Scan for @JFieldType types under Java package to register custom types" },
             { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },
             { "--help, -h",                     "Show this help message" },

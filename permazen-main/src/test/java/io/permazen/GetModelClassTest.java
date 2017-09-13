@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import org.testng.Assert;
@@ -32,11 +32,11 @@ public class GetModelClassTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ModelA implements JObject {
     }
 
-    @JSimpleClass
+    @PermazenType
     public interface ModelB extends JObject {
     }
 }

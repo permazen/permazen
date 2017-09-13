@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
@@ -202,7 +202,7 @@ public class TypeSafetyTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class Bar implements JObject {
 
         @JField(storageId = 21)

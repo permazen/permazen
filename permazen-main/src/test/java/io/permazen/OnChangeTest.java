@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.Change;
 import io.permazen.change.ChangeCopier;
@@ -321,7 +321,7 @@ public class OnChangeTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements JObject {
 
         @JField(storageId = 101)
@@ -403,7 +403,7 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
         @JMapField(storageId = 201,
@@ -460,7 +460,7 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 300)
+    @PermazenType(storageId = 300)
     public abstract static class NicePerson extends Person {
 
         @JMapField(storageId = 301,
@@ -549,7 +549,7 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 400)
+    @PermazenType(storageId = 400)
     public abstract static class ColorHolder implements JObject {
 
         private Color oldColor;
@@ -580,7 +580,7 @@ public class OnChangeTest extends TestSupport {
         BLUE;
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person2 implements JObject {
 
         private int changeNotifications;
@@ -602,7 +602,7 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NonGenericChange implements JObject {
 
         private Object change;
@@ -621,7 +621,7 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class InversePaths implements JObject {
 
         private SimpleFieldChange<?, ?> change;
@@ -650,7 +650,7 @@ public class OnChangeTest extends TestSupport {
         void setA(A a);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class A implements JObject {
 
         private SimpleFieldChange<D, Integer> change;
@@ -665,15 +665,15 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class B implements JObject, HasA {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class C implements JObject, HasA {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class D implements JObject {
 
         public abstract JObject getMiddleMan();

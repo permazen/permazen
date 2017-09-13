@@ -35,10 +35,10 @@ public class JSimpleDBFactory {
      * Configure the Java model classes.
      *
      * <p>
-     * Note: {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}-annotated super-types of any
+     * Note: {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated super-types of any
      * class in {@code modelClasses} will be included, even if the super-type is not explicitly specified in {@code modelClasses}.
      *
-     * @param modelClasses classes annotated with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
      * @return this instance
      */
     public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
@@ -52,7 +52,7 @@ public class JSimpleDBFactory {
      * <p>
      * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(modelClasses))}.
      *
-     * @param modelClasses classes annotated with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
      * @return this instance
      * @see #setModelClasses(Iterable)
      */
@@ -100,7 +100,7 @@ public class JSimpleDBFactory {
 
     /**
      * Configure the {@link StorageIdGenerator} for auto-generating storage ID's when not explicitly
-     * specified in {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass},
+     * specified in {@link io.permazen.annotation.PermazenType &#64;PermazenType},
      * {@link io.permazen.annotation.JField &#64;JField}, etc., annotations.
      *
      * <p>

@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.Transaction;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -65,7 +65,7 @@ public class ValidateOnUpdateTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class Foo implements JObject {
 
         @JField(storageId = 11)

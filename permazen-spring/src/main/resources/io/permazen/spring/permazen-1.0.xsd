@@ -84,7 +84,7 @@
     <xsd:element name="scan-classes" type="scanClassPathType">
         <xsd:annotation>
             <xsd:documentation><![CDATA[
-    Scans the classpath and builds a list of @JSimpleClass-annotated classes.
+    Scans the classpath and builds a list of @PermazenType-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
             ]]></xsd:documentation>
         </xsd:annotation>

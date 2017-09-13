@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
@@ -44,11 +44,11 @@ public class VersionIntersectTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class Foo implements JObject {
     }
 
-    @JSimpleClass(storageId = 11)
+    @PermazenType(storageId = 11)
     public abstract static class Bar implements JObject {
     }
 }

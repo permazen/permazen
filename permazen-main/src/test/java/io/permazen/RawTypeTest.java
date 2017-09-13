@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
 
@@ -28,7 +28,7 @@ public class RawTypeTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
 
         @JField(storageId = 201, indexed = true)
@@ -41,7 +41,7 @@ public class RawTypeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 400)
+    @PermazenType(storageId = 400)
     public abstract static class Widget extends AbstractData<Widget> {
     }
 }

@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 
 /**
  * Used to auto-generate storage ID's for Java model classes, fields, and composite indexes when not specified
- * explicitly in the corresponding {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass},
+ * explicitly in the corresponding {@link io.permazen.annotation.PermazenType &#64;PermazenType},
  * {@link io.permazen.annotation.JField &#64;JField}, etc., annotations.
  *
  * @see JSimpleDBFactory#setStorageIdGenerator JSimpleDBFactory.setStorageIdGenerator()

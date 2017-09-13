@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
@@ -259,7 +259,7 @@ public class OnVersionChangeTest extends TestSupport {
         EEE;    // 4
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person1 implements JObject {
 
         @JField(storageId = 97)
@@ -287,7 +287,7 @@ public class OnVersionChangeTest extends TestSupport {
         DDD;    // 2
     }
 
-    @JSimpleClass(storageId = 100, autogenFields = false)
+    @PermazenType(storageId = 100, autogenFields = false)
     public abstract static class Person2 implements JObject, HasName {
 
         @JField(storageId = 97)
@@ -382,7 +382,7 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 3
 
-    @JSimpleClass(storageId = 100, autogenFields = false)
+    @PermazenType(storageId = 100, autogenFields = false)
     public abstract static class Person3 implements JObject, HasName {
 
         @JField(storageId = 101, indexed = true)
@@ -407,7 +407,7 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 4
 
-    @JSimpleClass(storageId = 100, autogenFields = false)
+    @PermazenType(storageId = 100, autogenFields = false)
     public abstract static class Person4 implements JObject {
 
         @JField(storageId = 105)
@@ -435,7 +435,7 @@ public class OnVersionChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200, autogenFields = false)
+    @PermazenType(storageId = 200, autogenFields = false)
     public abstract static class Name implements JObject, HasName {
 
         @JField(storageId = 201, indexed = true)

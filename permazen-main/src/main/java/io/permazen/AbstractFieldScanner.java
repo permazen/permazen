@@ -7,8 +7,8 @@ package io.permazen;
 
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.annotation.JSimpleClass;
 import io.permazen.annotation.JTransient;
+import io.permazen.annotation.PermazenType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
  */
 abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationScanner<T, A> {
 
-    protected final JSimpleClass jsimpleClass;
+    protected final PermazenType jsimpleClass;
 
-    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, JSimpleClass jsimpleClass) {
+    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, PermazenType jsimpleClass) {
         super(jclass, annotationType);
         this.jsimpleClass = jsimpleClass;
     }

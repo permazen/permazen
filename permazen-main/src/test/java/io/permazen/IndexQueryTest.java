@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
@@ -252,7 +252,7 @@ public class IndexQueryTest extends TestSupport {
         void setAccount(Account x);
     }
 
-    @JSimpleClass(storageId = 10)
+    @PermazenType(storageId = 10)
     public abstract static class Account implements JObject {
 
         @JField(storageId = 2)
@@ -296,7 +296,7 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 20)
+    @PermazenType(storageId = 20)
     public abstract static class Foo implements HasAccount, FooBar {
 
         @Override
@@ -312,7 +312,7 @@ public class IndexQueryTest extends TestSupport {
         public abstract void setAge(int age);
     }
 
-    @JSimpleClass(storageId = 30)
+    @PermazenType(storageId = 30)
     public abstract static class Jam implements HasAccount, HasAge {
 
         @Override
@@ -321,7 +321,7 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 40)
+    @PermazenType(storageId = 40)
     public abstract static class Bar implements HasAccount, FooBar {
 
         @Override
@@ -337,7 +337,7 @@ public class IndexQueryTest extends TestSupport {
         void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class HasNameImpl implements JObject, HasName {
 
         @Override
@@ -346,7 +346,7 @@ public class IndexQueryTest extends TestSupport {
         public abstract void setName(String name);
     }
 
-    @JSimpleClass(storageId = 7)
+    @PermazenType(storageId = 7)
     public abstract static class HasNameAndAge implements JObject, HasName, HasAge {
     }
 }

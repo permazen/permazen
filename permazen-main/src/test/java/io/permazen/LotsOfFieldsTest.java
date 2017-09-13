@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.test.TestSupport;
@@ -104,11 +104,11 @@ public class LotsOfFieldsTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields0 implements JObject {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields7 extends Fields0 {
         public abstract int getField0();
         public abstract void setField0(int value);
@@ -126,13 +126,13 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField6(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields8 extends Fields7 {
         public abstract int getField7();
         public abstract void setField7(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields15 extends Fields8 {
         public abstract int getField8();
         public abstract void setField8(int value);
@@ -150,13 +150,13 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField14(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields16 extends Fields15 {
         public abstract int getField15();
         public abstract void setField15(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields31 extends Fields16 {
         public abstract int getField16();
         public abstract void setField16(int value);
@@ -190,13 +190,13 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField30(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields32 extends Fields31 {
         public abstract int getField31();
         public abstract void setField31(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields39 extends Fields32 {
         public abstract int getField32();
         public abstract void setField32(int value);
@@ -214,7 +214,7 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField38(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields43 extends Fields39 {
         public abstract int getField39();
         public abstract void setField39(int value);
@@ -226,7 +226,7 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField42(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields63 extends Fields43 {
         public abstract int getField43();
         public abstract void setField43(int value);
@@ -270,13 +270,13 @@ public class LotsOfFieldsTest extends TestSupport {
         public abstract void setField62(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields64 extends Fields63 {
         public abstract int getField63();
         public abstract void setField63(int value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Fields65 extends Fields64 {
         public abstract int getField64();
         public abstract void setField64(int value);

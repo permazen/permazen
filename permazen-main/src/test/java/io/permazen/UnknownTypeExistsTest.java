@@ -6,7 +6,7 @@
 package io.permazen;
 
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
@@ -81,11 +81,11 @@ public class UnknownTypeExistsTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo implements JObject {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bar implements JObject {
     }
 }

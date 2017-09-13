@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 
 import java.lang.reflect.Method;
@@ -20,7 +20,7 @@ import java.util.Set;
  */
 class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
 
-    JFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+    JFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
         super(jclass, JField.class, jsimpleClass);
     }
 
@@ -60,7 +60,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         return true;
     }
 
-    public static final JField getDefaultJField(final JSimpleClass jsimpleClass) {
+    public static final JField getDefaultJField(final PermazenType jsimpleClass) {
         return new DefaultJField(jsimpleClass);
     }
 
@@ -68,9 +68,9 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
 
     public static class DefaultJField implements JField {
 
-        private JSimpleClass jsimpleClass;
+        private PermazenType jsimpleClass;
 
-        DefaultJField(JSimpleClass jsimpleClass) {
+        DefaultJField(PermazenType jsimpleClass) {
             this.jsimpleClass = jsimpleClass;
         }
 

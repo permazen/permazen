@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferencedObjectException;
@@ -345,7 +345,7 @@ public class BasicTest extends TestSupport {
         void setFriend(Person x);
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person implements HasFriend, JObject {
 
         @JField(storageId = 101)
@@ -409,7 +409,7 @@ public class BasicTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
         @JListField(storageId = 150, element = @JField(storageId = 151))

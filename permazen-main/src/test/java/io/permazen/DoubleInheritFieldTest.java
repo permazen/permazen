@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
@@ -58,12 +58,12 @@ public class DoubleInheritFieldTest extends TestSupport {
     }
 
     // This should work
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo1 implements Iface1, Iface2 {
     }
 
     // This should fail
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo2 implements Iface1, Iface3 {
     }
 }

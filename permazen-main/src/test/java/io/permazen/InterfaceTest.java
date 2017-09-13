@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.index.Index;
 import io.permazen.test.TestSupport;
 
@@ -79,7 +79,7 @@ public class InterfaceTest extends TestSupport {
 
 // Model Classes #1
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         public abstract String getName();
@@ -100,11 +100,11 @@ public class InterfaceTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Dog implements Pet {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Cat implements Pet {
 
         public abstract Dog getEnemy();
@@ -123,7 +123,7 @@ public class InterfaceTest extends TestSupport {
 
 // Model Classes #2
 
-    @JSimpleClass
+    @PermazenType
     public interface Animal {
         public int getNumLegs();
         public void setNumLegs(int numLegs);
@@ -136,7 +136,7 @@ public class InterfaceTest extends TestSupport {
 
     public static class ContainerClass {
 
-        @JSimpleClass
+        @PermazenType
         public interface OwnedPet extends Pet {
 
             Human getOwner();
@@ -144,11 +144,11 @@ public class InterfaceTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public interface Human extends Animal, CanReason {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NutriaRat implements Animal, ContainerClass.OwnedPet {
     }
 }

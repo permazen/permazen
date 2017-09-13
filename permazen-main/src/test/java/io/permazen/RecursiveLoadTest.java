@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
@@ -33,7 +33,7 @@ public class RecursiveLoadTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
 
         protected Person() {

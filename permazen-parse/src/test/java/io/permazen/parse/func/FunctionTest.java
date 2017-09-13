@@ -10,7 +10,7 @@ import io.permazen.JSimpleDB;
 import io.permazen.JTransaction;
 import io.permazen.Session;
 import io.permazen.ValidationMode;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.ExprParser;
 import io.permazen.test.TestSupport;
@@ -82,11 +82,11 @@ public class FunctionTest extends TestSupport {
         void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Parent implements JObject, HasName {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Child implements JObject, HasName {
 
         public abstract Parent getParent();

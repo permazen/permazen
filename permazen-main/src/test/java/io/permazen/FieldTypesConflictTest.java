@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
 import io.permazen.change.FieldChange;
 import io.permazen.change.ListFieldChange;
@@ -122,7 +122,7 @@ public class FieldTypesConflictTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class FieldTypes1 implements JObject {
 
         public abstract int getField1();
@@ -136,7 +136,7 @@ public class FieldTypesConflictTest extends TestSupport {
         public abstract Counter getField4();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class FieldTypes2 implements JObject {
 
         public abstract List<String> getField1();
@@ -150,7 +150,7 @@ public class FieldTypesConflictTest extends TestSupport {
         public abstract Map<Short, Double> getField4();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class FieldTypes3 implements JObject {
 
         public abstract JObject getField1();
@@ -166,14 +166,14 @@ public class FieldTypesConflictTest extends TestSupport {
 
 // Conflicting Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Conflictor1 implements JObject {
         @JField(indexed = true)
         public abstract int getField1();
         public abstract void setField1(int x);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Conflictor2 implements JObject {
         @JField(indexed = true)
         public abstract String getField1();
@@ -182,13 +182,13 @@ public class FieldTypesConflictTest extends TestSupport {
 
 // Note map key fields must be congruent, even if only value field is indexed (because the key is part of the index)
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Conflictor3 implements JObject {
         @JMapField(value = @JField(indexed = true))
         public abstract Map<Float, String> getField1();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Conflictor4 implements JObject {
         @JMapField(value = @JField(indexed = true))
         public abstract Map<Double, String> getField1();
@@ -196,13 +196,13 @@ public class FieldTypesConflictTest extends TestSupport {
 
 // But map value fields can be different, if only key field is indexed
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NonConflictor1 implements JObject {
         @JMapField(key = @JField(indexed = true))
         public abstract Map<String, Float> getField1();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class NonConflictor2 implements JObject {
         @JMapField(key = @JField(indexed = true))
         public abstract Map<String, Double> getField1();

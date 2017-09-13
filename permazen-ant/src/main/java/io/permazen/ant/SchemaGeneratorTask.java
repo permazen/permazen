@@ -9,7 +9,7 @@ import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.JSimpleDBFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.JFieldType;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -41,7 +41,7 @@ import org.apache.tools.ant.types.Resource;
  * Ant task for schema XML generation and/or verification.
  *
  * <p>
- * This task scans the configured classpath for classes with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}
+ * This task scans the configured classpath for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
  * and {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations and either writes the generated schema
  * to an XML file, or verifies the schema matches an existing XML file.
  *
@@ -161,7 +161,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>Yes</td>
  *  <td>
  *      <p>
- *      Specifies the search path containing classes with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}
+ *      Specifies the search path containing classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
  *      and {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
  *      </p>
  * </td>
@@ -172,7 +172,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
- *      for classes with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}
+ *      for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
  *      or {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
  *
  *      <p>
@@ -187,7 +187,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java class names (separated by commas and/or whitespace) of
- *      classes with {@link io.permazen.annotation.JSimpleClass &#64;JSimpleClass}
+ *      classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
  *      or {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
  *      </p>
  * </td>
@@ -383,8 +383,8 @@ public class SchemaGeneratorTask extends Task {
                 }
                 final String packageNames = buf.toString();
 
-                // Scan for @JSimpleClass classes
-                this.log("scanning for @JSimpleClass annotations in packages: " + packageNames);
+                // Scan for @PermazenType classes
+                this.log("scanning for @PermazenType annotations in packages: " + packageNames);
                 for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
                     this.log("adding Permazen model class " + className);
                     try {
@@ -418,7 +418,7 @@ public class SchemaGeneratorTask extends Task {
                 }
 
                 // Add model classes
-                if (cl.isAnnotationPresent(JSimpleClass.class)) {
+                if (cl.isAnnotationPresent(PermazenType.class)) {
                     this.log("adding Permazen model " + cl);
                     modelClasses.add(cl);
                 }

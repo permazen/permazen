@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
@@ -154,7 +154,7 @@ public class UpgradeConversionTest extends TestSupport {
         RIGHT
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person1 implements JObject {
 
         public abstract boolean getField1();
@@ -225,7 +225,7 @@ public class UpgradeConversionTest extends TestSupport {
         WRONG
     }
 
-    @JSimpleClass(storageId = 100)
+    @PermazenType(storageId = 100)
     public abstract static class Person2 implements JObject {
 
         @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)

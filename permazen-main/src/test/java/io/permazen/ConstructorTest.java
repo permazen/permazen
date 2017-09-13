@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.test.TestSupport;
 
@@ -49,7 +49,7 @@ public class ConstructorTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person implements JObject {
         protected Person(JTransaction jtx, ObjId id) {
             Assert.assertEquals(jtx, this.getTransaction());
@@ -57,13 +57,13 @@ public class ConstructorTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person2 implements JObject {
         Person2(JTransaction jtx, ObjId id) {        // package private
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Person3 implements JObject {
         public Person3(int dummy) {
         }

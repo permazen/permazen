@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.HashMap;
@@ -229,7 +229,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         }
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ClassA extends TopClass {
 
         // Field R
@@ -245,7 +245,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract NavigableMap<TopClass, String> getFieldZ();     // note key type is TopClass
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ClassB extends TopClass {
 
         // Field R
@@ -261,7 +261,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract NavigableMap<ClassC, String> getFieldZ();       // note key type is ClassC
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class ClassC extends TopClass {
 
         // Field R

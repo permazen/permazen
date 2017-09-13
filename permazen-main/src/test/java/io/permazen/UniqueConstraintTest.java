@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.test.TestSupport;
 
@@ -440,7 +440,7 @@ public class UniqueConstraintTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueName implements JObject {
 
         @JField(indexed = true, uniqueExclude = "frob", unique = true)
@@ -448,7 +448,7 @@ public class UniqueConstraintTest extends TestSupport {
         public abstract void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueName2 implements JObject {
 
         @JField(indexed = true, unique = false)
@@ -456,7 +456,7 @@ public class UniqueConstraintTest extends TestSupport {
         public abstract void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueValue implements JObject {
 
         @JField(indexed = true, unique = true, uniqueExclude = { "NaN", "123.45", "Infinity" })
@@ -464,7 +464,7 @@ public class UniqueConstraintTest extends TestSupport {
         public abstract void setValue(float value);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueNull implements JObject {
 
         @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
@@ -472,7 +472,7 @@ public class UniqueConstraintTest extends TestSupport {
         public abstract void setDate(Date date);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueEnum implements JObject {
 
         @JField(indexed = true, unique = true, uniqueExclude = "BLUE")
@@ -496,11 +496,11 @@ public class UniqueConstraintTest extends TestSupport {
         void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueName3 implements JObject, HasName {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class UniqueName4 implements JObject, HasName {
 
         @Override

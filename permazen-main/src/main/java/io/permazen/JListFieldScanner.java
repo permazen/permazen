@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
-    JListFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+    JListFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
         super(jclass, JListField.class, jsimpleClass);
     }
 
@@ -43,9 +43,9 @@ class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
     private static class DefaultJListField implements JListField {
 
-        private JSimpleClass jsimpleClass;
+        private PermazenType jsimpleClass;
 
-        DefaultJListField(JSimpleClass jsimpleClass) {
+        DefaultJListField(PermazenType jsimpleClass) {
             this.jsimpleClass = jsimpleClass;
         }
 

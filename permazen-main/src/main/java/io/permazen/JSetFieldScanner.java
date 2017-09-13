@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 
 import java.lang.reflect.Method;
 import java.util.NavigableSet;
@@ -20,7 +20,7 @@ import java.util.SortedSet;
  */
 class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
-    JSetFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+    JSetFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
         super(jclass, JSetField.class, jsimpleClass);
     }
 
@@ -48,9 +48,9 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
     private static class DefaultJSetField implements JSetField {
 
-        private JSimpleClass jsimpleClass;
+        private PermazenType jsimpleClass;
 
-        DefaultJSetField(JSimpleClass jsimpleClass) {
+        DefaultJSetField(PermazenType jsimpleClass) {
             this.jsimpleClass = jsimpleClass;
         }
 

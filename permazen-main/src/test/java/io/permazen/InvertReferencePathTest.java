@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
@@ -130,15 +130,15 @@ public class InvertReferencePathTest extends TestSupport {
         void setA(A a);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class A implements JObject {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class B implements JObject, HasA {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class C implements JObject, HasA {
     }
 }

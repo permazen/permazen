@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.SortedMap;
  */
 class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
-    JMapFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+    JMapFieldScanner(JClass<T> jclass, PermazenType jsimpleClass) {
         super(jclass, JMapField.class, jsimpleClass);
     }
 
@@ -45,9 +45,9 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
     private static class DefaultJMapField implements JMapField {
 
-        private JSimpleClass jsimpleClass;
+        private PermazenType jsimpleClass;
 
-        DefaultJMapField(JSimpleClass jsimpleClass) {
+        DefaultJMapField(PermazenType jsimpleClass) {
             this.jsimpleClass = jsimpleClass;
         }
 

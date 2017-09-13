@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
@@ -47,7 +47,7 @@ public class IndexQuerySetsTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo implements JObject {
 
         @JField(indexed = true)

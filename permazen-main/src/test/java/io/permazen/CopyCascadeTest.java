@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdMap;
@@ -183,7 +183,7 @@ public class CopyCascadeTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass
+    @PermazenType
     public interface Node extends JObject {
 
         /**
@@ -195,7 +195,7 @@ public class CopyCascadeTest extends TestSupport {
         void setParent(Node x);
     }
 
-    @JSimpleClass
+    @PermazenType
     public interface Other extends JObject {
 
         @JField(storageId = 10, onDelete = DeleteAction.DELETE)

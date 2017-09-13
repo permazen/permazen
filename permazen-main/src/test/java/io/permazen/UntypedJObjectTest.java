@@ -6,7 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -132,7 +132,7 @@ public class UntypedJObjectTest extends TestSupport {
         void setName(String name);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Foo implements HasName {
         // this class exists in schema versions 1 and 2
 
@@ -143,7 +143,7 @@ public class UntypedJObjectTest extends TestSupport {
         public abstract void setHasName(HasName obj);
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bar implements HasName {
         // this class exists in schema versions 1 only
     }

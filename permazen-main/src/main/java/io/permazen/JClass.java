@@ -10,7 +10,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.FollowPath;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
@@ -162,7 +162,7 @@ public class JClass<T> extends JSchemaObject {
     void createFields(JSimpleDB jdb) {
 
         // Auto-generate properties?
-        final JSimpleClass jsimpleClass = Util.getAnnotation(this.type, JSimpleClass.class);
+        final PermazenType jsimpleClass = Util.getAnnotation(this.type, PermazenType.class);
 
         // Scan for Simple and Counter fields
         final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<>(this, jsimpleClass);
@@ -369,7 +369,7 @@ public class JClass<T> extends JSchemaObject {
                 i.remove();
         }
         if (!abstractMethods.isEmpty()) {
-            throw new IllegalArgumentException("the @JSimpleClass-annotated type " + this.type.getName() + " is invalid because"
+            throw new IllegalArgumentException("the @PermazenType-annotated type " + this.type.getName() + " is invalid because"
               + " " + abstractMethods.size() + " abstract method(s) remain unimplemented: "
               + abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1"));
         }
@@ -647,7 +647,7 @@ public class JClass<T> extends JSchemaObject {
                 isReferenceType = false;
             else {
                 throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
-                  + " because type " + fieldTypeToken + " is ambiguous, being both a @" + JSimpleClass.class.getSimpleName()
+                  + " because type " + fieldTypeToken + " is ambiguous, being both a @" + PermazenType.class.getSimpleName()
                   + " reference type and a simple Java type supported by type `" + nonReferenceType + "'");
             }
         }

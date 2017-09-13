@@ -54,7 +54,7 @@ import java.lang.annotation.Target;
  * <p>
  * For example:
  * <pre>
- *  &#64;JSimpleClass
+ *  &#64;PermazenType
  *  public interface TreeNode extends JObject {
  *
  *      /**

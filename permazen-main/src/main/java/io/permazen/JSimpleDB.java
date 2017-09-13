@@ -15,7 +15,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import io.permazen.annotation.JCompositeIndexes;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.core.SnapshotTransaction;
@@ -167,7 +167,7 @@ public class JSimpleDB {
      * <p>
      * This constructor can also be used just to validate the annotations on the given classes.
      *
-     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
+     * @param classes classes annotated with {@link PermazenType &#64;PermazenType} annotations
      * @throws IllegalArgumentException if {@code classes} is null
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws IllegalArgumentException if {@code classes} contains a class with no suitable subclass constructor
@@ -183,7 +183,7 @@ public class JSimpleDB {
      * <p>
      * Equivalent to {@link #JSimpleDB(Iterable) JSimpleDB}{@code (Arrays.asList(classes))}.
      *
-     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
+     * @param classes classes annotated with {@link PermazenType &#64;PermazenType} annotations
      * @see #JSimpleDB(Iterable)
      */
     public JSimpleDB(Class<?>... classes) {
@@ -198,7 +198,7 @@ public class JSimpleDB {
      *  zero to use the highest version already recorded in the database,
      *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @param storageIdGenerator generator for auto-generated storage ID's, or null to disallow auto-generation of storage ID's
-     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations; non-annotated classes are ignored
+     * @param classes classes annotated with {@link PermazenType &#64;PermazenType} annotations; non-annotated classes are ignored
      * @throws IllegalArgumentException if {@code database} or {@code classes} is null
      * @throws IllegalArgumentException if {@code version} is less than -1
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
@@ -219,25 +219,25 @@ public class JSimpleDB {
             }
         });
 
-        // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
+        // Inventory classes; automatically add all @PermazenType-annotated superclasses of @PermazenType-annotated classes
         final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
         for (Class<?> type : classes) {
 
             // Sanity check
             Preconditions.checkArgument(type != null, "null class found in classes");
 
-            // Add type and all @JSimpleClass-annotated superclasses
+            // Add type and all @PermazenType-annotated superclasses
             do {
 
                 // Find annotation
-                final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
+                final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
                 if (annotation == null)
                     continue;
 
                 // Sanity check type
                 if (type.isPrimitive() || type.isArray()) {
                     throw new IllegalArgumentException("illegal type " + type + " for @"
-                      + JSimpleClass.class.getSimpleName() + " annotation: not a normal class or interface");
+                      + PermazenType.class.getSimpleName() + " annotation: not a normal class or interface");
                 }
 
                 // Add class
@@ -249,10 +249,10 @@ public class JSimpleDB {
         for (Class<?> type : jsimpleClasses) {
 
             // Get annotation
-            final JSimpleClass annotation = Util.getAnnotation(type, JSimpleClass.class);
+            final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
             final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
-                this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
+                this.log.trace("found @" + PermazenType.class.getSimpleName() + " annotation on " + type
                   + " defining object type `" + name + "'");
             }
 
@@ -266,7 +266,7 @@ public class JSimpleDB {
             try {
                 jclass = this.createJClass(name, storageId, type);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
+                throw new IllegalArgumentException("invalid @" + PermazenType.class.getSimpleName()
                   + " annotation on " + type + ": " + e, e);
             }
 

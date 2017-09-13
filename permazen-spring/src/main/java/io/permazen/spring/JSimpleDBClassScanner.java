@@ -5,14 +5,14 @@
 
 package io.permazen.spring;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.ClassMetadata;
 
 /**
- * Scans the classpath for types annotated as {@link JSimpleClass &#64;JSimpleClass}.
+ * Scans the classpath for types annotated as {@link PermazenType &#64;PermazenType}.
  */
 public class JSimpleDBClassScanner extends AnnotatedClassScanner {
 
@@ -20,17 +20,17 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      * Constructor.
      */
     public JSimpleDBClassScanner() {
-        super(JSimpleClass.class);
+        super(PermazenType.class);
     }
 
     /**
      * Constructor.
      *
-     * @param useDefaultFilters whether to register the default filters for {@link JSimpleClass &#64;JSimpleClass} type annotations
+     * @param useDefaultFilters whether to register the default filters for {@link PermazenType &#64;PermazenType} type annotations
      * @param environment environment to use
      */
     public JSimpleDBClassScanner(boolean useDefaultFilters, Environment environment) {
-        super(useDefaultFilters, environment, JSimpleClass.class);
+        super(useDefaultFilters, environment, PermazenType.class);
     }
 
     /**

@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.test.TestSupport;
 
@@ -43,7 +43,7 @@ public class ClassLoaderTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 1)
+    @PermazenType(storageId = 1)
     public abstract static class Person implements JObject {
     }
 }

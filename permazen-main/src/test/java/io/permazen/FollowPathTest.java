@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.primitives.Ints;
 
 import io.permazen.annotation.FollowPath;
-import io.permazen.annotation.JSimpleClass;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
@@ -157,7 +157,7 @@ public class FollowPathTest extends TestSupport {
         NavigableSet<Person> getAllFamilyMembers();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Family implements JObject {
 
         @FollowPath(startingFrom = Person.class, inverseOf = "family")
@@ -173,24 +173,24 @@ public class FollowPathTest extends TestSupport {
         public abstract NavigableSet<Child> getChildren();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Car implements Vehicle {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Bike implements Vehicle {
     }
 
     public interface Parent extends Person, HasVehicle {
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Dad implements Parent {
         @FollowPath(value = "family.^Mom:family^", firstOnly = true)
         public abstract Optional<Parent> getWife();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class Mom implements Parent {
         @FollowPath(value = "family.^Dad:family^", firstOnly = true)
         public abstract Optional<Parent> getHusband();
@@ -221,42 +221,42 @@ public class FollowPathTest extends TestSupport {
         public abstract Optional<JObject> getDadsVehicle2();
     }
 
-    @JSimpleClass
+    @PermazenType
     public abstract static class GoodChild extends Child {
     }
 
 // Bad @FollowPath classes
 
     // Wrong return type - should be NavigableSet<Vehicle>
-    @JSimpleClass
+    @PermazenType
     public abstract static class BadChild1 extends Child {
         @FollowPath("family.vehicles.element")
         public abstract NavigableSet<Bike> getFamilyVehicles();
     }
 
     // Wrong return type - should be Optional<Vehicle>
-    @JSimpleClass
+    @PermazenType
     public abstract static class BadChild2 extends Child {
         @FollowPath(value = "family.vehicles.element", firstOnly = true)
         public abstract NavigableSet<Vehicle> getFirstFamilyVehicle();
     }
 
     // Wrong return type - should be Optional<Vehicle>
-    @JSimpleClass
+    @PermazenType
     public abstract static class BadChild3 extends Child {
         @FollowPath(value = "family.vehicles.element", firstOnly = true)
         public abstract Optional<Bike> getFirstFamilyVehicle();
     }
 
     // Invalid path not ending on BadChild4
-    @JSimpleClass
+    @PermazenType
     public abstract static class BadChild4 extends Child {
         @FollowPath(inverseOf = "vehicles.element", startingFrom = Parent.class)
         public abstract NavigableSet<Parent> getBogus();
     }
 
     // Invalid path
-    @JSimpleClass
+    @PermazenType
     public abstract static class BadChild5 extends Child {
         @FollowPath("foo.bar")
         public abstract NavigableSet<Object> getBogus();
