@@ -61,15 +61,15 @@ Permazen also adds several new features that traditional databases don't provide
 
 For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group.
 
-### JSimpleDB Paper
+### Permazen Paper
 
-For a deeper understanding of the motivation and design decisions behind JSimpleDB, read [JSimpleDB: Language-Driven Persistence for Java](https://cdn.rawgit.com/permazen/permazen/master/jsimpledb-language-driven.pdf).
+For a deeper understanding of the motivation and design decisions behind Permazen, read [Permazen: Language-Driven Persistence for Java](https://cdn.rawgit.com/permazen/permazen/master/permazen-language-driven.pdf).
 
 Abstract:
 
 > Most software applications require durable persistence of data. From a programmer’s point of view, persistence has its own set of inherent issues, e.g., how to manage schema changes, yet such issues are rarely addressed in the programming language itself. Instead, how we program for persistence has traditionally been driven by the storage technology side, resulting in incomplete and/or technology-specific support for managing those issues.
 
-> In Java, the mainstream solution for basic persistence is the Java Persistence API (JPA). While popular, it also measures poorly on how well it addresses many of these inherent issues. We identify several examples, and generalize them into criteria for evaluating how well any solution serves the programmer’s persistence needs, in any language. We introduce JSimpleDB, a persistence layer for ordered key/value stores that, by integrating the data encoding, query, and indexing functions, provides a more complete, type-safe, and language-driven framework for managing persistence in Java, and addresses all of the issues we identify.
+> In Java, the mainstream solution for basic persistence is the Java Persistence API (JPA). While popular, it also measures poorly on how well it addresses many of these inherent issues. We identify several examples, and generalize them into criteria for evaluating how well any solution serves the programmer’s persistence needs, in any language. We introduce Permazen, a persistence layer for ordered key/value stores that, by integrating the data encoding, query, and indexing functions, provides a more complete, type-safe, and language-driven framework for managing persistence in Java, and addresses all of the issues we identify.
 
 ### Installing Permazen
 
