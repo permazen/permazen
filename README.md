@@ -108,5 +108,5 @@ Documentation and links:
   * [FAQ](https://github.com/permazen/permazen/wiki/FAQ)
   * [API Javadocs](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/Permazen.html)
   * Bullet-point [JPA Comparison](https://github.com/permazen/permazen/wiki/JPA_Comparison)
-  * [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group
+  * [Permazen Users](https://groups.google.com/forum/#!forum/permazen-users) discussion group
   * Auto-generated [Maven Site](http://permazen.github.io/permazen/site/)
