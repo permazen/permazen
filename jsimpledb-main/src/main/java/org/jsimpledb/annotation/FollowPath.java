@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *      &#64;FollowPath("^TreeNode:parent^")
  *      public abstract NavigableSet&lt;TreeNode&gt; getChildren();
  * </pre>
- * is functionally equivalent to:
+ * is functionally equivalent to, and slightly more efficient than:
  * <pre>
  *
  *      public NavigableSet&lt;TreeNode&gt; getChildren() {
@@ -99,7 +99,7 @@ import java.lang.annotation.Target;
  *       * Get the children of this node.
  *       *&#47;
  *      <b>&#64;FollowPath(inverseOf = "parent", startingFrom = TreeNode.class)</b>
- *      public abstract NavigableSet&lt;TreeNode&gt; getChildren();
+ *      NavigableSet&lt;TreeNode&gt; getChildren();
  * </pre>
  *
  * <p><b>Meta-Annotations</b></p>
