@@ -1,4 +1,4 @@
-Version 4.0.0
+Version 4.0.0 Released September 14, 2017
 
     - Rebranded project: JSimpleDB -> Permazen (*)
       See https://github.com/permazen/permazen/wiki/MigrationToPermazen
