@@ -195,7 +195,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
     private static final int INITIAL_ARRAY_CAPACITY = 32;
     private static final float ARRAY_GROWTH_FACTOR = 1.5f;
 
-    private static final Comparator<KVRange> SORT_BY_MIN = Comparator.comparing(KVRange::getMin, ByteUtil.COMPARATOR);
+    private static final Comparator<KVRange> SORT_BY_MIN
+      = Comparator.nullsLast(Comparator.comparing(KVRange::getMin, ByteUtil.COMPARATOR));
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -435,7 +436,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                 // We may have to do an extra step in the reverse case because ranges are sorted by minimum, not maximum.
                 KVRange range = this.last(start != null ? this.ranges.headSet(this.key(start), true) : this.ranges);
                 if (reverse && range != null) {
-                    if (KeyRange.compare(range.getMax(), start) < 0) {
+                    if (KeyRange.compare(range.getMax(), start) < 0 && start != null) {
                         range = this.first(this.ranges.tailSet(this.key(start), true));
                         assert range == null || KeyRange.compare(range.getMax(), start) >= 0;
                     }
