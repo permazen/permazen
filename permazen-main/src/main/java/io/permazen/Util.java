@@ -309,6 +309,42 @@ public final class Util {
     }
 
     /**
+     * Find the getter method we should override corresponding to the nominal getter method.
+     *
+     * <p>
+     * This deals with generic sub-type bridge methods.
+     *
+     * @param type Java type (possibly a sub-type of the type in which {@code getter} is declared)
+     * @param getter supertype Java bean property getter method
+     * @return corresponding Java bean property getter method in {@code type}, possibly {@code getter}
+     */
+    static <T> Method findJFieldGetterMethod(Class<T> type, Method getter) {
+        Preconditions.checkArgument(type != null);
+        Preconditions.checkArgument(getter != null);
+        Preconditions.checkArgument(getter.getParameterTypes().length == 0);
+        Preconditions.checkArgument(getter.getReturnType() != void.class);
+        final TypeToken<T> typeType = TypeToken.of(type);
+        final TypeToken<?> propertyType = typeType.resolveType(getter.getGenericReturnType());
+        for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
+            for (Method method : superType.getRawType().getDeclaredMethods()) {
+                if (!method.getName().equals(getter.getName()))
+                    continue;
+                if (method.getParameterTypes().length != 0)
+                    continue;
+                if (!typeType.resolveType(method.getGenericReturnType()).equals(propertyType))
+                    continue;
+                if ((method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
+                  || (method.getModifiers() & Modifier.PRIVATE) != 0) {
+                    throw new IllegalArgumentException("invalid getter method "
+                      + getter.getName() + "(): method must be public or protected");
+                }
+                return method;
+            }
+        }
+        return getter;
+    }
+
+    /**
      * Find the setter method corresponding to a getter method. It must be either public or protected.
      *
      * @param type Java type (possibly a sub-type of the type in which {@code getter} is declared)
@@ -327,7 +363,7 @@ public final class Util {
         final TypeToken<?> propertyType = typeType.resolveType(getter.getGenericReturnType());
         for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
             for (Method setter : superType.getRawType().getDeclaredMethods()) {
-                if (!setter.getName().equals(setterName) || setter.getReturnType() != Void.TYPE)
+                if (!setter.getName().equals(setterName) || setter.getReturnType() != void.class)
                     continue;
                 final Type[] ptypes = setter.getGenericParameterTypes();
                 if (ptypes.length != 1)

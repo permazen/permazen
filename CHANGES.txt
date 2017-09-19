@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug with generic type getter bridge methods in subtypes
+
 Version 4.0.0 Released September 14, 2017
 
     - Rebranded project: JSimpleDB -> Permazen (*)

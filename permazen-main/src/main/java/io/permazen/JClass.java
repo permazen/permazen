@@ -170,7 +170,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Get info
             final io.permazen.annotation.JField annotation = info.getAnnotation();
-            final Method getter = info.getMethod();
+            final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
             final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             final TypeToken<?> fieldTypeToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());
@@ -235,7 +235,7 @@ public class JClass<T> extends JSchemaObject {
             // Get info
             final io.permazen.annotation.JSetField annotation = info.getAnnotation();
             final io.permazen.annotation.JField elementAnnotation = annotation.element();
-            final Method getter = info.getMethod();
+            final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
             final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
@@ -275,7 +275,7 @@ public class JClass<T> extends JSchemaObject {
             // Get info
             final io.permazen.annotation.JListField annotation = info.getAnnotation();
             final io.permazen.annotation.JField elementAnnotation = annotation.element();
-            final Method getter = info.getMethod();
+            final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
             final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
@@ -316,7 +316,7 @@ public class JClass<T> extends JSchemaObject {
             final io.permazen.annotation.JMapField annotation = info.getAnnotation();
             final io.permazen.annotation.JField keyAnnotation = annotation.key();
             final io.permazen.annotation.JField valueAnnotation = annotation.value();
-            final Method getter = info.getMethod();
+            final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
             final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())

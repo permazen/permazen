@@ -116,6 +116,11 @@ public class GenericsFunTest extends TestSupport {
         BasicTest.getPermazen(GenericBeanProperty2.class);
     }
 
+    @Test
+    public void testGenerics8() throws Exception {
+        BasicTest.getPermazen(Model8B.class, HappyPerson.class);
+    }
+
 // Model Classes #1
 
     public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
@@ -217,6 +222,33 @@ public class GenericsFunTest extends TestSupport {
         public abstract String getProperty();
         @Override
         public abstract void setProperty(String x);
+    }
+
+// Model Classes #8
+
+    public interface Person {
+        String getName();
+        void setName(String x);
+    }
+
+    @PermazenType
+    public interface HappyPerson extends Person {
+    }
+
+    public abstract static class Model8A<P extends Person> {
+
+        @JField
+        public abstract P getPerson();
+        public abstract void setPerson(P person);
+    }
+
+    @PermazenType
+    public abstract static class Model8B extends Model8A<HappyPerson> {
+
+        @Override
+        public abstract HappyPerson getPerson();
+        @Override
+        public abstract void setPerson(HappyPerson person);
     }
 }
 
