@@ -20,6 +20,9 @@ import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.util.ByteUtil;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -55,17 +58,17 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
     @Override
     public byte[] get(final byte[] key) {
-        return this.doInTransaction(kv -> kv.get(key));
+        return this.computeInTransaction(kv -> kv.get(key));
     }
 
     @Override
     public KVPair getAtLeast(final byte[] minKey, final byte[] maxKey) {
-        return this.doInTransaction(kv -> kv.getAtLeast(minKey, maxKey));
+        return this.computeInTransaction(kv -> kv.getAtLeast(minKey, maxKey));
     }
 
     @Override
     public KVPair getAtMost(final byte[] maxKey, final byte[] minKey) {
-        return this.doInTransaction(kv -> kv.getAtMost(maxKey, minKey));
+        return this.computeInTransaction(kv -> kv.getAtMost(maxKey, minKey));
     }
 
     @Override
@@ -75,56 +78,32 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
     @Override
     public void put(final byte[] key, final byte[] value) {
-        this.doInTransaction(new Action<Void>() {
-            @Override
-            public Void apply(KVStore kv) {
-                kv.put(key, value);
-                return null;
-            }
-        });
+        this.doInTransaction(kv -> kv.put(key, value));
     }
 
     @Override
     public void remove(final byte[] key) {
-        this.doInTransaction(new Action<Void>() {
-            @Override
-            public Void apply(KVStore kv) {
-                kv.remove(key);
-                return null;
-            }
-        });
+        this.doInTransaction(kv -> kv.remove(key));
     }
 
     @Override
     public void removeRange(final byte[] minKey, final byte[] maxKey) {
-        this.doInTransaction(new Action<Void>() {
-            @Override
-            public Void apply(KVStore kv) {
-                kv.removeRange(minKey, maxKey);
-                return null;
-            }
-        });
+        this.doInTransaction(kv -> kv.removeRange(minKey, maxKey));
     }
 
     @Override
     public void adjustCounter(final byte[] key, final long amount) {
-        this.doInTransaction(new Action<Void>() {
-            @Override
-            public Void apply(KVStore kv) {
-                kv.adjustCounter(key, amount);
-                return null;
-            }
-        });
+        this.doInTransaction(kv -> kv.adjustCounter(key, amount));
     }
 
     @Override
     public byte[] encodeCounter(final long value) {
-        return this.doInTransaction(kv -> kv.encodeCounter(value));
+        return this.computeInTransaction(kv -> kv.encodeCounter(value));
     }
 
     @Override
     public long decodeCounter(final byte[] bytes) {
-        return this.doInTransaction(kv -> kv.decodeCounter(bytes));
+        return this.computeInTransaction(kv -> kv.decodeCounter(bytes));
     }
 
 // AtomicKVStore
@@ -163,13 +142,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
     @Override
     public void mutate(final Mutations mutations, boolean sync) {
         Preconditions.checkArgument(mutations != null, "null mutations");
-        this.doInTransaction(new Action<Void>() {
-            @Override
-            public Void apply(KVStore kv) {
-                Writes.apply(mutations, kv);
-                return null;
-            }
-        });
+        this.doInTransaction(kv -> kv.apply(mutations));
     }
 
 // Object
@@ -181,7 +154,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
 // Internal methods
 
-    private <R> R doInTransaction(Action<R> action) {
+    private <R> R computeInTransaction(Function<? super KVStore, R> action) {
         int count = 0;
         while (true) {
             try {
@@ -207,10 +180,11 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
         }
     }
 
-// Action
-
-    private interface Action<R> {
-        R apply(KVStore kv);
+    private void doInTransaction(Consumer<? super KVStore> action) {
+        this.computeInTransaction(kv -> {
+            action.accept(kv);
+            return null;
+        });
     }
 
 // Snapshot
