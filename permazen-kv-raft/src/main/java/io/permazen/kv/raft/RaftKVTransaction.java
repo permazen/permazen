@@ -16,6 +16,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.SnapshotRefs;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
@@ -475,6 +476,11 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public long decodeCounter(byte[] bytes) {
         return this.view.decodeCounter(bytes);
+    }
+
+    @Override
+    public void apply(Mutations mutations) {
+        this.view.apply(mutations);
     }
 
     private void fastVerifyExecuting() {

@@ -9,6 +9,7 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.util.CloseableIterator;
 
@@ -134,6 +135,11 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
     @Override
     public long decodeCounter(byte[] bytes) {
         return this.view.decodeCounter(bytes);
+    }
+
+    @Override
+    public void apply(Mutations mutations) {
+        this.view.apply(mutations);
     }
 
 // KVTransaction

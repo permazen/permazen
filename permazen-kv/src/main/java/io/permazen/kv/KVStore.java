@@ -7,7 +7,11 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+
+import java.util.Map;
 
 /**
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
@@ -276,5 +280,38 @@ public interface KVStore {
      * @throws NullPointerException if {@code key} is null
      */
     void adjustCounter(byte[] key, long amount);
+
+    /**
+     * Apply all the given {@link Mutations} to this instance.
+     *
+     * <p>
+     * Mutations are always to be applied in this order: removes, puts, counter adjustments.
+     *
+     * <p>
+     * The implementation in {@link KVStore} simply iterates over the individual changes and applies them
+     * via {@link #remove remove()} (for removals of a single key), {@link #removeRange removeRange()},
+     * {@link #put put()}, and/or {@link #adjustCounter adjustCounter()}. Implementations that can process
+     * batch updates more efficiently are encouraged to override this method.
+     *
+     * @param mutations mutations to apply
+     * @throws IllegalArgumentException if {@code mutations} is null
+     * @throws UnsupportedOperationException if this instance is immutable
+     */
+    default void apply(Mutations mutations) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        for (KeyRange remove : mutations.getRemoveRanges()) {
+            final byte[] min = remove.getMin();
+            final byte[] max = remove.getMax();
+            assert min != null;
+            if (max != null && ByteUtil.isConsecutive(min, max))
+                this.remove(min);
+            else
+                this.removeRange(min, max);
+        }
+        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
+            this.put(entry.getKey(), entry.getValue());
+        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
+            this.adjustCounter(entry.getKey(), entry.getValue());
+    }
 }
 

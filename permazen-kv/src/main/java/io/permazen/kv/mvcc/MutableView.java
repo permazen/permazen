@@ -304,6 +304,12 @@ public class MutableView extends AbstractKVStore implements Cloneable {
             this.writes.getAdjusts().remove(key);
     }
 
+    @Override
+    public synchronized void apply(Mutations mutations) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        super.apply(mutations);
+    }
+
 // Cloneable
 
     /**

@@ -146,27 +146,16 @@ public class Writes implements Cloneable, Mutations {
      * <p>
      * Mutations are applied in this order: removes, puts, counter adjustments.
      *
+     * @deprecated use {@link KVStore#apply} instead
      * @param mutations mutations to apply
      * @param target target for mutations
      * @throws IllegalArgumentException if either parameter is null
      * @throws UnsupportedOperationException if this instance is immutable
      */
+    @Deprecated
     public static void apply(Mutations mutations, KVStore target) {
-        Preconditions.checkArgument(mutations != null, "null mutations");
         Preconditions.checkArgument(target != null, "null target");
-        for (KeyRange remove : mutations.getRemoveRanges()) {
-            final byte[] min = remove.getMin();
-            final byte[] max = remove.getMax();
-            assert min != null;
-            if (max != null && ByteUtil.isConsecutive(min, max))
-                target.remove(min);
-            else
-                target.removeRange(min, max);
-        }
-        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
-            target.put(entry.getKey(), entry.getValue());
-        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
-            target.adjustCounter(entry.getKey(), entry.getValue());
+        target.apply(mutations);
     }
 
 // Serialization

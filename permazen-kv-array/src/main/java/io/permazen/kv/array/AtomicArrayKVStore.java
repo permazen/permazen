@@ -728,6 +728,11 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         }
     }
 
+    @Override
+    public void apply(Mutations mutations) {
+        this.mutate(mutations, false);
+    }
+
 // AtomicKVStore
 
     @Override

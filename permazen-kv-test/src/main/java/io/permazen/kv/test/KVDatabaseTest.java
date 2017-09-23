@@ -14,6 +14,9 @@ import io.permazen.kv.KeyRanges;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Mutations;
+import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -646,6 +649,55 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
     }
 
+    /**
+     * Test KVStore.apply().
+     */
+    @Test(dataProvider = "kvdbs")
+    public void testApplyMutations(KVDatabase store) throws Exception {
+        this.log.info("starting testApplyMutations() on " + store);
+
+        // Create some mutations
+        final RandomTask task = new RandomTask(0, store, this.random.nextLong());
+        final MutableView mutableView = new MutableView(new NavigableMapKVStore());
+        final Mutations mutations = mutableView.getWrites();
+        task.performRandomAccess(mutableView);
+
+        // Clear database
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
+
+        // Apply them using remove(), removeRange(), put(), and adjustCounter()
+        this.tryNtimes(store, tx -> {
+            for (KeyRange remove : mutations.getRemoveRanges()) {
+                final byte[] min = remove.getMin();
+                final byte[] max = remove.getMax();
+                assert min != null;
+                if (max != null && ByteUtil.isConsecutive(min, max))
+                    tx.remove(min);
+                else
+                    tx.removeRange(min, max);
+            }
+            for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
+                tx.put(entry.getKey(), entry.getValue());
+            for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
+                tx.adjustCounter(entry.getKey(), entry.getValue());
+        });
+        final TreeMap<byte[], byte[]> expected = task.readDatabase();
+
+        // Clear database
+        this.tryNtimes(store, tx -> tx.removeRange(null, null));
+
+        // Apply them using apply()
+        this.tryNtimes(store, tx -> tx.apply(mutations));
+        final TreeMap<byte[], byte[]> actual = task.readDatabase();
+
+        // Verify equal
+        Assert.assertEquals(stringView(actual), stringView(expected), "apply() failed:" /*
+          + "\n  mutations=" + mutations
+          + "\n  expected=" + stringView(expected)
+          + "\n  actual=" + stringView(actual) */);
+        this.log.info("finished testApplyMutations() on " + store);
+    }
+
 // RandomTask
 
     public class RandomTask extends Thread {
@@ -1028,7 +1080,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
 
-        public void runRandomAccess(KVTransaction tx) {
+        public void runRandomAccess(KVStore tx) {
             KVDatabaseTest.this.log.debug("*** " + this + " runRandomAccess() STARTING");
             try {
                 this.performRandomAccess(tx);
@@ -1039,7 +1091,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
 
-        public void performRandomAccess(KVTransaction tx) {
+        public void performRandomAccess(KVStore tx) {
             final int limit = this.r(KVDatabaseTest.this.getRandomTaskMaxIterations());
             for (int j = 0; j < limit; j++) {
                 byte[] key;
@@ -1093,7 +1145,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
 
-        private TreeMap<byte[], byte[]> readDatabase() {
+        public TreeMap<byte[], byte[]> readDatabase() {
             return KVDatabaseTest.this.tryNtimesWithResult(this.store, RandomTask.this::readDatabase);
         }
 

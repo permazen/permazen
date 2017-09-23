@@ -13,8 +13,10 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.KeyRange;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
@@ -23,8 +25,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +40,10 @@ import org.slf4j.LoggerFactory;
  * {@link SQLKVDatabase} transaction.
  */
 public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction {
+
+    private static final int MAX_DATA_PER_BATCH = 10 * 1024 * 1024;     // 10 MB
+    private static final int MAX_STATEMENTS_PER_BATCH = 1000;
+    private static final int BATCH_STATEMENT_OVERHEAD = 8;              // just a guess
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -172,6 +183,56 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             this.update(StmtType.REMOVE_RANGE, this.encodeKey(minKey), this.encodeKey(maxKey));
     }
 
+    private synchronized void applyBatch(Mutations mutations) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+
+        // Do removes
+        final EnumMap<StmtType, ArrayList<byte[]>> removeBatchMap = new EnumMap<>(StmtType.class);
+        final Function<StmtType, ArrayList<byte[]>> listInit = st -> new ArrayList<>();
+        boolean removeAll = false;
+        for (KeyRange remove : mutations.getRemoveRanges()) {
+            final byte[] min = remove.getMin();
+            final byte[] max = remove.getMax();
+            assert min != null;
+            if (min.length == 0 && max == null) {
+                removeAll = true;
+                break;
+            }
+            if (min.length == 0)
+                removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_MOST, listInit).add(this.encodeKey(max));
+            else if (max == null)
+                removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_LEAST, listInit).add(this.encodeKey(min));
+            else if (ByteUtil.isConsecutive(min, max))
+                removeBatchMap.computeIfAbsent(StmtType.REMOVE, listInit).add(this.encodeKey(min));
+            else {
+                final ArrayList<byte[]> batch = removeBatchMap.computeIfAbsent(StmtType.REMOVE_RANGE, listInit);
+                batch.add(this.encodeKey(min));
+                batch.add(this.encodeKey(max));
+            }
+        }
+        if (removeAll)
+            this.update(StmtType.REMOVE_ALL);
+        else {
+            for (Map.Entry<StmtType, ArrayList<byte[]>> entry : removeBatchMap.entrySet())
+                this.updateBatch(entry.getKey(), entry.getValue());
+        }
+
+        // Do puts
+        final ArrayList<byte[]> putBatch = new ArrayList<byte[]>();
+        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
+            putBatch.add(this.encodeKey(entry.getKey()));
+            putBatch.add(entry.getValue());
+            putBatch.add(entry.getValue());
+        }
+        this.updateBatch(StmtType.PUT, putBatch);
+
+        // Do adjusts
+        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
+            this.adjustCounter(entry.getKey(), entry.getValue());
+    }
+
     @Override
     public synchronized boolean isReadOnly() {
         return this.readOnly;
@@ -282,6 +343,12 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     @Override
+    public void apply(Mutations mutations) {
+        this.mutated = true;
+        this.delegate().apply(mutations);
+    }
+
+    @Override
     protected synchronized KVStore delegate() {
         if (this.view == null)
             this.view = new SQLView();
@@ -302,6 +369,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 // Helper methods
 
     protected byte[] queryBytes(StmtType stmtType, byte[]... params) {
+        assert params.length == stmtType.getNumParams();
         final byte[] result = this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
         if (this.log.isTraceEnabled())
             this.log.trace("SQL query returned " + (result != null ? result.length + " bytes" : "not found"));
@@ -309,6 +377,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     protected KVPair queryKVPair(StmtType stmtType, byte[]... params) {
+        assert params.length == stmtType.getNumParams();
         final KVPair pair = this.query(stmtType,
           (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(rs.getBytes(1)), rs.getBytes(2)) : null,
           true, params);
@@ -320,6 +389,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
+        assert params.length == stmtType.getNumParams();
         final CloseableIterator<KVPair> i = this.query(stmtType, ResultSetIterator::new, false, params);
         if (this.log.isTraceEnabled())
             this.log.trace("SQL query returned " + (i.hasNext() ? "non-" : "") + "empty iterator");
@@ -327,6 +397,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
+        assert params.length == stmtType.getNumParams();
         try {
             final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log);
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
@@ -351,6 +422,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     protected void update(StmtType stmtType, byte[]... params) {
+        assert params.length == stmtType.getNumParams();
         try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
@@ -364,6 +436,55 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             preparedStatement.executeUpdate();
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL update completed");
+        } catch (SQLException e) {
+            throw this.handleException(e);
+        }
+    }
+
+    protected void updateBatch(StmtType stmtType, List<byte[]> paramList) {
+
+        // Each statement will consume this many parameters from paramList
+        final int numStmtParams = stmtType.getNumParams();
+        assert numStmtParams > 0;
+        assert paramList.size() % numStmtParams == 0;
+
+        // Create statement and do batches
+        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
+            final int numSqlParams = preparedStatement.getParameterMetaData().getParameterCount();
+
+            // Set query timeout
+            preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
+
+            // While there is more data, do more batches
+            int paramIndex = 0;
+            while (paramIndex < paramList.size()) {
+
+                // While data limit per batch not reached, add more data to the batch
+                int numStatementsInBatch = 0;
+                int batchTotalBytes = 0;
+                while (numStatementsInBatch < MAX_STATEMENTS_PER_BATCH
+                  && batchTotalBytes < MAX_DATA_PER_BATCH && paramIndex < paramList.size()) {
+                    for (int i = 0; i < numSqlParams; i++) {
+                        final byte[] param = paramList.get(paramIndex + i);
+                        if (this.log.isTraceEnabled())
+                            this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(param));
+                        preparedStatement.setBytes(i + 1, param);
+                        batchTotalBytes += param.length;
+                    }
+                    preparedStatement.addBatch();
+                    paramIndex += numStmtParams;
+                    numStatementsInBatch++;
+                    batchTotalBytes += BATCH_STATEMENT_OVERHEAD;
+                }
+
+                // Execute batch
+                if (this.log.isTraceEnabled())
+                    this.log.trace("executing SQL batch update");
+                preparedStatement.executeBatch();
+                if (this.log.isTraceEnabled())
+                    this.log.trace("SQL batch update completed");
+            }
+            assert paramIndex == paramList.size();
         } catch (SQLException e) {
             throw this.handleException(e);
         }
@@ -505,6 +626,11 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         public void removeRange(byte[] minKey, byte[] maxKey) {
             SQLKVTransaction.this.removeRangeSQL(minKey, maxKey);
         }
+
+        @Override
+        public void apply(Mutations mutations) {
+            SQLKVTransaction.this.applyBatch(mutations);
+        }
     }
 
 // ResultSetFunction
@@ -613,144 +739,154 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
      */
     protected enum StmtType {
 
-        GET {
+        GET(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetStatement(), log);
             };
         },
-        GET_FIRST {
+        GET_FIRST(0) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(false)), log);
             };
         },
-        GET_LAST {
+        GET_LAST(0) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(true)), log);
             };
         },
-        GET_AT_LEAST_FORWARD {
+        GET_AT_LEAST_FORWARD(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtLeastStatement(false), log);
             };
         },
-        GET_AT_LEAST_FORWARD_SINGLE {
+        GET_AT_LEAST_FORWARD_SINGLE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(false)), log);
             };
         },
-        GET_AT_LEAST_REVERSE {
+        GET_AT_LEAST_REVERSE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtLeastStatement(true), log);
             };
         },
-        GET_AT_LEAST_REVERSE_SINGLE {
+        GET_AT_LEAST_REVERSE_SINGLE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(true)), log);
             };
         },
-        GET_AT_MOST_FORWARD {
+        GET_AT_MOST_FORWARD(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtMostStatement(false), log);
             };
         },
-        GET_AT_MOST_FORWARD_SINGLE {
+        GET_AT_MOST_FORWARD_SINGLE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(false)), log);
             };
         },
-        GET_AT_MOST_REVERSE {
+        GET_AT_MOST_REVERSE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAtMostStatement(true), log);
             };
         },
-        GET_AT_MOST_REVERSE_SINGLE {
+        GET_AT_MOST_REVERSE_SINGLE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(true)), log);
             };
         },
-        GET_RANGE_FORWARD {
+        GET_RANGE_FORWARD(2) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetRangeStatement(false), log);
             };
         },
-        GET_RANGE_FORWARD_SINGLE {
+        GET_RANGE_FORWARD_SINGLE(2) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(false)), log);
             };
         },
-        GET_RANGE_REVERSE {
+        GET_RANGE_REVERSE(2) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetRangeStatement(true), log);
             };
         },
-        GET_RANGE_REVERSE_SINGLE {
+        GET_RANGE_REVERSE_SINGLE(2) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.limitSingleRow(db.createGetRangeStatement(true)), log);
             };
         },
-        GET_ALL_FORWARD {
+        GET_ALL_FORWARD(0) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAllStatement(false), log);
             };
         },
-        GET_ALL_REVERSE {
+        GET_ALL_REVERSE(0) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createGetAllStatement(true), log);
             };
         },
-        PUT {
+        PUT(3) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createPutStatement(), log);
             };
         },
-        REMOVE {
+        REMOVE(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveStatement(), log);
             };
         },
-        REMOVE_RANGE {
+        REMOVE_RANGE(2) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveRangeStatement(), log);
             };
         },
-        REMOVE_AT_LEAST {
+        REMOVE_AT_LEAST(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAtLeastStatement(), log);
             };
         },
-        REMOVE_AT_MOST {
+        REMOVE_AT_MOST(1) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAtMostStatement(), log);
             };
         },
-        REMOVE_ALL {
+        REMOVE_ALL(0) {
             @Override
             protected PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
                 return this.prepare(c, db.createRemoveAllStatement(), log);
             };
         };
+
+        private final int numParams;
+
+        StmtType(int numParams) {
+            this.numParams = numParams;
+        }
+
+        public int getNumParams() {
+            return this.numParams;
+        }
 
         protected abstract PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException;
 

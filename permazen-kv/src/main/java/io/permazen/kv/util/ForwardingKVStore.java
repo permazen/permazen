@@ -7,6 +7,7 @@ package io.permazen.kv.util;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.kv.mvcc.Mutations;
 import io.permazen.util.CloseableIterator;
 
 /**
@@ -71,6 +72,11 @@ public abstract class ForwardingKVStore implements KVStore {
     @Override
     public long decodeCounter(byte[] bytes) {
         return this.delegate().decodeCounter(bytes);
+    }
+
+    @Override
+    public void apply(Mutations mutations) {
+        this.delegate().apply(mutations);
     }
 }
 
