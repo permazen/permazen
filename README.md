@@ -73,7 +73,7 @@ Abstract:
 
 ### Installing Permazen
 
-Permazen is availble from [Maven Central](http://search.maven.org/#search|ga|1|g%3Aio.permazen):
+Permazen is available from [Maven Central](http://search.maven.org/#search|ga|1|g%3Aio.permazen):
 
 ```xml
     <dependency>
