@@ -76,7 +76,6 @@ public class CastNode implements Node {
         if (obj instanceof String && type != String.class && session.getDatabase() != null) {
             final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(type));
             if (fieldType != null) {
-                final Object value;
                 try {
                     return new ConstValue(fieldType.fromString((String)obj));
                 } catch (IllegalArgumentException e) {
