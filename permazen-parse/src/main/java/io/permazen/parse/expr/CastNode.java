@@ -84,6 +84,18 @@ public class CastNode implements Node {
             }
         }
 
+        // Check for cast from a supported field type (other than String) to String
+        if (!(obj instanceof String) && type == String.class && session.getDatabase() != null) {
+            final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(obj.getClass()));
+            if (fieldType != null) {
+                try {
+                    return new ConstValue(this.validateAndStringify(fieldType, obj));
+                } catch (IllegalArgumentException e) {
+                    // nope
+                }
+            }
+        }
+
         // Handle primitive cast, e.g. "(int)foo"
         if (type.isPrimitive()) {
             final Primitive<?> primitive = Primitive.forName(typeName);
@@ -129,5 +141,11 @@ public class CastNode implements Node {
         if (!type.isInstance(obj))
             throw new EvalException("can't cast object of type " + obj.getClass().getName() + " to " + typeName);
         return new ConstValue(obj);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <T> String validateAndStringify(FieldType<T> fieldType, Object obj) {
+        assert obj != null;
+        return fieldType.toString(fieldType.validate(obj));
     }
 }

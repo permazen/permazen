@@ -3,6 +3,7 @@ Version 4.0.1
     - Fixed bug with generic type getter bridge methods in subtypes
     - Fixed bug in CachingKVStore triggered by reverse iterations
     - Added KVStore.apply() to allow optimizing batch updates
+    - Added parse support for casting any supported field type to String
 
 Version 4.0.0 Released September 14, 2017
 

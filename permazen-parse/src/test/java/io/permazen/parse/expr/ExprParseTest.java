@@ -398,6 +398,18 @@ public class ExprParseTest extends TestSupport {
                new String[] { "foo", "bar" } },
             { "(int[][])\"[[1, 2], [3, 4]]\"",
                new int[][] { { 1, 2 }, {3, 4} } },
+            { "(int[])\"AAAAewAAAcg=\"",
+               new int[] { 123, 456 } },
+
+            // Casts of field type to String
+            { "(String)123",
+               "123" },
+            { "(String)java.time.Duration.ofDays(3)",
+               "PT72H" },
+            { "(String)new String[] { \"foo\", \"bar\" }",
+              "[\"foo\", \"bar\"]" },
+            { "(String)new int[] { 123, 456 }",
+              "AAAAewAAAcg=" },
 
             // Misc
             { "java.lang.annotation.ElementType.FIELD",
