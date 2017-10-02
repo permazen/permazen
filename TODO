@@ -2,6 +2,23 @@
 SHORT TERM
 ==========
 
+- Allow @JCompositeIndex uniqueExclude to specify "wildcards"
+
+- Option to override collection setters (if they exist) with clear() + addAll()/putAll() implementation ?
+
+- POJO support
+    - Make Counter an interface
+    - Import/Export to POJO model classes
+
+- Parser enhancements
+    - "this" -> current session ?
+    - compound statements
+
+- SQLView.adjustCounter() ?
+
+- ByteBuffer cleanup for ArrayKVStore ?
+    https://github.com/dain/leveldb/blob/master/leveldb/src/main/java/org/iq80/leveldb/util/ByteBufferSupport.java
+
 - Support @OnVersionChange without version number parameters
 
 - Only do extra DB sanity checks during the first transaction
