@@ -65,7 +65,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if {@code elems} has length less than {@code maxIndex}
      * @throws IllegalArgumentException if {@code minIndex > maxIndex}
      */
-    ImmutableNavigableSet(E[] elems, int minIndex, int maxIndex, Comparator<? super E> comparator) {
+    public ImmutableNavigableSet(E[] elems, int minIndex, int maxIndex, Comparator<? super E> comparator) {
         this(new Bounds<>(), elems, minIndex, maxIndex, comparator);
     }
 
