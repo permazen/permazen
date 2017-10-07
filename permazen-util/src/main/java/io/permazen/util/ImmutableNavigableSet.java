@@ -46,7 +46,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      * <p>
      * Equivalent to: {@code ImmutableNavigableSet(elems, 0, elems.length, comparator)}.
      *
-     * @param elems sorted element array
+     * @param elems sorted element array; <i>this array is not copied and must be already sorted</i>
      * @param comparator element comparator, or null for natural ordering
      * @throws IllegalArgumentException if {@code elems} is null
      */
@@ -57,7 +57,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     /**
      * Primary constructor.
      *
-     * @param elems sorted element array
+     * @param elems sorted element array; <i>this array is not copied and must be already sorted</i>
      * @param minIndex minimum index into array (inclusive)
      * @param maxIndex maximum index into array (exclusive)
      * @param comparator element comparator, or null for natural ordering

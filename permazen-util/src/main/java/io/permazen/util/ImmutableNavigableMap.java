@@ -51,8 +51,8 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      * <p>
      * Equivalent to: {@code ImmutableNavigableMap(keys, vals, 0, Math.min(keys.length, vals.length), comparator)}.
      *
-     * @param keys sorted key array
-     * @param vals value array corresponding to {@code keys}
+     * @param keys sorted key array; <i>this array is not copied and must be already sorted</i>
+     * @param vals value array corresponding to {@code keys}; <i>this array is not copied</i>
      * @param comparator key comparator, or null for natural ordering
      * @throws IllegalArgumentException if {@code keys} or {@code vals} is null
      * @throws IllegalArgumentException if {@code keys} and {@code vals} have different lengths
@@ -64,8 +64,8 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
     /**
      * Primary constructor.
      *
-     * @param keys sorted key array
-     * @param vals value array corresponding to {@code keys}
+     * @param keys sorted key array; <i>this array is not copied and must be already sorted</i>
+     * @param vals value array corresponding to {@code keys}; <i>this array is not copied</i>
      * @param minIndex minimum index into arrays (inclusive)
      * @param maxIndex maximum index into arrays (exclusive)
      * @param comparator key comparator, or null for natural ordering
