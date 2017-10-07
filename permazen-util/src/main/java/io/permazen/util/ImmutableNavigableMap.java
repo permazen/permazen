@@ -96,6 +96,25 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
             assert this.actualComparator.compare(this.keys[i - 1], this.keys[i]) < 0;
     }
 
+    /**
+     * Search for the given element in the underlying array.
+     *
+     * <p>
+     * This method works like {@link Arrays#binarySearch(Object[], Object) Arrays.binarySearch()}, returning
+     * either the index of {@code key} in the underlying array given to the constructor if found, or else
+     * the one's complement of {@code key}'s insertion point.
+     *
+     * <p>
+     * The array searched is the array given to the constructor, or if {@link #ImmutableNavigableMap(NavigableMap)}
+     * was used, an array containing all of the keys in this map.
+     *
+     * @param key key to search for
+     * @return index of {@code key}, or {@code -(insertion point) - 1} if not found
+     */
+    public int binarySearch(K key) {
+        return this.find(key);
+    }
+
 // NavigableSet
 
     @Override

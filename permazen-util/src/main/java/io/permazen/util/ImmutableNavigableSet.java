@@ -84,6 +84,25 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
             assert this.actualComparator.compare(this.elems[i - 1], this.elems[i]) < 0;
     }
 
+    /**
+     * Search for the given element in the underlying array.
+     *
+     * <p>
+     * This method works like {@link Arrays#binarySearch(Object[], Object) Arrays.binarySearch()}, returning
+     * either the index of {@code elem} in the underlying array given to the constructor if found, or else
+     * the one's complement of {@code elem}'s insertion point.
+     *
+     * <p>
+     * The array searched is the array given to the constructor, or if {@link #ImmutableNavigableSet(NavigableSet)}
+     * was used, an array containing all of the elements in this set.
+     *
+     * @param elem element to search for
+     * @return index of {@code elem}, or {@code -(insertion point) - 1} if not found
+     */
+    public int binarySearch(E elem) {
+        return this.find(elem);
+    }
+
 // NavigableSet
 
     @Override
