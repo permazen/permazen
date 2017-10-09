@@ -164,6 +164,18 @@ public class JReferenceField extends JSimpleField {
         return schemaField;
     }
 
+// POJO import/export
+
+    @Override
+    Object importCoreValue(ImportContext context, Object value) {
+        return value != null ? context.doImportPlain(value) : null;
+    }
+
+    @Override
+    Object exportCoreValue(ExportContext context, Object value) {
+        return value != null ? context.doExportPlain((ObjId)value) : null;
+    }
+
 // Bytecode generation
 
     @Override

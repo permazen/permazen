@@ -9,6 +9,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.CollectionField;
+import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
 import io.permazen.schema.CollectionSchemaField;
 
 import java.lang.reflect.Method;
@@ -92,5 +94,81 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     abstract <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType);
-}
 
+// POJO import/export
+
+    @Override
+    @SuppressWarnings("unchecked")
+    void importPlain(ImportContext context, Object obj, ObjId id) {
+
+        // Get POJO collection
+        final Collection<?> objCollection;
+        try {
+            objCollection = (Collection<?>)obj.getClass().getMethod(this.getter.getName()).invoke(obj);
+        } catch (Exception e) {
+            return;
+        }
+        if (objCollection == null)
+            return;
+
+        // Get JCollectionField collection
+        final Collection<Object> coreCollection = (Collection<Object>)this.readCoreCollection(
+          context.getTransaction().getTransaction(), id);
+
+        // Copy values over
+        coreCollection.clear();
+        for (Object value : objCollection)
+            coreCollection.add(this.elementField.importCoreValue(context, value));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    void exportPlain(ExportContext context, ObjId id, Object obj) {
+
+        // Get POJO collection
+        final Method objGetter;
+        try {
+            objGetter = obj.getClass().getMethod(this.getter.getName());
+        } catch (Exception e) {
+            return;
+        }
+        Collection<Object> objCollection;
+        try {
+            objCollection = (Collection<Object>)objGetter.invoke(obj);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to invoke getter method " + objGetter + " for POJO export", e);
+        }
+
+        // If null, try to create one and identify setter to set it with
+        Method objSetter = null;
+        if (objCollection == null) {
+            try {
+                objSetter = Util.findJFieldSetterMethod(obj.getClass(), objGetter);
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            objCollection = this.createPojoCollection(objSetter.getParameterTypes()[0]);
+        }
+
+        // Get JCollectionField collection
+        final Collection<?> coreCollection = this.readCoreCollection(context.getTransaction().getTransaction(), id);
+
+        // Copy values over
+        objCollection.clear();
+        for (Object value : coreCollection)
+            objCollection.add(this.elementField.exportCoreValue(context, value));
+
+        // Apply POJO setter if needed
+        if (objSetter != null) {
+            try {
+                objSetter.invoke(obj, objCollection);
+            } catch (Exception e) {
+                throw new RuntimeException("failed to invoke setter method " + objSetter + " for POJO export", e);
+            }
+        }
+    }
+
+    abstract Collection<?> readCoreCollection(Transaction tx, ObjId id);
+
+    abstract Collection<Object> createPojoCollection(Class<?> collectionType);
+}

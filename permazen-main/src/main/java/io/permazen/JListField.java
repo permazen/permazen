@@ -14,9 +14,12 @@ import io.permazen.change.ListFieldAdd;
 import io.permazen.change.ListFieldClear;
 import io.permazen.change.ListFieldRemove;
 import io.permazen.change.ListFieldReplace;
+import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
 import io.permazen.schema.ListSchemaField;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,6 +87,18 @@ public class JListField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     private <X, Y> ListConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
         return new ListConverter<>(elementConverter);
+    }
+
+// POJO import/export
+
+    @Override
+    List<Object> createPojoCollection(Class<?> collectionType) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    List<?> readCoreCollection(Transaction tx, ObjId id) {
+        return tx.readListField(id, this.storageId, true);
     }
 
 // Bytecode generation

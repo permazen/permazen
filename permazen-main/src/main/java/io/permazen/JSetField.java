@@ -13,11 +13,17 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldClear;
 import io.permazen.change.SetFieldRemove;
+import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
 import io.permazen.schema.SetSchemaField;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Represents a set field in a {@link JClass}.
@@ -81,6 +87,19 @@ public class JSetField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     private <X, Y> NavigableSetConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
         return new NavigableSetConverter<>(elementConverter);
+    }
+
+// POJO import/export
+
+    @Override
+    Set<Object> createPojoCollection(Class<?> collectionType) {
+        return ConcurrentSkipListSet.class.isAssignableFrom(collectionType) ? new ConcurrentSkipListSet<Object>() :
+          NavigableSet.class.isAssignableFrom(collectionType) ? new TreeSet<Object>() : new HashSet<Object>();
+    }
+
+    @Override
+    NavigableSet<?> readCoreCollection(Transaction tx, ObjId id) {
+        return tx.readSetField(id, this.storageId, true);
     }
 
 // Bytecode generation

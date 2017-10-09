@@ -120,6 +120,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #copyTo(JTransaction, JObject, CopyState, String[]) copyTo()}
  *  - Copy objects reachable through specified reference path(s) into another transaction</li>
  *  <li>{@link #cascadeFindAll(ObjId, String, int) cascadeFindAll()} - Find all objects reachable through a named cascade</li>
+ *  <li>{@link ImportContext} - Import plain (POJO) model objects</li>
+ *  <li>{@link ExportContext} - Export plain (POJO) model objects</li>
  * </ul>
  *
  * <p>

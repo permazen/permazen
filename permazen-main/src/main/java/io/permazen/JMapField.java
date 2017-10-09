@@ -15,12 +15,18 @@ import io.permazen.change.MapFieldClear;
 import io.permazen.change.MapFieldRemove;
 import io.permazen.change.MapFieldReplace;
 import io.permazen.core.MapField;
+import io.permazen.core.ObjId;
 import io.permazen.schema.MapSchemaField;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Represents a map field in a {@link JClass}.
@@ -177,6 +183,87 @@ public class JMapField extends JComplexField {
     private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
       Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
         return new NavigableMapConverter<>(keyConverter, valueConverter);
+    }
+
+// POJO import/export
+
+    @Override
+    @SuppressWarnings("unchecked")
+    void importPlain(ImportContext context, Object obj, ObjId id) {
+
+        // Get POJO map
+        final Map<?, ?> objMap;
+        try {
+            objMap = (Map<?, ?>)obj.getClass().getMethod(this.getter.getName()).invoke(obj);
+        } catch (Exception e) {
+            return;
+        }
+        if (objMap == null)
+            return;
+
+        // Get core API map
+        final Map<Object, Object> coreMap = (Map<Object, Object>)context.getTransaction().getTransaction().readMapField(
+          id, this.storageId, true);
+
+        // Copy key/value pairs over
+        coreMap.clear();
+        for (Map.Entry<?, ?> entry : objMap.entrySet()) {
+            coreMap.put(
+              this.keyField.importCoreValue(context, entry.getKey()),
+              this.valueField.importCoreValue(context, entry.getValue()));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    void exportPlain(ExportContext context, ObjId id, Object obj) {
+
+        // Get POJO map
+        final Method objGetter;
+        try {
+            objGetter = obj.getClass().getMethod(this.getter.getName());
+        } catch (Exception e) {
+            return;
+        }
+        Map<Object, Object> objMap;
+        try {
+            objMap = (Map<Object, Object>)objGetter.invoke(obj);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to invoke getter method " + objGetter + " for POJO export", e);
+        }
+
+        // If null, try to create one and identify setter to set it with
+        Method objSetter = null;
+        if (objMap == null) {
+            try {
+                objSetter = Util.findJFieldSetterMethod(obj.getClass(), objGetter);
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            final Class<?> mapType = objSetter.getParameterTypes()[0];
+            objMap = ConcurrentNavigableMap.class.isAssignableFrom(mapType) ? new ConcurrentSkipListMap<Object, Object>() :
+              NavigableMap.class.isAssignableFrom(mapType) ? new TreeMap<Object, Object>() : new HashMap<Object, Object>();
+        }
+
+        // Get core API map
+        final Map<?, ?> coreMap = context.getTransaction().getTransaction().readMapField(id, this.storageId, true);
+
+        // Copy values over
+        objMap.clear();
+        for (Map.Entry<?, ?> entry : coreMap.entrySet()) {
+            objMap.put(
+              this.keyField.exportCoreValue(context, entry.getKey()),
+              this.valueField.exportCoreValue(context, entry.getValue()));
+        }
+
+        // Apply POJO setter if needed
+        if (objSetter != null) {
+            try {
+                objSetter.invoke(obj, objMap);
+            } catch (Exception e) {
+                throw new RuntimeException("failed to invoke setter method " + objSetter + " for POJO export", e);
+            }
+        }
     }
 
 // Bytecode generation

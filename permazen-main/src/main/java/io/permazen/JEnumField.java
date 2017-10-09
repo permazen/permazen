@@ -27,7 +27,7 @@ import org.objectweb.asm.Type;
  */
 public class JEnumField extends JSimpleField {
 
-    final EnumConverter<?> converter;
+    final EnumConverter<?> converter;           // converts Java Enum -> EnumValue in the forward direction
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     JEnumField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
@@ -79,6 +79,21 @@ public class JEnumField extends JSimpleField {
         schemaField.getIdentifiers().clear();
         for (Enum<?> value : EnumUtil.getValues((Class<Enum<?>>)this.getTypeToken().getRawType()))
             schemaField.getIdentifiers().add(value.name());
+    }
+
+// POJO import/export
+
+    Object importCoreValue(ImportContext context, Object value) {
+        return JEnumField.importCoreValue(this.converter, value);
+    }
+
+    Object exportCoreValue(ExportContext context, Object value) {
+        return this.converter.reverse().convert((EnumValue)value);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private static <T extends Enum<T>> EnumValue importCoreValue(EnumConverter<T> converter, Object value) {
+        return converter.convert(converter.getEnumType().cast(value));
     }
 
 // Bytecode generation

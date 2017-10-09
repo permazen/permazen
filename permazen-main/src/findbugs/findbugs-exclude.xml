@@ -8,4 +8,14 @@
         <Class name="io.permazen.OnVersionChangeScanner"/>
         <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.JCollectionField"/>
+        <Method name="importPlain"/>
+        <Bug pattern="DE_MIGHT_IGNORE,REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.JMapField"/>
+        <Method name="importPlain"/>
+        <Bug pattern="DE_MIGHT_IGNORE,REC_CATCH_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>

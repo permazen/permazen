@@ -6,10 +6,6 @@ SHORT TERM
 
 - Option to override collection setters (if they exist) with clear() + addAll()/putAll() implementation ?
 
-- POJO support
-    - Make Counter an interface
-    - Import/Export to POJO model classes
-
 - Parser enhancements
     - "this" -> current session ?
     - compound statements

@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.ObjId;
 import io.permazen.schema.CounterSchemaField;
 
 import java.lang.reflect.Method;
@@ -67,6 +68,72 @@ public class JCounterField extends JField {
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         throw new UnsupportedOperationException("counter fields do not support change notifications");
+    }
+
+// POJO import/export
+
+    @Override
+    void importPlain(ImportContext context, Object obj, ObjId id) {
+
+        // Read POJO property
+        final Object value;
+        try {
+            value = obj.getClass().getMethod(this.getter.getName()).invoke(obj);
+        } catch (Exception e) {
+            return;
+        }
+
+        // Auto-convert any Number
+        final long count;
+        if (value instanceof Number)
+            count = ((Number)value).longValue();
+        else
+            return;
+
+        // Set counter value
+        context.getTransaction().getTransaction().writeCounterField(id, this.storageId, count, true);
+    }
+
+    @Override
+    void exportPlain(ExportContext context, ObjId id, Object obj) {
+
+        // Find setter method
+        final Method objSetter;
+        try {
+            objSetter = Util.findJFieldSetterMethod(obj.getClass(), obj.getClass().getMethod(this.getter.getName()));
+        } catch (Exception e) {
+            return;
+        }
+
+        // Get counter value
+        final long count = context.getTransaction().getTransaction().readCounterField(id, this.storageId, true);
+
+        // Auto-convert any Number
+        final Class<?> valueType = TypeToken.of(objSetter.getParameterTypes()[0]).wrap().getRawType();
+        final Object value;
+        if (valueType == Long.class)
+            value = count;
+        else if (valueType == Integer.class)
+            value = (int)count;
+        else if (valueType == Float.class)
+            value = (float)count;
+        else if (valueType == Double.class)
+            value = (double)count;
+        else if (valueType == Byte.class)
+            value = (byte)count;
+        else if (valueType == Short.class)
+            value = (short)count;
+        else
+            return;
+
+        // Set POJO value
+        try {
+            objSetter.invoke(obj, value);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("failed to invoke setter method " + objSetter, e);
+        }
     }
 
 // Bytecode generation

@@ -133,6 +133,12 @@ public abstract class JField extends JSchemaObject {
         return this.parent instanceof JClass ? ((JClass<?>)this.parent) : (JClass<?>)((JComplexField)this.parent).parent;
     }
 
+// POJO import/export
+
+    abstract void importPlain(ImportContext context, Object obj, ObjId id);
+
+    abstract void exportPlain(ExportContext context, ObjId id, Object obj);
+
 // Bytecode generation
 
     boolean hasClassInitializerBytecode() {

@@ -1,5 +1,6 @@
 Version 4.0.1
 
+    - Added support for import/export of POJO's (issue #24)
     - Fixed bug with generic type getter bridge methods in subtypes
     - Fixed bug in CachingKVStore triggered by reverse iterations
     - Added KVStore.apply() to allow optimizing batch updates

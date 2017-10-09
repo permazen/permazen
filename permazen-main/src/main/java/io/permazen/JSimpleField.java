@@ -233,6 +233,58 @@ public class JSimpleField extends JField {
           .where(new TypeParameter<V>() { }, fieldType.wrap()));
     }
 
+// POJO import/export
+
+    @Override
+    @SuppressWarnings("unchecked")
+    void importPlain(ImportContext context, Object obj, ObjId id) {
+
+        // Get POJO value
+        final Object value;
+        try {
+            value = obj.getClass().getMethod(this.getter.getName()).invoke(obj);
+        } catch (Exception e) {
+            return;
+        }
+        final Object coreValue = this.importCoreValue(context, value);
+
+        // Set field core API value
+        context.getTransaction().getTransaction().writeSimpleField(id, this.storageId, coreValue, true);
+    }
+
+    @Override
+    void exportPlain(ExportContext context, ObjId id, Object obj) {
+
+        // Find setter method
+        final Method objSetter;
+        try {
+            objSetter = Util.findJFieldSetterMethod(obj.getClass(), obj.getClass().getMethod(this.getter.getName()));
+        } catch (Exception e) {
+            return;
+        }
+
+        // Get field value
+        final Object value = this.exportCoreValue(context,
+          context.getTransaction().getTransaction().readSimpleField(id, this.storageId, true));
+
+        // Set POJO value
+        try {
+            objSetter.invoke(obj, value);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("failed to invoke setter method " + objSetter, e);
+        }
+    }
+
+    Object importCoreValue(ImportContext context, Object value) {
+        return this.fieldType.validate(value);
+    }
+
+    Object exportCoreValue(ExportContext context, Object value) {
+        return value;
+    }
+
 // Bytecode generation
 
     @Override
