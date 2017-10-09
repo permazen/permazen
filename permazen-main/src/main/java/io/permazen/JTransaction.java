@@ -1752,7 +1752,7 @@ public class JTransaction {
             return;
 
         // Do validation
-        this.performAction(JTransaction.this::doValidate);
+        this.performAction(this::doValidate);
     }
 
     /**
