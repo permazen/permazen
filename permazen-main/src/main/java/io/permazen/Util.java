@@ -587,6 +587,7 @@ public final class Util {
      * @param target instance, or null if method is static
      * @param params method parameters
      * @return method return value
+     * @throws PermazenException if an error occurs
      */
     public static Object invoke(Method method, Object target, Object... params) {
         try {

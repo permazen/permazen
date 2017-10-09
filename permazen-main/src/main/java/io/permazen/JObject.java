@@ -483,6 +483,8 @@ public interface JObject {
      * Get the {@link JClass} of which this {@link JObject} is an instance.
      *
      * @return associated {@link JClass}
+     * @throws TypeNotInSchemaVersionException if this instance has a type that does not exist in this instance's schema version,
+     *  i.e., this instance is an {@link UntypedJObject}
      */
     default JClass<?> getJClass() {
         return this.getTransaction().getPermazen().getJClass(this.getObjId());
