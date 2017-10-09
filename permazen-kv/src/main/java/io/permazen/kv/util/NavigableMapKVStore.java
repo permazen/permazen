@@ -108,9 +108,10 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
     @Override
     public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         NavigableMap<byte[], byte[]> rangeMap = this.map;
-        if (minKey != null && maxKey != null)
+        if (minKey != null && maxKey != null) {
+            Preconditions.checkArgument(ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
             rangeMap = rangeMap.subMap(minKey, true, maxKey, false);
-        else if (minKey != null)
+        } else if (minKey != null)
             rangeMap = rangeMap.tailMap(minKey, true);
         else if (maxKey != null)
             rangeMap = rangeMap.headMap(maxKey, false);
