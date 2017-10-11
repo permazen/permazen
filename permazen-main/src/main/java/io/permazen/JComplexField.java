@@ -67,6 +67,12 @@ public abstract class JComplexField extends JField {
     abstract SimpleFieldIndexInfo toIndexInfo(JSimpleField subField);
 
     @Override
+    JClass<?> getJClass() {
+        assert this.parent instanceof JClass;
+        return (JClass<?>)this.parent;
+    }
+
+    @Override
     boolean supportsChangeNotifications() {
         return true;
     }
