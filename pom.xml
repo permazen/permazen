@@ -110,6 +110,7 @@
         <rocksdb.version>4.11.2</rocksdb.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <spotbugs.version>3.1.0-RC7</spotbugs.version>
         <spring.version>4.3.7.RELEASE</spring.version>
         <sqlite.version>3.16.1</sqlite.version>
         <testng.version>6.9.10</testng.version>
@@ -824,18 +825,18 @@
                 </executions>
             </plugin>
 
-            <!-- FindBugs -->
+            <!-- SpotBugs -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>3.1.0-RC6</version>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Default</threshold>
                     <xmlOutput>true</xmlOutput>
                     <findbugsXmlOutput>true</findbugsXmlOutput>
                     <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <excludeFilterFile>src/findbugs/findbugs-exclude.xml</excludeFilterFile>
+                    <excludeFilterFile>src/spotbugs/spotbugs-exclude.xml</excludeFilterFile>
                     <failOnError>true</failOnError>
                 </configuration>
                 <executions>
