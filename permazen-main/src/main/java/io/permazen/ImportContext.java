@@ -75,7 +75,7 @@ public class ImportContext {
         this.storageIdMapper = obj -> {
             final JClass<?> modelClass = this.jtx.jdb.findJClass(obj.getClass());
             if (modelClass == null)
-                throw new IllegalArgumentException("no Permazen model class corresponds to POJO " + modelClass);
+                throw new IllegalArgumentException("no Permazen model class corresponds to POJO " + obj.getClass());
             return ((JObject)this.jtx.create(modelClass)).getObjId();
         };
     }
