@@ -8,11 +8,18 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.core.DeleteAction;
 import io.permazen.index.Index;
+import io.permazen.schema.NameIndex;
+import io.permazen.schema.ReferenceSchemaField;;
+import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class InterfaceTest extends TestSupport {
@@ -75,6 +82,18 @@ public class InterfaceTest extends TestSupport {
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
+
+    @Test
+    public void testDoubleInherit() {
+
+        final Permazen jdb = BasicTest.getPermazen(Foo.class, Bar.class);
+
+        final SchemaModel schema = jdb.getSchemaModel();
+        final NameIndex lookup = new NameIndex(schema);
+        final ReferenceSchemaField fooField = (ReferenceSchemaField)lookup.getSchemaField(lookup.getSchemaObjectType("Bar"), "foo");
+
+        Assert.assertEquals(fooField.getOnDelete(), DeleteAction.DELETE);
     }
 
 // Model Classes #1
@@ -150,6 +169,30 @@ public class InterfaceTest extends TestSupport {
 
     @PermazenType
     public abstract static class NutriaRat implements Animal, ContainerClass.OwnedPet {
+    }
+
+// Model Classes #3
+
+    @PermazenType
+    public abstract static class Foo {
+    }
+
+    public interface HasOptionalFoo {
+        @JField(onDelete = DeleteAction.DELETE)
+        Foo getFoo();
+        void setFoo(Foo x);
+    }
+
+    public interface HasFoo extends HasOptionalFoo {
+        @NotNull
+        @Override
+        Foo getFoo();
+    }
+
+    @PermazenType
+    public abstract static class Bar implements HasFoo {
+        @Override
+        public abstract Foo getFoo();
     }
 }
 

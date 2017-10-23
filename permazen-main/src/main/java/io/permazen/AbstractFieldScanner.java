@@ -50,7 +50,7 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
         if (this.hasAnnotatedMethod(klass, name, parameterTypes))
             return true;
         for (Class<?> iface : klass.getInterfaces()) {
-            if (this.hasAnnotatedMethod(iface, name, parameterTypes))
+            if (this.hasAnnotatedOverriddenMethod(iface, name, parameterTypes))
                 return true;
         }
         final Class<?> superclass = klass.getSuperclass();

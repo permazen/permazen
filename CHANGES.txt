@@ -5,6 +5,7 @@ Version 4.0.1
     - Fixed bug in CachingKVStore triggered by reverse iterations
     - Added KVStore.apply() to allow optimizing batch updates
     - Added parse support for casting any supported field type to String
+    - Fixed bug where @JField was not inherited from super-super-interfaces
 
 Version 4.0.0 Released September 14, 2017
 
