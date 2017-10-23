@@ -120,8 +120,8 @@ public class ImportContext {
      *
      * @param obj object to import; must not be null
      * @return imported object, or null if the {@code storageIdMapper} returned null for {@code obj}
-     * @throws DeletedObjectException if {@code storageIdMapper} returns the object ID of a non-existent object
-     * @throws TypeNotInSchemaVersionException if {@code storageIdMapper} returns an object ID that does not
+     * @throws io.permazen.core.DeletedObjectException if {@code storageIdMapper} returns the object ID of a non-existent object
+     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code storageIdMapper} returns an object ID that does not
      *  corresponding to any Permazen model class
      * @throws IllegalArgumentException if {@code obj} is null
      */

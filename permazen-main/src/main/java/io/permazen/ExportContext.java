@@ -124,8 +124,9 @@ public class ExportContext {
      *
      * @param jobj object to export; must not be null
      * @return exported object, or null if the {@code objectMapper} returned null for {@code jobj.getObjId()}
-     * @throws DeletedObjectException if {@code jobj} does not exist in the transaction associated with this instance
-     * @throws TypeNotInSchemaVersionException if {@code jobj} is an {@link UntypedJObject}
+     * @throws io.permazen.core.DeletedObjectException if {@code id} refers to an object that does not exist
+     *  in the transaction associated with this instance
+     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code jobj} is an {@link UntypedJObject}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public Object exportPlain(JObject jobj) {
@@ -142,9 +143,9 @@ public class ExportContext {
      *
      * @param id object ID of the object to export; must not be null
      * @return exported object, or null if the {@code objectMapper} returned null for {@code id}
-     * @throws DeletedObjectException if {@code id} refers to an object that does not exist in the transaction
-     *  associated with this instance
-     * @throws TypeNotInSchemaVersionException if {@code id} refers to a type that does not exist
+     * @throws io.permazen.core.DeletedObjectException if {@code id} refers to an object that does not exist
+     *  in the transaction associated with this instance
+     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code id} refers to a type that does not exist
      *  in this instance's transaction's schema version
      * @throws IllegalArgumentException if {@code id} is null
      */

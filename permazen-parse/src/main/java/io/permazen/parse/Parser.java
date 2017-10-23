@@ -45,6 +45,7 @@ public interface Parser<T> {
      *
      * @param parser original parser
      * @param scope new identifier scope
+     * @param <T> parsed value type
      * @return new {@link Parser} with identifier scope defined
      * @throws IllegalArgumentException if either parameter is null
      */

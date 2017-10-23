@@ -651,6 +651,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     /**
      * Test KVStore.apply().
+     *
+     * @param store database
+     * @throws Exception if an error occurs
      */
     @Test(dataProvider = "kvdbs")
     public void testApplyMutations(KVDatabase store) throws Exception {
