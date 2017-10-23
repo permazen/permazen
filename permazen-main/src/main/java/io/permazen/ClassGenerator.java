@@ -211,8 +211,11 @@ class ClassGenerator<T> {
                 try {
                     this.superclassConstructor = this.modelClass.getDeclaredConstructor();
                 } catch (NoSuchMethodException e2) {
-                    throw new IllegalArgumentException("no suitable constructor found in model class " + this.modelClass.getName()
-                      + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)");
+                    String message = "no suitable constructor found in model class " + this.modelClass.getName()
+                      + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)";
+                    if (this.modelClass.isMemberClass() && !Modifier.isStatic(this.modelClass.getModifiers()))
+                        message += "; did you mean to declare this class `static'?";
+                    throw new IllegalArgumentException(message);
                 }
             }
         }
