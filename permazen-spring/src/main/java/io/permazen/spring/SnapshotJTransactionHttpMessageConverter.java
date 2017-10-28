@@ -47,6 +47,8 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      */
     public static final MediaType MIME_TYPE = new MediaType("application", "x-permazen-transaction");
 
+    static final MediaType LEGACY_MIME_TYPE = new MediaType("application", "x-jsimpledb-transaction");
+
     private final Permazen jdb;
 
     private Class<?>[] validationGroups;
@@ -57,7 +59,17 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      * @param jdb {@link Permazen} instance defining the convertible types
      */
     public SnapshotJTransactionHttpMessageConverter(Permazen jdb) {
-        super(MIME_TYPE);
+        this(jdb, MIME_TYPE, LEGACY_MIME_TYPE);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param jdb {@link Permazen} instance defining the convertible types
+     * @param supportedMediaTypes supported media types
+     */
+    public SnapshotJTransactionHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
+        super(supportedMediaTypes);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
     }

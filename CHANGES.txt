@@ -1,3 +1,7 @@
+Version Next
+
+    - Added Spring support for legacy application/x-jsimpledb-transaction MIME type
+
 Version 4.0.1 Released October 23, 2017
 
     - Added support for import/export of POJO's (issue #24)

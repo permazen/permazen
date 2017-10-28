@@ -55,7 +55,18 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
      * @throws IllegalArgumentException if {@code jdb} is null
      */
     public JObjectHttpMessageConverter(Permazen jdb) {
-        super(SnapshotJTransactionHttpMessageConverter.MIME_TYPE);
+        this(jdb, SnapshotJTransactionHttpMessageConverter.MIME_TYPE, SnapshotJTransactionHttpMessageConverter.LEGACY_MIME_TYPE);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param jdb {@link Permazen} instance
+     * @param supportedMediaTypes supported media types
+     * @throws IllegalArgumentException if {@code jdb} is null
+     */
+    public JObjectHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
+        super(supportedMediaTypes);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
     }
@@ -98,7 +109,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
     @Override
     protected MediaType getDefaultContentType(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return new MediaType(SnapshotJTransactionHttpMessageConverter.MIME_TYPE,
+        return new MediaType(this.getSupportedMediaTypes().get(0),
           Collections.<String, String>singletonMap(ROOT_OBJECT_ID_PARAMETER_NAME, jobj.getObjId().toString()));
     }
 
@@ -111,8 +122,6 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
 
         // Get the root object's ID
         final MediaType mediaType = input.getHeaders().getContentType();
-        if (!SnapshotJTransactionHttpMessageConverter.MIME_TYPE.includes(mediaType))
-            throw new HttpMessageNotReadableException("invalid Content-Type `" + mediaType + "'");
         final String objId = mediaType.getParameter(ROOT_OBJECT_ID_PARAMETER_NAME);
         if (objId == null) {
             throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
