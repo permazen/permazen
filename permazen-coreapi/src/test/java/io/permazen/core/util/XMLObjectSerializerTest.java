@@ -7,6 +7,7 @@ package io.permazen.core.util;
 
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
+import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.kv.KVPair;
@@ -51,6 +52,11 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"v\" type=\"java.lang.Void\" storageId=\"12\"/>\n"
           + "    <SimpleField name=\"date\" type=\"java.util.Date\" storageId=\"13\"/>\n"
           + "    <ReferenceField name=\"r2\" storageId=\"14\"/>\n"
+          + "    <EnumField name=\"e1\" storageId=\"15\">\n"
+          + "      <Identifier>AAA</Identifier>\n"
+          + "      <Identifier>BBB</Identifier>\n"
+          + "      <Identifier>CCC</Identifier>\n"
+          + "    </EnumField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
@@ -73,6 +79,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         tx.writeSimpleField(id1, 12, null, false);      // default value
         tx.writeSimpleField(id1, 13, new Date(1399604568000L), false);
         tx.writeSimpleField(id1, 14, null, false);
+        tx.writeSimpleField(id1, 15, new EnumValue("BBB", 1), false);
 
         XMLObjectSerializer s1 = new XMLObjectSerializer(tx);
 

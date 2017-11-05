@@ -11,6 +11,7 @@
         <field storageId="10">hello dolly</field>
         <field storageId="11">0100000000000001</field>
         <field storageId="13">2014-05-09T03:02:48Z</field>
+        <field storageId="15">BBB</field>
     </object>
     <object storageId="20" id="1400000000000001" version="2">
         <field storageId="21">
