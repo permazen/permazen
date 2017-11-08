@@ -12,8 +12,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever a target field in some target object changes during a transaction,
- * where the target object containing the changed field is found at the end of a path of references
+ * Annotation for methods that are to be invoked whenever a simple or complext target field in some target object changes
+ * during a transaction, where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
  * See {@link io.permazen.ReferencePath} for more information about reference paths.
  *
@@ -217,6 +217,9 @@ import java.lang.annotation.Target;
  * method {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
+ *
+ * <p>
+ * {@link io.permazen.Counter} fields do not generate change notifications.
  *
  * <p>
  * No notifications are delivered for "changes" that do not actually change anything (e.g., setting a simple field to

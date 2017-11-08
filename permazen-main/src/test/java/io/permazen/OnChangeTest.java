@@ -299,6 +299,16 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testCounter() {
+        try {
+            BasicTest.getPermazen(HasCounter.class);
+            assert false;
+        } catch (java.lang.IllegalArgumentException e) {
+            // expected
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -683,5 +693,17 @@ public class OnChangeTest extends TestSupport {
         public abstract int getFoo();
         public abstract void setFoo(int x);
     }
-}
 
+// Counter Test
+
+    @PermazenType
+    public abstract static class HasCounter implements JObject {
+
+        public abstract Counter getCounter();
+
+        @OnChange("counter")
+        private void onChange(Change<HasCounter> change) {
+            throw new RuntimeException("unexpected notification");
+        }
+    }
+}
