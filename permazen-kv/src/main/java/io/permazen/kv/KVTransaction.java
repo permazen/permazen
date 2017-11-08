@@ -154,6 +154,9 @@ public interface KVTransaction extends KVStore {
      * Key watch {@link Future}s that have not completed yet, but are no longer needed, must be {@link Future#cancel cancel()}'ed
      * to avoid memory leaks.
      *
+     * <p>
+     * Key watch support is indepdendent of whether the transaction is {@linkplain #setReadOnly read-only}.
+     *
      * @param key the key to watch
      * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified
      * @throws StaleTransactionException if this transaction is no longer usable
