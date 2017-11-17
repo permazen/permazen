@@ -319,7 +319,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      *  <li>Boolean converts to non-Boolean primitive types by first converting to zero (if false) or one (if true)</li>
      *  <li>A {@code char} and a {@link String} of length one are convertible (other {@link String}s are not)</li>
      *  <li>A {@code char[]} array and a {@link String} are convertible</li>
-     *  <li>Arrays are converted by converting each array element individually</li>
+     *  <li>Arrays are converted by converting each array element individually (if possible)</li>
      * </ul>
      *
      * @param type the {@link FieldType} of {@code value}
