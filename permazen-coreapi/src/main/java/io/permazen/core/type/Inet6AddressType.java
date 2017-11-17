@@ -11,6 +11,9 @@ import java.net.Inet6Address;
 
 /**
  * Non-null {@link Inet6Address} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding uses the binary value from {@link java.net.InetAddress#getAddress}.
  */
 public class Inet6AddressType extends AbstractInetAddressType<Inet6Address> {
 

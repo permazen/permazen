@@ -16,6 +16,10 @@ import java.util.UUID;
 
 /**
  * Non-null {@link UUID} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
+ * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}.
  */
 public class UUIDType extends NonNullFieldType<UUID> {
 

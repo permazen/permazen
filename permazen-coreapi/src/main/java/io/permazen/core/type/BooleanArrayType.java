@@ -21,6 +21,7 @@ import java.util.List;
  *
  * <p>
  * Each boolean value is encoded in two bits: end of array ({@code 00}), false ({@code 01}), or true ({@code 10}).
+ * Four bit pairs are stored in each encoded byte, starting with the high-order bit pair.
  */
 public class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 

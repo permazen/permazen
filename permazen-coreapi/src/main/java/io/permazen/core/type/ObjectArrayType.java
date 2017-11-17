@@ -20,6 +20,10 @@ import java.util.List;
 /**
  * Array type for object arrays having non-primitive element types. Does not support null arrays.
  *
+ * <p>
+ * In the binary encoding, array elements are simply concatenated, with each element preceded by a {@code 0x01} byte.
+ * After the last element, a final {@code 0x00} byte follows. This encoding ensures lexicographic ordering.
+ *
  * @param <E> array element type
  */
 public class ObjectArrayType<E> extends ArrayType<E[], E> {

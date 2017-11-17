@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Instant} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
+ * followed by {@linkplain Instant#getNano nanoseconds}.
  */
 public class InstantType extends NonNullFieldType<Instant> {
 

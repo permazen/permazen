@@ -13,6 +13,9 @@ import java.time.ZoneOffset;
 
 /**
  * Non-null {@link OffsetDateTime} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via the concatenation of the encodings of {@link Instant} and {@link ZoneOffset}.
  */
 public class OffsetDateTimeType extends Concat2Type<OffsetDateTime, Instant, ZoneOffset> {
 

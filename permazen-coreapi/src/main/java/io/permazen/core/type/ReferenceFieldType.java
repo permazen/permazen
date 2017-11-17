@@ -21,6 +21,9 @@ import java.util.TreeSet;
  * The {@link FieldType} for {@link io.permazen.core.ReferenceField}s. Instances support object type restriction.
  *
  * <p>
+ * Binary encoding uses the value from {@link ObjId#getBytes}, or {@code 0xff} to represent null.
+ *
+ * <p>
  * Null values are supported by this class.
  */
 public class ReferenceFieldType extends NullSafeType<ObjId> {

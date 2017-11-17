@@ -11,6 +11,9 @@ import java.net.Inet4Address;
 
 /**
  * Non-null {@link Inet4Address} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding uses the binary value from {@link java.net.InetAddress#getAddress}.
  */
 public class Inet4AddressType extends AbstractInetAddressType<Inet4Address> {
 

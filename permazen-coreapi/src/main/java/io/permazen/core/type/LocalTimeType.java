@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link LocalTime} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via a single {@link LongEncoder}-encoded value representing
+ * {@linkplain LocalTime#toNanoOfDay nanoseconds in the day}.
  */
 public class LocalTimeType extends NonNullFieldType<LocalTime> {
 

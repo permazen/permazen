@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link MonthDay} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via an {@link UnsignedIntEncoder}-encoded value {@code 32} times the
+ * {@linkplain MonthDay#getMonthValue month value}{@code - 1}, plus the {@linkplain MonthDay#getDayOfMonth day of the month}.
  */
 public class MonthDayType extends NonNullFieldType<MonthDay> {
 

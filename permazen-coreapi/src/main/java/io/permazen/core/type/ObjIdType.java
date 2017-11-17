@@ -14,6 +14,9 @@ import io.permazen.util.ParseContext;
 
 /**
  * Non-null field type for encoding {@link ObjId}s. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding uses the value from {@link ObjId#getBytes}.
  */
 public class ObjIdType extends NonNullFieldType<ObjId> {
 

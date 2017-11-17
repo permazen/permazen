@@ -17,6 +17,11 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link ZoneOffset} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via the {@link LongEncoder}-encoded negative of the
+ * {@linkplain ZoneOffset#getTotalSeconds total seconds value}. The value is negated because higher offsets
+ * {@linkplain ZoneOffset#compareTo sort} before lower ones.
  */
 public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
 

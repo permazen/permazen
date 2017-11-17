@@ -19,6 +19,9 @@ import java.util.List;
 
 /**
  * Superclass for {@link FieldType}s created from the concatenation of other {@link FieldType}s.
+ *
+ * <p>
+ * Binary encoding is via the concatenation of the individual element encodings.
  */
 public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
 

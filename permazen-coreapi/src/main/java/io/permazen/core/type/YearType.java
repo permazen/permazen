@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Year} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
  */
 public class YearType extends NonNullFieldType<Year> {
 

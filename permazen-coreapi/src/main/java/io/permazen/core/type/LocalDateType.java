@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link LocalDate} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
  */
 public class LocalDateType extends NonNullFieldType<LocalDate> {
 

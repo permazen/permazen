@@ -14,6 +14,11 @@ import java.time.ZoneOffset;
 
 /**
  * Non-null {@link OffsetTime} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via the concatenation of the encodings of {@link LongType} and {@link ZoneOffset}, where the first value
+ * is the {@linkplain LocalTime#toNanoOfDay nanoseconds in the day} normalized to {@link ZoneOffset#UTC UTC}.
+ * This keeps the binary sort order consistent with {@link OffsetTime#compareTo}.
  */
 public class OffsetTimeType extends Concat2Type<OffsetTime, Long, ZoneOffset> {
 

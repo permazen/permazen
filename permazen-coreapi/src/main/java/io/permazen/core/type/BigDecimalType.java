@@ -22,9 +22,11 @@ import java.util.Arrays;
  *
  * <p>
  * This class' encoding preserves precision information, and therefore treats as distinct instances that differ only in
- * trailing zeroes after the decimal point. For example, {@code 1.23 < 1.230}. As a result, this class' {@link #compare compare()}
- * method is consistent with {@link BigDecimal#equals BigDecimal.equals()}, unlike * {@link BigDecimal}'s own
- * {@link BigDecimal#compareTo compareTo()} method, which is not.
+ * trailing zeroes after the decimal point. For example, {@code 1.23 < 1.230}.
+ *
+ * <p>
+ * As a result, this class' {@link #compare compare()} method is consistent with {@link BigDecimal#equals BigDecimal.equals()},
+ * unlike {@link BigDecimal}'s own {@link BigDecimal#compareTo compareTo()} method, which is not.
  */
 public class BigDecimalType extends NonNullFieldType<BigDecimal> {
 

@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link YearMonth} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, the {@linkplain YearMonth#getYear year}
+ * followed by the {@linkplain YearMonth#getMonthValue month value}.
  */
 public class YearMonthType extends NonNullFieldType<YearMonth> {
 

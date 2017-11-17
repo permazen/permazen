@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Duration} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}
+ * followed by {@linkplain Duration#getNano nanoseconds}.
  */
 public class DurationType extends NonNullFieldType<Duration> {
 

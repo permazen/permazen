@@ -14,6 +14,9 @@ import java.util.regex.Matcher;
 
 /**
  * Non-null {@link ZonedDateTime} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via the concatenation of the encodings of {@link OffsetDateTimeType} and {@link ZoneIdType}.
  */
 public class ZonedDateTimeType extends Concat2Type<ZonedDateTime, OffsetDateTime, ZoneId> {
 

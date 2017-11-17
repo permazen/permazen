@@ -17,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Period} type. Null values are not supported by this class.
+ *
+ * <p>
+ * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
+ * the {@linkplain Period#getMonths months}, and the {@linkplain Period#getDays days}.
  */
 public class PeriodType extends NonNullFieldType<Period> {
 

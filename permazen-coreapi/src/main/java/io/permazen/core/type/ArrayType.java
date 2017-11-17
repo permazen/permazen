@@ -19,6 +19,9 @@ import java.util.List;
  * Superclass for all array {@link FieldType}s.
  *
  * <p>
+ * The string form looks like {@code [ elem1, elem2, ..., elemN ]}.
+ *
+ * <p>
  * This class does not support null arrays; wrap in {@link NullSafeType} to get that.
  * The default value is the empty array.
  *

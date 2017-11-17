@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
 
 /**
  * This is the inner, non-null supporting {@link io.permazen.core.FieldType} for {@link EnumFieldType}.
+ *
+ * <p>
+ * Binary encoding is via the {@link UnsignedIntEncoder}-encoded {@linkplain EnumValue#getOrdinal ordinal} value.
  */
 public class EnumType extends NonNullFieldType<EnumValue> {
 
