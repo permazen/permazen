@@ -847,10 +847,15 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 writes.serialize(buf);
                 buf.flush();
             } catch (IOException e) {
+                this.log.error("error writing transaction mutations to " + this.modsFile, e);
+
+                // Attempt to recover by closing and re-opening the mods file, and discard our partially-written additions
+                this.closeIgnoreException(this.modsFileOutput);
                 try {
+                    this.modsFileOutput = new FileOutputStream(this.modsFile, true);
                     this.modsFileOutput.getChannel().truncate(this.modsFileLength);              // undo append
                 } catch (IOException e2) {
-                    this.log.error("error truncating log file (ignoring)", e2);
+                    this.log.error("error reopening log file after write error - we're probably hosed", e2);
                 }
                 throw new ArrayKVException("error appending to " + this.modsFile, e);
             }

@@ -1,6 +1,7 @@
 Version Next
 
     - Added Spring support for legacy application/x-jsimpledb-transaction MIME type
+    - Attempt to recover from write errors in AtomicArrayKVStore by reopening mods file
 
 Version 4.0.1 Released October 23, 2017
 
