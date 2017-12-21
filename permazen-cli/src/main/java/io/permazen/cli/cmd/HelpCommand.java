@@ -70,6 +70,7 @@ public class HelpCommand extends AbstractCommand {
                 session.getCommands().values().stream()
                   .filter(command -> all || command.getSessionModes().contains(sessionMode))
                   .forEach(command -> writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary())));
+                writer.println();
                 writer.println((all ? "All" : "Available") + " functions:");
                 session.getFunctions().values().stream()
                   .filter(function -> all || function.getSessionModes().contains(sessionMode))
