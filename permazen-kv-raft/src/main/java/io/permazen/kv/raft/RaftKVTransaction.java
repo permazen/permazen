@@ -149,7 +149,7 @@ public class RaftKVTransaction implements KVTransaction {
     // Transaction state
     @GuardedBy("raft")
     private TxState state = TxState.EXECUTING;                  // curent state
-    private volatile boolean executing;                         // allows for quick checks without synchronization
+    private volatile boolean executing = true;                  // allows for quick checks without synchronization
     @GuardedBy("raft")
     private Timestamp lastStateChangeTime = new Timestamp();    // timestamp of most recent state change
     @GuardedBy("raft")
