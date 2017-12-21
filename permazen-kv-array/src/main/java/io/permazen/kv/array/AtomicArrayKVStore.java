@@ -201,6 +201,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     @GuardedBy("lock")
     private MutableView mods;
     @GuardedBy("lock")
+    private Writes modsWritesSnapshot;
+    @GuardedBy("lock")
     private Compaction compaction;
     @GuardedBy("lock")
     private long firstModTimestamp;
@@ -362,6 +364,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             assert this.vals == null;
             assert this.kvstore == null;
             assert this.mods == null;
+            assert this.modsWritesSnapshot == null;
             assert this.firstModTimestamp == 0;
 
             // Check configuration
@@ -629,6 +632,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         this.vals = null;
         this.kvstore = null;
         this.mods = null;
+        this.modsWritesSnapshot = null;
         this.firstModTimestamp = 0;
     }
 
@@ -753,13 +757,14 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 }
             }
 
-            // Clone the uncompacted modifications, if any
-            Writes outstandingWrites = null;
-            final MutableView uncompactedMods = this.mods;
-            synchronized (uncompactedMods) {
-                if (!uncompactedMods.getWrites().isEmpty())
-                    outstandingWrites = uncompactedMods.getWrites().immutableSnapshot();
+            // Clone the uncompacted modifications, if any, using cached snapshot if possible
+            if (this.modsWritesSnapshot == null) {
+                synchronized (this.mods) {
+                    if (!this.mods.getWrites().isEmpty())
+                        this.modsWritesSnapshot = this.mods.getWrites().immutableSnapshot();
+                }
             }
+            final Writes outstandingWrites = this.modsWritesSnapshot;
 
             // Build snapshot by layering uncompacted modifications on top
             KVStore snapshot = this.kvstore;
@@ -876,6 +881,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 final byte[] min = range.getMin();
                 final byte[] max = range.getMax();
                 this.mods.removeRange(min, max);
+                this.modsWritesSnapshot = null;
             }
 
             // Apply puts
@@ -883,6 +889,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 final byte[] key = entry.getKey();
                 final byte[] val = entry.getValue();
                 this.mods.put(key, val);
+                this.modsWritesSnapshot = null;
             }
 
             // Apply counter adjustments
@@ -890,6 +897,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 final byte[] key = entry.getKey();
                 final long adjust = entry.getValue();
                 this.mods.adjustCounter(key, adjust);
+                this.modsWritesSnapshot = null;
             }
 
             // Set first uncompacted modification timestamp, if not already set
@@ -1197,6 +1205,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                 // Allow new modifications to be added by other threads while we are compacting the old modifications
                 this.mods = new MutableView(this.mods, null, new Writes());
+                this.modsWritesSnapshot = null;
                 previousModsFileLength = this.modsFileLength;
                 previousModsFileSyncPoint = this.modsFileSyncPoint;
             } finally {
@@ -1364,6 +1373,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         this.modsFileSyncPoint = newModsFileSyncPoint;
                         this.kvstore = new ArrayKVStore(this.indx, this.keys, this.vals);
                         this.mods = new MutableView(this.kvstore, null, this.mods.getWrites());
+                        this.modsWritesSnapshot = null;
                         if (additionalModsLength == 0)
                             this.firstModTimestamp = 0;
                         else {
@@ -1410,6 +1420,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             // Put back the old uncompacted modifications, and merge any new mods into them
                             final Writes writesDuringCompaction = this.mods.getWrites();
                             this.mods = new MutableView(this.kvstore, null, writesToCompact);
+                            this.modsWritesSnapshot = null;
                             writesDuringCompaction.applyTo(this.mods);
 
                             // Delete the files we were creating
