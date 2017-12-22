@@ -445,25 +445,53 @@ public class RaftKVTransaction implements KVTransaction {
     @Override
     public void put(byte[] key, byte[] value) {
         this.fastVerifyExecuting();
-        this.view.put(key, value);
+        try {
+            this.view.put(key, value);
+        } catch (IllegalStateException e) {     // most likely reason: tx is no longer EXECUTING but we just missed the transition
+            synchronized (this.raft) {
+                this.verifyExecuting();
+            }
+            throw e;
+        }
     }
 
     @Override
     public void remove(byte[] key) {
         this.fastVerifyExecuting();
-        this.view.remove(key);
+        try {
+            this.view.remove(key);
+        } catch (IllegalStateException e) {     // most likely reason: tx is no longer EXECUTING but we just missed the transition
+            synchronized (this.raft) {
+                this.verifyExecuting();
+            }
+            throw e;
+        }
     }
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         this.fastVerifyExecuting();
-        this.view.removeRange(minKey, maxKey);
+        try {
+            this.view.removeRange(minKey, maxKey);
+        } catch (IllegalStateException e) {     // most likely reason: tx is no longer EXECUTING but we just missed the transition
+            synchronized (this.raft) {
+                this.verifyExecuting();
+            }
+            throw e;
+        }
     }
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
         this.fastVerifyExecuting();
-        this.view.adjustCounter(key, amount);
+        try {
+            this.view.adjustCounter(key, amount);
+        } catch (IllegalStateException e) {     // most likely reason: tx is no longer EXECUTING but we just missed the transition
+            synchronized (this.raft) {
+                this.verifyExecuting();
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -478,7 +506,15 @@ public class RaftKVTransaction implements KVTransaction {
 
     @Override
     public void apply(Mutations mutations) {
-        this.view.apply(mutations);
+        this.fastVerifyExecuting();
+        try {
+            this.view.apply(mutations);
+        } catch (IllegalStateException e) {     // most likely reason: tx is no longer EXECUTING but we just missed the transition
+            synchronized (this.raft) {
+                this.verifyExecuting();
+            }
+            throw e;
+        }
     }
 
     private void fastVerifyExecuting() {
