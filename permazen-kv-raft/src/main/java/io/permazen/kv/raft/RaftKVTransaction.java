@@ -224,9 +224,7 @@ public class RaftKVTransaction implements KVTransaction {
         synchronized (this.raft) {
             assert state.compareTo(this.state) >= 0;
             if (this.state.equals(TxState.EXECUTING) && !this.state.equals(state)) {
-                synchronized (this.view) {
-                    this.view.setReadOnly();
-                }
+                this.view.setReadOnly();
                 this.snapshotRefs.unref();
                 this.snapshotRefs = null;
             }
