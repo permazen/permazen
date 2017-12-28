@@ -1,4 +1,4 @@
-Version Next
+Version 4.0.2 Released December 28, 2017
 
     - Fixed performance bug in RaftKVDatabase when under many simultaneous transactions
     - Added Spring support for legacy application/x-jsimpledb-transaction MIME type
