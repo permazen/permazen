@@ -260,7 +260,7 @@ public class JClass<T> extends JSchemaObject {
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
-            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, elementField,
+            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, annotation, elementField,
               "set field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
@@ -300,7 +300,7 @@ public class JClass<T> extends JSchemaObject {
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
-            final JListField jfield = new JListField(this.jdb, fieldName, storageId, elementField,
+            final JListField jfield = new JListField(this.jdb, fieldName, storageId, annotation, elementField,
               "list field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
@@ -346,7 +346,7 @@ public class JClass<T> extends JSchemaObject {
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create map field
-            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, keyField, valueField,
+            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, annotation, keyField, valueField,
               "map field `" + fieldName + "' in object type `" + this.name + "'", getter);
             keyField.parent = jfield;
             valueField.parent = jfield;

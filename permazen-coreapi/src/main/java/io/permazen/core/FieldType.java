@@ -18,6 +18,7 @@ import io.permazen.util.ParseContext;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 /**
  * Defines the encoding, ordering, and range of possible values for a {@link SimpleField}.
@@ -41,6 +42,8 @@ import java.util.Comparator;
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
  *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
+ *  <li>Instances provide a {@linkplain #getHexPattern regular expression} that exactly matches a binary encoded value
+ *      when expressed as a hexadecimal string (this is used to facilitate limited manipulation at the key/value layer)</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
  *      with both a {@linkplain #toString(Object) regular string form} for non-null values and a
  *      {@linkplain #toParseableString self-delimiting string form} for any value including null
@@ -297,6 +300,24 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      * @throws IllegalArgumentException if the input is invalid
      */
     public abstract T fromParseableString(ParseContext context);
+
+    /**
+     * Get a {@link Pattern} that exactly matches a binary encoded value when expressed as a hexadecimal string.
+     *
+     * <p>
+     * Restrictions:
+     * <ul>
+     *  <li>The returned pattern should match even when there are additional characters after the encoded value.
+     *      In other words, it must not end with a {@code $} anchor.</li>
+     *  <li>Any parenthesized groups must be non-capturing</li>
+     * </ul>
+     *
+     * @return patten matching binary-encoded values
+     */
+    //public abstract Pattern getHexPattern();
+    public Pattern getHexPattern() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Attempt to convert a value from the given {@link FieldType} into a value of this {@link FieldType}.

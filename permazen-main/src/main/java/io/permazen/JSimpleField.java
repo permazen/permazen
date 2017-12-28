@@ -50,10 +50,9 @@ public class JSimpleField extends JField {
     @SuppressWarnings("unchecked")
     JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
-        super(jdb, name, storageId, description, getter);
+        super(jdb, name, storageId, annotation, description, getter);
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         Preconditions.checkArgument(fieldType != null, "null fieldType");
-        Preconditions.checkArgument(annotation != null, "null annotation");
         this.typeToken = typeToken;
         this.fieldType = fieldType;
         this.indexed = indexed;
@@ -80,6 +79,11 @@ public class JSimpleField extends JField {
             Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.fieldType);
         } else
             this.uniqueExcludes = null;
+    }
+
+    @Override
+    public io.permazen.annotation.JField getDeclaringAnnotation() {
+        return (io.permazen.annotation.JField)super.getDeclaringAnnotation();
     }
 
     /**

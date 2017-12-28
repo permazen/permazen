@@ -28,8 +28,13 @@ public class JCounterField extends JField {
 
     JCounterField(Permazen jdb, String name, int storageId,
       io.permazen.annotation.JField annotation, String description, Method getter) {
-        super(jdb, name, storageId, description, getter);
+        super(jdb, name, storageId, annotation, description, getter);
         this.upgradeConversion = annotation.upgradeConversion();
+    }
+
+    @Override
+    public io.permazen.annotation.JField getDeclaringAnnotation() {
+        return (io.permazen.annotation.JField)super.getDeclaringAnnotation();
     }
 
     @Override

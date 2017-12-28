@@ -6,11 +6,13 @@
 package io.permazen;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.ObjId;
 import io.permazen.schema.SchemaField;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +31,15 @@ import org.objectweb.asm.Type;
 public abstract class JField extends JSchemaObject {
 
     final Method getter;
+    final Annotation annotation;
 
     JSchemaObject parent;                               // either JClass or JComplexField
     boolean requiresDefaultValidation;
 
-    JField(Permazen jdb, String name, int storageId, String description, Method getter) {
+    JField(Permazen jdb, String name, int storageId, Annotation annotation, String description, Method getter) {
         super(jdb, name, storageId, description);
+        Preconditions.checkArgument(annotation != null, "null annotation");
+        this.annotation = annotation;
         this.getter = getter;
     }
 
@@ -75,6 +80,19 @@ public abstract class JField extends JSchemaObject {
      */
     public Method getGetter() {
         return this.getter;
+    }
+
+    /**
+     * Get the {@link Annotation} that declared this field.
+     *
+     * <p>
+     * If this field was {@linkplain io.permazen.annotation.PermazenType#autogenFields auto-generated} from an abstract
+     * method with no annotation, a non-null {@link Annotation} is still returned; it will have all default values.
+     *
+     * @return declaring annotation
+     */
+    public Annotation getDeclaringAnnotation() {
+        return this.annotation;
     }
 
     /**

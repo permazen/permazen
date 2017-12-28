@@ -13,6 +13,7 @@ import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.schema.CollectionSchemaField;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,8 +26,9 @@ public abstract class JCollectionField extends JComplexField {
 
     final JSimpleField elementField;
 
-    JCollectionField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, description, getter);
+    JCollectionField(Permazen jdb, String name, int storageId,
+      Annotation annotation, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, annotation, description, getter);
         Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
     }

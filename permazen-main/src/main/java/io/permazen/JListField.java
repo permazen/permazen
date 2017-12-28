@@ -27,8 +27,14 @@ import java.util.List;
  */
 public class JListField extends JCollectionField {
 
-    JListField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, elementField, description, getter);
+    JListField(Permazen jdb, String name, int storageId,
+      io.permazen.annotation.JListField annotation, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, annotation, elementField, description, getter);
+    }
+
+    @Override
+    public io.permazen.annotation.JListField getDeclaringAnnotation() {
+        return (io.permazen.annotation.JListField)super.getDeclaringAnnotation();
     }
 
     @Override

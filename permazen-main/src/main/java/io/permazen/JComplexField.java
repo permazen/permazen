@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.schema.ComplexSchemaField;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -19,8 +20,8 @@ import org.objectweb.asm.ClassWriter;
  */
 public abstract class JComplexField extends JField {
 
-    JComplexField(Permazen jdb, String name, int storageId, String description, Method getter) {
-        super(jdb, name, storageId, description, getter);
+    JComplexField(Permazen jdb, String name, int storageId, Annotation annotation, String description, Method getter) {
+        super(jdb, name, storageId, annotation, description, getter);
         Preconditions.checkArgument(name != null, "null name");
     }
 

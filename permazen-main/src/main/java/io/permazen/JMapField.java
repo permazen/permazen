@@ -36,13 +36,18 @@ public class JMapField extends JComplexField {
     final JSimpleField keyField;
     final JSimpleField valueField;
 
-    JMapField(Permazen jdb, String name, int storageId,
+    JMapField(Permazen jdb, String name, int storageId, io.permazen.annotation.JMapField annotation,
       JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
-        super(jdb, name, storageId, description, getter);
+        super(jdb, name, storageId, annotation, description, getter);
         Preconditions.checkArgument(keyField != null, "null keyField");
         Preconditions.checkArgument(valueField != null, "null valueField");
         this.keyField = keyField;
         this.valueField = valueField;
+    }
+
+    @Override
+    public io.permazen.annotation.JMapField getDeclaringAnnotation() {
+        return (io.permazen.annotation.JMapField)super.getDeclaringAnnotation();
     }
 
     /**

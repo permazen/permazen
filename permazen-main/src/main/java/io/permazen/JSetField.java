@@ -30,8 +30,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 public class JSetField extends JCollectionField {
 
-    JSetField(Permazen jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, elementField, description, getter);
+    JSetField(Permazen jdb, String name, int storageId,
+      io.permazen.annotation.JSetField annotation, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, annotation, elementField, description, getter);
+    }
+
+    @Override
+    public io.permazen.annotation.JSetField getDeclaringAnnotation() {
+        return (io.permazen.annotation.JSetField)super.getDeclaringAnnotation();
     }
 
     @Override
