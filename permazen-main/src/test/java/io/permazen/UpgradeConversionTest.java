@@ -7,17 +7,12 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.Database;
-import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

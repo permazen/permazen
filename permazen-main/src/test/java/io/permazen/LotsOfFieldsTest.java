@@ -6,7 +6,6 @@
 package io.permazen;
 
 import io.permazen.annotation.PermazenType;
-import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.test.TestSupport;
 

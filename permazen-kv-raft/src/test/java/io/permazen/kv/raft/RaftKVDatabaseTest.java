@@ -6,7 +6,6 @@
 package io.permazen.kv.raft;
 
 import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransaction;
 import io.permazen.kv.array.AtomicArrayKVStore;
 import io.permazen.kv.leveldb.LevelDBAtomicKVStore;
 import io.permazen.kv.mvcc.AtomicKVDatabase;
@@ -54,7 +53,8 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
       "arrayCompactSpaceLowWater",
       "arrayCompactSpaceHighWater",
     })
-    public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes, @Optional final String kvstoreType,
+    public void setTestRaftDirPrefix(
+      @Optional String raftDirPrefix, @Optional("5") int numNodes, @Optional final String kvstoreType,
       @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
       @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
       @Optional("true") boolean followerProbingEnabled,

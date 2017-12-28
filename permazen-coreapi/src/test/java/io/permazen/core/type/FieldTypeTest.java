@@ -172,6 +172,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                     break;
                 assert false : String.format(
                   "string encoding \"%s\" of value %s contains illegal character 0x%04x at index %d", s, value, ch, i);
+                break;
             }
         }
     }

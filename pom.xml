@@ -822,6 +822,20 @@
                             <goal>check</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>default-verify-test</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <linkXRef>false</linkXRef>
+                            <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 

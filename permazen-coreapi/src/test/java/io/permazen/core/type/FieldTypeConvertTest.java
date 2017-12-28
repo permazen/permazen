@@ -10,21 +10,7 @@ import com.google.common.net.InetAddresses;
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
-import java.io.File;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.Date;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -167,7 +153,6 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             { "" + 0x800000, "" + 0x7fffff, "" + 0xffffff, "" + 0, "" + 1, "" + 0xffff1234 },
                 }
             },
-
 
             {
                 "float",        new Object[]  { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -1.0f,

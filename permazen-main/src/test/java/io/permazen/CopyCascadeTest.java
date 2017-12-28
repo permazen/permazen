@@ -9,7 +9,6 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
-import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.test.TestSupport;
 

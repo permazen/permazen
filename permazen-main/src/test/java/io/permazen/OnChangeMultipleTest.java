@@ -7,8 +7,8 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldChange;

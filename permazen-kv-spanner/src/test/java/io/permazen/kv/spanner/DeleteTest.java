@@ -7,8 +7,6 @@ package io.permazen.kv.spanner;
 
 import com.google.cloud.spanner.SpannerOptions;
 
-import io.permazen.kv.KVDatabase;
-import io.permazen.kv.KVTransaction;
 import io.permazen.kv.test.KVTestSupport;
 import io.permazen.util.ByteUtil;
 

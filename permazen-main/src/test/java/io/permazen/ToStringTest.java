@@ -8,8 +8,6 @@ package io.permazen;
 import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

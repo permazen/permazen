@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.JTransient;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;

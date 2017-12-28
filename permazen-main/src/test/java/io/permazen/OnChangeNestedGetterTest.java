@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
 

@@ -10,7 +10,6 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**

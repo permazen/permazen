@@ -522,10 +522,16 @@ public class ExprParseTest extends TestSupport {
 
     public static class ClassWithFields {
 
+        // CHECKSTYLE OFF: StaticVariableNameCheck
+        // CHECKSTYLE OFF: VisibilityModifierCheck
+        // CHECKSTYLE OFF: MemberNameCheck
         public static int public_static = 123;
-        public int public_instance = 456;
         private static int private_static = 789;
+        public int public_instance = 456;
         private int private_instance = 333;
+        // CHECKSTYLE ON: StaticVariableNameCheck
+        // CHECKSTYLE ON: VisibilityModifierCheck
+        // CHECKSTYLE ON: MemberNameCheck
 
     }
 }

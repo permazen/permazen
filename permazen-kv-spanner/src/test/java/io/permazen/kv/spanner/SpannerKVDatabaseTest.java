@@ -7,10 +7,8 @@ package io.permazen.kv.spanner;
 
 import com.google.cloud.spanner.SpannerOptions;
 
-import io.permazen.kv.KVDatabase;
 import io.permazen.kv.test.KVDatabaseTest;
 
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;

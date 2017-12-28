@@ -11,7 +11,6 @@ import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeletedObjectException;
-import io.permazen.core.ObjId;
 import io.permazen.core.ReferencedObjectException;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.index.Index;

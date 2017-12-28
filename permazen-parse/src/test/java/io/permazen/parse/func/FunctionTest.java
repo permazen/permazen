@@ -6,8 +6,8 @@
 package io.permazen.parse.func;
 
 import io.permazen.JObject;
-import io.permazen.Permazen;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.Session;
 import io.permazen.ValidationMode;
 import io.permazen.annotation.PermazenType;

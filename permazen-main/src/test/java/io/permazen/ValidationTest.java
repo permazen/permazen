@@ -7,8 +7,8 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnValidate;
+import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.lang.annotation.ElementType;

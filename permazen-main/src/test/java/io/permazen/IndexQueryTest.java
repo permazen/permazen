@@ -308,8 +308,8 @@ public class IndexQueryTest extends TestSupport {
     public interface HasAge {
 
         @JField(indexed = true)
-        public abstract int getAge();
-        public abstract void setAge(int age);
+        int getAge();
+        void setAge(int age);
     }
 
     @PermazenType(storageId = 30)

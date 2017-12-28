@@ -11,7 +11,6 @@ import io.permazen.kv.test.KVDatabaseTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 import org.testng.Assert;

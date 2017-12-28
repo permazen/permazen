@@ -6,8 +6,8 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnDelete;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.test.TestSupport;
 

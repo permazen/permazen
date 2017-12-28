@@ -6,10 +6,9 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnVersionChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.core.EnumField;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;

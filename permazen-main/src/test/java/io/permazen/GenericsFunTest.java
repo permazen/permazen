@@ -8,9 +8,8 @@ package io.permazen;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
-import io.permazen.change.FieldChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
 

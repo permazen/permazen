@@ -6,8 +6,8 @@
 package io.permazen.spring;
 
 import io.permazen.JObject;
-import io.permazen.Permazen;
 import io.permazen.JTransaction;
+import io.permazen.Permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.StaleTransactionException;

@@ -6,26 +6,16 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.annotation.OnChange;
-import io.permazen.change.FieldChange;
-import io.permazen.change.ListFieldChange;
-import io.permazen.change.SetFieldChange;
-import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
-import io.permazen.tuple.Tuple2;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**

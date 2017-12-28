@@ -11,7 +11,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.index.Index;
 import io.permazen.schema.NameIndex;
-import io.permazen.schema.ReferenceSchemaField;;
+import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
@@ -144,13 +144,13 @@ public class InterfaceTest extends TestSupport {
 
     @PermazenType
     public interface Animal {
-        public int getNumLegs();
-        public void setNumLegs(int numLegs);
+        int getNumLegs();
+        void setNumLegs(int numLegs);
     }
 
     public interface CanReason {
-        public float getIQ();
-        public void setIQ(float iq);
+        float getIQ();
+        void setIQ(float iq);
     }
 
     public static class ContainerClass {

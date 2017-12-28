@@ -5,7 +5,6 @@
 
 package io.permazen;
 
-
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;

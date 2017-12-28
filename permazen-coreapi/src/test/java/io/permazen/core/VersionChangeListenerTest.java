@@ -11,7 +11,6 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
-import java.util.Map;
 import java.util.NavigableSet;
 
 import org.testng.Assert;

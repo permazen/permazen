@@ -9,8 +9,8 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
-import io.permazen.annotation.PermazenType;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.change.Change;
 import io.permazen.change.ChangeCopier;
 import io.permazen.change.FieldChange;
@@ -655,7 +655,7 @@ public class OnChangeTest extends TestSupport {
 
 // Inverse Restricted Test
 
-    public static interface HasA {
+    public interface HasA {
         A getA();
         void setA(A a);
     }

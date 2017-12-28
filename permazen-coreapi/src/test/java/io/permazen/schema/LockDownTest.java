@@ -5,17 +5,13 @@
 
 package io.permazen.schema;
 
-import com.google.common.base.Converter;
-
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
 
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LockDownTest extends CoreAPITestSupport {

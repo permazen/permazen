@@ -125,7 +125,7 @@ public class InvertReferencePathTest extends TestSupport {
 
 // Model Classes
 
-    public static interface HasA {
+    public interface HasA {
         A getA();
         void setA(A a);
     }
