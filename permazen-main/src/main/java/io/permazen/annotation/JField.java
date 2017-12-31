@@ -370,8 +370,8 @@ public @interface JField {
      *
      * <p>
      * The specified values must be valid {@link String} encodings of the associated field (as returned by
-     * {@link io.permazen.core.FieldType#toString(Object) FieldType.toString()}), the constant {@link #NULL}
-     * to indicate null values. For example:
+     * {@link io.permazen.core.FieldType#toString(Object) FieldType.toString(T)}), or the constant {@link #NULL}
+     * to indicate a null value. For example:
      * <pre>
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
      *  public abstract float getPriority();
