@@ -568,6 +568,16 @@
 
         <!-- For Berkeley DB Java Edition -->
         <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>interval:259200</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
             <id>oracleReleases</id>
             <name>Oracle Released Java Packages</name>
             <url>http://download.oracle.com/maven</url>
