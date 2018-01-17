@@ -1,5 +1,6 @@
 Version Next
 
+    - Removed CLI functions obsoleted by Java 8: apply(), filter(), foreach(), transform()
     - Fixed potential deadlock due to lock order reversal in KeyWatchTracker
 
 Version 4.0.2 Released December 28, 2017
