@@ -65,6 +65,8 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 public class KeyWatchTracker implements Closeable {
 
+    // Note locking order: KeyInfo, then KeyWatchTracker
+
     /**
      * Default capacity ({@value #DEFAULT_CAPACITY}).
      */
@@ -141,7 +143,7 @@ public class KeyWatchTracker implements Closeable {
      * @return a {@link ListenableFuture} that returns {@code key} when the value associated with {@code key} is modified
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public synchronized ListenableFuture<Void> register(byte[] key) {
+    public ListenableFuture<Void> register(byte[] key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -187,7 +189,7 @@ public class KeyWatchTracker implements Closeable {
         // Extract KeyInfo object for this key
         final KeyInfo keyInfo;
         synchronized (this) {
-            if ((keyInfo = KeyWatchTracker.this.keyInfos.remove(key)) == null)
+            if ((keyInfo = this.keyInfos.remove(key)) == null)
                 return false;
         }
 
@@ -212,7 +214,7 @@ public class KeyWatchTracker implements Closeable {
         final ArrayList<KeyInfo> triggerList = new ArrayList<>();
         synchronized (this) {
             for (byte[] key : keys) {
-                final KeyInfo keyInfo = KeyWatchTracker.this.keyInfos.remove(key);
+                final KeyInfo keyInfo = this.keyInfos.remove(key);
                 if (keyInfo != null)
                     triggerList.add(keyInfo);
             }
