@@ -13,6 +13,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -58,6 +59,35 @@ public class BadIndexQueryTest extends TestSupport {
             } catch (IllegalArgumentException e) {
                 this.log.debug("got expected " + e);
             }
+
+            jtx.commit();
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testWrongKeyType() throws Exception {
+        final Permazen jdb = BasicTest.getPermazen(DataFile.class, Analysis.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Analysis a = jtx.create(Analysis.class);
+            a.setState(Analysis.State.AAA);
+
+            // Wrong map key enum
+            jtx.queryIndex(Analysis.class, "state", Analysis.State.class)
+              .asMap().get(DataFile.State.XXX);
+
+            // Wrong set enum
+            jtx.queryIndex(Analysis.class, "state", Analysis.State.class)
+              .asMap().keySet().contains(DataFile.State.XXX);
+
+            // Wrong Map.Entry enum
+            jtx.queryIndex(Analysis.class, "state", Analysis.State.class)
+              .asMap().entrySet().contains(new AbstractMap.SimpleEntry<DataFile.State, Void>(DataFile.State.XXX, null));
 
             jtx.commit();
         } finally {

@@ -9,9 +9,14 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Converts a map's entry set.
+ *
+ * <p>
+ * Supplied {@link Converter}s may throw {@link ClassCastException} or {@link IllegalArgumentException}
+ * if given an objects whose runtime type does not match the expected type.
  *
  * @param <K> key type of this map
  * @param <V> value type of this map
@@ -63,7 +68,7 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
         if (key != null) {
             try {
                 wkey = this.keyConverter.convert(key);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return false;
             }
         }
@@ -72,10 +77,15 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
         final WV wvalue = this.map.get(wkey);
         if (wvalue == null && !this.map.containsKey(wkey))
             return false;
-        final V value = this.valueConverter.reverse().convert(wvalue);
+        final V value;
+        try {
+            value = this.valueConverter.reverse().convert(wvalue);
+        } catch (IllegalArgumentException | ClassCastException e) {
+            return false;
+        }
 
         // Compare original value to unwrapped value
-        return value != null ? value.equals(entry.getValue()) : entry.getValue() == null;
+        return Objects.equals(value, entry.getValue());
     }
 
     @Override
@@ -98,7 +108,7 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
         if (key != null) {
             try {
                 wkey = this.keyConverter.convert(key);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return false;
             }
         }
@@ -107,10 +117,15 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
         final WV wvalue = this.map.get(wkey);
         if (wvalue == null && !this.map.containsKey(wkey))
             return false;
-        final V value = this.valueConverter.reverse().convert(wvalue);
+        final V value;
+        try {
+            value = this.valueConverter.reverse().convert(wvalue);
+        } catch (IllegalArgumentException | ClassCastException e) {
+            return false;
+        }
 
         // Compare original value to unwrapped value and remove entry if it matches
-        if (value != null ? value.equals(entry.getValue()) : entry.getValue() == null) {
+        if (Objects.equals(value, entry.getValue())) {
             this.map.remove(wkey);
             return true;
         }

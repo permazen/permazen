@@ -18,6 +18,10 @@ import java.util.Spliterator;
 /**
  * Provides a transformed view of a wrapped {@link NavigableSet} using a strictly invertable {@link Converter}.
  *
+ * <p>
+ * Supplied {@link Converter}s may throw {@link ClassCastException} or {@link IllegalArgumentException}
+ * if given an objects whose runtime type does not match the expected type.
+ *
  * @param <E> element type of this set
  * @param <W> element type of the wrapped set
  */
@@ -82,7 +86,7 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
         if (obj != null) {
             try {
                 wobj = this.converter.convert((E)obj);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return false;
             }
         }
@@ -111,7 +115,7 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
         if (obj != null) {
             try {
                 wobj = this.converter.convert((E)obj);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return false;
             }
         }

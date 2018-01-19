@@ -18,6 +18,10 @@ import java.util.Set;
 /**
  * Provides a transformed view of a wrapped {@link NavigableMap} using a strictly invertable {@link Converter}.
  *
+ * <p>
+ * Supplied {@link Converter}s may throw {@link ClassCastException} or {@link IllegalArgumentException}
+ * if given an objects whose runtime type does not match the expected type.
+ *
  * @param <K> key type of this map
  * @param <V> value type of this map
  * @param <WK> key type of wrapped map
@@ -80,7 +84,7 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
         if (key != null) {
             try {
                 wkey = this.keyConverter.convert((K)key);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return null;
             }
         }
@@ -113,7 +117,7 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
         if (key != null) {
             try {
                 wkey = this.keyConverter.convert((K)key);
-            } catch (ClassCastException e) {
+            } catch (IllegalArgumentException | ClassCastException e) {
                 return null;
             }
         }
