@@ -59,6 +59,10 @@ class IndexQueryInfo {
         if (path.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 
+        // Verify the field is actually indexed in the specified type
+        if (!path.someTargetFieldIndexed)
+            throw new IllegalArgumentException("invalid index query on non-indexed field `" + fieldName + "' in " + startType);
+
         // Get field index info (this verifies the field is indexed); keyType != null iff the field is a map value field
         final SimpleFieldIndexInfo fieldIndexInfo = jdb.getIndexInfo(path.targetFieldStorageId,
           keyType != null ? MapValueIndexInfo.class : SimpleFieldIndexInfo.class);

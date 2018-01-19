@@ -253,6 +253,8 @@ public class ReferencePath {
     final Set<Cursor> cursors;
     final String path;
 
+    boolean someTargetFieldIndexed;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private volatile KeyRanges[] pathKeyRanges;
@@ -440,8 +442,9 @@ public class ReferencePath {
                   + "' is ambiguous: " + completedCursors.stream().map(Cursor::getField).collect(Collectors.toSet()));
             }
 
-            // Calculate all possible target field types
+            // Calculate all possible target field types, and whether any target field is indexed
             final Set<TypeToken<?>> targetFieldTypesSet = completedCursors.stream()
+              .peek(cursor -> this.someTargetFieldIndexed |= cursor.isIndexedSimpleField())
               .map(Cursor::getField)
               .map(JField::getTypeToken)
               .collect(Collectors.toSet());
@@ -863,6 +866,10 @@ public class ReferencePath {
 
         public boolean isReverseStep() {
             return this.reverseStep;
+        }
+
+        public boolean isIndexedSimpleField() {
+            return this.jfield instanceof JSimpleField && ((JSimpleField)this.jfield).indexed;
         }
 
         /**
