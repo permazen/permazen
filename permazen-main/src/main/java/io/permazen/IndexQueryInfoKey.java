@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 class IndexQueryInfoKey {
 
+    private final String name;
+    private final boolean composite;
     private final Class<?> targetType;
     private final Class<?>[] valueTypes;
-    private final boolean composite;
-    private final String name;
 
     IndexQueryInfoKey(String name, boolean composite, Class<?> targetType, Class<?>... valueTypes) {
         assert name != null;
@@ -41,6 +41,16 @@ class IndexQueryInfoKey {
     }
 
 // Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+          + "[name=" + this.name
+          + ",composite=" + this.composite
+          + ",targetType=" + this.targetType
+          + ",valueTypes=" + Arrays.asList(this.valueTypes)
+          + "]";
+    }
 
     @Override
     public boolean equals(Object obj) {
