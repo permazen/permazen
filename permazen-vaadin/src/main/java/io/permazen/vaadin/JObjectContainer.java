@@ -5,6 +5,7 @@
 
 package io.permazen.vaadin;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
@@ -25,6 +26,7 @@ import io.permazen.JTransaction;
 import io.permazen.Permazen;
 import io.permazen.ValidationMode;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.util.ObjIdSet;
@@ -42,6 +44,7 @@ import org.dellroad.stuff.vaadin7.PropertyExtractor;
 import org.dellroad.stuff.vaadin7.ProvidesPropertyScanner;
 import org.dellroad.stuff.vaadin7.SimpleItem;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
+import org.dellroad.stuff.vaadin7.SortingPropertyExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +105,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 @SuppressWarnings("serial")
-public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
+public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> implements SortingPropertyExtractor<JObject> {
 
     /**
      * Container property name for the reference label property, which has type {@link Component}.
@@ -298,7 +301,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         return pdefs.values();
     }
 
-// PropertyExtractor
+// SortingPropertyExtractor
 
     @Override
     @SuppressWarnings("unchecked")
@@ -308,6 +311,24 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         if (this.propertyScanner == null)
             throw new IllegalArgumentException("unknown property: " + propertyDef.getName());
         return JObjectContainer.extractProperty(this.propertyScanner.getPropertyExtractor(), propertyDef, jobj);
+    }
+
+    @Override
+    public boolean canSort(PropertyDef<?> propertyDef) {
+        if (propertyDef instanceof ObjPropertyDef)
+            return ((ObjPropertyDef<?>)propertyDef).canSort();
+        if (this.propertyScanner == null)
+            return false;
+        return this.propertyScanner.getPropertyExtractor().canSort(propertyDef);
+    }
+
+    @Override
+    public int sort(PropertyDef<?> propertyDef, JObject jobj1, JObject jobj2) {
+        if (propertyDef instanceof ObjPropertyDef)
+            return ((ObjPropertyDef<?>)propertyDef).sort(jobj1, jobj2);
+        if (this.propertyScanner == null)
+            return 0;
+        return this.propertyScanner.getPropertyExtractor().sort(propertyDef, jobj1, jobj2);
     }
 
     @SuppressWarnings("unchecked")
@@ -339,6 +360,14 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         }
 
         public abstract T extract(JObject jobj);
+
+        public boolean canSort() {
+            return true;
+        }
+
+        public int sort(JObject jobj1, JObject jobj2) {
+            throw new UnsupportedOperationException();
+        }
     }
 
 // ObjIdPropertyDef
@@ -356,6 +385,11 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         public SizedLabel extract(JObject jobj) {
             return new SizedLabel("<code>" + jobj.getObjId() + "</code>", ContentMode.HTML);
         }
+
+        @Override
+        public int sort(JObject jobj1, JObject jobj2) {
+            return jobj1.getObjId().compareTo(jobj2.getObjId());
+        }
     }
 
 // ObjTypePropertyDef
@@ -371,8 +405,17 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
         @Override
         public SizedLabel extract(JObject jobj) {
-            return new SizedLabel(jobj.getTransaction().getTransaction().getSchemas()
-              .getVersion(jobj.getSchemaVersion()).getObjType(jobj.getObjId().getStorageId()).getName());
+            return new SizedLabel(this.getTypeName(jobj));
+        }
+
+        @Override
+        public int sort(JObject jobj1, JObject jobj2) {
+            return this.getTypeName(jobj1).compareTo(this.getTypeName(jobj2));
+        }
+
+        private String getTypeName(JObject jobj) {
+            return jobj.getTransaction().getTransaction().getSchemas()
+              .getVersion(jobj.getSchemaVersion()).getObjType(jobj.getObjId().getStorageId()).getName();
         }
     }
 
@@ -391,6 +434,11 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         public SizedLabel extract(JObject jobj) {
             return new SizedLabel("" + jobj.getSchemaVersion());
         }
+
+        @Override
+        public int sort(JObject jobj1, JObject jobj2) {
+            return Integer.compare(jobj1.getSchemaVersion(), jobj2.getSchemaVersion());
+        }
     }
 
 // RefLabelPropertyDef
@@ -406,15 +454,24 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
         @Override
         public Component extract(JObject jobj) {
+            final Object value = this.getValue(jobj);
+            return value instanceof Component ? (Component)value : new SizedLabel(String.valueOf(value));
+        }
+
+        @Override
+        public int sort(JObject jobj1, JObject jobj2) {
+            final Object value1 = this.getValue(jobj1);
+            final Object value2 = this.getValue(jobj2);
+            return value1 instanceof Component || value2 instanceof Component ?
+              0 : String.valueOf(value1).compareTo(String.valueOf(value2));
+        }
+
+        private Object getValue(JObject jobj) {
             final ReferenceMethodInfoCache.PropertyInfo propertyInfo
               = ReferenceMethodInfoCache.getInstance().getReferenceMethodInfo(jobj.getClass());
             if (propertyInfo == ReferenceMethodInfoCache.NOT_FOUND)
                 return new ObjIdPropertyDef().extract(jobj);
-            final Object value = JObjectContainer.extractProperty(
-              propertyInfo.getPropertyExtractor(), propertyInfo.getPropertyDef(), jobj);
-            if (value instanceof Component)
-                return (Component)value;
-            return new SizedLabel(String.valueOf(value));
+            return JObjectContainer.extractProperty(propertyInfo.getPropertyExtractor(), propertyInfo.getPropertyDef(), jobj);
         }
     }
 
@@ -436,9 +493,8 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
         @Override
         public Component extract(final JObject jobj) {
-            final JField jfield = JObjectContainer.this.jdb.getJClass(jobj.getObjId()).getJField(this.storageId, JField.class);
             try {
-                return jfield.visit(new JFieldSwitchAdapter<Component>() {
+                return this.getJField(jobj).visit(new JFieldSwitchAdapter<Component>() {
 
                     @Override
                     public Component caseJSimpleField(JSimpleField field) {
@@ -476,6 +532,69 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         }
 
         @Override
+        public boolean canSort() {
+            return true;
+        }
+
+        @Override
+        public int sort(JObject jobj1, JObject jobj2) {
+            try {
+
+                // Get fields
+                final JField jfield1 = this.getJField(jobj1);
+                final JField jfield2 = this.getJField(jobj2);
+
+                // Compare using core API field type
+                return jfield1.visit(new JFieldSwitchAdapter<Integer>() {
+
+                    @Override
+                    public Integer caseJSimpleField(JSimpleField field1) {
+                        if (!(jfield2 instanceof JSimpleField))
+                            return 0;
+                        final JSimpleField field2 = (JSimpleField)jfield2;
+                        final FieldType<?> fieldType1 = field1.getFieldType();
+                        final FieldType<?> fieldType2 = field2.getFieldType();
+                        if (!fieldType1.equals(fieldType2))
+                            return 0;
+                        Object value1 = field1.getValue(jobj1);
+                        Object value2 = field2.getValue(jobj2);
+                        final Converter<?, ?> converter1 = field1.getConverter(jobj1.getTransaction());
+                        if (converter1 != null)
+                            value1 = this.convert(converter1.reverse(), value1);
+                        final Converter<?, ?> converter2 = field2.getConverter(jobj2.getTransaction());
+                        if (converter2 != null)
+                            value2 = this.convert(converter2.reverse(), value2);
+                        return this.compare(fieldType1, value1, value2);
+                    }
+
+                    @SuppressWarnings("unchecked")
+                    private <R, S> S convert(Converter<R, S> converter, Object value) {
+                        return converter.convert((R)value);
+                    }
+
+                    private <S> int compare(FieldType<S> fieldType, Object v1, Object v2) {
+                        return fieldType.compare(fieldType.validate(v1), fieldType.validate(v2));
+                    }
+
+                    @Override
+                    public Integer caseJCounterField(JCounterField field1) {
+                        if (!(jfield2 instanceof JCounterField))
+                            return 0;
+                        final JCounterField field2 = (JCounterField)jfield2;
+                        return Long.compare(field1.getValue(jobj1).get(), field2.getValue(jobj2).get());
+                    }
+
+                    @Override
+                    protected Integer caseJField(JField field) {
+                        return 0;
+                    }
+                });
+            } catch (UnknownFieldException e) {
+                return 0;
+            }
+        }
+
+        @Override
         public boolean equals(Object obj) {
             if (obj == this)
                 return true;
@@ -488,6 +607,10 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
         @Override
         public int hashCode() {
             return super.hashCode() ^ this.storageId;
+        }
+
+        private JField getJField(final JObject jobj) {
+            return JObjectContainer.this.jdb.getJClass(jobj.getObjId()).getJField(this.storageId, JField.class);
         }
 
         private Component handleCollectionField(Collection<?> col) {
