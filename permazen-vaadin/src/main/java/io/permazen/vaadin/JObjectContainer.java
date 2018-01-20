@@ -137,7 +137,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     private final RefLabelPropertyDef refLabelPropertyDef = new RefLabelPropertyDef();
 
     private Class<?> type;
-    private ProvidesPropertyScanner<?> propertyScanner;
+    private ProvidesPropertyScanner<JObject> propertyScanner;
     private List<String> orderedPropertyNames;
 
     /**
@@ -170,9 +170,10 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
      * @param type Java type restriction, or null for none
      * @param <T> Java type
      */
+    @SuppressWarnings("unchecked")
     public <T> void setType(Class<T> type) {
         this.type = type;
-        this.propertyScanner = this.type != null ? new ProvidesPropertyScanner<T>(/*this.*/type) : null;
+        this.propertyScanner = this.type != null ? (ProvidesPropertyScanner<JObject>)new ProvidesPropertyScanner<T>(type) : null;
         final ArrayList<PropertyDef<?>> propertyDefs = new ArrayList<>(this.buildPropertyDefs());
         this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs, PropertyDef::getName));
         this.setProperties(propertyDefs);
@@ -310,9 +311,9 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     }
 
     @SuppressWarnings("unchecked")
-    private static <V> V extractProperty(PropertyExtractor<?> propertyExtractor, PropertyDef<V> propertyDef, JObject jobj) {
+    private static <V> V extractProperty(PropertyExtractor<JObject> propertyExtractor, PropertyDef<V> propertyDef, JObject jobj) {
         try {
-            return ((PropertyExtractor<JObject>)propertyExtractor).getPropertyValue(jobj, propertyDef);
+            return propertyExtractor.getPropertyValue(jobj, propertyDef);
         } catch (DeletedObjectException e) {
             try {
                 return propertyDef.getType().cast(new SizedLabel("<i>Unavailable</i>", ContentMode.HTML));
@@ -405,7 +406,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
         @Override
         public Component extract(JObject jobj) {
-            final ReferenceMethodInfoCache.PropertyInfo<?> propertyInfo
+            final ReferenceMethodInfoCache.PropertyInfo propertyInfo
               = ReferenceMethodInfoCache.getInstance().getReferenceMethodInfo(jobj.getClass());
             if (propertyInfo == ReferenceMethodInfoCache.NOT_FOUND)
                 return new ObjIdPropertyDef().extract(jobj);

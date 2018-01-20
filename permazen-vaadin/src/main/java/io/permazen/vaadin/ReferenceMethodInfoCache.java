@@ -11,6 +11,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 
+import io.permazen.JObject;
+
 import org.dellroad.stuff.vaadin7.PropertyDef;
 import org.dellroad.stuff.vaadin7.PropertyExtractor;
 import org.dellroad.stuff.vaadin7.ProvidesPropertyScanner;
@@ -23,15 +25,15 @@ import org.slf4j.LoggerFactory;
  */
 final class ReferenceMethodInfoCache {
 
-    static final PropertyInfo<Void> NOT_FOUND = new PropertyInfo<>(null, null);
+    static final PropertyInfo NOT_FOUND = new PropertyInfo(null, null);
 
     private static final ReferenceMethodInfoCache INSTANCE = new ReferenceMethodInfoCache();
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final LoadingCache<Class<?>, PropertyInfo<?>> cache = CacheBuilder.newBuilder().weakKeys().build(
-      new CacheLoader<Class<?>, PropertyInfo<?>>() {
+    private final LoadingCache<Class<?>, PropertyInfo> cache = CacheBuilder.newBuilder().weakKeys().build(
+      new CacheLoader<Class<?>, PropertyInfo>() {
         @Override
-        public PropertyInfo<?> load(Class<?> type) {
+        public PropertyInfo load(Class<?> type) {
             return ReferenceMethodInfoCache.this.findReferenceLablePropertyInfo(type);
         }
     });
@@ -52,27 +54,28 @@ final class ReferenceMethodInfoCache {
      * @throws IllegalArgumentException if {@code type} is null
      */
     @SuppressWarnings("unchecked")
-    public <T> PropertyInfo<T> getReferenceMethodInfo(Class<T> type) {
-        return (PropertyInfo<T>)this.cache.getUnchecked(type);
+    public PropertyInfo getReferenceMethodInfo(Class<?> type) {
+        return this.cache.getUnchecked(type);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> PropertyInfo<T> findReferenceLablePropertyInfo(Class<T> type) {
+    private <T> PropertyInfo findReferenceLablePropertyInfo(Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
         final ProvidesPropertyScanner<T> scanner = new ProvidesPropertyScanner<T>(type);
         final PropertyDef<?> propertyDef = Iterables.find(scanner.getPropertyDefs(),
           pdef -> pdef.getName().equals(JObjectContainer.REFERENCE_LABEL_PROPERTY), null);
-        return propertyDef != null ? new PropertyInfo<T>(propertyDef, scanner.getPropertyExtractor()) : (PropertyInfo<T>)NOT_FOUND;
+        return propertyDef != null ?
+          new PropertyInfo(propertyDef, (PropertyExtractor<JObject>)scanner.getPropertyExtractor()) : NOT_FOUND;
     }
 
 // PropertyInfo
 
-    public static class PropertyInfo<T> {
+    public static class PropertyInfo {
 
         private final PropertyDef<?> propertyDef;
-        private final PropertyExtractor<T> propertyExtractor;
+        private final PropertyExtractor<JObject> propertyExtractor;
 
-        PropertyInfo(PropertyDef<?> propertyDef, PropertyExtractor<T> propertyExtractor) {
+        PropertyInfo(PropertyDef<?> propertyDef, PropertyExtractor<JObject> propertyExtractor) {
             this.propertyDef = propertyDef;
             this.propertyExtractor = propertyExtractor;
         }
@@ -81,7 +84,7 @@ final class ReferenceMethodInfoCache {
             return this.propertyDef;
         }
 
-        public PropertyExtractor<T> getPropertyExtractor() {
+        public PropertyExtractor<JObject> getPropertyExtractor() {
             return this.propertyExtractor;
         }
     }
