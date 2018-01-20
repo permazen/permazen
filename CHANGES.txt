@@ -1,8 +1,9 @@
-Version Next
+Version 4.0.3 Released January 20, 2018
 
     - Removed CLI functions obsoleted by Java 8: apply(), filter(), foreach(), transform()
     - Fixed bug where queryIndex() did not verify the field was actually indexed
     - Fixed potential deadlock due to lock order reversal in KeyWatchTracker
+    - Added support for sorting on database fields in JObjectContainer
 
 Version 4.0.2 Released December 28, 2017
 
