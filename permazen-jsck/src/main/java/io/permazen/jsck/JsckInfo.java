@@ -79,7 +79,12 @@ class JsckInfo implements JsckLogger {
 
     // Handle an issue
     public void handle(Issue issue) {
-        if (this.config.isRepair())
+        this.handle(issue, false);
+    }
+
+    // Handle an issue, with optional forced repair
+    public void handle(Issue issue, boolean force) {
+        if (this.config.isRepair() || force)
             issue.apply(this.kv);
         if (this.handler != null)
             this.handler.accept(issue);

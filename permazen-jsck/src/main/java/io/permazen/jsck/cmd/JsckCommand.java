@@ -49,12 +49,13 @@ public class JsckCommand extends AbstractCommand {
     public String getHelpDetail() {
         return "Options:\n"
           + "   -repair\n"
-          + "       In addition to detecting issues, attempt to repair them; without this flag, no changes are made.\n"
+          + "       In addition to detecting inconsistencies, attempt to repair them; without this flag,\n"
+          + "       inconsistencies are only reported and no changes are made.\n"
           + "   -limit\n"
           + "       Stop after encountering `limit' issues.\n"
           + "   -gc\n"
-          + "       Detect and optionally garbage collect unused schema versions at the end of inspection.\n"
-          + "       Unused schema versions are deleted if the `-repair' flag is also given.\n"
+          + "       Garbage collect any unused schema versions at the end of inspection.\n"
+          + "       Note: this garbage collection will occur even without `-repair'.\n"
           + "   -kv\n"
           + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
           + "   -registry\n"
@@ -72,7 +73,7 @@ public class JsckCommand extends AbstractCommand {
           + "       Increase logging verbosity to show a high level of detail.\n"
           + "   -weak\n"
           + "       For certain key/value stores, use weaker consistency to reduce the chance of conflicts.\n"
-          + "       This flag is ignored if used with `-repair'.\n";
+          + "       This flag is incompatible with `-repair' and/or `-gc'.\n";
     }
 
     @Override

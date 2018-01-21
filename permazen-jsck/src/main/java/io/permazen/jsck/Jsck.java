@@ -521,13 +521,14 @@ public class Jsck {
         }
 
         // Garbage collect schema versions
+        info.info("found " + unusedSchemaVersions.size() + " unused schema version(s)"
+          + (!unusedSchemaVersions.isEmpty() ? ": " + unusedSchemaVersions : ""));
         if (this.config.isGarbageCollectSchemas()) {
-            info.info("found " + unusedSchemaVersions.size() + " unused schema version(s): " + unusedSchemaVersions);
             for (int version : unusedSchemaVersions) {
                 final byte[] key = Layout.getSchemaKey(version);
                 final byte[] value = kv.get(key);
                 if (value != null)
-                    info.handle(new InvalidKey("unused schema version", key, null).setDetail("schema version " + version));
+                    info.handle(new InvalidKey("unused schema version", key, null).setDetail("schema version " + version), true);
             }
         }
     }

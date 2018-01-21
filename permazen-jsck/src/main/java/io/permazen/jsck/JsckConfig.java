@@ -72,16 +72,16 @@ public class JsckConfig {
     }
 
     /**
-     * Determine whether to detect and (if {@linkplain #isRepair repairing}) garbage collect unused schema versions.
+     * Determine whether to garbage collect unused schema versions.
      *
      * <p>
-     * If set, at the end of inspection any unused schema versions will be reported.
-     * If {@link #isRepair} returns true, they will also be deleted.
+     * If set, at the end of inspection any unused schema versions will be deleted.
+     * Note this occurs even if {@link #isRepair} returns false.
      *
      * <p>
      * Default false.
      *
-     * @return true to detect/garbage collect unused schema versions, otherwise false
+     * @return true to garbage collect unused schema versions, otherwise false
      */
     public boolean isGarbageCollectSchemas() {
         return this.garbageCollectSchemas;
@@ -106,7 +106,11 @@ public class JsckConfig {
     }
 
     /**
-     * Determine whether to repair inconsistencies found.
+     * Determine whether to repair any database inconsistencies found.
+     *
+     * <p>
+     * Without this flag being set, no changes will be made to the key/value store, with the exception of
+     * {@linkplain #isGarbageCollectSchemas garbage collecting schema versions}.
      *
      * <p>
      * Default false.
