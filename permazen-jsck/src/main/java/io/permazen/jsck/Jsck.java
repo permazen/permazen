@@ -522,7 +522,7 @@ public class Jsck {
 
         // Garbage collect schema versions
         if (this.config.isGarbageCollectSchemas()) {
-            info.info("garbage collecting unused schema versions: " + unusedSchemaVersions);
+            info.info("found " + unusedSchemaVersions.size() + " unused schema version(s): " + unusedSchemaVersions);
             for (int version : unusedSchemaVersions) {
                 final byte[] key = Layout.getSchemaKey(version);
                 final byte[] value = kv.get(key);
