@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>4.0.3</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>permazen-kv</artifactId>
     <name>Permazen Key/Value Store Base Classes</name>
