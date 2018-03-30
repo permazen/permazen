@@ -9,10 +9,9 @@ import io.permazen.test.TestSupport;
 
 import java.util.ArrayList;
 
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 public class LongEncoderTest extends TestSupport {
 
@@ -20,10 +19,10 @@ public class LongEncoderTest extends TestSupport {
     public void testRandomLongEncoding(String string) {
         final long value = this.decode(string);
         byte[] encoding = this.encode(value);
-        assertEquals(encoding.length, LongEncoder.encodeLength(value));
-        assertEquals(LongEncoder.decodeLength(encoding[0]), encoding.length);
+        Assert.assertEquals(encoding.length, LongEncoder.encodeLength(value));
+        Assert.assertEquals(LongEncoder.decodeLength(encoding[0]), encoding.length);
         long decoding = this.decode(encoding);
-        assertEquals(decoding, value);
+        Assert.assertEquals(decoding, value);
     }
 
     @Test(dataProvider = "encodings")
@@ -34,26 +33,26 @@ public class LongEncoderTest extends TestSupport {
 
         // Test encoding
         byte[] actual = this.encode(value);
-        assertEquals(actual, expected);
+        Assert.assertEquals(actual, expected);
 
         // Test encodeLength()
-        assertEquals(actual.length, LongEncoder.encodeLength(value));
+        Assert.assertEquals(actual.length, LongEncoder.encodeLength(value));
 
         // Test decoding
         long value2 = this.decode(actual);
-        assertEquals(value2, value);
+        Assert.assertEquals(value2, value);
 
         // Test decodeLength()
-        assertEquals(actual.length, LongEncoder.decodeLength(actual[0]));
-        assertEquals(actual.length, LongEncoder.decodeLength(actual[0] & 0xff));
+        Assert.assertEquals(actual.length, LongEncoder.decodeLength(actual[0]));
+        Assert.assertEquals(actual.length, LongEncoder.decodeLength(actual[0] & 0xff));
     }
 
     @Test(dataProvider = "lengths")
     public void testLongEncodeLength(long value, int expected) {
         final int actual = LongEncoder.encodeLength(value);
-        assertEquals(actual, expected);
+        Assert.assertEquals(actual, expected);
         final byte[] buf = this.encode(value);
-        assertEquals(buf.length, expected);
+        Assert.assertEquals(buf.length, expected);
     }
 
     private long decode(String string) {
