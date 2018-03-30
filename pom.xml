@@ -82,40 +82,58 @@
         <previous.version>4.0.3</previous.version>
 
         <!-- Dependency versions -->
-        <ant.version>1.9.7</ant.version>
-        <asm.version>5.2</asm.version>
-        <aspectj.version>1.8.9</aspectj.version>
+        <ant.version>1.10.2</ant.version>
+        <asm.version>6.0</asm.version>
+        <aspectj.maven-plugin.version>1.11</aspectj.maven-plugin.version>
+        <aspectj.version>1.8.13</aspectj.version>
         <bdb.version>6.4.9</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
-        <commons-codec.version>1.10</commons-codec.version>
+        <commons-codec.version>1.11</commons-codec.version>
         <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
-        <findbugs.version>3.0.1</findbugs.version>
+        <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
         <google-cloud-java.version>0.11.1</google-cloud-java.version>
-        <guava.version>21.0</guava.version>
-        <hawtjni.version>1.14</hawtjni.version>
-        <hibernate-validator.version>6.0.2.Final</hibernate-validator.version>
-        <javax.el.version>3.0.1-b08</javax.el.version>
-        <javax.mail.version>1.5.6</javax.mail.version>
-        <jetty.version>9.2.19.v20160908</jetty.version>
+        <guava.version>24.0-jre</guava.version>
+        <hawtjni.version>1.16</hawtjni.version>
+        <hibernate-validator.version>6.0.7.Final</hibernate-validator.version>
+        <javax.el.version>3.0.1-b09</javax.el.version>
+        <javax.mail.version>1.6.1</javax.mail.version>
+        <jetty.version>9.2.24.v20180105</jetty.version>
         <jline.version>2.14.2</jline.version>
         <leveldb.version>0.9</leveldb.version>
         <log4j.version>1.2.17</log4j.version>
-        <mssql.version>6.1.0.jre8</mssql.version>
+        <maven.artifact.version>3.5.3</maven.artifact.version>
+        <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
+        <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
+        <maven.enforcer.plugin.version>3.0.0-M1</maven.enforcer.plugin.version>
+        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+        <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+        <maven.javadoc.plugin.version>3.0.0</maven.javadoc.plugin.version>
+        <maven.plugin.tools.version>3.5.1</maven.plugin.tools.version>
+        <maven.project.version>3.0-alpha-2</maven.project.version>
+        <maven.project.info.reports.plugin.version>2.9</maven.project.info.reports.plugin.version>
+        <maven.shade.plugin.version>3.1.0</maven.shade.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+        <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
+        <maven.wagon.scm.extension.version>3.0.0</maven.wagon.scm.extension.version>
+        <mssql.version>6.4.0.jre8</mssql.version>
         <mysql.version>6.0.6</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.5.0</plugin-api.version>
-        <postgresql.version>9.4.1211.jre7</postgresql.version>
-        <rocksdb.version>4.11.2</rocksdb.version>
+        <postgresql.version>42.2.2</postgresql.version>
+        <properties.maven.plugin.version>1.0.0</properties.maven.plugin.version>
+        <rocksdb.version>5.11.3</rocksdb.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <spotbugs.version>3.1.1</spotbugs.version>
-        <spring.version>4.3.7.RELEASE</spring.version>
-        <sqlite.version>3.16.1</sqlite.version>
-        <testng.version>6.9.10</testng.version>
-        <vaadin7.version>7.7.3</vaadin7.version>
-        <validation-api.version>2.0.0.Final</validation-api.version>
+        <spotbugs.maven.plugin.version>3.1.3</spotbugs.maven.plugin.version>
+        <spotbugs.version>3.1.2</spotbugs.version>
+        <spring.version>5.0.4.RELEASE</spring.version>
+        <sqlite.version>3.21.0.1</sqlite.version>
+        <testng.version>6.14.2</testng.version>
+        <vaadin7.version>7.7.13</vaadin7.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
 
     </properties>
 
@@ -319,6 +337,28 @@
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${servlet-api.version}</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <!-- Plugin stuff -->
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${plugin-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+                <version>${maven.project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-artifact</artifactId>
+                <version>${maven.artifact.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven.plugin.tools.version}</version>
             </dependency>
 
             <!-- Misc -->
@@ -608,7 +648,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>${properties.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -630,7 +670,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>${maven.enforcer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-java</id>
@@ -652,7 +692,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven.jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -666,7 +706,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <source>${compiler.source}</source>
                     <target>${compiler.target}</target>
@@ -682,7 +722,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>${maven.source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -697,10 +737,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${maven.javadoc.plugin.version}</version>
                 <configuration>
                     <notimestamp>true</notimestamp>
-                    <additionalparam>-Xdoclint:-reference</additionalparam>
+                    <doclint>-reference</doclint>
+                    <validateLinks>true</validateLinks>
                     <links>
                         <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>http://archiecobbs.github.io/nvt4j/api/</link>
@@ -709,7 +750,7 @@
                         <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/api/${vaadin7.version}/</link>
-                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
                 </configuration>
@@ -727,7 +768,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <deleteTempDirs>true</deleteTempDirs>
@@ -816,31 +857,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
+                <version>${maven.checkstyle.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-verify</id>
                         <phase>verify</phase>
                         <configuration>
-                            <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <linkXRef>false</linkXRef>
-                            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-verify-test</id>
-                        <phase>verify</phase>
-                        <configuration>
                             <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <linkXRef>false</linkXRef>
-                            <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                            <sourceDirectories>
+                                <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                                <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                            </sourceDirectories>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -853,7 +884,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>3.1.0-RC6</version>
+                <version>${spotbugs.maven.plugin.version}</version>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Default</threshold>
@@ -877,14 +908,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.9</version>
+                <version>${maven.project.info.reports.plugin.version}</version>
             </plugin>
         </plugins>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-scm</artifactId>
-                <version>2.10</version>
+                <version>${maven.wagon.scm.extension.version}</version>
             </extension>
         </extensions>
     </build>
@@ -895,10 +926,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${maven.javadoc.plugin.version}</version>
                 <inherited>false</inherited>
                 <configuration>
                     <notimestamp>true</notimestamp>
+                    <validateLinks>true</validateLinks>
                     <aggregate>true</aggregate>
                     <links>
                         <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
@@ -908,7 +940,7 @@
                         <link>http://googlecloudplatform.github.io/google-cloud-java/${google-cloud-java.version}/apidocs/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/api/${vaadin7.version}/</link>
-                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
                 </configuration>
@@ -934,7 +966,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${maven.gpg.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

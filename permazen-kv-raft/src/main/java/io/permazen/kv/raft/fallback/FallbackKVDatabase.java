@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
@@ -849,7 +850,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 public void onSuccess(Void value) {
                     FallbackFuture.this.notifyAsync(null);
                 }
-            });
+            }, MoreExecutors.directExecutor());
         }
 
         @Override

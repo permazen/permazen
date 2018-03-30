@@ -67,4 +67,9 @@
         <Field name="versionChangeListeners"/>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.core.type.StringConvertedType"/>
+        <Method name="write"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
 </FindBugsFilter>

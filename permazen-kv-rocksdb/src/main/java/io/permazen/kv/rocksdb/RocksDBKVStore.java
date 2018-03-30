@@ -111,6 +111,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
     @Override
     public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        Preconditions.checkState(!this.closed, "closed");
         return this.createIterator(this.readOptions, minKey, maxKey, reverse);
     }
 
@@ -123,7 +124,11 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         if (this.writeBatch != null) {
             assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
-                this.writeBatch.put(key, value);
+                try {
+                    this.writeBatch.put(key, value);
+                } catch (RocksDBException e) {
+                    throw new RuntimeException("RocksDB error", e);
+                }
             }
         } else {
             assert RocksDBUtil.isInitialized(this.db);
@@ -143,12 +148,16 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         if (this.writeBatch != null) {
             assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
-                this.writeBatch.remove(key);
+                try {
+                    this.writeBatch.delete(key);
+                } catch (RocksDBException e) {
+                    throw new RuntimeException("RocksDB error", e);
+                }
             }
         } else {
             assert RocksDBUtil.isInitialized(this.db);
             try {
-                this.db.remove(key);
+                this.db.delete(key);
             } catch (RocksDBException e) {
                 throw new RuntimeException("RocksDB error", e);
             }
@@ -194,7 +203,11 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         if (this.writeBatch != null) {
             assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
-                this.writeBatch.merge(key, value);
+                try {
+                    this.writeBatch.merge(key, value);
+                } catch (RocksDBException e) {
+                    throw new RuntimeException("RocksDB error", e);
+                }
             }
         } else {
             assert RocksDBUtil.isInitialized(this.db);
@@ -259,7 +272,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         this.cursorTracker.poll();
         assert RocksDBUtil.isInitialized(this.db);
         assert RocksDBUtil.isInitialized(readOptions);
-        assert readOptions.snapshot() == null || RocksDBUtil.isInitialized(readOptions.snapshot());
+        //assert readOptions.snapshot() == null || RocksDBUtil.isInitialized(readOptions.snapshot());
         return new Iterator(this.db.newIterator(readOptions), minKey, maxKey, reverse);
     }
 

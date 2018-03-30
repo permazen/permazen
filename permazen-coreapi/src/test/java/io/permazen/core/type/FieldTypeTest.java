@@ -10,6 +10,7 @@ import com.google.common.net.InetAddresses;
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
+import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -194,11 +195,11 @@ public class FieldTypeTest extends CoreAPITestSupport {
         else if (actual instanceof int[])
             Assert.assertEquals((int[])expected, (int[])actual, message);
         else if (actual instanceof float[])
-            Assert.assertEquals((float[])expected, (float[])actual, message);
+            TestSupport.assertEquals((float[])expected, (float[])actual, message);
         else if (actual instanceof long[])
             Assert.assertEquals((long[])expected, (long[])actual, message);
         else if (actual instanceof double[])
-            Assert.assertEquals((double[])expected, (double[])actual, message);
+            TestSupport.assertEquals((double[])expected, (double[])actual, message);
         else if (actual instanceof Object[])
             Assert.assertTrue(Arrays.deepEquals((Object[])expected, (Object[])actual), message);
     }

@@ -33,24 +33,27 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
 
     @Override
     public DataAccessException translateExceptionIfPossible(RuntimeException e0) {
+        if (e0 == null)
+            return null;
+        final String message = e0.getMessage() != null ? e0.getMessage() : "wrapped exception";
         if (e0 instanceof DeletedObjectException) {
             final DeletedObjectException e = (DeletedObjectException)e0;
             return new EmptyResultDataAccessException("object " + e.getId() + " not found", 1, e);
         }
         if (e0 instanceof InvalidSchemaException)
-            return new InvalidDataAccessResourceUsageException(null, e0);
+            return new InvalidDataAccessResourceUsageException(message, e0);
         if (e0 instanceof ReferencedObjectException)
-            return new DataIntegrityViolationException(null, e0);
+            return new DataIntegrityViolationException(message, e0);
         if (e0 instanceof RollbackOnlyTransactionException)
-            return new InvalidDataAccessApiUsageException(null, e0);
+            return new InvalidDataAccessApiUsageException(message, e0);
         if (e0 instanceof SchemaMismatchException)
-            return new DataIntegrityViolationException(null, e0);
+            return new DataIntegrityViolationException(message, e0);
         if (e0 instanceof StaleTransactionException || e0 instanceof io.permazen.kv.StaleTransactionException)
-            return new InvalidDataAccessApiUsageException(null, e0);
+            return new InvalidDataAccessApiUsageException(message, e0);
         if (e0 instanceof RetryTransactionException)
-            return new ConcurrencyFailureException(null, e0);
+            return new ConcurrencyFailureException(message, e0);
         if (e0 instanceof TransactionTimeoutException)
-            return new QueryTimeoutException(null, e0);
+            return new QueryTimeoutException(message, e0);
         return null;
     }
 }

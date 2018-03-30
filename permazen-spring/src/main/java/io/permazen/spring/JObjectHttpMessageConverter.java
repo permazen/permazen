@@ -122,6 +122,10 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
 
         // Get the root object's ID
         final MediaType mediaType = input.getHeaders().getContentType();
+        if (mediaType == null) {
+            throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
+              + "' missing; no `Content-Type' header found");
+        }
         final String objId = mediaType.getParameter(ROOT_OBJECT_ID_PARAMETER_NAME);
         if (objId == null) {
             throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME

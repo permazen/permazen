@@ -1,3 +1,7 @@
+Version 4.1.0
+
+    - Updated a bunch of dependencies
+
 Version 4.0.3 Released January 20, 2018
 
     - Removed CLI functions obsoleted by Java 8: apply(), filter(), foreach(), transform()

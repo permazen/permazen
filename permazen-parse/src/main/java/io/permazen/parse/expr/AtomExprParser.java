@@ -495,7 +495,8 @@ public class AtomExprParser implements Parser<Node> {
                         final int npos = uri.lastIndexOf(this.prefix.replace('.', '/'));
                         name = uri.substring(npos).replace('/', '.');
                     } else {
-                        name = resource.getFilename();
+                        if ((name = resource.getFilename()) == null)
+                            continue;
                     }
                     if (name.endsWith(".class"))                                // should always be the case
                         name = name.substring(0, name.length() - 6);

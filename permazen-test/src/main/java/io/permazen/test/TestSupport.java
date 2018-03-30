@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,6 +247,28 @@ public abstract class TestSupport {
             TestSupport.checkMap(((NavigableMap)actual).descendingMap(), expected, false);
         if (recurse && expected instanceof NavigableMap)
             TestSupport.checkMap(actual, ((NavigableMap)expected).descendingMap(), false);
+    }
+
+    // Workaround https://github.com/cbeust/testng/issues/1734
+    public static void assertEquals(float[] a1, float[] a2, String message) {
+        try {
+            Assert.assertEquals(a1, a2, message);
+        } catch (AssertionError e) {
+            if (a1 != null && a2 != null && Arrays.equals(a1, a2))
+                return;
+            throw e;
+        }
+    }
+
+    // Workaround https://github.com/cbeust/testng/issues/1734
+    public static void assertEquals(double[] a1, double[] a2, String message) {
+        try {
+            Assert.assertEquals(a1, a2, message);
+        } catch (AssertionError e) {
+            if (a1 != null && a2 != null && Arrays.equals(a1, a2))
+                return;
+            throw e;
+        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

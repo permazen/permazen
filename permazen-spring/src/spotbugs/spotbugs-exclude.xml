@@ -13,4 +13,9 @@
         <Field name="initialContentResource"/>
         <Bug pattern="SE_BAD_FIELD"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.spring.ScanClassPathBeanDefinitionParser"/>
+        <Method name="parse"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
 </FindBugsFilter>

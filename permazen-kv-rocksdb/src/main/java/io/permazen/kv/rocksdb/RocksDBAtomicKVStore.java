@@ -245,11 +245,11 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                     final byte[] min = range.getMin();
                     final byte[] max = range.getMax();
                     if (min != null && max != null && ByteUtil.isConsecutive(min, max))
-                        batch.remove(min);
+                        batch.delete(min);
                     else {
                         try (RocksDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {
                             while (i.hasNext())
-                                batch.remove(i.next().getKey());
+                                batch.delete(i.next().getKey());
                         }
                     }
                 }
