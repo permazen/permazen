@@ -51,6 +51,7 @@ public class Console implements Closeable {
     private final CommandParser commandParser = new CommandParser();
     private final CommandListParser commandListParser = new CommandListParser(this.commandParser);
 
+    private String password;
     private FileHistory history;
 
     /**
@@ -137,6 +138,18 @@ public class Console implements Closeable {
      */
     public CliSession getSession() {
         return this.session;
+    }
+
+    /**
+     * Set a password that must be entered when {@link #run} is invoked.
+     *
+     * <p>
+     * Default is no password.
+     *
+     * @param password required password, or null for none
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**
@@ -243,9 +256,10 @@ public class Console implements Closeable {
     /**
      * Run this instance. This method blocks until the connected user exits the console.
      *
+     * @return true if successful, false if required password check failed
      * @throws IOException if an I/O error occurs
      */
-    public void run() throws IOException {
+    public boolean run() throws IOException {
 
         // Input buffer
         final StringBuilder lineBuffer = new StringBuilder();
@@ -271,6 +285,21 @@ public class Console implements Closeable {
 
         // Main command loop
         try {
+
+            // Verify password, if any
+            if (this.password != null) {
+                this.console.print("Password: ");
+                this.console.flush();
+                String line;
+                try {
+                    line = this.console.readLine('*');
+                } catch (UserInterruptException e) {
+                    this.console.print("^C");
+                    line = null;
+                }
+                if (!this.password.equals(line))
+                    return false;
+            }
 
             this.console.println("Welcome to Permazen. You are in " + this.session.getMode() + " mode. Type `help' for help.");
             this.console.println();
@@ -347,6 +376,9 @@ public class Console implements Closeable {
                 this.history.flush();
             this.console.flush();
         }
+
+        // Done
+        return true;
     }
 
     /**
