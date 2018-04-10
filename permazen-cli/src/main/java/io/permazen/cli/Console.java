@@ -15,6 +15,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.parse.ParseException;
 import io.permazen.util.ParseContext;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * CLI console.
  */
-public class Console {
+public class Console implements Closeable {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final ConsoleReader console;
@@ -345,7 +346,6 @@ public class Console {
             if (this.history != null)
                 this.history.flush();
             this.console.flush();
-            this.console.shutdown();
         }
     }
 
@@ -400,6 +400,13 @@ public class Console {
 
         // Do the normal thing
         return TerminalFactory.get();
+    }
+
+// Closeable
+
+    @Override
+    public void close() {
+        this.console.close();
     }
 
 // ConsoleCompleter

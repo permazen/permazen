@@ -28,16 +28,17 @@ import org.dellroad.nvt4j.impl.TerminalImpl;
  * <p>
  * This class can be used to implement an embedded CLI console within an application, accessed via telnet. For example:
  * <pre>
- *      // Accept a new connection
- *      final Socket socket = ...
+ *      // Accept a new connection and setup telnet CLI console
+ *      try (final Socket socket = /* accept new TCP connection *&#47;;
+ *           final TelnetConsole console = TelnetConsole.create(database, socket)) {
  *
- *      // Set up telnet CLI console
- *      final TelnetConsole console = TelnetConsole.create(database, socket);
- *      console.getSession().loadFunctionsFromClasspath();
- *      console.getSession().loadCommandsFromClasspath();
+ *          // Install commands and functions
+ *          console.getSession().loadFunctionsFromClasspath();
+ *          console.getSession().loadCommandsFromClasspath();
  *
- *      // Run the console
- *      console.run();
+ *          // Run the console
+ *          console.run();
+ *      }
  * </pre>
  */
 public final class TelnetConsole extends Console {
@@ -222,6 +223,16 @@ public final class TelnetConsole extends Console {
         @Override
         public String getOutputEncoding() {
             return this.terminal.getOutputEncoding();
+        }
+
+        @Override
+        public void enableInterruptCharacter() {
+            this.terminal.enableInterruptCharacter();
+        }
+
+        @Override
+        public void disableInterruptCharacter() {
+            this.terminal.disableInterruptCharacter();
         }
     }
 

@@ -144,69 +144,73 @@ public class Main extends AbstractMain {
         }
 
         // Set up console
-        final Console console;
+        final Console console0;
         switch (this.mode) {
         case KEY_VALUE:
-            console = new Console(db.getKVDatabase(), new FileInputStream(FileDescriptor.in), System.out);
+            console0 = new Console(db.getKVDatabase(), new FileInputStream(FileDescriptor.in), System.out);
             break;
         case CORE_API:
-            console = new Console(db, new FileInputStream(FileDescriptor.in), System.out);
+            console0 = new Console(db, new FileInputStream(FileDescriptor.in), System.out);
             break;
         case PERMAZEN:
-            console = new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
+            console0 = new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
             break;
         default:
-            console = null;
+            console0 = null;
             assert false;
             break;
         }
-        if (this.keyboardInput && !this.batchMode)
-            console.setHistoryFile(this.historyFile);
+        try (final Console console = console0) {
 
-        // Set up CLI session
-        final CliSession session = console.getSession();
-        session.setDatabaseDescription(this.getDatabaseDescription());
-        session.setReadOnly(this.readOnly);
-        session.setVerbose(this.verbose);
-        session.setSchemaModel(schemaModel);
-        session.setSchemaVersion(this.schemaVersion);
-        session.setAllowNewSchema(this.allowNewSchema);
-        session.loadFunctionsFromClasspath();
-        session.loadCommandsFromClasspath();
+            // Configure history
+            if (this.keyboardInput && !this.batchMode)
+                console.setHistoryFile(this.historyFile);
 
-        // Handle file input
-        for (String filename : this.execFiles) {
-            final File file = new File(filename);
-            try (final InputStream input = new FileInputStream(file)) {
-                if (!this.parseAndExecuteCommands(console, new InputStreamReader(input), file.getName()))
+            // Set up CLI session
+            final CliSession session = console.getSession();
+            session.setDatabaseDescription(this.getDatabaseDescription());
+            session.setReadOnly(this.readOnly);
+            session.setVerbose(this.verbose);
+            session.setSchemaModel(schemaModel);
+            session.setSchemaVersion(this.schemaVersion);
+            session.setAllowNewSchema(this.allowNewSchema);
+            session.loadFunctionsFromClasspath();
+            session.loadCommandsFromClasspath();
+
+            // Handle file input
+            for (String filename : this.execFiles) {
+                final File file = new File(filename);
+                try (final InputStream input = new FileInputStream(file)) {
+                    if (!this.parseAndExecuteCommands(console, new InputStreamReader(input), file.getName()))
+                        return 1;
+                } catch (IOException e) {
+                    session.getWriter().println("Error: error opening " + file.getName() + ": " + e);
                     return 1;
-            } catch (IOException e) {
-                session.getWriter().println("Error: error opening " + file.getName() + ": " + e);
-                return 1;
+                }
             }
+
+            // Handle command-line commands
+            for (String command : this.execCommands) {
+                if (!this.parseAndExecuteCommands(console, new StringReader(command), null))
+                    return 1;
+            }
+
+            // Handle standard input
+            if (!this.keyboardInput) {
+                if (!this.parseAndExecuteCommands(console, new InputStreamReader(System.in), "(stdin)"))
+                    return 1;
+            }
+
+            // Run console if not in batch mode
+            if (this.keyboardInput && !this.batchMode)
+                console.run();
+
+            // Shut down KV database
+            this.shutdownKVDatabase();
+
+            // Done
+            return 0;
         }
-
-        // Handle command-line commands
-        for (String command : this.execCommands) {
-            if (!this.parseAndExecuteCommands(console, new StringReader(command), null))
-                return 1;
-        }
-
-        // Handle standard input
-        if (!this.keyboardInput) {
-            if (!this.parseAndExecuteCommands(console, new InputStreamReader(System.in), "(stdin)"))
-                return 1;
-        }
-
-        // Run console if not in batch mode
-        if (this.keyboardInput && !this.batchMode)
-            console.run();
-
-        // Shut down KV database
-        this.shutdownKVDatabase();
-
-        // Done
-        return 0;
     }
 
     private boolean parseAndExecuteCommands(Console console, Reader input, String inputDescription) {
