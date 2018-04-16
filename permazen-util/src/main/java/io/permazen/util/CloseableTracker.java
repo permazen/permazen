@@ -25,6 +25,12 @@ import org.slf4j.LoggerFactory;
  * items until context shutdown means unbounded memory use can occur; this class solves that problem.
  *
  * <p>
+ * For a concrete example, consider a method that returns an {@link java.util.Iterator}, where the returned iterator
+ * is implemented based on some {@link Closeable} internal resource. Since {@link java.util.Iterator} has no {@code close()}
+ * method, the caller of the method cannot be expected to "close" the {@link java.util.Iterator} (and in turn, the internal
+ * resource), when done with it. Such a method could use {@link #add add(iterator, resource)} to close this leak.
+ *
+ * <p>
  * For each such context, an instance of this class may be used to register and track the associated items,
  * guaranteeing that they will always eventually be closed, but doing so in a way that avoids memory leaks:
  * For each item, there must be a corresponding <i>holder</i> object containing a reference to it. The holder objects are
@@ -69,6 +75,9 @@ public class CloseableTracker implements Closeable {
 
     /**
      * Add an item to the set of items being tracked by this instance.
+     *
+     * <p>
+     * If the {@code holder} becomes no longer reachable, the {@code item} will (eventually) be closed.
      *
      * @param holder item's holder
      * @param item item to track
