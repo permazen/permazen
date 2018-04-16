@@ -48,10 +48,14 @@ import org.testng.annotations.Test;
 public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected ExecutorService executor;
+    protected ExecutorService[] threads;
 
     @BeforeClass(dependsOnGroups = "configure")
     public void setupExecutorAndDatabases() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
+        this.threads = new ExecutorService[Math.max(2, this.getNonconflictingTransactionCount())];
+        for (int i = 0; i < this.threads.length; i++)
+            this.threads[i] = Executors.newSingleThreadExecutor();
         for (KVDatabase[] kvdb : this.getDBs()) {
             if (kvdb.length > 0)
                 kvdb[0].start();
@@ -61,6 +65,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     @AfterClass
     public void teardownExecutorAndDatabases() throws Exception {
         this.executor.shutdown();
+        for (int i = 0; i < this.threads.length; i++)
+            this.threads[i].shutdown();
+        this.executor.awaitTermination(3, TimeUnit.SECONDS);
+        for (int i = 0; i < this.threads.length; i++)
+            this.threads[i].awaitTermination(3, TimeUnit.SECONDS);
         for (KVDatabase[] kvdb : this.getDBs()) {
             if (kvdb.length > 0)
                 kvdb[0].stop();
@@ -358,30 +367,68 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     }
 
     @Test(dataProvider = "kvdbs")
-    public void testConflictingTransactions(KVDatabase store) throws Exception {
+    public void testReadWriteConflict(KVDatabase store) throws Exception {
+        this.testConflictingTransactions(store, "testReadWriteConflict", (tx1, tx2) -> {
+
+            // Both read the same key
+            this.threads[0].submit(new Reader(tx1, b("10"))).get();
+            this.threads[1].submit(new Reader(tx2, b("10"))).get();
+
+            // Both write to the same key but with different values
+            return new Future<?>[] {
+              this.threads[0].submit(new Writer(tx1, b("10"), b("01"))),
+              this.threads[1].submit(new Writer(tx2, b("10"), b("02")))
+            };
+        }, kv("10", "01"), kv("10", "02"));
+    }
+
+    // https://en.wikipedia.org/wiki/Snapshot_isolation
+    @Test(dataProvider = "kvdbs")
+    public void testWriteSkewAnomaly(KVDatabase store) throws Exception {
+        if (this.allowsWriteSkewAnomaly()) {
+            this.log.info("skipping testWriteSkewAnomaly() on " + store + ": database allows write skew anomalies");
+            return;
+        }
+        this.testConflictingTransactions(store, "testWriteSkewAnomaly", (tx1, tx2) -> {
+
+            // Both read both keys
+            this.threads[0].submit(new Reader(tx1, b("10"))).get();
+            this.threads[1].submit(new Reader(tx2, b("10"))).get();
+            this.threads[0].submit(new Reader(tx1, b("20"))).get();
+            this.threads[1].submit(new Reader(tx2, b("20"))).get();
+
+            // Each writes to one of the keys
+            return new Future<?>[] {
+              this.threads[0].submit(new Writer(tx1, b("10"), b("01"))),
+              this.threads[1].submit(new Writer(tx2, b("20"), b("02")))
+            };
+        }, kv("10", "01"), kv("20", "02"));
+    }
+
+    protected boolean allowsWriteSkewAnomaly() {
+        return false;
+    }
+
+    protected void testConflictingTransactions(KVDatabase store, String name,
+      Conflictor conflictor, KVPair expected1, KVPair expected2) throws Exception {
 
         // Clear database
-        this.log.info("starting testConflictingTransactions() on " + store);
+        this.log.info("starting {}() on {}", name, store);
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
-        // Both read the same key
+        // Create two transactions
         final KVTransaction[] txs = new KVTransaction[] {
-            this.createKVTransaction(store),
-            this.createKVTransaction(store)
+            this.threads[0].submit(() -> this.createKVTransaction(store)).get(),
+            this.threads[1].submit(() -> this.createKVTransaction(store)).get()
         };
         this.log.info("tx[0] is " + txs[0]);
         this.log.info("tx[1] is " + txs[1]);
-        this.executor.submit(new Reader(txs[0], b("10"))).get();
-        this.executor.submit(new Reader(txs[1], b("10"))).get();
 
-        // Both write to the same key but with different values
-        final String[] fails = new String[] { "uninitialized status", "uninitialized status" };
-        Future<?>[] futures = new Future<?>[] {
-          this.executor.submit(new Writer(txs[0], b("10"), b("01"))),
-          this.executor.submit(new Writer(txs[1], b("10"), b("02")))
-        };
+        // Do the conflicting activity
+        Future<?>[] futures = conflictor.conflict(txs[0], txs[1]);
 
         // See what happened - we might have gotten a conflict at write time
+        final String[] fails = new String[] { "uninitialized status", "uninitialized status" };
         for (int i = 0; i < 2; i++) {
             try {
                 futures[i].get();
@@ -420,7 +467,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // If both succeeded, then we should get a conflict on commit instead
         for (int i = 0; i < 2; i++) {
             if (fails[i] == null)
-                futures[i] = this.executor.submit(new Committer(txs[i]));
+                futures[i] = this.threads[i].submit(new Committer(txs[i]));
         }
         for (int i = 0; i < 2; i++) {
             if (fails[i] == null) {
@@ -457,15 +504,20 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("exactly one transaction failed:\n  fails[0]: " + fails[0] + "\n  fails[1]: " + fails[1]);
 
         // Verify the resulting change is consistent with the tx that succeeded
-        final byte[] expected = fails[0] == null ? b("01") : fails[1] == null ? b("02") : null;
+        final KVPair expected = fails[0] == null ? expected1 : fails[1] == null ? expected2 : null;
         if (expected != null) {
-            final KVTransaction tx2 = this.createKVTransaction(store);
+            final KVTransaction tx2 = this.threads[0].submit(() -> this.createKVTransaction(store)).get();
             this.showKV(tx2, "TX2 of " + store);
-            byte[] x = this.executor.submit(new Reader(tx2, b("10"))).get();
-            Assert.assertEquals(x, expected);
+            byte[] val = this.threads[0].submit(new Reader(tx2, expected.getKey())).get();
+            Assert.assertEquals(val, expected.getValue());
             tx2.rollback();
         }
-        this.log.info("finished testConflictingTransactions() on " + store);
+        this.log.info("finished {}() on {}", name, store);
+    }
+
+    @FunctionalInterface
+    private interface Conflictor {
+        Future<?>[] conflict(KVTransaction tx1, KVTransaction tx2) throws Exception;
     }
 
     protected boolean allowBothTransactionsToFail() {
@@ -481,17 +533,17 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Multiple concurrent transactions with overlapping read ranges and non-intersecting write ranges
         int done = 0;
-        KVTransaction[] txs = new KVTransaction[this.getNonconflictingTransactionCount()];
+        final KVTransaction[] txs = new KVTransaction[this.getNonconflictingTransactionCount()];
         for (int i = 0; i < txs.length; i++)
-            txs[i] = this.createKVTransaction(store);
+            txs[i] = this.threads[i].submit(() -> this.createKVTransaction(store)).get();
         while (true) {
             boolean finished = true;
             for (int i = 0; i < txs.length; i++) {
                 if (txs[i] == null)
                     continue;
                 finished = false;
-                Future<?> rf = this.executor.submit(new Reader(txs[i], new byte[] { (byte)i }, true));
-                Future<?> wf = this.executor.submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
+                Future<?> rf = this.threads[i].submit(new Reader(txs[i], new byte[] { (byte)i }, true));
+                Future<?> wf = this.threads[i].submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
                 for (Future<?> f : new Future<?>[] { rf, wf }) {
                     try {
                         f.get();
@@ -511,10 +563,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     continue;
                 try {
                     this.numTransactionAttempts.incrementAndGet();
-                    txs[i].commit();
+                    try {
+                        final int i2 = i;
+                        this.threads[i].submit(() -> txs[i2].commit()).get();
+                    } catch (ExecutionException e) {
+                        throw (RuntimeException)e.getCause();
+                    }
                 } catch (RetryTransactionException e) {
                     this.updateRetryStats(e);
-                    txs[i] = this.createKVTransaction(store);
+                    txs[i] =  this.threads[i].submit(() -> this.createKVTransaction(store)).get();
                     continue;
                 }
                 txs[i] = null;
@@ -597,6 +654,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
      */
     @Test(dataProvider = "kvdbs")
     public void testMultipleThreadsTransaction(KVDatabase store) throws Exception {
+        if (!this.transactionsAreThreadSafe()) {
+            this.log.info("skipping testMultipleThreadsTransaction() on " + store + ": transactions are not thread safe");
+            return;
+        }
         this.log.info("starting testMultipleThreadsTransaction() on " + store);
 
         // Clear database
@@ -647,6 +708,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         });
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
+    }
+
+    protected boolean transactionsAreThreadSafe() {
+        return true;
     }
 
     /**
