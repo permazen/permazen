@@ -38,6 +38,7 @@
         <module>permazen-kv-sql</module>
         <module>permazen-kv-sqlite</module>
         <module>permazen-kv-test</module>
+        <module>permazen-kv-xodus</module>
         <module>permazen-kv</module>
         <module>permazen-main</module>
         <module>permazen-maven-plugin</module>
@@ -132,6 +133,7 @@
         <spring.version>5.0.4.RELEASE</spring.version>
         <sqlite.version>3.21.0.1</sqlite.version>
         <testng.version>6.14.2</testng.version>
+        <xodus.version>1.2.2</xodus.version>
         <vaadin7.version>7.7.13</vaadin7.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
 
@@ -439,6 +441,16 @@
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${mssql.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jetbrains.xodus</groupId>
+                <artifactId>xodus-environment</artifactId>
+                <version>${xodus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.xodus</groupId>
+                <artifactId>xodus-openAPI</artifactId>
+                <version>${xodus.version}</version>
+            </dependency>
 
             <!-- SQL Connection Pooling -->
             <dependency>
@@ -573,6 +585,11 @@
             <dependency>
                 <groupId>io.permazen</groupId>
                 <artifactId>permazen-kv-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-xodus</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -842,6 +859,9 @@
                         <!-- kv-sqlite -->
                         <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
                         <exclusiveLocking>false</exclusiveLocking>
+
+                        <!-- kv-xodus -->
+                        <xodusDirPrefix>Xodus</xodusDirPrefix>
 
                     </systemPropertyVariables>
                     <properties>

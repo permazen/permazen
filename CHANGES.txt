@@ -2,6 +2,7 @@ Version 4.1.0
 
     - Added console support for configuring a required password
     - Updated a bunch of dependencies
+    - Added Xodus key/value database
 
 Version 4.0.3 Released January 20, 2018
 

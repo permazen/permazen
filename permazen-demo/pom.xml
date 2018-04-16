@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-mssql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv-mysql</artifactId>
         </dependency>
         <dependency>
@@ -83,6 +87,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv-sqlite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-xodus</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
