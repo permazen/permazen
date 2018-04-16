@@ -510,7 +510,9 @@ public class MutableView extends AbstractKVStore implements Cloneable {
                         }
                         this.kvnext = this.kviter.next();
                         assert this.kvnext != null;
-                        assert !this.isPastLimit(this.kvnext.getKey());
+                        assert !this.isPastLimit(this.kvnext.getKey()) :
+                          "key " + ByteUtil.toString(this.kvnext.getKey())
+                          + " is past limit " + ByteUtil.toString(this.limit);
                         assert this.isPast(this.kvnext.getKey(), this.cursor) :
                           "key " + ByteUtil.toString(this.kvnext.getKey())
                           + " is not past cursor " + ByteUtil.toString(this.cursor);
