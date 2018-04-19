@@ -93,7 +93,7 @@ You should also add the key/value store module(s) for whatever key/value store(s
 ```xml
     <dependency>
         <groupId>io.permazen</groupId>
-        <artifactId>permazen-kv-mysql</artifactId>
+        <artifactId>permazen-kv-sqlite</artifactId>
     </dependency>
 ```
 
