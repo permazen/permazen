@@ -678,21 +678,21 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
             // Create worker threads
             final RandomTask[] tasks = new RandomTask[33];
-            final Thread[] threads = new Thread[tasks.length];
+            final Thread[] workerThreads = new Thread[tasks.length];
             for (int i = 0; i < tasks.length; i++) {
                 final RandomTask task = new RandomTask(i, null, KVDatabaseTest.this.random.nextLong());
-                threads[i] = new Thread(() -> task.runRandomAccess(tx));
+                workerThreads[i] = new Thread(() -> task.runRandomAccess(tx));
                 tasks[i] = task;
             }
 
-            // Start threads
+            // Start worker threads
             for (int i = 0; i < tasks.length; i++)
-                threads[i].start();
+                workerThreads[i].start();
 
-            // Join threads
+            // Join worker threads
             for (int i = 0; i < tasks.length; i++) {
                 try {
-                    threads[i].join();
+                    workerThreads[i].join();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
