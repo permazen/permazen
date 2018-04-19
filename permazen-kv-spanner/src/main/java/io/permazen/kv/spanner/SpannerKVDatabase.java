@@ -5,7 +5,6 @@
 
 package io.permazen.kv.spanner;
 
-import com.google.cloud.WaitForOption;
 import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
@@ -305,7 +304,7 @@ public class SpannerKVDatabase implements KVDatabase {
 
     private synchronized void cleanup() {
         if (this.spanner != null) {
-            this.spanner.closeAsync();
+            this.spanner.close();
             this.spanner = null;
         }
         if (this.executor != null) {
@@ -429,7 +428,7 @@ public class SpannerKVDatabase implements KVDatabase {
     }
 
     private <T> T waitFor(Operation<T, ?> operation) {
-        return operation.waitFor(WaitForOption.checkEvery(500, TimeUnit.MILLISECONDS)).getResult();
+        return operation.waitFor().getResult();
     }
 
 // Transactions

@@ -8,12 +8,13 @@ package io.permazen.kv.spanner;
 import com.google.cloud.Timestamp;
 import com.google.cloud.spanner.AbortedException;
 import com.google.cloud.spanner.DatabaseClient;
+import com.google.cloud.spanner.ErrorCode;
 import com.google.cloud.spanner.ReadContext;
 import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.SpannerException;
 import com.google.cloud.spanner.TimestampBound;
 import com.google.cloud.spanner.TransactionContext;
-import com.google.cloud.spanner.TransactionRunner;
+import com.google.cloud.spanner.TransactionManager;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.CloseableKVStore;
@@ -59,9 +60,15 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     @GuardedBy("this")
     private ReadContext context;
     @GuardedBy("this")
+    private TransactionManager transactionManager;              // read/write transactions only
+    @GuardedBy("this")
     private ReadWriteSpannerView view;
     @GuardedBy("this")
     private State state = State.INITIAL;
+
+    // Workaround for https://github.com/GoogleCloudPlatform/google-cloud-java/issues/3172
+    @GuardedBy("this")
+    private boolean transactionManagerClosed;
 
     /**
      * Constructor.
@@ -82,6 +89,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         this.tableName = tableName;
         this.consistency = consistency;
         this.readOnly = !this.isStrongConsistency();
+        if (this.log.isTraceEnabled())
+            this.log.trace("{}: created from client={}", this, this.client);
     }
 
 // Accessors
@@ -115,11 +124,11 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      * It should not be invoked until at least one data query has occurred.
      *
      * <p>
-     * For read-write transactions, this returns the Spanner timestamp at which the changes were applied.
-     * It should not be invoked until the transaction is committed.
+     * For read-write transactions, this returns the Spanner timestamp at which the changes were successfully applied.
      *
      * @return this transaction's Spanner timestamp
      * @throws IllegalStateException if timestamp is not available yet
+     * @throws IllegalStateException if invoked on a read/write transaction that was not successfully committed
      */
     public synchronized Timestamp getTimestamp() {
         try {
@@ -127,7 +136,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
             case INITIAL:
                 throw new IllegalStateException("no data has been accessed yet");
             case ACCESSED:
-                if (this.context instanceof TransactionContext)
+                if (!this.readOnly)
                     throw new IllegalStateException("transaction is not committed yet");
                 break;
             case CLOSED:
@@ -135,7 +144,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
                 break;
             }
             if (this.context instanceof TransactionContext)
-                return (Timestamp)Access.invoke(Access.TRANSACTION_CONTEXT_COMMIT_TIMESTAMP_METHOD, this.context);
+                return this.transactionManager.getCommitTimestamp();
             if (this.context instanceof ReadOnlyTransaction)
                 return ((ReadOnlyTransaction)this.context).getReadTimestamp();
             return null;
@@ -172,6 +181,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         Preconditions.checkState(this.state == State.INITIAL || readOnly == this.readOnly, "data already accessed");
         Preconditions.checkArgument(this.isStrongConsistency() || readOnly,
           "strong consistency is required for read-write transactions");
+        if (this.log.isTraceEnabled())
+            this.log.trace("{}: setting readOnly={}", this, readOnly);
         this.readOnly = readOnly;
     }
 
@@ -179,14 +190,18 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     public synchronized void commit() {
 
         // Logging
-        if (this.log.isTraceEnabled())
-            this.log.trace("commit() invoked: state=" + this.state + " view=" + this.view);
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("{}: commit() invoked: state={} view={} context={} txmgr={}[{}]",
+              this, this.state, this.view, this.context, this.transactionManager,
+              this.transactionManager != null ? this.transactionManager.getState() : "");
+        }
 
         // Check state
         switch (this.state) {
         case INITIAL:
             assert this.view == null;
             assert this.context == null;
+            assert this.transactionManager == null;
             this.state = State.CLOSED;
             return;
         case ACCESSED:
@@ -199,19 +214,31 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         // Commit transaction (if read/write) and close view
         try {
             if (this.context instanceof TransactionContext) {
+                assert this.transactionManager != null;
 
                 // Transfer mutations into the transaction context
                 this.view.bufferMutations((TransactionContext)this.context);
 
                 // Commit transaction
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("{}: committing context={} txmgr={}[{}]",
+                      this, this.context, this.transactionManager, this.transactionManager.getState());
+                }
+                try {
+                    this.transactionManager.commit();
+                } finally {
+                    if (this.transactionManager.getState() != TransactionManager.TransactionState.ABORTED)
+                        this.transactionManagerClosed = true;
+                }
                 if (this.log.isTraceEnabled())
-                    this.log.trace("committing transaction " + this.context);
-                Access.invoke(Access.TRANSACTION_CONTEXT_COMMIT_METHOD, this.context);
+                    this.log.trace("{}: commit successful", this);
             }
         } catch (SpannerException e) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: commit failed: " + e);
             throw this.wrapException(e);
         } finally {
-            this.cleanupAccessed();
+            this.cleanup();
         }
     }
 
@@ -219,14 +246,18 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     public synchronized void rollback() {
 
         // Logging
-        if (this.log.isTraceEnabled())
-            this.log.trace("rollback() invoked: state=" + this.state + " view=" + this.view);
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("{}: rollback() invoked: state={} view={} context={} txmgr={}[{}]",
+              this, this.state, this.view, this.context, this.transactionManager,
+              this.transactionManager != null ? this.transactionManager.getState() : "");
+        }
 
         // Check state
         switch (this.state) {
         case INITIAL:
             assert this.view == null;
             assert this.context == null;
+            assert this.transactionManager == null;
             this.state = State.CLOSED;
             return;
         case ACCESSED:
@@ -238,17 +269,26 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
 
         // Rollback transaction (if read/write) and close view
         try {
-            if (this.context instanceof TransactionContext)
-                Access.invoke(Access.TRANSACTION_CONTEXT_ROLLBACK_METHOD, this.context);
+            if (this.context instanceof TransactionContext) {
+                assert this.transactionManager != null;
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("{}: rolling back context={} txmgr={}[{}]",
+                      this, this.context, this.transactionManager, this.transactionManager.getState());
+                }
+                this.transactionManagerClosed = true;
+                this.transactionManager.rollback();
+                if (this.log.isTraceEnabled())
+                    this.log.trace("{}: rollback successful", this);
+            }
         } catch (SpannerException e) {
             if (this.log.isDebugEnabled())
-                this.log.debug("got exception during rollback (ignoring)", e);
+                this.log.debug(this + ": got exception during rollback (ignoring)", e);
         } finally {
-            this.cleanupAccessed();
+            this.cleanup();
         }
     }
 
-    private void cleanupAccessed() {
+    private void cleanup() {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -257,12 +297,30 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         // Update database RTT estimate
         this.kvdb.updateRttEstimate(this.view.getRttEstimate());
 
+        // Close the view
         try {
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("{}: cleanup(): view={} context={} txmgr={}[{}]: closing view",
+                  this, this.view, this.context, this.transactionManager,
+                  this.transactionManager != null ? this.transactionManager.getState() : "");
+            }
             this.view.close();
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: cleanup(): view closed", this);
         } finally {
             this.view = null;
             this.context = null;
             this.state = State.CLOSED;
+        }
+
+        // Close the transaction manager, if any
+        if (this.transactionManager != null && !this.transactionManagerClosed) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: cleanup(): closing txmgr", this);
+            this.transactionManager.close();
+            this.transactionManagerClosed = true;
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: cleanup(): txmgr closed", this);
         }
     }
 
@@ -346,10 +404,17 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         case INITIAL:
             assert this.view == null;
             assert this.context == null;
+            assert this.transactionManager == null;
             break;
         case ACCESSED:
             assert this.view != null;
             assert this.context != null;
+            assert this.transactionManager != null == !this.readOnly;
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("{}: delegate(): view={} exists, context={}, txmgr={}[{}]",
+                  this, this.view, this.context, this.transactionManager,
+                  this.transactionManager != null ? this.transactionManager.getState() : "");
+            }
             return this.view;
         case CLOSED:
         default:
@@ -359,12 +424,26 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         }
 
         // Create the appropriate context and view
-        this.context = this.readOnly ?
-          this.client.readOnlyTransaction(this.consistency) : this.readWriteTransaction();
-        if (this.log.isTraceEnabled())
-            this.log.trace("creating delegate: context=" + this.context);
+        if (this.readOnly) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: delegate(): creating r/o transaction", this);
+            this.context = this.client.readOnlyTransaction(this.consistency);
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: delegate(): created r/o transaction, context={}", this, this.context);
+        } else {
+            if (this.log.isTraceEnabled())
+                this.log.trace("{}: delegate(): creating r/w transaction", this);
+            this.transactionManager = this.client.transactionManager();
+            this.context = this.transactionManager.begin();
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("{}: delegate(): created r/w transaction, context={}, txmgr={}[{}]",
+                  this, this.context, this.transactionManager, this.transactionManager.getState());
+            }
+        }
         this.view = new ReadWriteSpannerView(this.tableName, context,
           this::wrapException, this.kvdb.getExecutorService(), (long)this.kvdb.getRttEstimate());
+        if (this.log.isTraceEnabled())
+            this.log.trace("{}: delegate(): created view={}", this, this.view);
 
         // Done
         this.state = State.ACCESSED;
@@ -372,17 +451,8 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     }
 
     protected RuntimeException wrapException(SpannerException e) {
-        return e.isRetryable() || e instanceof AbortedException ?
+        return e.isRetryable() || e instanceof AbortedException || ErrorCode.ABORTED.equals(e.getErrorCode()) ?
           new RetryTransactionException(this, e.getMessage(), e) :
           new KVTransactionException(this, e.getMessage(), e);
     }
-
-    private TransactionContext readWriteTransaction() {
-        final TransactionRunner runner1 = this.client.readWriteTransaction();
-        final TransactionRunner runner2 = (TransactionRunner)Access.read(Access.POOLED_SESSION_1_RUNNER_FIELD, runner1);
-        final TransactionContext context1 = (TransactionContext)Access.read(Access.TRANSACTION_RUNNER_TXN_FIELD, runner2);
-        Access.invoke(Access.TRANSACTION_CONTEXT_ENSURE_TXN_METHOD, context1);
-        return context1;
-    }
 }
-
