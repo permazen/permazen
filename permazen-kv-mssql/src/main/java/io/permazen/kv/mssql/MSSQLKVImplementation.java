@@ -9,7 +9,7 @@ import io.permazen.kv.sql.SQLDriverKVImplementation;
 
 import java.util.ArrayDeque;
 
-public class MSSQLKVImplementation extends SQLDriverKVImplementation {
+public class MSSQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
     public static final String MSSQL_DRIVER_CLASS_NAME = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
@@ -26,7 +26,7 @@ public class MSSQLKVImplementation extends SQLDriverKVImplementation {
      * @param driverClassName SQL Server {@link java.sql.Driver} implementation class name
      */
     public MSSQLKVImplementation(String driverClassName) {
-        super(driverClassName);
+        super(Config.class, driverClassName);
     }
 
     @Override
@@ -37,17 +37,17 @@ public class MSSQLKVImplementation extends SQLDriverKVImplementation {
     }
 
     @Override
-    public String parseCommandLineOptions(ArrayDeque<String> options) {
-        return this.parseCommandLineOption(options, "--mssql");
+    public Config parseCommandLineOptions(ArrayDeque<String> options) {
+        return new Config(this.parseCommandLineOption(options, "--mssql"));
     }
 
     @Override
-    public String getDescription(Object configuration) {
+    public String getDescription(Config configuration) {
         return "SQL Server";
     }
 
     @Override
-    protected MSSQLKVDatabase createSQLKVDatabase(Object configuration) {
+    protected MSSQLKVDatabase createSQLKVDatabase(Config configuration) {
         return new MSSQLKVDatabase();
     }
 }

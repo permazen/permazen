@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
-public class MemoryKVImplementation extends KVImplementation {
+public class MemoryKVImplementation extends KVImplementation<Boolean> {
+
+    public MemoryKVImplementation() {
+        super(Boolean.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -22,12 +26,12 @@ public class MemoryKVImplementation extends KVImplementation {
     }
 
     @Override
-    public Object parseCommandLineOptions(ArrayDeque<String> options) {
-        Object config = null;
+    public Boolean parseCommandLineOptions(ArrayDeque<String> options) {
+        Boolean config = null;
         for (Iterator<String> i = options.iterator(); i.hasNext(); ) {
             final String option = i.next();
             if (option.equals("--mem")) {
-                config = Boolean.TRUE;
+                config = true;
                 i.remove();
             }
         }
@@ -35,12 +39,12 @@ public class MemoryKVImplementation extends KVImplementation {
     }
 
     @Override
-    public SimpleKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
+    public SimpleKVDatabase createKVDatabase(Boolean config, KVDatabase kvdb, AtomicKVStore kvstore) {
         return new SimpleKVDatabase();
     }
 
     @Override
-    public String getDescription(Object configuration) {
+    public String getDescription(Boolean config) {
         return "Memory database";
     }
 }

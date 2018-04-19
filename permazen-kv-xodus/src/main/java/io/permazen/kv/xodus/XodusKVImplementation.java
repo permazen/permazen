@@ -5,6 +5,8 @@
 
 package io.permazen.kv.xodus;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
@@ -12,7 +14,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class XodusKVImplementation extends KVImplementation {
+public class XodusKVImplementation extends KVImplementation<XodusKVImplementation.Config> {
+
+    public XodusKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -35,16 +41,15 @@ public class XodusKVImplementation extends KVImplementation {
     }
 
     @Override
-    public XodusKVDatabase createKVDatabase(Object config0, KVDatabase ignored, AtomicKVStore kvstore) {
-        final Config config = (Config)config0;
+    public XodusKVDatabase createKVDatabase(Config config, KVDatabase ignored, AtomicKVStore kvstore) {
         final XodusKVDatabase kvdb = new XodusKVDatabase();
         config.configure(kvdb);
         return kvdb;
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "Xodus " + ((Config)configuration).getDirectory().getName();
+    public String getDescription(Config config) {
+        return "Xodus " + config.getDirectory().getName();
     }
 
 // Options
@@ -69,6 +74,7 @@ public class XodusKVImplementation extends KVImplementation {
         }
 
         public void configure(XodusKVDatabase kvdb) {
+            Preconditions.checkArgument(this.directory != null, "Xodus directory must be specified via the `--xodus' flag");
             kvdb.setDirectory(this.directory);
             if (this.storeName != null)
                 kvdb.setStoreName(this.storeName);

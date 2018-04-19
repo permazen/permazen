@@ -5,6 +5,8 @@
 
 package io.permazen.kv;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.mvcc.AtomicKVDatabase;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.util.ImplementationsReader;
@@ -23,8 +25,10 @@ import org.slf4j.LoggerFactory;
  * Instances of this class provide information about how to configure and instantiate some
  * technology-specific implementation of the {@link KVDatabase} and {@link AtomicKVStore}
  * interfaces.
+ *
+ * @param <C> configuration object type
  */
-public abstract class KVImplementation {
+public abstract class KVImplementation<C> {
 
     /**
      * Classpath XML file resource describing available {@link KVDatabase} implementations:
@@ -44,6 +48,27 @@ public abstract class KVImplementation {
     public static final String XML_DESCRIPTOR_RESOURCE = "META-INF/permazen/kv-implementations.xml";
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private final Class<C> configType;
+
+    /**
+     * Constructor.
+     *
+     * @param configType configuration object type
+     */
+    protected KVImplementation(Class<C> configType) {
+        Preconditions.checkArgument(configType != null, "null configType");
+        this.configType = configType;
+    }
+
+    /**
+     * Get the configuration object type.
+     *
+     * @return config type
+     */
+    public Class<C> getConfigType() {
+        return this.configType;
+    }
 
     /**
      * Get the command line options supported by this implementation, suitable for display in a usage help message.
@@ -78,7 +103,7 @@ public abstract class KVImplementation {
      * @return configuration object representing the parsed options, or null if this implementation is not specified/configured
      * @throws IllegalArgumentException if an option is recognized but invalid
      */
-    public abstract Object parseCommandLineOptions(ArrayDeque<String> options);
+    public abstract C parseCommandLineOptions(ArrayDeque<String> options);
 
     /**
      * Subclass support method for parsing out a single command line flag and argument.
@@ -131,7 +156,7 @@ public abstract class KVImplementation {
      * @param kvstore required {@link AtomicKVStore}; will be null unless {@link #requiresAtomicKVStore} returned true
      * @return new {@link KVDatabase} instance
      */
-    public abstract KVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore);
+    public abstract KVDatabase createKVDatabase(C configuration, KVDatabase kvdb, AtomicKVStore kvstore);
 
     /**
      * Create an {@link AtomicKVStore} using the specified configuration.
@@ -144,7 +169,7 @@ public abstract class KVImplementation {
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
      * @return new {@link AtomicKVStore} instance
      */
-    public AtomicKVStore createAtomicKVStore(Object configuration) {
+    public AtomicKVStore createAtomicKVStore(C configuration) {
         return new AtomicKVDatabase(this.createKVDatabase(configuration, null, null));
     }
 
@@ -158,7 +183,7 @@ public abstract class KVImplementation {
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
      * @return true if the implementation relies on an underlying {@link AtomicKVStore}
      */
-    public boolean requiresAtomicKVStore(Object configuration) {
+    public boolean requiresAtomicKVStore(C configuration) {
         return false;
     }
 
@@ -172,7 +197,7 @@ public abstract class KVImplementation {
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
      * @return true if the implementation relies on an underlying {@link KVDatabase}
      */
-    public boolean requiresKVDatabase(Object configuration) {
+    public boolean requiresKVDatabase(C configuration) {
         return false;
     }
 
@@ -182,7 +207,7 @@ public abstract class KVImplementation {
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
      * @return human-readable description
      */
-    public abstract String getDescription(Object configuration);
+    public abstract String getDescription(C configuration);
 
     /**
      * Find available {@link KVImplementation}s by scanning the classpath.
@@ -198,9 +223,9 @@ public abstract class KVImplementation {
      *
      * @return {@link KVImplementation}s found on the classpath
      */
-    public static KVImplementation[] getImplementations() {
-        final List<KVImplementation> kvs = new ImplementationsReader("kv")
-          .findImplementations(KVImplementation.class, XML_DESCRIPTOR_RESOURCE);
-        return kvs.toArray(new KVImplementation[kvs.size()]);
+    @SuppressWarnings("unchecked")
+    public static List<KVImplementation<?>> getImplementations() {
+        return (List<KVImplementation<?>>)(Object)new ImplementationsReader("kv").findImplementations(
+          KVImplementation.class, XML_DESCRIPTOR_RESOURCE);
     }
 }

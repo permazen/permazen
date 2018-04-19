@@ -9,7 +9,7 @@ import io.permazen.kv.sql.SQLDriverKVImplementation;
 
 import java.util.ArrayDeque;
 
-public class CockroachKVImplementation extends SQLDriverKVImplementation {
+public class CockroachKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
     public static final String POSTGRESQL_DRIVER_CLASS_NAME = "org.postgresql.Driver";
 
@@ -26,7 +26,7 @@ public class CockroachKVImplementation extends SQLDriverKVImplementation {
      * @param driverClassName Cockroach {@link java.sql.Driver} implementation class name
      */
     public CockroachKVImplementation(String driverClassName) {
-        super(driverClassName);
+        super(Config.class, driverClassName);
     }
 
     @Override
@@ -37,17 +37,17 @@ public class CockroachKVImplementation extends SQLDriverKVImplementation {
     }
 
     @Override
-    public String parseCommandLineOptions(ArrayDeque<String> options) {
-        return this.parseCommandLineOption(options, "--cockroach");
+    public Config parseCommandLineOptions(ArrayDeque<String> options) {
+        return new Config(this.parseCommandLineOption(options, "--cockroach"));
     }
 
     @Override
-    public String getDescription(Object configuration) {
+    public String getDescription(Config configuration) {
         return "CockroachDB";
     }
 
     @Override
-    protected CockroachKVDatabase createSQLKVDatabase(Object configuration) {
+    protected CockroachKVDatabase createSQLKVDatabase(Config configuration) {
         return new CockroachKVDatabase();
     }
 }

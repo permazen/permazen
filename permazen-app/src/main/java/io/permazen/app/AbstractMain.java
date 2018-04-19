@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.dellroad.stuff.main.MainClass;
 
@@ -53,10 +54,10 @@ public abstract class AbstractMain extends MainClass {
     protected boolean readOnly;
 
     // Key/value implementation(s) configuration
-    private final HashMap<KVImplementation, Object> kvConfigMap = new HashMap<>();
-    private KVImplementation requiredAtomicKVStore;
-    private KVImplementation requiredKVDatabase;
-    private KVImplementation kvImplementation;
+    private final HashMap<KVImplementation<?>, Object> kvConfigMap = new HashMap<>();
+    private KVImplementation<?> requiredAtomicKVStore;
+    private KVImplementation<?> requiredKVDatabase;
+    private KVImplementation<?> kvImplementation;
 
     /**
      * Parse command line options.
@@ -94,7 +95,7 @@ public abstract class AbstractMain extends MainClass {
         }
 
         // Parse (and remove) options supported by key/value implementations
-        for (KVImplementation availableKVImplementation : KVImplementation.getImplementations()) {
+        for (KVImplementation<?> availableKVImplementation : KVImplementation.getImplementations()) {
             final Object config;
             try {
                 config = availableKVImplementation.parseCommandLineOptions(params);
@@ -160,7 +161,7 @@ public abstract class AbstractMain extends MainClass {
         }
 
         // Decode what key/value implementations where specified and how they nest, if at all
-        final Iterator<KVImplementation> i = this.kvConfigMap.keySet().iterator();
+        final Iterator<KVImplementation<?>> i = this.kvConfigMap.keySet().iterator();
         switch (this.kvConfigMap.size()) {
         case 0:
             System.err.println(this.getName() + ": no key/value database specified; use one of `--arraydb', etc.");
@@ -170,8 +171,8 @@ public abstract class AbstractMain extends MainClass {
         case 1:
             this.kvImplementation = i.next();
             final Object config = this.kvConfigMap.get(this.kvImplementation);
-            if (this.kvImplementation.requiresAtomicKVStore(config) || this.kvImplementation.requiresKVDatabase(config)) {
-                System.err.println(this.getName() + ": " + this.kvImplementation.getDescription(config)
+            if (this.requiresAtomicKVStore(kvImplementation, config) || this.requiresKVDatabase(kvImplementation, config)) {
+                System.err.println(this.getName() + ": " + this.getDescription(this.kvImplementation, config)
                   + " requires the configuration of an underlying key/value technology; use one of `--arraydb', etc.");
                 return 1;
             }
@@ -180,23 +181,23 @@ public abstract class AbstractMain extends MainClass {
         case 2:
 
             // Put them in proper order: inner first, outer second
-            final KVImplementation[] kvis = new KVImplementation[] { i.next(), i.next() };
+            final KVImplementation<?>[] kvis = new KVImplementation<?>[] { i.next(), i.next() };
             final Object[] configs = new Object[] { this.kvConfigMap.get(kvis[0]), this.kvConfigMap.get(kvis[1]) };
-            if (kvis[0].requiresAtomicKVStore(configs[0]) || kvis[0].requiresKVDatabase(configs[0])) {
+            if (this.requiresAtomicKVStore(kvis[0], configs[0]) || this.requiresKVDatabase(kvis[0], configs[0])) {
                 Collections.reverse(Arrays.asList(kvis));
                 Collections.reverse(Arrays.asList(configs));
             }
 
             // Sanity check nesting requirements
-            if ((kvis[0].requiresAtomicKVStore(configs[0]) || kvis[0].requiresKVDatabase(configs[0]))
-              || !(kvis[1].requiresAtomicKVStore(configs[1]) || kvis[1].requiresKVDatabase(configs[1]))) {
-                System.err.println(this.getName() + ": incompatible combination of " + kvis[0].getDescription(configs[0])
-                  + " and " + kvis[1].getDescription(configs[1]));
+            if ((this.requiresAtomicKVStore(kvis[0], configs[0]) || this.requiresKVDatabase(kvis[0], configs[0]))
+              || !(this.requiresAtomicKVStore(kvis[1], configs[1]) || this.requiresKVDatabase(kvis[1], configs[1]))) {
+                System.err.println(this.getName() + ": incompatible combination of " + this.getDescription(kvis[0], configs[0])
+                  + " and " + this.getDescription(kvis[1], configs[1]));
                 return 1;
             }
 
             // Nest them as required
-            if (kvis[1].requiresAtomicKVStore(configs[1]))
+            if (this.requiresAtomicKVStore(kvis[1], configs[1]))
                 this.requiredAtomicKVStore = kvis[0];
             else
                 this.requiredKVDatabase = kvis[0];
@@ -338,6 +339,26 @@ public abstract class AbstractMain extends MainClass {
         return true;
     }
 
+    // Generic type futzing
+    private <C> boolean requiresAtomicKVStore(KVImplementation<C> kvi, Object config) {
+        return kvi.requiresAtomicKVStore(kvi.getConfigType().cast(config));
+    }
+    private <C> boolean requiresKVDatabase(KVImplementation<C> kvi, Object config) {
+        return kvi.requiresAtomicKVStore(kvi.getConfigType().cast(config));
+    }
+    private <C> String getDescription(KVImplementation<C> kvi, Object config) {
+        return kvi.getDescription(kvi.getConfigType().cast(config));
+    }
+    private <C> KVDatabase createKVDatabase(KVImplementation<C> kvi, Object config, KVDatabase kvdb, AtomicKVStore kvstore) {
+        return kvi.createKVDatabase(kvi.getConfigType().cast(config), kvdb, kvstore);
+    }
+    private <C> AtomicKVStore createAtomicKVStore(KVImplementation<C> kvi, Object config) {
+        return kvi.createAtomicKVStore(kvi.getConfigType().cast(config));
+    }
+    private <C> C getConfig(KVImplementation<C> kvi) {
+        return kvi.getConfigType().cast(this.kvConfigMap.get(kvi));
+    }
+
     /**
      * Load a class.
      *
@@ -361,15 +382,15 @@ public abstract class AbstractMain extends MainClass {
     protected Database startupKVDatabase() {
 
         // Create database
-        final Object config = this.kvConfigMap.get(this.kvImplementation);
+        final Object config = this.getConfig(this.kvImplementation);
         final AtomicKVStore nestedKVS = this.requiredAtomicKVStore != null ?
-          this.requiredAtomicKVStore.createAtomicKVStore(this.kvConfigMap.get(this.requiredAtomicKVStore)) : null;
+          this.createAtomicKVStore(this.requiredAtomicKVStore, this.getConfig(this.requiredAtomicKVStore)) : null;
         final KVDatabase nestedKV = this.requiredKVDatabase != null ?
-          this.requiredKVDatabase.createKVDatabase(this.kvConfigMap.get(this.requiredAtomicKVStore), null, null) : null;
-        this.kvdb = this.kvImplementation.createKVDatabase(config, nestedKV, nestedKVS);
+          this.createKVDatabase(this.requiredKVDatabase, this.getConfig(this.requiredAtomicKVStore), null, null) : null;
+        this.kvdb = this.createKVDatabase(this.kvImplementation, config, nestedKV, nestedKVS);
 
         // Start up database
-        this.databaseDescription =  this.kvImplementation.getDescription(config);
+        this.databaseDescription = this.getDescription(this.kvImplementation, config);
         this.log.debug("using database: " + this.databaseDescription);
         this.kvdb.start();
 
@@ -417,8 +438,8 @@ public abstract class AbstractMain extends MainClass {
         }));
 
         // Add options supported by the various key/value implementations
-        final KVImplementation[] kvs = KVImplementation.getImplementations();
-        for (KVImplementation kv : kvs)
+        final List<KVImplementation<?>> kvs = KVImplementation.getImplementations();
+        for (KVImplementation<?> kv : kvs)
             optionList.addAll(Arrays.<String[]>asList(kv.getCommandLineOptions()));
 
         // Add options supported by subclass
@@ -436,7 +457,7 @@ public abstract class AbstractMain extends MainClass {
             System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));
 
         // Display additional usage text
-        for (KVImplementation kv : kvs) {
+        for (KVImplementation<?> kv : kvs) {
             final String usageText = kv.getUsageText();
             if (usageText != null)
                 System.err.println(usageText.trim());

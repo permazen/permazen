@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class ArrayKVImplementation extends KVImplementation {
+public class ArrayKVImplementation extends KVImplementation<File> {
+
+    public ArrayKVImplementation() {
+        super(File.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -28,21 +32,21 @@ public class ArrayKVImplementation extends KVImplementation {
     }
 
     @Override
-    public ArrayKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
+    public ArrayKVDatabase createKVDatabase(File directory, KVDatabase kvdb, AtomicKVStore kvstore) {
         final ArrayKVDatabase arraydb = new ArrayKVDatabase();
-        arraydb.setKVStore(this.createAtomicKVStore(configuration));
+        arraydb.setKVStore(this.createAtomicKVStore(directory));
         return arraydb;
     }
 
     @Override
-    public AtomicArrayKVStore createAtomicKVStore(Object configuration) {
+    public AtomicArrayKVStore createAtomicKVStore(File directory) {
         final AtomicArrayKVStore kvstore = new AtomicArrayKVStore();
-        kvstore.setDirectory((File)configuration);
+        kvstore.setDirectory(directory);
         return kvstore;
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "ArrayDB " + ((File)configuration).getName();
+    public String getDescription(File directory) {
+        return "ArrayDB " + directory.getName();
     }
 }

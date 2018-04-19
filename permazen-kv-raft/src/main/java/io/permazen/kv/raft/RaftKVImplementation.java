@@ -22,7 +22,11 @@ import java.util.ArrayDeque;
 
 import org.dellroad.stuff.net.TCPNetwork;
 
-public class RaftKVImplementation extends KVImplementation {
+public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.Config> {
+
+    public RaftKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -149,31 +153,29 @@ public class RaftKVImplementation extends KVImplementation {
     }
 
     @Override
-    public KVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        final Config config = (Config)configuration;
+    public KVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final RaftKVDatabase raft = config.configureRaft(kvstore);
         return config.isFallback() ? config.configureFallback(kvdb) : raft;
     }
 
     @Override
-    public boolean requiresAtomicKVStore(Object configuration) {
+    public boolean requiresAtomicKVStore(Config config) {
         return true;
     }
 
     @Override
-    public boolean requiresKVDatabase(Object configuration) {
-        return ((Config)configuration).isFallback();
+    public boolean requiresKVDatabase(Config config) {
+        return config.isFallback();
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        final Config config = (Config)configuration;
+    public String getDescription(Config config) {
         return "Raft " + config.getRaft().getLogDirectory().getName() + (config.isFallback() ? "/Fallback" : "");
     }
 
 // Config
 
-    private static class Config {
+    public static class Config {
 
         private final RaftKVDatabase raft = new RaftKVDatabase();
         private final FallbackTarget fallbackTarget = new FallbackTarget();
@@ -182,7 +184,7 @@ public class RaftKVImplementation extends KVImplementation {
         private String address;
         private int port = RaftKVDatabase.DEFAULT_TCP_PORT;
 
-        Config(File dir) {
+        public Config(File dir) {
             if (dir == null)
                 throw new IllegalArgumentException("null dir");
             this.raft.setLogDirectory(dir);

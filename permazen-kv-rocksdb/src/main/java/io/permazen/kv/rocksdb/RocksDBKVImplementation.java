@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class RocksDBKVImplementation extends KVImplementation {
+public class RocksDBKVImplementation extends KVImplementation<File> {
+
+    public RocksDBKVImplementation() {
+        super(File.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -28,21 +32,21 @@ public class RocksDBKVImplementation extends KVImplementation {
     }
 
     @Override
-    public RocksDBKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
+    public RocksDBKVDatabase createKVDatabase(File directory, KVDatabase kvdb, AtomicKVStore kvstore) {
         final RocksDBKVDatabase rocksdb = new RocksDBKVDatabase();
-        rocksdb.setKVStore(this.createAtomicKVStore(configuration));
+        rocksdb.setKVStore(this.createAtomicKVStore(directory));
         return rocksdb;
     }
 
     @Override
-    public RocksDBAtomicKVStore createAtomicKVStore(Object configuration) {
+    public RocksDBAtomicKVStore createAtomicKVStore(File directory) {
         final RocksDBAtomicKVStore kvstore = new RocksDBAtomicKVStore();
-        kvstore.setDirectory((File)configuration);
+        kvstore.setDirectory(directory);
         return kvstore;
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "RocksDB " + ((File)configuration).getName();
+    public String getDescription(File directory) {
+        return "RocksDB " + directory.getName();
     }
 }

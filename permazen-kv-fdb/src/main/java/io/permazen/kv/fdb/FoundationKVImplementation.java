@@ -14,7 +14,11 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 
-public class FoundationKVImplementation extends KVImplementation {
+public class FoundationKVImplementation extends KVImplementation<FoundationKVImplementation.Config> {
+
+    public FoundationKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -46,8 +50,7 @@ public class FoundationKVImplementation extends KVImplementation {
     }
 
     @Override
-    public FoundationKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        final Config config = (Config)configuration;
+    public FoundationKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final FoundationKVDatabase fdb = new FoundationKVDatabase();
         fdb.setClusterFilePath(config.getClusterFile());
         fdb.setKeyPrefix(config.getPrefix());
@@ -55,8 +58,7 @@ public class FoundationKVImplementation extends KVImplementation {
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        final Config config = (Config)configuration;
+    public String getDescription(Config config) {
         String desc = "FoundationDB " + new File(config.getClusterFile()).getName();
         final byte[] prefix = config.getPrefix();
         if (prefix != null && prefix.length > 0)
@@ -66,12 +68,12 @@ public class FoundationKVImplementation extends KVImplementation {
 
 // Config
 
-    private static class Config {
+    public static class Config {
 
         private String clusterFile;
         private byte[] prefix;
 
-        Config(String clusterFile) {
+        public Config(String clusterFile) {
             if (clusterFile == null)
                 throw new IllegalArgumentException("null clusterFile");
             this.clusterFile = clusterFile;
@@ -82,11 +84,10 @@ public class FoundationKVImplementation extends KVImplementation {
         }
 
         public byte[] getPrefix() {
-            return this.prefix;
+            return this.prefix != null ? this.prefix.clone() : null;
         }
-
         public void setPrefix(byte[] prefix) {
-            this.prefix = prefix;
+            this.prefix = prefix != null ? prefix.clone() : null;
         }
     }
 }

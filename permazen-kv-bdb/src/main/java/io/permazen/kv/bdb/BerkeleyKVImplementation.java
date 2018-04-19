@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class BerkeleyKVImplementation extends KVImplementation {
+public class BerkeleyKVImplementation extends KVImplementation<BerkeleyKVImplementation.Config> {
+
+    public BerkeleyKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -37,8 +41,7 @@ public class BerkeleyKVImplementation extends KVImplementation {
     }
 
     @Override
-    public BerkeleyKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        final Config config = (Config)configuration;
+    public BerkeleyKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
         bdb.setDirectory(config.getDirectory());
         bdb.setDatabaseName(config.getDatabaseName());
@@ -46,18 +49,18 @@ public class BerkeleyKVImplementation extends KVImplementation {
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "BerkeleyDB " + ((Config)configuration).getDirectory().getName();
+    public String getDescription(Config config) {
+        return "BerkeleyDB " + config.getDirectory().getName();
     }
 
 // Config
 
-    private static class Config {
+    public static class Config {
 
         private File dir;
         private String databaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
 
-        Config(File dir) {
+        public Config(File dir) {
             if (dir == null)
                 throw new IllegalArgumentException("null dir");
             this.dir = dir;

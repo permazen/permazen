@@ -9,7 +9,7 @@ import io.permazen.kv.sql.SQLDriverKVImplementation;
 
 import java.util.ArrayDeque;
 
-public class MySQLKVImplementation extends SQLDriverKVImplementation {
+public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
     public static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
 
@@ -26,7 +26,7 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation {
      * @param driverClassName MySQL {@link java.sql.Driver} implementation class name
      */
     public MySQLKVImplementation(String driverClassName) {
-        super(driverClassName);
+        super(Config.class, driverClassName);
     }
 
     @Override
@@ -37,17 +37,17 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation {
     }
 
     @Override
-    public String parseCommandLineOptions(ArrayDeque<String> options) {
-        return this.parseCommandLineOption(options, "--mysql");
+    public Config parseCommandLineOptions(ArrayDeque<String> options) {
+        return new Config(this.parseCommandLineOption(options, "--mysql"));
     }
 
     @Override
-    public String getDescription(Object configuration) {
+    public String getDescription(Config configuration) {
         return "MySQL";
     }
 
     @Override
-    protected MySQLKVDatabase createSQLKVDatabase(Object configuration) {
+    protected MySQLKVDatabase createSQLKVDatabase(Config configuration) {
         return new MySQLKVDatabase();
     }
 }

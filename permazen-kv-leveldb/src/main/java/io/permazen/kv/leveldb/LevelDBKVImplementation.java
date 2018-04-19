@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class LevelDBKVImplementation extends KVImplementation {
+public class LevelDBKVImplementation extends KVImplementation<File> {
+
+    public LevelDBKVImplementation() {
+        super(File.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -28,22 +32,22 @@ public class LevelDBKVImplementation extends KVImplementation {
     }
 
     @Override
-    public LevelDBKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
+    public LevelDBKVDatabase createKVDatabase(File directory, KVDatabase kvdb, AtomicKVStore kvstore) {
         final LevelDBKVDatabase leveldb = new LevelDBKVDatabase();
-        leveldb.setKVStore(this.createAtomicKVStore(configuration));
+        leveldb.setKVStore(this.createAtomicKVStore(directory));
         return leveldb;
     }
 
     @Override
-    public LevelDBAtomicKVStore createAtomicKVStore(Object configuration) {
+    public LevelDBAtomicKVStore createAtomicKVStore(File directory) {
         final LevelDBAtomicKVStore kvstore = new LevelDBAtomicKVStore();
-        kvstore.setDirectory((File)configuration);
+        kvstore.setDirectory(directory);
         kvstore.setCreateIfMissing(true);
         return kvstore;
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "LevelDB " + ((File)configuration).getName();
+    public String getDescription(File directory) {
+        return "LevelDB " + directory.getName();
     }
 }

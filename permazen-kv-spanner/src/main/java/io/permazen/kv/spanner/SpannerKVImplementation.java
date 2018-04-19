@@ -14,7 +14,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 
 import java.util.ArrayDeque;
 
-public class SpannerKVImplementation extends KVImplementation {
+public class SpannerKVImplementation extends KVImplementation<SpannerKVImplementation.Config> {
+
+    public SpannerKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -39,22 +43,20 @@ public class SpannerKVImplementation extends KVImplementation {
     }
 
     @Override
-    public SpannerKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        final Config config = (Config)configuration;
+    public SpannerKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final SpannerKVDatabase spannerKV = new SpannerKVDatabase();
         config.configure(spannerKV);
         return spannerKV;
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        final Config config = (Config)configuration;
+    public String getDescription(Config config) {
         return "Spanner " + config.getInstanceId();
     }
 
 // Options
 
-    private static class Config {
+    public static class Config {
 
         private String projectId;
         private String instanceId;

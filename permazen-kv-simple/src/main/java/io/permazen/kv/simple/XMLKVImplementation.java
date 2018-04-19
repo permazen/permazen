@@ -12,7 +12,11 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import java.io.File;
 import java.util.ArrayDeque;
 
-public class XMLKVImplementation extends KVImplementation {
+public class XMLKVImplementation extends KVImplementation<File> {
+
+    public XMLKVImplementation() {
+        super(File.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -28,12 +32,12 @@ public class XMLKVImplementation extends KVImplementation {
     }
 
     @Override
-    public XMLKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        return new XMLKVDatabase((File)configuration);
+    public XMLKVDatabase createKVDatabase(File file, KVDatabase kvdb, AtomicKVStore kvstore) {
+        return new XMLKVDatabase(file);
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        return "XML DB " + ((File)configuration).getName();
+    public String getDescription(File file) {
+        return "XML DB " + file.getName();
     }
 }

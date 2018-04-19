@@ -13,7 +13,11 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
-public class SQLiteKVImplementation extends KVImplementation {
+public class SQLiteKVImplementation extends KVImplementation<SQLiteKVImplementation.Config> {
+
+    public SQLiteKVImplementation() {
+        super(Config.class);
+    }
 
     @Override
     public String[][] getCommandLineOptions() {
@@ -39,8 +43,7 @@ public class SQLiteKVImplementation extends KVImplementation {
     }
 
     @Override
-    public SQLiteKVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
-        final Config config = (Config)configuration;
+    public SQLiteKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final SQLiteKVDatabase sqlite = new SQLiteKVDatabase();
         sqlite.setDatabaseFile(config.getFile());
         sqlite.setExclusiveLocking(config.isExclusiveLocking());
@@ -49,14 +52,13 @@ public class SQLiteKVImplementation extends KVImplementation {
     }
 
     @Override
-    public String getDescription(Object configuration) {
-        final Config config = (Config)configuration;
+    public String getDescription(Config config) {
         return "SQLite " + config.getFile().getName();
     }
 
 // Config
 
-    private static class Config {
+    public static class Config {
 
         private File file;
         private boolean exclusiveLocking;

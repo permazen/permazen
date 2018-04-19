@@ -13,8 +13,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * Support superclass for {@link KVImplementation}s that create {@link SQLKVDatabase} instances.
+ *
+ * @param <C> configuration object type
  */
-public abstract class SQLDriverKVImplementation extends KVImplementation {
+public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementation.Config> extends KVImplementation<C> {
 
     private final String driverClassName;
 
@@ -23,12 +25,13 @@ public abstract class SQLDriverKVImplementation extends KVImplementation {
      *
      * @param driverClassName {@link java.sql.Driver} implementation class name
      */
-    protected SQLDriverKVImplementation(String driverClassName) {
+    protected SQLDriverKVImplementation(Class<C> configType, String driverClassName) {
+        super(configType);
         this.driverClassName = driverClassName;
     }
 
     @Override
-    public KVDatabase createKVDatabase(Object configuration, KVDatabase kvdb, AtomicKVStore kvstore) {
+    public KVDatabase createKVDatabase(C config, KVDatabase kvdb, AtomicKVStore kvstore) {
 
         // Load driver class
         try {
@@ -40,10 +43,10 @@ public abstract class SQLDriverKVImplementation extends KVImplementation {
         }
 
         // Extract JDBC URL from configuration
-        final String jdbcUrl = this.getJdbcUrl(configuration);
+        final String jdbcUrl = config.getJdbcUrl();
 
         // Instantiate and configure KVDatabase
-        final SQLKVDatabase sqlKV = this.createSQLKVDatabase(configuration);
+        final SQLKVDatabase sqlKV = this.createSQLKVDatabase(config);
         sqlKV.setDataSource(new DriverManagerDataSource(jdbcUrl));
         return sqlKV;
     }
@@ -55,22 +58,29 @@ public abstract class SQLDriverKVImplementation extends KVImplementation {
      * This method does not need to configure the {@link javax.sql.DataSource} (via
      * {@link SQLKVDatabase#setDataSource SQLKVDatabase.setDataSource()}); the calling method will do that.
      *
-     * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
+     * @param config implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
      * @return new key/value database
      */
-    protected abstract SQLKVDatabase createSQLKVDatabase(Object configuration);
+    protected abstract SQLKVDatabase createSQLKVDatabase(C config);
 
-    /**
-     * Extract the JDBC URL from the configuration object.
-     *
-     * <p>
-     * The implementation in {@link SQLDriverKVImplementation} assumes {@code configuration}
-     * is a {@link String}, and returns it.
-     *
-     * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
-     * @return JDBC driver URL
-     */
-    protected String getJdbcUrl(Object configuration) {
-        return (String)configuration;
+// Options
+
+    public static class Config {
+
+        private String url;
+
+        public Config() {
+        }
+
+        public Config(String url) {
+            this.setJdbcUrl(url);
+        }
+
+        public String getJdbcUrl() {
+            return this.url;
+        }
+        public void setJdbcUrl(String url) {
+            this.url = url;
+        }
     }
 }
