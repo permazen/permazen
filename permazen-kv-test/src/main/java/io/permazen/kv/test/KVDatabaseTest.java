@@ -542,8 +542,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 if (txs[i] == null)
                     continue;
                 finished = false;
-                Future<?> rf = this.threads[i].submit(new Reader(txs[i], new byte[] { (byte)i }, true));
-                Future<?> wf = this.threads[i].submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
+                final Future<?> rf = this.threads[i].submit(new Reader(txs[i], new byte[] { (byte)i }, true));
+                final Future<?> wf = this.threads[i].submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
                 for (Future<?> f : new Future<?>[] { rf, wf }) {
                     try {
                         f.get();
@@ -564,14 +564,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 try {
                     this.numTransactionAttempts.incrementAndGet();
                     try {
-                        final int i2 = i;
-                        this.threads[i].submit(() -> txs[i2].commit()).get();
+                        final KVTransaction tx = txs[i];
+                        this.threads[i].submit(() -> tx.commit()).get();
                     } catch (ExecutionException e) {
                         throw (RuntimeException)e.getCause();
                     }
                 } catch (RetryTransactionException e) {
                     this.updateRetryStats(e);
-                    txs[i] =  this.threads[i].submit(() -> this.createKVTransaction(store)).get();
+                    txs[i] = this.threads[i].submit(() -> this.createKVTransaction(store)).get();
                     continue;
                 }
                 txs[i] = null;
