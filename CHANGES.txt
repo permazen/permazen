@@ -1,4 +1,4 @@
-Version 4.1.0
+Version 4.1.0 Released April 19, 2018
 
     - Added console support for configuring a required password
     - Brought FoundationDB key/value database back to life
