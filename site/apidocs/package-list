@@ -36,6 +36,7 @@ io.permazen.kv.sql
 io.permazen.kv.sqlite
 io.permazen.kv.test
 io.permazen.kv.util
+io.permazen.kv.xodus
 io.permazen.maven
 io.permazen.parse
 io.permazen.parse.expr
