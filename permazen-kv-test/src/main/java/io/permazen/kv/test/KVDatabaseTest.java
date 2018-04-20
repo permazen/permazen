@@ -567,7 +567,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         final KVTransaction tx = txs[i];
                         this.threads[i].submit(() -> tx.commit()).get();
                     } catch (ExecutionException e) {
-                        throw (RuntimeException)e.getCause();
+                        if (e.getCause() instanceof Error)
+                            throw (Error)e.getCause();
+                        if (e.getCause() instanceof RuntimeException)
+                            throw (RuntimeException)e.getCause();
+                        throw new RuntimeException(e.getCause());
                     }
                 } catch (RetryTransactionException e) {
                     this.updateRetryStats(e);
