@@ -158,11 +158,22 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
     }
 
     @Override
-    public void testConflictingTransactions(final KVDatabase store) throws Exception {
+    public void testReadWriteConflict(final KVDatabase store) throws Exception {
         this.disruptCluster(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                RaftKVDatabaseTest.super.testConflictingTransactions(store);
+                RaftKVDatabaseTest.super.testReadWriteConflict(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testWriteSkewAnomaly(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testWriteSkewAnomaly(store);
                 return null;
             }
         });
