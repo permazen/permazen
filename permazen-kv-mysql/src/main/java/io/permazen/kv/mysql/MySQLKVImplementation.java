@@ -38,7 +38,8 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
 
     @Override
     public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        return new Config(this.parseCommandLineOption(options, "--mysql"));
+        final String url = this.parseCommandLineOption(options, "--mysql");
+        return url != null ? new Config(url) : null;
     }
 
     @Override

@@ -38,7 +38,8 @@ public class CockroachKVImplementation extends SQLDriverKVImplementation<SQLDriv
 
     @Override
     public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        return new Config(this.parseCommandLineOption(options, "--cockroach"));
+        final String url = this.parseCommandLineOption(options, "--cockroach");
+        return url != null ? new Config(url) : null;
     }
 
     @Override

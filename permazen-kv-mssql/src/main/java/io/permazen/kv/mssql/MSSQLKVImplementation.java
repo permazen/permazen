@@ -38,7 +38,8 @@ public class MSSQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
 
     @Override
     public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        return new Config(this.parseCommandLineOption(options, "--mssql"));
+        final String url = this.parseCommandLineOption(options, "--mssql");
+        return url != null ? new Config(url) : null;
     }
 
     @Override
