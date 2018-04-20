@@ -23,6 +23,7 @@ public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementat
     /**
      * Constructor.
      *
+     * @param configType configuration object type
      * @param driverClassName {@link java.sql.Driver} implementation class name
      */
     protected SQLDriverKVImplementation(Class<C> configType, String driverClassName) {
