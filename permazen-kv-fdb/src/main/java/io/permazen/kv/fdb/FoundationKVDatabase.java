@@ -5,14 +5,17 @@
 
 package io.permazen.kv.fdb;
 
-import com.foundationdb.Database;
-import com.foundationdb.FDB;
-import com.foundationdb.FDBException;
-import com.foundationdb.NetworkOptions;
+import com.apple.foundationdb.Database;
+import com.apple.foundationdb.FDB;
+import com.apple.foundationdb.FDBException;
+import com.apple.foundationdb.NetworkOptions;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
+import io.permazen.util.ByteReader;
+import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteWriter;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -32,13 +35,12 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * The API version used by this class.
      */
-    public static final int API_VERSION = 300;
+    public static final int API_VERSION = 510;
 
     private final FDB fdb = FDB.selectAPIVersion(API_VERSION);
     private final NetworkOptions options = this.fdb.options();
 
     private String clusterFilePath;
-    private byte[] databaseName = new byte[] { (byte)'D', (byte)'B' };
     private byte[] keyPrefix;
     private Executor executor;
 
@@ -83,17 +85,6 @@ public class FoundationKVDatabase implements KVDatabase {
      */
     public synchronized void setClusterFilePath(String clusterFilePath) {
         this.clusterFilePath = clusterFilePath;
-    }
-
-    /**
-     * Configure the database name. Currently the default value ({@code "DB".getBytes()}) is the only valid value.
-     *
-     * @param databaseName database name
-     * @throws IllegalArgumentException if {@code databaseName} is null
-     */
-    public synchronized void setDatabaseName(byte[] databaseName) {
-        Preconditions.checkState(databaseName != null, "null databaseName");
-        this.databaseName = databaseName.clone();
     }
 
     /**
@@ -143,7 +134,7 @@ public class FoundationKVDatabase implements KVDatabase {
             return;
         if (this.started)
             throw new UnsupportedOperationException("restarts not supported");
-        this.database = this.fdb.open(this.clusterFilePath, this.databaseName);
+        this.database = this.fdb.open(this.clusterFilePath);
         if (this.executor != null)
             this.fdb.startNetwork(this.executor);
         else
@@ -161,17 +152,60 @@ public class FoundationKVDatabase implements KVDatabase {
     }
 
     @Override
-    public FoundationKVTransaction createTransaction(Map<String, ?> options) {
-        return this.createTransaction();                                            // no options supported yet
+    public FoundationKVTransaction createTransaction() {
+        return this.createTransaction(null);
     }
 
     @Override
-    public synchronized FoundationKVTransaction createTransaction() {
+    public synchronized FoundationKVTransaction createTransaction(Map<String, ?> options) {
         Preconditions.checkState(this.database != null, "not started");
         try {
-            return new FoundationKVTransaction(this, this.keyPrefix);
+            return new FoundationKVTransaction(this, this.database.createTransaction(), this.keyPrefix);
         } catch (FDBException e) {
             throw new KVDatabaseException(this, e);
+        }
+    }
+
+// Counters
+
+    /**
+     * Encode a 64 bit counter value.
+     *
+     * @param value counter value
+     * @return encoded value
+     */
+    public static byte[] encodeCounter(long value) {
+        final ByteWriter writer = new ByteWriter(8);
+        ByteUtil.writeLong(writer, value);
+        final byte[] bytes = writer.getBytes();
+        FoundationKVDatabase.reverse(bytes);
+        return bytes;
+    }
+
+    /**
+     * Decode a 64 bit counter value.
+     *
+     * @param bytes encoded value
+     * @return value counter value
+     * @throws NullPointerException if {@code bytes} is null
+     * @throws IllegalArgumentException if {@code bytes} is invalid
+     */
+    public static long decodeCounter(byte[] bytes) {
+        Preconditions.checkArgument(bytes.length == 8, "invalid encoded counter value length != 8");
+        bytes = bytes.clone();
+        FoundationKVDatabase.reverse(bytes);
+        return ByteUtil.readLong(new ByteReader(bytes));
+    }
+
+    private static void reverse(byte[] bytes) {
+        int i = 0;
+        int j = bytes.length - 1;
+        while (i < j) {
+            final byte temp = bytes[i];
+            bytes[i] = bytes[j];
+            bytes[j] = temp;
+            i++;
+            j--;
         }
     }
 }

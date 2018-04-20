@@ -29,5 +29,9 @@ public class FoundationKVDatabaseTest extends KVDatabaseTest {
     protected KVDatabase getKVDatabase() {
         return this.fdbKV;
     }
-}
 
+    @Override
+    protected boolean supportsReadOnlyAfterDataAccess() {
+        return false;
+    }
+}

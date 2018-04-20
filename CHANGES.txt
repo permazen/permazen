@@ -1,8 +1,9 @@
 Version 4.1.0
 
     - Added console support for configuring a required password
-    - Updated a bunch of dependencies
+    - Brought FoundationDB key/value database back to life
     - Added Xodus key/value database
+    - Updated a bunch of dependencies
 
 Version 4.0.3 Released January 20, 2018
 

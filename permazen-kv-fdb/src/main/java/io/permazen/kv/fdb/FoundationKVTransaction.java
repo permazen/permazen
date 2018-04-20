@@ -5,67 +5,66 @@
 
 package io.permazen.kv.fdb;
 
-import com.foundationdb.Disposable;
-import com.foundationdb.FDBException;
-import com.foundationdb.KeyValue;
-import com.foundationdb.MutationType;
-import com.foundationdb.Range;
-import com.foundationdb.ReadTransaction;
-import com.foundationdb.Transaction;
-import com.foundationdb.async.AsyncIterator;
+import com.apple.foundationdb.FDBException;
+import com.apple.foundationdb.Transaction;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
-import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
-import io.permazen.util.ByteReader;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Writes;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 
-import java.io.Closeable;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * FoundationDB transaction.
  */
+@ThreadSafe
 public class FoundationKVTransaction implements KVTransaction {
 
     private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)
     private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
 
-    private final FoundationKVDatabase store;
+    private final FoundationKVDatabase kvdb;
+    private final FoundationKVStore kvstore;
     private final Transaction tx;
-    private final byte[] keyPrefix;
 
-    private volatile boolean stale;
-    private volatile boolean canceled;
+    @GuardedBy("this")
+    private boolean readOnly;
+    @GuardedBy("this")
+    private KVStore view;
+    @GuardedBy("this")
+    private boolean closed;
 
     /**
      * Constructor.
      */
-    FoundationKVTransaction(FoundationKVDatabase store, byte[] keyPrefix) {
-        Preconditions.checkArgument(store != null, "null store");
-        this.store = store;
-        this.tx = this.store.getDatabase().createTransaction();
-        this.keyPrefix = keyPrefix;
-    }
-
-// KVTransaction
-
-    @Override
-    public FoundationKVDatabase getKVDatabase() {
-        return this.store;
+    FoundationKVTransaction(FoundationKVDatabase kvdb, Transaction tx, byte[] keyPrefix) {
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
+        Preconditions.checkArgument(tx != null, "null tx");
+        this.kvdb = kvdb;
+        this.tx = tx;
+        this.kvstore = new FoundationKVStore(this.tx, keyPrefix);
     }
 
     /**
      * Get the underlying {@link Transaction} associated with this instance.
+     *
+     * <p>
+     * Note: even if this transaction is read-only, the returned {@link Transaction} will permit mutations
+     * that persist on {@link #commit}; use accordingly.
      *
      * @return the associated transaction
      */
@@ -73,160 +72,64 @@ public class FoundationKVTransaction implements KVTransaction {
         return this.tx;
     }
 
+// KVTransaction
+
     @Override
-    public void setTimeout(long timeout) {
+    public FoundationKVDatabase getKVDatabase() {
+        return this.kvdb;
+    }
+
+    @Override
+    public synchronized void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.tx.options().setTimeout(timeout);
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public synchronized CompletableFuture<Void> watchKey(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
-        if (this.stale)
+        if (this.closed)
             throw new StaleTransactionException(this);
         try {
-            return new FutureWrapper<Void>(this.tx.watch(this.addPrefix(key)));
+            return this.tx.watch(this.kvstore.addPrefix(key));
         } catch (FDBException e) {
+            this.close();
             throw this.wrapException(e);
         }
     }
 
     @Override
-    public byte[] get(byte[] key) {
-        if (this.stale)
+    public synchronized boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
+    public synchronized void setReadOnly(boolean readOnly) {
+        if (this.closed)
             throw new StaleTransactionException(this);
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
-        try {
-            return this.tx.get(this.addPrefix(key)).get();
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
+        Preconditions.checkState(this.view == null || readOnly == this.readOnly, "data already accessed");
+        this.readOnly = readOnly;
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
-        if (this.stale)
+    public synchronized void commit() {
+        if (this.closed)
             throw new StaleTransactionException(this);
-        if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
-            return null;
-        return this.getFirstInRange(minKey, maxKey, false);
-    }
-
-    @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
-            maxKey = null;
-        return this.getFirstInRange(minKey, maxKey, true);
-    }
-
-    @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
-            minKey = MAX_KEY;
-        if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
-            maxKey = null;
-        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
-        final AsyncIterator<KeyValue> i;
-        try {
-            i = this.tx.getRange(this.addPrefix(minKey, maxKey), ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator();
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
-        return CloseableIterator.wrap(Iterators.transform(i, kv -> new KVPair(this.removePrefix(kv.getKey()), kv.getValue())),
-          new DisposableCloseable(i));
-    }
-
-    private KVPair getFirstInRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        try {
-            final AsyncIterator<KeyValue> i = this.tx.getRange(this.addPrefix(minKey, maxKey),
-              ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator();
-            try {
-                if (!i.hasNext())
-                    return null;
-                final KeyValue kv = i.next();
-                return new KVPair(this.removePrefix(kv.getKey()), kv.getValue());
-            } finally {
-                i.dispose();
-            }
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
-    }
-
-    @Override
-    public void put(byte[] key, byte[] value) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
-        try {
-            this.tx.set(this.addPrefix(key), value);
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
-    }
-
-    @Override
-    public void remove(byte[] key) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
-        try {
-            this.tx.clear(this.addPrefix(key));
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
-    }
-
-    @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
-            return;
-        if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
-            maxKey = null;
-        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
-        try {
-            this.tx.clear(this.addPrefix(minKey, maxKey));
-        } catch (FDBException e) {
-            throw this.wrapException(e);
-        }
-    }
-
-    @Override
-    public boolean isReadOnly() {
-        return false;
-    }
-
-    @Override
-    public void setReadOnly(boolean readOnly) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void commit() {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        this.stale = true;
         try {
             this.tx.commit().get();
-        } catch (FDBException e) {
-            throw this.wrapException(e);
+        } catch (ExecutionException e) {
+            throw e.getCause() instanceof FDBException ?
+              this.wrapException((FDBException)e.getCause()) : new KVTransactionException(this, e.getCause());
+        } catch (InterruptedException e) {
+            throw new KVTransactionException(this, e);
         } finally {
-            this.cancel();
+            this.close();
         }
     }
 
     @Override
     public void rollback() {
-        if (this.stale)
-            return;
-        this.stale = true;
-        this.cancel();
+        this.close();
     }
 
     @Override
@@ -234,56 +137,110 @@ public class FoundationKVTransaction implements KVTransaction {
         throw new UnsupportedOperationException();
     }
 
-    private void cancel() {
-        if (this.canceled)
-            return;
-        this.canceled = true;
+// KVStore
+
+    @Override
+    public byte[] get(byte[] key) {
         try {
-            this.tx.cancel();
+            return this.getKVStore().get(key);
         } catch (FDBException e) {
-            // ignore
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+        try {
+            return this.getKVStore().getAtLeast(minKey, maxKey);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+        try {
+            return this.getKVStore().getAtMost(maxKey, minKey);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        try {
+            return this.getKVStore().getRange(minKey, maxKey, reverse);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public void put(byte[] key, byte[] value) {
+        try {
+            this.getKVStore().put(key, value);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public void remove(byte[] key) {
+        try {
+            this.getKVStore().remove(key);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
+        }
+    }
+
+    @Override
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        try {
+            this.getKVStore().removeRange(minKey, maxKey);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
         }
     }
 
     @Override
     public byte[] encodeCounter(long value) {
-        final ByteWriter writer = new ByteWriter(8);
-        ByteUtil.writeLong(writer, value);
-        final byte[] bytes = writer.getBytes();
-        this.reverse(bytes);
-        return bytes;
+        return FoundationKVDatabase.encodeCounter(value);
     }
 
     @Override
     public long decodeCounter(byte[] bytes) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(bytes.length == 8, "invalid encoded counter value length != 8");
-        bytes = bytes.clone();
-        this.reverse(bytes);
-        return ByteUtil.readLong(new ByteReader(bytes));
+        return FoundationKVDatabase.decodeCounter(bytes);
     }
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        this.tx.mutate(MutationType.ADD, this.addPrefix(key), this.encodeCounter(amount));
-    }
-
-    private void reverse(byte[] bytes) {
-        int i = 0;
-        int j = bytes.length - 1;
-        while (i < j) {
-            final byte temp = bytes[i];
-            bytes[i] = bytes[j];
-            bytes[j] = temp;
-            i++;
-            j--;
+        try {
+            this.getKVStore().adjustCounter(key, amount);
+        } catch (FDBException e) {
+            this.close();
+            throw this.wrapException(e);
         }
     }
 
-// Other methods
+// Internal methods
+
+    private synchronized void close() {
+        if (this.closed)
+            return;
+        this.closed = true;
+        try {
+            this.tx.close();
+        } catch (FDBException e) {
+            // ignore
+        }
+    }
 
     /**
      * Wrap the given {@link FDBException} in the appropriate {@link KVTransactionException}.
@@ -293,59 +250,18 @@ public class FoundationKVTransaction implements KVTransaction {
      * @throws NullPointerException if {@code e} is null
      */
     public KVTransactionException wrapException(FDBException e) {
-        try {
-            this.cancel();
-        } catch (KVTransactionException e2) {
-            // ignore
-        }
-        switch (e.getCode()) {
-        case ErrorCodes.TRANSACTION_TIMED_OUT:
-        case ErrorCodes.PAST_VERSION:
+        if (e.getCode() == ErrorCode.TRANSACTION_TIMED_OUT.getCode())
             return new TransactionTimeoutException(this, e);
-        case ErrorCodes.NOT_COMMITTED:
-        case ErrorCodes.COMMIT_UNKNOWN_RESULT:
+        if (e.getCode() < 1500)
             return new RetryTransactionException(this, e);
-        default:
-            return new KVTransactionException(this, e);
-        }
+        return new KVTransactionException(this, e);
     }
 
-// Key prefixing
-
-    private byte[] addPrefix(byte[] key) {
-        return this.keyPrefix != null ? Bytes.concat(this.keyPrefix, key) : key;
-    }
-
-    private Range addPrefix(byte[] minKey, byte[] maxKey) {
-        return new Range(this.addPrefix(minKey != null ? minKey : MIN_KEY), this.addPrefix(maxKey != null ? maxKey : MAX_KEY));
-    }
-
-    private byte[] removePrefix(byte[] key) {
-        if (this.keyPrefix == null)
-            return key;
-        if (!ByteUtil.isPrefixOf(this.keyPrefix, key)) {
-            throw new IllegalArgumentException("read key " + ByteUtil.toString(key) + " not having "
-              + ByteUtil.toString(this.keyPrefix) + " as a prefix");
-        }
-        final byte[] stripped = new byte[key.length - this.keyPrefix.length];
-        System.arraycopy(key, this.keyPrefix.length, stripped, 0, stripped.length);
-        return stripped;
-    }
-
-// DisposableCloseable
-
-    private static class DisposableCloseable implements Closeable {
-
-        private final Disposable target;
-
-        DisposableCloseable(Disposable target) {
-            this.target = target;
-        }
-
-        @Override
-        public void close() {
-            this.target.dispose();
-        }
+    private synchronized KVStore getKVStore() {
+        if (this.closed)
+            throw new StaleTransactionException(this);
+        if (this.view == null)
+            this.view = this.readOnly ? new MutableView(this.kvstore, null, new Writes()) : this.kvstore;
+        return this.view;
     }
 }
-

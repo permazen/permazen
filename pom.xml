@@ -91,7 +91,7 @@
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
         <commons-codec.version>1.11</commons-codec.version>
         <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
-        <fdb.version>3.0.2</fdb.version>
+        <fdb.version>5.1.5</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
         <google-cloud-java.version>0.44.0</google-cloud-java.version>
@@ -412,7 +412,7 @@
                 <version>${postgresql.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.foundationdb</groupId>
+                <groupId>com.apple.cie.foundationdb</groupId>
                 <artifactId>fdb-java</artifactId>
                 <version>${fdb.version}</version>
             </dependency>
