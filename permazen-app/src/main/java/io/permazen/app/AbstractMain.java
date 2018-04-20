@@ -171,7 +171,8 @@ public abstract class AbstractMain extends MainClass {
         case 1:
             this.kvImplementation = i.next();
             final Object config = this.kvConfigMap.get(this.kvImplementation);
-            if (this.requiresAtomicKVStore(kvImplementation, config) || this.requiresKVDatabase(kvImplementation, config)) {
+            if (this.requiresAtomicKVStore(this.kvImplementation, config)
+              || this.requiresKVDatabase(this.kvImplementation, config)) {
                 System.err.println(this.getName() + ": " + this.getDescription(this.kvImplementation, config)
                   + " requires the configuration of an underlying key/value technology; use one of `--arraydb', etc.");
                 return 1;
@@ -344,7 +345,7 @@ public abstract class AbstractMain extends MainClass {
         return kvi.requiresAtomicKVStore(kvi.getConfigType().cast(config));
     }
     private <C> boolean requiresKVDatabase(KVImplementation<C> kvi, Object config) {
-        return kvi.requiresAtomicKVStore(kvi.getConfigType().cast(config));
+        return kvi.requiresKVDatabase(kvi.getConfigType().cast(config));
     }
     private <C> String getDescription(KVImplementation<C> kvi, Object config) {
         return kvi.getDescription(kvi.getConfigType().cast(config));
