@@ -84,24 +84,54 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
     protected abstract KVDatabase getKVDatabase();
 
+    // How many transactions in testNonconflictingTransactions()?
     protected int getNonconflictingTransactionCount() {
         return 10;
     }
 
+    // How many loops in testParallelTransactions()?
     protected int getParallelTransactionLoopCount() {
         return 25;
     }
 
+    // How many transactions in testParallelTransactions()?
     protected int getParallelTransactionTaskCount() {
         return 25;
     }
 
+    // How many transactions in testSequentialTransactions()?
     protected int getSequentialTransactionLoopCount() {
         return 50;
     }
 
+    // How many iterations in RandomTask?
     protected int getRandomTaskMaxIterations() {
         return 1000;
+    }
+
+    // Does this database permit write skew anomalies?
+    protected boolean allowsWriteSkewAnomaly() {
+        return false;
+    }
+
+    // Does this database allow tx.setReadOnly() after data has been accessed?
+    protected boolean supportsReadOnlyAfterDataAccess() {
+        return true;
+    }
+
+    // When there's a conflict, is it OK if BOTH transactions fail?
+    protected boolean allowBothTransactionsToFail() {
+        return false;
+    }
+
+    // Does this database tolerate multiple threads accessing a single transaction?
+    protected boolean transactionsAreThreadSafe() {
+        return true;
+    }
+
+    // Does this database support multiple simulatenous write transactions?
+    protected boolean supportsMultipleWriteTransactions() {
+        return true;
     }
 
     @Test(dataProvider = "kvdbs")
@@ -239,10 +269,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             });
             this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
         }
-    }
-
-    protected boolean supportsReadOnlyAfterDataAccess() {
-        return true;
     }
 
     private byte[] randomBytes(int index) {
@@ -405,12 +431,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }, kv("10", "01"), kv("20", "02"));
     }
 
-    protected boolean allowsWriteSkewAnomaly() {
-        return false;
-    }
-
     protected void testConflictingTransactions(KVDatabase store, String name,
       Conflictor conflictor, KVPair expected1, KVPair expected2) throws Exception {
+
+        // Conflicts handled?
+        if (!this.supportsMultipleWriteTransactions()) {
+            this.log.info("skipping " + name + "() on " + store + ": database doesn't support simultaneous writers");
+            return;
+        }
 
         // Clear database
         this.log.info("starting {}() on {}", name, store);
@@ -520,12 +548,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         Future<?>[] conflict(KVTransaction tx1, KVTransaction tx2) throws Exception;
     }
 
-    protected boolean allowBothTransactionsToFail() {
-        return false;
-    }
-
     @Test(dataProvider = "kvdbs")
     public void testNonconflictingTransactions(KVDatabase store) throws Exception {
+        if (!this.supportsMultipleWriteTransactions()) {
+            this.log.info("skipping testNonconflictingTransactions() on " + store + ": database doesn't support simultaneous writers");
+            return;
+        }
 
         // Clear database
         this.log.info("starting testNonconflictingTransactions() on " + store);
@@ -593,6 +621,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
      */
     @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
+        if (!this.supportsMultipleWriteTransactions()) {
+            this.log.info("skipping testParallelTransactions() on " + store + ": database doesn't support simultaneous writers");
+            return;
+        }
         this.testParallelTransactions(new KVDatabase[] { store });
     }
 
@@ -712,10 +744,6 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         });
         this.log.info("finished testMultipleThreadsTransaction() on " + store);
-    }
-
-    protected boolean transactionsAreThreadSafe() {
-        return true;
     }
 
     /**
