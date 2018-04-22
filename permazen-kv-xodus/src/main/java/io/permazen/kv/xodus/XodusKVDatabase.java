@@ -102,6 +102,7 @@ public class XodusKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code storeName} is null
      */
     public synchronized void setStoreName(String storeName) {
+        Preconditions.checkArgument(storeName != null, "null storeName");
         Preconditions.checkState(this.env == null, "already started");
         this.storeName = storeName;
     }
