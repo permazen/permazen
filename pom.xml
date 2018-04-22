@@ -29,6 +29,7 @@
         <module>permazen-kv-cockroach</module>
         <module>permazen-kv-fdb</module>
         <module>permazen-kv-leveldb</module>
+        <module>permazen-kv-lmdb</module>
         <module>permazen-kv-mssql</module>
         <module>permazen-kv-mysql</module>
         <module>permazen-kv-raft</module>
@@ -103,6 +104,7 @@
         <jetty.version>9.2.24.v20180105</jetty.version>
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.9</leveldb.version>
+        <lmdbjava.version>0.6.0</lmdbjava.version>
         <log4j.version>1.2.17</log4j.version>
         <maven.artifact.version>3.5.3</maven.artifact.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
@@ -422,6 +424,11 @@
                 <version>${leveldb.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.lmdbjava</groupId>
+                <artifactId>lmdbjava</artifactId>
+                <version>${lmdbjava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.dellroad</groupId>
                 <artifactId>leveldb-api</artifactId>
                 <version>${leveldb.version}</version>
@@ -540,6 +547,11 @@
             <dependency>
                 <groupId>io.permazen</groupId>
                 <artifactId>permazen-kv-leveldb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-lmdb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -825,6 +837,9 @@
 
                         <!-- kv-leveldb -->
                         <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
+
+                        <!-- kv-lmdb -->
+                        <lmdbDirPrefix>LMDBJava</lmdbDirPrefix>
 
                         <!-- kv-mssql -->
                         <!--

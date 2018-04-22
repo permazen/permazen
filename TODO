@@ -33,9 +33,6 @@ SHORT TERM
 
 - New KVDatabase implementations
     - Amazon DynamoDB ?
-    - LMDB
-        - https://github.com/deephacks/lmdbjni
-        - https://github.com/lmdbjava/lmdbjava
     - Sphia
         - http://sphia.org/
 
