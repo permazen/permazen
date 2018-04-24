@@ -48,7 +48,8 @@ public class LeaderRole extends Role {
     @GuardedBy("raft")
     private final HashMap<String, Follower> followerMap = new HashMap<>();
 
-    // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
+    // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected.
+    // Note that this value is not used or meaningful when we are the only node in the cluster.
     @GuardedBy("raft")
     private Timestamp leaseTimeout;
 
@@ -115,19 +116,22 @@ public class LeaderRole extends Role {
      * <p>
      * This is the earliest possible time at which some other, new leader could be elected in a new term.
      * Consequently, it is the earliest possible time at which any entry that this leader is unaware of
-     * could be appended to the Raft log.
+     * could be appended to the Raft log, under the assumption that all nodes are configured with the same
+     * election timeout value.
      *
      * <p>
-     * Normally, if followers are responding to {@link AppendRequest}s properly, this should be a value
+     * Normally, if followers are responding to {@link AppendRequest}s properly, this will be a value
      * in the (near) future. This allows the leader to make the assumption, up until that point in time,
      * that its log is fully up-to-date.
      *
      * <p>
      * Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
-     * In that case this method returns null.
+     * This value is also not used or meaningful when this node is the only node in the cluster.
+     * In either case, this method returns null.
      *
      * <p>
-     * This method may also return null if a previous lease timeout has gotten very stale (e.g., isolated leader).
+     * This method may also return null if a previous lease timeout has gotten very stale and in danger of
+     * rolling over (e.g., isolated leader).
      *
      * @return this leader's lease timeout, or null if none is established yet
      */
