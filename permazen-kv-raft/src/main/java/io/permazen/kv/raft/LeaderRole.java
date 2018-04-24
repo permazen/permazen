@@ -827,7 +827,7 @@ public class LeaderRole extends Role {
      * If we already know that it's up-to-date as of now (because our lease currently extends into the future), return null.
      */
     private Timestamp getCurrentCommitMinLeaseTimeout() {
-        return this.isLeaderLeaseActiveNow() ? null : new Timestamp();
+        return this.followerMap.isEmpty() || this.isLeaderLeaseActiveNow() ? null : new Timestamp();
     }
 
 // Message

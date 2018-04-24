@@ -1,3 +1,7 @@
+Version 4.1.1
+
+    - Fixed timeout bug in Raft commit when leader has zero followers
+
 Version 4.1.0 Released April 19, 2018
 
     - Added console support for configuring a required password
