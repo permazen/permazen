@@ -143,6 +143,13 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             final String node = this.rafts[addIndex].getIdentity();
             this.log.debug("adding node \"" + node + "\" to test cluster");
             this.tryNtimes(this.rafts[targetIndex], tx -> ((RaftKVTransaction)tx).configChange(node, node));
+
+            // Verify first node can commit
+            if (i == 0) {
+                this.tryNtimes(this.rafts[targetIndex], tx -> {
+                    tx.getRange(null, null, false).hasNext();
+                });
+            }
         }
     }
 
