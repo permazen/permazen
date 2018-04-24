@@ -20,10 +20,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.lmdbjava.Cursor;
 import org.lmdbjava.CursorIterator;
 import org.lmdbjava.Dbi;
-import org.lmdbjava.GetOp;
 import org.lmdbjava.KeyRange;
 import org.lmdbjava.Txn;
 import org.slf4j.Logger;
@@ -148,17 +146,10 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
         }
 
         // Remove them one-at-a-time
-        final T min = this.wrap(this.addPrefix(minKey != null && minKey.length > 0 ? minKey : ByteUtil.EMPTY), false);
-        try (final Cursor<T> cursor = this.db.openCursor(this.tx)) {
-
-            // Seek to first key in range
-            boolean found = min != null ? cursor.get(min, GetOp.MDB_SET_RANGE) : cursor.first();
-            assert !found || minKey == null || ByteUtil.compare(this.delPrefix(this.unwrap(cursor.key(), false)), minKey) >= 0;
-
-            // Delete key/value pairs until we reach the end of the range
-            while (found && (maxKey == null || ByteUtil.compare(this.delPrefix(this.unwrap(cursor.key(), false)), maxKey) < 0)) {
-                cursor.delete();
-                found = cursor.next();
+        try (final CursorIterator<T> i = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, false))) {
+            while (i.hasNext()) {
+                i.next();
+                i.remove();
             }
         }
     }
