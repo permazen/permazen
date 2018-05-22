@@ -203,7 +203,8 @@ import org.slf4j.LoggerFactory;
  * An unconfigured node becomes <i>configured</i> when either:
  * <ol>
  *  <li>{@link RaftKVTransaction#configChange RaftKVTransaction.configChange()} is invoked and committed within
- *      a local transaction, which creates a new single node cluster and commits its first log entry; or</li>
+ *      a local transaction, which creates a new single node cluster, with the current node as leader,
+ *      and commits the cluster's first log entry; or</li>
  *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
  *      records the cluster ID thereby joining the cluster (see below), and applies the received cluster configuration.</li>
  * </ol>
@@ -217,7 +218,7 @@ import org.slf4j.LoggerFactory;
  * Newly created clusters are assigned a random 32-bit cluster ID (option #1 above). This ID is included in all messages sent
  * over the network, and adopted by unconfigured nodes that join the cluster (via option #2 above). Configured nodes discard
  * incoming messages containing a cluster ID different from the one they have joined. This prevents data corruption that can
- * occur if nodes from two different clusters are inadvertently "mixed" together on the same network.
+ * occur if nodes from two different clusters are inadvertently mixed together on the same network.
  *
  * <p>
  * Once a node joins a cluster with a specific cluster ID, it cannot be reassigned to a different cluster without first
@@ -228,7 +229,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Once a node is configured, a separate issue is whether the node is <i>included</i> in its own configuration, i.e., whether
  * the node is a member of its cluster according to the current cluster configuration. A node that is not a member of its
- * cluster does not count its own vote to determine committed log entries (if a leader), and does not start elections
+ * own cluster does not count its own vote to determine committed log entries (if a leader), and does not start elections
  * (if a follower). However, it will accept and respond to incoming {@link AppendRequest}s and {@link RequestVote}s.
  *
  * <p>
@@ -242,7 +243,7 @@ import org.slf4j.LoggerFactory;
  *  <li>Leaders defer configuration changes until they have committed at least one log entry in the current term
  *      (see <a href="https://groups.google.com/d/msg/raft-dev/t4xj6dJTP6E/d2D9LrWRza8J">this discussion</a>).</li>
  *  <li>Configuration changes that remove the last node in a cluster are disallowed.</li>
- *  <li>Only one configuration change may take place at a time.</li>
+ *  <li>Only one configuration change may take place at a time (i.e., be not yet committed).</li>
  * </ul>
  *
  * <p><b>Follower Probes</b></p>
