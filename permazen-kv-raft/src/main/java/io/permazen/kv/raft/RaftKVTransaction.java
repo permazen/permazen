@@ -57,8 +57,8 @@ public class RaftKVTransaction implements KVTransaction {
 
    For LINEARIZABLE transactions, the base term+index must change over time as new log entries are received, to keep
    the transaction's view up-to-date. This is called "rebasing" the transaction. The rebase operation can fail due
-   to read/write conflicts, whereby a newly added log entry mutates a key that has been accessed by the transaction.
-   If such a conflict is detected, the transaction must retry because it has seen out-of-date information.
+   to read/write conflicts, whereby a newly added log entry mutates a key that has already been read by the transaction.
+   If such a conflict is detected, the transaction must retry because it has seen what is now out-of-date information.
 
    For LINEARIZABLE transactions, the leader must be consulted (via CommitRequest) to determine the commit term+index.
    If the transaction is read-only, the commit term+index is taken from the leader's last log entry at the time the
@@ -68,16 +68,19 @@ public class RaftKVTransaction implements KVTransaction {
 
    If the LINEARIZABLE transaction is read-write, the leader checks for conflicts caused by any log entries it has between
    the transaction's base log entry and the leader's last log entry, then appends a new log entry, and returns the new log
-   entry as the transaction's commit term+index in a CommitResponse.
+   entry as the transaction's commit term+index in a CommitResponse. Followers do not need to rebase beyond the base
+   term+index that was sent to the leader in the CommitRequest, because the leader takes over conflict detection from that
+   point as just described.
 
-   Followers must continue to rebase read-only LINEARIZABLE until their commit term+index is received, but for mutating
-   transactions they do not need to rebase beyond the base term+index that was sent to the leader in the CommitRequest,
-   because the leader takes over conflict detection from that point as described above.
+   When a follower transaction is set read-only, the follower requests a commit term+index from the leader immediately
+   (linearizability only guarantees transactions see the database state as it existed at some time between begin and
+   commit, and for the purposes of minimizing conflicts, the sooner we take that "snapshot" the better). In any case,
+   follower must always continue to rebase read-only LINEARIZABLE until the commit term+index is received.
 
-   If a follower transaction's base log entry is ever overwritten then the transaction fails immediately with a retry
-   (unless UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore it's always
-   the case that a transaction's base term+index actually exists in the node's log as an entry (possibly compacted),
-   unless UNCOMMITTED.
+   If a follower transaction's base log entry is ever overwritten in the Raft log, then the transaction fails immediately
+   with a retry (unless UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore
+   it's always the case that a transaction's base term+index actually exists in the node's Raft log, possibly compacted
+   (unless UNCOMMITTED).
 
    CommitRequest's
    ---------------
