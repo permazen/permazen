@@ -282,6 +282,44 @@ public class Bounds<T> {
         return upper ? diff < 0 : diff > 0;
     }
 
+// Static Methods
+
+    /**
+     * Create an instance with an inclusive lower bound.
+     *
+     * @param lowerBound inclusive lower bound
+     */
+    public static <T> Bounds<T> ge(T lowerBound) {
+        return new Bounds(lowerBound, BoundType.INCLUSIVE, false);
+    }
+
+    /**
+     * Create an instance with an exclusive lower bound.
+     *
+     * @param lowerBound exclusive lower bound
+     */
+    public static <T> Bounds<T> gt(T lowerBound) {
+        return new Bounds(lowerBound, BoundType.EXCLUSIVE, false);
+    }
+
+    /**
+     * Create an instance with an inclusive upper bound.
+     *
+     * @param upperBound inclusive upper bound
+     */
+    public static <T> Bounds<T> le(T upperBound) {
+        return new Bounds(upperBound, BoundType.INCLUSIVE, true);
+    }
+
+    /**
+     * Create an instance with an exclusive upper bound.
+     *
+     * @param upperBound exclusive upper bound
+     */
+    public static <T> Bounds<T> lt(T upperBound) {
+        return new Bounds(upperBound, BoundType.EXCLUSIVE, true);
+    }
+
 // Object
 
     @Override
