@@ -153,7 +153,7 @@ import org.slf4j.LoggerFactory;
  *      This is calculated as the time in the past at which the leader sent {@link AppendRequest}'s to a majority of followers
  *      who have since responded, plus the {@linkplain #setMinElectionTimeout minimum election timeout}, minus a small adjustment
  *      for possible clock drift (this assumes all nodes have the same minimum election timeout configured). If the current
- *      time is prior to the leader lease timeout (expected normally), the transaction may be committed as soon as log entry
+ *      time is prior to the leader lease timeout, then the transaction may be committed as soon as the log entry
  *      corresponding to the commit term and index is committed (it may already be); otherwise, the current time is returned
  *      to the follower as minimum required leader lease timeout before the transaction may be committed.</li>
  *  <li>For read-only transactions, followers {@linkplain CommitRequest send} the base term and index to the leader as soon
