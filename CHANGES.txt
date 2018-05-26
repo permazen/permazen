@@ -2,6 +2,7 @@ Version 4.1.1
 
     - Fixed timeout bug in Raft commit when leader has zero followers
     - Added LMDB key/value database
+    - Added "decode-key" CLI command
 
 Version 4.1.0 Released April 19, 2018
 

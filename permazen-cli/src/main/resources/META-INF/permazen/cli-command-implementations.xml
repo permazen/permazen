@@ -2,6 +2,7 @@
 
 <cli-command-implementations>
     <cli-command-implementation class="io.permazen.cli.cmd.CompareSchemasCommand"/>
+    <cli-command-implementation class="io.permazen.cli.cmd.DecodeKeyCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.DeleteSchemaVersionCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.EvalCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.HelpCommand"/>
