@@ -45,7 +45,7 @@ User meta-data area
     |  Object ID |   | Meta-Data Version | Object Version | Delete Notified |
     +------------+   +-------------------+----------------+-----------------+
 
-****** SIMPLE FIELDS *******
+****** SIMPLE AND COUNTER FIELDS *******
 
     +------------+---------------+    +---------------+
     |  Object ID |   Storage ID  |    |     Value     |  (non-default only)
