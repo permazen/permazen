@@ -181,7 +181,12 @@ public abstract class AbstractKVCommand extends AbstractCommand {
 
 // BytesParser
 
-    private static class BytesParser implements Parser<byte[]> {
+    /**
+     * Parses a {@code byte[]} array as hexadecimal or doubly-quoted "C" style string.
+     *
+     * @see AbstractKVCommand#toCString
+     */
+    public static class BytesParser implements Parser<byte[]> {
 
         @Override
         public byte[] parse(ParseSession session, ParseContext ctx, boolean complete) {
