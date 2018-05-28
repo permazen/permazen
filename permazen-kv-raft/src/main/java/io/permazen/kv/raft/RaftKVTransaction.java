@@ -147,7 +147,7 @@ public class RaftKVTransaction implements KVTransaction {
     @GuardedBy("raft")
     private long commitIndex;                                   // index of the log entry representing this transaction's commit
     @GuardedBy("raft")
-    private boolean rebasable;                                 // transaction should be rebased on newly committed log entries
+    private boolean rebasable;                                  // transaction should be rebased on newly committed log entries
 
     // Transaction state
     @GuardedBy("raft")
