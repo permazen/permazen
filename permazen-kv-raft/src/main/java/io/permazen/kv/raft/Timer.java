@@ -69,7 +69,6 @@ class Timer {
      * @throws IllegalStateException if the lock object is not locked
      */
     public void timeoutAfter(int delay) {
-        assert Thread.holdsLock(this.raft);
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
