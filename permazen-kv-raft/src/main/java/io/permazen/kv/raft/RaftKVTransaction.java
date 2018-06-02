@@ -521,7 +521,7 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     private void fastVerifyExecuting() {
-        if (executing)
+        if (this.executing)
             return;
         synchronized (this.raft) {
             this.verifyExecuting();
