@@ -290,7 +290,7 @@ public class Bounds<T> {
      * @param lowerBound inclusive lower bound
      */
     public static <T> Bounds<T> ge(T lowerBound) {
-        return new Bounds(lowerBound, BoundType.INCLUSIVE, false);
+        return new Bounds<>(lowerBound, BoundType.INCLUSIVE, false);
     }
 
     /**
@@ -299,7 +299,7 @@ public class Bounds<T> {
      * @param lowerBound exclusive lower bound
      */
     public static <T> Bounds<T> gt(T lowerBound) {
-        return new Bounds(lowerBound, BoundType.EXCLUSIVE, false);
+        return new Bounds<>(lowerBound, BoundType.EXCLUSIVE, false);
     }
 
     /**
@@ -308,7 +308,7 @@ public class Bounds<T> {
      * @param upperBound inclusive upper bound
      */
     public static <T> Bounds<T> le(T upperBound) {
-        return new Bounds(upperBound, BoundType.INCLUSIVE, true);
+        return new Bounds<>(upperBound, BoundType.INCLUSIVE, true);
     }
 
     /**
@@ -317,7 +317,7 @@ public class Bounds<T> {
      * @param upperBound exclusive upper bound
      */
     public static <T> Bounds<T> lt(T upperBound) {
-        return new Bounds(upperBound, BoundType.EXCLUSIVE, true);
+        return new Bounds<>(upperBound, BoundType.EXCLUSIVE, true);
     }
 
 // Object
