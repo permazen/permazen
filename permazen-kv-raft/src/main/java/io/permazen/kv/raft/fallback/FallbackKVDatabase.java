@@ -102,6 +102,8 @@ public class FallbackKVDatabase implements KVDatabase {
     private int initialTargetIndex = Integer.MAX_VALUE;
     @GuardedBy("this")
     private int maximumTargetIndex = Integer.MAX_VALUE;
+    @GuardedBy("this")
+    private int threadPriority = -1;
 
     // Runtime state
     @GuardedBy("this")
@@ -305,6 +307,33 @@ public class FallbackKVDatabase implements KVDatabase {
         return (Date)this.lastStandaloneActiveTime.clone();
     }
 
+    /**
+     * Configure the priority of the internal service thread.
+     *
+     * <p>
+     * Default is -1, which means do not change thread priority from its default.
+     *
+     * @param threadPriority internal service thread priority, or -1 to leave thread priority unchanged
+     * @throws IllegalStateException if this instance is already started
+     * @throws IllegalArgumentException if {@code threadPriority} is not -1 and not in the range
+     *  {@link Thread#MIN_PRIORITY} to {@link Thread#MAX_PRIORITY}
+     */
+    public synchronized void setThreadPriority(int threadPriority) {
+        Preconditions.checkArgument(threadPriority == -1
+          || (threadPriority >= Thread.MIN_PRIORITY && threadPriority <= Thread.MAX_PRIORITY), "invalid threadPriority");
+        Preconditions.checkState(!this.started, "already started");
+        this.threadPriority = threadPriority;
+    }
+
+    /**
+     * Get the configured internal service thread priority.
+     *
+     * @param internal service thread priority, or -1 if not configured
+     */
+    public synchronized int getThreadPriority() {
+        return this.threadPriority;
+    }
+
 // KVDatabase
 
     @Override
@@ -406,6 +435,10 @@ public class FallbackKVDatabase implements KVDatabase {
     protected Thread createExecutorThread(Runnable action, int uniqueId) {
         final Thread thread = new Thread(action);
         thread.setName("Executor#" + uniqueId + " for " + FallbackKVDatabase.class.getSimpleName());
+        synchronized (this) {
+            if (this.threadPriority != -1)
+                thread.setPriority(this.threadPriority);
+        }
         return thread;
     }
 

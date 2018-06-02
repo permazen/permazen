@@ -421,6 +421,7 @@ public class RaftKVDatabase implements KVDatabase {
     long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
     int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
     int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
+    int threadPriority = -1;
     boolean followerProbingEnabled;
     boolean disableSync;
     boolean dumpConflicts;
@@ -845,6 +846,33 @@ public class RaftKVDatabase implements KVDatabase {
         return this.dumpConflicts;
     }
 
+    /**
+     * Configure the priority of internal service threads.
+     *
+     * <p>
+     * Default is -1, which means do not change thread priority from its default.
+     *
+     * @param threadPriority internal service thread priority, or -1 to leave thread priority unchanged
+     * @throws IllegalStateException if this instance is already started
+     * @throws IllegalArgumentException if {@code threadPriority} is not -1 and not in the range
+     *  {@link Thread#MIN_PRIORITY} to {@link Thread#MAX_PRIORITY}
+     */
+    public synchronized void setThreadPriority(int threadPriority) {
+        Preconditions.checkArgument(threadPriority == -1
+          || (threadPriority >= Thread.MIN_PRIORITY && threadPriority <= Thread.MAX_PRIORITY), "invalid threadPriority");
+        Preconditions.checkState(this.role == null, "already started");
+        this.threadPriority = threadPriority;
+    }
+
+    /**
+     * Get the configured internal service thread priority.
+     *
+     * @param internal service thread priority, or -1 if not configured
+     */
+    public synchronized int getThreadPriority() {
+        return this.threadPriority;
+    }
+
 // Status
 
     /**
@@ -1061,6 +1089,8 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.ioThread == null;
             final String ioThreadName = "Raft I/O [" + this.identity + "]";
             this.ioThread = new IOThread(this.logDir, ioThreadName);
+            if (this.threadPriority != -1)
+                this.ioThread.setPriority(this.threadPriority);
             this.ioThread.start();
 
             // Start up service executor thread
@@ -1068,6 +1098,10 @@ public class RaftKVDatabase implements KVDatabase {
             final String serviceThreadName = "Raft Service [" + this.identity + "]";
             this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(action -> {
                 final Thread thread = new Thread(action);
+                synchronized (this) {
+                    if (this.threadPriority != -1)
+                        thread.setPriority(this.threadPriority);
+                }
                 thread.setName(serviceThreadName);
                 return thread;
             });

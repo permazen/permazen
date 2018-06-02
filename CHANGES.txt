@@ -1,6 +1,7 @@
 Version 4.1.1
 
     - Fixed timeout bug in Raft commit when leader has zero followers
+    - Added the ability to configure Raft service thread priority
     - Added LMDB key/value database
     - Added "decode-key" CLI command
 
