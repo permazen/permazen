@@ -285,6 +285,15 @@ public class Bounds<T> {
 // Static Methods
 
     /**
+     * Create an instance with bounds that allow only the given value.
+     *
+     * @param value unique bounded value
+     */
+    public static <T> Bounds<T> eq(T value) {
+        return new Bounds<>(value, BoundType.INCLUSIVE, value, BoundType.INCLUSIVE);
+    }
+
+    /**
      * Create an instance with an inclusive lower bound.
      *
      * @param lowerBound inclusive lower bound
