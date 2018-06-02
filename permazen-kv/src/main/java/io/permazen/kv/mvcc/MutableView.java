@@ -372,7 +372,13 @@ public class MutableView extends AbstractKVStore implements Cloneable {
     }
 
     // Record that keys were read in the range [minKey, maxKey)
-    private synchronized void recordReads(byte[] minKey, byte[] maxKey) {
+    // This method must be invoked while continuously synchronized with the read
+    private void recordReads(byte[] minKey, byte[] maxKey) {
+
+        // Sanity check
+        assert Thread.holdsLock(this);
+        assert minKey != null;
+        assert maxKey == null || ByteUtil.compare(minKey, maxKey) < 0;
 
         // Not tracking reads?
         if (this.reads == null)
@@ -575,44 +581,44 @@ public class MutableView extends AbstractKVStore implements Cloneable {
                     } else
                         this.putnext = new KVPair(putEntry.getKey().clone(), putEntry.getValue().clone());
                 }
-            }
 
-            // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
-            if (this.kvnext == null && this.putnext == null)
-                this.next = null;
-            else if (this.kvnext == null) {
-                this.next = this.putnext;
-                this.putnext = null;
-            } else if (this.putnext == null) {
-                this.next = this.kvnext;
-                this.kvnext = null;
-            } else {
-                final int diff = reverse ?
-                  ByteUtil.compare(this.kvnext.getKey(), this.putnext.getKey()) :
-                  ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
-                if (diff <= 0) {
+                // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
+                if (this.kvnext == null && this.putnext == null)
+                    this.next = null;
+                else if (this.kvnext == null) {
                     this.next = this.putnext;
                     this.putnext = null;
-                    if (diff == 0)
-                        this.kvnext = null;                     // the kvstore key was overridden by the put key
-                } else {
+                } else if (this.putnext == null) {
                     this.next = this.kvnext;
                     this.kvnext = null;
+                } else {
+                    final int diff = this.reverse ?
+                      ByteUtil.compare(this.kvnext.getKey(), this.putnext.getKey()) :
+                      ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
+                    if (diff <= 0) {
+                        this.next = this.putnext;
+                        this.putnext = null;
+                        if (diff == 0)
+                            this.kvnext = null;                     // the kvstore key was overridden by the put key
+                    } else {
+                        this.next = this.kvnext;
+                        this.kvnext = null;
+                    }
                 }
-            }
 
-            // Record that we read from everything we just scanned over in the underlying KVStore
-            final byte[] skipMin;
-            final byte[] skipMax;
-            if (this.reverse) {
-                skipMin = this.next != null ? this.next.getKey() : this.limit;
-                skipMax = readStart;
-            } else {
-                skipMin = readStart;
-                skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : this.limit;
+                // Record that we read from everything we just scanned over in the underlying KVStore
+                final byte[] skipMin;
+                final byte[] skipMax;
+                if (this.reverse) {
+                    skipMin = this.next != null ? this.next.getKey() : this.limit;
+                    skipMax = readStart;
+                } else {
+                    skipMin = readStart;
+                    skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : this.limit;
+                }
+                if (skipMin != null && (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0))
+                    MutableView.this.recordReads(skipMin, skipMax);
             }
-            if (skipMin != null && (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0))
-                MutableView.this.recordReads(skipMin, skipMax);
 
             // Finished?
             if (this.next == null) {
