@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -355,8 +354,10 @@ public class FallbackKVDatabase implements KVDatabase {
             if (this.log.isDebugEnabled())
                 this.log.info("starting up " + this);
 
-            // Create executor
-            this.executor = Executors.newScheduledThreadPool(this.targets.size(), new ExecutorThreadFactory());
+            // Create service thread pool
+            final AtomicInteger threadId = new AtomicInteger();
+            this.executor = Executors.newScheduledThreadPool(this.targets.size(),
+              runnable -> this.createExecutorThread(runnable, threadId.incrementAndGet()));
 
             // Start underlying databases
             this.standaloneKV.start();
@@ -936,18 +937,6 @@ public class FallbackKVDatabase implements KVDatabase {
             synchronized (FallbackKVDatabase.this) {
                 FallbackKVDatabase.this.futures.remove(this);
             }
-        }
-    }
-
-// ExecutorThreadFactory
-
-    private class ExecutorThreadFactory implements ThreadFactory {
-
-        private final AtomicInteger id = new AtomicInteger();
-
-        @Override
-        public Thread newThread(Runnable action) {
-            return FallbackKVDatabase.this.createExecutorThread(action, this.id.incrementAndGet());
         }
     }
 
