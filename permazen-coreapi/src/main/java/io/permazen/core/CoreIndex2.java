@@ -18,7 +18,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 /**
- * Core API {@link Index} implementation representing a composite index on two fields.
+ * Core API {@link Index2} implementation representing a composite index on two fields.
  *
  * <p>
  * Instances are immutable.
