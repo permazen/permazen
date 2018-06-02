@@ -1240,6 +1240,7 @@ public class RaftKVDatabase implements KVDatabase {
     public void stop() {
 
         // Set flag to prevent new transactions
+        final IOThread ioThreadToShutdown;
         synchronized (this) {
 
             // Sanity check
@@ -1274,6 +1275,9 @@ public class RaftKVDatabase implements KVDatabase {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+
+            // Snapshot field while synchronized
+            ioThreadToShutdown = this.ioThread;
         }
 
         // Shut down the service executor and wait for pending tasks to finish
@@ -1285,9 +1289,9 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         // Shutdown I/O thread
-        this.ioThread.shutdown();
+        ioThreadToShutdown.shutdown();
         try {
-            this.ioThread.join();
+            ioThreadToShutdown.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
