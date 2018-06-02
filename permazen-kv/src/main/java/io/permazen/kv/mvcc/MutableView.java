@@ -385,15 +385,17 @@ public class MutableView extends AbstractKVStore implements Cloneable {
             return;
 
         // Define the range
-        final KeyRange range = new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey);
+        KeyRange range = new KeyRange(minKey, maxKey);
 
         // If read is entirely contained in a remove range, it did not really go through to k/v store
         if (this.writes.getRemoves().contains(range))
             return;
 
-        // If the read is of a single key and that key has been written, it did not really go through to k/v store
-        if (range.isSingleKey() && this.writes.getPuts().containsKey(range.getMin()))
-            return;
+        // If there is a put at the beginning of the range, that first key did not really go through to k/v store
+        if (this.writes.getPuts().containsKey(minKey)) {
+            if ((range = new KeyRange(ByteUtil.getNextKey(minKey), maxKey)).isEmpty())
+                return;
+        }
 
         // Add range
         this.reads.add(range);
