@@ -68,6 +68,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.dellroad.stuff.java.TimedWait;
@@ -313,6 +315,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
+@ThreadSafe
 public class RaftKVDatabase implements KVDatabase {
 
     /**
@@ -411,51 +414,93 @@ public class RaftKVDatabase implements KVDatabase {
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configuration state
+    @GuardedBy("this")
     Network network = new TCPNetwork(DEFAULT_TCP_PORT);
+    @GuardedBy("this")
     String identity;
+    @GuardedBy("this")
     int minElectionTimeout = DEFAULT_MIN_ELECTION_TIMEOUT;
+    @GuardedBy("this")
     int maxElectionTimeout = DEFAULT_MAX_ELECTION_TIMEOUT;
+    @GuardedBy("this")
     int heartbeatTimeout = DEFAULT_HEARTBEAT_TIMEOUT;
+    @GuardedBy("this")
     int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
+    @GuardedBy("this")
     int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
+    @GuardedBy("this")
     long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
+    @GuardedBy("this")
     int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
+    @GuardedBy("this")
     int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
+    @GuardedBy("this")
     int threadPriority = -1;
+    @GuardedBy("this")
     boolean followerProbingEnabled;
+    @GuardedBy("this")
     boolean disableSync;
+    @GuardedBy("this")
     boolean dumpConflicts;
+    @GuardedBy("this")
     File logDir;
 
     // Raft runtime state
+    @GuardedBy("this")
     Role role;                                                          // Raft state: LEADER, FOLLOWER, or CANDIDATE
+    @GuardedBy("this")
     SecureRandom random;                                                // used to randomize election timeout, etc.
+    @GuardedBy("this")
     boolean flipflop;                                                   // determines which state machine prefix we are using
+    @GuardedBy("this")
     int clusterId;                                                      // cluster ID (zero if unconfigured - usually)
+    @GuardedBy("this")
     long currentTerm;                                                   // current Raft term (zero if unconfigured)
+    @GuardedBy("this")
     long currentTermStartTime;                                          // timestamp of the start of the current Raft term
+    @GuardedBy("this")
     long commitIndex;                                                   // current Raft commit index (zero if unconfigured)
+    @GuardedBy("this")
     long keyWatchIndex;                                                 // index of last log entry that triggered key watches
+    @GuardedBy("this")
     long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
+    @GuardedBy("this")
     long lastAppliedIndex;                                              // key/value store last applied index (zero if unconfigured)
+    @GuardedBy("this")
     final long[] appliedTerms = new long[MAX_APPLIED_TERMS];            // terms of log entries already applied to state machine
+    @GuardedBy("this")
     final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
+    @GuardedBy("this")
     Map<String, String> lastAppliedConfig;                              // key/value store last applied config (empty if none)
+    @GuardedBy("this")
     Map<String, String> currentConfig;                                  // most recent cluster config (empty if unconfigured)
+    @GuardedBy("this")
     Map<String, Integer> protocolVersionMap = new HashMap<>();          // peer message encoding protocol versions
 
     // Non-Raft runtime state
+    @GuardedBy("this")
     AtomicKVStore kv;
+    @GuardedBy("this")
     FileChannel logDirChannel;                                          // null on Windows - no support for sync'ing directories
+    @GuardedBy("this")
     String returnAddress;                                               // return address for message currently being processed
+    @GuardedBy("this")
     IOThread ioThread;                                                  // performs background I/O tasks
+    @GuardedBy("this")
     ScheduledExecutorService serviceExecutor;                           // does stuff for us asynchronously
+    @GuardedBy("this")
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
+    @GuardedBy("this")
     final LongMap<RaftKVTransaction> openTransactions = new LongMap<>();        // transactions open on this instance
+    @GuardedBy("this")
     final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();        // pending work for serviceExecutor
+    @GuardedBy("this")
     KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
+    @GuardedBy("this")
     boolean performingService;                                          // true when serviceExecutor does not need to be woken up
+    @GuardedBy("this")
     boolean shuttingDown;                                               // prevents new transactions from being created
+    @GuardedBy("this")
     Throwable lastInternalError;                                        // most recent exception in service executor
 
 // Configuration

@@ -12,9 +12,10 @@
             <Class name="io.permazen.kv.raft.LeaderRole"/>
             <Class name="io.permazen.kv.raft.NonLeaderRole"/>
             <Class name="io.permazen.kv.raft.RaftKVDatabase"/>
+            <Class name="io.permazen.kv.raft.RaftKVTransaction"/>
             <Class name="io.permazen.kv.raft.Role"/>
             <Class name="io.permazen.kv.raft.Timer"/>
         </Or>
-        <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+        <Bug pattern="IS_FIELD_NOT_GUARDED"/>
     </Match>
 </FindBugsFilter>
