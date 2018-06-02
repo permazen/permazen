@@ -2,6 +2,10 @@
 SHORT TERM
 ==========
 
+- Allow non-static inner classes ?
+    - Auto-generate "_parent" reference field with DeleteAction.DELETE
+    - Add method <T> T JTransaction.create(JObject parent, Class<T> childType);
+
 - Allow @JCompositeIndex uniqueExclude to specify "wildcards"
 
 - Option to override collection setters (if they exist) with clear() + addAll()/putAll() implementation ?
