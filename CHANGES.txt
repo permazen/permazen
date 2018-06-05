@@ -1,4 +1,4 @@
-Version 4.1.1
+Version 4.1.1 Released June 5, 2018
 
     - Fixed timeout bug in Raft commit when leader has zero followers
     - Closed race window in MutableView when recording read ranges
