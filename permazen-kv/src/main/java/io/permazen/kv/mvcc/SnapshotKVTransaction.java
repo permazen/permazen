@@ -48,6 +48,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AtomicBoolean closed = new AtomicBoolean();   // used to detect whether commit() or rollback() has been invoked
+    private final Throwable allocation;
 
     @GuardedBy("this")
     private boolean readOnly;
@@ -68,6 +69,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         this.view = view;
         this.baseVersion = baseVersion;
         this.startTime = System.nanoTime();
+        this.allocation = new Throwable("allocated here");
     }
 
 // Accessors
@@ -202,7 +204,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     protected void finalize() throws Throwable {
         try {
             if (!this.closed.get()) {
-                this.log.warn(this + " leaked without commit() or rollback()");
+                this.log.warn(this + " leaked without commit() or rollback()", this.allocation);
                 this.close();
             }
         } finally {
