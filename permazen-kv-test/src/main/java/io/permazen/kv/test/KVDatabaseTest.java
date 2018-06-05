@@ -551,7 +551,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     @Test(dataProvider = "kvdbs")
     public void testNonconflictingTransactions(KVDatabase store) throws Exception {
         if (!this.supportsMultipleWriteTransactions()) {
-            this.log.info("skipping testNonconflictingTransactions() on " + store + ": database doesn't support simultaneous writers");
+            this.log.info("skipping testNonconflictingTransactions() on {}: database doesn't support simultaneous writers", store);
             return;
         }
 
