@@ -299,9 +299,11 @@ public class FallbackTarget implements Cloneable {
      * The implementation in {@link FallbackTarget} determines availability by attempting to commit a read-only,
      * {@link io.permazen.kv.raft.Consistency#LINEARIZABLE} transaction within the configured maximum timeout.
      *
+     * @param fallbackDB parent fallback database
      * @return true if database is available, false otherwise
      */
-    protected boolean checkAvailability() {
+    protected boolean checkAvailability(FallbackKVDatabase fallbackDB) {
+        Preconditions.checkArgument(fallbackDB != null, "null fallbackDB");
 
         // Check whether we're even configured first - a read-only tx is allowed when unconfigured
         if (!this.raft.isConfigured()) {
@@ -326,7 +328,7 @@ public class FallbackTarget implements Cloneable {
             // Perform transaction
             final long startTimeNanos = System.nanoTime();
             boolean success = false;
-            final KVTransaction tx = this.raft.createTransaction();
+            final KVTransaction tx = fallbackDB.createAvailabilityCheckTransaction(this.raft);
             try {
                 tx.setTimeout(this.transactionTimeout);
                 tx.get(ByteUtil.EMPTY);

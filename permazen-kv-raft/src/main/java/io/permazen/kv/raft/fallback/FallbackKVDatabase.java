@@ -374,7 +374,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 this.log.info("performing initial availability check for " + target);
                 target.available = false;
                 try {
-                    target.available = target.checkAvailability();
+                    target.available = target.checkAvailability(this);
                 } catch (Exception e) {
                     if (this.log.isTraceEnabled())
                         this.log.trace("checkAvailable() for " + target + " threw exception", e);
@@ -609,7 +609,7 @@ public class FallbackKVDatabase implements KVDatabase {
         // Perform check
         boolean available = false;
         try {
-            available = target.checkAvailability();
+            available = target.checkAvailability(this);
         } catch (Exception e) {
             if (this.log.isTraceEnabled())
                 this.log.trace("checkAvailable() for " + target + " threw exception", e);
@@ -737,16 +737,13 @@ public class FallbackKVDatabase implements KVDatabase {
 
                 // Create source transaction. Note the combination of read-only and EVENTUAL_COMMITTED is important, because this
                 // guarantees that the transaction will generate no network traffic (and not require any majority) on commit().
-                final KVTransaction src;
-                if (currKV instanceof RaftKVDatabase) {
-                    src = ((RaftKVDatabase)currKV).createTransaction(Consistency.EVENTUAL_COMMITTED);
-                    ((RaftKVTransaction)src).setReadOnly(true);
-                } else
-                    src = currKV.createTransaction();
+                final KVTransaction src = currKV instanceof RaftKVDatabase ?
+                  this.createSourceTransaction((RaftKVDatabase)currKV) : currKV.createTransaction();
                 try {
 
                     // Create destination transaction
-                    final KVTransaction dst = bestKV.createTransaction();
+                    final KVTransaction dst = bestKV instanceof RaftKVDatabase ?
+                      this.createDestinationTransaction((RaftKVDatabase)bestKV) : bestKV.createTransaction();
                     try {
 
                         // Get timestamp
@@ -800,6 +797,53 @@ public class FallbackKVDatabase implements KVDatabase {
         // Trigger spurious notifications for all futures associated with previous target
         for (FallbackFuture future : oldFutures)
             future.set(null);
+    }
+
+    /**
+     * Create a Raft source transaction.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabse} returns a new read-only transaction with consistency
+     * {@link Consistency#EVENTUAL_COMMITTED}. The combination of read-only and {@link Consistency#EVENTUAL_COMMITTED}
+     * is important, because this guarantees that the transaction will generate no network traffic (and not require
+     * any majority to exist) on {@code commit()}.
+     *
+     * @param kvdb Raft database
+     * @return new transaction for availability check
+     */
+    protected RaftKVTransaction createSourceTransaction(RaftKVDatabase kvdb) {
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
+        final RaftKVTransaction tx = kvdb.createTransaction(Consistency.EVENTUAL_COMMITTED);
+        tx.setReadOnly(true);
+        return tx;
+    }
+
+    /**
+     * Create a Raft destination transaction.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabse} just delegates to {@link RaftKVDatabase#createTransaction()}.
+     *
+     * @param kvdb Raft database
+     * @return new transaction for availability check
+     */
+    protected RaftKVTransaction createDestinationTransaction(RaftKVDatabase kvdb) {
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
+        return kvdb.createTransaction();
+    }
+
+    /**
+     * Create a Raft availability check transaction.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabse} just delegates to {@link RaftKVDatabase#createTransaction()}.
+     *
+     * @param kvdb Raft database
+     * @return new transaction for availability check
+     */
+    protected RaftKVTransaction createAvailabilityCheckTransaction(RaftKVDatabase kvdb) {
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
+        return kvdb.createTransaction();
     }
 
     private void readStateFile() throws IOException {
