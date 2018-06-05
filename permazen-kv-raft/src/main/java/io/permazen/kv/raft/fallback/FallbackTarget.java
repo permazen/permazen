@@ -313,34 +313,44 @@ public class FallbackTarget implements Cloneable {
         // Setup
         if (this.log.isTraceEnabled())
             this.log.trace("checking availability of " + this.raft + " with timeout of " + this.transactionTimeout + "ms");
-        final long startTimeNanos = System.nanoTime();
-        boolean success = false;
 
-        // Perform transaction
-        final KVTransaction tx = this.raft.createTransaction();
-        try {
-            tx.setTimeout(this.transactionTimeout);
-            tx.get(ByteUtil.EMPTY);
-            tx.commit();
-            success = true;
-        } finally {
-            if (!success)
-                tx.rollback();
-        }
-
-        // Check timeout
-        final int duration = (int)((System.nanoTime() - startTimeNanos) / 1000000L);
-        final boolean timedOut = duration > this.transactionTimeout;
-        if (this.log.isTraceEnabled()) {
-            this.log.trace("availability transaction on " + this.raft + " completed in "
-              + duration + "ms (" + (timedOut ? "failed" : "successful") + ")");
-        }
-        if (timedOut) {
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("availability transaction on " + this.raft + " completed in "
-                  + duration + " > " + this.transactionTimeout + " ms, returning unavailable");
+        // See if a linearizable transaction has committed recently, otherwise perform one ourselves
+        final Timestamp linearizableCommitTimestamp = this.raft.getLinearizableCommitTimestamp();
+        if (linearizableCommitTimestamp != null && linearizableCommitTimestamp.offsetFromNow() >= -this.checkInterval) {
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("a linearizable tx on {} completed {}ms ago, so we'll consider that evidence of availability",
+                  this.raft, linearizableCommitTimestamp.offsetFromNow());
             }
-            return false;
+        } else {
+
+            // Perform transaction
+            final long startTimeNanos = System.nanoTime();
+            boolean success = false;
+            final KVTransaction tx = this.raft.createTransaction();
+            try {
+                tx.setTimeout(this.transactionTimeout);
+                tx.get(ByteUtil.EMPTY);
+                tx.commit();
+                success = true;
+            } finally {
+                if (!success)
+                    tx.rollback();
+            }
+
+            // Check timeout
+            final int duration = (int)((System.nanoTime() - startTimeNanos) / 1000000L);
+            final boolean timedOut = duration > this.transactionTimeout;
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("availability transaction on " + this.raft + " completed in "
+                  + duration + "ms (" + (timedOut ? "failed" : "successful") + ")");
+            }
+            if (timedOut) {
+                if (this.log.isDebugEnabled()) {
+                    this.log.debug("availability transaction on " + this.raft + " completed in "
+                      + duration + " > " + this.transactionTimeout + " ms, returning unavailable");
+                }
+                return false;
+            }
         }
 
         // If we're the leader of a two node cluster, read-only TX's on a broken network will continue to work until a read-write

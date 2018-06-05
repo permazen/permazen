@@ -497,6 +497,8 @@ public class RaftKVDatabase implements KVDatabase {
     @GuardedBy("this")
     KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
     @GuardedBy("this")
+    Timestamp linearizableCommitTimestamp;                              // time of most recent successful commit of linearizable tx
+    @GuardedBy("this")
     boolean performingService;                                          // true when serviceExecutor does not need to be woken up
     @GuardedBy("this")
     boolean shuttingDown;                                               // prevents new transactions from being created
@@ -1082,6 +1084,20 @@ public class RaftKVDatabase implements KVDatabase {
         return list;
     }
 
+    /**
+     * Get the timestamp of the most recently committed linearizable transaction.
+     *
+     * <p>
+     * This value can be used to confirm that the cluster is healthy.
+     *
+     * @return time of the most recent successful commit of a linearizable transaction, or null if none
+     */
+    public synchronized Timestamp getLinearizableCommitTimestamp() {
+        if (this.linearizableCommitTimestamp != null && !this.linearizableCommitTimestamp.hasOccurred())
+            this.linearizableCommitTimestamp = null;                                // TODO: fix rollover better
+        return this.linearizableCommitTimestamp;
+    }
+
 // Lifecycle
 
     @Override
@@ -1363,6 +1379,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.keyWatchTracker.close();
             this.keyWatchTracker = null;
         }
+        this.linearizableCommitTimestamp = null;
         this.transmitting.clear();
         this.pendingService.clear();
         this.shuttingDown = false;
@@ -1734,6 +1751,8 @@ public class RaftKVDatabase implements KVDatabase {
         tx.getCommitFuture().set(null);
         tx.setState(TxState.COMPLETED);
         tx.setNoLongerRebasable();
+        if (tx.getConsistency().isGuaranteesUpToDateReads())
+            this.linearizableCommitTimestamp = new Timestamp();
         this.role.cleanupForTransaction(tx);
     }
 
@@ -2696,6 +2715,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.logDirChannel == null;
             assert this.serviceExecutor == null;
             assert this.keyWatchTracker == null;
+            assert this.linearizableCommitTimestamp == null;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
             assert this.pendingService.isEmpty();
