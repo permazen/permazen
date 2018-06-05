@@ -513,6 +513,7 @@ public class RaftKVDatabase implements KVDatabase {
     Throwable lastInternalError;                                        // most recent exception in service executor
 
     // High priority transaction
+    @GuardedBy("this")
     RaftKVTransaction highPrioTx;                                       // current high priority transaction, if any
 
 // Configuration
