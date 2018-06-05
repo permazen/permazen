@@ -147,7 +147,7 @@ public abstract class KVTestSupport extends TestSupport {
         for (int count = 0; count < this.getNumTries(); count++) {
             try {
                 this.numTransactionAttempts.incrementAndGet();
-                final KVTransaction tx = kvdb.createTransaction();
+                final KVTransaction tx = this.doCreateTransaction(kvdb);
                 final R result = function.apply(tx);
                 tx.commit();
                 return result;
@@ -174,7 +174,7 @@ public abstract class KVTestSupport extends TestSupport {
         RetryTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             try {
-                return kvdb.createTransaction();
+                return this.doCreateTransaction(kvdb);
             } catch (RetryTransactionException e) {
                 retry = e;
             }
@@ -185,6 +185,10 @@ public abstract class KVTestSupport extends TestSupport {
             }
         }
         throw retry;
+    }
+
+    protected KVTransaction doCreateTransaction(KVDatabase kvdb) {
+        return kvdb.createTransaction();
     }
 
     protected void updateRetryStats(RetryTransactionException e) {
