@@ -1760,7 +1760,7 @@ public class RaftKVDatabase implements KVDatabase {
             try {
                 tx.getCommitFuture().get();
             } catch (InterruptedException e) {
-                throw new RetryTransactionException(tx, "thread interrupted while waiting for commit", e);
+                throw new KVTransactionException(tx, "thread interrupted while waiting for commit", e);
             } catch (ExecutionException e) {
                 final Throwable cause = e.getCause();
                 ThrowableUtil.prependCurrentStackTrace(cause);
