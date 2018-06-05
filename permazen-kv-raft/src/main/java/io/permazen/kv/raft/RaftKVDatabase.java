@@ -1693,7 +1693,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    // Clean up transaction and transition to state CLOSED
+    // Clean up transaction and transition to state CLOSED. It's OK to invoke this more than once.
     synchronized void cleanupTransaction(RaftKVTransaction tx) {
 
         // Debug

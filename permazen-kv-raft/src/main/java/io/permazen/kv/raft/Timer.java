@@ -104,6 +104,8 @@ class Timer {
 
     /**
      * Get the deadline.
+     *
+     * @return timer deadline, or null if not running
      */
     public Timestamp getDeadline() {
         return this.timeoutDeadline;

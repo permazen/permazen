@@ -736,10 +736,11 @@ public abstract class Role {
     }
 
     /**
-     * Perform any role-specific transaction cleanups.
+     * Perform any role-specific transaction cleanup for the given transaction.
      *
      * <p>
      * Invoked either when transaction is completed OR this role is being shutdown.
+     * This method MAY be invoked more than once for the same transaction; it should be idempotent.
      *
      * <p>
      * Subclasses should invoke this method if overriden.
