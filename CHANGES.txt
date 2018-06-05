@@ -3,6 +3,7 @@ Version 4.1.1
     - Fixed timeout bug in Raft commit when leader has zero followers
     - Closed race window in MutableView when recording read ranges
     - Added the ability to configure Raft service thread priority
+    - Added support for Raft high priority transactions
     - Added LMDB key/value database
     - Added "decode-key" CLI command
 

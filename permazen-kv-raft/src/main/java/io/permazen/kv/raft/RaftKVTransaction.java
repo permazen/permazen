@@ -328,6 +328,57 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     /**
+     * Mark this transaction as the <i>high priority</i> transaction for this node.
+     *
+     * <p>
+     * This is an absolute "all or nothing" prioritization. At most one transaction can be high priority at a time;
+     * if two concurrent transactions are set as high priority, the most recent invocation of this method wins.
+     *
+     * <p>
+     * High priority transactions are handled differently on leaders: the high priority transaction always wins when
+     * there is a conflict with another transaction. This includes other local transactions, as well as remote transactions
+     * sent from followers.
+     *
+     * <p>
+     * On followers, configuring a transaction as high priority simply forces an immediate leader election as if by
+     * {@link FollowerRole#startElection}, causing the node to become the leader with high probability, where it can
+     * then prioritize this transaction as described above.
+     *
+     * <p>
+     * Note that overly-agressive use of this method can cause a flurry of elections and poor performance, therefore,
+     * this method should be used sparingly. To keep this from happening, followers will not force a new election
+     * unless there is an {@linkplain FollowerRole#getLeaderIdentity established leader}.
+     *
+     * <p>
+     * This method is only valid for {@link Consistency#LINEARIZABLE} transactions.
+     *
+     * <p>
+     * Default is false.
+     *
+     * @param highPriority true for high priority, otherwise false
+     * @return true if successful, false if this transaction is no longer alive or is not {@link Consistency#LINEARIZABLE}
+     */
+    public boolean setHighPriority(boolean highPriority) {
+        return this.raft.setHighPriority(this, highPriority);
+    }
+
+    /**
+     * Determine whether this transaction is the high priority transaction for this node.
+     *
+     * <p>
+     * A high priority transaction is automatically reverted sometime after {@link #commit} is invoked, so this method
+     * is only reliable while this transaction in state {@link TxState#EXECUTING}.
+     *
+     * @return true if high priority, otherwise false
+     * @see #setHighPriority
+     */
+    public boolean isHighPriority() {
+        synchronized (this.raft) {
+            return this == this.raft.highPrioTx;
+        }
+    }
+
+    /**
      * Set whether this transaction should be read-only.
      *
      * <p>
@@ -724,6 +775,7 @@ public class RaftKVTransaction implements KVTransaction {
         if (this.rebasable) {
             if (this.raft.log.isTraceEnabled())
                 this.raft.trace("stopping rebasing for " + this);
+            this.raft.setHighPriority(this, false);     // if it's not longer rebasable, it can't be a victim of any conflicts
             this.view.disableReadTracking();
             this.rebasable = false;
         }
@@ -801,6 +853,8 @@ public class RaftKVTransaction implements KVTransaction {
         assert !this.rebasable || this.commitIndex == 0 || this.commitIndex > raftCommitIndex;
         assert !this.rebasable || this.commitIndex == 0 || !this.addsLogEntry();
         assert this.rebasable == (this.view.getReads() != null);
+        assert this.rebasable || this != this.raft.highPrioTx;
+        assert this.consistency == Consistency.LINEARIZABLE || this != this.raft.highPrioTx;
         switch (this.consistency) {
         case LINEARIZABLE:
             assert !this.committable || this.addsLogEntry() || this.baseIndex == this.commitIndex

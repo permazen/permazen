@@ -783,23 +783,36 @@ public class LeaderRole extends Role {
         if (tx.getConfigChange() != null && !this.mayApplyNewConfigChange())
             return;
 
-        // Commit transaction as a new log entry
-        final LogEntry logEntry;
-        try {
-            logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
-        } catch (IllegalStateException e) {
-            throw new RetryTransactionException(tx, e.getMessage());
-        } catch (Exception e) {
-            throw new KVTransactionException(tx, "error attempting to persist transaction", e);
+        // We must check for a high priority TX conflict, and rebase the high priority TX, atomically, so setup locking
+        final boolean needHighPriorityCheck = this.raft.highPrioTx != null && this.raft.highPrioTx != tx;
+        synchronized (needHighPriorityCheck ? this.raft.highPrioTx.view : this.raft) {
+
+            // Check for the existence of a conflicting high priority TX
+            if (needHighPriorityCheck) {
+                final String conflictMsg = this.checkHighPriorityConflict(tx.view.getWrites(),
+                  this.raft.dumpConflicts ? "local tx " + tx : null);
+                if (conflictMsg != null)
+                    throw new RetryTransactionException(tx, conflictMsg);
+            }
+
+            // Commit transaction as a new log entry
+            final LogEntry logEntry;
+            try {
+                logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
+            } catch (IllegalStateException e) {
+                throw new RetryTransactionException(tx, e.getMessage());
+            } catch (Exception e) {
+                throw new KVTransactionException(tx, "error attempting to persist transaction", e);
+            }
+            if (this.log.isDebugEnabled())
+                this.debug("added log entry " + logEntry + " for local transaction " + tx);
+
+            // Update transaction
+            this.advanceReadyTransactionWithCommitInfo(tx, logEntry.getTerm(), logEntry.getIndex(), null);
+
+            // Rebase transactions
+            this.rebaseTransactions();
         }
-        if (this.log.isDebugEnabled())
-            this.debug("added log entry " + logEntry + " for local transaction " + tx);
-
-        // Update transaction
-        this.advanceReadyTransactionWithCommitInfo(tx, logEntry.getTerm(), logEntry.getIndex(), null);
-
-        // Rebase transactions
-        this.rebaseTransactions();
     }
 
     // Determine whether it's safe to append a log entry with a configuration change
@@ -832,6 +845,31 @@ public class LeaderRole extends Role {
      */
     private Timestamp getCurrentCommitMinLeaseTimeout() {
         return this.followerMap.isEmpty() || this.isLeaderLeaseActiveNow() ? null : new Timestamp();
+    }
+
+    /**
+     * Given a possible new transaction to commit, check for the existence of a high priority with which it conflicts.
+     */
+    private String checkHighPriorityConflict(Writes writes, String dumpDescription) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        assert this.raft.highPrioTx != null;
+        assert Thread.holdsLock(this.raft.highPrioTx.view);
+
+        // Check for conflict
+        final Reads reads = this.raft.highPrioTx.view.getReads();
+        if (!reads.isConflict(writes))
+            return null;
+
+        // Report conflicts
+        if (dumpDescription != null) {
+            this.dumpConflicts(reads, writes,
+              dumpDescription + " fails due to conflicts with high priority transaction " + this.raft.highPrioTx);
+        }
+
+        // Fail
+        return "transaction conflicts with a high priority transaction";
     }
 
 // Message
@@ -978,24 +1016,40 @@ public class LeaderRole extends Role {
             // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will
             // throw an exception and the client will just just have to retry the transaction. Config changes are rare.
 
-            // Commit mutations as a new log entry
+            // We must check for a high priority TX conflict, and rebase the high priority TX, atomically, so setup locking
             final LogEntry logEntry;
-            try {
-                logEntry = this.applyNewLogEntry(newLogEntry);
-            } catch (Exception e) {
-                if (!(e instanceof IllegalStateException))
-                    this.error("error appending new log entry for " + msg, e);
-                else if (this.log.isDebugEnabled())
-                    this.debug("error appending new log entry for " + msg + ": " + e);
-                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
-                return;
-            }
-            if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " for rec'd " + msg);
+            final boolean needHighPriorityCheck = this.raft.highPrioTx != null;
+            synchronized (needHighPriorityCheck ? this.raft.highPrioTx.view : this.raft) {
 
-            // Rebase transactions
-            this.rebaseTransactions();
+                // Check for the existence of a conflicting high priority TX
+                if (needHighPriorityCheck) {
+                    final String conflictMsg = this.checkHighPriorityConflict(newLogEntry.getData().getWrites(),
+                      this.raft.dumpConflicts ? "commit request " + msg : null);
+                    if (conflictMsg != null) {
+                        this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity,
+                          msg.getSenderId(), this.raft.currentTerm, msg.getTxId(), conflictMsg));
+                        return;
+                    }
+                }
+
+                // Commit mutations as a new log entry
+                try {
+                    logEntry = this.applyNewLogEntry(newLogEntry);
+                } catch (Exception e) {
+                    if (!(e instanceof IllegalStateException))
+                        this.error("error appending new log entry for " + msg, e);
+                    else if (this.log.isDebugEnabled())
+                        this.debug("error appending new log entry for " + msg + ": " + e);
+                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
+                      this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
+                    return;
+                }
+                if (this.log.isDebugEnabled())
+                    this.debug("added log entry " + logEntry + " for rec'd " + msg);
+
+                // Rebase transactions
+                this.rebaseTransactions();
+            }
 
             // Follower transaction data optimization
             follower.getSkipDataLogEntries().add(logEntry);
@@ -1179,7 +1233,7 @@ public class LeaderRole extends Role {
             final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
             if (reads.isConflict(logEntry.getWrites())) {
                 if (dumpDescription != null)
-                    this.dumpConflicts(reads, logEntry, dumpDescription);
+                    this.dumpConflicts(reads, logEntry.getWrites(), dumpDescription + " fails due to conflicts with " + logEntry);
                 return "writes of committed transaction at index " + index
                   + " conflict with transaction reads from transaction base index " + baseIndex;
             }

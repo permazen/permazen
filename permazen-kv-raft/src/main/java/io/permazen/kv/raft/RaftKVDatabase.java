@@ -386,6 +386,13 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public static final String OPTION_CONSISTENCY = "consistency";
 
+    /**
+     * Option key for {@link #createTransaction(Map)}. Value should be a Boolean, or else {@code "true"} or {@code "false"}.
+     *
+     * @see RaftKVTransaction#setHighPriority
+     */
+    public static final String OPTION_HIGH_PRIORITY = "highPriority";
+
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
@@ -504,6 +511,9 @@ public class RaftKVDatabase implements KVDatabase {
     boolean shuttingDown;                                               // prevents new transactions from being created
     @GuardedBy("this")
     Throwable lastInternalError;                                        // most recent exception in service executor
+
+    // High priority transaction
+    RaftKVTransaction highPrioTx;                                       // current high priority transaction, if any
 
 // Configuration
 
@@ -1542,23 +1552,47 @@ public class RaftKVDatabase implements KVDatabase {
             // ignore
         }
 
+        // Look for OPTION_HIGH_PRIORITY option
+        boolean highPriority = false;
+        final Object value = options.get(OPTION_HIGH_PRIORITY);
+        if (value instanceof Boolean)
+            highPriority = (Boolean)value;
+        else if (value instanceof String)
+            highPriority = Boolean.valueOf((String)value);
+
         // Configure consistency level
-        return this.createTransaction(consistency != null ? consistency : Consistency.LINEARIZABLE);
+        return this.createTransaction(consistency != null ? consistency : Consistency.LINEARIZABLE, highPriority);
     }
 
     /**
      * Create a new transaction with the specified consistency.
      *
      * <p>
-     * Transactions that wish to use {@link Consistency#EVENTUAL_COMMITTED} must be created using this method,
-     * because the log entry on which the transaction is based is determined at creation time.
+     * Equivalent to {@link #createTransaction(Consistency, boolean) createTransaction(consistency, false)}.
      *
      * @param consistency consistency level
      * @return newly created transaction
      * @throws IllegalArgumentException if {@code consistency} is null
      * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
      */
-    public synchronized RaftKVTransaction createTransaction(Consistency consistency) {
+    public RaftKVTransaction createTransaction(Consistency consistency) {
+        return this.createTransaction(consistency, false);
+    }
+
+    /**
+     * Create a new transaction with the specified consistency and with optional high priority.
+     *
+     * <p>
+     * Transactions that wish to use {@link Consistency#EVENTUAL_COMMITTED} must be created using this method,
+     * because the log entry on which the transaction is based is determined at creation time.
+     *
+     * @param consistency consistency level
+     * @param highPriority true to make transaction {@linkplain RaftKVTransaction#setHighPriority high priority}
+     * @return newly created transaction
+     * @throws IllegalArgumentException if {@code consistency} is null
+     * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
+     */
+    public synchronized RaftKVTransaction createTransaction(Consistency consistency, boolean highPriority) {
 
         // Sanity check
         assert this.checkState();
@@ -1599,10 +1633,65 @@ public class RaftKVDatabase implements KVDatabase {
             break;
         }
 
+        // Set high priority
+        if (highPriority)
+            tx.setHighPriority(true);
+
         // Done
         if (this.log.isDebugEnabled())
             this.debug("created new transaction " + tx);
         return tx;
+    }
+
+    /**
+     * Make a transaction the high priority transaction on this node.
+     */
+    synchronized boolean setHighPriority(RaftKVTransaction tx, boolean highPriority) {
+
+        // Demoting? That's easy.
+        if (!highPriority) {
+            if (tx == this.highPrioTx)
+                this.highPrioTx = null;
+            return true;
+        }
+
+        // Check transaction consistency
+        if (!tx.getConsistency().equals(Consistency.LINEARIZABLE))
+            return false;
+
+        // Check transaction state
+        switch (tx.getState()) {
+        case EXECUTING:
+        case COMMIT_READY:
+        case COMMIT_WAITING:
+            break;
+        default:
+            return false;
+        }
+
+        // Make transaction special
+        if (this.log.isDebugEnabled()) {
+            if (this.highPrioTx != null)
+                this.log.debug("setting high priority transaction {} (replacing {})", tx, this.highPrioTx);
+            else
+                this.log.debug("setting new high priority transaction {}", tx);
+        }
+        this.highPrioTx = tx;
+
+        // Try to become leader if we're currently a follower and some other leader is established
+        if (this.role instanceof FollowerRole) {
+            final FollowerRole followerRole = (FollowerRole)this.role;
+            if (followerRole.getLeaderIdentity() != null
+              && followerRole.electionTimer.isRunning()
+              && !followerRole.electionTimer.getDeadline().hasOccurred()) {
+                if (this.log.isDebugEnabled())
+                    this.log.debug("starting early election on behalf of high priority transaction {}", tx);
+                followerRole.startElection();
+            }
+        }
+
+        // Done
+        return true;
     }
 
     /**
@@ -2718,6 +2807,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.linearizableCommitTimestamp == null;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
+            assert this.highPrioTx == null;
             assert this.pendingService.isEmpty();
             assert !this.shuttingDown;
             return;
@@ -2772,6 +2862,8 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.role.checkState();
 
         // Check transactions
+        assert this.highPrioTx == null || this.openTransactions.containsKey(this.highPrioTx.txId);
+        assert this.highPrioTx == null || this.highPrioTx.getState().compareTo(TxState.COMPLETED) < 0;
         for (RaftKVTransaction tx : this.openTransactions.values()) {
             try {
                 assert !tx.getState().equals(TxState.CLOSED);

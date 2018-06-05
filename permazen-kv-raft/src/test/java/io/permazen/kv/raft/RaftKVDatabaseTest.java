@@ -245,6 +245,11 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
         });
     }
 
+    @Override
+    protected RaftKVTransaction doCreateTransaction(KVDatabase kvdb) {
+        return ((RaftKVDatabase)kvdb).createTransaction(Consistency.LINEARIZABLE, this.random.nextInt(20) == 0);
+    }
+
     private <T> T disruptCluster(Callable<T> test) throws Exception {
         // TODO: randomly add/remove nodes
         return test.call();
