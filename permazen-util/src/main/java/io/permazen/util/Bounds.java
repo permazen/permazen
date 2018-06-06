@@ -288,6 +288,8 @@ public class Bounds<T> {
      * Create an instance with bounds that allow only the given value.
      *
      * @param value unique bounded value
+     * @param <T> Java type of range bounds
+     * @return bounds containing exactly {@code value}
      */
     public static <T> Bounds<T> eq(T value) {
         return new Bounds<>(value, BoundType.INCLUSIVE, value, BoundType.INCLUSIVE);
@@ -297,6 +299,8 @@ public class Bounds<T> {
      * Create an instance with an inclusive lower bound.
      *
      * @param lowerBound inclusive lower bound
+     * @param <T> Java type of range bounds
+     * @return bounds containing all values greater than or equal to {@code value}
      */
     public static <T> Bounds<T> ge(T lowerBound) {
         return new Bounds<>(lowerBound, BoundType.INCLUSIVE, false);
@@ -306,6 +310,8 @@ public class Bounds<T> {
      * Create an instance with an exclusive lower bound.
      *
      * @param lowerBound exclusive lower bound
+     * @param <T> Java type of range bounds
+     * @return bounds containing all values greater than {@code value}
      */
     public static <T> Bounds<T> gt(T lowerBound) {
         return new Bounds<>(lowerBound, BoundType.EXCLUSIVE, false);
@@ -315,6 +321,8 @@ public class Bounds<T> {
      * Create an instance with an inclusive upper bound.
      *
      * @param upperBound inclusive upper bound
+     * @param <T> Java type of range bounds
+     * @return bounds containing all values less than or equal to {@code value}
      */
     public static <T> Bounds<T> le(T upperBound) {
         return new Bounds<>(upperBound, BoundType.INCLUSIVE, true);
@@ -324,6 +332,8 @@ public class Bounds<T> {
      * Create an instance with an exclusive upper bound.
      *
      * @param upperBound exclusive upper bound
+     * @param <T> Java type of range bounds
+     * @return bounds containing all values less than {@code value}
      */
     public static <T> Bounds<T> lt(T upperBound) {
         return new Bounds<>(upperBound, BoundType.EXCLUSIVE, true);

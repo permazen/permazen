@@ -16,6 +16,10 @@ public class ByteArrayLMDBKVTransaction extends LMDBKVTransaction<byte[]> {
 
     /**
      * Constructor.
+     *
+     * @param kvdb associated database
+     * @param env environment
+     * @param db database handle
      */
     protected ByteArrayLMDBKVTransaction(LMDBKVDatabase<byte[]> kvdb, Env<byte[]> env, Dbi<byte[]> db) {
         super(kvdb, env, db);

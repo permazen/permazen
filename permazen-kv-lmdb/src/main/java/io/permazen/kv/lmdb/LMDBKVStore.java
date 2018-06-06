@@ -66,7 +66,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     /**
-     * Get the {@link Transaction} associated with this instance.
+     * Get the {@link Txn} associated with this instance.
      *
      * @return associated transaction
      */
@@ -162,6 +162,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
      * @param minKey minimum key (inclusive), or null for none
      * @param maxKey maximum key (exclusive), or null for none
      * @param reverse true for reverse ordering, false for forward ordering
+     * @return {@link KeyRange} instance
      */
     public KeyRange<T> getKeyRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         final T min = this.wrap(this.addPrefix(minKey != null && minKey.length > 0 ? minKey : ByteUtil.EMPTY), false);

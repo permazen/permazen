@@ -51,6 +51,10 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
 
     /**
      * Constructor.
+     *
+     * @param kvdb associated database
+     * @param env environment
+     * @param db database handle
      */
     protected LMDBKVTransaction(LMDBKVDatabase<T> kvdb, Env<T> env, Dbi<T> db) {
         this.kvdb = kvdb;

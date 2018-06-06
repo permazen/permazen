@@ -327,7 +327,7 @@ public class FallbackKVDatabase implements KVDatabase {
     /**
      * Get the configured internal service thread priority.
      *
-     * @param internal service thread priority, or -1 if not configured
+     * @return internal service thread priority, or -1 if not configured
      */
     public synchronized int getThreadPriority() {
         return this.threadPriority;
@@ -803,7 +803,7 @@ public class FallbackKVDatabase implements KVDatabase {
      * Create a Raft source transaction.
      *
      * <p>
-     * The implementation in {@link FallbackKVDatabse} returns a new read-only transaction with consistency
+     * The implementation in {@link FallbackKVDatabase} returns a new read-only transaction with consistency
      * {@link Consistency#EVENTUAL_COMMITTED}. The combination of read-only and {@link Consistency#EVENTUAL_COMMITTED}
      * is important, because this guarantees that the transaction will generate no network traffic (and not require
      * any majority to exist) on {@code commit()}.
@@ -822,7 +822,7 @@ public class FallbackKVDatabase implements KVDatabase {
      * Create a Raft destination transaction.
      *
      * <p>
-     * The implementation in {@link FallbackKVDatabse} just delegates to {@link RaftKVDatabase#createTransaction()}.
+     * The implementation in {@link FallbackKVDatabase} just delegates to {@link RaftKVDatabase#createTransaction()}.
      *
      * @param kvdb Raft database
      * @return new transaction for availability check
@@ -836,7 +836,7 @@ public class FallbackKVDatabase implements KVDatabase {
      * Create a Raft availability check transaction.
      *
      * <p>
-     * The implementation in {@link FallbackKVDatabse} just delegates to {@link RaftKVDatabase#createTransaction()}.
+     * The implementation in {@link FallbackKVDatabase} just delegates to {@link RaftKVDatabase#createTransaction()}.
      *
      * @param kvdb Raft database
      * @return new transaction for availability check

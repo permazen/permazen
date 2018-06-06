@@ -925,7 +925,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get the configured internal service thread priority.
      *
-     * @param internal service thread priority, or -1 if not configured
+     * @return internal service thread priority, or -1 if not configured
      */
     public synchronized int getThreadPriority() {
         return this.threadPriority;
