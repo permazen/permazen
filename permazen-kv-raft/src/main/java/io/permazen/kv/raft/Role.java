@@ -589,19 +589,22 @@ public abstract class Role {
      * This should be invoked after appending a new Raft log entry.
      *
      * @param tx the transaction
+     * @param highPrioAlreadyChecked if the high priority transaction is already checked for conflicts
      * @throws KVTransactionException if an error occurs
      */
-    void rebaseTransactions() {
+    void rebaseTransactions(boolean highPrioAlreadyChecked) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
+        assert !highPrioAlreadyChecked || this.raft.highPrioTx != null;
+        assert !highPrioAlreadyChecked || Thread.holdsLock(this.raft.highPrioTx.view);
 
         // Rebase all rebasable transactions
         for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (!tx.isRebasable())
                 continue;
             try {
-                this.rebaseTransaction(tx);
+                this.rebaseTransaction(tx, highPrioAlreadyChecked && tx == this.raft.highPrioTx);
             } catch (KVTransactionException e) {
                 this.raft.fail(tx, e);
             } catch (Exception | Error e) {
@@ -623,9 +626,10 @@ public abstract class Role {
      * This method assumes that the given transaction is {@linkplain RaftKVTransaction#isRebasable rebasable}.
      *
      * @param tx the transaction
+     * @param skipConflictCheck true to skip the conflict check because we've already done it
      * @throws KVTransactionException if an error occurs
      */
-    private void rebaseTransaction(RaftKVTransaction tx) {
+    private void rebaseTransaction(RaftKVTransaction tx, boolean skipConflictCheck) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
@@ -649,7 +653,8 @@ public abstract class Role {
 
                 // Check for conflicts
                 final LogEntry logEntry = this.raft.getLogEntryAtIndex(++baseIndex);
-                if (tx.view.getReads().isConflict(logEntry.getWrites())) {
+                assert !skipConflictCheck || !tx.view.getReads().isConflict(logEntry.getWrites());
+                if (!skipConflictCheck && tx.view.getReads().isConflict(logEntry.getWrites())) {
                     if (this.log.isDebugEnabled())
                         this.debug("cannot rebase " + tx + " past " + logEntry + " due to conflicts, failing");
                     if (this.raft.dumpConflicts) {

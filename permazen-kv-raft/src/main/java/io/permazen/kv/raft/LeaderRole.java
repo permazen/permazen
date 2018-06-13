@@ -180,7 +180,7 @@ public class LeaderRole extends Role {
             this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
 
         // Rebase transactions
-        this.rebaseTransactions();
+        this.rebaseTransactions(false);
 
         // Start check apply timer
         if (!this.raft.raftLog.isEmpty())
@@ -811,7 +811,7 @@ public class LeaderRole extends Role {
             this.advanceReadyTransactionWithCommitInfo(tx, logEntry.getTerm(), logEntry.getIndex(), null);
 
             // Rebase transactions
-            this.rebaseTransactions();
+            this.rebaseTransactions(needHighPriorityCheck);
         }
     }
 
@@ -1048,7 +1048,7 @@ public class LeaderRole extends Role {
                     this.debug("added log entry " + logEntry + " for rec'd " + msg);
 
                 // Rebase transactions
-                this.rebaseTransactions();
+                this.rebaseTransactions(needHighPriorityCheck);
             }
 
             // Follower transaction data optimization

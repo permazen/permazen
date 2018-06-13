@@ -369,7 +369,7 @@ public class FollowerRole extends NonLeaderRole {
             this.advanceReadyTransactionWithCommitInfo(tx, 1, 1, null);
 
             // Rebase any other transactions
-            this.rebaseTransactions();
+            this.rebaseTransactions(false);
 
             // Update our commit term and index from new log entry
             this.raft.commitIndex = logEntry.getIndex();
@@ -680,7 +680,7 @@ public class FollowerRole extends NonLeaderRole {
 
                 // Rebase transactions
                 if (success)
-                    this.rebaseTransactions();
+                    this.rebaseTransactions(false);
 
                 // Update last log entry index
                 lastLogIndex = this.raft.getLastLogIndex();
