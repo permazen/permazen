@@ -328,26 +328,26 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     /**
-     * Mark this transaction as the <i>high priority</i> transaction for this node.
+     * Configure whether this transaction is the <i>high priority</i> transaction for this node.
      *
      * <p>
-     * This is an absolute "all or nothing" prioritization. At most one transaction can be high priority at a time;
-     * if two concurrent transactions are set as high priority, the most recent invocation of this method wins.
+     * At most one transaction on a Raft node can be high priority at a time; if two concurrent transactions are
+     * configured as high priority on the same node, the most recent invocation of this method wins.
      *
      * <p>
-     * High priority transactions are handled differently on leaders: the high priority transaction always wins when
-     * there is a conflict with another transaction. This includes other local transactions, as well as remote transactions
-     * sent from followers.
+     * High priority transactions are handled specially on leaders: the high priority transaction always wins when
+     * there is a conflict with another transaction, whether the other transaction is local or remote sent from a follower,
+     * so a high priority transaction can never fail due to a conflict. So this is an absolute "all or nothing" prioritization.
      *
      * <p>
-     * On followers, configuring a transaction as high priority simply forces an immediate leader election as if by
+     * On followers, configuring a transaction as high priority simply forces an immediate leader election, as if by
      * {@link FollowerRole#startElection}, causing the node to become the leader with high probability, where it can
-     * then prioritize this transaction as described above.
+     * then prioritize this transaction as described above (transactions are oblivious to underlying Raft role changes).
      *
      * <p>
-     * Note that overly-agressive use of this method can cause a flurry of elections and poor performance, therefore,
-     * this method should be used sparingly. To keep this from happening, followers will not force a new election
-     * unless there is an {@linkplain FollowerRole#getLeaderIdentity established leader}.
+     * Warning: overly-agressive use of this method can cause a flurry of elections and poor performance, therefore,
+     * this method should be used sparingly, otherwise an election storm could result. In any case, followers will not
+     * force a new election for this purpose unless there is an {@linkplain FollowerRole#getLeaderIdentity established leader}.
      *
      * <p>
      * This method is only valid for {@link Consistency#LINEARIZABLE} transactions.

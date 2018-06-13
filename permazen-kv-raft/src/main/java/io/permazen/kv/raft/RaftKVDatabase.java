@@ -1583,10 +1583,6 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Create a new transaction with the specified consistency and with optional high priority.
      *
-     * <p>
-     * Transactions that wish to use {@link Consistency#EVENTUAL_COMMITTED} must be created using this method,
-     * because the log entry on which the transaction is based is determined at creation time.
-     *
      * @param consistency consistency level
      * @param highPriority true to make transaction {@linkplain RaftKVTransaction#setHighPriority high priority}
      * @return newly created transaction
