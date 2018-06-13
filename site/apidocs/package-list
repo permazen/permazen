@@ -22,6 +22,7 @@ io.permazen.kv.caching
 io.permazen.kv.cockroach
 io.permazen.kv.fdb
 io.permazen.kv.leveldb
+io.permazen.kv.lmdb
 io.permazen.kv.mssql
 io.permazen.kv.mvcc
 io.permazen.kv.mysql
