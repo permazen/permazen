@@ -1766,9 +1766,8 @@ public class Transaction {
     public synchronized Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
 
         // Sanity check
-        if (this.stale)
-            throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
+        this.checkStaleFieldAccess(id, storageId);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -2006,6 +2005,14 @@ public class Transaction {
         return "field `" + field.getName() + "'";
     }
 
+    private void checkStaleFieldAccess(ObjId id, int storageId) {
+        assert Thread.holdsLock(this);
+        if (this.stale) {
+            throw new StaleTransactionException(this, "can't access " + this.getFieldDescription(id, storageId)
+              + " of " + this.getObjDescription(id) + " :" + StaleTransactionException.DEFAULT_MESSAGE);
+        }
+    }
+
     /**
      * Read the value of a {@link CounterField} from an object, optionally updating the object's schema version.
      *
@@ -2029,9 +2036,8 @@ public class Transaction {
     public synchronized long readCounterField(ObjId id, int storageId, boolean updateVersion) {
 
         // Sanity check
-        if (this.stale)
-            throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
+        this.checkStaleFieldAccess(id, storageId);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -2072,9 +2078,8 @@ public class Transaction {
     public synchronized void writeCounterField(final ObjId id, final int storageId, final long value, final boolean updateVersion) {
 
         // Sanity check
-        if (this.stale)
-            throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
+        this.checkStaleFieldAccess(id, storageId);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -2113,8 +2118,7 @@ public class Transaction {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkStaleFieldAccess(id, storageId);
 
         // Optimize away non-change
         if (offset == 0)
@@ -2274,9 +2278,8 @@ public class Transaction {
       int storageId, boolean updateVersion, Class<F> fieldClass, Class<V> valueType) {
 
         // Sanity check
-        if (this.stale)
-            throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
+        this.checkStaleFieldAccess(id, storageId);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);

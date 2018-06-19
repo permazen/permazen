@@ -11,6 +11,8 @@ package io.permazen.core;
 @SuppressWarnings("serial")
 public class StaleTransactionException extends TransactionException {
 
+    static final String DEFAULT_MESSAGE = "transaction cannot be accessed because it is no longer usable";
+
     /**
      * Constructor.
      *
@@ -18,7 +20,7 @@ public class StaleTransactionException extends TransactionException {
      * @throws IllegalArgumentException if {@code tx} is null
      */
     public StaleTransactionException(Transaction tx) {
-        super(tx, "transaction cannot be accessed because it is no longer usable");
+        super(tx, DEFAULT_MESSAGE);
     }
 
     /**
