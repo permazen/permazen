@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2-SNAPSHOT</version>
     </parent>
     <artifactId>permazen-vaadin</artifactId>
     <name>Permazen Vaadin Classes</name>
