@@ -37,8 +37,8 @@ SHORT TERM
 
 - New KVDatabase implementations
     - Amazon DynamoDB ?
-    - Sphia
-        - http://sphia.org/
+    - Sophia
+        - http://sophia.systems/
 
 - key/value layer transaction improvements
     - Add Spring transaction manager
