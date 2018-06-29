@@ -309,6 +309,10 @@ public class KeyRange {
 
     @Override
     public String toString() {
+        if (this.isSingleKey())
+            return "[" + ByteUtil.toString(this.min) + "]";
+        if (this.isPrefixRange())
+            return "[" + ByteUtil.toString(this.min) + "*]";
         return "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + ")";
     }
 }
