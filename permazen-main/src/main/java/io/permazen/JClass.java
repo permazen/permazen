@@ -17,6 +17,7 @@ import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.SetField;
 import io.permazen.core.UnknownFieldException;
+import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
@@ -59,6 +60,7 @@ public class JClass<T> extends JSchemaObject {
     final ArrayList<JCompositeIndex> uniqueConstraintCompositeIndexes = new ArrayList<>();
     final ArrayList<JField> upgradeConversionFields = new ArrayList<>();                // contains only simple and counter fields
     final HashMap<String, List<JReferenceField>> forwardCascadeMap = new HashMap<>();
+    final HashMap<String, Map<Integer, KeyRanges>> inverseCascadeMap = new HashMap<>();
 
     Set<FollowPathScanner<T>.MethodInfo> followPathMethods;
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;

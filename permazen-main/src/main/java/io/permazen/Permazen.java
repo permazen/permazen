@@ -129,7 +129,6 @@ public class Permazen {
     final ClassLoader loader;
     final Database db;
     final StorageIdGenerator storageIdGenerator;
-    final HashMap<String, List<JReferenceField>> inverseCascadeMap = new HashMap<>();
 
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
@@ -354,7 +353,7 @@ public class Permazen {
             }
         }
 
-        // Populate jclass.forwardCascadeMap and this.inverseCascadeMap
+        // Populate jclass forwardCascadeMap and inverseCascadeMap
         for (JClass<?> jclass0 : this.jclasses.values()) {
             final JClass<?> jclass = jclass0;
             for (JField jfield : jclass.jfields.values()) {
@@ -362,10 +361,25 @@ public class Permazen {
 
                     @Override
                     public Void caseJReferenceField(JReferenceField field) {
-                        for (String cascadeName : field.forwardCascades)
-                            this.addCascade(jclass.forwardCascadeMap, cascadeName, field);
-                        for (String cascadeName : field.inverseCascades)
-                            this.addCascade(Permazen.this.inverseCascadeMap, cascadeName, field);
+
+                        // Do forward cascades
+                        for (String cascadeName : field.forwardCascades) {
+                            if (cascadeName == null)
+                                continue;
+                            jclass.forwardCascadeMap.computeIfAbsent(cascadeName, s -> new ArrayList<>()).add(field);
+                        }
+
+                        // Do inverse cascades
+                        for (String cascadeName : field.inverseCascades) {
+                            if (cascadeName == null)
+                                continue;
+                            for (JClass<?> targetClass : Permazen.this.getJClasses(field.typeToken.getRawType())) {
+                                targetClass.inverseCascadeMap
+                                  .computeIfAbsent(cascadeName, s -> new HashMap<>())
+                                  .computeIfAbsent(field.storageId, i -> new KeyRanges())
+                                  .add(ObjId.getKeyRange(jclass.storageId));
+                            }
+                        }
                         return null;
                     }
 
@@ -388,11 +402,6 @@ public class Permazen {
                     @Override
                     protected Void caseJField(JField field) {
                         return null;
-                    }
-
-                    private void addCascade(Map<String, List<JReferenceField>> map, String cascadeName, JReferenceField field) {
-                        if (cascadeName != null)
-                            map.computeIfAbsent(cascadeName, s -> new ArrayList<>()).add(field);
                     }
                 });
             }

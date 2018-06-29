@@ -915,19 +915,23 @@ public class JTransaction {
     }
 
     private void gatherInverseCascadeRefs(ObjId id, String cascadeName, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
-        final List<JReferenceField> fieldList = this.jdb.inverseCascadeMap.get(cascadeName);
-        if (fieldList == null)
+        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
+        if (jclass == null)
             return;
-        for (JReferenceField field : fieldList) {
-            final JClass<?> jclass = field.getJClass();
+        final Map<Integer, KeyRanges> incomingCascades = jclass.inverseCascadeMap.get(cascadeName);
+        if (incomingCascades == null)
+            return;
+        for (Map.Entry<Integer, KeyRanges> entry : incomingCascades.entrySet()) {
+            final int referenceFieldStorageId = entry.getKey();
+            final KeyRanges cascadeReferringTypeRanges = entry.getValue();
 
-            // Access the index associated with the reference field's storage ID
-            CoreIndex<?, ?> index = this.tx.queryIndex(field.storageId);
+            // Access the index associated with the reference field
+            CoreIndex<?, ?> index = this.tx.queryIndex(referenceFieldStorageId);
 
-            // Restrict to references coming from objects having the type containing the particular reference field in question
-            index = index.filter(1, new KeyRanges(ObjId.getKeyRange(jclass.storageId)));
+            // Restrict index to references from objects containing the field with the cascade (their ranges already precomputed)
+            index = index.filter(1, cascadeReferringTypeRanges);
 
-            // Find objects of that type referring to "id" through the field and add them to our cascade
+            // Find objects referring to "id" through the field and add them to our cascade
             final NavigableSet<?> refs = index.asMap().get(id);
             if (refs != null)
                 this.gatherRefs(refs.iterator(), visitedIds, toVisitIds);

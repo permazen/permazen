@@ -1,3 +1,7 @@
+Version Next
+
+    - Minor performance improvement in calculating inverse cacades
+
 Version 4.1.1 Released June 5, 2018
 
     - Fixed timeout bug in Raft commit when leader has zero followers
