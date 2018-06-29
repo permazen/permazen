@@ -194,6 +194,24 @@ public class KeyRange {
     }
 
     /**
+     * Determine whether this instance contains all keys having some common prefix.
+     *
+     * <p>
+     * If so, {@link #getMin} returns the prefix.
+     *
+     * @return true if this instance contains all keys having some common prefix, otherwise false
+     */
+    public boolean isPrefixRange() {
+        final byte[] keyAfterPrefix;
+        try {
+            keyAfterPrefix = ByteUtil.getKeyAfterPrefix(this.min);
+        } catch (IllegalArgumentException e) {
+            return this.max == null;    // this.min is either empty or contains all 0xff bytes
+        }
+        return Arrays.equals(this.max, keyAfterPrefix);
+    }
+
+    /**
      * Determine whether this instance contains zero keys (implying {@link #getMin}{@code == }{@link #getMax}).
      *
      * @return true if this instance contains no keys
