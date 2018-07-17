@@ -176,7 +176,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     final StringBuilder buf = new StringBuilder();
                     for (SimpleField<?> field : index.getFields()) {
                         if (buf.length() == 0) {
-                            buf.append("[").append(storageId).append("] Composite index \"")
+                            buf.append("[#").append(storageId).append("] Composite index \"")
                               .append(index.getName()).append("\" on ");
                         } else
                             buf.append(", ");
@@ -198,7 +198,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     final SimpleField<?> field = (SimpleField<?>)schemaItem;
 
                     // Describe storage ID
-                    decodes.add("[" + storageId + "] Simple index on " + field);
+                    decodes.add("[#" + storageId + "] Simple index on " + field);
 
                     // Describe value
                     decodes.add("Value " + DecodeKeyCommand.readStringValue(field, reader));
@@ -234,7 +234,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
                 // Handle object
                 final ObjType objType = (ObjType)schemaItem;
-                decodes.add("[" + storageId + "] " + objType);
+                decodes.add("[#" + storageId + "] " + objType);
                 reader.readBytes(ObjId.NUM_BYTES - reader.getOffset());
                 decodes.add("Random/unique part of ObjId");
                 if (reader.remain() == 0)
@@ -274,7 +274,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
                     @Override
                     protected <T> Void caseField(Field<T> field) {
-                        decodes.add(field);
+                        decodes.add("[#" + fieldStorageId + "] " + field);
                         return null;
                     }
                 });
