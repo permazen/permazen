@@ -705,7 +705,7 @@ public abstract class Role {
 
     void dumpConflicts(Reads reads, Writes writes, String description) {
         final StringBuilder buf = new StringBuilder();
-        buf.append(description).append(":\n");
+        buf.append(description).append(':');
         for (String conflict : reads.getConflicts(writes))
             buf.append("\n  ").append(conflict);
         this.info(buf.toString());
