@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -49,6 +50,12 @@ public class ArrayKVDatabaseTest extends KVDatabaseTest {
             this.arrayKV = new ArrayKVDatabase();
             this.arrayKV.setKVStore(kvstore);
         }
+    }
+
+    @AfterClass
+    public void reportTotalMillisWaiting() {
+        if (this.arrayKV != null)
+            this.log.info("Total delay for compaction: {}ms", this.arrayKV.getKVStore().getTotalMillisWaiting());
     }
 
     @Override

@@ -91,7 +91,7 @@ import org.slf4j.LoggerFactory;
  * exceeds the half-way point between the low-water and high-water marks, new write attempts start being artificially delayed,
  * and this delay amount {@linkplain #calculateCompactionPressureDelay increases to infinity} as the high-water mark is approached,
  * so that as long as the high-water mark is exceeded, new writes are blocked completely until the current compaction cycle
- * completes.
+ * completes. Use {@link #getTotalMillisWaiting} to asses the total amount of time spent in these artificial delays.
  *
  * <p>
  * The number of bytes occupied by the in-memory change set and the length of the outstanding mutations log file are
@@ -206,6 +206,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private Compaction compaction;
     @GuardedBy("lock")
     private long firstModTimestamp;
+    @GuardedBy("lock")
+    private long totalMillisWaiting;
     @GuardedBy("lock")
     private int hotCopiesInProgress;
 
@@ -327,6 +329,20 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         }
     }
 
+    /**
+     * Get the total number of milliseconds spent in artificial delays caused by waiting for compaction.
+     *
+     * @return total delay in milliseconds
+     */
+    public long getTotalMillisWaiting() {
+        this.readLock.lock();
+        try {
+            return this.totalMillisWaiting;
+        } finally {
+            this.readLock.unlock();
+        }
+    }
+
 // Lifecycle
 
     @Override
@@ -366,6 +382,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             assert this.mods == null;
             assert this.modsWritesSnapshot == null;
             assert this.firstModTimestamp == 0;
+            assert this.totalMillisWaiting == 0;
 
             // Check configuration
             Preconditions.checkState(this.directory != null, "no directory configured");
@@ -634,6 +651,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         this.mods = null;
         this.modsWritesSnapshot = null;
         this.firstModTimestamp = 0;
+        this.totalMillisWaiting = 0;
     }
 
 // KVStore
@@ -1546,6 +1564,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Wait for completion
             boolean interrupted = false;
+            long totalNanosWaiting = 0;
+            long mark = System.nanoTime();
             while (!this.completed) {
                 try {
                     if (nanos > 0) {
@@ -1557,10 +1577,15 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                     AtomicArrayKVStore.this.log.warn(
                       "thread was interrupted while waiting for compaction to complete (ignoring)", e);
                     interrupted = true;
+                } finally {
+                    final long newMark = System.nanoTime();
+                    totalNanosWaiting += newMark - mark;
+                    mark = newMark;
                 }
             }
             if (interrupted)
                 Thread.currentThread().interrupt();
+            AtomicArrayKVStore.this.totalMillisWaiting += totalNanosWaiting / 1000000L;
             return this.completed;
         }
 
