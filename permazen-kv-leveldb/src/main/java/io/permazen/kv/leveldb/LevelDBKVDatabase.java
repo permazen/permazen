@@ -24,6 +24,15 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
 // Properties
 
     /**
+     * Get the underlying {@link LevelDBAtomicKVStore} used by this instance.
+     *
+     * @return underlying key/value store
+     */
+    public LevelDBAtomicKVStore getKVStore() {
+        return (LevelDBAtomicKVStore)super.getKVStore();
+    }
+
+    /**
      * Configure the underlying {@link LevelDBAtomicKVStore} used by this instance. Required property.
      *
      * @param kvstore underlying key/value store

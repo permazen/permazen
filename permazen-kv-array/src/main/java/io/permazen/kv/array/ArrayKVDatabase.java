@@ -26,6 +26,15 @@ public class ArrayKVDatabase extends SnapshotKVDatabase {
 // Properties
 
     /**
+     * Get the underlying {@link AtomicArrayKVStore} used by this instance.
+     *
+     * @return underlying key/value store
+     */
+    public AtomicArrayKVStore getKVStore() {
+        return (AtomicArrayKVStore)super.getKVStore();
+    }
+
+    /**
      * Configure the underlying {@link AtomicArrayKVStore} used by this instance. Required property.
      *
      * @param kvstore underlying key/value store

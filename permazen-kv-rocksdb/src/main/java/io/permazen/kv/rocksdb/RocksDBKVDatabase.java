@@ -20,6 +20,15 @@ public class RocksDBKVDatabase extends SnapshotKVDatabase {
 // Properties
 
     /**
+     * Get the underlying {@link RocksDBAtomicKVStore} used by this instance.
+     *
+     * @return underlying key/value store
+     */
+    public RocksDBAtomicKVStore getKVStore() {
+        return (RocksDBAtomicKVStore)super.getKVStore();
+    }
+
+    /**
      * Configure the underlying {@link RocksDBAtomicKVStore} used by this instance. Required property.
      *
      * @param kvstore underlying key/value store
