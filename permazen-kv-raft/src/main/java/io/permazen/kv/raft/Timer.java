@@ -30,7 +30,7 @@ class Timer {
     private PendingTimeout pendingTimeout;                  // non-null IFF timeout has not been handled yet
     private Timestamp timeoutDeadline;
 
-    Timer(RaftKVDatabase raft, String name, Service service) {
+    Timer(final RaftKVDatabase raft, final String name, final Service service) {
         assert raft != null;
         assert name != null;
         assert service != null;

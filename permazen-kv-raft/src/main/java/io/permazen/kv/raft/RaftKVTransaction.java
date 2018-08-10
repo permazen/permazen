@@ -222,7 +222,7 @@ public class RaftKVTransaction implements KVTransaction {
             return this.state;
         }
     }
-    void setState(TxState state) {
+    void setState(final TxState state) {
         assert state != null;
         synchronized (this.raft) {
             assert state.compareTo(this.state) >= 0;
@@ -396,7 +396,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws StaleTransactionException if this transaction is no longer open
      */
     @Override
-    public void setReadOnly(boolean readOnly) {
+    public void setReadOnly(final boolean readOnly) {
         synchronized (this.raft) {
             if (readOnly == this.readOnly)
                 return;
@@ -602,7 +602,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws StaleTransactionException if this transaction is no longer open
      */
     @Override
-    public void setTimeout(long timeout) {
+    public void setTimeout(final long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         synchronized (this.raft) {
             if (timeout == this.timeout)
@@ -712,7 +712,7 @@ public class RaftKVTransaction implements KVTransaction {
         return this.commitTerm != 0;
     }
 
-    void setCommitInfo(long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
+    void setCommitInfo(final long commitTerm, final long commitIndex, final Timestamp commitLeaderLeaseTimeout) {
         assert Thread.holdsLock(this.raft);
         assert !this.hasCommitInfo();
         if (this.raft.log.isTraceEnabled()) {
@@ -742,7 +742,7 @@ public class RaftKVTransaction implements KVTransaction {
         this.setBase(baseTerm, baseIndex);
     }
 
-    void setBase(long baseTerm, long baseIndex) {
+    void setBase(final long baseTerm, final long baseIndex) {
         assert Thread.holdsLock(this.raft);
         assert this.failure == null;
         this.baseTerm = baseTerm;

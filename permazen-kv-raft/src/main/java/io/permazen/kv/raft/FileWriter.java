@@ -33,7 +33,7 @@ class FileWriter extends FilterOutputStream {
      * @throws IOException if an error occurs opening {@code file}
      * @throws IllegalArgumentException if {@code file} is null
      */
-    FileWriter(File file, boolean disableSync) throws IOException {
+    FileWriter(final File file, final boolean disableSync) throws IOException {
         super(null);
         Preconditions.checkArgument(file != null, "null file");
         this.file = file;

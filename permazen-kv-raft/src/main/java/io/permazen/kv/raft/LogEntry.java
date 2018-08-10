@@ -59,7 +59,7 @@ public class LogEntry {
      * @param data log entry data
      * @param fileSize the size of the file
      */
-    LogEntry(long term, long index, File logDir, Data data, long fileSize) {
+    LogEntry(final long term, final long index, final File logDir, final Data data, final long fileSize) {
         Preconditions.checkArgument(term > 0, "bogus term");
         Preconditions.checkArgument(index > 0, "bogus index");
         Preconditions.checkArgument(logDir != null, "null logDir");

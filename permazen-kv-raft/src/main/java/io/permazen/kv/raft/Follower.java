@@ -101,7 +101,7 @@ public class Follower {
             return this.nextIndex;
         }
     }
-    void setNextIndex(long nextIndex) {
+    void setNextIndex(final long nextIndex) {
         assert Thread.holdsLock(this.raft);
         this.nextIndex = nextIndex;
     }
@@ -116,7 +116,7 @@ public class Follower {
             return this.matchIndex;
         }
     }
-    void setMatchIndex(long matchIndex) {
+    void setMatchIndex(final long matchIndex) {
         assert Thread.holdsLock(this.raft);
         this.matchIndex = matchIndex;
     }
@@ -131,7 +131,7 @@ public class Follower {
             return this.leaderTimestamp;
         }
     }
-    void setLeaderTimestamp(Timestamp leaderTimestamp) {
+    void setLeaderTimestamp(final Timestamp leaderTimestamp) {
         assert Thread.holdsLock(this.raft);
         this.leaderTimestamp = leaderTimestamp;
     }
@@ -146,7 +146,7 @@ public class Follower {
             return this.snapshotTimestamp;
         }
     }
-    void setSnapshotTimestamp(Timestamp snapshotTimestamp) {
+    void setSnapshotTimestamp(final Timestamp snapshotTimestamp) {
         assert Thread.holdsLock(this.raft);
         this.snapshotTimestamp = snapshotTimestamp;
     }
@@ -161,7 +161,7 @@ public class Follower {
             return this.leaderCommit;
         }
     }
-    void setLeaderCommit(long leaderCommit) {
+    void setLeaderCommit(final long leaderCommit) {
         assert Thread.holdsLock(this.raft);
         this.leaderCommit = leaderCommit;
     }
@@ -180,7 +180,7 @@ public class Follower {
             return this.synced;
         }
     }
-    void setSynced(boolean synced) {
+    void setSynced(final boolean synced) {
         assert Thread.holdsLock(this.raft);
         this.synced = synced;
     }
@@ -207,7 +207,7 @@ public class Follower {
         assert Thread.holdsLock(this.raft);
         return this.snapshotTransmit;
     }
-    void setSnapshotTransmit(SnapshotTransmit snapshotTransmit) {
+    void setSnapshotTransmit(final SnapshotTransmit snapshotTransmit) {
         assert Thread.holdsLock(this.raft);
         this.snapshotTransmit = snapshotTransmit;
     }
@@ -226,7 +226,7 @@ public class Follower {
         assert Thread.holdsLock(this.raft);
         return this.updateTimer;
     }
-    void setUpdateTimer(Timer updateTimer) {
+    void setUpdateTimer(final Timer updateTimer) {
         assert Thread.holdsLock(this.raft);
         this.updateTimer = updateTimer;
     }

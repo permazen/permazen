@@ -50,7 +50,7 @@ public class Timestamp implements Comparable<Timestamp> {
      *
      * @param millis relative milliseconds value from {@link #getMillis}
      */
-    public Timestamp(int millis) {
+    public Timestamp(final int millis) {
         this.millis = millis;
     }
 

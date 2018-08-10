@@ -26,11 +26,11 @@ class MostRecentView {
     private final HashMap<String, String> config;
     private final MutableView view;
 
-    MostRecentView(RaftKVDatabase raft) {
+    MostRecentView(final RaftKVDatabase raft) {
         this(raft, -1);
     }
 
-    MostRecentView(RaftKVDatabase raft, long maxIndex) {
+    MostRecentView(final RaftKVDatabase raft, final long maxIndex) {
 
         // Sanity check
         assert raft != null;

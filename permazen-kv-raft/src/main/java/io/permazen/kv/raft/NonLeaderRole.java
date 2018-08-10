@@ -26,7 +26,7 @@ public abstract class NonLeaderRole extends Role {
 
 // Constructors
 
-    NonLeaderRole(RaftKVDatabase raft, boolean startElectionTimer) {
+    NonLeaderRole(final RaftKVDatabase raft, final boolean startElectionTimer) {
         super(raft);
         this.startElectionTimer = startElectionTimer;
     }

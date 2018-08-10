@@ -39,7 +39,7 @@ final class Util {
      *
      * @param obj object to close
      */
-    public static void closeIfPossible(Object obj) {
+    public static void closeIfPossible(final Object obj) {
         if (obj instanceof AutoCloseable) {
             try {
                 ((AutoCloseable)obj).close();
@@ -55,7 +55,7 @@ final class Util {
      * @param capacity capacity of buffer
      * @return new buffer with the given capacity
      */
-    public static ByteBuffer allocateByteBuffer(int capacity) {
+    public static ByteBuffer allocateByteBuffer(final int capacity) {
         return capacity >= MIN_DIRECT_BUFFER_SIZE ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity);
     }
 
@@ -67,7 +67,7 @@ final class Util {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code file} is null
      */
-    public static long getLength(File file) throws IOException {
+    public static long getLength(final File file) throws IOException {
         Preconditions.checkArgument(file != null, "null file");
         return (Long)Files.getAttribute(file.toPath(), "size");
     }
@@ -81,7 +81,7 @@ final class Util {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code file} is null
      */
-    public static ByteBuffer readFile(File file, long length) throws IOException {
+    public static ByteBuffer readFile(final File file, long length) throws IOException {
 
         // Get file length, if not provided already
         if (length < 0)
@@ -112,7 +112,7 @@ final class Util {
      * @param description short description of what file is
      * @throws IllegalArgumentException if {@code file} is null
      */
-    public static void delete(File file, String description) {
+    public static void delete(final File file, final String description) {
         Preconditions.checkArgument(file != null, "null file");
         try {
             Files.delete(file.toPath());

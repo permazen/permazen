@@ -45,8 +45,8 @@ class SnapshotTransmit implements Closeable {
 
 // Constructors
 
-    SnapshotTransmit(long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig,
-      CloseableKVStore snapshot, KVStore view) {
+    SnapshotTransmit(final long snapshotTerm, final long snapshotIndex, final Map<String, String> snapshotConfig,
+      final CloseableKVStore snapshot, final KVStore view) {
         Preconditions.checkArgument(snapshot != null);
         Preconditions.checkArgument(snapshotTerm > 0);
         Preconditions.checkArgument(snapshotIndex > 0);

@@ -23,7 +23,7 @@ abstract class Service implements Runnable {
     /**
      * Constructor.
      */
-    Service(Role role, String desc) {
+    Service(final Role role, final String desc) {
         assert desc != null;
         this.role = role;
         this.desc = desc;

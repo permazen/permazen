@@ -527,7 +527,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param kvstore local persistent data store
      * @throws IllegalStateException if this instance is already started
      */
-    public synchronized void setKVStore(AtomicKVStore kvstore) {
+    public synchronized void setKVStore(final AtomicKVStore kvstore) {
         Preconditions.checkState(this.role == null, "already started");
         this.kv = kvstore;
     }
@@ -541,7 +541,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param directory log directory
      * @throws IllegalStateException if this instance is already started
      */
-    public synchronized void setLogDirectory(File directory) {
+    public synchronized void setLogDirectory(final File directory) {
         Preconditions.checkState(this.role == null, "already started");
         this.logDir = directory;
     }
@@ -564,7 +564,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param network network implementation; must not be {@linkplain Network#start started}
      * @throws IllegalStateException if this instance is already started
      */
-    public synchronized void setNetwork(Network network) {
+    public synchronized void setNetwork(final Network network) {
         Preconditions.checkState(this.role == null, "already started");
         this.network = network;
     }
@@ -578,7 +578,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param identity unique Raft identity of this node in its cluster
      * @throws IllegalStateException if this instance is already started
      */
-    public synchronized void setIdentity(String identity) {
+    public synchronized void setIdentity(final String identity) {
         Preconditions.checkState(this.role == null, "already started");
         this.identity = identity;
     }
@@ -609,7 +609,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance is already started
      * @throws IllegalArgumentException if {@code timeout <= 0}
      */
-    public synchronized void setMinElectionTimeout(int timeout) {
+    public synchronized void setMinElectionTimeout(final int timeout) {
         Preconditions.checkArgument(timeout > 0, "timeout <= 0");
         Preconditions.checkState(this.role == null, "already started");
         this.minElectionTimeout = timeout;
@@ -634,7 +634,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance is already started
      * @throws IllegalArgumentException if {@code timeout <= 0}
      */
-    public synchronized void setMaxElectionTimeout(int timeout) {
+    public synchronized void setMaxElectionTimeout(final int timeout) {
         Preconditions.checkArgument(timeout > 0, "timeout <= 0");
         Preconditions.checkState(this.role == null, "already started");
         this.maxElectionTimeout = timeout;
@@ -662,7 +662,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance is already started
      * @throws IllegalArgumentException if {@code timeout <= 0}
      */
-    public synchronized void setHeartbeatTimeout(int timeout) {
+    public synchronized void setHeartbeatTimeout(final int timeout) {
         Preconditions.checkArgument(timeout > 0, "timeout <= 0");
         Preconditions.checkState(this.role == null, "already started");
         this.heartbeatTimeout = timeout;
@@ -690,7 +690,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code duration <= 0}
      * @see #setMaxUnappliedLogMemory
      */
-    public synchronized void setMaxTransactionDuration(int duration) {
+    public synchronized void setMaxTransactionDuration(final int duration) {
         Preconditions.checkArgument(duration > 0, "duration <= 0");
         this.maxTransactionDuration = duration;
     }
@@ -723,7 +723,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param maxUnappliedLogMemory maximum allowed memory usage for unapplied log entries
      * @throws IllegalArgumentException if {@code maxUnappliedLogMemory <= 0}
      */
-    public synchronized void setMaxUnappliedLogMemory(long maxUnappliedLogMemory) {
+    public synchronized void setMaxUnappliedLogMemory(final long maxUnappliedLogMemory) {
         Preconditions.checkArgument(maxUnappliedLogMemory > 0, "maxUnappliedLogMemory <= 0");
         this.maxUnappliedLogMemory = maxUnappliedLogMemory;
     }
@@ -753,7 +753,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param maxUnappliedLogEntries maximum number of unapplied log entries
      * @throws IllegalArgumentException if {@code maxUnappliedLogEntries <= 0}
      */
-    public synchronized void setMaxUnappliedLogEntries(int maxUnappliedLogEntries) {
+    public synchronized void setMaxUnappliedLogEntries(final int maxUnappliedLogEntries) {
         Preconditions.checkArgument(maxUnappliedLogEntries > 0, "maxUnappliedLogEntries <= 0");
         this.maxUnappliedLogEntries = maxUnappliedLogEntries;
     }
@@ -783,7 +783,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @param maxFollowerAckHeartbeats maximum number of heartbeats for a leader to wait on a follower before compacting a log entry
      * @throws IllegalArgumentException if {@code maxFollowerAckHeartbeats <= 0}
      */
-    public synchronized void setMaxFollowerAckHeartbeats(int maxFollowerAckHeartbeats) {
+    public synchronized void setMaxFollowerAckHeartbeats(final int maxFollowerAckHeartbeats) {
         Preconditions.checkArgument(maxFollowerAckHeartbeats > 0, "maxFollowerAckHeartbeats <= 0");
         this.maxFollowerAckHeartbeats = maxFollowerAckHeartbeats;
     }
@@ -816,7 +816,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code timeout} is negative
      * @see RaftKVTransaction#setTimeout
      */
-    public synchronized void setCommitTimeout(int timeout) {
+    public synchronized void setCommitTimeout(final int timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.commitTimeout = timeout;
     }
@@ -842,7 +842,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param followerProbingEnabled true to enable, false to disable
      */
-    public synchronized void setFollowerProbingEnabled(boolean followerProbingEnabled) {
+    public synchronized void setFollowerProbingEnabled(final boolean followerProbingEnabled) {
         this.followerProbingEnabled = followerProbingEnabled;
     }
 
@@ -867,7 +867,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param disableSync true to disable data sync
      */
-    public synchronized void setDisableSync(boolean disableSync) {
+    public synchronized void setDisableSync(final boolean disableSync) {
         this.disableSync = disableSync;
     }
 
@@ -891,7 +891,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param dumpConflicts true to disable data sync
      */
-    public synchronized void setDumpConflicts(boolean dumpConflicts) {
+    public synchronized void setDumpConflicts(final boolean dumpConflicts) {
         this.dumpConflicts = dumpConflicts;
     }
 
@@ -915,7 +915,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code threadPriority} is not -1 and not in the range
      *  {@link Thread#MIN_PRIORITY} to {@link Thread#MAX_PRIORITY}
      */
-    public synchronized void setThreadPriority(int threadPriority) {
+    public synchronized void setThreadPriority(final int threadPriority) {
         Preconditions.checkArgument(threadPriority == -1
           || (threadPriority >= Thread.MIN_PRIORITY && threadPriority <= Thread.MAX_PRIORITY), "invalid threadPriority");
         Preconditions.checkState(this.role == null, "already started");

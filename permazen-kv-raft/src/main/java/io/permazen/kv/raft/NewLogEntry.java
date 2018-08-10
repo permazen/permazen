@@ -29,7 +29,7 @@ class NewLogEntry {
      * @param tx local transaction
      * @param tempFile temporary file containing serialized mutations
      */
-    NewLogEntry(RaftKVTransaction tx, File tempFile) throws IOException {
+    NewLogEntry(final RaftKVTransaction tx, final File tempFile) throws IOException {
         this(new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange()), tempFile);
     }
 
@@ -38,7 +38,7 @@ class NewLogEntry {
      *
      * @param tx local transaction
      */
-    NewLogEntry(RaftKVTransaction tx) throws IOException {
+    NewLogEntry(final RaftKVTransaction tx) throws IOException {
         this(tx.raft, new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange()));
     }
 
@@ -49,7 +49,7 @@ class NewLogEntry {
      * @param data mutation data
      * @throws IOException if an I/O error occurs
      */
-    NewLogEntry(RaftKVDatabase raft, LogEntry.Data data) throws IOException {
+    NewLogEntry(final RaftKVDatabase raft, final LogEntry.Data data) throws IOException {
         this(data, NewLogEntry.writeDataToFile(data, raft, raft.disableSync));
     }
 
@@ -59,7 +59,7 @@ class NewLogEntry {
      * @param data mutation data
      * @param tempFile temporary file containing serialized mutations
      */
-    NewLogEntry(LogEntry.Data data, File tempFile) {
+    NewLogEntry(final LogEntry.Data data, final File tempFile) {
         assert data != null;
         assert tempFile != null;
         this.data = data;
