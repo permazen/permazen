@@ -401,6 +401,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     @Override
     protected void doCleanupAfterCompletion(Object txObj) {
         JTransaction.setCurrent(null);
+        super.doCleanupAfterCompletion(txObj);
     }
 
     @Override
