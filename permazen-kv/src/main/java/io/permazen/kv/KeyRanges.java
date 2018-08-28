@@ -723,22 +723,18 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
             @Override
             public boolean hasNext() {
-                try {
-                    this.init();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                this.init();
                 return this.remain > 0;
             }
 
             @Override
             public KeyRange next() {
+                this.init();
                 if (this.remain == 0)
                     throw new NoSuchElementException();
                 final byte[] min;
                 final byte[] max;
                 try {
-                    this.init();
                     min = KeyListEncoder.read(input, this.prev);
                     max = KeyListEncoder.read(input, min);
                 } catch (IOException e) {
@@ -750,9 +746,14 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
                 return range;
             }
 
-            private void init() throws IOException {
-                if (this.remain == -1)
-                    this.remain = UnsignedIntEncoder.read(input);
+            private void init() {
+                if (this.remain == -1) {
+                    try {
+                        this.remain = UnsignedIntEncoder.read(input);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         };
     }
