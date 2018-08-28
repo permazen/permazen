@@ -110,6 +110,9 @@ public class Reads extends KeyRanges {
      * see that method for information on these conflicts. This method returns an empty list if and only
      * if {@link #isConflict isConflict()} returns false.
      *
+     * <p>
+     * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.
+     *
      * @param mutations mutations to check for conflicts with this instance
      * @return a description of each conflict between this instance and the given mutations
      * @throws IllegalArgumentException if {@code mutations} is null
