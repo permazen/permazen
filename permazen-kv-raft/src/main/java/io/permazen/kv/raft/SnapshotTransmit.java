@@ -78,6 +78,15 @@ class SnapshotTransmit implements Closeable {
         return this.snapshotIndex;
     }
 
+    /**
+     * Get textual description of the snapshot log entry index and term, e.g., {@code 10347t19}.
+     *
+     * @return description of the snapshot log entry
+     */
+    public String getBaseEntry() {
+        return this.snapshotIndex + "t" + this.snapshotTerm;
+    }
+
     public Map<String, String> getSnapshotConfig() {
         return this.snapshotConfig;
     }

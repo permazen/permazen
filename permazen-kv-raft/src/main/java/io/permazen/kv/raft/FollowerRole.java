@@ -546,8 +546,8 @@ public class FollowerRole extends NonLeaderRole {
 
         // If a snapshot install is in progress, cancel it
         if (this.snapshotReceive != null) {
-            if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");
+            if (this.raft.isPerfLogEnabled())
+                this.perfLog("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");
             this.raft.discardFlipFloppedStateMachine();
             this.snapshotReceive = null;
             this.updateElectionTimer();
@@ -814,14 +814,14 @@ public class FollowerRole extends NonLeaderRole {
 
                 // If the message is NOT the first one in a new install, ignore it
                 if (msg.getPairIndex() != 0) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");
+                    if (this.raft.isPerfLogEnabled())
+                        this.perfLog("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");
                     return;
                 }
 
                 // The message is the first one in a new install, so discard the existing install
-                if (this.log.isDebugEnabled()) {
-                    this.debug("rec'd initial " + msg + " with in-progress " + this.snapshotReceive
+                if (this.raft.isPerfLogEnabled()) {
+                    this.perfLog("rec'd initial " + msg + " with in-progress " + this.snapshotReceive
                       + "; aborting previous install");
                 }
                 startNewInstall = true;
@@ -830,8 +830,8 @@ public class FollowerRole extends NonLeaderRole {
 
             // If the message is NOT the first one in a new install, ignore it
             if (msg.getPairIndex() != 0) {
-                if (this.log.isDebugEnabled())
-                    this.debug("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
+                if (this.raft.isPerfLogEnabled())
+                    this.perfLog("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
                 return;
             }
         }
@@ -848,16 +848,16 @@ public class FollowerRole extends NonLeaderRole {
             this.updateElectionTimer();
             this.snapshotReceive = new SnapshotReceive(this.raft.kv,
               this.raft.getFlipFloppedStateMachinePrefix(), term, index, msg.getSnapshotConfig());
-            if (this.log.isDebugEnabled()) {
-                this.debug("starting new snapshot install from \"" + msg.getSenderId()
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("starting new snapshot install from \"" + msg.getSenderId()
                   + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
             }
         }
         assert this.snapshotReceive.matches(msg);
 
         // Apply next chunk of key/value pairs
-        if (this.log.isDebugEnabled())
-            this.debug("applying " + msg + " to " + this.snapshotReceive);
+        if (this.raft.isPerfLogEnabled())
+            this.perfLog("applying " + msg + " to " + this.snapshotReceive);
         try {
             this.snapshotReceive.applyNextChunk(msg.getData());
         } catch (Exception e) {
@@ -873,8 +873,8 @@ public class FollowerRole extends NonLeaderRole {
 
             // Flip-flop state machine
             final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
-            if (this.log.isDebugEnabled()) {
-                this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("snapshot install from \"" + msg.getSenderId() + "\" of "
                   + index + "t" + term + " with config " + snapshotConfig + " complete");
             }
             this.snapshotReceive = null;

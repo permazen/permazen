@@ -241,41 +241,56 @@ public class LeaderRole extends Role {
             final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
             if (snapshotTransmit == null)
                 continue;
-            if (snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()
-              && snapshotTransmit.getAge() < RaftKVDatabase.MAX_SNAPSHOT_TRANSMIT_AGE) {
-                if (this.log.isTraceEnabled()) {
-                    this.trace("delaying application of " + logEntry + " because of in-progress snapshot install of "
-                      + snapshotTransmit.getSnapshotIndex() + "t" + snapshotTransmit.getSnapshotTerm()
-                      + " to " + follower);
+            if (snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()) {
+                final long age = snapshotTransmit.getAge();
+                if (age < RaftKVDatabase.MAX_SNAPSHOT_TRANSMIT_AGE) {
+                    if (this.raft.isPerfLogEnabled()) {
+                        this.perfLog("delaying application of " + logEntry + " because of in-progress snapshot install of "
+                          + snapshotTransmit.getBaseEntry() + " to " + follower);
+                    }
+                    return false;
                 }
-                return false;
+                if (this.raft.isPerfLogEnabled()) {
+                    this.perfLog("allowing log entry " + logEntry + " to be applied despite " + follower
+                      + " slow (" + age + "ms) snapshot install of " + snapshotTransmit.getBaseEntry());
+                }
             }
         }
 
         // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
         // If the follower appears to be offline, don't bother waiting.
+        // If the log entry is really old, apply it regardless of follower state.
         final int maxLogEntryAge = this.raft.maxFollowerAckHeartbeats * this.raft.heartbeatTimeout;
-        if (logEntry.getAge() < maxLogEntryAge) {
-            final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
-            for (Follower follower : this.followerMap.values()) {
+        final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
+        Follower tooSlowFollower = null;
+        for (Follower follower : this.followerMap.values()) {
 
-                // Has this follower acknowledged reciept of the log entry?
-                // If so, then the follower has already rebased any rebasable transactions.
-                if (follower.getMatchIndex() >= logEntry.getIndex())
-                    continue;
+            // Has this follower acknowledged reciept of the log entry?
+            // If so, then the follower has already rebased any rebasable transactions.
+            if (follower.getMatchIndex() >= logEntry.getIndex())
+                continue;
 
-                // If we haven't heard from this follower in a while, don't bother waiting for it
-                final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
-                if (leaderTimestamp == null || leaderTimestamp.compareTo(minLeaderTimestamp) <= 0)
-                    continue;
+            // If we haven't heard from this follower in a while, don't bother waiting for it
+            final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
+            if (leaderTimestamp == null || leaderTimestamp.compareTo(minLeaderTimestamp) <= 0)
+                continue;
 
-                // Wait for follower to do so before applying to state machine
-                if (this.log.isTraceEnabled()) {
-                    this.trace("delaying application of " + logEntry + " (age "
-                      + logEntry.getAge() + " < " + maxLogEntryAge + ") because of slow " + follower);
-                }
-                return false;
+            // Is the log entry really old? Allow it to be applied despite this slow follower
+            if (logEntry.getAge() >= maxLogEntryAge) {
+                tooSlowFollower = follower;
+                continue;
             }
+
+            // Wait for follower to do so before applying to state machine
+            if (logEntry.getAge() >= this.raft.heartbeatTimeout && this.raft.isPerfLogEnabled()) {
+                this.perfLog("delaying application of " + logEntry + " (age "
+                  + logEntry.getAge() + " < " + maxLogEntryAge + ") because of slow " + follower);
+            }
+            return false;
+        }
+        if (tooSlowFollower != null && this.raft.isPerfLogEnabled()) {
+            this.perfLog("allowing log entry " + logEntry + " age " + logEntry.getAge() + "ms >= " + maxLogEntryAge
+              + "ms to be applied even though slow " + tooSlowFollower + " has not yet ack'd it");
         }
 
         // OK
@@ -563,8 +578,10 @@ public class LeaderRole extends Role {
         final String peer = follower.getIdentity();
         SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
         if (snapshotTransmit != null && snapshotTransmit.getSnapshotIndex() < this.raft.lastAppliedIndex) {
-            if (this.log.isDebugEnabled())
-                this.debug("aborting stale snapshot install for " + follower);
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("aborting stale snapshot install for " + follower + ": snapshot index "
+                  + snapshotTransmit.getSnapshotIndex() + " < " + this.raft.lastAppliedIndex);
+            }
             follower.cancelSnapshotTransmit();
             follower.updateNow();
         }
@@ -593,15 +610,15 @@ public class LeaderRole extends Role {
                     follower.setSnapshotTimestamp(new Timestamp());
                     return;
                 }
-                if (this.log.isDebugEnabled())
-                    this.debug("canceling snapshot install for " + follower + " due to failure to send " + msg);
+                if (this.raft.isPerfLogEnabled())
+                    this.perfLog("canceling snapshot install for " + follower + " due to failure to send " + msg);
 
                 // Message failed -> snapshot is fatally wounded, so cancel it
                 synced = false;
             }
             if (synced) {
-                if (this.log.isDebugEnabled())
-                    this.debug("completed snapshot install for out-of-date " + follower);
+                if (this.raft.isPerfLogEnabled())
+                    this.perfLog("completed snapshot install for out-of-date " + follower);
             }
 
             // Snapshot transmit is complete (or failed)
@@ -647,8 +664,10 @@ public class LeaderRole extends Role {
             final MostRecentView view = new MostRecentView(this.raft, this.raft.commitIndex);
             follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
               view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
-            if (this.log.isDebugEnabled())
-                this.debug("started snapshot install for out-of-date " + follower);
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("started snapshot install for out-of-date " + follower
+                  + " with nextIndex " + nextIndex + " <= " + this.raft.lastAppliedIndex);
+            }
             this.raft.requestService(new UpdateFollowerService(follower));
             return;
         }
@@ -928,8 +947,8 @@ public class LeaderRole extends Role {
             follower.setNextIndex(Math.max(follower.getNextIndex() - 1, 1));
         follower.setSynced(msg.isSuccess());
         if (follower.isSynced() != wasSynced) {
-            if (this.log.isDebugEnabled()) {
-                this.debug("sync status of \"" + follower.getIdentity() + "\" changed -> "
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("sync status of \"" + follower.getIdentity() + "\" changed -> "
                   + (!follower.isSynced() ? "not " : "") + "synced");
             }
             updateFollowerAgain = true;

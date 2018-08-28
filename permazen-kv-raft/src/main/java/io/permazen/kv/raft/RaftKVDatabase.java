@@ -516,6 +516,9 @@ public class RaftKVDatabase implements KVDatabase {
     @GuardedBy("this")
     RaftKVTransaction highPrioTx;                                       // current high priority transaction, if any
 
+    // Other
+    volatile boolean performanceLogging = true;                         // performance-related log events at level INFO, not DEBUG
+
 // Configuration
 
     /**
@@ -929,6 +932,22 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized int getThreadPriority() {
         return this.threadPriority;
+    }
+
+    /**
+     * Configure whether to increase the log level for certain performance-related events (e.g., "info" instead of "debug").
+     *
+     * <p>
+     * Performance-related events are events that affect performance and would be considered abnormal in a perfectly
+     * functioning Raft network, e.g., having to retransmit an acknowledgement.
+     *
+     * <p>
+     * Default false.
+     *
+     * @param performanceLogging true for higher level logging of performance-related events
+     */
+    public void setPerformanceLogging(final boolean performanceLogging) {
+        this.performanceLogging = performanceLogging;
     }
 
 // Status
@@ -2770,6 +2789,17 @@ public class RaftKVDatabase implements KVDatabase {
 
     void error(String msg) {
         this.log.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+    }
+
+    void perfLog(String msg) {
+        if (this.performanceLogging)
+            this.info("PERF: " + msg);
+        else
+            this.debug(msg);
+    }
+
+    boolean isPerfLogEnabled() {
+        return this.performanceLogging ? this.log.isInfoEnabled() : this.log.isDebugEnabled();
     }
 
 // Debug/Sanity Checking

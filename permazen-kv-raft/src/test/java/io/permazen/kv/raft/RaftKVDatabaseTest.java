@@ -134,6 +134,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             this.rafts[i].setMaxTransactionDuration(maxTransactionDuration);
             this.rafts[i].setFollowerProbingEnabled(followerProbingEnabled);
             this.rafts[i].setDumpConflicts(true);
+            this.rafts[i].setPerformanceLogging(true);
         }
         for (int i = 0; i < numNodes; i++)
             this.rafts[i].start();

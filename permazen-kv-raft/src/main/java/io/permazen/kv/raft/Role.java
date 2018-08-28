@@ -261,12 +261,18 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
 
         // Are we running out of memory, or keeping around too many log entries? If so, go ahead no matter what the subclass says.
-        final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
-        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory || this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
-            if (this.log.isTraceEnabled()) {
-                this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
-                  + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory + " and/or log length "
+        if (this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("allowing log entry " + logEntry + " to be applied because log length "
                   + this.raft.raftLog.size() + " > " + this.raft.maxUnappliedLogEntries);
+            }
+            return true;
+        }
+        final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
+        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory) {
+            if (this.raft.isPerfLogEnabled()) {
+                this.perfLog("allowing log entry " + logEntry + " to be applied because memory usage "
+                  + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory);
             }
             return true;
         }
@@ -837,6 +843,10 @@ public abstract class Role {
 
     void error(String msg) {
         this.raft.error(msg);
+    }
+
+    void perfLog(String msg) {
+        this.raft.perfLog(msg);
     }
 
 // Object
