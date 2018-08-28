@@ -147,9 +147,13 @@ public class LeaderRole extends Role {
      * @throws IllegalStateException if this role is no longer active or election timer is not running
      */
     public void stepDown() {
+        this.doStepDown("stepDown() invoked");
+    }
+
+    private void doStepDown(String reason) {
         synchronized (this.raft) {
             Preconditions.checkState(this.raft.role == this, "role is no longer active");
-            this.debug("stepping down as leader due to invocation of stepDown()");
+            this.info("stepping down as leader: " + reason);
             this.raft.changeRole(new FollowerRole(this.raft));
         }
     }
@@ -352,11 +356,8 @@ public class LeaderRole extends Role {
             this.updateAllSynchronizedFollowersNow();
 
             // If we are no longer a member of the cluster, step down after the most recent config change is committed
-            if (!this.raft.isClusterMember() && this.raft.commitIndex >= this.findMostRecentConfigChange()) {
-                if (this.log.isDebugEnabled())
-                    this.log.debug("stepping down as leader of cluster (no longer a member)");
-                this.stepDown();
-            }
+            if (!this.raft.isClusterMember() && this.raft.commitIndex >= this.findMostRecentConfigChange())
+                this.doStepDown("no longer a member of my own cluster");
         }
     }
 
