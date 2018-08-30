@@ -17,6 +17,7 @@ import io.permazen.util.ConvertedNavigableMap;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.NavigableMap;
 
 import org.testng.Assert;
@@ -137,6 +138,18 @@ public class WritesTest extends TestSupport {
         kv2.getNavigableMap().putAll(beforeMutations.getNavigableMap());
         writes2.applyTo(kv2);
         this.compare(kv2, afterMutations);
+
+        // Test deserializeOnline()
+        final Writes writes3 = new Writes();
+        final Mutations onlineMutations = Writes.deserializeOnline(new ByteArrayInputStream(output.toByteArray()));
+        for (KeyRange remove : onlineMutations.getRemoveRanges())
+            writes3.getRemoves().add(remove);
+        for (Map.Entry<byte[], byte[]> put : onlineMutations.getPutPairs())
+            writes3.getPuts().put(put.getKey(), put.getValue());
+        for (Map.Entry<byte[], Long> adjust : onlineMutations.getAdjustPairs())
+            writes3.getAdjusts().put(adjust.getKey(), adjust.getValue());
+        assert writes3.toString().equals(writes2.toString()) :
+          "onlineMutations() difference:\n  writes2=" + writes2 + "\n  writes3=" + writes3;
     }
 
     @Test

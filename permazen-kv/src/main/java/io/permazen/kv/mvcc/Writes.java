@@ -7,6 +7,7 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.UnmodifiableIterator;
 
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
@@ -21,9 +22,12 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.AbstractMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 /**
@@ -304,6 +308,27 @@ public class Writes implements Cloneable, Mutations {
         return new Writes(removes, puts, adjusts, immutable);
     }
 
+    /**
+     * Create an "online" {@link Mutations} view of a serialized {@link Writes} instance.
+     *
+     * <p>
+     * This method returns a {@link Mutations} instance that decodes the serialized {@link Writes} from the given
+     * input in an "online" fashion, i.e., it does not load the whole thing into memory. The returned {@link Mutations}
+     * iterators may only be accessed once, and they must be accessed in this order: removes, puts, adjusts.
+     * Any duplicate or out-of-order access will result in an {@link IllegalStateException}.
+     *
+     * <p>
+     * If an {@link IOException} is thrown by {@code input}, the {@link Iterator} being used will throw a {@link RuntimeException}
+     * wrapping it; if invalid data is encountered, the {@link Iterator} being used will throw an {@link IllegalArgumentException}.
+     *
+     * @param input input stream containing data from {@link #serialize serialize()}
+     * @return online {@link Mutations} view of {@code input}
+     * @throws IllegalArgumentException if {@code input} is null
+     */
+    public static Mutations deserializeOnline(InputStream input) {
+        return new OnlineMutations(input);
+    }
+
 // Cloneable
 
     /**
@@ -397,5 +422,126 @@ public class Writes implements Cloneable, Mutations {
             return s;
         return s.substring(0, max) + "...";
     }
-}
 
+// OnlineMutations
+
+    private static class OnlineMutations implements Mutations {
+
+        private final InputStream input;
+
+        private Iterator<?> currentIterator;
+        private int state;
+
+        OnlineMutations(InputStream input) {
+            Preconditions.checkArgument(input != null, "null input");
+            this.input = input;
+        }
+
+        @Override
+        public Iterable<? extends KeyRange> getRemoveRanges() {
+            return this::removeRanges;
+        }
+
+        @Override
+        public Iterable<? extends Map.Entry<byte[], byte[]>> getPutPairs() {
+            return this::putPairs;
+        }
+
+        @Override
+        public Iterable<? extends Map.Entry<byte[], Long>> getAdjustPairs() {
+            return this::adjustPairs;
+        }
+
+        private Iterator<KeyRange> removeRanges() {
+            Preconditions.checkState(this.state == 0, "duplicate or out-of-order invocation");
+            final Iterator<KeyRange> iterator = KeyRanges.deserializeIterator(this.input);
+            this.currentIterator = iterator;
+            this.state = 1;
+            return iterator;
+        }
+
+        private Iterator<Map.Entry<byte[], byte[]>> putPairs() {
+            Preconditions.checkState(this.state == 1, "duplicate or out-of-order invocation");
+            this.exhaustCurrentIterator();
+            final MapEntryIterator<byte[]> iterator = new MapEntryIterator<byte[]>(this.input) {
+                @Override
+                protected byte[] readValue() throws IOException {
+                    return KeyListEncoder.read(this.input, null);
+                }
+            };
+            this.currentIterator = iterator;
+            this.state = 2;
+            return iterator;
+        }
+
+        private Iterator<Map.Entry<byte[], Long>> adjustPairs() {
+            Preconditions.checkState(this.state == 2, "duplicate or out-of-order invocation");
+            this.exhaustCurrentIterator();
+            final MapEntryIterator<Long> iterator = new MapEntryIterator<Long>(this.input) {
+                @Override
+                protected Long readValue() throws IOException {
+                    return LongEncoder.read(this.input);
+                }
+            };
+            this.currentIterator = iterator;
+            this.state = 3;
+            return iterator;
+        }
+
+        private void exhaustCurrentIterator() {
+            while (this.currentIterator.hasNext())
+                this.currentIterator.next();
+        }
+    }
+
+// InputIterator
+
+    private abstract static class MapEntryIterator<V> extends UnmodifiableIterator<Map.Entry<byte[], V>> {
+
+        protected final InputStream input;
+
+        private int remain = -1;
+        private byte[] prev;
+
+        MapEntryIterator(InputStream input) {
+            Preconditions.checkArgument(input != null, "null input");
+            this.input = input;
+        }
+
+        @Override
+        public boolean hasNext() {
+            this.init();
+            return this.remain > 0;
+        }
+
+        @Override
+        public Map.Entry<byte[], V> next() {
+            this.init();
+            if (this.remain == 0)
+                throw new NoSuchElementException();
+            final byte[] key;
+            final V value;
+            try {
+                key = KeyListEncoder.read(this.input, this.prev);
+                value = this.readValue();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            this.prev = key;
+            this.remain--;
+            return new AbstractMap.SimpleImmutableEntry<>(key, value);
+        }
+
+        protected abstract V readValue() throws IOException;
+
+        private void init() {
+            if (this.remain == -1) {
+                try {
+                    this.remain = UnsignedIntEncoder.read(input);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
