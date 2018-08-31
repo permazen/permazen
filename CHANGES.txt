@@ -1,4 +1,4 @@
-Version Next
+Version 4.2.0
 
     - Improved Raft performance with under heavy load and/or slow followers
     - Minor performance improvement in calculating inverse cacades
