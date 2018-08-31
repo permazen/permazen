@@ -8,25 +8,29 @@ package io.permazen.kv.raft;
 /**
  * Service instance invoked by the Raft service executor.
  */
-abstract class Service implements Runnable {
+class Service implements Runnable {
 
     protected final Role role;
     protected final String desc;
+    protected final Runnable action;
 
-    /**
-     * Constructor.
-     */
     Service(String desc) {
-        this(null, desc);
+        this(null, desc, null);
     }
 
-    /**
-     * Constructor.
-     */
-    Service(final Role role, final String desc) {
+    Service(String desc, Runnable action) {
+        this(null, desc, action);
+    }
+
+    Service(Role role, String desc) {
+        this(role, desc, null);
+    }
+
+    Service(final Role role, final String desc, Runnable action) {
         assert desc != null;
         this.role = role;
         this.desc = desc;
+        this.action = action;
     }
 
     public Role getRole() {
@@ -34,8 +38,13 @@ abstract class Service implements Runnable {
     }
 
     @Override
+    public void run() {
+        assert this.action != null;
+        this.action.run();
+    }
+
+    @Override
     public String toString() {
         return this.desc;
     }
 }
-

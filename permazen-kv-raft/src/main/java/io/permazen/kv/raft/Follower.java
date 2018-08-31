@@ -26,9 +26,10 @@ public class Follower {
     private final RaftKVDatabase raft;
     private final String identity;                      // follower's unique identity
     private final String address;                       // follower's network address
+    private final Service updateService;
 
     @GuardedBy("raft")
-    private Timer updateTimer;                          // heartbeat/update timer
+    private final Timer updateTimer;                    // heartbeat/update timer
 
     // Used to avoid sending data for log entry back to the follower if the follower, as the originator, already has the data
     @GuardedBy("raft")
@@ -56,15 +57,18 @@ public class Follower {
 
 // Construtors
 
-    Follower(RaftKVDatabase raft, String identity, String address, long lastLogIndex) {
-        assert raft != null;
+    Follower(LeaderRole leader, String identity, String address, long lastLogIndex) {
+        assert leader != null;
         assert identity != null;
         assert address != null;
         assert lastLogIndex >= 0;
-        this.raft = raft;
+        assert Thread.holdsLock(leader.raft);
+        this.raft = leader.raft;
         this.identity = identity;
         this.address = address;
         this.nextIndex = lastLogIndex + 1;
+        this.updateService = new Service(leader, "update follower \"" + this.identity + "\"", () -> leader.updateFollower(this));
+        this.updateTimer = new Timer(this.raft, "update timer for \"" + this.identity + "\"", this.updateService);
     }
 
 // Status
@@ -226,9 +230,9 @@ public class Follower {
         assert Thread.holdsLock(this.raft);
         return this.updateTimer;
     }
-    void setUpdateTimer(final Timer updateTimer) {
-        assert Thread.holdsLock(this.raft);
-        this.updateTimer = updateTimer;
+
+    Service getUpdateService() {
+        return this.updateService;
     }
 
     void updateNow() {

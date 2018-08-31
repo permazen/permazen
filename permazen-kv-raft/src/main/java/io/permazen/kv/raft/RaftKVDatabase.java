@@ -1739,21 +1739,17 @@ public class RaftKVDatabase implements KVDatabase {
                     // Setup commit timer
                     if (tx.getTimeout() != 0) {
                         final Timer commitTimer = new Timer(this, "commit timer for " + tx,
-                          new Service("commit timeout for tx#" + tx.txId) {
-                            @Override
-                            public void run() {
-                                switch (tx.getState()) {
-                                case COMMIT_READY:
-                                case COMMIT_WAITING:
-                                    RaftKVDatabase.this.fail(tx, new RetryTransactionException(tx,
-                                      "transaction failed to complete within " + tx.getTimeout()
-                                      + "ms (in state " + tx.getState() + ")"));
-                                    break;
-                                default:
-                                    break;
-                                }
+                          new Service("commit timeout for tx#" + tx.txId, () -> {
+                            switch (tx.getState()) {
+                            case COMMIT_READY:
+                            case COMMIT_WAITING:
+                                this.fail(tx, new RetryTransactionException(tx, "transaction failed to complete within "
+                                  + tx.getTimeout() + "ms (in state " + tx.getState() + ")"));
+                                break;
+                            default:
+                                break;
                             }
-                        });
+                        }));
                         commitTimer.timeoutAfter(tx.getTimeout());
                         tx.setCommitTimer(commitTimer);
                     }

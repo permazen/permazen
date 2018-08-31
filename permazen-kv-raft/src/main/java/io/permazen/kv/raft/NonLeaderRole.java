@@ -16,12 +16,8 @@ import io.permazen.kv.raft.msg.CommitRequest;
  */
 public abstract class NonLeaderRole extends Role {
 
-    final Timer electionTimer = new Timer(this.raft, "election timer", new Service(this, "election timeout") {
-        @Override
-        public void run() {
-            NonLeaderRole.this.checkElectionTimeout();
-        }
-    });
+    final Timer electionTimer = new Timer(this.raft, "election timer",
+      new Service(this, "election timeout", this::checkElectionTimeout));
     private final boolean startElectionTimer;
 
 // Constructors

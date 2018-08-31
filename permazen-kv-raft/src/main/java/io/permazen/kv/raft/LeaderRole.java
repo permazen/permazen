@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,36 +53,15 @@ public class LeaderRole extends Role {
     private Timestamp leaseTimeout;
 
     // Service tasks
-    private final Service updateLeaderCommitIndexService = new Service(this, "update leader commitIndex") {
-        @Override
-        public void run() {
-            LeaderRole.this.updateLeaderCommitIndex();
-        }
-    };
-    private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout") {
-        @Override
-        public void run() {
-            LeaderRole.this.updateLeaseTimeout();
-        }
-    };
-    private final Service updateKnownFollowersService = new Service(this, "update known followers") {
-        @Override
-        public void run() {
-            LeaderRole.this.updateKnownFollowers();
-        }
-    };
-    private final Timer checkApplyTimer = new Timer(this.raft, "check apply entries", new Service(this, "check apply entries") {
-        @Override
-        public void run() {
-            LeaderRole.this.checkApplyEntries();
-        }
-    });
-    private final Timer timestampScrubTimer = new Timer(this.raft, "scrub timestamps", new Service(this, "scrub timestamps") {
-        @Override
-        public void run() {
-            LeaderRole.this.scrubTimestamps();
-        }
-    });
+    private final Service updateLeaderCommitIndexService = new Service(this, "update commitIndex", this::updateLeaderCommitIndex);
+    private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout", this::updateLeaseTimeout);
+    private final Service updateKnownFollowersService = new Service(this, "update known followers", this::updateKnownFollowers);
+
+    // Timers
+    private final Timer checkApplyTimer = new Timer(this.raft, "check apply entries",
+      new Service(this, "check apply entries", this::checkApplyEntries));
+    private final Timer timestampScrubTimer = new Timer(this.raft, "scrub timestamps",
+      new Service(this, "scrub timestamps", this::scrubTimestamps));
 
 // Constructors
 
@@ -106,7 +84,7 @@ public class LeaderRole extends Role {
         synchronized (this.raft) {
             list = new ArrayList<>(this.followerMap.values());
         }
-        Collections.sort(list, Follower.SORT_BY_IDENTITY);
+        list.sort(Follower.SORT_BY_IDENTITY);
         return list;
     }
 
@@ -216,7 +194,7 @@ public class LeaderRole extends Role {
           .forEach(follower -> {
             if (this.log.isTraceEnabled())
                 this.trace("updating peer \"" + follower.getIdentity() + "\" after queue empty notification");
-            this.raft.requestService(new UpdateFollowerService(follower));
+            this.raft.requestService(follower.getUpdateService());
         });
     }
 
@@ -531,10 +509,9 @@ public class LeaderRole extends Role {
         // Add new followers
         for (String peer : adds) {
             final String address = this.raft.currentConfig.get(peer);
-            final Follower follower = new Follower(this.raft, peer, address, this.raft.getLastLogIndex());
+            final Follower follower = new Follower(this, peer, address, this.raft.getLastLogIndex());
             if (this.log.isDebugEnabled())
                 this.debug("adding new follower \"" + peer + "\" at " + address);
-            follower.setUpdateTimer(new Timer(this.raft, "update timer for \"" + peer + "\"", new UpdateFollowerService(follower)));
             this.followerMap.put(peer, follower);
             follower.updateNow();                                               // schedule an immediate update
         }
@@ -569,7 +546,7 @@ public class LeaderRole extends Role {
      *  <li>After starting, aborting, or completing a snapshot install for a follower</li>
      * </ul>
      */
-    private void updateFollower(Follower follower) {
+    void updateFollower(Follower follower) {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
@@ -628,7 +605,7 @@ public class LeaderRole extends Role {
             follower.setNextIndex(snapshotTransmit.getSnapshotIndex() + 1);
             follower.setSynced(synced);
             follower.updateNow();
-            this.raft.requestService(new UpdateFollowerService(follower));
+            this.raft.requestService(follower.getUpdateService());
             return;
         }
 
@@ -668,7 +645,7 @@ public class LeaderRole extends Role {
                 this.perfLog("started snapshot install for out-of-date " + follower
                   + " with nextIndex " + nextIndex + " <= " + this.raft.lastAppliedIndex);
             }
-            this.raft.requestService(new UpdateFollowerService(follower));
+            this.raft.requestService(follower.getUpdateService());
             return;
         }
 
@@ -724,36 +701,6 @@ public class LeaderRole extends Role {
         this.followerMap.values().stream()
           .filter(Follower::isSynced)
           .forEach(Follower::updateNow);
-    }
-
-    private class UpdateFollowerService extends Service {
-
-        private final Follower follower;
-
-        UpdateFollowerService(Follower follower) {
-            super(LeaderRole.this, "update follower \"" + follower.getIdentity() + "\"");
-            this.follower = follower;
-        }
-
-        @Override
-        public void run() {
-            LeaderRole.this.updateFollower(this.follower);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this)
-                return true;
-            if (obj == null || obj.getClass() != this.getClass())
-                return false;
-            final UpdateFollowerService that = (UpdateFollowerService)obj;
-            return this.follower.equals(that.follower);
-        }
-
-        @Override
-        public int hashCode() {
-            return this.follower.hashCode();
-        }
     }
 
 // Transactions
@@ -969,7 +916,7 @@ public class LeaderRole extends Role {
 
         // Immediately update follower again (if appropriate)
         if (updateFollowerAgain)
-            this.raft.requestService(new UpdateFollowerService(follower));
+            this.raft.requestService(follower.getUpdateService());
     }
 
     @Override

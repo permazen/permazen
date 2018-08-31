@@ -22,12 +22,7 @@ public class CandidateRole extends NonLeaderRole {
 
     @GuardedBy("raft")
     private final HashSet<String> votes = new HashSet<>();
-    private final Service checkElectionResultService = new Service(this, "check election result") {
-        @Override
-        public void run() {
-            CandidateRole.this.checkElectionResult();
-        }
-    };
+    private final Service checkElectionResultService = new Service(this, "check election result", this::checkElectionResult);
 
 // Constructors
 

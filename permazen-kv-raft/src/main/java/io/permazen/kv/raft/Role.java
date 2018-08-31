@@ -42,32 +42,12 @@ public abstract class Role {
 
     final Logger log;
     final RaftKVDatabase raft;
-    final Service checkReadyTransactionsService = new Service(this, "check ready transactions") {
-        @Override
-        public void run() {
-            Role.this.checkReadyTransactions();
-        }
-    };
-    final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions") {
-        @Override
-        public void run() {
-            Role.this.checkWaitingTransactions();
-        }
-    };
+    final Service checkReadyTransactionsService = new Service(this, "check ready transactions", this::checkReadyTransactions);
+    final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions", this::checkWaitingTransactions);
 
     // NOTE: use of this service requires that 'checkWaitingTransactionsService' be scheduled first!
-    final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
-        @Override
-        public void run() {
-            Role.this.applyCommittedLogEntries();
-        }
-    };
-    final Service triggerKeyWatchesService = new Service(this, "trigger key watches") {
-        @Override
-        public void run() {
-            Role.this.triggerKeyWatches();
-        }
-    };
+    final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs", this::applyCommittedLogEntries);
+    final Service triggerKeyWatchesService = new Service(this, "trigger key watches", this::triggerKeyWatches);
 
 // Constructors
 
