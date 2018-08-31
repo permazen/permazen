@@ -18,4 +18,9 @@
         </Or>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.kv.raft.LogEntry"/>
+        <Method name="exhaust"/>
+        <Bug pattern="UC_USELESS_VOID_METHOD"/>
+    </Match>
 </FindBugsFilter>

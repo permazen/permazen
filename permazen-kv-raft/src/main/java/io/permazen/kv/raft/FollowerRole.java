@@ -558,46 +558,40 @@ public class FollowerRole extends NonLeaderRole {
             this.restartElectionTimer();
 
         // Get my last log entry's index
-        long lastLogIndex = this.raft.getLastLogIndex();
+        long lastLogIndex = this.raft.log.getLastIndex();
 
         // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails
         // Note: if log entry index is prior to my last applied log entry index, Raft guarantees that term must match
-        if (leaderPrevIndex >= this.raft.lastAppliedIndex
-          && (leaderPrevIndex > lastLogIndex || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex))) {
+        if (leaderPrevIndex >= this.raft.log.getLastAppliedIndex()
+          && (leaderPrevIndex > lastLogIndex || leaderPrevTerm != this.raft.log.getTermAtIndex(leaderPrevIndex))) {
             if (this.log.isDebugEnabled())
                 this.debug("rejecting " + msg + " because previous log entry doesn't match");
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
+              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.log.getLastAppliedIndex(),
+              this.raft.log.getLastIndex()));
             return;
         }
 
         // Check whether the message actually contains a log entry we can append; if so, append it
         boolean success = true;
-        if (leaderPrevIndex >= this.raft.lastAppliedIndex && !msg.isProbe()) {
+        if (leaderPrevIndex >= this.raft.log.getLastAppliedIndex() && !msg.isProbe()) {
 
             // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
-            if (logIndex <= lastLogIndex && logTerm != this.raft.getLogTermAtIndex(logIndex)) {
+            if (logIndex <= lastLogIndex && logTerm != this.raft.log.getTermAtIndex(logIndex)) {
 
                 // Delete conflicting log entry, and all entries that follow it, from the log
-                final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
-                final List<LogEntry> conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());
-                for (LogEntry logEntry : conflictList) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);
-                    this.raft.deleteFile(logEntry.getFile(), "overwritten log file");
-                }
+                this.raft.log.discardLogEntries(logIndex, msg);
                 try {
                     this.raft.logDirChannel.force(true);
                 } catch (IOException e) {
                     this.warn("errory fsync()'ing log directory " + this.raft.logDir, e);
                 }
-                conflictList.clear();
 
                 // Rebuild current config
-                this.raft.currentConfig = this.raft.buildCurrentConfig();
+                this.raft.currentConfig = this.raft.log.buildCurrentConfig();
 
                 // Update last log entry index
-                lastLogIndex = this.raft.getLastLogIndex();
+                lastLogIndex = this.raft.log.getLastIndex();
 
                 // Fail any transactions that are based on any of the discarded log entries
                 for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
@@ -683,7 +677,7 @@ public class FollowerRole extends NonLeaderRole {
                     this.rebaseTransactions(false);
 
                 // Update last log entry index
-                lastLogIndex = this.raft.getLastLogIndex();
+                lastLogIndex = this.raft.log.getLastIndex();
             }
         }
 
@@ -705,18 +699,19 @@ public class FollowerRole extends NonLeaderRole {
               + "term=" + this.raft.currentTerm
               + " commitIndex=" + this.raft.commitIndex
               + " leaderLeaseTimeout=" + this.leaderLeaseTimeout
-              + " lastApplied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
-              + " log=" + this.raft.raftLog);
+              + " lastApplied=" + this.raft.log.getLastAppliedIndex() + "t" + this.raft.log.getLastAppliedTerm()
+              + " log=" + this.raft.log.getUnapplied());
         }
 
         // Send reply
         if (success) {
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
               this.raft.currentTerm, msg.getLeaderTimestamp(), true, msg.isProbe() ? logIndex - 1 : logIndex,
-              this.raft.getLastLogIndex()));
+              this.raft.log.getLastIndex()));
         } else {
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
+              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.log.getLastAppliedIndex(),
+              this.raft.log.getLastIndex()));
         }
     }
 
@@ -762,7 +757,7 @@ public class FollowerRole extends NonLeaderRole {
         long commitTerm = msg.getCommitTerm();
         if (tx.getBaseIndex() > commitIndex) {
             if (this.log.isTraceEnabled()) {
-                final long actualCommitTerm = this.raft.getLogTermAtIndexIfKnown(commitIndex);
+                final long actualCommitTerm = this.raft.log.getTermAtIndexIfKnown(commitIndex);
                 this.trace(tx + " was rebased past its commit index " + commitIndex + "t" + commitTerm + " to "
                   + tx.getBaseIndex() + "t" + tx.getBaseTerm() + "; actual term for index " + commitIndex + " is "
                   + (actualCommitTerm != 0 ? "" + actualCommitTerm : "unknown"));
@@ -893,7 +888,7 @@ public class FollowerRole extends NonLeaderRole {
                 // Fail if rebasable and the base index doesn't exactly match
                 if (tx.isRebasable() && (tx.getBaseTerm() != term || tx.getBaseIndex() != index)) {
                     this.raft.fail(tx, new RetryTransactionException(tx, "snapshot install of " + index + "t" + term
-                      + " invalidated base " + tx.getBaseIndex() + "t" + tx.getBaseTerm()));
+                      + " invalidated transaction base " + tx.getBaseIndex() + "t" + tx.getBaseTerm()));
                 }
             }
 
@@ -919,11 +914,11 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         // Verify that we are allowed to vote for this peer
-        if (msg.getLastLogTerm() < this.raft.getLastLogTerm()
-          || (msg.getLastLogTerm() == this.raft.getLastLogTerm() && msg.getLastLogIndex() < this.raft.getLastLogIndex())) {
+        if (msg.getLastLogTerm() < this.raft.log.getLastTerm()
+          || (msg.getLastLogTerm() == this.raft.log.getLastTerm() && msg.getLastLogIndex() < this.raft.log.getLastIndex())) {
             if (this.log.isDebugEnabled()) {
                 this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
-                  + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());
+                  + msg.getLastLogTerm() + " loses to ours " + this.raft.log.getLastIndex() + "t" + this.raft.log.getLastTerm());
             }
             return;
         }

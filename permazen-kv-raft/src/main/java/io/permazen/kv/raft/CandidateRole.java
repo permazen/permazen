@@ -72,7 +72,7 @@ public class CandidateRole extends NonLeaderRole {
             this.debug("entering candidate role in term " + this.raft.currentTerm + "; requesting votes from " + voters);
         for (String voter : voters) {
             this.raft.sendMessage(new RequestVote(this.raft.clusterId, this.raft.identity, voter,
-              this.raft.currentTerm, this.raft.getLastLogTerm(), this.raft.getLastLogIndex()));
+              this.raft.currentTerm, this.raft.log.getLastTerm(), this.raft.log.getLastIndex()));
         }
 
         // Check election result - needed in case we are the only node in the cluster

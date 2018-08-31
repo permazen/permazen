@@ -14,6 +14,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.msg.AppendRequest;
@@ -47,8 +48,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,17 +117,12 @@ import org.slf4j.LoggerFactory;
  *          the <i>base term and index</i> for the transaction.</li>
  *      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
  *          compacted key/value store, transaction performance degrades as the number of unapplied log
- *          entries grows. Log entries are applied as soon as possible, subject to certain conditions, but
- *          in any case limits on the {@linkplain #setMaxUnappliedLogEntries the number of unapplied log entries}
- *          as well as their {@linkplain #setMaxUnappliedLogMemory total memory usage} are enforced.</li>
+ *          entries grows. Log entries are always applied as soon as possible, but they are kept around
+ *          on disk (up to a point) after being applied in case needed by a leader.</li>
  *      <li>On commit, the transaction's {@link io.permazen.kv.mvcc.Reads}, {@link io.permazen.kv.mvcc.Writes},
  *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
- *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied to its
- *          own state machine, or was its most recently applied log entry. If this is not the case, then the transaction's base
- *          log entry is too old (e.g., it was applied and discarded early due to memory pressure), and so the transaction is
- *          rejected with a {@link RetryTransactionException}.
- *      <li>The leader verifies that the transaction's base term matches its log; if not, the transaction's base log entry has
- *          been overwritten, and the transaction is rejected with a {@link RetryTransactionException}.
+ *      <li>The leader confirms that the log entry corresponding to the transaction's base index and term matches its log.
+ *          If this is not the case, then the transaction is rejected with a {@link RetryTransactionException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
  *          do not create {@linkplain io.permazen.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
  *          {@link io.permazen.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
@@ -137,18 +131,13 @@ import org.slf4j.LoggerFactory;
  *          {@linkplain CommitResponse replies} to the follower with this information.</li>
  *      <li>If/when the follower sees a <i>committed</i> (in the Raft sense) log entry appear in its log matching the
  *          transaction's commit term and index, then the transaction is complete.</li>
- *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
+ *      <li>As a small optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
  *      <li>After adding a new log entry, both followers and leaders "rebase" any open {@link Consistency#LINEARIZABLE}
  *          transactions by checking for conflicts in the manner described above.</li>
  *      </ul>
  *  </li>
  *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
- *  <li>On leaders, committed log entries are not applied to the state machine immediately; instead they are kept around until all
- *      followers have confirmed receipt. The point of waiting is to avoid follower transactions being rejected because
- *      their base log entry has already been compacted. Assuming message reordering is unlikely or impossible and each node is
- *      rebasing committed entries as described above, once a follower has confirmed receipt of a committed log entry, there
- *      should be no further commit requests from that follower for transactions based on earlier log entries.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
  *      which is the earliest time at which it is possible for another leader to be elected.
@@ -347,27 +336,6 @@ public class RaftKVDatabase implements KVDatabase {
     public static final int DEFAULT_MAX_TRANSACTION_DURATION = 5 * 1000;
 
     /**
-     * Default maximum supported applied log entry memory usage ({@value DEFAULT_MAX_UNAPPLIED_LOG_MEMORY} bytes).
-     *
-     * @see #setMaxUnappliedLogMemory
-     */
-    public static final long DEFAULT_MAX_UNAPPLIED_LOG_MEMORY = 100 * 1024 * 1024;                // 100MB
-
-    /**
-     * Default maximum number of unapplied log entries ({@value DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES} bytes).
-     *
-     * @see #setMaxUnappliedLogEntries
-     */
-    public static final int DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES = 64;
-
-    /**
-     * Default maximum number of heartbeat intervals a leader will wait for a follower to acknowledge receipt of a log entry.
-     *
-     * @see #setMaxFollowerAckHeartbeats
-     */
-    public static final int DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS = 5;
-
-    /**
      * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}).
      *
      * @see #setCommitTimeout
@@ -394,10 +362,9 @@ public class RaftKVDatabase implements KVDatabase {
     public static final String OPTION_HIGH_PRIORITY = "highPriority";
 
     // Internal constants
-    static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
-    static final int MAX_APPLIED_TERMS = 128;                           // how many already-applied log entry terms to rememeber
+    static final int MAX_APPLIED_ENTRIES = 256;                         // how many already-applied log entries to keep around
 
     // File prefixes and suffixes
     static final String TX_FILE_PREFIX = "tx-";
@@ -418,7 +385,7 @@ public class RaftKVDatabase implements KVDatabase {
     private static final byte[] STATE_MACHINE_PREFIXES = new byte[] { (byte)0x80, (byte)0x81 };
 
     // Logging
-    final Logger log = LoggerFactory.getLogger(this.getClass());
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Configuration state
     @GuardedBy("this")
@@ -435,12 +402,6 @@ public class RaftKVDatabase implements KVDatabase {
     int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
     @GuardedBy("this")
     int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
-    @GuardedBy("this")
-    long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
-    @GuardedBy("this")
-    int maxUnappliedLogEntries = DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES;
-    @GuardedBy("this")
-    int maxFollowerAckHeartbeats = DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS;
     @GuardedBy("this")
     int threadPriority = -1;
     @GuardedBy("this")
@@ -470,15 +431,8 @@ public class RaftKVDatabase implements KVDatabase {
     @GuardedBy("this")
     long keyWatchIndex;                                                 // index of last log entry that triggered key watches
     @GuardedBy("this")
-    long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
-    @GuardedBy("this")
-    long lastAppliedIndex;                                              // key/value store last applied index (zero if unconfigured)
-    @GuardedBy("this")
-    final long[] appliedTerms = new long[MAX_APPLIED_TERMS];            // terms of log entries already applied to state machine
-    @GuardedBy("this")
-    final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
-    @GuardedBy("this")
-    Map<String, String> lastAppliedConfig;                              // key/value store last applied config (empty if none)
+    final Log log = new Log(this);                                      // applied and unapplied log entries (empty if unconfigured)
+
     @GuardedBy("this")
     Map<String, String> currentConfig;                                  // most recent cluster config (empty if unconfigured)
     @GuardedBy("this")
@@ -691,7 +645,6 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param duration maximum supported duration for outstanding transactions in milliseconds
      * @throws IllegalArgumentException if {@code duration <= 0}
-     * @see #setMaxUnappliedLogMemory
      */
     public synchronized void setMaxTransactionDuration(final int duration) {
         Preconditions.checkArgument(duration > 0, "duration <= 0");
@@ -705,100 +658,6 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized int getMaxTransactionDuration() {
         return this.maxTransactionDuration;
-    }
-
-    /**
-     * Configure the maximum allowed memory used for unapplied log entries.
-     *
-     * <p>
-     * A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
-     * {@link RetryTransactionException}, but at the cost of possibly slower data access.
-     *
-     * <p>
-     * This memory measurement value is approximate.
-     *
-     * <p>
-     * This value may be changed while this instance is already running.
-     *
-     * <p>
-     * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_MEMORY}.
-     *
-     * @param maxUnappliedLogMemory maximum allowed memory usage for unapplied log entries
-     * @throws IllegalArgumentException if {@code maxUnappliedLogMemory <= 0}
-     */
-    public synchronized void setMaxUnappliedLogMemory(final long maxUnappliedLogMemory) {
-        Preconditions.checkArgument(maxUnappliedLogMemory > 0, "maxUnappliedLogMemory <= 0");
-        this.maxUnappliedLogMemory = maxUnappliedLogMemory;
-    }
-
-    /**
-     * Get the configured maximum allowed memory used for unapplied log entries.
-     *
-     * @return maximum allowed memory usage for cached applied log entries
-     */
-    public synchronized long getMaxUnappliedLogMemory() {
-        return this.maxUnappliedLogMemory;
-    }
-
-    /**
-     * Configure the maximum number of unapplied log entries.
-     *
-     * <p>
-     * A higher value means higher transaction concurrency and that transactions may stay open longer without causing a
-     * {@link RetryTransactionException}, but at the cost of possibly slower data access.
-     *
-     * <p>
-     * This value may be changed while this instance is already running.
-     *
-     * <p>
-     * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_ENTRIES}.
-     *
-     * @param maxUnappliedLogEntries maximum number of unapplied log entries
-     * @throws IllegalArgumentException if {@code maxUnappliedLogEntries <= 0}
-     */
-    public synchronized void setMaxUnappliedLogEntries(final int maxUnappliedLogEntries) {
-        Preconditions.checkArgument(maxUnappliedLogEntries > 0, "maxUnappliedLogEntries <= 0");
-        this.maxUnappliedLogEntries = maxUnappliedLogEntries;
-    }
-
-    /**
-     * Get the configured maximum number of unapplied log entries.
-     *
-     * @return maximum number of unapplied log entries
-     */
-    public synchronized long getMaxUnappliedLogEntries() {
-        return this.maxUnappliedLogEntries;
-    }
-
-    /**
-     * Configure the maximum number of heartbeat intervals a leader will wait for any follower to acknowledge
-     * receipt of a log entry before compacting it.
-     *
-     * <p>
-     * Higher values may be needed when the network is lossy.
-     *
-     * <p>
-     * This value may be changed while this instance is already running.
-     *
-     * <p>
-     * Default is {@link #DEFAULT_MAX_FOLLOWER_ACK_HEARTBEATS}.
-     *
-     * @param maxFollowerAckHeartbeats maximum number of heartbeats for a leader to wait on a follower before compacting a log entry
-     * @throws IllegalArgumentException if {@code maxFollowerAckHeartbeats <= 0}
-     */
-    public synchronized void setMaxFollowerAckHeartbeats(final int maxFollowerAckHeartbeats) {
-        Preconditions.checkArgument(maxFollowerAckHeartbeats > 0, "maxFollowerAckHeartbeats <= 0");
-        this.maxFollowerAckHeartbeats = maxFollowerAckHeartbeats;
-    }
-
-    /**
-     * Get the maximum number of heartbeat intervals a leader will wait for a follower to acknowledge
-     * receipt of a log entry before compacting it.
-     *
-     * @return maximum number of heartbeats for a leader to wait on a follower before compacting a log entry
-     */
-    public synchronized long getMaxFollowerAckHeartbeats() {
-        return this.maxFollowerAckHeartbeats;
     }
 
     /**
@@ -995,7 +854,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return true if this instance is started and configured, otherwise false
      */
     public synchronized boolean isConfigured() {
-        return this.lastAppliedIndex > 0 || !this.raftLog.isEmpty();
+        return this.log.getLastIndex() > 0;
     }
 
     /**
@@ -1061,7 +920,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return last applied term, or zero if not running
      */
     public synchronized long getLastAppliedTerm() {
-        return this.lastAppliedTerm;
+        return this.log.getLastAppliedTerm();
     }
 
     /**
@@ -1070,7 +929,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return last applied index, or zero if not running
      */
     public synchronized long getLastAppliedIndex() {
-        return this.lastAppliedIndex;
+        return this.log.getLastAppliedIndex();
     }
 
     /**
@@ -1082,7 +941,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return unapplied log entries; or null if this instance is not running
      */
     public synchronized List<LogEntry> getUnappliedLog() {
-        return this.raftLog != null ? new ArrayList<>(this.raftLog) : null;
+        return this.role != null ? new ArrayList<>(this.log.getUnapplied()) : null;
     }
 
     /**
@@ -1091,10 +950,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return unapplied log entry memory usage, or zero if this instance is not running
      */
     public synchronized long getUnappliedLogMemoryUsage() {
-        long total = 0;
-        for (LogEntry logEntry : this.raftLog)
-            total += logEntry.getFileSize();
-        return total;
+        return this.log.getUnappliedLogMemoryUsage();
     }
 
     /**
@@ -1110,7 +966,7 @@ public class RaftKVDatabase implements KVDatabase {
         synchronized (this) {
             list = new ArrayList<>(this.openTransactions.values());
         }
-        Collections.sort(list, RaftKVTransaction.SORT_BY_ID);
+        list.sort(RaftKVTransaction.SORT_BY_ID);
         return list;
     }
 
@@ -1147,7 +1003,7 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkState(this.identity != null, "no Raft identity configured");
 
         // Log
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("starting " + this.getClass().getName() + " in directory " + this.logDir);
 
         // Start up local database
@@ -1215,53 +1071,54 @@ public class RaftKVDatabase implements KVDatabase {
             this.currentTerm = this.decodeLong(CURRENT_TERM_KEY, 0);
             this.currentTermStartTime = System.currentTimeMillis();
             final String votedFor = this.decodeString(VOTED_FOR_KEY, null);
-            this.lastAppliedTerm = this.decodeLong(LAST_APPLIED_TERM_KEY, 0);
-            this.lastAppliedIndex = this.decodeLong(LAST_APPLIED_INDEX_KEY, 0);
-            Arrays.fill(this.appliedTerms, 0);
-            this.lastAppliedConfig = this.decodeConfig(LAST_APPLIED_CONFIG_KEY);
+            final long lastAppliedTerm = this.decodeLong(LAST_APPLIED_TERM_KEY, 0);
+            final long lastAppliedIndex = this.decodeLong(LAST_APPLIED_INDEX_KEY, 0);
+            final Map<String, String> lastAppliedConfig = this.decodeConfig(LAST_APPLIED_CONFIG_KEY);
             this.flipflop = this.decodeBoolean(FLIP_FLOP_KEY);
-            this.currentConfig = this.buildCurrentConfig();
 
             // Reset protocol version info
             this.protocolVersionMap.clear();
 
             // If we crashed part way through a snapshot install, recover by discarding partial install
-            if (this.discardFlipFloppedStateMachine() && this.log.isDebugEnabled())
+            if (this.discardFlipFloppedStateMachine() && this.logger.isDebugEnabled())
                 this.debug("detected partially applied snapshot install, discarding");
 
+            // Reload outstanding log entries from disk
+            this.loadLog(lastAppliedTerm, lastAppliedIndex, lastAppliedConfig);
+
             // Initialize commit index and key watch index
-            this.commitIndex = this.lastAppliedIndex;
+            this.commitIndex = this.log.getLastAppliedIndex();
             this.keyWatchIndex = this.commitIndex;
 
-            // Reload outstanding log entries from disk
-            this.loadLog();
+            // Rebuild current configuration
+            this.currentConfig = this.log.buildCurrentConfig();
 
             // Show recovered state
-            if (this.log.isDebugEnabled()) {
+            if (this.logger.isDebugEnabled()) {
                 this.debug("recovered Raft state:"
                   + "\n  clusterId=" + (this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none")
                   + "\n  currentTerm=" + this.currentTerm
-                  + "\n  lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
-                  + "\n  lastAppliedConfig=" + this.lastAppliedConfig
+                  + "\n  lastAppliedEntry=" + this.log.getLastAppliedIndex() + "t" + this.log.getLastAppliedTerm()
+                  + "\n  lastAppliedConfig=" + this.log.getLastAppliedConfig()
                   + "\n  currentConfig=" + this.currentConfig
                   + "\n  votedFor=" + (votedFor != null ? "\"" + votedFor + "\"" : "nobody")
-                  + "\n  log=" + this.raftLog);
+                  + "\n  log=" + this.log.getUnapplied());
             }
 
             // Validate recovered state
             if (this.isConfigured()) {
                 Preconditions.checkArgument(this.clusterId != 0);
                 Preconditions.checkArgument(this.currentTerm > 0);
-                Preconditions.checkArgument(this.getLastLogTerm() > 0);
-                Preconditions.checkArgument(this.getLastLogIndex() > 0);
+                Preconditions.checkArgument(this.log.getLastTerm() > 0);
+                Preconditions.checkArgument(this.log.getLastIndex() > 0);
                 Preconditions.checkArgument(!this.currentConfig.isEmpty());
             } else {
-                Preconditions.checkArgument(this.lastAppliedTerm == 0);
-                Preconditions.checkArgument(this.lastAppliedIndex == 0);
-                Preconditions.checkArgument(this.getLastLogTerm() == 0);
-                Preconditions.checkArgument(this.getLastLogIndex() == 0);
+                Preconditions.checkArgument(this.log.getLastAppliedTerm() == 0);
+                Preconditions.checkArgument(this.log.getLastAppliedIndex() == 0);
+                Preconditions.checkArgument(this.log.getLastTerm() == 0);
+                Preconditions.checkArgument(this.log.getLastIndex() == 0);
                 Preconditions.checkArgument(this.currentConfig.isEmpty());
-                Preconditions.checkArgument(this.raftLog.isEmpty());
+                Preconditions.checkArgument(this.log.getNumTotal() == 0);
             }
 
             // Start as follower (with unknown leader)
@@ -1391,7 +1248,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
         this.logDirChannel = null;
-        this.raftLog.clear();
+        this.log.reset(false);
         this.random = null;
         this.network.stop();
         this.currentTerm = 0;
@@ -1399,10 +1256,6 @@ public class RaftKVDatabase implements KVDatabase {
         this.commitIndex = 0;
         this.keyWatchIndex = 0;
         this.clusterId = 0;
-        this.lastAppliedTerm = 0;
-        this.lastAppliedIndex = 0;
-        Arrays.fill(this.appliedTerms, 0);
-        this.lastAppliedConfig = null;
         this.currentConfig = null;
         this.protocolVersionMap.clear();
         if (this.keyWatchTracker != null) {
@@ -1419,14 +1272,13 @@ public class RaftKVDatabase implements KVDatabase {
      * Initialize our in-memory state from the persistent state reloaded from disk.
      * This is invoked on initial startup.
      */
-    private void loadLog() throws IOException {
+    private void loadLog(long lastAppliedTerm, long lastAppliedIndex, Map<String, String> config) throws IOException {
 
         // Sanity check
         assert Thread.holdsLock(this);
-        assert this.raftLog.isEmpty();
 
         // Scan for log entry files
-        this.raftLog.clear();
+        final ArrayList<LogEntry> entryList = new ArrayList<>();
         try (DirectoryStream<Path> files = Files.newDirectoryStream(this.logDir.toPath())) {
             for (Path path : files) {
                 final File file = path.toFile();
@@ -1436,17 +1288,18 @@ public class RaftKVDatabase implements KVDatabase {
                     continue;
 
                 // Is this a log entry file?
-                if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
-                    if (this.log.isDebugEnabled())
+                final long[] parse = LogEntry.parseFileName(file.getName());
+                if (parse != null) {
+                    if (this.logger.isDebugEnabled())
                         this.debug("recovering log file " + file.getName());
-                    final LogEntry logEntry = LogEntry.fromFile(file);
-                    this.raftLog.add(logEntry);
+                    final LogEntry logEntry = LogEntry.fromFile(file, parse[0] > lastAppliedIndex);
+                    entryList.add(logEntry);
                     continue;
                 }
 
                 // Is this a leftover temporary file?
                 if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
-                    if (this.log.isDebugEnabled())
+                    if (this.logger.isDebugEnabled())
                         this.debug("deleting leftover temporary file " + file.getName());
                     this.deleteFile(file, "leftover temporary file");
                     continue;
@@ -1457,52 +1310,56 @@ public class RaftKVDatabase implements KVDatabase {
             }
         }
 
-        // Verify we have a contiguous range of log entries starting from the snapshot index; discard bogus log files
-        Collections.sort(this.raftLog, LogEntry.SORT_BY_INDEX);
-        long lastTermSeen = this.lastAppliedTerm;
-        long expectedIndex = this.lastAppliedIndex + 1;
-        for (Iterator<LogEntry> i = this.raftLog.iterator(); i.hasNext(); ) {
-            final LogEntry logEntry = i.next();
-            String error = null;
-            if (logEntry.getTerm() < lastTermSeen)
-                error = "term " + logEntry.getTerm() + " < last applied term " + lastTermSeen;
-            else if (logEntry.getIndex() < this.lastAppliedIndex)
-                error = "index " + logEntry.getIndex() + " < last applied index " + this.lastAppliedIndex;
-            else if (logEntry.getIndex() != expectedIndex)
-                error = "index " + logEntry.getIndex() + " != expected index " + expectedIndex;
-            if (error != null) {
-                this.warn("deleting bogus log file " + logEntry.getFile().getName() + ": " + error);
-                this.deleteFile(logEntry.getFile(), "bogus log file");
-                i.remove();
-            } else {
-                expectedIndex++;
-                lastTermSeen = logEntry.getTerm();
+        // Sort log entries by index
+        entryList.sort(LogEntry.SORT_BY_INDEX);
+
+        // Verify the terms are sensible (increasing only)
+        for (int i = 1; i < entryList.size(); i++) {
+            final LogEntry logEntry = entryList.get(i);
+            final LogEntry prevEntry = entryList.get(i - 1);
+            if (logEntry.getTerm() < prevEntry.getTerm()) {
+                this.nukeLogFilesFromList(entryList, "terms out of order");
+                break;
             }
         }
-        if (this.log.isDebugEnabled()) {
-            this.debug("recovered " + this.raftLog.size() + " log entries: " + this.raftLog
-              + " (" + this.getUnappliedLogMemoryUsage() + " total bytes)");
+
+        // Discard all but the last contigous range
+        if (!entryList.isEmpty()) {
+            int i = entryList.size() - 1;
+            while (i > 0 && entryList.get(i - 1).getIndex() == entryList.get(i).getIndex() - 1)
+                i--;
+            this.nukeLogFilesFromList(entryList.subList(0, i), "non-contiguous");
         }
 
-        // Rebuild current configuration
-        this.currentConfig = this.buildCurrentConfig();
+        // If first entry's index is greater than the last applied index + 1, discard everything
+        if (!entryList.isEmpty() && entryList.get(0).getIndex() > lastAppliedIndex + 1)
+            this.nukeLogFilesFromList(entryList, "too-high index");
+
+        // If last entry's index is less than the last applied index, discard everything
+        if (!entryList.isEmpty() && entryList.get(entryList.size() - 1).getIndex() < lastAppliedIndex)
+            this.nukeLogFilesFromList(entryList, "too-low index");
+
+        // Check the log entry at lastAppliedIndex has term equal to lastAppliedTerm
+        if (!entryList.isEmpty() && entryList.get(0).getIndex() <= lastAppliedIndex) {
+            final int lastAppliedListIndex = (int)(lastAppliedIndex - entryList.get(0).getIndex());
+            if (entryList.get(lastAppliedListIndex).getTerm() != lastAppliedTerm)
+                this.nukeLogFilesFromList(entryList, "last applied term mismatch");
+        }
+
+        // Reset log
+        this.log.reset(lastAppliedTerm, lastAppliedIndex, entryList, config, false);
+        if (this.logger.isDebugEnabled()) {
+            this.debug("recovered " + this.log.getNumApplied() + " applied and " + this.log.getNumUnapplied()
+              + " unapplied log entries (" + this.log.getUnappliedLogMemoryUsage() + " total bytes)");
+        }
     }
 
-    /**
-     * Reconstruct the current config by starting with the last applied config and applying
-     * configuration deltas from unapplied log entries.
-     */
-    Map<String, String> buildCurrentConfig() {
-
-        // Start with last applied config
-        final HashMap<String, String> config = new HashMap<>(this.lastAppliedConfig);
-
-        // Apply any changes found in uncommitted log entries
-        for (LogEntry logEntry : this.raftLog)
-            logEntry.applyConfigChange(config);
-
-        // Done
-        return config;
+    private void nukeLogFilesFromList(List<LogEntry> entries, String problem) {
+        for (LogEntry logEntry : entries) {
+            this.warn("deleting log file " + logEntry.getFile().getName() + ": " + problem);
+            this.deleteFile(logEntry.getFile(), problem + " log file");
+        }
+        entries.clear();
     }
 
 // Key Watches
@@ -1654,7 +1511,7 @@ public class RaftKVDatabase implements KVDatabase {
             tx.setHighPriority(true);
 
         // Done
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("created new transaction " + tx);
         return tx;
     }
@@ -1686,11 +1543,11 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         // Make transaction special
-        if (this.log.isDebugEnabled()) {
+        if (this.logger.isDebugEnabled()) {
             if (this.highPrioTx != null)
-                this.log.debug("setting high priority transaction {} (replacing {})", tx, this.highPrioTx);
+                this.debug("setting high priority transaction " + tx + " (replacing " + this.highPrioTx + ")");
             else
-                this.log.debug("setting new high priority transaction {}", tx);
+                this.debug("setting new high priority transaction " + tx);
         }
         this.highPrioTx = tx;
 
@@ -1700,8 +1557,8 @@ public class RaftKVDatabase implements KVDatabase {
             if (followerRole.getLeaderIdentity() != null
               && followerRole.electionTimer.isRunning()
               && !followerRole.electionTimer.getDeadline().hasOccurred()) {
-                if (this.log.isDebugEnabled())
-                    this.log.debug("starting early election on behalf of high priority transaction {}", tx);
+                if (this.logger.isDebugEnabled())
+                    this.debug("starting early election on behalf of high priority transaction " + tx);
                 followerRole.startElection();
             }
         }
@@ -1721,14 +1578,15 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Sanity check
                 assert this.checkState();
-                assert this.role != null;
+                if (this.role == null)
+                    throw new StaleTransactionException(tx, "database is shutdown");
 
                 // Check tx state
                 switch (tx.getState()) {
                 case EXECUTING:
 
                     // Transition to COMMIT_READY state
-                    if (this.log.isDebugEnabled())
+                    if (this.logger.isDebugEnabled())
                         this.debug("committing transaction " + tx);
                     tx.setState(TxState.COMMIT_READY);
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
@@ -1791,7 +1649,8 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Sanity check
         assert this.checkState();
-        assert this.role != null;
+        if (this.role == null)
+            return;
 
         // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
         tx.setFailure(null);
@@ -1799,7 +1658,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Check tx state
         switch (tx.getState()) {
         case EXECUTING:
-            if (this.log.isDebugEnabled())
+            if (this.logger.isDebugEnabled())
                 this.debug("rolling back transaction " + tx);
             this.cleanupTransaction(tx);
             break;
@@ -1815,7 +1674,7 @@ public class RaftKVDatabase implements KVDatabase {
     synchronized void cleanupTransaction(RaftKVTransaction tx) {
 
         // Debug
-        if (this.log.isTraceEnabled())
+        if (this.logger.isTraceEnabled())
             this.trace("cleaning up transaction " + tx);
 
         // Do any per-role cleanups
@@ -1847,7 +1706,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);
 
         // Succeed transaction
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("successfully committed " + tx);
         tx.getCommitFuture().set(null);
         tx.setState(TxState.COMPLETED);
@@ -1866,7 +1725,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert e != null;
 
         // Fail transaction
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("failing transaction " + tx + ": " + e);
         switch (tx.getState()) {
         case EXECUTING:
@@ -1936,7 +1795,7 @@ public class RaftKVDatabase implements KVDatabase {
                 i.remove();
                 assert service != null;
                 assert service.getRole() == null || service.getRole() == this.role;
-                if (this.log.isTraceEnabled())
+                if (this.logger.isTraceEnabled())
                     this.trace("SERVICE [" + service + "] in " + this.role);
                 try {
                     service.run();
@@ -1977,7 +1836,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert Thread.holdsLock(this);
         assert term >= 0;
         assert index >= 0;
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("performing state machine flip-flop to " + index + "t" + term + " with config " + config);
         if (config == null)
             config = new HashMap<>(0);
@@ -1997,27 +1856,14 @@ public class RaftKVDatabase implements KVDatabase {
             return false;
         }
 
-        // Delete all unapplied log files (no longer applicable)
-        this.raftLog.clear();
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(this.logDir.toPath())) {
-            for (Path path : files) {
-                final File file = path.toFile();
-                if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches())
-                    this.deleteFile(file, "unapplied log file");
-            }
-        } catch (IOException e) {
-            this.error("error deleting unapplied log files in " + this.logDir + " (ignoring)", e);
-        }
+        // Reset log, and delete any associated log files
+        this.log.reset(term, index, config, true);
 
         // Update in-memory copy of persistent state
         this.flipflop = !this.flipflop;
-        this.lastAppliedTerm = term;
-        this.lastAppliedIndex = index;
-        Arrays.fill(this.appliedTerms, 0);
-        this.lastAppliedConfig = config;
-        this.commitIndex = this.lastAppliedIndex;
+        this.commitIndex = this.log.getLastAppliedIndex();
         final TreeMap<String, String> previousConfig = new TreeMap<>(this.currentConfig);
-        this.currentConfig = this.buildCurrentConfig();
+        this.currentConfig = this.log.buildCurrentConfig();
         if (!this.currentConfig.equals(previousConfig))
             this.info("apply new cluster configuration after snapshot install: " + this.currentConfig);
 
@@ -2039,7 +1885,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Sanity check
         assert Thread.holdsLock(this);
         assert newTerm > this.currentTerm;
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("advancing current term from " + this.currentTerm + " -> " + newTerm);
 
         // Update persistent store
@@ -2132,7 +1978,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Setup new role
         this.role = role;
         this.role.setup();
-        if (this.log.isDebugEnabled())
+        if (this.logger.isDebugEnabled())
             this.debug("changing role to " + role);
 
         // Check state
@@ -2161,8 +2007,8 @@ public class RaftKVDatabase implements KVDatabase {
         final long fileLength = Util.getLength(tempFile);
 
         // Create new log entry
-        final LogEntry logEntry = new LogEntry(term, this.getLastLogIndex() + 1, this.logDir, data, fileLength);
-        if (this.log.isDebugEnabled())
+        final LogEntry logEntry = new LogEntry(term, this.log.getLastIndex() + 1, this.logDir, data, fileLength);
+        if (this.logger.isDebugEnabled())
             this.debug("adding new log entry " + logEntry + " using " + tempFile.getName());
 
         // Atomically rename file and fsync() directory to durably persist
@@ -2174,7 +2020,7 @@ public class RaftKVDatabase implements KVDatabase {
         newLogEntry.resetTempFile();
 
         // Add new log entry to in-memory log
-        this.raftLog.add(logEntry);
+        this.log.addLogEntry(logEntry);
 
         // Update current config
         if (logEntry.applyConfigChange(this.currentConfig))
@@ -2182,53 +2028,6 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Done
         return logEntry;
-    }
-
-    long getLastLogIndex() {
-        assert Thread.holdsLock(this);
-        return this.lastAppliedIndex + this.raftLog.size();
-    }
-
-    long getLastLogTerm() {
-        assert Thread.holdsLock(this);
-        return this.getLogTermAtIndex(this.getLastLogIndex());
-    }
-
-    // Get the term of the not-yet-applied log entry at the specified index
-    long getLogTermAtIndex(long index) {
-        assert Thread.holdsLock(this);
-        assert index >= this.lastAppliedIndex;
-        assert index <= this.getLastLogIndex();
-        return index == this.lastAppliedIndex ? this.lastAppliedTerm : this.getLogEntryAtIndex(index).getTerm();
-    }
-
-    // Get the not-yet-applied log entry at the specified index
-    LogEntry getLogEntryAtIndex(long index) {
-        assert Thread.holdsLock(this);
-        assert index > this.lastAppliedIndex;
-        assert index <= this.getLastLogIndex();
-        return this.raftLog.get((int)(index - this.lastAppliedIndex - 1));
-    }
-
-    // Increment the index of the last applied log entry
-    void incrementLastAppliedIndex(long term) {
-        assert Thread.holdsLock(this);
-        this.appliedTerms[(int)(this.lastAppliedIndex % MAX_APPLIED_TERMS)] = this.lastAppliedTerm;
-        this.lastAppliedIndex++;
-        this.lastAppliedTerm = term;
-    }
-
-    // Get the term of an already-applied log entry, if known, otherwise zero
-    long getAppliedLogEntryTerm(long index) {
-        assert index < this.lastAppliedIndex;
-        if (index < this.lastAppliedIndex - MAX_APPLIED_TERMS)
-            return 0;
-        return this.appliedTerms[(int)(index % MAX_APPLIED_TERMS)];
-    }
-
-    // Get the term of a log entry (either applied or not-yet-applied), if known, otherwise zero
-    long getLogTermAtIndexIfKnown(long index) {
-        return index >= this.lastAppliedIndex ? this.getLogTermAtIndex(index) : this.getAppliedLogEntryTerm(index);
     }
 
 // Object
@@ -2240,8 +2039,8 @@ public class RaftKVDatabase implements KVDatabase {
           + ",logDir=" + this.logDir
           + ",term=" + this.currentTerm
           + ",commitIndex=" + this.commitIndex
-          + ",lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
-          + ",raftLog=" + this.raftLog
+          + ",lastApplied=" + this.log.getLastAppliedIndex() + "t" + this.log.getLastAppliedTerm()
+          + ",log=" + this.log.getUnapplied()
           + ",role=" + this.role
           + (this.shuttingDown ? ",shuttingDown" : "")
           + "]";
@@ -2282,7 +2081,7 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Deserialize mutation data and create new log entry instance
                 try (ByteBufferInputStream input = new ByteBufferInputStream(mutationData)) {
-                    newLogEntry = new NewLogEntry(LogEntry.readData(input), tempFile);
+                    newLogEntry = new NewLogEntry(LogEntry.readData(input, true), tempFile);
                 }
 
                 // Indicate success
@@ -2314,7 +2113,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Update transmitting status
         if (!this.transmitting.remove(address))
             return;
-        if (this.log.isTraceEnabled())
+        if (this.logger.isTraceEnabled())
             this.trace("QUEUE_EMPTY address " + address + " in " + this.role);
 
         // Notify role
@@ -2348,7 +2147,7 @@ public class RaftKVDatabase implements KVDatabase {
         final int protocolVersion = this.protocolVersionMap.getOrDefault(peer, Message.getCurrentProtocolVersion());
 
         // Encode messagse
-        if (this.log.isTraceEnabled())
+        if (this.logger.isTraceEnabled())
             this.trace("XMIT " + msg + " to " + address + " (version " + protocolVersion + ")");
         final ByteBuffer encodedMessage;
         try {
@@ -2378,7 +2177,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert Thread.holdsLock(this);
         assert this.checkState();
         if (this.role == null) {
-            if (this.log.isDebugEnabled())
+            if (this.logger.isDebugEnabled())
                 this.debug("rec'd " + msg + " rec'd in shutdown state; ignoring");
             return;
         }
@@ -2411,7 +2210,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Update sender's protocol version
         if (protocolVersion != -1) {
             final Integer previousVersion = this.protocolVersionMap.put(peer, protocolVersion);
-            if (!((Integer)protocolVersion).equals(previousVersion) && this.log.isDebugEnabled())
+            if (!((Integer)protocolVersion).equals(previousVersion) && this.logger.isDebugEnabled())
                 this.debug("set protocol encoding version for peer \"" + peer + "\" to " + protocolVersion);
         }
 
@@ -2420,7 +2219,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // First check with current role; in some special cases we ignore this
             if (!this.role.mayAdvanceCurrentTerm(msg)) {
-                if (this.log.isTraceEnabled()) {
+                if (this.logger.isTraceEnabled()) {
                     this.trace("rec'd " + msg + " with term " + msg.getTerm() + " > " + this.currentTerm + " from \""
                       + peer + "\" but current role says to ignore it");
                 }
@@ -2428,7 +2227,7 @@ public class RaftKVDatabase implements KVDatabase {
             }
 
             // Revert to follower
-            if (this.log.isDebugEnabled()) {
+            if (this.logger.isDebugEnabled()) {
                 this.debug("rec'd " + msg.getClass().getSimpleName() + " with term " + msg.getTerm() + " > "
                   + this.currentTerm + " from \"" + peer + "\", updating term and "
                   + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
@@ -2440,7 +2239,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Is sender's term too low? Ignore it (except ping request)
         if (msg.getTerm() < this.currentTerm && !(msg instanceof PingRequest)) {
-            if (this.log.isDebugEnabled()) {
+            if (this.logger.isDebugEnabled()) {
                 this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
                   + " from \"" + peer + "\" at " + address + ", ignoring");
             }
@@ -2448,7 +2247,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         // Debug
-        if (this.log.isTraceEnabled())
+        if (this.logger.isTraceEnabled())
             this.trace("RECV " + msg + " in " + this.role + " from " + address + " (protocol version " + protocolVersion + ")");
 
         // Handle message
@@ -2748,43 +2547,43 @@ public class RaftKVDatabase implements KVDatabase {
 // Logging
 
     void trace(String msg, Throwable t) {
-        this.log.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+        this.logger.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
     void trace(String msg) {
-        this.log.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+        this.logger.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
     void debug(String msg, Throwable t) {
-        this.log.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+        this.logger.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
     void debug(String msg) {
-        this.log.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+        this.logger.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
     void info(String msg, Throwable t) {
-        this.log.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+        this.logger.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
     void info(String msg) {
-        this.log.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+        this.logger.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
     void warn(String msg, Throwable t) {
-        this.log.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+        this.logger.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
     void warn(String msg) {
-        this.log.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+        this.logger.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
     void error(String msg, Throwable t) {
-        this.log.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+        this.logger.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
     void error(String msg) {
-        this.log.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+        this.logger.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
     void perfLog(String msg) {
@@ -2795,7 +2594,7 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     boolean isPerfLogEnabled() {
-        return this.performanceLogging ? this.log.isInfoEnabled() : this.log.isDebugEnabled();
+        return this.performanceLogging ? this.logger.isInfoEnabled() : this.logger.isDebugEnabled();
     }
 
 // Debug/Sanity Checking
@@ -2812,18 +2611,17 @@ public class RaftKVDatabase implements KVDatabase {
     private void doCheckState() {
         assert Thread.holdsLock(this);
 
+        // Check log state
+        assert this.log.checkState(this.role != null);
+
         // Handle stopped state
         if (this.role == null) {
             assert this.random == null;
             assert this.currentTerm == 0;
             assert this.currentTermStartTime == 0;
             assert this.commitIndex == 0;
-            assert this.lastAppliedTerm == 0;
-            assert this.lastAppliedIndex == 0;
-            assert this.lastAppliedConfig == null;
             assert this.currentConfig == null;
             assert this.clusterId == 0;
-            assert this.raftLog.isEmpty();
             assert this.logDirChannel == null;
             assert this.serviceExecutor == null;
             assert this.keyWatchTracker == null;
@@ -2845,41 +2643,21 @@ public class RaftKVDatabase implements KVDatabase {
 
         assert this.currentTerm >= 0;
         assert this.commitIndex >= 0;
-        assert this.lastAppliedTerm >= 0;
-        assert this.lastAppliedIndex >= 0;
-        assert this.lastAppliedConfig != null;
         assert this.currentConfig != null;
 
-        assert this.currentTerm >= this.lastAppliedTerm;
-        assert this.commitIndex >= this.lastAppliedIndex;
-        assert this.commitIndex <= this.lastAppliedIndex + this.raftLog.size();
+        assert this.currentTerm >= this.log.getLastAppliedTerm();
+        assert this.commitIndex >= this.log.getLastAppliedIndex();
+        assert this.commitIndex <= this.log.getLastAppliedIndex() + this.log.getNumUnapplied();
         assert this.keyWatchIndex <= this.commitIndex;
-        long index = this.lastAppliedIndex;
-        long term = this.lastAppliedTerm;
-        for (LogEntry logEntry : this.raftLog) {
-            assert logEntry.getIndex() == index + 1;
-            assert logEntry.getTerm() >= term;
-            index = logEntry.getIndex();
-            term = logEntry.getTerm();
-        }
 
         // Check configured vs. unconfigured
         if (this.isConfigured()) {
             assert this.clusterId != 0;
             assert this.currentTerm > 0;
-            assert this.lastAppliedTerm >= 0;
-            assert this.lastAppliedIndex >= 0;
             assert !this.currentConfig.isEmpty();
-            assert this.currentConfig.equals(this.buildCurrentConfig());
-            assert this.getLastLogTerm() > 0;
-            assert this.getLastLogIndex() > 0;
-        } else {
-            assert this.lastAppliedTerm == 0;
-            assert this.lastAppliedIndex == 0;
-            assert this.lastAppliedConfig.isEmpty();
+            assert this.currentConfig.equals(this.log.buildCurrentConfig());
+        } else
             assert this.currentConfig.isEmpty();
-            assert this.raftLog.isEmpty();
-        }
 
         // Check role
         assert this.role.checkState();
@@ -2890,7 +2668,7 @@ public class RaftKVDatabase implements KVDatabase {
         for (RaftKVTransaction tx : this.openTransactions.values()) {
             try {
                 assert !tx.getState().equals(TxState.CLOSED);
-                tx.checkStateOpen(this.currentTerm, this.getLastLogIndex(), this.commitIndex);
+                tx.checkStateOpen(this.currentTerm, this.log.getLastIndex(), this.commitIndex);
                 this.role.checkTransaction(tx);
             } catch (AssertionError e) {
                 throw new AssertionError("checkState() failure for " + tx, e);
@@ -2902,4 +2680,3 @@ public class RaftKVDatabase implements KVDatabase {
         return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
     }
 }
-

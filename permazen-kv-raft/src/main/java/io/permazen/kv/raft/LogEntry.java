@@ -7,6 +7,7 @@ package io.permazen.kv.raft;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
 
 import java.io.BufferedInputStream;
@@ -19,9 +20,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.dellroad.stuff.io.ByteBufferInputStream;
 
 /**
  * Represents one unapplied Raft log entry.
@@ -41,11 +45,11 @@ public class LogEntry {
     private final Timestamp createTime = new Timestamp();
     private final long term;
     private final long index;
-    private final Writes writes;
     private final String[] configChange;
     private final long fileSize;
     private final File file;
 
+    private Writes writes;
     private ByteBuffer content;
 
 // Constructors
@@ -107,9 +111,38 @@ public class LogEntry {
      * Get the {@link Writes} associated with this entry.
      *
      * @return transaction writes
+     * @throws IllegalStateException if this log entry has already been applied to the state machine
      */
     Writes getWrites() {
+        Preconditions.checkState(this.writes != null, "entry already applied to state machine");
         return this.writes;
+    }
+
+    /**
+     * Get the {@link Mutations} associated with this entry.
+     *
+     * <p>
+     * Unlike {@link #getWrites}, which is only guaranteed to be available prior to the application of this
+     * log entry to the state machine, the {@link Mutations} (usable for conflict checking) are always available.
+     *
+     * @return transaction mutations
+     */
+    Mutations getMutations() throws IOException {
+        if (this.writes != null)
+            return this.writes;
+        return Writes.deserializeOnline(new ByteBufferInputStream(this.getContent()));
+    }
+
+    /**
+     * Discard this instance's {@link Writes}.
+     *
+     * <p>
+     * This is done after it has been applied to the state machine to save memory.
+     * @see #getMutations
+     * @see #getWrites
+     */
+    void discardWrites() {
+        this.writes = null;
     }
 
     /**
@@ -169,22 +202,40 @@ public class LogEntry {
     }
 
     /**
+     * Parse a log file name, extracting the log term and index.
+     *
+     * @param fileName file name
+     * @return array of length two containing {@code [index, term]}, or null if parse fails
+     * @throws IllegalArgumentException if {@code fileName} is null
+     */
+    public static long[] parseFileName(String fileName) {
+        Preconditions.checkArgument(fileName != null, "null fileName");
+        final Matcher matcher = LOG_FILE_PATTERN.matcher(fileName);
+        if (!matcher.matches())
+            return null;
+        final long index = Long.parseLong(matcher.group(1), 10);
+        final long term = Long.parseLong(matcher.group(2), 10);
+        return new long[] { index, term };
+    }
+
+    /**
      * Create a {@link LogEntry} from the specified file.
      *
      * @param file log file
+     * @param loadWrites true to load {@link Writes} into memory, false to skip
      * @return {@link LogEntry} instance, or null if {@code file} or {@code file}'s name is invalid
      * @throws NullPointerException if {@code file} is null
      * @throws IOException if an I/O error occurs
      * @throws IOException if file contains invalid data
      */
-    static LogEntry fromFile(File file) throws IOException {
+    static LogEntry fromFile(File file, boolean loadWrites) throws IOException {
 
         // Parse file name
-        final Matcher matcher = LOG_FILE_PATTERN.matcher(file.getName());
-        if (!matcher.matches())
+        final long[] parse = LogEntry.parseFileName(file.getName());
+        if (parse == null)
             throw new IOException("invalid log file name `" + file.getName() + "'");
-        final long index = Long.parseLong(matcher.group(1), 10);
-        final long term = Long.parseLong(matcher.group(2), 10);
+        final long index = parse[0];
+        final long term = parse[1];
 
         // Get file length
         final long fileLength = Util.getLength(file);
@@ -192,7 +243,7 @@ public class LogEntry {
         // Decode log entry
         final Data data;
         try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file), 4096)) {
-            data = LogEntry.readData(input);
+            data = LogEntry.readData(input, loadWrites);
         }
 
         // Done
@@ -203,19 +254,32 @@ public class LogEntry {
      * Read log entry data from the specified input.
      *
      * @param input input stream
+     * @param loadWrites true to load {@link Writes} into memory, false to skip
      * @return log entry data
      * @throws IOException if an I/O error occurs
      * @throws IOException if file contains invalid data
      */
-    static Data readData(InputStream input) throws IOException {
+    static Data readData(InputStream input, boolean loadWrites) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
 
-        // Get writes
+        // Get (or skip over) writes
         final Writes writes;
         try {
-            writes = Writes.deserialize(input, true);
+            if (loadWrites)
+                writes = Writes.deserialize(input, true);                               // load writes
+            else {
+                final Mutations mutations = Writes.deserializeOnline(input);            // skip over writes
+                LogEntry.exhaust(mutations.getRemoveRanges());
+                LogEntry.exhaust(mutations.getPutPairs());
+                LogEntry.exhaust(mutations.getAdjustPairs());
+                writes = null;
+            }
         } catch (IllegalArgumentException e) {
             throw new IOException("log entry input contains invalid content", e);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException)
+                throw (IOException)e.getCause();
+            throw e;
         }
 
         // Get config change, if any
@@ -260,6 +324,11 @@ public class LogEntry {
         dataOutput.flush();
     }
 
+    private static void exhaust(Iterable<?> iterable) {
+        for (Iterator<?> i = iterable.iterator(); i.hasNext(); )
+            i.next();
+    }
+
 // Object
 
     @Override
@@ -284,11 +353,10 @@ public class LogEntry {
         /**
          * Constructor.
          *
-         * @param writes key/value mutations
+         * @param writes key/value mutations, or null for none
          * @param configChange cluster config change (identity, address), or null for none
          */
         Data(Writes writes, String[] configChange) {
-            Preconditions.checkArgument(writes != null, "null writes");
             Preconditions.checkArgument(configChange == null || (configChange.length == 2 && configChange[0] != null));
             this.writes = writes.immutableSnapshot();
             this.configChange = configChange;
@@ -303,4 +371,3 @@ public class LogEntry {
         }
     }
 }
-

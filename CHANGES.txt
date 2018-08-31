@@ -1,5 +1,6 @@
 Version Next
 
+    - Improved Raft performance with under heavy load and/or slow followers
     - Minor performance improvement in calculating inverse cacades
 
 Version 4.1.1 Released June 5, 2018

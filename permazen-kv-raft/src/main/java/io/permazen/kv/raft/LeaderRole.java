@@ -56,10 +56,10 @@ public class LeaderRole extends Role {
     private final Service updateLeaderCommitIndexService = new Service(this, "update commitIndex", this::updateLeaderCommitIndex);
     private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout", this::updateLeaseTimeout);
     private final Service updateKnownFollowersService = new Service(this, "update known followers", this::updateKnownFollowers);
+    private final Service discardAppliedLogEntryWritesService = new Service(this,
+      "discard applied log entry writes", this::discardAppliedLogEntryWrites);
 
     // Timers
-    private final Timer checkApplyTimer = new Timer(this.raft, "check apply entries",
-      new Service(this, "check apply entries", this::checkApplyEntries));
     private final Timer timestampScrubTimer = new Timer(this.raft, "scrub timestamps",
       new Service(this, "scrub timestamps", this::scrubTimestamps));
 
@@ -164,10 +164,6 @@ public class LeaderRole extends Role {
         // Rebase transactions
         this.rebaseTransactions(false);
 
-        // Start check apply timer
-        if (!this.raft.raftLog.isEmpty())
-            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
-
         // Start timestamp scrub timer
         this.timestampScrubTimer.timeoutAfter(TIMESTAMP_SCRUB_INTERVAL);
     }
@@ -177,7 +173,6 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         this.followerMap.values()
           .forEach(Follower::cleanup);
-        this.checkApplyTimer.cancel();
         this.timestampScrubTimer.cancel();
         super.shutdown();
     }
@@ -198,90 +193,34 @@ public class LeaderRole extends Role {
         });
     }
 
-    @Override
-    void applyCommittedLogEntries() {
+    /**
+     * Discard {@link Writes} of already-applied log entries to save memory.
+     *
+     * <p>
+     * This should be invoked:
+     * <ul>
+     *  <li>After a follower's {@linkplain Follower#getMatchIndex match index} has advanced</li>
+     *  <li>After a follower's sync status has changed</li>
+     *  <li>After the set of known followers has changed</li>
+     * </ul>
+     */
+    private void discardAppliedLogEntryWrites() {
         assert Thread.holdsLock(this.raft);
-        super.applyCommittedLogEntries();
+        this.raft.log.discardWritesThroughIndex(this.calculateDiscardWritesIndex());
+    }
 
-        // Stop check apply timer if there are none left
-        if (this.raft.raftLog.isEmpty() && this.checkApplyTimer.isRunning())
-            this.checkApplyTimer.cancel();
+    private long calculateDiscardWritesIndex() {
+        long discardWritesIndex = this.raft.log.getLastAppliedIndex();
+        for (Follower follower : this.followerMap.values()) {
+            if (follower.isSynced())
+                discardWritesIndex = Math.min(discardWritesIndex, follower.getMatchIndex());
+        }
+        return discardWritesIndex;
     }
 
     @Override
-    boolean roleMayApplyLogEntry(LogEntry logEntry) {
-        assert Thread.holdsLock(this.raft);
-
-        // If any snapshots are in progress, we don't want to apply any log entries with index greater than the snapshot's
-        // index, because then we'd lose the ability to update the follower with that log entry, and as a result just have
-        // to send a snapshot again. However, we impose a limit on how long we'll wait for a slow follower.
-        for (Follower follower : this.followerMap.values()) {
-            final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-            if (snapshotTransmit == null)
-                continue;
-            if (snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()) {
-                final long age = snapshotTransmit.getAge();
-                if (age < RaftKVDatabase.MAX_SNAPSHOT_TRANSMIT_AGE) {
-                    if (this.raft.isPerfLogEnabled()) {
-                        this.perfLog("delaying application of " + logEntry + " because of in-progress snapshot install of "
-                          + snapshotTransmit.getBaseEntry() + " to " + follower);
-                    }
-                    return false;
-                }
-                if (this.raft.isPerfLogEnabled()) {
-                    this.perfLog("allowing log entry " + logEntry + " to be applied despite " + follower
-                      + " slow (" + age + "ms) snapshot install of " + snapshotTransmit.getBaseEntry());
-                }
-            }
-        }
-
-        // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time).
-        // If the follower appears to be offline, don't bother waiting.
-        // If the log entry is really old, apply it regardless of follower state.
-        final int maxLogEntryAge = this.raft.maxFollowerAckHeartbeats * this.raft.heartbeatTimeout;
-        final Timestamp minLeaderTimestamp = new Timestamp().offset(-maxLogEntryAge);
-        Follower tooSlowFollower = null;
-        for (Follower follower : this.followerMap.values()) {
-
-            // Has this follower acknowledged reciept of the log entry?
-            // If so, then the follower has already rebased any rebasable transactions.
-            if (follower.getMatchIndex() >= logEntry.getIndex())
-                continue;
-
-            // If we haven't heard from this follower in a while, don't bother waiting for it
-            final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
-            if (leaderTimestamp == null || leaderTimestamp.compareTo(minLeaderTimestamp) <= 0)
-                continue;
-
-            // Is the log entry really old? Allow it to be applied despite this slow follower
-            if (logEntry.getAge() >= maxLogEntryAge) {
-                tooSlowFollower = follower;
-                continue;
-            }
-
-            // Wait for follower to do so before applying to state machine
-            if (logEntry.getAge() >= this.raft.heartbeatTimeout && this.raft.isPerfLogEnabled()) {
-                this.perfLog("delaying application of " + logEntry + " (age "
-                  + logEntry.getAge() + " < " + maxLogEntryAge + ") because of slow " + follower);
-            }
-            return false;
-        }
-        if (tooSlowFollower != null && this.raft.isPerfLogEnabled()) {
-            this.perfLog("allowing log entry " + logEntry + " age " + logEntry.getAge() + "ms >= " + maxLogEntryAge
-              + "ms to be applied even though slow " + tooSlowFollower + " has not yet ack'd it");
-        }
-
-        // OK
-        return true;
-    }
-
-    // We have to periodically check if we can apply log entries, because the condition is time-dependent
-    private void checkApplyEntries() {
-        assert Thread.holdsLock(this.raft);
-        this.raft.requestService(this.checkWaitingTransactionsService);
-        this.raft.requestService(this.applyCommittedLogEntriesService);
-        if (!this.raft.raftLog.isEmpty())
-            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
+    boolean mayDiscardWrites(LogEntry logEntry) {
+        return logEntry.getIndex() <= this.calculateDiscardWritesIndex();
     }
 
     /**
@@ -304,13 +243,13 @@ public class LeaderRole extends Role {
         final int startingCount = this.raft.isClusterMember() ? 1 : 0;                  // count myself, if member
         long maxCommitIndex = this.raft.commitIndex;
         int commitCount = -1;
-        for (long index = this.raft.commitIndex + 1; index <= this.raft.getLastLogIndex(); index++) {
+        for (long index = this.raft.commitIndex + 1; index <= this.raft.log.getLastIndex(); index++) {
 
             // Count the number of nodes (possibly including myself) that have a copy of the log entry at index
             final int count = startingCount + this.countFollowersWithLogEntry(index);
 
             // The log entry term must match my current term (exception: unless every node has it)
-            final long term = this.raft.getLogTermAtIndex(index);
+            final long term = this.raft.log.getTermAtIndex(index);
             if (count < totalCount && term != this.raft.currentTerm)
                 continue;
 
@@ -332,7 +271,7 @@ public class LeaderRole extends Role {
             // Update index
             if (this.log.isDebugEnabled()) {
                 this.debug("advancing commit index from " + this.raft.commitIndex + " -> " + maxCommitIndex + " based on "
-                  + commitCount + "/" + totalCount + " nodes having received " + this.raft.getLogEntryAtIndex(maxCommitIndex));
+                  + commitCount + "/" + totalCount + " nodes having received " + this.raft.log.getEntryAtIndex(maxCommitIndex));
             }
             this.raft.commitIndex = maxCommitIndex;
 
@@ -355,7 +294,7 @@ public class LeaderRole extends Role {
     }
 
     private int countFollowersWithLogEntry(long index) {
-        assert index <= this.raft.getLastLogIndex();
+        assert index <= this.raft.log.getLastIndex();
 
         // Count the number of followers (who are also cluster members) that have a copy of the log entry at the specified index
         int nodesWithLogEntry = 0;
@@ -509,7 +448,7 @@ public class LeaderRole extends Role {
         // Add new followers
         for (String peer : adds) {
             final String address = this.raft.currentConfig.get(peer);
-            final Follower follower = new Follower(this, peer, address, this.raft.getLastLogIndex());
+            final Follower follower = new Follower(this, peer, address, this.raft.log.getLastIndex());
             if (this.log.isDebugEnabled())
                 this.debug("adding new follower \"" + peer + "\" at " + address);
             this.followerMap.put(peer, follower);
@@ -554,10 +493,10 @@ public class LeaderRole extends Role {
         // If follower has an in-progress snapshot that has become too stale, abort it
         final String peer = follower.getIdentity();
         SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-        if (snapshotTransmit != null && snapshotTransmit.getSnapshotIndex() < this.raft.lastAppliedIndex) {
+        if (snapshotTransmit != null && snapshotTransmit.getSnapshotIndex() < this.raft.log.getLastAppliedIndex()) {
             if (this.raft.isPerfLogEnabled()) {
                 this.perfLog("aborting stale snapshot install for " + follower + ": snapshot index "
-                  + snapshotTransmit.getSnapshotIndex() + " < " + this.raft.lastAppliedIndex);
+                  + snapshotTransmit.getSnapshotIndex() + " < " + this.raft.log.getLastAppliedIndex());
             }
             follower.cancelSnapshotTransmit();
             follower.updateNow();
@@ -620,7 +559,7 @@ public class LeaderRole extends Role {
             // The effect is that we will pipeline updates to synchronized followers.
             if (follower.isSynced()
               && (follower.getLeaderCommit() != this.raft.commitIndex
-               || follower.getNextIndex() <= this.raft.getLastLogIndex()))
+               || follower.getNextIndex() <= this.raft.log.getLastIndex()))
                 waitForTimerToExpire = false;
 
             // Wait for timer to expire
@@ -637,13 +576,13 @@ public class LeaderRole extends Role {
         final long nextIndex = follower.getNextIndex();
 
         // If follower is too far behind, we must do a snapshot install
-        if (nextIndex <= this.raft.lastAppliedIndex) {
+        if (nextIndex <= this.raft.log.getLastAppliedIndex()) {
             final MostRecentView view = new MostRecentView(this.raft, this.raft.commitIndex);
             follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
               view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
             if (this.raft.isPerfLogEnabled()) {
                 this.perfLog("started snapshot install for out-of-date " + follower
-                  + " with nextIndex " + nextIndex + " <= " + this.raft.lastAppliedIndex);
+                  + " with nextIndex " + nextIndex + " <= " + this.raft.log.getLastAppliedIndex());
             }
             this.raft.requestService(follower.getUpdateService());
             return;
@@ -654,15 +593,15 @@ public class LeaderRole extends Role {
 
         // Send actual data if follower is synced and there is a log entry to send; otherwise, just send a probe
         final AppendRequest msg;
-        if (!follower.isSynced() || nextIndex > this.raft.getLastLogIndex()) {
+        if (!follower.isSynced() || nextIndex > this.raft.log.getLastIndex()) {
 
             // Create probe-only message
             msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-              this.leaseTimeout, this.raft.commitIndex, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1);
+              this.leaseTimeout, this.raft.commitIndex, this.raft.log.getTermAtIndex(nextIndex - 1), nextIndex - 1);
         } else {
 
             // Get log entry to send
-            final LogEntry logEntry = this.raft.getLogEntryAtIndex(nextIndex);
+            final LogEntry logEntry = this.raft.log.getEntryAtIndex(nextIndex);
 
             // If the log entry correspond's to follower's transaction, don't send the data because follower already has it.
             // But only do this optimization the first time, in case something goes wrong on the follower's end.
@@ -678,7 +617,7 @@ public class LeaderRole extends Role {
 
             // Create message
             msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-              this.leaseTimeout, this.raft.commitIndex, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1,
+              this.leaseTimeout, this.raft.commitIndex, this.raft.log.getTermAtIndex(nextIndex - 1), nextIndex - 1,
               logEntry.getTerm(), mutationData);
         }
 
@@ -688,7 +627,7 @@ public class LeaderRole extends Role {
         // Advance next index if a log entry was sent; we allow pipelining log entries when synchronized
         if (sent && !msg.isProbe()) {
             assert follower.isSynced();
-            follower.setNextIndex(Math.min(follower.getNextIndex(), this.raft.getLastLogIndex()) + 1);
+            follower.setNextIndex(Math.min(follower.getNextIndex(), this.raft.log.getLastIndex()) + 1);
         }
 
         // Update the leaderCommit we sent to the follower
@@ -713,7 +652,7 @@ public class LeaderRole extends Role {
 
         // Set commit info based on what we currently know as "up-to-date"
         if (!tx.hasCommitInfo()) {
-            tx.setCommitInfo(this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
+            tx.setCommitInfo(this.raft.log.getLastTerm(), this.raft.log.getLastIndex(), this.getCurrentCommitMinLeaseTimeout());
             this.checkCommittable(tx);
         }
     }
@@ -735,7 +674,7 @@ public class LeaderRole extends Role {
 
             // Set commit info based on what we currently know as "up-to-date" and proceed
             this.advanceReadyTransactionWithCommitInfo(tx,
-              this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), this.getCurrentCommitMinLeaseTimeout());
+              this.raft.log.getLastTerm(), this.raft.log.getLastIndex(), this.getCurrentCommitMinLeaseTimeout());
             return;
         }
 
@@ -787,13 +726,13 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
 
         // Rule #1: this leader must have committed at least one log entry in this term
-        assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
-        if (this.raft.getLogTermAtIndex(this.raft.commitIndex) < this.raft.currentTerm)
+        assert this.raft.commitIndex >= this.raft.log.getLastAppliedIndex();
+        if (this.raft.log.getTermAtIndex(this.raft.commitIndex) < this.raft.currentTerm)
             return false;
 
         // Rule #2: there must be no previous config change that is still uncommitted
-        for (int i = (int)(this.raft.commitIndex - this.raft.lastAppliedIndex) + 1; i < this.raft.raftLog.size(); i++) {
-            if (this.raft.raftLog.get(i).getConfigChange() != null)
+        for (long index = this.raft.commitIndex + 1; index <= this.raft.log.getLastIndex(); index++) {
+            if (this.raft.log.getEntryAtIndex(index).getConfigChange() != null)
                 return false;
         }
 
@@ -885,6 +824,7 @@ public class LeaderRole extends Role {
             this.raft.requestService(this.updateLeaderCommitIndexService);
             if (!this.raft.isClusterMember(follower.getIdentity()))
                 this.raft.requestService(this.updateKnownFollowersService);
+            this.raft.requestService(this.discardAppliedLogEntryWritesService);
         }
 
         // Check result and update follower's next index
@@ -898,6 +838,7 @@ public class LeaderRole extends Role {
                 this.perfLog("sync status of \"" + follower.getIdentity() + "\" changed -> "
                   + (!follower.isSynced() ? "not " : "") + "synced");
             }
+            this.raft.requestService(this.discardAppliedLogEntryWritesService);
             updateFollowerAgain = true;
         }
 
@@ -974,7 +915,7 @@ public class LeaderRole extends Role {
 
             // Send response with commit term+index set from our last log entry
             this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-              this.raft.currentTerm, msg.getTxId(), this.raft.getLastLogTerm(), this.raft.getLastLogIndex(),
+              this.raft.currentTerm, msg.getTxId(), this.raft.log.getLastTerm(), this.raft.log.getLastIndex(),
               minimumLeaseTimeout));
         } else {
             assert newLogEntry != null;
@@ -1085,10 +1026,9 @@ public class LeaderRole extends Role {
     @Override
     boolean checkState() {
         assert Thread.holdsLock(this.raft);
-        assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();
         for (Follower follower : this.followerMap.values()) {
-            assert follower.getNextIndex() <= this.raft.getLastLogIndex() + 1;
-            assert follower.getMatchIndex() <= this.raft.getLastLogIndex() + 1;
+            assert follower.getNextIndex() <= this.raft.log.getLastIndex() + 1;
+            assert follower.getMatchIndex() <= this.raft.log.getLastIndex() + 1;
             assert follower.getLeaderCommit() <= this.raft.commitIndex;
             assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;
         }
@@ -1114,8 +1054,8 @@ public class LeaderRole extends Role {
      */
     private long findMostRecentConfigChangeMatching(Predicate<String[]> predicate) {
         assert Thread.holdsLock(this.raft);
-        for (long index = this.raft.getLastLogIndex(); index > this.raft.lastAppliedIndex; index--) {
-            final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();
+        for (long index = this.raft.log.getLastIndex(); index > this.raft.log.getLastAppliedIndex(); index--) {
+            final String[] configChange = this.raft.log.getEntryAtIndex(index).getConfigChange();
             if (configChange != null && predicate.test(configChange))
                 return index;
         }
@@ -1151,8 +1091,10 @@ public class LeaderRole extends Role {
         final LogEntry logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
 
         // Update follower list if configuration changed
-        if (configChange != null)
+        if (configChange != null) {
             this.raft.requestService(this.updateKnownFollowersService);
+            this.raft.requestService(this.discardAppliedLogEntryWritesService);
+        }
 
         // Update commit index (this is only needed if config has changed, or in the single node case)
         if (configChange != null || this.followerMap.isEmpty())
@@ -1160,10 +1102,6 @@ public class LeaderRole extends Role {
 
         // Immediately update all up-to-date followers
         this.updateAllSynchronizedFollowersNow();
-
-        // Start check apply timer if not already running
-        if (!this.checkApplyTimer.isRunning())
-            this.checkApplyTimer.timeoutAfter(this.raft.heartbeatTimeout);
 
         // Done
         return logEntry;
@@ -1175,34 +1113,42 @@ public class LeaderRole extends Role {
      * @param baseTerm the term of the log entry on which the transaction is based
      * @param baseIndex the index of the log entry on which the transaction is based
      * @param reads reads performed by the transaction
+     * @param dumpDesc description used in conflict dump, or null for none
      * @return error message on failure, null for success
      */
-    private String checkConflicts(long baseTerm, long baseIndex, Reads reads, String dumpDescription) {
+    private String checkConflicts(long baseTerm, long baseIndex, Reads reads, String dumpDesc) {
         assert Thread.holdsLock(this.raft);
 
-        // Validate the index of the log entry on which the transaction is based
-        final long minIndex = this.raft.lastAppliedIndex;
-        final long maxIndex = this.raft.getLastLogIndex();
-        if (baseIndex < minIndex)
-            return "transaction is too old: base index " + baseIndex + " < last applied log index " + minIndex;
+        // Check if the base index is too high
+        final long maxIndex = this.raft.log.getLastIndex();
         if (baseIndex > maxIndex)
-            return "transaction is too new: base index " + baseIndex + " > most recent log index " + maxIndex;
+            return "transaction base index " + baseIndex + " > most recent log index " + maxIndex;
 
         // Validate the term of the log entry on which the transaction is based
-        final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);
-        if (baseTerm != actualBaseTerm) {
+        final long baseIndexActualTerm = this.raft.log.getTermAtIndexIfKnown(baseIndex);
+        if (baseIndexActualTerm == 0) {
+            return "transaction base index " + baseIndex + " < first index "
+              + this.raft.log.getFirstIndex() + " for which the term is known";
+        }
+        if (baseTerm != baseIndexActualTerm) {
             return "transaction is based on an overwritten log entry with index "
-              + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;
+              + baseIndex + " and term " + baseTerm + " != " + baseIndexActualTerm;
         }
 
         // Check for conflicts from intervening commits
         for (long index = baseIndex + 1; index <= maxIndex; index++) {
-            final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
-            if (reads.isConflict(logEntry.getWrites())) {
-                if (dumpDescription != null)
-                    this.dumpConflicts(reads, logEntry.getWrites(), dumpDescription + " fails due to conflicts with " + logEntry);
-                return "writes of committed transaction at index " + index
-                  + " conflict with transaction reads from transaction base index " + baseIndex;
+            final LogEntry logEntry = this.raft.log.getEntryAtIndexIfKnown(index);
+            assert logEntry != null;
+            try {
+                if (reads.isConflict(logEntry.getMutations())) {
+                    if (dumpDesc != null)
+                        this.dumpConflicts(reads, logEntry.getMutations(), dumpDesc + " fails due to conflicts with " + logEntry);
+                    return "writes of committed transaction at index " + index
+                      + " conflict with transaction reads from transaction base index " + baseIndex;
+                }
+            } catch (IOException e) {
+                this.error("error during conflict check", e);
+                return "error during conflict check: " + e;
             }
         }
 

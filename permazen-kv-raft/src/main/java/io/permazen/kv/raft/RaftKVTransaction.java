@@ -112,13 +112,12 @@ public class RaftKVTransaction implements KVTransaction {
       must have access to all log entries after the transaction's base term+index. If any of these have already been applied
       to the state machine, the leader has no choice but to return a retry error.
 
-   Actually, these issues also apply to followers, in the sense that they could become leaders at any time, but we don't
-   worry about optimizing that relatively rare case.
+   Actually, these issues also apply to followers, in the sense that they could become leaders at any time.
 
-   To address these issues, leaders wait until all followers acknowlegde receipt of a log entry before applying it to
-   their state machine. This clearly addresses the first issue above, but also the second, assuming message reordering
-   between nodes is unlikely: followers' LINEARIZABLE transactions are always based on their last received log entry, so
-   no commit request should have a base term+index less than what the follower has already acknowledged receiving.
+   To address these issues, leaders remember up to Log.MAX_APPLIED already-applied log entries. To save memory, we can discard
+   the associated Writes immediately (followers) or after all followers have received the log entry (leaders), because we
+   no longer need to create "MostRecentView" from these entries. Note that conflict detection is still possible, by reading
+   the mutations from disk (see LogEntry.getMutations()).
 
    Lock Order
    ----------
@@ -715,7 +714,7 @@ public class RaftKVTransaction implements KVTransaction {
     void setCommitInfo(final long commitTerm, final long commitIndex, final Timestamp commitLeaderLeaseTimeout) {
         assert Thread.holdsLock(this.raft);
         assert !this.hasCommitInfo();
-        if (this.raft.log.isTraceEnabled()) {
+        if (this.raft.logger.isTraceEnabled()) {
             this.raft.trace("setting commit to " + commitIndex + "t" + commitTerm
               + (commitLeaderLeaseTimeout != null ? "@" + commitLeaderLeaseTimeout : "") + " for " + this);
         }
@@ -773,7 +772,7 @@ public class RaftKVTransaction implements KVTransaction {
         assert Thread.holdsLock(this.raft);
         assert this.rebasable == (this.view.getReads() != null);
         if (this.rebasable) {
-            if (this.raft.log.isTraceEnabled())
+            if (this.raft.logger.isTraceEnabled())
                 this.raft.trace("stopping rebasing for " + this);
             this.raft.setHighPriority(this, false);     // if it's not longer rebasable, it can't be a victim of any conflicts
             this.view.disableReadTracking();
@@ -926,4 +925,3 @@ public class RaftKVTransaction implements KVTransaction {
         }
     }
 }
-

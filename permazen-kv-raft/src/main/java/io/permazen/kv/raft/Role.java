@@ -53,7 +53,7 @@ public abstract class Role {
 
     Role(RaftKVDatabase raft) {
         this.raft = raft;
-        this.log = this.raft.log;
+        this.log = this.raft.logger;
         assert Thread.holdsLock(this.raft);
     }
 
@@ -72,6 +72,7 @@ public abstract class Role {
 
     void setup() {
         assert Thread.holdsLock(this.raft);
+        this.raft.log.discardWritesThroughIndex(this.raft.log.getLastAppliedIndex());
         this.raft.requestService(this.checkReadyTransactionsService);
         this.raft.requestService(this.checkWaitingTransactionsService);
         this.raft.requestService(this.applyCommittedLogEntriesService);
@@ -134,28 +135,21 @@ public abstract class Role {
         // Sanity check
         assert Thread.holdsLock(this.raft);
         assert this.checkRebasableAndCommittableUpToDate();
+        assert this.raft.commitIndex >= this.raft.log.getLastAppliedIndex();
 
-        // Determine how many committed log entries we can apply to the state machine at this time
-        int numEntriesToApply = 0;
-        while (this.raft.lastAppliedIndex + numEntriesToApply < this.raft.commitIndex
-          && this.mayApplyLogEntry(this.raft.raftLog.get(numEntriesToApply)))
-            numEntriesToApply++;
-        final long maxAppliedIndex = this.raft.lastAppliedIndex + numEntriesToApply;
-        assert maxAppliedIndex <= this.raft.commitIndex;
-
-        // Apply committed log entries to the state machine
-        while (this.raft.lastAppliedIndex < maxAppliedIndex) {
+        // Apply all committed log entries to the state machine
+        while (this.raft.log.getLastAppliedIndex() < this.raft.commitIndex) {
 
             // Grab the first unwritten log entry
-            final LogEntry logEntry = this.raft.raftLog.get(0);
-            assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
+            final LogEntry logEntry = this.raft.log.getUnapplied().get(0);
+            assert logEntry.getIndex() == this.raft.log.getLastAppliedIndex() + 1;
 
             // Get the current config as of the log entry we're about to apply
-            final HashMap<String, String> logEntryConfig = new HashMap<>(this.raft.lastAppliedConfig);
+            final HashMap<String, String> logEntryConfig = new HashMap<>(this.raft.log.getLastAppliedConfig());
             logEntry.applyConfigChange(logEntryConfig);
 
             // Prepare combined Mutations containing prefixed log entry changes plus my own
-            final Writes logWrites = logEntry.getWrites();
+            final Mutations logWrites = logEntry.getWrites();
             final Writes myWrites = new Writes();
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_TERM_KEY, LongEncoder.encode(logEntry.getTerm()));
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_INDEX_KEY, LongEncoder.encode(logEntry.getIndex()));
@@ -187,7 +181,8 @@ public abstract class Role {
             if (this.log.isDebugEnabled())
                 this.debug("applying committed log entry " + logEntry + " to key/value store");
             try {
-                this.raft.kv.mutate(mutations, !this.raft.disableSync && this.raft.lastAppliedIndex == maxAppliedIndex);
+                this.raft.kv.mutate(mutations,
+                  !this.raft.disableSync && this.raft.log.getLastAppliedIndex() == this.raft.commitIndex);
             } catch (Exception e) {
                 if (e instanceof RuntimeException && e.getCause() instanceof IOException)
                     e = (IOException)e.getCause();
@@ -195,16 +190,15 @@ public abstract class Role {
                 break;
             }
 
-            // Update in-memory state
-            assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
-            this.raft.incrementLastAppliedIndex(logEntry.getTerm());
-            logEntry.applyConfigChange(this.raft.lastAppliedConfig);
-            assert this.raft.currentConfig.equals(this.raft.buildCurrentConfig());
-
-            // Delete the log entry
-            this.raft.raftLog.remove(0);
-            this.raft.deleteFile(logEntry.getFile(), "applied log file");
+            // Update log
+            this.raft.log.applyNextLogEntry();
+            assert this.raft.currentConfig.equals(this.raft.log.buildCurrentConfig());
         }
+    }
+
+    boolean mayDiscardWrites(LogEntry logEntry) {
+        assert logEntry.getIndex() <= this.raft.log.getLastAppliedIndex();
+        return true;
     }
 
     // Assertion check
@@ -218,7 +212,7 @@ public abstract class Role {
     boolean checkRebasableAndCommittableUpToDate(RaftKVTransaction tx) {
 
         // A rebasable transactions should be fully rebased
-        assert !tx.isRebasable() || tx.getBaseIndex() == this.raft.getLastLogIndex() : "rebasable check failed for " + tx;
+        assert !tx.isRebasable() || tx.getBaseIndex() == this.raft.log.getLastIndex() : "rebasable check failed for " + tx;
 
         // A committable transaction should be marked as such
         if (!tx.isCommittable()) {
@@ -228,46 +222,6 @@ public abstract class Role {
                 // ok - it's not committable because it's broken
             }
         }
-        return true;
-    }
-
-    /**
-     * Determine whether the given log entry may be applied to the state machine.
-     * This method can assume that the log entry is already committed.
-     *
-     * @param logEntry log entry to apply
-     */
-    final boolean mayApplyLogEntry(LogEntry logEntry) {
-        assert Thread.holdsLock(this.raft);
-
-        // Are we running out of memory, or keeping around too many log entries? If so, go ahead no matter what the subclass says.
-        if (this.raft.raftLog.size() > this.raft.maxUnappliedLogEntries) {
-            if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("allowing log entry " + logEntry + " to be applied because log length "
-                  + this.raft.raftLog.size() + " > " + this.raft.maxUnappliedLogEntries);
-            }
-            return true;
-        }
-        final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
-        if (logEntryMemoryUsage > this.raft.maxUnappliedLogMemory) {
-            if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("allowing log entry " + logEntry + " to be applied because memory usage "
-                  + logEntryMemoryUsage + " > " + this.raft.maxUnappliedLogMemory);
-            }
-            return true;
-        }
-
-        // Check with subclass
-        return this.roleMayApplyLogEntry(logEntry);
-    }
-
-    /**
-     * Role-specific hook to determine whether the given log entry should be applied to the state machine.
-     * This method can assume that the log entry is already committed.
-     *
-     * @param logEntry log entry to apply
-     */
-    boolean roleMayApplyLogEntry(LogEntry logEntry) {
         return true;
     }
 
@@ -286,8 +240,8 @@ public abstract class Role {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
-        assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
-        assert this.raft.commitIndex <= this.raft.lastAppliedIndex + this.raft.raftLog.size();
+        assert this.raft.commitIndex >= this.raft.log.getLastAppliedIndex();
+        assert this.raft.commitIndex <= this.raft.log.getLastIndex();
         assert this.raft.keyWatchIndex <= this.raft.commitIndex;
 
         // If nobody is watching, don't bother
@@ -296,12 +250,12 @@ public abstract class Role {
 
         // If we have recevied a snapshot install, we may not be able to tell which keys have changed since last notification;
         // in that case, trigger all key watches; otherwise, trigger the keys affected by newly committed log entries
-        if (this.raft.keyWatchIndex < this.raft.lastAppliedIndex) {
+        if (this.raft.keyWatchIndex < this.raft.log.getLastAppliedIndex()) {
             this.raft.keyWatchTracker.triggerAll();
             this.raft.keyWatchIndex = this.raft.commitIndex;
         } else {
             while (this.raft.keyWatchIndex < this.raft.commitIndex)
-                this.raft.keyWatchTracker.trigger(this.raft.getLogEntryAtIndex(++this.raft.keyWatchIndex).getWrites());
+                this.raft.keyWatchTracker.trigger(this.raft.log.getEntryAtIndex(++this.raft.keyWatchIndex).getWrites());
         }
     }
 
@@ -524,21 +478,18 @@ public abstract class Role {
             return false;
 
         // Has the transaction's commit log entry been added yet?
-        final long lastIndex = this.raft.getLastLogIndex();
+        final long lastIndex = this.raft.log.getLastIndex();
         if (commitIndex > lastIndex)
             return false;
 
         // Compare commit term to the actual term of the commit log entry
-        final long commitIndexActualTerm = this.raft.getLogTermAtIndexIfKnown(commitIndex);
+        final long commitIndexActualTerm = this.raft.log.getTermAtIndexIfKnown(commitIndex);
         if (commitIndexActualTerm == 0) {
 
-            // The commit log entry has already been applied to the state machine and its term forgotten.
-            // This can happen if we lose contact and by the time we're back the log entry has
-            // already been applied to the state machine on some leader and that leader sent
-            // us an InstallSnapshot message. We don't know whether it actually got committed
+            // The commit log entry has already been forgotten. We don't know whether it actually got committed
             // or not, so the transaction must be retried.
             throw new RetryTransactionException(tx, "commit index " + commitIndex
-              + " < last applied log index " + this.raft.lastAppliedIndex);
+              + " < first index " + this.raft.log.getFirstIndex() + " for which the term is known");
         }
 
         // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
@@ -621,13 +572,13 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         assert tx.isRebasable();
         assert tx.getFailure() == null;
-        assert tx.getBaseIndex() >= this.raft.lastAppliedIndex;
+        assert tx.getBaseIndex() >= this.raft.log.getLastAppliedIndex();
         assert !tx.hasCommitInfo() || tx.getCommitIndex() > tx.getBaseIndex();
         assert !tx.hasCommitInfo() || !tx.addsLogEntry();
 
         // Anything to do?
         long baseIndex = tx.getBaseIndex();
-        final long lastIndex = this.raft.getLastLogIndex();
+        final long lastIndex = this.raft.log.getLastIndex();
         if (baseIndex == lastIndex)
             return;
 
@@ -638,7 +589,7 @@ public abstract class Role {
             while (baseIndex < lastIndex) {
 
                 // Check for conflicts
-                final LogEntry logEntry = this.raft.getLogEntryAtIndex(++baseIndex);
+                final LogEntry logEntry = this.raft.log.getEntryAtIndex(++baseIndex);
                 assert !skipConflictCheck || !tx.view.getReads().isConflict(logEntry.getWrites());
                 if (!skipConflictCheck && tx.view.getReads().isConflict(logEntry.getWrites())) {
                     if (this.log.isDebugEnabled())
@@ -659,7 +610,7 @@ public abstract class Role {
             }
 
             // Update transaction
-            final long baseTerm = this.raft.getLogTermAtIndex(baseIndex);
+            final long baseTerm = this.raft.log.getTermAtIndex(baseIndex);
             if (this.log.isDebugEnabled()) {
                 this.debug("rebased " + tx + " from " + tx.getBaseIndex() + "t" + tx.getBaseTerm()
                   + " -> " + baseIndex + "t" + baseTerm);
@@ -689,7 +640,7 @@ public abstract class Role {
             this.checkCommittable(tx);
     }
 
-    void dumpConflicts(Reads reads, Writes writes, String description) {
+    void dumpConflicts(Reads reads, Mutations writes, String description) {
         final StringBuilder buf = new StringBuilder();
         buf.append(description).append(':');
         for (String conflict : reads.getConflicts(writes))
@@ -838,9 +789,8 @@ public abstract class Role {
         assert Thread.holdsLock(this.raft);
         return this.getClass().getSimpleName()
           + "[term=" + this.raft.currentTerm
-          + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
+          + ",applied=" + this.raft.log.getLastAppliedIndex() + "t" + this.raft.log.getLastAppliedTerm()
           + ",commit=" + this.raft.commitIndex
-          + ",log=" + this.raft.raftLog
           + "]";
     }
 }

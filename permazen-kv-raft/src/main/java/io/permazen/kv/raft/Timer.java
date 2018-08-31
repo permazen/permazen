@@ -35,7 +35,7 @@ class Timer {
         assert name != null;
         assert service != null;
         this.raft = raft;
-        this.log = this.raft.log;
+        this.log = this.raft.logger;
         this.name = name;
         this.service = service;
     }
