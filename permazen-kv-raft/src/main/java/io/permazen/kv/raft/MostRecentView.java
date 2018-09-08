@@ -35,19 +35,18 @@ class MostRecentView {
         // Sanity check
         assert raft != null;
         assert Thread.holdsLock(raft);
-        assert maxIndex >= -1;
+        assert maxIndex >= 0;
 
         // Grab a snapshot of the key/value store
         this.snapshot = raft.kv.snapshot();
 
-        // Create a view of just the state machine keys and values and successively layer unapplied log entries
-        // If we require a committed view, then stop when we get to the first uncomitted log entry
+        // Create a view of just the state machine keys and values and successively layer unapplied log entries up to maxIndex
         KVStore kview = PrefixKVStore.create(snapshot, raft.getStateMachinePrefix());
         this.config = new HashMap<>(raft.log.getLastAppliedConfig());
         long viewIndex = raft.log.getLastAppliedIndex();
         long viewTerm = raft.log.getLastAppliedTerm();
         for (LogEntry logEntry : raft.log.getUnapplied()) {
-            if (maxIndex != -1 && logEntry.getIndex() > maxIndex)
+            if (logEntry.getIndex() > maxIndex)
                 break;
             final Writes writes = logEntry.getWrites();
             if (!writes.isEmpty())

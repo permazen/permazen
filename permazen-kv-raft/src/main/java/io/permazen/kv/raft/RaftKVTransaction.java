@@ -49,6 +49,9 @@ public class RaftKVTransaction implements KVTransaction {
    When a transaction is created, a MutableView is setup using the log entry corresponding to the transaction's base
    term+index as the underlying read-only data. The transaction's consistency determines whether this log entry is
    the last log entry (LINEARIZABLE, EVENTUAL, UNCOMMITTED) or the last committed log entry (EVENTUAL_COMMITTED).
+   In the former case, if the current unapplied log has more than MAX_MUTABLE_VIEW_DEPTH entries, we will choose the
+   log entry that is MAX_MUTABLE_VIEW_DEPTH from the last applied log entry, to limit the performance degradation
+   caused by multiple nested MutableView's.
 
    For non-LINEARIZABLE transactions, the commit term+index can always be determined immediately: for EVENTUAL and
    EVENTUAL_COMMITTED, it is just the base log entry; for UNCOMMITTED, both values are zero. Therefore, UNCOMMITTED
@@ -59,6 +62,7 @@ public class RaftKVTransaction implements KVTransaction {
    the transaction's view up-to-date. This is called "rebasing" the transaction. The rebase operation can fail due
    to read/write conflicts, whereby a newly added log entry mutates a key that has already been read by the transaction.
    If such a conflict is detected, the transaction must retry because it has seen what is now out-of-date information.
+   On leaders, if a conflict occurs when rebasing a high priority transaction, the other transaction fails instead.
 
    For LINEARIZABLE transactions, the leader must be consulted (via CommitRequest) to determine the commit term+index.
    If the transaction is read-only, the commit term+index is taken from the leader's last log entry at the time the
@@ -105,12 +109,13 @@ public class RaftKVTransaction implements KVTransaction {
 
    For leaders, the situation is more complicated. Applying committed log entries too aggressively can cause these issues:
 
-    o If some follower has not received a log entry, but the leader has applied that log entry to its state machine, then
-      the only way the follower can be synchronized is via InstallSnapshot (i.e., full state machine dump), which is costly.
+    o If some follower has not received a log entry, but the leader has applied that log entry to its state machine and
+      discarded it, then the only way the follower can be synchronized is via InstallSnapshot (i.e., full state machine dump),
+      which is costly.
 
     o In order to detect conflicts in a mutating LINEARIZABLE transaction received in a follower's CommitRequest, a leader
       must have access to all log entries after the transaction's base term+index. If any of these have already been applied
-      to the state machine, the leader has no choice but to return a retry error.
+      to the state machine and discarded, the leader has no choice but to return a retry error.
 
    Actually, these issues also apply to followers, in the sense that they could become leaders at any time.
 

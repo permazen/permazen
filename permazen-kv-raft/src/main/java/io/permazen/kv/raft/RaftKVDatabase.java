@@ -365,6 +365,7 @@ public class RaftKVDatabase implements KVDatabase {
     static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
     static final int MAX_APPLIED_ENTRIES = 256;                         // how many already-applied log entries to keep around
+    static final int MAX_MUTABLE_VIEW_DEPTH = 20;                       // max depth for a stack of MutableView's
 
     // File prefixes and suffixes
     static final String TX_FILE_PREFIX = "tx-";
@@ -1475,8 +1476,10 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Base transaction on the most recent log entry (if !committed). This is itself a form of optimistic locking: we assume
         // that the most recent log entry has a high probability of being committed (in the Raft sense), which is of course
-        // required in order to commit any transaction based on it.
-        final MostRecentView view = new MostRecentView(this, consistency.isBasedOnCommittedLogEntry() ? this.commitIndex : -1);
+        // required in order to commit any transaction based on it. But limit to at most MAX_MUTABLE_VIEW_DEPTH log entries.
+        final long maxIndex = consistency.isBasedOnCommittedLogEntry() ?
+          this.commitIndex : Math.min(this.log.getLastIndex(), this.log.getLastAppliedIndex() + MAX_MUTABLE_VIEW_DEPTH);
+        final MostRecentView view = new MostRecentView(this, maxIndex);
         final long baseTerm = view.getTerm();
         final long baseIndex = view.getIndex();
 
