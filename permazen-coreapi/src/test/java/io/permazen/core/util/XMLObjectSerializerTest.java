@@ -166,6 +166,14 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         // Check we properly ignore XML tags in other namespaces
         this.compareParse(tx, this.readResource(this.getClass().getResource("test4b.xml")).trim());
 
+        // Turn off "omitDefaultValueFields"
+        s2.setOmitDefaultValueFields(false);
+        tx.delete(id1);
+        tx.create(id1, 1);
+        buf.reset();
+        s2.write(buf, true, true);
+        this.compareResult(tx, buf.toByteArray(), "test4c.xml");
+
         tx.commit();
     }
 

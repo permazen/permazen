@@ -151,6 +151,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
     private GeneratedIdCache generatedIdCache = new GeneratedIdCache();
     private final ObjIdMap<ReferenceField> unresolvedReferences = new ObjIdMap<>();
+    private boolean omitDefaultValueFields = true;
     private int fieldTruncationLength = -1;
 
     /**
@@ -199,6 +200,30 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     public void setFieldTruncationLength(int length) {
         Preconditions.checkArgument(length >= -1, "length < -1");
         this.fieldTruncationLength = length;
+    }
+
+    /**
+     * Get whether to omit fields whose value equals the default value for the field's type.
+     *
+     * <p>
+     * Default true.
+     *
+     * @return whether to omit fields with default values
+     */
+    public boolean isOmitDefaultValueFields() {
+        return this.omitDefaultValueFields;
+    }
+
+    /**
+     * Set whether to omit fields whose value equals the default value for the field's type.
+     *
+     * <p>
+     * Default true.
+     *
+     * @param omitDefaultValueFields true to omit fields with default values
+     */
+    public void setOmitDefaultValueFields(final boolean omitDefaultValueFields) {
+        this.omitDefaultValueFields = omitDefaultValueFields;
     }
 
     /**
@@ -602,7 +627,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             for (Field<?> field : fieldList) {
 
                 // Determine if field equals its default value; if so, skip it
-                if (field.hasDefaultValue(this.tx, id))
+                if (this.omitDefaultValueFields && field.hasDefaultValue(this.tx, id))
                     continue;
 
                 // Output <object> opening tag if not output yet
@@ -843,4 +868,3 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         }
     }
 }
-

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <Foo id="0100000000000001" version="1">
+        <b>0</b>
+        <c>\u0000</c>
+        <d>0.0</d>
+        <date null="true"/>
+        <e1 null="true"/>
+        <f>0.0</f>
+        <i>0</i>
+        <j>0</j>
+        <r null="true"/>
+        <r2 null="true"/>
+        <s>0</s>
+        <str null="true"/>
+        <v null="true"/>
+        <z>false</z>
+    </Foo>
+    <Foo id="1400000000000001" version="2">
+        <list>
+            <element>789</element>
+            <element null="true"/>
+            <element>101112</element>
+        </list>
+        <list2></list2>
+        <map>
+            <entry>
+                <key>55</key>
+                <value>fifty
+five</value>
+            </entry>
+            <entry>
+                <key>73</key>
+                <value>seventy three</value>
+            </entry>
+            <entry>
+                <key>99</key>
+                <value null="true"/>
+            </entry>
+        </map>
+        <set>
+            <element>123</element>
+            <element>456</element>
+        </set>
+    </Foo>
+</objects>
