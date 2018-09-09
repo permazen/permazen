@@ -842,7 +842,11 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
     private void writeAttribute(XMLStreamWriter writer, QName attr, Object value) throws XMLStreamException {
-        writer.writeAttribute(attr.getNamespaceURI(), attr.getLocalPart(), "" + value);
+        final String ns = attr.getNamespaceURI();
+        if (ns == null || ns.length() == 0)
+            writer.writeAttribute(attr.getLocalPart(), "" + value);
+        else
+            writer.writeAttribute(attr.getNamespaceURI(), attr.getLocalPart(), "" + value);
     }
 
     /**
