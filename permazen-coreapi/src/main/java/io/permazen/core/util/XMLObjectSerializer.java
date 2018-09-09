@@ -29,13 +29,11 @@ import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.AbstractXMLStreaming;
-import io.permazen.util.ByteWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -702,13 +700,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
 // Internal methods
-
-    private <T> boolean isDefaultValue(SimpleField<T> field, Object value) throws XMLStreamException {
-        final ByteWriter writer = new ByteWriter();
-        final FieldType<T> fieldType = field.getFieldType();
-        fieldType.write(writer, fieldType.validate(value));
-        return Arrays.equals(writer.getBytes(), field.getFieldType().getDefaultValue());
-    }
 
     private void writeSimpleTag(XMLStreamWriter writer, QName tag, SimpleField<?> field, Object value)
       throws XMLStreamException {
