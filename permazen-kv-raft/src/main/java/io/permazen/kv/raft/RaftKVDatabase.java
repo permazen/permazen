@@ -1293,7 +1293,13 @@ public class RaftKVDatabase implements KVDatabase {
                 if (parse != null) {
                     if (this.logger.isDebugEnabled())
                         this.debug("recovering log file " + file.getName());
-                    final LogEntry logEntry = LogEntry.fromFile(file, parse[0] > lastAppliedIndex);
+                    final LogEntry logEntry;
+                    try {
+                        logEntry = LogEntry.fromFile(file, parse[0] > lastAppliedIndex);
+                    } catch (IOException e) {
+                        this.logger.error("error reading log file " + file.getName() + "; ignoring this file!", e);
+                        continue;
+                    }
                     entryList.add(logEntry);
                     continue;
                 }
