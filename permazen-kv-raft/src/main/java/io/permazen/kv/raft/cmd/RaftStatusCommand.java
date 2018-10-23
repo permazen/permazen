@@ -148,12 +148,12 @@ public class RaftStatusCommand extends AbstractRaftCommand {
             writer.println(String.format("%-24s: %d", "Followers", followers.size()));
             if (!followers.isEmpty()) {
                 writer.println();
-                writer.println(String.format("  %-16s %-8s %-6s %-6s %-6s %s",
+                writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
                   "Identity", "Status", "Match", "Next", "Commit", "Timestamp"));
-                writer.println(String.format("  %-16s %-8s %-6s %-6s %-6s %s",
+                writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
                   "--------", "------", "-----", "----", "------", "---------"));
                 for (Follower follower : leader.getFollowers()) {
-                    writer.println(String.format("  %-16s %-8s %-6s %-6s %-6s %s", follower.getIdentity(),
+                    writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s", follower.getIdentity(),
                       follower.isReceivingSnapshot() ? "Snapshot" : follower.isSynced() ? "Synced" : "No Sync",
                       follower.getMatchIndex(), follower.getNextIndex(), follower.getLeaderCommit(),
                       follower.getLeaderTimestamp() != null ?
