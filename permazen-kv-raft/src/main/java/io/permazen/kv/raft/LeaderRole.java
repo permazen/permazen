@@ -584,6 +584,7 @@ public class LeaderRole extends Role {
                 this.perfLog("started snapshot install for out-of-date " + follower
                   + " with nextIndex " + nextIndex + " <= " + this.raft.log.getLastAppliedIndex());
             }
+            follower.getSkipDataLogEntries().clear();               // avoid memory leak if snapshot leapfrogs follower log entries
             this.raft.requestService(follower.getUpdateService());
             return;
         }
