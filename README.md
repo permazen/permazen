@@ -1,7 +1,5 @@
 ### Permazen is a better persistence layer for Java
 
-_Note: JSimpleDB has been renamed Permazen_
-
 Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
 
 Mainstream Java solutions such as JDBC, JPA and JDO were designed simply to give Java programmers _access_ to existing database functionality. They address the "storage" problem, but leave many other important issues that are inherent to persistence programming poorly addressed, or not addressed at all.
@@ -59,7 +57,7 @@ Permazen also adds several new features that traditional databases don't provide
 
 ### Permazen Slides
 
-For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group.
+For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group (Permazen was previously named JSimpleDB).
 
 ### Permazen Paper
 
