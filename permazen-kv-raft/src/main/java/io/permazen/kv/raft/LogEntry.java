@@ -358,7 +358,7 @@ public class LogEntry {
          */
         Data(Writes writes, String[] configChange) {
             Preconditions.checkArgument(configChange == null || (configChange.length == 2 && configChange[0] != null));
-            this.writes = writes.immutableSnapshot();
+            this.writes = writes != null ? writes.immutableSnapshot() : null;
             this.configChange = configChange;
         }
 
