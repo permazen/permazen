@@ -574,9 +574,17 @@ public class LeaderRole extends Role {
 
         // Get index of the next log entry to send to follower
         final long nextIndex = follower.getNextIndex();
+        assert nextIndex >= 1 && nextIndex <= this.raft.log.getLastIndex() + 1;
 
-        // If follower is too far behind, we must do a snapshot install
-        if (nextIndex <= this.raft.log.getLastAppliedIndex()) {
+        // Get the log entry to send, if we have it
+        LogEntry logEntry = this.raft.log.getEntryAtIndexIfKnown(nextIndex);
+
+        // In order to send the log entry (or a probe), we need to know the previous log entry's term
+        final long previousIndex = nextIndex - 1;
+        final long previousTerm = this.raft.log.getTermAtIndexIfKnown(previousIndex);
+
+        // If the follower is so far behind that we no longer have the information it needs, we must do a snapshot install
+        if ((logEntry == null || previousTerm == 0) && nextIndex <= this.raft.log.getLastAppliedIndex()) {
             final MostRecentView view = new MostRecentView(this.raft, this.raft.commitIndex);
             follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
               view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
@@ -589,20 +597,21 @@ public class LeaderRole extends Role {
             return;
         }
 
+        // It must be the case that previousTerm is known now, because lastAppliedIndex <= previousIndex <= lastIndex
+        assert previousTerm > 0;
+        assert previousIndex > 0;
+
         // Restart update timer here (to avoid looping if an error occurs below)
         follower.getUpdateTimer().timeoutAfter(this.raft.heartbeatTimeout);
 
         // Send actual data if follower is synced and there is a log entry to send; otherwise, just send a probe
         final AppendRequest msg;
-        if (!follower.isSynced() || nextIndex > this.raft.log.getLastIndex()) {
+        if (!follower.isSynced() || logEntry == null) {
 
-            // Create probe-only message
-            msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-              this.leaseTimeout, this.raft.commitIndex, this.raft.log.getTermAtIndex(nextIndex - 1), nextIndex - 1);
+            // Create probe
+            msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm,
+              new Timestamp(), this.leaseTimeout, this.raft.commitIndex, previousTerm, previousIndex);
         } else {
-
-            // Get log entry to send
-            final LogEntry logEntry = this.raft.log.getEntryAtIndex(nextIndex);
 
             // If the log entry correspond's to follower's transaction, don't send the data because follower already has it.
             // But only do this optimization the first time, in case something goes wrong on the follower's end.
@@ -618,8 +627,7 @@ public class LeaderRole extends Role {
 
             // Create message
             msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-              this.leaseTimeout, this.raft.commitIndex, this.raft.log.getTermAtIndex(nextIndex - 1), nextIndex - 1,
-              logEntry.getTerm(), mutationData);
+              this.leaseTimeout, this.raft.commitIndex, previousTerm, previousIndex, logEntry.getTerm(), mutationData);
         }
 
         // Send update
@@ -1028,6 +1036,7 @@ public class LeaderRole extends Role {
     boolean checkState() {
         assert Thread.holdsLock(this.raft);
         for (Follower follower : this.followerMap.values()) {
+            assert follower.getNextIndex() >= 1;
             assert follower.getNextIndex() <= this.raft.log.getLastIndex() + 1;
             assert follower.getMatchIndex() <= this.raft.log.getLastIndex() + 1;
             assert follower.getLeaderCommit() <= this.raft.commitIndex;
