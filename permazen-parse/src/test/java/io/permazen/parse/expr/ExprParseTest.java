@@ -429,6 +429,7 @@ public class ExprParseTest extends TestSupport {
             { "(null)",
               null },
             { "System.out.println(\"foobar\")", null },
+            { "(float)s1", PARSE_FAIL },
 
             // Non-public methods
             { "new java.util.ArrayList().ensureCapacityInternal(10)",

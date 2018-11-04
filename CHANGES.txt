@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed infinite loop when parsing certain invalid cast expressions
+
 Version 4.1.2 Released October 26, 2018
 
     - Improved Raft performance under heavy load and/or with slow followers
