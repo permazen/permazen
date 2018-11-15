@@ -44,7 +44,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @param <T> enum type
      * @throws NullPointerException if {@code enumType} is null
      */
-    public <T extends Enum<T>> EnumFieldType(Class<T> enumType) {
+    public <T extends Enum<?>> EnumFieldType(Class<T> enumType) {
         this(EnumFieldType.getIdentifiers(enumType));
     }
 
@@ -98,7 +98,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
         "unchecked",
         "rawtypes"      // https://bugs.openjdk.java.net/browse/JDK-8012685
     })
-    private static <T extends Enum<T>> List<String> getIdentifiers(Class<T> enumType) {
+    private static <T extends Enum<?>> List<String> getIdentifiers(Class<T> enumType) {
         return EnumUtil.getValues(enumType).stream()
           .map(Enum::name)
           .collect(Collectors.toList());
