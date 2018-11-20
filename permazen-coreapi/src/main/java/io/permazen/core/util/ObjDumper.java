@@ -180,11 +180,14 @@ public final class ObjDumper {
 
                 private <E> void handleCollection(Collection<E> items, SimpleField<E> elementField, boolean showIndex) {
                     final FieldType<E> fieldType = elementField.getFieldType();
-                    writer.println("{");
+                    writer.print("{");
                     int count = 0;
                     for (E item : items) {
+                        if (count == 0)
+                            writer.println();
                         if (count >= maxCollectionEntries) {
                             writer.println(eindent + "...");
+                            count++;
                             break;
                         }
                         writer.print(eindent);
@@ -193,7 +196,7 @@ public final class ObjDumper {
                         writer.println(fieldType.toParseableString(item));
                         count++;
                     }
-                    writer.println(indent + "}");
+                    writer.println(count == 0 ? " }" : indent + "}");
                 }
 
                 @Override
@@ -201,19 +204,22 @@ public final class ObjDumper {
                 public <K, V> Void caseMapField(MapField<K, V> field) {
                     final FieldType<K> keyFieldType = field.getKeyField().getFieldType();
                     final FieldType<V> valueFieldType = field.getValueField().getFieldType();
-                    writer.println("{");
+                    writer.print("{");
                     int count = 0;
                     final NavigableMap<K, V> map = (NavigableMap<K, V>)tx.readMapField(id, field.getStorageId(), false);
                     for (Map.Entry<K, V> entry : map.entrySet()) {
+                        if (count == 0)
+                            writer.println();
                         if (count >= maxCollectionEntries) {
                             writer.println(eindent + "...");
+                            count++;
                             break;
                         }
                         writer.println(eindent + keyFieldType.toParseableString(entry.getKey())
                           + " -> " + valueFieldType.toParseableString(entry.getValue()));
                         count++;
                     }
-                    writer.println(indent + "}");
+                    writer.println(count == 0 ? " }" : indent + "}");
                     return null;
                 }
             });
