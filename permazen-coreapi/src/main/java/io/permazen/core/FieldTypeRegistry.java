@@ -99,7 +99,6 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *  <li>Primitive wrapper types ({@link Boolean}, {@link Integer}, etc.)</li>
  *  <li>{@link String}</li>
  *  <li>Array types</li>
- *  <li>{@link Enum} types</li>
  *  <li>{@link java.math.BigDecimal}</li>
  *  <li>{@link java.math.BigInteger}</li>
  *  <li>{@link java.util.BitSet}</li>
@@ -114,6 +113,10 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *  <li>{@link javax.mail.internet.InternetAddress}</li>
  *  <li>{@link java.time java.time.*}</li>
  * </ul>
+ *
+ * <p>
+ * {@link Enum} types are not directly handled in the core API layer; instead, the appropriate
+ * {@link io.permazen.core.type.EnumFieldType} encodes the values as {@link EnumValue}s.
  */
 public class FieldTypeRegistry {
 
