@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed infinite loop when parsing certain invalid cast expressions
+    - Allow @OnVersionChange methods without version number parameters
 
 Version 4.1.2 Released October 26, 2018
 

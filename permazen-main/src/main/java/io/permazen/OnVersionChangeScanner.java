@@ -44,11 +44,15 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         this.checkNotStatic(method);
         this.checkReturnType(method, void.class);
         final int numParams = method.getParameterTypes().length;
+
+        // Handle @OnVersionChange version numbers; allow both to be omitted
         int index = 0;
-        if (annotation.oldVersion() == 0)
-            this.checkParameterType(method, index++, TypeToken.of(int.class));
-        if (annotation.newVersion() == 0)
-            this.checkParameterType(method, index++, TypeToken.of(int.class));
+        if (!(annotation.oldVersion() == 0 && annotation.newVersion() == 0 && numParams == 1)) {
+            if (annotation.oldVersion() == 0)
+                this.checkParameterType(method, index++, TypeToken.of(int.class));
+            if (annotation.newVersion() == 0)
+                this.checkParameterType(method, index++, TypeToken.of(int.class));
+        }
         final ArrayList<TypeToken<?>> choices = new ArrayList<TypeToken<?>>(2);
         choices.add(this.byStorageIdType);
         choices.add(this.byNameType);

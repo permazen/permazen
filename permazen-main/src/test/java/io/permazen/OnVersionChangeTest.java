@@ -252,6 +252,11 @@ public class OnVersionChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testSignature2() throws Exception {
+        BasicTest.getPermazen(SignatureCheck2.class);
+    }
+
 // HasName
 
     public interface HasName {
@@ -466,6 +471,14 @@ public class OnVersionChangeTest extends TestSupport {
 
         @OnVersionChange
         private void migrate(int oldVersion, int newVersion, Map<Integer, Object> oldValues, float bogus) {
+        }
+    }
+
+    @PermazenType
+    public abstract static class SignatureCheck2 implements JObject {
+
+        @OnVersionChange
+        private void migrate(Map<Integer, Object> oldValues) {
         }
     }
 }
