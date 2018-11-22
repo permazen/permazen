@@ -43,6 +43,7 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         // Check method types
         this.checkNotStatic(method);
         this.checkReturnType(method, void.class);
+        final int numParams = method.getParameterTypes().length;
         int index = 0;
         if (annotation.oldVersion() == 0)
             this.checkParameterType(method, index++, TypeToken.of(int.class));
@@ -51,7 +52,11 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         final ArrayList<TypeToken<?>> choices = new ArrayList<TypeToken<?>>(2);
         choices.add(this.byStorageIdType);
         choices.add(this.byNameType);
-        this.checkParameterType(method, index, choices);
+        this.checkParameterType(method, index++, choices);
+        if (index != numParams) {
+            throw new IllegalArgumentException(this.getErrorPrefix(method)
+              + "method has " + (numParams - index) + " too many parameter(s)");
+        }
 
         // Done
         return true;

@@ -242,6 +242,16 @@ public class OnVersionChangeTest extends TestSupport {
 
     }
 
+    @Test
+    public void testSignature1() throws Exception {
+        try {
+            BasicTest.getPermazen(SignatureCheck1.class);
+            assert false : "expected error";
+        } catch (IllegalArgumentException e) {
+            log.info("got expected " + e);
+        }
+    }
+
 // HasName
 
     public interface HasName {
@@ -448,5 +458,14 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract String getFirstName();
         public abstract void setFirstName(String firstName);
     }
-}
 
+// Method signature check
+
+    @PermazenType
+    public abstract static class SignatureCheck1 implements JObject {
+
+        @OnVersionChange
+        private void migrate(int oldVersion, int newVersion, Map<Integer, Object> oldValues, float bogus) {
+        }
+    }
+}
