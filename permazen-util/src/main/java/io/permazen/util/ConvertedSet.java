@@ -31,7 +31,7 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
      * @param converter element converter
      * @throws IllegalArgumentException if any parameter is null
      */
-    ConvertedSet(Set<W> set, Converter<E, W> converter) {
+    public ConvertedSet(Set<W> set, Converter<E, W> converter) {
         Preconditions.checkArgument(set != null, "null set");
         Preconditions.checkArgument(converter != null, "null converter");
         this.set = set;
