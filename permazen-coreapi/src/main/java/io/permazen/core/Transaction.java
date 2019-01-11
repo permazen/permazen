@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
  * <b>Transaction Meta-Data</b>
  * <ul>
  *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
+ *  <li>{@link #getKVTransaction getKVTransaction()} -  Get the underlying key/value store transaction.</li>
  *  <li>{@link #getSchemas getSchemas()} - Get the database {@link Schemas}, as seen by this transaction</li>
  *  <li>{@link #getSchema() getSchema()} - Get the {@link Schema} that will be used by this transaction</li>
  *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
