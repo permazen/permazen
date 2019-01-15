@@ -150,6 +150,67 @@ public class EnumFieldTest extends TestSupport {
         Assert.assertNull(e4);
     }
 
+    @Test
+    public void testEnumGetSetValue() throws Exception {
+        final Permazen permazen = BasicTest.getPermazen(Foo.class);
+        final JTransaction jtx = permazen.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Foo jobj = jtx.create(Foo.class);
+            jobj.setEnumField(MyEnum.FOO);
+
+            final JEnumField field = permazen.getJClass(Foo.class).getJField(2, JEnumField.class);
+            Assert.assertEquals(jobj.getEnumField(), MyEnum.FOO);
+            Assert.assertEquals(field.getValue(jobj), MyEnum.FOO);
+            field.setValue(jobj, MyEnum.BAR);
+            Assert.assertEquals(jobj.getEnumField(), MyEnum.BAR);
+            Assert.assertEquals(field.getValue(jobj), MyEnum.BAR);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testEnumArrays() throws Exception {
+        final Permazen permazen = BasicTest.getPermazen(EnumArrays.class);
+        final JTransaction jtx = permazen.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final MyEnum[] value1a = new MyEnum[] { null, MyEnum.BAR, MyEnum.FOO, null, null, MyEnum.FOO, MyEnum.FOO };
+            final MyEnum[] value1b = new MyEnum[] { MyEnum.BAR, MyEnum.BAR, MyEnum.BAR, null, MyEnum.FOO };
+            final MyEnum[][] value2a = new MyEnum[][] { null, value1a, null, value1b, null };
+            final MyEnum[][] value2b = new MyEnum[][] { value1b, value1a };
+
+            final EnumArrays jobj = jtx.create(EnumArrays.class);
+
+            Assert.assertEquals(jobj.getEnums(), null);
+            jobj.setEnums(value1a);
+            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums(), value1a));
+            jobj.setEnums(value1b);
+            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums(), value1b));
+            jobj.setEnums(null);
+            Assert.assertEquals(jobj.getEnums(), null);
+
+            Assert.assertEquals(jobj.getEnums2(), null);
+            jobj.setEnums2(value2a);
+            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums2(), value2a));
+            jobj.setEnums2(value2b);
+            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums2(), value2b));
+            jobj.setEnums2(null);
+            Assert.assertEquals(jobj.getEnums2(), null);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     public enum MyEnum {
@@ -174,6 +235,16 @@ public class EnumFieldTest extends TestSupport {
             Assert.assertEquals(oldValues.get(2), new EnumValue(MyEnum.FOO));
             Assert.assertEquals(oldValues.get(3), new EnumValue("BAR", 1));
         }
+    }
+
+    @PermazenType
+    public abstract static class EnumArrays implements JObject {
+
+        public abstract MyEnum[] getEnums();
+        public abstract void setEnums(MyEnum[] value);
+
+        public abstract MyEnum[][] getEnums2();
+        public abstract void setEnums2(MyEnum[][] value);
     }
 
 // EnumConflict

@@ -2,6 +2,9 @@
 SHORT TERM
 ==========
 
+- Add support for Enum[] arrays
+    - Requires new schema XML support, etc.
+
 - Allow non-static inner classes ?
     - Auto-generate "_parent" reference field with DeleteAction.DELETE
     - Add method <T> T JTransaction.create(JObject parent, Class<T> childType);
