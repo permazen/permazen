@@ -2,6 +2,7 @@ Version Next
 
     - Fixed infinite loop when parsing certain invalid cast expressions
     - Allow @OnVersionChange methods without version number parameters
+    - Fixed CLI bug where "raft-add" failed in fallback standalone mode
 
 Version 4.1.2 Released October 26, 2018
 
