@@ -8,7 +8,6 @@ package io.permazen.kv.raft.fallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import io.permazen.kv.CloseableKVStore;
-import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryTransactionException;
@@ -58,7 +57,7 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
 // KVTransaction
 
     @Override
-    public KVDatabase getKVDatabase() {
+    public FallbackKVDatabase getKVDatabase() {
         return this.db;
     }
 
