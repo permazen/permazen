@@ -2010,7 +2010,7 @@ public class Transaction {
         assert Thread.holdsLock(this);
         if (this.stale) {
             throw new StaleTransactionException(this, "can't access " + this.getFieldDescription(id, storageId)
-              + " of " + this.getObjDescription(id) + " :" + StaleTransactionException.DEFAULT_MESSAGE);
+              + " of " + this.getObjDescription(id) + ": " + StaleTransactionException.DEFAULT_MESSAGE);
         }
     }
 
