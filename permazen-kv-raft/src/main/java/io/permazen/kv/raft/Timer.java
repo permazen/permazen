@@ -86,6 +86,7 @@ class Timer {
             this.raft.trace("rescheduling " + this.name + " for " + this.timeoutDeadline
               + " (" + delay + "ms from now)");
         }
+        Preconditions.checkArgument(!this.timeoutDeadline.isRolloverDanger(), "delay too large");
         this.pendingTimeout = new PendingTimeout();
         try {
             this.future = this.raft.serviceExecutor.schedule(this.pendingTimeout, delay, TimeUnit.MILLISECONDS);
@@ -163,4 +164,3 @@ class Timer {
         }
     }
 }
-
