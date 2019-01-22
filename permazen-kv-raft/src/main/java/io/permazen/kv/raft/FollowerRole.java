@@ -214,6 +214,8 @@ public class FollowerRole extends NonLeaderRole {
         // Invalidate current leader
         this.leader = null;
         this.leaderAddress = null;
+        this.leaderLeaseTimeout = null;
+        this.lastLeaderMessageTime = null;
 
         // Is probing enabled? If not convert immediately into a candidate
         if (!this.raft.followerProbingEnabled) {
@@ -520,6 +522,7 @@ public class FollowerRole extends NonLeaderRole {
             this.leader = msg.getSenderId();
             this.leaderAddress = this.raft.returnAddress;
             this.leaderLeaseTimeout = null;
+            this.lastLeaderMessageTime = null;
             if (this.log.isDebugEnabled())
                 this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);
             this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent
