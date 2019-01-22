@@ -1,5 +1,6 @@
-Version Next
+Version 4.1.3 Released January 22, 2019
 
+    - Fixed Raft bug where leaders were canceling snapshots too soon
     - Fixed infinite loop when parsing certain invalid cast expressions
     - Allow @OnVersionChange methods without version number parameters
     - Fixed CLI bug where "raft-add" failed in fallback standalone mode
