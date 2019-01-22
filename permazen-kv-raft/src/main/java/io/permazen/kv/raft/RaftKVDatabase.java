@@ -302,6 +302,12 @@ import org.slf4j.LoggerFactory;
  * </table>
  * </div>
  *
+ * <p><b>High Priority Transactions</b></p>
+ *
+ * <p>
+ * Transactions may be configured as high priority; see
+ * {@link RaftKVTransaction#setHighPriority RaftKVTransaction.setHighPriority()}.
+ *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
 @ThreadSafe
