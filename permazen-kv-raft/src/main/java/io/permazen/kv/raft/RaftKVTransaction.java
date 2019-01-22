@@ -335,18 +335,21 @@ public class RaftKVTransaction implements KVTransaction {
      * Configure whether this transaction is the <i>high priority</i> transaction for this node.
      *
      * <p>
-     * At most one transaction on a Raft node can be high priority at a time; if two concurrent transactions are
+     * At most one open transaction on a Raft node can be high priority at a time; if two concurrent transactions are
      * configured as high priority on the same node, the most recent invocation of this method wins.
      *
      * <p>
      * High priority transactions are handled specially on leaders: the high priority transaction always wins when
-     * there is a conflict with another transaction, whether the other transaction is local or remote sent from a follower,
-     * so a high priority transaction can never fail due to a conflict. So this is an absolute "all or nothing" prioritization.
+     * there is a conflict with another transaction, whether the other transaction is local or remote (i.e., sent
+     * from a follower), so a high priority transaction can never fail due to a conflict (of course there are other
+     * reasons a high priority transaction could still fail, e.g., leadership change or inability to communicate
+     * with a majority). So this provides a simple "all or nothing" prioritization scheme.
      *
      * <p>
      * On followers, configuring a transaction as high priority simply forces an immediate leader election, as if by
-     * {@link FollowerRole#startElection}, causing the node to become the leader with high probability, where it can
-     * then prioritize this transaction as described above (transactions are oblivious to underlying Raft role changes).
+     * {@link FollowerRole#startElection FollowerRole.startElection()}. This causes the node to become the leader with
+     * high probability, where it can then prioritize this transaction as described above (if the transaction detects
+     * a conflict before the election completes, a subsequent retry after the completed election should succeed).
      *
      * <p>
      * Warning: overly-agressive use of this method can cause a flurry of elections and poor performance, therefore,
