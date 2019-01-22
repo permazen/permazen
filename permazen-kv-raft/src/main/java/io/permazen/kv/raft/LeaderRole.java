@@ -40,6 +40,9 @@ import org.dellroad.stuff.io.ByteBufferInputStream;
  */
 public class LeaderRole extends Role {
 
+    // Maximum age of an oustanding SnapshotTransmit in milliseconds
+    private static final int MAX_SNAPSHOT_AGE = 5 * 60 * 1000;                          // 5 minutes
+
     // Timestamp scrub interval
     private static final int TIMESTAMP_SCRUB_INTERVAL = 24 * 60 * 60 * 1000;            // once a day
 
@@ -493,11 +496,9 @@ public class LeaderRole extends Role {
         // If follower has an in-progress snapshot that has become too stale, abort it
         final String peer = follower.getIdentity();
         SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-        if (snapshotTransmit != null && snapshotTransmit.getSnapshotIndex() < this.raft.log.getLastAppliedIndex()) {
-            if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("aborting stale snapshot install for " + follower + ": snapshot index "
-                  + snapshotTransmit.getSnapshotIndex() + " < " + this.raft.log.getLastAppliedIndex());
-            }
+        if (snapshotTransmit != null && snapshotTransmit.getAge() > MAX_SNAPSHOT_AGE) {
+            if (this.raft.isPerfLogEnabled())
+                this.perfLog("aborting stale snapshot install for " + follower + " (age " + snapshotTransmit.getAge() + "ms)");
             follower.cancelSnapshotTransmit();
             follower.updateNow();
         }
