@@ -125,7 +125,9 @@ public abstract class Role {
 
     /**
      * Apply committed but unapplied log entries to the state machine.
-     * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.
+     *
+     * <p>
+     * We invoke this service method whenever our {@code commitIndex} advances.
      *
      * <p>
      * Note: checkWaitingTransactions() must have been invoked already when this method is invoked.
@@ -448,7 +450,7 @@ public abstract class Role {
     }
 
     /**
-     * Determine if a transction has become committable, and mark it so if so.
+     * Determine if a transaction has become committable, and mark it so if so.
      *
      * <p>
      * This should be invoked after advancing my {@code commitIndex} (as leader or follower), after setting

@@ -113,7 +113,7 @@ public class Follower {
     /**
      * Get the index of the highest log entry in the follower's log known to match the leader's log.
      *
-     * @return follower next index
+     * @return follower match index; will be zero if unknown
      */
     public long getMatchIndex() {
         synchronized (this.raft) {

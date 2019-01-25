@@ -79,7 +79,7 @@ public class RaftKVTransaction implements KVTransaction {
    When a follower transaction is set read-only, the follower requests a commit term+index from the leader immediately
    (linearizability only guarantees transactions see the database state as it existed at some time between begin and
    commit, and for the purposes of minimizing conflicts, the sooner we take that "snapshot" the better). In any case,
-   follower must always continue to rebase read-only LINEARIZABLE until the commit term+index is received.
+   followers must continue to rebase read-only LINEARIZABLE transactions until the commit term+index is received.
 
    If a follower transaction's base log entry is ever overwritten in the Raft log, then the transaction fails immediately
    with a retry (unless UNCOMMITTED). This can occur both during normal execution, and while blocked in commit(). Therefore
@@ -101,11 +101,12 @@ public class RaftKVTransaction implements KVTransaction {
    Compacting Log Entries
    ----------------------
 
-   A tranasction's base log entry, if committed, may be applied into the state machine without affecting the transaction
+   A transaction's base log entry, if committed, may be applied into the state machine without affecting the transaction
    due to the view being based on a read-only AtomicKVStore snapshot, which persists until closed.
 
-   Therefore because LINEARIZABLE transactions are always rebased to the last log entry, and all other transactions are never
-   rebased, there is no reason for followers to not apply committed log entries immediately.
+   Therefore because LINEARIZABLE transactions are always rebased to the last log entry (or their commit log entry, at which
+   point rebasing stops), and all other transactions are never rebased, there is no reason for followers to not apply committed
+   log entries immediately.
 
    For leaders, the situation is more complicated. Applying committed log entries too aggressively can cause these issues:
 
@@ -114,8 +115,8 @@ public class RaftKVTransaction implements KVTransaction {
       which is costly.
 
     o In order to detect conflicts in a mutating LINEARIZABLE transaction received in a follower's CommitRequest, a leader
-      must have access to all log entries after the transaction's base term+index. If any of these have already been applied
-      to the state machine and discarded, the leader has no choice but to return a retry error.
+      must have access to the mutations associated with all log entries after the transaction's base term+index. If any of
+      these have already been applied to the state machine and discarded, the leader has no choice but to return a retry error.
 
    Actually, these issues also apply to followers, in the sense that they could become leaders at any time.
 
