@@ -621,8 +621,8 @@ public class FollowerRole extends NonLeaderRole {
                               && tx.getCommitTerm() == logTerm && tx.getCommitIndex() == logIndex;
                           }).findAny().orElse(null);
                         if (pendingWrite == null) {
-                            if (this.log.isDebugEnabled()) {
-                                this.debug("rec'd " + msg + " but no read-write transaction matching commit "
+                            if (this.raft.isPerfLogEnabled()) {
+                                this.perfLog("rec'd " + msg + " but no read-write transaction matching commit "
                                   + logIndex + "t" + logTerm + " found; rejecting");
                             }
                             break;
