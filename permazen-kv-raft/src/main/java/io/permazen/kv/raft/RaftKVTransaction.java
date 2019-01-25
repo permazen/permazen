@@ -120,10 +120,15 @@ public class RaftKVTransaction implements KVTransaction {
 
    Actually, these issues also apply to followers, in the sense that they could become leaders at any time.
 
-   To address these issues, leaders remember up to Log.MAX_APPLIED already-applied log entries. To save memory, we can discard
-   the associated Writes immediately (followers) or after all followers have received the log entry (leaders), because we
-   no longer need to create "MostRecentView" from these entries. Note that conflict detection is still possible, by reading
-   the mutations from disk (see LogEntry.getMutations()).
+   To address these issues, leaders remember up to Log.MAX_APPLIED already-applied log entries. However, once it is known
+   that all followers have received an already-applied log entry, then it can be discarded. This is because followers keep all
+   transactions rebased to their last log entry, and so, under the assumption that message re-ordering is rare or impossible,
+   any CommitRequest a leader receives will have a base index >= that follower's last log entry index.
+
+   To save memory, we discard the Writes object (which is an in-memory representation of the entry's mutations) associated
+   with already-applied log entries. This is just an optimization: conflict detection is still possible by re-reading the
+   mutations from disk (see LogEntry.getMutations()), which should only be needed if a follower gets so far behind that its
+   last log entry index is less than the leader's commit index (because followers always rebase to their last log entry).
 
    Lock Order
    ----------

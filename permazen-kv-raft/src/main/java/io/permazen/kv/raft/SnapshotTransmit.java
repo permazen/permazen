@@ -28,7 +28,7 @@ import org.dellroad.stuff.io.ByteBufferOutputStream;
  */
 class SnapshotTransmit implements Closeable {
 
-    private static final int MAX_CHUNK_SIZE = 10250;                // about 7 TCP packets
+    private static final int MAX_CHUNK_SIZE = 128 * 1024;           // 128K
 
     private final Timestamp createTime = new Timestamp();
     private final long snapshotTerm;

@@ -2627,10 +2627,11 @@ public class RaftKVDatabase implements KVDatabase {
         assert Thread.holdsLock(this);
 
         // Check log state
-        assert this.log.checkState(this.role != null);
+        assert this.log.checkState();
 
         // Handle stopped state
         if (this.role == null) {
+            assert this.log.getFirstIndex() == 0;
             assert this.random == null;
             assert this.currentTerm == 0;
             assert this.currentTermStartTime == 0;

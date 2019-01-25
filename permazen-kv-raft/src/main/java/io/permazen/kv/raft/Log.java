@@ -26,13 +26,14 @@ import javax.annotation.concurrent.GuardedBy;
  */
 final class Log {
 
-    public static final int MAX_APPLIED = 128;                              // max # applied log entries to keep around
+    public static final int MIN_APPLIED = 10;                               // min # applied log entries to keep around
+    public static final int MAX_APPLIED = 500;                              // max # applied log entries to keep around
 
     private final RaftKVDatabase raft;
     @GuardedBy("raft")
     private final LogEntry[] applied = new LogEntry[MAX_APPLIED];           // already applied log entries (circular buffer)
     @GuardedBy("raft")
-    private int numApplied;
+    private int numApplied;                                                 // the number of valid entries in "applied"
     @GuardedBy("raft")
     private final ArrayList<LogEntry> unapplied = new ArrayList<>();        // unapplied log entries (empty if unconfigured)
     @GuardedBy("raft")
@@ -41,8 +42,6 @@ final class Log {
     private long lastAppliedIndex;                                          // last applied index (zero if unconfigured)
     @GuardedBy("raft")
     private HashMap<String, String> lastAppliedConfig = new HashMap<>();    // last applied config (empty if none)
-    @GuardedBy("raft")
-    private long nonDiscardedWritesIndexMin;                                // lower bound on index of non-discarded writes
 
 // Constructor
 
@@ -96,7 +95,7 @@ final class Log {
         this.lastAppliedIndex = lastAppliedIndex;
         this.lastAppliedConfig.clear();
         this.lastAppliedConfig.putAll(config);
-        this.nonDiscardedWritesIndexMin = 0;
+        assert this.checkState();
 
         // Import log entries
         long prevIndex = -1;
@@ -108,14 +107,20 @@ final class Log {
             Preconditions.checkArgument(prevTerm == -1 || term >= prevTerm);
             if (index > this.lastAppliedIndex)
                 this.unapplied.add(logEntry);
-            else if (index > this.lastAppliedIndex - MAX_APPLIED) {
-                this.applied[this.getAppliedSlot(index)] = logEntry;
-                this.numApplied++;
+            else {
+                final int appliedSlot = this.getAppliedSlot(index);
+                if (appliedSlot != -1) {
+                    assert this.applied[appliedSlot] == null;
+                    this.applied[appliedSlot] = logEntry;
+                    this.numApplied++;
+                } else
+                    this.raft.deleteFile(logEntry.getFile(), "old log file");
             }
             prevIndex = index;
             prevTerm = term;
         }
         Preconditions.checkArgument(prevIndex == -1 || prevIndex >= lastAppliedIndex);
+        assert this.checkState();
     }
 
 // Accessors
@@ -242,7 +247,10 @@ final class Log {
             return this.unapplied.get((int)(index - this.lastAppliedIndex - 1)).getTerm();
         }
         if (index < this.lastAppliedIndex) {
-            final LogEntry logEntry = index > this.lastAppliedIndex - MAX_APPLIED ? this.applied[this.getAppliedSlot(index)] : null;
+            final int appliedSlot = this.getAppliedSlot(index);
+            if (appliedSlot == -1)
+                return 0;
+            final LogEntry logEntry = this.applied[appliedSlot];
             return logEntry != null ? logEntry.getTerm() : 0;
         }
         return this.lastAppliedTerm;
@@ -260,7 +268,10 @@ final class Log {
             index -= this.lastAppliedIndex + 1;
             return index < this.unapplied.size() ? this.unapplied.get((int)index) : null;
         }
-        return index > this.lastAppliedIndex - MAX_APPLIED ? this.applied[this.getAppliedSlot(index)] : null;
+        final int appliedSlot = this.getAppliedSlot(index);
+        if (appliedSlot == -1)
+            return null;
+        return this.applied[appliedSlot];
     }
 
     /**
@@ -298,7 +309,6 @@ final class Log {
 
         // Sanity check
         assert Thread.holdsLock(this.raft);
-        Preconditions.checkState(!this.unapplied.isEmpty());
 
         // Remove entry from "unapplied list
         final LogEntry logEntry = this.unapplied.remove(0);
@@ -311,6 +321,7 @@ final class Log {
 
         // Add entry to "applied" list
         final int appliedSlot = this.getAppliedSlot(index);
+        assert appliedSlot != -1;
         final LogEntry oldEntry = this.applied[appliedSlot];
         assert (oldEntry != null) == (this.numApplied == MAX_APPLIED);
         if (oldEntry != null)
@@ -319,9 +330,9 @@ final class Log {
         if (this.numApplied < MAX_APPLIED)
             this.numApplied++;
 
-        // Discard writes if ready
-        if (this.raft.role.mayDiscardWrites(logEntry))
-            this.discardWritesThroughIndex(logEntry.getIndex());
+        // Discard associated Writes object to save memory
+        logEntry.discardWrites();
+        assert this.checkState();
     }
 
     /**
@@ -331,6 +342,7 @@ final class Log {
         assert Thread.holdsLock(this.raft);
         Preconditions.checkArgument(logEntry.getIndex() == this.getLastIndex() + 1);
         this.unapplied.add(logEntry);
+        assert this.checkState();
     }
 
     /**
@@ -341,6 +353,7 @@ final class Log {
     public void discardLogEntries(final long startingIndex, AppendRequest msg) {
 
         // Sanity check
+        assert Thread.holdsLock(this.raft);
         Preconditions.checkArgument(startingIndex > this.lastAppliedIndex);
         final int minListIndex = (int)(startingIndex - this.lastAppliedIndex - 1);
         final int maxListIndex = this.unapplied.size();
@@ -355,54 +368,74 @@ final class Log {
             this.raft.deleteFile(logEntry.getFile(), "overwritten log file");
         }
         conflictList.clear();
+        assert this.checkState();
     }
 
     /**
-     * Discard the {@link Writes} associated with applied log entries having index at most {@code maxIndex}.
+     * Discard applied log entries up to the specified index because they are no longer needed.
      *
-     * <p>
-     * This is done simply to save memory.
+     * @param maxDiscardIndex maximum index of applied log entries to discard
+     * @throws IllegalArgumentException if {@code maxDiscardIndex} is greater than the last applied index
      */
-    public void discardWritesThroughIndex(long maxIndex) {
-        Preconditions.checkArgument(maxIndex <= this.lastAppliedIndex);
-        long index = Math.max(this.nonDiscardedWritesIndexMin, this.lastAppliedIndex - this.numApplied + 1);
-        while (index <= maxIndex) {
-            final LogEntry logEntry = this.applied[this.getAppliedSlot(index)];
-            if (logEntry != null)
-                logEntry.discardWrites();
-            index++;
+    public void discardAppliedLogEntries(long maxDiscardIndex) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
+        Preconditions.checkArgument(maxDiscardIndex <= this.lastAppliedIndex);
+        final long minDiscardIndex = this.lastAppliedIndex - this.numApplied + 1;
+
+        // Keep a minimum number of applied log entries just for good measure
+        maxDiscardIndex = Math.min(maxDiscardIndex, this.lastAppliedIndex - MIN_APPLIED);
+
+        // Delete applied log entries and associated files
+        for (long index = minDiscardIndex; index <= maxDiscardIndex; index++) {
+            final int appliedSlot = this.getAppliedSlot(index);
+            assert appliedSlot != -1;
+            final LogEntry logEntry = this.applied[appliedSlot];
+            assert logEntry != null;
+            if (this.raft.logger.isDebugEnabled())
+                this.raft.debug("deleting log entry " + logEntry + " no longer needed");
+            this.raft.deleteFile(logEntry.getFile(), "no longer needed");
+            this.applied[appliedSlot] = null;
+            this.numApplied--;
         }
-        this.nonDiscardedWritesIndexMin = index;
+        assert this.checkState();
     }
 
 // Other
 
+    /**
+     * Get the array index in {@code this.applied} for the already-applied log entry with the given index.
+     *
+     * <p>
+     * If this returns a value &gt;= 0, there may or may not actually be a {@link LogEntry} there.
+     *
+     * @param index log index
+     * @return array index in {@code this.applied} corresponding to {@code index}, or -1 if {@code index} is too old
+     * @throws IllegalArgumentException if {@code index} is greater than the last applied index
+     */
     private int getAppliedSlot(long index) {
+        final long offset = this.lastAppliedIndex - index;
+        Preconditions.checkArgument(offset >= 0);
+        if (index <= 0 || offset >= MAX_APPLIED)
+            return -1;
         return (int)(index % MAX_APPLIED);
     }
 
-    boolean checkState(boolean running) {
+    boolean checkState() {
 
-        // Handle stopped state
-        if (!running) {
-            assert this.lastAppliedIndex == 0;
-            assert this.lastAppliedTerm == 0;
-            assert this.lastAppliedConfig.isEmpty();
-            assert this.getNumApplied() == 0;
-            assert this.getNumUnapplied() == 0;
-            return true;
-        }
-
-        // Handle running state
+        // Check unapplied entries
         assert this.lastAppliedTerm >= 0;
         assert this.lastAppliedIndex >= 0;
-        long index = this.lastAppliedIndex;
-        long term = this.lastAppliedTerm;
-        for (LogEntry logEntry : this.unapplied) {
-            assert logEntry.getIndex() == index + 1;
-            assert logEntry.getTerm() >= term;
-            index = logEntry.getIndex();
-            term = logEntry.getTerm();
+        if (!this.unapplied.isEmpty()) {
+            long index = this.lastAppliedIndex;
+            long term = this.lastAppliedTerm;
+            for (LogEntry logEntry : this.unapplied) {
+                assert logEntry.getIndex() == index + 1;
+                assert logEntry.getTerm() >= term;
+                index = logEntry.getIndex();
+                term = logEntry.getTerm();
+            }
         }
 
         // Check configured vs. unconfigured
@@ -410,12 +443,26 @@ final class Log {
             assert !this.buildCurrentConfig().isEmpty();
             assert this.getLastTerm() > 0;
             assert this.getLastIndex() > 0;
+            assert this.getNumApplied() >= 0;
+            assert this.getNumApplied() <= MAX_APPLIED;
+            for (int i = 0; i <= MAX_APPLIED; i++) {
+                final long index = this.lastAppliedIndex - i;
+                final int appliedSlot = this.getAppliedSlot(index);
+                if (index <= 0 || i == MAX_APPLIED) {
+                    assert appliedSlot == -1;
+                    break;
+                }
+                assert appliedSlot != -1;
+                final LogEntry logEntry = this.applied[appliedSlot];
+                assert (logEntry != null) == (i < this.numApplied);
+            }
         } else {
             assert this.lastAppliedTerm == 0;
             assert this.lastAppliedIndex == 0;
             assert this.lastAppliedConfig.isEmpty();
             assert this.getNumApplied() == 0;
             assert this.getNumUnapplied() == 0;
+            assert Arrays.equals(this.applied, new LogEntry[MAX_APPLIED]);
         }
         return true;
     }

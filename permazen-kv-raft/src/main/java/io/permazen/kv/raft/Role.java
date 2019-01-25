@@ -72,7 +72,6 @@ public abstract class Role {
 
     void setup() {
         assert Thread.holdsLock(this.raft);
-        this.raft.log.discardWritesThroughIndex(this.raft.log.getLastAppliedIndex());
         this.raft.requestService(this.checkReadyTransactionsService);
         this.raft.requestService(this.checkWaitingTransactionsService);
         this.raft.requestService(this.applyCommittedLogEntriesService);
@@ -131,6 +130,9 @@ public abstract class Role {
      *
      * <p>
      * Note: checkWaitingTransactions() must have been invoked already when this method is invoked.
+     *
+     * <p>
+     * In addition, we discard applied log entries that are no longer needed (based on {@link #calculateMaxAppliedDiscardIndex}).
      */
     void applyCommittedLogEntries() {
 
@@ -140,6 +142,7 @@ public abstract class Role {
         assert this.raft.commitIndex >= this.raft.log.getLastAppliedIndex();
 
         // Apply all committed log entries to the state machine
+        boolean anyApplied = false;
         while (this.raft.log.getLastAppliedIndex() < this.raft.commitIndex) {
 
             // Grab the first unwritten log entry
@@ -194,13 +197,20 @@ public abstract class Role {
 
             // Update log
             this.raft.log.applyNextLogEntry();
+            anyApplied = true;
             assert this.raft.currentConfig.equals(this.raft.log.buildCurrentConfig());
         }
+
+        // Discard already-applied log entries
+        if (anyApplied)
+            this.raft.log.discardAppliedLogEntries(this.calculateMaxAppliedDiscardIndex());
     }
 
-    boolean mayDiscardWrites(LogEntry logEntry) {
-        assert logEntry.getIndex() <= this.raft.log.getLastAppliedIndex();
-        return true;
+    /**
+     * Calculate the maximum index of applied log entries to discard.
+     */
+    long calculateMaxAppliedDiscardIndex() {
+        return this.raft.log.getLastAppliedIndex();
     }
 
     // Assertion check

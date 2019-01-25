@@ -59,8 +59,6 @@ public class LeaderRole extends Role {
     private final Service updateLeaderCommitIndexService = new Service(this, "update commitIndex", this::updateLeaderCommitIndex);
     private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout", this::updateLeaseTimeout);
     private final Service updateKnownFollowersService = new Service(this, "update known followers", this::updateKnownFollowers);
-    private final Service discardAppliedLogEntryWritesService = new Service(this,
-      "discard applied log entry writes", this::discardAppliedLogEntryWrites);
 
     // Timers
     private final Timer timestampScrubTimer = new Timer(this.raft, "scrub timestamps",
@@ -196,34 +194,15 @@ public class LeaderRole extends Role {
         });
     }
 
-    /**
-     * Discard {@link Writes} of already-applied log entries to save memory.
-     *
-     * <p>
-     * This should be invoked:
-     * <ul>
-     *  <li>After a follower's {@linkplain Follower#getMatchIndex match index} has advanced</li>
-     *  <li>After a follower's sync status has changed</li>
-     *  <li>After the set of known followers has changed</li>
-     * </ul>
-     */
-    private void discardAppliedLogEntryWrites() {
-        assert Thread.holdsLock(this.raft);
-        this.raft.log.discardWritesThroughIndex(this.calculateDiscardWritesIndex());
-    }
-
-    private long calculateDiscardWritesIndex() {
-        long discardWritesIndex = this.raft.log.getLastAppliedIndex();
-        for (Follower follower : this.followerMap.values()) {
-            if (follower.isSynced())
-                discardWritesIndex = Math.min(discardWritesIndex, follower.getMatchIndex());
-        }
-        return discardWritesIndex;
-    }
-
     @Override
-    boolean mayDiscardWrites(LogEntry logEntry) {
-        return logEntry.getIndex() <= this.calculateDiscardWritesIndex();
+    long calculateMaxAppliedDiscardIndex() {
+        assert Thread.holdsLock(this.raft);
+
+        // Calculate MIN(matchIndex) over all followers
+        long minMatchIndex = this.raft.log.getLastAppliedIndex();
+        for (Follower follower : this.followerMap.values())
+            minMatchIndex = Math.min(minMatchIndex, follower.getMatchIndex());
+        return minMatchIndex;
     }
 
     /**
@@ -834,7 +813,6 @@ public class LeaderRole extends Role {
             this.raft.requestService(this.updateLeaderCommitIndexService);
             if (!this.raft.isClusterMember(follower.getIdentity()))
                 this.raft.requestService(this.updateKnownFollowersService);
-            this.raft.requestService(this.discardAppliedLogEntryWritesService);
         }
 
         // Check result and update follower's next index
@@ -848,7 +826,6 @@ public class LeaderRole extends Role {
                 this.perfLog("sync status of \"" + follower.getIdentity() + "\" changed -> "
                   + (!follower.isSynced() ? "not " : "") + "synced");
             }
-            this.raft.requestService(this.discardAppliedLogEntryWritesService);
             updateFollowerAgain = true;
         }
 
@@ -1102,10 +1079,8 @@ public class LeaderRole extends Role {
         final LogEntry logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
 
         // Update follower list if configuration changed
-        if (configChange != null) {
+        if (configChange != null)
             this.raft.requestService(this.updateKnownFollowersService);
-            this.raft.requestService(this.discardAppliedLogEntryWritesService);
-        }
 
         // Update commit index (this is only needed if config has changed, or in the single node case)
         if (configChange != null || this.followerMap.isEmpty())
