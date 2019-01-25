@@ -122,7 +122,7 @@ final class Log {
      */
     public long getFirstIndex() {
         assert Thread.holdsLock(this.raft);
-        return this.lastAppliedIndex - this.numApplied + 1;
+        return this.numApplied > 0 ? this.lastAppliedIndex - this.numApplied + 1 : this.lastAppliedIndex;
     }
 
     /**
