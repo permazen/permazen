@@ -1049,7 +1049,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Start up service executor thread
             assert this.serviceExecutor == null;
-            final String serviceThreadName = "Raft Service [" + this.identity + "]";
+            final String serviceThreadName = "Raft KV [" + this.identity + "]";
             this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(action -> {
                 final Thread thread = new Thread(action);
                 synchronized (this) {
