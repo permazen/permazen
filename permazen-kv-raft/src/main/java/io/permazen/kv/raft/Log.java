@@ -69,6 +69,9 @@ final class Log {
         Preconditions.checkArgument(lastAppliedIndex >= 0);
         Preconditions.checkArgument(entries != null);
         Preconditions.checkArgument(config != null);
+        Preconditions.checkArgument(entries.isEmpty()
+          || (entries.get(0).getIndex() <= lastAppliedIndex + 1
+           && entries.get(entries.size() - 1).getIndex() >= lastAppliedIndex));
 
         // Optionally delete log entry files on disk
         if (deleteFiles) {
