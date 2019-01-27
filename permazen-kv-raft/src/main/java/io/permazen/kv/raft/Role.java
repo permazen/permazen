@@ -207,7 +207,7 @@ public abstract class Role {
     }
 
     /**
-     * Calculate the maximum index of applied log entries to discard.
+     * Calculate the maximum index (inclusive) of applied log entries we may safely discard.
      */
     long calculateMaxAppliedDiscardIndex() {
         return this.raft.log.getLastAppliedIndex();

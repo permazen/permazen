@@ -198,11 +198,16 @@ public class LeaderRole extends Role {
     long calculateMaxAppliedDiscardIndex() {
         assert Thread.holdsLock(this.raft);
 
-        // Calculate MIN(matchIndex) over all followers
-        long minMatchIndex = this.raft.log.getLastAppliedIndex();
-        for (Follower follower : this.followerMap.values())
-            minMatchIndex = Math.min(minMatchIndex, follower.getMatchIndex());
-        return minMatchIndex;
+        // Calculate MIN(discardIndex) over all followers, where discardIndex = follower match index, or snapshot base index
+        // if follower is being sent a snapshot. Applied log entries <= this index can be discarded, because we know the
+        // follower already has them, or, in the case of a snapshot, will very likely soon have them.
+        long maxAppliedDiscardIndex = super.calculateMaxAppliedDiscardIndex();
+        for (Follower follower : this.followerMap.values()) {
+            final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
+            final long discardIndex = snapshotTransmit != null ? snapshotTransmit.getSnapshotIndex() : follower.getMatchIndex();
+            maxAppliedDiscardIndex = Math.min(maxAppliedDiscardIndex, discardIndex);
+        }
+        return maxAppliedDiscardIndex;
     }
 
     /**
