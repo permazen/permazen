@@ -1,4 +1,4 @@
-Version 4.1.4
+Version 4.1.4 Released February 5, 2019
 
     - Added method SnapshotKVTransaction.getCommitVersion()
     - Create exception type that captures MVCC conflict info
