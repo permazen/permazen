@@ -54,6 +54,8 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     private boolean readOnly;
     @GuardedBy("this")
     private long timeout;
+    @GuardedBy("this")
+    private long commitVersion;
 
     /**
      * Constructor.
@@ -81,6 +83,20 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      */
     public long getBaseVersion() {
         return this.baseVersion;
+    }
+
+    /**
+     * Get the MVCC database version number representing this transaction's successful commit, if any.
+     *
+     * @return transaction commit version number, or zero if transaction is read-only or not committed
+     */
+    public synchronized long getCommitVersion() {
+        return this.commitVersion;
+    }
+    void setCommitVersion(long commitVersion) {
+        assert Thread.holdsLock(this);
+        assert this.commitVersion == 0;
+        this.commitVersion = commitVersion;
     }
 
     /**

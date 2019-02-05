@@ -1,5 +1,6 @@
 Version 4.1.4
 
+    - Added method SnapshotKVTransaction.getCommitVersion()
     - Create exception type that captures MVCC conflict info
     - Minor Raft improvements
 

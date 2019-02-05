@@ -377,7 +377,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // Discard the obsolete snapshot and advance the database version
         final SnapshotRefs oldSnapshot = this.snapshot;
         this.snapshot = null;
-        this.currentVersion++;
+        tx.setCommitVersion(++this.currentVersion);
 
         // Check concurrent transactions and invalidate any that have conflicts, or rebase them on the new version
         int numTx = this.transactions.size();                                                       // only used for logging
