@@ -26,6 +26,7 @@ import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownFieldException;
+import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.parse.Parser;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
@@ -186,7 +187,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
                     // Describe indexed values
                     for (SimpleField<?> field : index.getFields())
-                        decodes.add("Value " + DecodeKeyCommand.readStringValue(field, reader));
+                        decodes.add("Value", field, reader);
 
                     // Describe object ID
                     decodes.add(new ObjId(reader));
@@ -201,7 +202,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     decodes.add("[#" + storageId + "] Simple index on " + field);
 
                     // Describe value
-                    decodes.add("Value " + DecodeKeyCommand.readStringValue(field, reader));
+                    decodes.add("Value", field, reader);
 
                     // Describe object ID
                     decodes.add(new ObjId(reader));
@@ -219,7 +220,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
                             @Override
                             public <K, V> Void caseMapField(MapField<K, V> field) {
-                                decodes.add("Key " + DecodeKeyCommand.readStringValue(field.getKeyField(), reader));
+                                decodes.add("Map key", field.getKeyField(), reader);
                                 return null;
                             }
 
@@ -261,14 +262,14 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     @Override
                     public <E> Void caseSetField(SetField<E> field) {
                         super.caseSetField(field);
-                        decodes.add("Element value " + DecodeKeyCommand.readStringValue(field.getElementField(), reader));
+                        decodes.add("Set element", field.getElementField(), reader);
                         return null;
                     }
 
                     @Override
                     public <K, V> Void caseMapField(MapField<K, V> field) {
                         super.caseMapField(field);
-                        decodes.add("Key " + DecodeKeyCommand.readStringValue(field.getKeyField(), reader));
+                        decodes.add("Map key ", field.getKeyField(), reader);
                         return null;
                     }
 
@@ -289,13 +290,6 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
         // Done
         return decodes.toString();
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private static <T> String readStringValue(SimpleField<T> field, ByteReader reader) {
-        final FieldType<T> fieldType = field.getFieldType();
-        final T value = fieldType.read(reader);
-        return fieldType.toParseableString(value);
     }
 
     private static class DecodeKeyAction implements CliSession.Action, Session.RetryableAction {
@@ -347,15 +341,30 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             this.lastOffset = this.reader.getOffset();
         }
 
+        // Add object ID
         void add(ObjId id) {
+            this.add(null, id);
+        }
+
+        private void add(String label, ObjId id) {
             Preconditions.checkArgument(id != null, "null id");
             final int storageId = id.getStorageId();
             final SchemaItem schemaItem = this.storageIdMap.get(storageId);
             if (schemaItem instanceof ObjType) {
                 final ObjType objType = (ObjType)schemaItem;
-                this.add("Object ID " + id + " of type \"" + objType.getName() + "\"");
+                this.add((label != null ? label + " " : "") + "Object ID " + id + " of type \"" + objType.getName() + "\"");
             } else
-                this.add("Object ID " + id + " (invalid type #" + storageId + ")");
+                this.add((label != null ? label + " " : "") + "Object ID " + id + " (invalid type #" + storageId + ")");
+        }
+
+        // Add a simple field value
+        <T> void add(String label, SimpleField<T> field, ByteReader reader) {
+            final FieldType<T> fieldType = field.getFieldType();
+            final T value = fieldType.read(reader);
+            if (fieldType instanceof ReferenceFieldType)
+                this.add(label, (ObjId)value);
+            else
+                this.add(label + " " + fieldType.toParseableString(value));
         }
 
         void addRemainder(String description) {
