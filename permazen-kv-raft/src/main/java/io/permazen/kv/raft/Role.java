@@ -11,8 +11,10 @@ import com.google.common.primitives.Bytes;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.mvcc.Conflict;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Reads;
+import io.permazen.kv.mvcc.TransactionConflictException;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.msg.AppendRequest;
 import io.permazen.kv.raft.msg.AppendResponse;
@@ -603,15 +605,16 @@ public abstract class Role {
                 // Check for conflicts
                 final LogEntry logEntry = this.raft.log.getEntryAtIndex(++baseIndex);
                 assert !skipConflictCheck || !tx.view.getReads().isConflict(logEntry.getWrites());
-                if (!skipConflictCheck && tx.view.getReads().isConflict(logEntry.getWrites())) {
+                final Conflict conflict;
+                if (!skipConflictCheck && (conflict = tx.view.getReads().findConflict(logEntry.getWrites())) != null) {
                     if (this.log.isDebugEnabled())
-                        this.debug("cannot rebase " + tx + " past " + logEntry + " due to conflicts, failing");
+                        this.debug("cannot rebase " + tx + " past " + logEntry + ", failing: " + conflict);
                     if (this.raft.dumpConflicts) {
                         this.dumpConflicts(tx.view.getReads(), logEntry.getWrites(),
                           "local txId=" + tx.txId + " fails due to conflicts with " + logEntry);
                     }
-                    throw new RetryTransactionException(tx, "writes of committed transaction at index " + baseIndex
-                      + " conflict with transaction reads from transaction base index " + tx.getBaseIndex());
+                    throw new TransactionConflictException(tx, conflict, "writes of committed transaction at index " + baseIndex
+                      + " conflict with transaction reads from transaction base index " + tx.getBaseIndex() + ": " + conflict);
                 }
 
                 // If we reach the transaction's commit log entry (if any), we can stop

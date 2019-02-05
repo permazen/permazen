@@ -1,5 +1,6 @@
 Version 4.1.4
 
+    - Create exception type that captures MVCC conflict info
     - Minor Raft improvements
 
 Version 4.1.3 Released January 22, 2019

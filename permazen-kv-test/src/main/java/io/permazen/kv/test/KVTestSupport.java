@@ -207,6 +207,8 @@ public abstract class KVTestSupport extends TestSupport {
     }
 
     protected String mapRetryExceptionMessage(String message) {
-        return message.replaceAll("[0-9]+", "NNN");
+        return message
+          .replaceAll("[0-9]+", "NNN")
+          .replaceAll("(read/(write|remove|adjust) conflict at )[\\p{Graph}]+", "$1...");
     }
 }

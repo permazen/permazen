@@ -387,14 +387,14 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             synchronized (victim.view) {
 
                 // Check for conflict
-                final boolean conflict = victim.view.getReads().isConflict(txWrites);
+                final Conflict conflict = victim.view.getReads().findConflict(txWrites);
                 if (this.log.isTraceEnabled()) {
                     this.log.trace("ordering " + victim + " after " + tx + " writes in version " + this.currentVersion
-                      + " results in " + (conflict ? "" : "no ") + "conflict");
-//                    if (conflict)
+                      + " results in " + (conflict != null ? conflict : "no conflict"));
+//                    if (conflict != null)
 //                        this.log.trace("conflicts: {}", victim.view.getReads().getConflicts(txWrites));
                 }
-                if (conflict) {
+                if (conflict != null) {
 
                     // Mark transaction for failure
                     i.remove();

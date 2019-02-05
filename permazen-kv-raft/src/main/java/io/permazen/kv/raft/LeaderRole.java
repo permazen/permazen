@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.mvcc.Conflict;
 import io.permazen.kv.mvcc.Reads;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.msg.AppendRequest;
@@ -759,7 +760,8 @@ public class LeaderRole extends Role {
 
         // Check for conflict
         final Reads reads = this.raft.highPrioTx.view.getReads();
-        if (!reads.isConflict(writes))
+        final Conflict conflict = reads.findConflict(writes);
+        if (conflict == null)
             return null;
 
         // Report conflicts
@@ -769,7 +771,7 @@ public class LeaderRole extends Role {
         }
 
         // Fail
-        return "transaction conflicts with a high priority transaction";
+        return "transaction conflicts with a high priority transaction: " + conflict;
     }
 
 // Message
@@ -1131,11 +1133,12 @@ public class LeaderRole extends Role {
             final LogEntry logEntry = this.raft.log.getEntryAtIndexIfKnown(index);
             assert logEntry != null;
             try {
-                if (reads.isConflict(logEntry.getMutations())) {
+                final Conflict conflict = reads.findConflict(logEntry.getMutations());
+                if (conflict != null) {
                     if (dumpDesc != null)
                         this.dumpConflicts(reads, logEntry.getMutations(), dumpDesc + " fails due to conflicts with " + logEntry);
                     return "writes of committed transaction at index " + index
-                      + " conflict with transaction reads from transaction base index " + baseIndex;
+                      + " conflict with transaction reads from transaction base index " + baseIndex + ": " + conflict;
                 }
             } catch (IOException e) {
                 this.error("error during conflict check", e);

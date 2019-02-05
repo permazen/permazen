@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.util.ByteUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,17 +64,17 @@ public class Reads extends KeyRanges {
      * Determine whether any of the given mutations conflict with any of the keys read by this instance.
      *
      * <p>
-     * If this method returns false, then if two transactions T1 and T2 are based on the same underlying
-     * {@link io.permazen.kv.KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,
-     * then T2 can be ordered after T1 while still preserving linearizable semantics. That is, the given {@code mutations}
-     * are invisible to this instance.
+     * This method is equivalent to invoking {@link #findConflict findConflict()} and checking whether it returns non-null.
      *
      * <p>
      * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.
      *
      * @param mutations mutations to check for conflicts
-     * @return true if the {@code mutations} are invisible to this instance, false if there is a read/write conflict
+     * @return true if the {@code mutations} are invisible to this instance, false if this instance contains a
+     *  key modified by {@code mutations}
      * @throws IllegalArgumentException if {@code mutations} is null
+     * @see #findConflict findConflict()
+     * @see #getAllConflicts getAllConflicts()
      */
     public boolean isConflict(Mutations mutations) {
         Preconditions.checkArgument(mutations != null, "null mutations");
@@ -103,12 +102,36 @@ public class Reads extends KeyRanges {
     }
 
     /**
-     * List the conflicts between the given mutations and any of the keys read by this instance.
+     * Determine whether any of the given mutations conflict with any of the keys read by this instance,
+     * and report the first conflict found.
      *
      * <p>
-     * This gives descriptive details about the conflicts reported by {@link #isConflict isConflict()};
-     * see that method for information on these conflicts. This method returns an empty list if and only
-     * if {@link #isConflict isConflict()} returns false.
+     * If this method returns null, then if two transactions T1 and T2 are based on the same underlying
+     * {@link io.permazen.kv.KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,
+     * then T2 can be ordered after T1 while still preserving linearizable semantics. That is, the given {@code mutations}
+     * are invisible to this instance.
+     *
+     * <p>
+     * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.
+     *
+     * @param mutations mutations to check for conflicts
+     * @return the first {@link Conflict} found, or null if there are no conflicts
+     * @throws IllegalArgumentException if {@code mutations} is null
+     * @see #getAllConflicts getAllConflicts()
+     * @see #isConflict isConflict()
+     */
+    public Conflict findConflict(Mutations mutations) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        final List<Conflict> conflicts = this.getAllConflicts(mutations, true);
+        return !conflicts.isEmpty() ? conflicts.get(0) : null;
+    }
+
+    /**
+     * List all of the conflicts between the given mutations and any of the keys read by this instance, in {@link String} form.
+     *
+     * <p>
+     * This method simply invokes {@link #getAllConflicts(Mutations) getAllConflicts()} and returns the resulting list
+     * converted into {@link String} objects via {@link Conflict#toString}.
      *
      * <p>
      * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.
@@ -116,44 +139,75 @@ public class Reads extends KeyRanges {
      * @param mutations mutations to check for conflicts with this instance
      * @return a description of each conflict between this instance and the given mutations
      * @throws IllegalArgumentException if {@code mutations} is null
+     * @see #getAllConflicts getAllConflicts()
      */
     public List<String> getConflicts(Mutations mutations) {
+        final List<Conflict> conflicts = this.getAllConflicts(mutations);
+        final ArrayList<String> result = new ArrayList<>(conflicts.size());
+        for (Conflict conflict : conflicts)
+            result.add(conflict.toString());
+        return result;
+    }
+
+    /**
+     * List all of the conflicts between the given mutations and any of the keys read by this instance.
+     *
+     * <p>
+     * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.
+     *
+     * @param mutations mutations to check for conflicts with this instance
+     * @return list of each conflict between this instance and the given mutations
+     * @throws IllegalArgumentException if {@code mutations} is null
+     * @see #findConflict findConflict()
+     * @see #isConflict isConflict()
+     */
+    public List<Conflict> getAllConflicts(Mutations mutations) {
+        return this.getAllConflicts(mutations, false);
+    }
+
+    private List<Conflict> getAllConflicts(Mutations mutations, boolean returnFirst) {
 
         // Sanity check
         Preconditions.checkArgument(mutations != null, "null mutations");
 
         // Prepare list
-        final ArrayList<String> conflicts = new ArrayList<>();
+        final ArrayList<Conflict> conflictList = new ArrayList<>();
 
-        // Check removes
+        // Check for read/remove conflicts
         for (KeyRange remove : mutations.getRemoveRanges()) {
             if (this.intersects(remove)) {
                 final KeyRanges intersection = new KeyRanges(remove);
                 intersection.intersect(this);
-                final StringBuilder buf = new StringBuilder();
                 for (KeyRange range : intersection) {
-                    if (buf.length() > 0)
-                        buf.append(", ");
-                    buf.append(range.isSingleKey() ? ByteUtil.toString(range.getMin()) : range);
+                    conflictList.add(new ReadRemoveConflict(range));
+                    if (returnFirst)
+                        return conflictList;
                 }
-                conflicts.add("read/remove conflict: " + buf);
             }
         }
 
-        // Check puts
+        // Check for read/write conflicts
         for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
-            if (this.contains(entry.getKey()))
-                conflicts.add("read/write conflict: " + ByteUtil.toString(entry.getKey()));
+            final byte[] key = entry.getKey();
+            if (this.contains(key)) {
+                conflictList.add(new ReadWriteConflict(key));
+                if (returnFirst)
+                    return conflictList;
+            }
         }
 
-        // Check adjusts
+        // Check for read/adjust conflicts
         for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs()) {
-            if (this.contains(entry.getKey()))
-                conflicts.add("read/adjust conflict: " + ByteUtil.toString(entry.getKey()));
+            final byte[] key = entry.getKey();
+            if (this.contains(key)) {
+                conflictList.add(new ReadAdjustConflict(key));
+                if (returnFirst)
+                    return conflictList;
+            }
         }
 
         // Return conflicts
-        return conflicts;
+        return conflictList;
     }
 
 // Cloneable
