@@ -126,7 +126,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
         // Decode
         final ByteReader reader = new ByteReader(key);
-        final Decodes decodes = new Decodes(reader);
+        final Decodes decodes = new Decodes(reader, storageIdMap);
         try {
             while (true) {
 
@@ -146,7 +146,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     case 0x80:
                         decodes.add("Object version index");
                         decodes.add("Object version #" + UnsignedIntEncoder.read(reader));
-                        decodes.add(new ObjId(reader), storageIdMap);
+                        decodes.add(new ObjId(reader));
                         break;
                     case 0xff:
                         decodes.add("User meta-data range");
@@ -189,7 +189,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                         decodes.add("Value " + DecodeKeyCommand.readStringValue(field, reader));
 
                     // Describe object ID
-                    decodes.add(new ObjId(reader), storageIdMap);
+                    decodes.add(new ObjId(reader));
                     break;
                 }
 
@@ -204,7 +204,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     decodes.add("Value " + DecodeKeyCommand.readStringValue(field, reader));
 
                     // Describe object ID
-                    decodes.add(new ObjId(reader), storageIdMap);
+                    decodes.add(new ObjId(reader));
 
                     // Describe list index or key
                     final ComplexField<?> parent = parentMap.get(field.getStorageId());
@@ -325,16 +325,20 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
     private static class Decodes {
 
+        private final Map<Integer, SchemaItem> storageIdMap;
         private final ByteReader reader;
         private final ArrayList<Decode> decodeList = new ArrayList<>();
 
         private int lastOffset;
 
-        Decodes(ByteReader reader) {
+        Decodes(ByteReader reader, Map<Integer, SchemaItem> storageIdMap) {
             Preconditions.checkArgument(reader != null, "null reader");
+            Preconditions.checkArgument(storageIdMap != null, "null storageIdMap");
             this.reader = reader;
+            this.storageIdMap = storageIdMap;
         }
 
+        // Add arbitrary description
         void add(Object description) {
             Preconditions.checkArgument(description != null, "null description");
             final int len = this.reader.getOffset() - this.lastOffset;
@@ -343,11 +347,10 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             this.lastOffset = this.reader.getOffset();
         }
 
-        void add(ObjId id, Map<Integer, SchemaItem> storageIdMap) {
+        void add(ObjId id) {
             Preconditions.checkArgument(id != null, "null id");
-            Preconditions.checkArgument(storageIdMap != null, "null storageIdMap");
             final int storageId = id.getStorageId();
-            final SchemaItem schemaItem = storageIdMap.get(storageId);
+            final SchemaItem schemaItem = this.storageIdMap.get(storageId);
             if (schemaItem instanceof ObjType) {
                 final ObjType objType = (ObjType)schemaItem;
                 this.add("Object ID " + id + " of type \"" + objType.getName() + "\"");
