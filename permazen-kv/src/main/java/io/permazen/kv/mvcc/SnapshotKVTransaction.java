@@ -211,7 +211,8 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     public String toString() {
         return this.getClass().getSimpleName()
           + "[id=" + this.uniqueId
-          + ",vers=" + this.baseVersion
+          + ",base=" + this.baseVersion
+          + (this.commitVersion != 0 ? ",commit=" + this.commitVersion : "")
           + (this.closed.get() ? ",closed" : "")
           + "]";
     }
