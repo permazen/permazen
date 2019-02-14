@@ -10,9 +10,9 @@
 - The meta-data area spans all keys with first byte 0x00
 
 - Keys with first byte 0x00 and second byte 0x00 through 0xfe (inclusive)
-  are reserved by JSimpleDB and must not be modified.
+  are reserved by Permazen and must not be modified.
 
-- Keys with first byte 0x00 and second byte 0xff are ignored by JSimpleDB
+- Keys with first byte 0x00 and second byte 0xff are ignored by Permazen
   and may be used for custom user applications.
 
 Format Version
