@@ -1,4 +1,12 @@
 
+Notes:
+
+- Storage ID's are unsigned 32-bit values encoded by io.permazen.util.UnsignedIntEncoder,
+  which means they can have variable length from 1 to 5 bytes (but typically 3).
+
+- Every key/value pair in a Permazen database should match one of the following.
+  You can use the "jsck" CLI command to consistency check this.
+
 ****** OBJECT IDS (64 bits) *******
 
     +------------+----------------------------------------------------------+
