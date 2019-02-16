@@ -1,6 +1,7 @@
 Version Next
 
     - Added utility method AbstractXMLStreaming.newInvalidAttributeException()
+    - Added NullSafeType.getInnerType()
 
 Version 4.1.4 Released February 5, 2019
 

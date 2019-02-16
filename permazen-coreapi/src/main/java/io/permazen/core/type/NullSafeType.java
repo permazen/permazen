@@ -72,6 +72,15 @@ public class NullSafeType<T> extends FieldType<T> {
        this(inner.getName(), inner);
     }
 
+    /**
+     * Get the inner {@link FieldType} that this instance wraps.
+     *
+     * @return inner type that is not null safe
+     */
+    public FieldType<T> getInnerType() {
+        return this.inner;
+    }
+
     @Override
     public T read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
