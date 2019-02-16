@@ -194,8 +194,7 @@ public abstract class AbstractXMLStreaming {
         try {
             return Integer.parseInt(text, 10);
         } catch (NumberFormatException e) {
-            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
-              + name + "\" value `" + text + "' is invalid: not a valid value", reader.getLocation(), e);
+            throw newInvalidAttributeException(reader, name, "not a valid integer value", e);
         }
     }
 
@@ -217,8 +216,7 @@ public abstract class AbstractXMLStreaming {
         try {
             return Long.parseLong(text, 10);
         } catch (NumberFormatException e) {
-            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
-              + name + "\" value `" + text + "' is invalid: not a valid long value", reader.getLocation(), e);
+            throw newInvalidAttributeException(reader, name, "not a valid long value", e);
         }
     }
 
@@ -257,8 +255,7 @@ public abstract class AbstractXMLStreaming {
         case "false":
             return false;
         default:
-            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
-              + name + "\" value `" + text + "' is invalid: expected either \"true\" or \"false\"", reader.getLocation());
+            throw newInvalidAttributeException(reader, name, "expected either \"true\" or \"false\"");
         }
     }
 
@@ -275,5 +272,31 @@ public abstract class AbstractXMLStreaming {
     protected boolean getBooleanAttr(XMLStreamReader reader, QName name) throws XMLStreamException {
         return this.getBooleanAttr(reader, name, true);
     }
-}
 
+    /**
+     * Build a {@link XMLStreamException} caused by invalid content in an attribute.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @param description a description of the problem
+     * @param cause optional underlying exception for chaining
+     * @return exception to throw
+     * @throws IllegalArgumentException if more than one {@code cause} is given
+     * @throws XMLStreamException if error occurs accessing the attribute value
+     */
+    protected XMLStreamException newInvalidAttributeException(XMLStreamReader reader,
+      QName name, String description, Throwable... cause) throws XMLStreamException {
+        final String value = this.getAttr(reader, name, false);
+        final String content = value != null ? "value `" + value + "'" : "left unspecified";
+        final String message = "<" + reader.getName().getLocalPart() + "> element attribute \""
+          + name + "\" " + content + " is invalid: " + description;
+        switch (cause.length) {
+        case 0:
+            return new XMLStreamException(message, reader.getLocation());
+        case 1:
+            return new XMLStreamException(message, reader.getLocation(), cause[0]);
+        default:
+            throw new IllegalArgumentException("invalid multiple causes");
+        }
+    }
+}
