@@ -59,7 +59,15 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
         super(elementType.getName() + "[]", typeToken, elementType.getEncodingSignature(),
           (T)Array.newInstance(elementType.getTypeToken().getRawType(), 0));
         this.elementType = elementType;
-        this.dimensions = elementType instanceof ArrayType ? ((ArrayType)elementType).dimensions + 1 : 1;
+
+        // Introspect to deduce the total number of dimensions
+        FieldType<?> etype = elementType;
+        if (etype instanceof NullSafeType)
+            etype = ((NullSafeType<?>)elementType).getInnerType();
+        if (etype instanceof ArrayType)
+            this.dimensions = ((ArrayType<?, ?>)etype).dimensions + 1;
+        else
+            this.dimensions = 1;
         Preconditions.checkArgument(this.dimensions <= MAX_DIMENSIONS, "too many array dimensions");
     }
 
