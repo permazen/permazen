@@ -19,7 +19,7 @@ public class LockDownTest extends CoreAPITestSupport {
     @Test
     private void testLockDown() throws Exception {
         final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"2\">\n"
+          + "<Schema formatVersion=\"3\">\n"
           + "<ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "  <SimpleField name=\"i\" type=\"int\" storageId=\"10\"/>\n"
           + "  <EnumField name=\"e\" storageId=\"12\">\n"
@@ -41,6 +41,10 @@ public class LockDownTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"key\" type=\"int\" storageId=\"19\"/>\n"
           + "    <SimpleField name=\"value\" type=\"int\" storageId=\"20\"/>\n"
           + "  </MapField>\n"
+          + "  <EnumArrayField name=\"ea\" storageId=\"20\" dimensions=\"2\">\n"
+          + "    <Identifier>AAA</Identifier>\n"
+          + "    <Identifier>BBB</Identifier>\n"
+          + "  </EnumArrayField>\n"
           + "  <CompositeIndex storageId=\"110\" name=\"ir\">\n"
           + "    <IndexedField storageId=\"10\"/>\n"
           + "    <IndexedField storageId=\"12\"/>\n"
@@ -98,6 +102,18 @@ public class LockDownTest extends CoreAPITestSupport {
             this.log.debug("got expected " + e);
         }
         try {
+            ((EnumArraySchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).getIdentifiers().clear();
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            this.log.debug("got expected " + e);
+        }
+        try {
+            ((EnumArraySchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).setDimensions(123);
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            this.log.debug("got expected " + e);
+        }
+        try {
             ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setOnDelete(null);
             assert false;
         } catch (UnsupportedOperationException e) {
@@ -144,6 +160,8 @@ public class LockDownTest extends CoreAPITestSupport {
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setIndexed(false);
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingSignature(123);
         ((EnumSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(12)).getIdentifiers().clear();
+        ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).getIdentifiers().clear();
+        ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).setDimensions(123);
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setOnDelete(null);
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setCascadeDelete(true);
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setAllowDeleted(false);

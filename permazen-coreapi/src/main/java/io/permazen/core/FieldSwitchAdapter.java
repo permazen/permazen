@@ -92,6 +92,17 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
     }
 
     /**
+     * Handle a {@link EnumArrayField}.
+     *
+     * <p>
+     * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseSimpleField caseSimpleField()}.
+     */
+    @Override
+    public R caseEnumArrayField(EnumArrayField field) {
+        return this.caseSimpleField(field);
+    }
+
+    /**
      * Adapter class roll-up method.
      *
      * <p>

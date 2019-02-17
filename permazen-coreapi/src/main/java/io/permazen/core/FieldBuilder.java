@@ -7,7 +7,10 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.type.ArrayType;
+import io.permazen.core.type.EnumFieldType;
 import io.permazen.schema.CounterSchemaField;
+import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.EnumSchemaField;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.schema.MapSchemaField;
@@ -89,6 +92,18 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
         Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
         return new EnumField(field.getName(), field.getStorageId(), this.schema, field.isIndexed(), field.getIdentifiers());
+    }
+
+    @Override
+    public EnumArrayField caseEnumArraySchemaField(EnumArraySchemaField field) {
+        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
+        Preconditions.checkArgument(field.getDimensions() >= 1 && field.getDimensions() <= ArrayType.MAX_DIMENSIONS);
+        final EnumFieldType baseType = new EnumFieldType(field.getIdentifiers());
+        FieldType<?> fieldType = baseType;
+        for (int dims = 0; dims < field.getDimensions(); dims++)
+            fieldType = this.fieldTypeRegistry.getArrayType(fieldType);
+        return new EnumArrayField(field.getName(), field.getStorageId(),
+          this.schema, field.isIndexed(), baseType, fieldType, field.getDimensions());
     }
 
     @Override

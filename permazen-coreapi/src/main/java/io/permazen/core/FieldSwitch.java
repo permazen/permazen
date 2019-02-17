@@ -73,5 +73,13 @@ public interface FieldSwitch<R> {
      * @return visitor return value
      */
     R caseEnumField(EnumField field);
+
+    /**
+     * Handle an {@link EnumArrayField}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    R caseEnumArrayField(EnumArrayField field);
 }
 

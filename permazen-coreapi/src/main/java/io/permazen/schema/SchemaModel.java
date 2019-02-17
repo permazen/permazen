@@ -52,6 +52,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     static {
         FIELD_TAG_MAP.put(XMLConstants.COUNTER_FIELD_TAG, CounterSchemaField.class);
         FIELD_TAG_MAP.put(XMLConstants.ENUM_FIELD_TAG, EnumSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.ENUM_ARRAY_FIELD_TAG, EnumArraySchemaField.class);
         FIELD_TAG_MAP.put(XMLConstants.LIST_FIELD_TAG, ListSchemaField.class);
         FIELD_TAG_MAP.put(XMLConstants.MAP_FIELD_TAG, MapSchemaField.class);
         FIELD_TAG_MAP.put(XMLConstants.REFERENCE_FIELD_TAG, ReferenceSchemaField.class);
@@ -73,7 +74,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     private static final String XML_OUTPUT_FACTORY_PROPERTY = "javax.xml.stream.XMLOutputFactory";
     private static final String DEFAULT_XML_OUTPUT_FACTORY_IMPLEMENTATION = "com.sun.xml.internal.stream.XMLOutputFactoryImpl";
 
-    private static final int CURRENT_FORMAT_VERSION = 2;
+    private static final int CURRENT_FORMAT_VERSION = 3;
 
     // Keys into this.lockedDownCache
     private static final int VALIDATION_RESULT_KEY = 1;
@@ -386,6 +387,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
             break;
         case 1:                                             // changed <Object> to <ObjectType>
         case 2:                                             // added <CompositeIndex>
+        case CURRENT_FORMAT_VERSION:                        // added <EnumArrayField>
             objectTypeTag = XMLConstants.OBJECT_TYPE_TAG;
             break;
         default:
@@ -408,10 +410,20 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 // XML Writing
 
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+
+        // To mimimize upgrade issues, use the older XML format if there are no EnumArraySchemaField's in the schema
+        assert CURRENT_FORMAT_VERSION == 3;
+        final boolean hasAnyEnumArraySchemaFields = this.schemaObjectTypes.values().stream()
+          .map(SchemaObjectType::getSchemaFields)
+          .flatMap(m -> m.values().stream())
+          .anyMatch(f -> f instanceof EnumArraySchemaField);
+        final int formatVersion = hasAnyEnumArraySchemaFields ? 3 : 2;
+
+        // Output XML
         writer.setDefaultNamespace(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI());
         writer.writeStartElement(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI(), XMLConstants.SCHEMA_MODEL_TAG.getLocalPart());
         writer.writeAttribute(XMLConstants.FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
-          XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
+          XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + formatVersion);
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
         Collections.sort(typeList, Comparator.comparing(SchemaObjectType::getName));
         for (SchemaObjectType schemaObjectType : typeList)

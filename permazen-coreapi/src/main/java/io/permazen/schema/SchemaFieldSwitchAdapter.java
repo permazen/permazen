@@ -85,6 +85,18 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
     }
 
     /**
+     * Handle a {@link EnumArraySchemaField}.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
+     * {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
+     */
+    @Override
+    public R caseEnumArraySchemaField(EnumArraySchemaField field) {
+        return this.caseSimpleSchemaField(field);
+    }
+
+    /**
      * Handle a {@link CounterSchemaField}.
      *
      * <p>

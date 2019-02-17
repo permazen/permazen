@@ -12,5 +12,7 @@
         <field storageId="11">0100000000000001</field>
         <field storageId="13">2014-05-09T03:02:48Z</field>
         <field storageId="15">BBB</field>
+        <field storageId="16">[DDD, null, EEE]</field>
+        <field storageId="17">[[DDD, null, EEE], null, [], [null, EEE, null]]</field>
     </object>
 </objects>

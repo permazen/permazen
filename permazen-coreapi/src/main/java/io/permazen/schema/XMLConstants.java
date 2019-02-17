@@ -16,6 +16,7 @@ public final class XMLConstants {
     public static final QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");
     public static final QName COUNTER_FIELD_TAG = new QName("CounterField");
     public static final QName ENUM_FIELD_TAG = new QName("EnumField");
+    public static final QName ENUM_ARRAY_FIELD_TAG = new QName("EnumArrayField");
     public static final QName IDENTIFIER_TAG = new QName("Identifier");
     public static final QName INDEXED_FIELD_TAG = new QName("IndexedField");
     public static final QName LIST_FIELD_TAG = new QName("ListField");
@@ -31,6 +32,7 @@ public final class XMLConstants {
     public static final QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
     public static final QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
     public static final QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");
+    public static final QName DIMENSIONS_ATTRIBUTE = new QName("dimensions");
     public static final QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");
     public static final QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
     public static final QName INDEXED_ATTRIBUTE = new QName("indexed");

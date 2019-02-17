@@ -226,6 +226,10 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
                         return field.differencesFrom((EnumSchemaField)thatField);
                     }
                     @Override
+                    public Diffs caseEnumArraySchemaField(EnumArraySchemaField field) {
+                        return field.differencesFrom((EnumArraySchemaField)thatField);
+                    }
+                    @Override
                     public Diffs caseCounterSchemaField(CounterSchemaField field) {
                         return new Diffs();
                     }

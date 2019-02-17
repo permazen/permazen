@@ -36,7 +36,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema formatVersion=\"3\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "    <SimpleField name=\"z\" type=\"boolean\" storageId=\"3\"/>\n"
@@ -56,6 +56,14 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "      <Identifier>BBB</Identifier>\n"
           + "      <Identifier>CCC</Identifier>\n"
           + "    </EnumField>\n"
+          + "    <EnumArrayField name=\"ea1\" storageId=\"16\" dimensions=\"1\">\n"
+          + "      <Identifier>DDD</Identifier>\n"
+          + "      <Identifier>EEE</Identifier>\n"
+          + "    </EnumArrayField>\n"
+          + "    <EnumArrayField name=\"ea2\" storageId=\"17\" dimensions=\"2\">\n"
+          + "      <Identifier>DDD</Identifier>\n"
+          + "      <Identifier>EEE</Identifier>\n"
+          + "    </EnumArrayField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
@@ -79,6 +87,15 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         tx.writeSimpleField(id1, 13, new Date(1399604568000L), false);
         tx.writeSimpleField(id1, 14, null, false);
         tx.writeSimpleField(id1, 15, new EnumValue("BBB", 1), false);
+        tx.writeSimpleField(id1, 16, new EnumValue[] {
+            new EnumValue("DDD", 0), null, new EnumValue("EEE", 1)
+        }, false);
+        tx.writeSimpleField(id1, 17, new EnumValue[][] {
+            { new EnumValue("DDD", 0), null, new EnumValue("EEE", 1) },
+            null,
+            { },
+            { null, new EnumValue("EEE", 1), null },
+        }, false);
 
         XMLObjectSerializer s1 = new XMLObjectSerializer(tx);
 

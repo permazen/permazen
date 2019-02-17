@@ -62,6 +62,14 @@ public interface SchemaFieldSwitch<R> {
     R caseEnumSchemaField(EnumSchemaField field);
 
     /**
+     * Handle a {@link EnumArraySchemaField}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    R caseEnumArraySchemaField(EnumArraySchemaField field);
+
+    /**
      * Handle a {@link CounterSchemaField}.
      *
      * @param field visiting field

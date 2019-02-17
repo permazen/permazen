@@ -10,7 +10,7 @@ import io.permazen.core.type.EnumFieldType;
 import java.util.List;
 
 /**
- * A field that contains one entry in an ordered list of unique {@link String} identifiers.
+ * A field that contains a value chosen from in an ordered list of unique {@link String} identifiers.
  *
  * <p>
  * Two instances of this class are considered compatible only when their ordered lists of identifiers are identical.
