@@ -61,7 +61,7 @@ public enum SessionMode {
      * Requires and provides a {@link Permazen} instance and its associated Java model classes.
      *
      * <p>
-     * In this mode, database objects are represented by Java model class instances and enum values by corresponding
+     * In this mode, database objects are represented by Java model class instances and {@code enum} values by corresponding
      * Java model {@link Enum} class instances.
      */
     PERMAZEN(true, true);

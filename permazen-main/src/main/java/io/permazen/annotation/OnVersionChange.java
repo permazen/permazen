@@ -48,13 +48,14 @@ import java.lang.annotation.Target;
  *
  * <p>
  * In these cases, the old field's value cannot be represented in {@code oldValues} using the original Java types.
- * Instead, more generic types are used:
+ * Therefore, more generic types are used in these situations:
  * <ul>
  * <li>For a reference field whose type no longer exists, the referenced object will be an {@link io.permazen.UntypedJObject}.
  *      Note that the fields in the {@link io.permazen.UntypedJObject} may still be accessed by invoking the
- *      {@link io.permazen.JTransaction} field access methods with {@code upgradeVersion} set to false (otherwise,
- *      a {@link io.permazen.core.TypeNotInSchemaVersionException} is thrown).
- * <li>For {@link Enum} fields, the old value will always be represented as an {@link io.permazen.core.EnumValue} object.</li>
+ *      {@link io.permazen.JTransaction} field access methods with {@code upgradeVersion} set to false (to avoid
+ *      a {@link io.permazen.core.TypeNotInSchemaVersionException} being thrown).
+ * <li>For {@link Enum} fields, the old value will always be represented as an {@link io.permazen.core.EnumValue} object
+ *      (for consistency, this is done even if the associated {@link Enum} type still exists unchanged).</li>
  * </ul>
  *
  * <p>

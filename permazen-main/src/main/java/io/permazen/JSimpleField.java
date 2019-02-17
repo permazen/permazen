@@ -237,7 +237,7 @@ public class JSimpleField extends JField {
           .where(new TypeParameter<V>() { }, fieldType.wrap()));
     }
 
-    // Get the Enum class that this type represents, or null if not applicable
+    // Get the Enum class that this type represents, or null if not applicable; see note in SimpleFieldIndexInfo
     Class<? extends Enum<?>> getEnumType() {
         return null;
     }
