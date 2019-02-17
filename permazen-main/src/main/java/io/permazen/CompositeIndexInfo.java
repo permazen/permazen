@@ -22,7 +22,7 @@ class CompositeIndexInfo extends IndexInfo {
 
     private final List<Integer> storageIds;
     private final List<FieldType<?>> fieldTypes;
-    private final List<Class<? extends Enum<?>>> enumTypes;
+    private final List<Class<? extends Enum<?>>> enumTypes;     // see "A Note About 'enumType'" in SimpleFieldIndexInfo.java
     private final List<ConverterProvider> converterProviders;
 
     CompositeIndexInfo(JCompositeIndex index) {
@@ -34,6 +34,7 @@ class CompositeIndexInfo extends IndexInfo {
         for (JSimpleField jfield : index.jfields) {
             this.storageIds.add(jfield.storageId);
             this.fieldTypes.add(jfield.fieldType);
+            this.enumTypes.add(jfield.getEnumType());
             this.converterProviders.add(ConverterProvider.identityForNull(jfield::getConverter));
         }
     }
@@ -97,4 +98,3 @@ class CompositeIndexInfo extends IndexInfo {
         return super.hashCode() ^ this.storageIds.hashCode() ^ this.fieldTypes.hashCode() ^ this.enumTypes.hashCode();
     }
 }
-

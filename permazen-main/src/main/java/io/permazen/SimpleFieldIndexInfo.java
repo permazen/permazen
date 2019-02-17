@@ -20,7 +20,7 @@ import java.util.Objects;
 abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvider {
 
     private final FieldType<?> fieldType;
-    private final Class<? extends Enum<?>> enumType;
+    private final Class<? extends Enum<?>> enumType;                            // see below
     private final ConverterProvider converterProvider;
 
 /*
@@ -34,13 +34,11 @@ abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvid
     Same thing applies to Enum<?> fields that are part of composite indexes.
 */
 
-    @SuppressWarnings("unchecked")
     SimpleFieldIndexInfo(JSimpleField jfield) {
         super(jfield.storageId);
         assert jfield.indexed;
         this.fieldType = jfield.fieldType.genericizeForIndex();
-        this.enumType = jfield instanceof JEnumField ?
-          (Class<? extends Enum<?>>)((JEnumField)jfield).getTypeToken().getRawType() : null;
+        this.enumType = jfield.getEnumType();
         this.converterProvider = ConverterProvider.identityForNull(jfield::getConverter);
     }
 

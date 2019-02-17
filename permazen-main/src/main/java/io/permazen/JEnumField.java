@@ -81,6 +81,12 @@ public class JEnumField extends JSimpleField {
             schemaField.getIdentifiers().add(value.name());
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    Class<? extends Enum<?>> getEnumType() {
+        return (Class<? extends Enum<?>>)this.getTypeToken().getRawType();
+    }
+
 // POJO import/export
 
     Object importCoreValue(ImportContext context, Object value) {

@@ -237,6 +237,11 @@ public class JSimpleField extends JField {
           .where(new TypeParameter<V>() { }, fieldType.wrap()));
     }
 
+    // Get the Enum class that this type represents, or null if not applicable
+    Class<? extends Enum<?>> getEnumType() {
+        return null;
+    }
+
 // POJO import/export
 
     @Override

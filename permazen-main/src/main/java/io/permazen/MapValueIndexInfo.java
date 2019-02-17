@@ -21,16 +21,14 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
 
     private final int keyFieldStorageId;
     private final FieldType<?> keyFieldType;
-    private final Class<? extends Enum<?>> keyEnumType;
+    private final Class<? extends Enum<?>> keyEnumType;         // see "A Note About 'enumType'" in SimpleFieldIndexInfo.java
     private final ConverterProvider keyConverterProvider;
 
-    @SuppressWarnings("unchecked")
     MapValueIndexInfo(JMapField jfield) {
         super(jfield.valueField);
         this.keyFieldStorageId = jfield.keyField.storageId;
         this.keyFieldType = jfield.keyField.fieldType.genericizeForIndex();
-        this.keyEnumType = jfield.keyField instanceof JEnumField ?
-          (Class<? extends Enum<?>>)((JEnumField)jfield.keyField).getTypeToken().getRawType() : null;
+        this.keyEnumType = jfield.keyField.getEnumType();
         this.keyConverterProvider = ConverterProvider.identityForNull(jfield.keyField::getConverter);
     }
 
