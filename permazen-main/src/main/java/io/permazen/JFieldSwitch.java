@@ -62,6 +62,14 @@ public interface JFieldSwitch<R> {
     R caseJEnumField(JEnumField field);
 
     /**
+     * Handle a {@link JEnumArrayField}.
+     *
+     * @param field the visiting field
+     * @return visitor return value
+     */
+    R caseJEnumArrayField(JEnumArrayField field);
+
+    /**
      * Handle a {@link JCounterField}.
      *
      * @param field the visiting field

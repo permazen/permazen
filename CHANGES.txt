@@ -1,5 +1,6 @@
 Version Next
 
+    - Added missing support for object properties having Enum array type
     - Added utility method AbstractXMLStreaming.newInvalidAttributeException()
     - Fixed bug where ArrayType.getDimensions() was sometimes incorrect
     - Added NullSafeType.getInnerType()

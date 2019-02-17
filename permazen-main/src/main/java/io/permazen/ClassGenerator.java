@@ -53,7 +53,7 @@ class ClassGenerator<T> {
     static final String ID_FIELD_NAME = "$id";
     static final String CACHED_VALUE_FIELD_PREFIX = "$cached_";
     static final String CACHED_FLAG_FIELD_PREFIX = "$cacheflags";
-    static final String ENUM_CONVERTER_FIELD_PREFIX = "$ec";
+    static final String CONVERTER_FIELD_PREFIX = "$converter";
     static final String FOLLOW_PATH_FIELD_PREFIX = "$followPath";
 
     // JObject method handles
@@ -84,6 +84,7 @@ class ClassGenerator<T> {
 
     // EnumConverter method handles
     static final Method ENUM_CONVERTER_CREATE_METHOD;
+    static final Method ENUM_CONVERTER_CREATE_ARRAY_METHOD;
 
     // Transaction method handles
     static final Method TRANSACTION_READ_SIMPLE_FIELD_METHOD;
@@ -148,6 +149,7 @@ class ClassGenerator<T> {
 
             // EnumConverter
             ENUM_CONVERTER_CREATE_METHOD = EnumConverter.class.getMethod("createEnumConverter", Class.class);
+            ENUM_CONVERTER_CREATE_ARRAY_METHOD = EnumConverter.class.getMethod("createEnumArrayConverter", Class.class, int.class);
 
             // ObjDumper
             OBJ_DUMPER_TO_STRING_METHOD = ObjDumper.class.getMethod("toString", Transaction.class, ObjId.class, int.class);

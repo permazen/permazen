@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import io.permazen.core.EnumValue;
 
+import java.lang.reflect.Array;
 import java.util.EnumSet;
 
 /**
@@ -75,6 +76,29 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
         return new EnumConverter(enumType);
     }
 
+    /**
+     * Create a {@link Converter} for arrays based on converting the base elements with an {@link EnumConverter}.
+     *
+     * @param enumType base enum type
+     * @param dimensions number of array dimensions
+     * @return new converter
+     * @throws IllegalArgumentException if {@code enumType} is null
+     * @throws IllegalArgumentException if {@code dimemsions} is not between 1 and 255 (inclusive)
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static Converter<?, ?> createEnumArrayConverter(Class<? extends Enum<?>> enumType, int dimensions) {
+        Preconditions.checkArgument(dimensions >= 1 && dimensions <= 255, "invalid dimensions");
+        Class<?> aType = enumType;
+        Class<?> bType = EnumValue.class;
+        Converter<?, ?> converter = EnumConverter.createEnumConverter(enumType);
+        for (int i = 0; i < dimensions; i++) {
+            converter = new ArrayConverter(aType, bType, converter);
+            aType = Array.newInstance(aType, 0).getClass();
+            bType = Array.newInstance(bType, 0).getClass();
+        }
+        return converter;
+    }
+
 // Object
 
     @Override
@@ -97,4 +121,3 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
         return this.getClass().getSimpleName() + "[type=" + this.enumType.getName() + "]";
     }
 }
-

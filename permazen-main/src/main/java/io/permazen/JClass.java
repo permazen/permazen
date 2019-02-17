@@ -12,17 +12,20 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
+import io.permazen.core.EnumValue;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.SetField;
 import io.permazen.core.UnknownFieldException;
+import io.permazen.core.type.EnumFieldType;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -631,12 +634,55 @@ public class JClass<T> extends JSchemaObject {
             }
         }
 
-        // Detect enum types
-        final Class<? extends Enum<?>> enumType = Enum.class.isAssignableFrom(fieldRawType) ?
-          (Class<? extends Enum<?>>)fieldRawType.asSubclass(Enum.class) : null;
+        // Handle enum and enum array types
+        Class<? extends Enum<?>> enumType = null;
+        Class<?> enumArrayType = null;
+        int enumArrayDimensions = -1;
+        if (nonReferenceType == null) {
+
+            // Handle non-array Enum type
+            enumType = Enum.class.isAssignableFrom(fieldRawType) ?
+              (Class<? extends Enum<?>>)fieldRawType.asSubclass(Enum.class) : null;
+            if (enumType != null) {
+                nonReferenceType = new EnumFieldType(enumType);
+                enumArrayDimensions = 0;
+            }
+
+            // Handle array Enum type
+            if (fieldRawType.isArray()) {
+
+                // Get base type and count dimensions
+                assert nonReferenceType == null;
+                enumArrayDimensions = 0;
+                Class<?> baseType = fieldRawType;
+                while (baseType != null && baseType.isArray()) {
+                    enumArrayDimensions++;
+                    baseType = baseType.getComponentType();
+                }
+
+                // Is array base type an Enum type?
+                if (Enum.class.isAssignableFrom(baseType)) {
+
+                    // Get base Enum<?> type
+                    enumType = (Class<? extends Enum<?>>)baseType.asSubclass(Enum.class);
+
+                    // Get the corresponding EnumValue[][]... Java type and FieldType (based on the Enum's identifier list)
+                    Class<?> enumValueArrayType = EnumValue.class;
+                    nonReferenceType = new EnumFieldType(enumType);
+                    for (int i = 0; i < enumArrayDimensions; i++) {
+                        enumValueArrayType = Array.newInstance(enumValueArrayType, 0).getClass();
+                        nonReferenceType = this.jdb.db.getFieldTypeRegistry().getArrayType(nonReferenceType);
+                    }
+
+                    // Save type info
+                    enumType = (Class<? extends Enum<?>>)baseType.asSubclass(Enum.class);
+                    enumArrayType = fieldRawType;
+                }
+            }
+        }
 
         // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail
-        if (!isReferenceType && nonReferenceType == null && enumType == null) {
+        if (!isReferenceType && nonReferenceType == null && enumType == null && enumArrayType == null) {
             throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
               + " because no known type supports values of type " + fieldTypeToken);
         }
@@ -671,11 +717,14 @@ public class JClass<T> extends JSchemaObject {
         if (!isReferenceType && annotation.inverseCascades().length != 0)
             throw new IllegalArgumentException("invalid " + description + ": inverseCascades() only allowed on reference fields");
 
-        // Create simple, enum, or reference field
+        // Create simple, enum, enum array, or reference field
         try {
             return
               isReferenceType ?
                 new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, fieldTypeToken, annotation, getter, setter) :
+              enumArrayType != null ?
+                new JEnumArrayField(this.jdb, fieldName, storageId, enumType,
+                 enumArrayType, enumArrayDimensions, nonReferenceType, annotation, fieldDescription, getter, setter) :
               enumType != null ?
                 new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :
                 new JSimpleField(this.jdb, fieldName, storageId, fieldTypeToken,
@@ -685,4 +734,3 @@ public class JClass<T> extends JSchemaObject {
         }
     }
 }
-

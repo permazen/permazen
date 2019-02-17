@@ -79,6 +79,17 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
     }
 
     /**
+     * Handle a {@link JEnumArrayField}.
+     *
+     * <p>
+     * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJSimpleField caseJSimpleField()}.
+     */
+    @Override
+    public R caseJEnumArrayField(JEnumArrayField field) {
+        return this.caseJSimpleField(field);
+    }
+
+    /**
      * Handle a {@link JCounterField}.
      *
      * <p>
