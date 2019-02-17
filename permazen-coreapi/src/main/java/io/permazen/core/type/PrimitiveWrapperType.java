@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 /**
  * Primitive wrapper type.
+ *
+ * @param <T> Java primitive wrapper type
  */
 public class PrimitiveWrapperType<T> extends NullSafeType<T> {
 

@@ -27,6 +27,8 @@ import io.permazen.util.ParseContext;
  * <p>
  * This class will automatically "inline" the {@code 0xff} for null values and omit the {@code 0x01} for non-null values
  * if the wrapped {@link FieldType}'s {@link FieldType#hasPrefix0xff} method returns false.
+ *
+ * @param <T> The associated Java type
  */
 public class NullSafeType<T> extends FieldType<T> {
 
