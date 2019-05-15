@@ -101,7 +101,7 @@
         <hibernate-validator.version>6.0.7.Final</hibernate-validator.version>
         <javax.el.version>3.0.1-b09</javax.el.version>
         <javax.mail.version>1.6.1</javax.mail.version>
-        <jetty.version>9.3.24.v20180605</jetty.version>
+        <jetty.version>9.4.18.v20190429</jetty.version>
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.9</leveldb.version>
         <lmdbjava.version>0.6.1</lmdbjava.version>
