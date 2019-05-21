@@ -1,5 +1,6 @@
 Version Next
 
+    - Fixed bug where snapshot tx could leak if commit() threw an error
     - Added missing support for object properties having Enum array type
     - Added utility method AbstractXMLStreaming.newInvalidAttributeException()
     - Fixed bug where ArrayType.getDimensions() was sometimes incorrect

@@ -168,7 +168,12 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
     @Override
     public synchronized void commit() {
-        this.checkAlive();
+        try {
+            this.checkAlive();
+        } catch (KVTransactionException e) {
+            this.rollback();        // when commit() fails, rollback() is assumed, so ensure it gets done here if not already
+            throw e;
+        }
         this.closed.set(true);
         this.kvdb.commit(this, this.readOnly);
     }
