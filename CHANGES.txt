@@ -1,4 +1,4 @@
-Version Next
+Version 4.1.5 Released May 21, 2019
 
     - Fixed bug where snapshot tx could leak if commit() threw an error
     - Added missing support for object properties having Enum array type
