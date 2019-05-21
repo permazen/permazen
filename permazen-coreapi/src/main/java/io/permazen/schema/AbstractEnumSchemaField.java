@@ -26,7 +26,8 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * Superclass of {@link SimpleSchemaField} types involving {@link EnumValue}s representing {@link Enum} types.
+ * Superclass of {@link SimpleSchemaField} types involving {@link io.permazen.core.EnumValue}s
+ * representing {@link Enum} types.
  */
 public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 

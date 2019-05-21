@@ -50,6 +50,8 @@ public class EnumArrayField extends SimpleField<Object> {
 
     /**
      * Get the base field type.
+     *
+     * @return array base field type
      */
     public EnumFieldType getBaseType() {
         return this.baseType;
