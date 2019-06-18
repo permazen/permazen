@@ -789,7 +789,7 @@
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
                         <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
-                        <link>https://vaadin.com/api/${vaadin7.version}/</link>
+                        <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
@@ -989,9 +989,9 @@
                         <link>http://archiecobbs.github.io/nvt4j/api/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
-                        <link>http://googleapis.github.io/google-cloud-java/google-cloud-clients/apidocs/</link>
+                        <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
-                        <link>https://vaadin.com/api/${vaadin7.version}/</link>
+                        <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
