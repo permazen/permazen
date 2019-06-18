@@ -1,0 +1,12 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.permazen.kv.mvstore.CursorIterator"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.kv.mvstore.ReverseIterator"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

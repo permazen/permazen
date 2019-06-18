@@ -31,6 +31,7 @@
         <module>permazen-kv-leveldb</module>
         <module>permazen-kv-lmdb</module>
         <module>permazen-kv-mssql</module>
+        <module>permazen-kv-mvstore</module>
         <module>permazen-kv-mysql</module>
         <module>permazen-kv-raft</module>
         <module>permazen-kv-rocksdb</module>
@@ -122,6 +123,7 @@
         <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
         <maven.wagon.scm.extension.version>3.0.0</maven.wagon.scm.extension.version>
         <mssql.version>6.4.0.jre8</mssql.version>
+        <mvstore.version>1.4.199</mvstore.version>
         <mysql.version>6.0.6</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.5.0</plugin-api.version>
@@ -457,6 +459,11 @@
                 <artifactId>xodus-openAPI</artifactId>
                 <version>${xodus.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${mvstore.version}</version>
+            </dependency>
 
             <!-- SQL Connection Pooling -->
             <dependency>
@@ -556,6 +563,11 @@
             <dependency>
                 <groupId>io.permazen</groupId>
                 <artifactId>permazen-kv-mssql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.permazen</groupId>
+                <artifactId>permazen-kv-mvstore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -844,6 +856,12 @@
                         <!--
                         <mssqlURL>jdbc:sqlserver://127.0.01:1433;database=permazen;user=SA;password=foobar123!</mssqlURL>
                         -->
+
+                        <!-- kv-mvstore -->
+                        <mvstoreFilePrefix>MVStore</mvstoreFilePrefix>
+                        <mvstoreCompress>false</mvstoreCompress>
+                        <mvstoreCompressHigh>false</mvstoreCompressHigh>
+                        <mvstoreEncryptKey></mvstoreEncryptKey>
 
                         <!-- kv-mysql -->
                         <!--
