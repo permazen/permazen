@@ -14,10 +14,10 @@ import java.util.NavigableSet;
 import java.util.function.Predicate;
 
 /**
- * Allows efficient paging through a {@link NavigableSet}.
+ * Allows efficient forward and backward paging through a {@link NavigableSet}.
  *
  * <p>
- * Instances are configured with a page size and a view order (ascending or descending).
+ * Instances are configured with a page size and a view ordering (ascending or descending).
  *
  * <p>
  * Instances maintain a cursor position that anchors one "page" of consecutive items within the set. Each time
@@ -29,7 +29,11 @@ import java.util.function.Predicate;
  * {@link #firstPage} and {@link #lastPage} jump to the first or last page.
  * After movement, {@link #hasNextPage} and {@link #hasPrevPage} indicate whether adjacent pages exist.
  *
- * @param <E> element type
+ * <p>
+ * The {@linkplain #setDescending view ordering} can be either ascending (default) or descending. With descending view ordering,
+ * the set is viewed in reverse, i.e., as if viewing the result of {@link NavigableSet#descendingSet}.
+ *
+ * @param <E> set element type
  */
 public abstract class NavigableSetPager<E> {
 
@@ -72,7 +76,7 @@ public abstract class NavigableSetPager<E> {
     }
 
     /**
-     * Get view ordering. Default is ascending.
+     * Get the view ordering. Default is ascending.
      *
      * @return false if container order is ascending, true if descending
      */
@@ -81,7 +85,7 @@ public abstract class NavigableSetPager<E> {
     }
 
     /**
-     * Set view ordering.
+     * Set the view ordering.
      *
      * @param descending true for descending view, false for ascending view
      */
