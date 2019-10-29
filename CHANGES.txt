@@ -3,6 +3,7 @@ Version Next
     - Added new key/value implementation based on MVStore (issue #34)
     - Added method NavigableSetPager.getPageNumber()
     - Added convenience method NavigableSetPager.reverseViewOrdering()
+    - Added method MutableView.setReadTrackingPaused()
     - Fixed a few minor Java expression parsing bugs
 
 Version 4.1.5 Released May 21, 2019

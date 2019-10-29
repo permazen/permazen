@@ -32,13 +32,21 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>
  * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.
- * Reads may also be optionally recorded.
  *
  * <p>
  * In all cases, the underlying {@link KVStore} is never modified.
  *
  * <p>
  * Instances ensure that counter adjustment mutations never overlap put or remove mutations.
+ *
+ * <p>
+ * <b>Read Tracking</b>
+ *
+ * <p>
+ * During construction, instances may be configured to record all keys read into a {@link Reads} object (this is typically
+ * used for MVCC conflict detection). When reads are being tracked, tracking may temporarily be paused and resumed via
+ * {@link #setReadTrackingPaused}. Read tracking may be permanently disabled (and any recorded reads discareded) via
+ * {@link #disableReadTracking}.
  *
  * <p>
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
@@ -55,6 +63,8 @@ public class MutableView extends AbstractKVStore implements Cloneable {
     private Reads reads;
     @GuardedBy("this")
     private boolean readOnly;
+    @GuardedBy("this")
+    private boolean readTrackingPaused;
 
 // Constructors
 
@@ -142,14 +152,26 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         return this.writes;
     }
 
+// Read tracking
+
     /**
-     * Disable read tracking and discard the {@link Reads} associated with this instance.
+     * Permanently disable read tracking and discard the {@link Reads} associated with this instance.
      *
      * <p>
      * Can be used to save some memory when read tracking information is no longer needed.
      */
     public synchronized void disableReadTracking() {
         this.reads = null;
+    }
+
+    /**
+     * Temporarily disable or re-enable read tracking.
+     *
+     * <p>
+     * Ignored if there is no (longer any) associated {@link Reads} instance.
+     */
+    public synchronized void setReadTrackingPaused(final boolean readTrackingPaused) {
+        this.readTrackingPaused = readTrackingPaused;
     }
 
     /**
@@ -342,6 +364,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         return this.getClass().getSimpleName()
           + "[writes=" + this.writes
           + (this.reads != null ? ",reads=" + this.reads : "")
+          + (this.readTrackingPaused ? ",readTrackingPaused" : "")
           + (this.readOnly ? ",r/o" : "")
           + "]";
     }
@@ -381,7 +404,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         assert maxKey == null || ByteUtil.compare(minKey, maxKey) < 0;
 
         // Not tracking reads?
-        if (this.reads == null)
+        if (this.reads == null || this.readTrackingPaused)
             return;
 
         // Define the range
