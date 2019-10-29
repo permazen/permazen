@@ -448,6 +448,11 @@ public class OnVersionChangeTest extends TestSupport {
                 break;
             }
         }
+
+        // Version numbers being completely ignored
+        @OnVersionChange
+        private void versionChange2(Map<Integer, Object> oldValues) {
+        }
     }
 
     @PermazenType(storageId = 200, autogenFields = false)

@@ -45,7 +45,7 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         this.checkReturnType(method, void.class);
         final int numParams = method.getParameterTypes().length;
 
-        // Handle @OnVersionChange version numbers; allow both to be omitted
+        // Handle @OnVersionChange version numbers; as special case, allow both to be completely omitted
         int index = 0;
         if (!(annotation.oldVersion() == 0 && annotation.newVersion() == 0 && numParams == 1)) {
             if (annotation.oldVersion() == 0)
@@ -122,24 +122,19 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
                 return;
 
             // Determine which map to provide
-            Map<?, Object> oldValues = this.byName ? oldValuesByName : oldValuesByStorageId;
+            final Map<?, Object> oldValues = this.byName ? oldValuesByName : oldValuesByStorageId;
 
-            // Invoke method
-            switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
-            case 0:
-                Util.invoke(method, jobj, oldVersion, newVersion, oldValues);
-                break;
-            case 1:
-                Util.invoke(method, jobj, oldVersion, oldValues);
-                break;
-            case 2:
-                Util.invoke(method, jobj, newVersion, oldValues);
-                break;
-            case 3:
-            default:
+            // Figure out method parameters and invoke method
+            if (annotation.oldVersion() != 0 && annotation.newVersion() != 0)
                 Util.invoke(method, jobj, oldValues);
-                break;
-            }
+            else if (annotation.oldVersion() != 0)
+                Util.invoke(method, jobj, newVersion, oldValues);
+            else if (annotation.newVersion() != 0)
+                Util.invoke(method, jobj, oldVersion, oldValues);
+            else if (method.getParameterTypes().length == 1)        // special case where version numbers are completely ignored
+                Util.invoke(method, jobj, oldValues);
+            else
+                Util.invoke(method, jobj, oldVersion, newVersion, oldValues);
         }
 
         @Override

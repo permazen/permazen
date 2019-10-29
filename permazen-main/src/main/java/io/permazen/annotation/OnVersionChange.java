@@ -23,13 +23,35 @@ import java.lang.annotation.Target;
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and
- * take one, two, or all three of the following parameters in order:
+ * take zero, one, two, or all three of the following parameters (in this order):
  * <ol>
- * <li>{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero</li>
- * <li>{@code int newVersion} - new schema version; should be present only if {@link #newVersion} is zero</li>
+ * <li>{@code int oldVersion} - previous schema version; required if {@link #oldVersion} is unspecified (i.e., zero)</li>
+ * <li>{@code int newVersion} - new schema version; required if {@link #newVersion} is unspecified (i.e., zero)</li>
  * <li>{@code Map<Integer, Object> oldValues} <i>or</i> {@code Map<String, Object> oldValues} - immutable map containing
  *      all field values from the previous version of the object, indexed by either storage ID or field name.</li>
  * </ol>
+ *
+ * <p>
+ * In addition to the above options, you may also completely ignore the schema version numberss by leaving {@link #oldVersion}
+ * and {@link #newVersion} unspecified and declaring the method with only the {@code oldValues} parameter.
+ * In many cases, this is the simplest way to handle schema changes: ignore version numbers and instead just using the
+ * presence or absence of fields in {@code oldValues} to determine what migration work needs to be done. For example:
+ * <pre>
+ *      &#64;OnVersionChange
+ *      private void applySchemaChanges(Map&lt;String, Object&gt; oldValues) {
+ *          if (!oldValues.containsKey("balance"))      // at some point we added a new field "balance"
+ *              this.setBalance(DEFAULT_BALANCE);
+ *          if (oldValues.containsKey("fullName")) {    // we replaced "fullName" with "lastName" &amp; "firstName"
+ *              final String fullName = (String)oldValues.get("fullName");
+ *              if (fullName != null) {
+ *                  final int comma = fullName.indexOf(',');
+ *                  this.setLastName(comma == -1 ? null : fullName.substring(0, comma));
+ *                  this.setFirstName(fullName.substring(comma + 1).trim());
+ *              }
+ *          }
+ *          // ...etc
+ *      }
+ * </pre>
  *
  * <p>
  * If a class has multiple {@link OnVersionChange &#64;OnVersionChange}-annotated methods, methods with more specific
