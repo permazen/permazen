@@ -122,7 +122,10 @@ public class ExprParseTest extends TestSupport {
             { "0", 0 },
             { "0L", 0L },
             { "123.45f", 123.45f },
+            { "123.45F", 123.45f },
             { "123.45", 123.45 },
+            { "123.45d", 123.45 },
+            { "123.45D", 123.45 },
             { "'a'", 'a' },
             { "'\\''", '\'' },
             { "'\u1234'", '\u1234' },
@@ -136,6 +139,8 @@ public class ExprParseTest extends TestSupport {
             { "\"foo", PARSE_FAIL },
             { "6fa", PARSE_FAIL },
             { "123.45fabc", PARSE_FAIL },
+            { "123.45defe", PARSE_FAIL },
+            { "123.45d.e", PARSE_FAIL },
 
             // Idents and variables
             { "foobar", PARSE_FAIL },

@@ -101,7 +101,7 @@ public class LiteralExprParser implements Parser<Node> {
             }
         }
         final Matcher doubleMatch = ctx.tryPattern(
-          "(" + Primitive.DOUBLE.getParsePattern() + ")(?![.\\p{javaJavaIdentifierPart}])");
+          "(" + Primitive.DOUBLE.getParsePattern() + ")[dD]?(?![.\\p{javaJavaIdentifierPart}])");
         if (doubleMatch != null) {
             try {
                 return new LiteralNode(Primitive.DOUBLE.parseValue(doubleMatch.group()));
