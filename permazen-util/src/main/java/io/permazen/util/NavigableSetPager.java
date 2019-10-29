@@ -97,6 +97,16 @@ public abstract class NavigableSetPager<E> {
     }
 
     /**
+     * Reverse the view ordering.
+     *
+     * <p>
+     * Equivalent to {@code this.setDescending(!this.isDescending())}.
+     */
+    public void reverseViewOrdering() {
+        this.setDescending(!this.descending);
+    }
+
+    /**
      * Filter which items in the set are returned.
      *
      * <p>
