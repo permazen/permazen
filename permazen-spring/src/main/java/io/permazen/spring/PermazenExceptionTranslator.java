@@ -5,6 +5,7 @@
 
 package io.permazen.spring;
 
+import io.permazen.ValidationException;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.ReferencedObjectException;
@@ -54,6 +55,8 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
             return new ConcurrencyFailureException(message, e0);
         if (e0 instanceof TransactionTimeoutException)
             return new QueryTimeoutException(message, e0);
+        if (e0 instanceof ValidationException)
+            return new DataIntegrityViolationException(message, e0);
         return null;
     }
 }
