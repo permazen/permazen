@@ -1,6 +1,7 @@
 Version Next
 
     - Added new key/value implementation based on MVStore (issue #34)
+    - Added method NavigableSetPager.getPageNumber()
     - Added convenience method NavigableSetPager.reverseViewOrdering()
     - Fixed a few minor Java expression parsing bugs
 

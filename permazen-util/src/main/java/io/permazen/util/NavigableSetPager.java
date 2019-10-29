@@ -52,6 +52,7 @@ public abstract class NavigableSetPager<E> {
     private boolean backwards;                                  // most recent move was backward (i.e., prev() instead of next())
     private boolean dataBefore;                                 // there is more data behind current page
     private boolean dataAfter;                                  // there is more data ahead of current page
+    private int pageNumber = 1;
 
 // Configuration
 
@@ -93,6 +94,11 @@ public abstract class NavigableSetPager<E> {
         if (this.descending != descending) {
             this.descending = descending;
             this.limit = null;
+            final int backwardOffset = this.backwards ? 0 : 1;
+            if (this.pageNumber > backwardOffset)
+                this.pageNumber = -this.pageNumber + backwardOffset;
+            else if (this.pageNumber < -backwardOffset)
+                this.pageNumber = -this.pageNumber + backwardOffset;
         }
     }
 
@@ -178,16 +184,25 @@ public abstract class NavigableSetPager<E> {
     }
 
     private boolean step(boolean backwards) {
-        if (!(backwards ^ this.backwards)) {
+        if (!(backwards ^ this.backwards)) {        // move "forward" to next page, same direction
             if (this.limit == null)
                 return false;
             this.anchor = this.limit;
-        } else {
+        } else {                                    // move "back" to previous page, changing direction
             if (this.anchor == null)
                 return false;
             this.backwards = backwards;
         }
         this.limit = null;
+        if (this.pageNumber != 0) {
+            if (backwards) {
+                if (--this.pageNumber == 0)
+                    this.pageNumber++;
+            } else {
+                if (++this.pageNumber == 0)
+                    this.pageNumber--;
+            }
+        }
         return true;
     }
 
@@ -211,6 +226,7 @@ public abstract class NavigableSetPager<E> {
         this.backwards = last;
         this.dataBefore = last;
         this.dataAfter = !last;
+        this.pageNumber = last ? -1 : 1;
     }
 
     /**
@@ -231,6 +247,29 @@ public abstract class NavigableSetPager<E> {
         this.backwards = false;
         this.dataBefore = true;
         this.dataAfter = true;
+        this.pageNumber = 0;
+    }
+
+    /**
+     * Get the current page number, if known.
+     *
+     * <p>
+     * This method returns either a positive or negative number depending on whether the start or the end of the data
+     * has been most recently reached. Positive values (1, 2, 3, ...) count pages from the start of the data; negative
+     * values (-1, -2, -3, ...) count pages from the end of the data.
+     *
+     * <p>
+     * If {@link #setCursor} has been invoked since the last time we hit the beginning or the end of the data,
+     * then the current page number is unknown and this method returns zero.
+     *
+     * <p>
+     * The correctness of this method depends on the underlying data not changing. For example, if {@link #nextPage} is invoked
+     * five times and then {@link #prevPage} is invoked two times, this method returns a value three higher than before,
+     * regardless of whether items were concurrently added or removed from the underlying set. The page number is only
+     * guaranteed to be accurate if the set hasn't changed since we most recently reached the start or end of the data.
+     */
+    public int getPageNumber() {
+        return this.pageNumber;
     }
 
     /**
@@ -288,6 +327,7 @@ public abstract class NavigableSetPager<E> {
         if (this.anchor != null && this.limit == null && page.isEmpty()) {
             this.anchor = null;
             this.backwards = !this.backwards;
+            this.pageNumber = this.backwards ? -1 : 1;
             return this.readCurrentPage();
         }
 
