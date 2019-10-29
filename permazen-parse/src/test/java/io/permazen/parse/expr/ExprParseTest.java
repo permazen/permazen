@@ -162,6 +162,14 @@ public class ExprParseTest extends TestSupport {
             { "5 * 3 + 4", 19 },
             { "5 + 3 * 4", 17 },
 
+            // Comparison
+            { "Float.NaN > Float.NEGATIVE_INFINITY", Float.NaN > Float.NEGATIVE_INFINITY },
+            { "Float.NaN < Float.NEGATIVE_INFINITY", Float.NaN < Float.NEGATIVE_INFINITY },
+            { "123.45f == 0.0f / 0.0f", 123.45f == 0.0f / 0.0f },
+            { "123.45f == 123.45", 123.45f == 123.45 },
+            { "Double.NaN == Double.NaN", Double.NaN == Double.NaN },
+            { "Double.NaN != Double.NaN", Double.NaN != Double.NaN },
+
             // Arrays
             { "new int[0]", new int[0] },
             { "new int[7]", new int[7] },

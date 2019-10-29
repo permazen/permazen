@@ -430,11 +430,19 @@ public abstract class AbstractValue implements Value {
             int result;
             if (lnum instanceof BigDecimal)
                 result = ((BigDecimal)lnum).compareTo((BigDecimal)rnum);
-            else if (lnum instanceof Double)
-                result = Double.compare((Double)lnum, (Double)rnum);
-            else if (lnum instanceof Float)
-                result = Float.compare((Float)lnum, (Float)rnum);
-            else if (lnum instanceof BigInteger)
+            else if (lnum instanceof Double) {
+                final Double ldouble = (Double)lnum;
+                final Double rdouble = (Double)rnum;
+                if (ldouble.isNaN() || rdouble.isNaN())
+                    return new ConstValue(false);
+                result = Double.compare(ldouble, rdouble);
+            } else if (lnum instanceof Float) {
+                final Float lfloat = (Float)lnum;
+                final Float rfloat = (Float)rnum;
+                if (lfloat.isNaN() || rfloat.isNaN())
+                    return new ConstValue(false);
+                result = Float.compare(lfloat, rfloat);
+            } else if (lnum instanceof BigInteger)
                 result = ((BigInteger)lnum).compareTo((BigInteger)rnum);
             else if (lnum instanceof Long)
                 result = Long.compare((Long)lnum, (Long)rnum);
