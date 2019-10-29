@@ -81,23 +81,40 @@ import org.slf4j.LoggerFactory;
 /**
  * A distributed {@link io.permazen.kv.KVDatabase} based on the Raft consensus algorithm.
  *
+ * <p><b>Raft Algorithm</b>
+ *
  * <p>
  * Raft defines a distributed consensus algorithm for maintaining a shared state machine.
  * Each Raft node maintains a complete copy of the state machine. Cluster nodes elect a
  * leader who collects and distributes updates and provides for consistent reads.
  * As long as as a node is part of a majority, the state machine is fully operational.
+ * Raft is described more fully <a href="https://raft.github.io/">here</a>.
+ *
+ * <p><b>Key/Value Database</b>
  *
  * <p>
  * {@link RaftKVDatabase} turns this into a transactional, highly available clustered key/value database with linearizable
- * ACID semantics. A {@link RaftKVDatabase} appears to each node in the cluster as a shared, fully consistent key/value
- * database. As long as a node can communicate with a majority of other nodes (i.e., at least half of the cluster), then the
- * database is fully available. Conflict detection allows all nodes to perform write transactions simultaneously such that
- * transactions always guarantee strict linearizable semantics, even in the face of arbitrary network drops, delays, and
- * reorderings. When two transactions conflict, the loser receives a {@link RetryTransactionException}.
+ * (technically, <a href="https://jepsen.io/consistency/models/strict-serializable">strictly serializable</a>) consistency.
+ * A {@link RaftKVDatabase} appears to each node in the cluster as a shared, ACID compliant key/value database.
+ * As long as a node can communicate with a majority of other nodes (i.e., at least half of the cluster), then the
+ * database is fully available.
+ *
+ * <p><b>Concurrent Transactions</b>
  *
  * <p>
- * Because each node maintains a complete copy of the database, persistence is guaranteed even if up to half of the cluster
+ * {@link RaftKVDatabase} supports multiple simultaneous read/write transactions across all nodes. Simultaneous transactions
+ * will successfully commit as long as the database is able to meet its consistency obligations. It does this verification
+ * by performing conflict analysis at the key/value level. When two transactions do conflict, the loser receives a
+ * {@link RetryTransactionException}. Because it is based on the Raft algorithm, consistency is guaranteed even in the face
+ * of arbitrary network drops, delays, and reorderings.
+ *
+ * <p><b>Persistence</b>
+ *
+ * <p>
+ * Each node maintains a complete copy of the database, and persistence is guaranteed even if up to half of the cluster
  * is lost. Each node stores its private persistent state in an {@link AtomicKVStore} (see {@link #setKVStore setKVStore()}).
+ *
+ * <p><b>Standalone Mode</b>
  *
  * <p>
  * Optional support for falling back to a "standalone mode" based on the most recent copy of the database when a majority of
