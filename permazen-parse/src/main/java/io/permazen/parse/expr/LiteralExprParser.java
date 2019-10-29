@@ -92,7 +92,7 @@ public class LiteralExprParser implements Parser<Node> {
 
         // Try to match float or double literal
         final Matcher floatMatch = ctx.tryPattern(
-          "(" + Primitive.FLOAT.getParsePattern() + ")" + "[fF](?!\\p{javaJavaIdentifierPart})");
+          "(" + Primitive.FLOAT.getParsePattern() + ")[fF](?!\\p{javaJavaIdentifierPart})");
         if (floatMatch != null) {
             try {
                 return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.group(1)));
