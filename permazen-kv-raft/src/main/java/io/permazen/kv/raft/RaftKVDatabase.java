@@ -134,7 +134,7 @@ import org.slf4j.LoggerFactory;
  *          the <i>base term and index</i> for the transaction.</li>
  *      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
  *          compacted key/value store, transaction performance degrades as the number of unapplied log
- *          entries grows. Log entries are always applied as soon as possible, but they are kept around
+ *          entries grows. Log entries are always applied as soon as possible, but they are also kept around
  *          on disk (up to a point) after being applied in case needed by a leader.</li>
  *      <li>On commit, the transaction's {@link io.permazen.kv.mvcc.Reads}, {@link io.permazen.kv.mvcc.Writes},
  *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
