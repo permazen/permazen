@@ -23,8 +23,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter} capable of
- * encoding and decoding one or more {@link JObject}s contained in a {@link SnapshotJTransaction} that is
- * backed by a {@link io.permazen.kv.util.NavigableMapKVStore}.
+ * encoding and decoding one or more {@link JObject}s contained in a {@link SnapshotJTransaction}.
  *
  * <p>
  * The payload MIME type is set to {@code application/x-permazen-transaction} with an additional {@code root}
@@ -75,12 +74,11 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
      * Set validation groups used to validate all incoming objects.
      *
      * <p>
-     * If set to null, no validation is performed. Otherwise, validation of <b>all</b> incoming objects (not just
-     * the root) is performed using the specified validation groups, or {@link javax.validation.groups.Default} if
-     * an empty is specified.
+     * If set to null, no validation is performed; this is the default behavior.
      *
      * <p>
-     * By default, this is null.
+     * Otherwise, validation of <b>all</b> incoming objects (not just the root object) is performed using the specified
+     * validation groups, or {@link javax.validation.groups.Default} if an empty array is specified.
      *
      * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed;
      *  if null, no validation is performed
