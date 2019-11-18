@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * </ol>
  *
  * <p>
- * In addition to the above options, you may also completely ignore the schema version numberss by leaving {@link #oldVersion}
+ * In addition to the above options, you may also completely ignore the schema version numbers by leaving {@link #oldVersion}
  * and {@link #newVersion} unspecified and declaring the method with only the {@code oldValues} parameter.
  * In many cases, this is the simplest way to handle schema changes: ignore version numbers and instead just using the
  * presence or absence of fields in {@code oldValues} to determine what migration work needs to be done. For example:
