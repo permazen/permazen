@@ -694,6 +694,10 @@ public class Permazen {
      * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
      * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
      *
+     * <p>
+     * If {@code kvstore} is a {@link io.permazen.kv.CloseableKVStore}, then it will be
+     * {@link io.permazen.kv.CloseableKVStore#close close()}'d if/when the returned {@link SnapshotJTransaction} is.
+     *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Permazen}
      * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
      * @param validationMode the {@link ValidationMode} to use for the snapshot transaction

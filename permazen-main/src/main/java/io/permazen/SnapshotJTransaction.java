@@ -7,6 +7,8 @@ package io.permazen;
 
 import io.permazen.core.SnapshotTransaction;
 
+import java.io.Closeable;
+
 /**
  * A "snapshot" {@link JTransaction} that persists indefinitely.
  *
@@ -31,7 +33,7 @@ import io.permazen.core.SnapshotTransaction;
  * @see Permazen#createSnapshotTransaction Permazen.createSnapshotTransaction()
  * @see io.permazen.core.SnapshotTransaction
  */
-public class SnapshotJTransaction extends JTransaction {
+public class SnapshotJTransaction extends JTransaction implements Closeable {
 
     SnapshotJTransaction(Permazen jdb, SnapshotTransaction tx, ValidationMode validationMode) {
         super(jdb, tx, validationMode);
@@ -101,5 +103,19 @@ public class SnapshotJTransaction extends JTransaction {
     public boolean isValid() {
         return true;
     }
-}
 
+// Closeable
+
+    /**
+     * Close this instance and release any resources associated with it.
+     *
+     * <p>
+     * The implementation in {@link SnapshotJTransaction}s closes the underlying {@link SnapshotTransaction}.
+     *
+     * @see SnapshotTransaction#close
+     */
+    @Override
+    public void close() {
+        ((SnapshotTransaction)this.tx).close();
+    }
+}

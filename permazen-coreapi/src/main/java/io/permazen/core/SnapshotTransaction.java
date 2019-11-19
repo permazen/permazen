@@ -5,7 +5,10 @@
 
 package io.permazen.core;
 
+import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
+
+import java.io.Closeable;
 
 /**
  * A "snapshot" {@link Transaction} that persists indefinitely.
@@ -26,7 +29,7 @@ import io.permazen.kv.KVStore;
  * @see Database#createSnapshotTransaction Database.createSnapshotTransaction()
  * @see io.permazen.SnapshotJTransaction
  */
-public class SnapshotTransaction extends Transaction {
+public class SnapshotTransaction extends Transaction implements Closeable {
 
 // Constructors
 
@@ -119,5 +122,20 @@ public class SnapshotTransaction extends Transaction {
     public boolean isValid() {
         return super.isValid();
     }
-}
 
+// Closeable
+
+    /**
+     * Close this instance and release any resources associated with it.
+     *
+     * <p>
+     * The implementation in {@link SnapshotTransaction} closes the underlying {@link KVStore} if it is
+     * a {@link CloseableKVStore}, otherwise it does nothing.
+     */
+    @Override
+    public void close() {
+        final KVStore kvstore = this.getKVStore();
+        if (kvstore instanceof CloseableKVStore)
+            ((CloseableKVStore)kvstore).close();
+    }
+}

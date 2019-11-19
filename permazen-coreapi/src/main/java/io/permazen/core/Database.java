@@ -322,6 +322,10 @@ public class Database {
      * {@link SnapshotTransaction#rollback rollback()}, or {@link SnapshotTransaction#addCallback addCallback()},
      * and can be used indefinitely.
      *
+     * <p>
+     * If {@code kvstore} is a {@link io.permazen.kv.CloseableKVStore}, then it will be
+     * {@link io.permazen.kv.CloseableKVStore#close close()}'d if/when the returned {@link SnapshotTransaction} is.
+     *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
      * @param version the schema version number corresponding to {@code schemaModel},
