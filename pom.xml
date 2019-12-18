@@ -93,7 +93,7 @@
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
         <commons-codec.version>1.11</commons-codec.version>
         <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
-        <fdb.version>5.1.5</fdb.version>
+        <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
         <google-cloud-java.version>0.44.0</google-cloud-java.version>
@@ -415,7 +415,7 @@
                 <version>${postgresql.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.apple.cie.foundationdb</groupId>
+                <groupId>org.foundationdb</groupId>
                 <artifactId>fdb-java</artifactId>
                 <version>${fdb.version}</version>
             </dependency>
@@ -785,6 +785,7 @@
                     <links>
                         <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>http://archiecobbs.github.io/nvt4j/api/</link>
+                        <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
                         <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
@@ -987,6 +988,7 @@
                     <links>
                         <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>http://archiecobbs.github.io/nvt4j/api/</link>
+                        <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
                         <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>

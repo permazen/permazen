@@ -7,6 +7,7 @@ Version Next
     - Added method MutableView.setReadTrackingPaused()
     - Map ValidationException to Spring DataIntegrityViolationException
     - Allow @OnVersionChange methods that completely ignore schema versions
+    - Updated FoundationDB to fix build of permazen-kv-fdb
     - Fixed a few minor Java expression parsing bugs
 
 Version 4.1.5 Released May 21, 2019

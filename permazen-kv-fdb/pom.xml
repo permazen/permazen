@@ -34,7 +34,7 @@
             <artifactId>${project.parent.artifactId}-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.apple.cie.foundationdb</groupId>
+            <groupId>org.foundationdb</groupId>
             <artifactId>fdb-java</artifactId>
         </dependency>
         <dependency>
