@@ -5,3 +5,5 @@ target/
 /*.patch.gz
 /xx.java
 /xx*.class
+.idea
+*.iml
