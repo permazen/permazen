@@ -66,7 +66,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
 
     private V doPut(final K keyObj, final V newValueObj, byte[] key, byte[] newValue) {
 
-        // Check for deleted assignement of key and/or value
+        // Check for deleted assignment of key and/or value
         if (this.field.keyField instanceof ReferenceField)
             this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.keyField, (ObjId)keyObj);
         if (this.field.valueField instanceof ReferenceField)

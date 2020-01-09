@@ -162,7 +162,7 @@ import org.slf4j.LoggerFactory;
  *      to identify all values and all objects having those values</li>
  *  <li>{@link #queryListElementIndex queryListElementIndex()} - Query the index associated with a {@link ListField}
  *      element sub-field to identify all list elements, all objects having those elements in the list,
- *      and thier corresponding indicies</li>
+ *      and their corresponding indices</li>
  *  <li>{@link #queryMapValueIndex queryMapValueIndex()} - Query the index associated with a {@link MapField}
  *      value sub-field to identify all map values, all objects having those values in the map, and the corresponding keys</li>
  *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
@@ -1808,12 +1808,9 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public void writeSimpleField(final ObjId id, final int storageId, final Object value, final boolean updateVersion) {
-        this.mutateAndNotify(id, new Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                Transaction.this.doWriteSimpleField(id, storageId, value, updateVersion);
-                return null;
-            }
+        this.mutateAndNotify(id, () -> {
+            Transaction.this.doWriteSimpleField(id, storageId, value, updateVersion);
+            return null;
         });
     }
 
@@ -1867,7 +1864,6 @@ public class Transaction {
         if (field.compositeIndexMap != null) {
             for (Map.Entry<CompositeIndex, Integer> entry : field.compositeIndexMap.entrySet()) {
                 final CompositeIndex index = entry.getKey();
-                final int fieldIndexOffset = entry.getValue();
 
                 // Build old composite index entry
                 final ByteWriter oldWriter = new ByteWriter();
@@ -1956,7 +1952,7 @@ public class Transaction {
     }
 
     /**
-     * Bulid a simple index entry for the given field, object ID, and field value.
+     * Build a simple index entry for the given field, object ID, and field value.
      *
      * @param field simple field
      * @param id ID of object containing the field
@@ -2213,7 +2209,7 @@ public class Transaction {
      * Notes:
      * <ul>
      *  <li>This method does not check whether {@code id} is valid or the object actually exists.</li>
-     *  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+     *  <li>Objects utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
@@ -2235,7 +2231,7 @@ public class Transaction {
      * <ul>
      *  <li>This method does not check whether {@code id} is valid, the object exists,
      *      or the field actually exists in the object's current schema version.</li>
-     *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+     *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
@@ -2337,7 +2333,7 @@ public class Transaction {
             info = this.loadIntoCache(id);
         }
 
-        // Is a schema udpate required?
+        // Is a schema update required?
         if (!update || info.getVersion() == this.schema.versionNumber)
             return info;
 
@@ -2777,7 +2773,7 @@ public class Transaction {
     }
 
     /**
-     * Verify the given object exists before proceeding with the given mutation via {@link #mutateAndNotify(Mutation}}.
+     * Verify the given object exists before proceeding with the given mutation via {@link #mutateAndNotify(Mutation)}.
      *
      * @param id object containing the mutated field; will be validated
      * @param mutation change to apply
@@ -3098,7 +3094,7 @@ public class Transaction {
      * this method does not check whether any such schema versions exist.
      *
      * @param storageId {@link ListField}'s element sub-field storage ID
-     * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies
+     * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indices
      * @throws UnknownFieldException if no {@link ListField} element sub-field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -3233,8 +3229,7 @@ public class Transaction {
 
         // Determine which schema versions actually have objects that exist; if there's only one we can slightly optimize below
         final ArrayList<Map.Entry<Integer, NavigableSet<ObjId>>> versionList = new ArrayList<>(5);
-        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.queryVersion().asMap().entrySet())
-            versionList.add(entry);
+        versionList.addAll(this.queryVersion().asMap().entrySet());
         final boolean multipleVersions = versionList.size() > 1;
 
         // Search for objects one schema version at a time, and group them by reference field

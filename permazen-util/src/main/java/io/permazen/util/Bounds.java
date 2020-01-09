@@ -243,10 +243,8 @@ public class Bounds<T> {
         if (newBounds.lowerBoundType != BoundType.NONE
           && !this.isWithinBound(comparator, newBounds.lowerBound, newBounds.lowerBoundType.isInclusive(), false))
             return false;
-        if (newBounds.upperBoundType != BoundType.NONE
-          && !this.isWithinBound(comparator, newBounds.upperBound, newBounds.upperBoundType.isInclusive(), true))
-            return false;
-        return true;
+        return newBounds.upperBoundType == BoundType.NONE
+                || this.isWithinBound(comparator, newBounds.upperBound, newBounds.upperBoundType.isInclusive(), true);
     }
 
     /**
@@ -256,8 +254,6 @@ public class Bounds<T> {
      * @param value value to check
      * @param requireInclusive whether value should not be considered included when it is exactly equal to an exclusive bound
      * @param upper true to check against upper bound, false to check against lower bound
-     * @throws IllegalArgumentException if {@link newBound} is out of range
-     * @throws IllegalArgumentException if {@link newBoundType} is null
      */
     @SuppressWarnings("unchecked")
     private boolean isWithinBound(Comparator<? super T> comparator, T value, boolean requireInclusive, boolean upper) {
@@ -273,9 +269,7 @@ public class Bounds<T> {
 
         // Handle value equal to bound
         if (diff == 0) {
-            if (boundType == BoundType.INCLUSIVE || !requireInclusive)
-                return true;
-            return false;
+            return boundType == BoundType.INCLUSIVE || !requireInclusive;
         }
 
         // Value is either inside or outside bound

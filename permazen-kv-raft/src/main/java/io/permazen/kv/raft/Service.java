@@ -14,10 +14,6 @@ class Service implements Runnable {
     protected final String desc;
     protected final Runnable action;
 
-    Service(String desc) {
-        this(null, desc, null);
-    }
-
     Service(String desc, Runnable action) {
         this(null, desc, action);
     }

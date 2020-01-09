@@ -24,7 +24,7 @@ public class QueryListElementIndexFunction extends AbstractQueryFunction {
 
     @Override
     public String getHelpSummary() {
-        return "Queries the composite index on a list element field that includes the list indicies";
+        return "Queries the composite index on a list element field that includes the list indices";
     }
 
     @Override

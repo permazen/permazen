@@ -310,7 +310,7 @@ final class Log {
         // Sanity check
         assert Thread.holdsLock(this.raft);
 
-        // Remove entry from "unapplied list
+        // Remove entry from "unapplied" list
         final LogEntry logEntry = this.unapplied.remove(0);
 
         // Update "last applied" info

@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever a simple or complext target field in some target object changes
+ * Annotation for methods that are to be invoked whenever a simple or complex target field in some target object changes
  * during a transaction, where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
  * See {@link io.permazen.ReferencePath} for more information about reference paths.
@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * <ul>
  *  <li>By specifying a path of object references, via {@link #value}, to the target object and field</li>
  *  <li>By widening or narrowing the type of the {@link io.permazen.change.FieldChange} method parameter
- *      (or omitting it algtogether)</li>
+ *      (or omitting it altogether)</li>
  *  <li>By declaring an instance method, to monitor changes from the perspective of the associated object,
  *      or a static method, to monitor changes from a global perspective</li>
  *  <li>By {@linkplain #snapshotTransactions allowing or disallowing} notifications that occur within
@@ -143,7 +143,7 @@ import java.lang.annotation.Target;
  * <p>
  * Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
  * must emit {@link io.permazen.change.FieldChange}s compatible with the method's parameter type. Therefore, when
- * mutiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
+ * multiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
  * parameters, or both).
  *
  * <p>

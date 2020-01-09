@@ -385,9 +385,7 @@ public class RaftKVDatabase implements KVDatabase {
     public static final String OPTION_HIGH_PRIORITY = "highPriority";
 
     // Internal constants
-    static final int FOLLOWER_LINGER_HEARTBEATS = 3;                    // how long to keep updating removed followers
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
-    static final int MAX_APPLIED_ENTRIES = 256;                         // how many already-applied log entries to keep around
     static final int MAX_MUTABLE_VIEW_DEPTH = 20;                       // max depth for a stack of MutableView's
 
     // File prefixes and suffixes
@@ -1862,7 +1860,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Perform a state machine flip-flop operation. Normally this would happen after a successful snapshot install.
      */
-    boolean flipFlopStateMachine(long term, long index, Map<String, String> config) {
+    void flipFlopStateMachine(long term, long index, Map<String, String> config) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1885,7 +1883,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
             this.error("flip-flop error updating key/value store term/index to " + index + "t" + term, e);
-            return false;
+            return;
         }
 
         // Reset log, and delete any associated log files
@@ -1906,7 +1904,6 @@ public class RaftKVDatabase implements KVDatabase {
         this.requestService(this.role.triggerKeyWatchesService);
 
         // Done
-        return true;
     }
 
     /**
@@ -2000,11 +1997,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Shutdown previous role (if any)
         if (this.role != null) {
             this.role.shutdown();
-            for (Iterator<Service> i = this.pendingService.iterator(); i.hasNext(); ) {
-                final Service service = i.next();
-                if (service.getRole() != null)
-                    i.remove();
-            }
+            this.pendingService.removeIf(service -> service.getRole() != null);
         }
 
         // Setup new role
@@ -2021,12 +2014,12 @@ public class RaftKVDatabase implements KVDatabase {
      * Append a log entry to the Raft log.
      *
      * @param term new log entry term
-     * @param entry entry to add; the {@linkplain NewLogEntry#getTempFile temporary file} must be already durably persisted,
-     *  and will be renamed
+     * @param newLogEntry entry to add; the {@linkplain NewLogEntry#getTempFile temporary file} must be already durably
+    *  persisted, and will be renamed
      * @return new {@link LogEntry}
-     * @throws Exception if an error occurs
+     * @throws IOException if an error occurs
      */
-    LogEntry appendLogEntry(long term, NewLogEntry newLogEntry) throws Exception {
+    LogEntry appendLogEntry(long term, NewLogEntry newLogEntry) throws IOException {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -2345,8 +2338,6 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     private static final class IOThread extends Thread {
-
-        private static final long MAX_WAIT_SECONDS = 1;
         private static final int MAX_TEMP_FILES = 10;
         private static final int MAX_DELETE_FILES = 1000;
 
@@ -2473,10 +2464,6 @@ public class RaftKVDatabase implements KVDatabase {
         private final File file;
         private final String description;
 
-        FileInfo(File file) {
-            this(file, null);
-        }
-
         FileInfo(File file, String description) {
             Preconditions.checkArgument(file != null);
             this.file = file;
@@ -2498,7 +2485,7 @@ public class RaftKVDatabase implements KVDatabase {
         return new byte[] { value ? (byte)1 : (byte)0 };
     }
 
-    boolean decodeBoolean(byte[] key) throws IOException {
+    boolean decodeBoolean(byte[] key) {
         final byte[] value = this.kv.get(key);
         return value != null && value.length > 0 && value[0] != 0;
     }

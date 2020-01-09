@@ -54,18 +54,7 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -137,7 +126,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryIndex(Class, String, Class) queryIndex()}
  *      - Access the index associated with a simple field</li>
  *  <li>{@link #queryListElementIndex queryListElementIndex()}
- *      - Access the composite index associated with a list field that includes corresponding list indicies</li>
+ *      - Access the composite index associated with a list field that includes corresponding list indices</li>
  *  <li>{@link #queryMapValueIndex queryMapValueIndex()}
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) queryCompositeIndex()}
@@ -402,7 +391,7 @@ public class JTransaction {
      * <p>
      * Notes:
      * <ul>
-     *  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+     *  <li>Objects utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
@@ -423,7 +412,7 @@ public class JTransaction {
      * <p>
      * Notes:
      * <ul>
-     *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+     *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
@@ -466,7 +455,7 @@ public class JTransaction {
      *
      * <p>
      * This instance must not itself be a {@link SnapshotJTransaction}; use
-     * {@link createSnapshotTransaction createSnapshotTransaction()} to create additional snapshot transactions.
+     * {@link #createSnapshotTransaction createSnapshotTransaction()} to create additional snapshot transactions.
      *
      * @return the associated snapshot transaction
      * @see JObject#copyOut JObject.copyOut()
@@ -684,7 +673,7 @@ public class JTransaction {
      */
     public void copyTo(JTransaction dest, CopyState copyState, Stream<? extends JObject> jobjs) {
         this.copyIdStreamTo(dest, copyState, jobjs
-          .filter(jobj -> jobj != null)
+          .filter(Objects::nonNull)
           .peek(JTransaction::registerJObject)                              // handle possible re-entrant object cache load
           .map(JObject::getObjId));
     }
@@ -1458,7 +1447,7 @@ public class JTransaction {
     }
 
     /**
-     * Get the composite index on a list field that includes list indicies.
+     * Get the composite index on a list field that includes list indices.
      *
      * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as {@code fieldName} is not ambiguous among all sub-types
@@ -1466,7 +1455,7 @@ public class JTransaction {
      * @param valueType the Java type corresponding to list elements
      * @param <V> Java type corresponding to the indexed list's element field
      * @param <T> Java type containing the field
-     * @return read-only, real-time view of field values, objects having that value in the field, and corresponding list indicies
+     * @return read-only, real-time view of field values, objects having that value in the field, and corresponding list indices
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      */

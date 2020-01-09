@@ -39,7 +39,7 @@ public class Timestamp implements Comparable<Timestamp> {
     private final int millis;
 
     /**
-     * Construtor returning the current time.
+     * Constructor returning the current time.
      */
     public Timestamp() {
         this(Timestamp.now());

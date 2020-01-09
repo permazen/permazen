@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 public interface StorageIdGenerator {
 
     /**
-     * Generage a storage ID for a Java model class.
+     * Generate a storage ID for a Java model class.
      *
      * @param type Java model class
      * @param typeName database type name
@@ -26,7 +26,7 @@ public interface StorageIdGenerator {
     int generateClassStorageId(Class<?> type, String typeName);
 
     /**
-     * Generage a storage ID for a composite index.
+     * Generate a storage ID for a composite index.
      *
      * @param type Java model class containing the indexed fields
      * @param name composite index name
@@ -36,7 +36,7 @@ public interface StorageIdGenerator {
     int generateCompositeIndexStorageId(Class<?> type, String name, int[] fields);
 
     /**
-     * Generage a storage ID for a regular top-level field (i.e., a field that is not a sub-field of a complex field).
+     * Generate a storage ID for a regular top-level field (i.e., a field that is not a sub-field of a complex field).
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
@@ -45,7 +45,7 @@ public interface StorageIdGenerator {
     int generateFieldStorageId(Method getter, String name);
 
     /**
-     * Generage a storage ID for a set field.
+     * Generate a storage ID for a set field.
      *
      * @param getter the set field's Java bean getter method
      * @param name the set element field's database name
@@ -54,7 +54,7 @@ public interface StorageIdGenerator {
     int generateSetElementStorageId(Method getter, String name);
 
     /**
-     * Generage a storage ID for a list field.
+     * Generate a storage ID for a list field.
      *
      * @param getter the list field's Java bean getter method
      * @param name the list element field's database name
@@ -63,7 +63,7 @@ public interface StorageIdGenerator {
     int generateListElementStorageId(Method getter, String name);
 
     /**
-     * Generage a storage ID for a map key field.
+     * Generate a storage ID for a map key field.
      *
      * @param getter the map field's Java bean getter method
      * @param name the map key field's database name
@@ -72,7 +72,7 @@ public interface StorageIdGenerator {
     int generateMapKeyStorageId(Method getter, String name);
 
     /**
-     * Generage a storage ID for a map value field.
+     * Generate a storage ID for a map value field.
      *
      * @param getter the map field's Java bean getter method
      * @param name the map value field's database name

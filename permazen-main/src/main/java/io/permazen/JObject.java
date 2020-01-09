@@ -19,7 +19,7 @@ import java.util.NavigableSet;
  * <p>
  * All {@link Permazen} database objects are instances of runtime-generated sub-classes of user-provided Java model types.
  * These generated subclasses will always implement this interface, providing convenient access to database operations.
- * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
+ * Therefore, it is convenient to declare Java model classes {@code abstract} and {@code implements JObject}.
  * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
  * {@link JTransaction} support methods.
  *
@@ -112,7 +112,7 @@ public interface JObject {
      * with a {@link SnapshotJTransaction}.
      *
      * <p>
-     * Equvialent to {@code getTransaction().isSnapshot()}.
+     * Equivalent to {@code getTransaction().isSnapshot()}.
      *
      * @return true if instance is a snapshot instance
      */

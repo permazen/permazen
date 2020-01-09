@@ -187,7 +187,7 @@ class JObjectCache {
     }
 
     /**
-     * Create the {@lin JObject} for the given object ID.
+     * Create the {@link JObject} for the given object ID.
      *
      * <p>
      * Put an entry in this thread's instantiation map while doing so.
