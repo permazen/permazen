@@ -20,7 +20,7 @@
  *  <li>{@link io.permazen.JTransaction#queryIndex(Class, String, Class) JTransaction.queryIndex()}
  *      - Access the index associated with a simple field</li>
  *  <li>{@link io.permazen.JTransaction#queryListElementIndex JTransaction.queryListElementIndex()}
- *      - Access the composite index associated with a list field that includes corresponding list indicies</li>
+ *      - Access the composite index associated with a list field that includes corresponding list indices</li>
  *  <li>{@link io.permazen.JTransaction#queryMapValueIndex JTransaction.queryMapValueIndex()}
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
  *  <li>{@link io.permazen.JTransaction#queryCompositeIndex(Class, String, Class, Class) JTransaction.queryCompositeIndex()}

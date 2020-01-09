@@ -12,9 +12,6 @@ import java.io.IOException;
 
 /**
  * Contains the information required to commit a new entry to the log.
- *
- * <p>
- * Instances must be {@link #close}'ed when no longer needed to ensure the temporary file is deleted if not used.
  */
 class NewLogEntry {
 
@@ -29,7 +26,7 @@ class NewLogEntry {
      * @param tx local transaction
      * @param tempFile temporary file containing serialized mutations
      */
-    NewLogEntry(final RaftKVTransaction tx, final File tempFile) throws IOException {
+    NewLogEntry(final RaftKVTransaction tx, final File tempFile) {
         this(new LogEntry.Data(tx.view.getWrites(), tx.getConfigChange()), tempFile);
     }
 

@@ -16,7 +16,7 @@ import io.permazen.kv.KeyRange;
  * <p>
  * Instances are immutable.
  *
- * @see Reads#getAllConflicts Reads.getAllConflicts()
+ * @see Reads#getAllConflicts(Mutations)  Reads.getAllConflicts(Mutations)
  */
 public class ReadRemoveConflict extends Conflict {
 

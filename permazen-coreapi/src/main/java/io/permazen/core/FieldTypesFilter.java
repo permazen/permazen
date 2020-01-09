@@ -101,7 +101,7 @@ class FieldTypesFilter implements KeyFilter {
 
     /**
      * Create a new instance with the given {@link KeyFilter} applied to encoded field values at the specified index.
-     * This method works cummulatively: if this instance already has a filter for the field, the new instance filters
+     * This method works cumulatively: if this instance already has a filter for the field, the new instance filters
      * to the intersection of the existing filter and the given filter.
      *
      * @param index field index (zero-based)

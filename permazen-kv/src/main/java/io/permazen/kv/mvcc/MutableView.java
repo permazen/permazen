@@ -45,7 +45,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * <p>
  * During construction, instances may be configured to record all keys read into a {@link Reads} object (this is typically
  * used for MVCC conflict detection). When reads are being tracked, tracking may temporarily be paused and resumed via
- * {@link #setReadTrackingPaused}. Read tracking may be permanently disabled (and any recorded reads discareded) via
+ * {@link #setReadTrackingPaused}. Read tracking may be permanently disabled (and any recorded reads discarded) via
  * {@link #disableReadTracking}.
  *
  * <p>

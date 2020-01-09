@@ -16,10 +16,7 @@ import io.permazen.core.ObjId;
 import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.dellroad.stuff.java.Primitive;
 import org.objectweb.asm.ClassWriter;
@@ -185,7 +182,7 @@ public class JSimpleField extends JField {
             return false;
         if (this.unique != that.unique)
             return false;
-        if (!(this.uniqueExcludes != null ? this.uniqueExcludes.equals(that.uniqueExcludes) : that.uniqueExcludes == null))
+        if (!(Objects.equals(this.uniqueExcludes, that.uniqueExcludes)))
             return false;
         if (!this.upgradeConversion.equals(that.upgradeConversion))
             return false;

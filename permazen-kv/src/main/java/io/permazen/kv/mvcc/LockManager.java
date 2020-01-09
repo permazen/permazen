@@ -99,7 +99,7 @@ public class LockManager {
     /**
      * Set the hold timeout for this instance. Default is zero (unlimited).
      *
-     * @param holdTimeout how long a thread may hold a contestested lock before {@link LockResult#HOLD_TIMEOUT_EXPIRED}
+     * @param holdTimeout how long a thread may hold a contested lock before {@link LockResult#HOLD_TIMEOUT_EXPIRED}
      *  will be returned by {@link #lock lock()} or {@link #release release()} in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code holdTimeout} is negative
      */
@@ -240,7 +240,7 @@ public class LockManager {
         Preconditions.checkArgument(owner != null, "null owner");
         synchronized (this.lockObject) {
 
-            // Check if hold timeout has alread expired; in any case, remove lock time
+            // Check if hold timeout has already expired; in any case, remove lock time
             if (this.lockTimes.containsKey(owner)) {
                 final Long lockTime = this.lockTimes.remove(owner);
                 if (lockTime == null)

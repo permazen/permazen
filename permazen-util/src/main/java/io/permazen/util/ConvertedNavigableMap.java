@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Provides a transformed view of a wrapped {@link NavigableMap} using a strictly invertable {@link Converter}.
+ * Provides a transformed view of a wrapped {@link NavigableMap} using a strictly invertible {@link Converter}.
  *
  * <p>
  * Supplied {@link Converter}s may throw {@link ClassCastException} or {@link IllegalArgumentException}

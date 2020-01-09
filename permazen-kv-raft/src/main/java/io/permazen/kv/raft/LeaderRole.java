@@ -1058,12 +1058,13 @@ public class LeaderRole extends Role {
     }
 
     /**
-     * Apply a new log entry to the Raft log; if operation fails, {@link NewLogEntry#cancel cancel()} {@code newLogEntry}.
+     * Apply a new log entry to the Raft log.
      *
      * @throws IllegalStateException if a config change would not be safe at the current time
      * @throws IllegalArgumentException if the config change attempts to remove the last node
+     * @throws IOException if there was a disk error whilst persisting the new log entry
      */
-    private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
+    private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws IOException {
         assert Thread.holdsLock(this.raft);
 
         // Do a couple of extra checks if a config change is included

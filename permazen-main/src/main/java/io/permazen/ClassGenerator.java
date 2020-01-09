@@ -422,7 +422,7 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add JOBject.resetCachedFieldValues()
+        // Add JObject.resetCachedFieldValues()
         mv = this.startMethod(cw, JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
         mv.visitCode();
         if (this.jclass != null) {
@@ -608,15 +608,6 @@ class ClassGenerator<T> {
         for (Class<?> type : method.getExceptionTypes())
             list.add(Type.getType(type).getInternalName());
         return list.toArray(new String[list.size()]);
-    }
-
-    // Callback interface for emitting bytecode
-    interface CodeEmitter {
-
-        /**
-         * Output some method bytecode or whatever.
-         */
-        void emit(MethodVisitor mv);
     }
 
 // Cached value flags field(s)

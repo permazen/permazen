@@ -109,9 +109,10 @@ public class Schemas {
      * @param storageId schema object storage ID
      * @param expectedType expected {@link StorageInfo} type
      * @return the actual {@link StorageInfo} instance found
-     * @throws UnknownFieldException if type doesn't match and {@code expectedType} is a {@link FieldStorageInfo} sub-type
+     * @throws UnknownFieldException if type doesn't match and {@code expectedType} is a {@link SimpleFieldStorageInfo}
+     * sub-type
      * @throws UnknownIndexException if type doesn't match and {@code expectedType} is {@link CompositeIndexStorageInfo}
-     * @throws UnknownTypeException if type doesn't match and {@code expectedType} is {@link ObjectStorageInfo}
+     * @throws UnknownTypeException if type doesn't match and {@code expectedType} is {@link ObjTypeStorageInfo}
      */
     <T extends StorageInfo> T verifyStorageInfo(int storageId, Class<T> expectedType) {
         final StorageInfo storageInfo = this.storageInfos.get(storageId);

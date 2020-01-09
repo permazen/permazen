@@ -177,7 +177,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     /**
      * Set the hold timeout for this instance. Default is {@link #DEFAULT_HOLD_TIMEOUT}.
      *
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contested lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code holdTimeout} is negative
      */

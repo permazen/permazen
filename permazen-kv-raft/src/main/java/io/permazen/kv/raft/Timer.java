@@ -56,7 +56,7 @@ class Timer {
             this.future = null;
         }
 
-        // Ensure the previously scheduled action does nothing if case we lose the cancel() race condition
+        // Ensure the previously scheduled action does nothing in case we lose the cancel() race condition
         this.pendingTimeout = null;
         this.timeoutDeadline = null;
     }
@@ -64,8 +64,7 @@ class Timer {
     /**
      * (Re)schedule this timer. Discards any previously scheduled timeout.
      *
-     * @param delay delay before expiration in milliseonds
-     * @return true if restarted, false if executor rejected the task
+     * @param delay delay before expiration in milliseconds
      * @throws IllegalStateException if the lock object is not locked
      */
     public void timeoutAfter(int delay) {

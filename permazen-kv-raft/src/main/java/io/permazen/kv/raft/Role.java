@@ -191,7 +191,7 @@ public abstract class Role {
                 this.raft.kv.mutate(mutations,
                   !this.raft.disableSync && this.raft.log.getLastAppliedIndex() == this.raft.commitIndex);
             } catch (Exception e) {
-                if (e instanceof RuntimeException && e.getCause() instanceof IOException)
+                if (e.getCause() instanceof IOException)
                     e = (IOException)e.getCause();
                 this.error("error applying log entry " + logEntry + " to key/value store", e);
                 break;
@@ -262,7 +262,7 @@ public abstract class Role {
         if (this.raft.keyWatchTracker == null)
             return;
 
-        // If we have recevied a snapshot install, we may not be able to tell which keys have changed since last notification;
+        // If we have received a snapshot install, we may not be able to tell which keys have changed since last notification;
         // in that case, trigger all key watches; otherwise, trigger the keys affected by newly committed log entries
         if (this.raft.keyWatchIndex < this.raft.log.getLastAppliedIndex()) {
             this.raft.keyWatchTracker.triggerAll();
@@ -402,8 +402,9 @@ public abstract class Role {
      * <ul>
      *  <li>After changing roles</li>
      *  <li>After a transaction has entered the {@link TxState#COMMIT_WAITING} state</li>
+     *  <li>After a transaction has been rebased</li>
      *  <li>After advancing my {@code commitIndex} (as leader or follower)</li>
-     *  <li>After receiving an updated {@linkplain AppendResponse#getLeaderLeaseTimeout leader lease timeout}
+     *  <li>After receiving an updated {@linkplain AppendRequest#getLeaderLeaseTimeout leader lease timeout}
      *      (in {@link FollowerRole})</li>
      * </ul>
      *
@@ -439,9 +440,6 @@ public abstract class Role {
      *
      * <p>
      * This should be invoked after advancing my {@code commitIndex} (as leader or follower).
-     *
-     * @param tx the transaction
-     * @throws KVTransactionException if an error occurs
      */
     void checkCommittables() {
 
@@ -539,7 +537,6 @@ public abstract class Role {
      * <p>
      * This should be invoked after appending a new Raft log entry.
      *
-     * @param tx the transaction
      * @param highPrioAlreadyChecked if the high priority transaction is already checked for conflicts
      * @throws KVTransactionException if an error occurs
      */

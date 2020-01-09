@@ -386,7 +386,6 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             int off = 0;
             for (Decode decode : this.decodeList) {
                 final int len = decode.getLength();
-                final String byteString;
                 buf.append(String.format(format, this.truncate(reader.getBytes(off, len), byteLimit), decode.getDescription()));
                 off += len;
             }

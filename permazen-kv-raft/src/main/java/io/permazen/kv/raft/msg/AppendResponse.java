@@ -22,7 +22,7 @@ public class AppendResponse extends Message {
 
     private final Timestamp leaderTimestamp;        // leaderTimestamp from corresponding AppendRequest
     private final boolean success;                  // true if previous log entry term and index matched
-    private final long matchIndex;                  // index of higest log entry known to match leader
+    private final long matchIndex;                  // index of highest log entry known to match leader
     private final long lastLogIndex;                // the index of the last log entry in follower's log
 
 // Constructors

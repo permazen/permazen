@@ -10,7 +10,7 @@ import io.permazen.core.MapField;
 import io.permazen.core.SetField;
 
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -74,7 +74,7 @@ public class DefaultStorageIdGenerator implements StorageIdGenerator {
 
     private int getStorageId(String string) {
         this.sha1.reset();
-        final byte[] digest = this.sha1.digest(string.getBytes(Charset.forName("UTF-8")));
+        final byte[] digest = this.sha1.digest(string.getBytes(StandardCharsets.UTF_8));
         int value = 0;
         for (int i = 0; i < 4; i++)
             value = (value << 8) | (digest[i] & 0xff);

@@ -587,7 +587,7 @@ public class FollowerRole extends NonLeaderRole {
                 try {
                     this.raft.logDirChannel.force(true);
                 } catch (IOException e) {
-                    this.warn("errory fsync()'ing log directory " + this.raft.logDir, e);
+                    this.warn("error fsync()'ing log directory " + this.raft.logDir, e);
                 }
 
                 // Rebuild current config

@@ -40,7 +40,6 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     /**
      * Constructor.
      *
-     * @param objType the object type that contains this field
      * @param name the name of the field
      * @param storageId field content storage ID
      * @param schema schema version

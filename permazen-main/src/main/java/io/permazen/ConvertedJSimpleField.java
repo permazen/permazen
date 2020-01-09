@@ -20,7 +20,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * Support superclass for {@link JSimpleField}'s that require convertion between Java and core API values.
+ * Support superclass for {@link JSimpleField}'s that require conversion between Java and core API values.
  */
 abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
 
