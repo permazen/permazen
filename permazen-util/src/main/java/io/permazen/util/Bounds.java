@@ -240,11 +240,19 @@ public class Bounds<T> {
      */
     public boolean isWithinBounds(Comparator<? super T> comparator, Bounds<? extends T> newBounds) {
         Preconditions.checkArgument(newBounds != null, "null newBounds");
+
+        // Check lower bound, if any
         if (newBounds.lowerBoundType != BoundType.NONE
           && !this.isWithinBound(comparator, newBounds.lowerBound, newBounds.lowerBoundType.isInclusive(), false))
             return false;
-        return newBounds.upperBoundType == BoundType.NONE
-                || this.isWithinBound(comparator, newBounds.upperBound, newBounds.upperBoundType.isInclusive(), true);
+
+        // Check upper bound, if any
+        if (newBounds.upperBoundType != BoundType.NONE
+          && !this.isWithinBound(comparator, newBounds.upperBound, newBounds.upperBoundType.isInclusive(), true))
+            return false;
+
+        // OK
+        return true;
     }
 
     /**
@@ -268,9 +276,8 @@ public class Bounds<T> {
         final int diff = comparator != null ? comparator.compare(value, bound) : ((Comparable<T>)value).compareTo(bound);
 
         // Handle value equal to bound
-        if (diff == 0) {
+        if (diff == 0)
             return boundType == BoundType.INCLUSIVE || !requireInclusive;
-        }
 
         // Value is either inside or outside bound
         return upper ? diff < 0 : diff > 0;

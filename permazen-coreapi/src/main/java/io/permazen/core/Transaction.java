@@ -1809,7 +1809,7 @@ public class Transaction {
      */
     public void writeSimpleField(final ObjId id, final int storageId, final Object value, final boolean updateVersion) {
         this.mutateAndNotify(id, () -> {
-            Transaction.this.doWriteSimpleField(id, storageId, value, updateVersion);
+            this.doWriteSimpleField(id, storageId, value, updateVersion);
             return null;
         });
     }
@@ -1862,8 +1862,7 @@ public class Transaction {
 
         // Update affected composite indexes, if any
         if (field.compositeIndexMap != null) {
-            for (Map.Entry<CompositeIndex, Integer> entry : field.compositeIndexMap.entrySet()) {
-                final CompositeIndex index = entry.getKey();
+            for (CompositeIndex index : field.compositeIndexMap.keySet()) {
 
                 // Build old composite index entry
                 final ByteWriter oldWriter = new ByteWriter();

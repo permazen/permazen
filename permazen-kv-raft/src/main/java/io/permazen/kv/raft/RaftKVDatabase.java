@@ -1859,8 +1859,10 @@ public class RaftKVDatabase implements KVDatabase {
 
     /**
      * Perform a state machine flip-flop operation. Normally this would happen after a successful snapshot install.
+     *
+     * @return true if successful, false if persistent store mutation failed
      */
-    void flipFlopStateMachine(long term, long index, Map<String, String> config) {
+    boolean flipFlopStateMachine(long term, long index, Map<String, String> config) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1883,7 +1885,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
             this.error("flip-flop error updating key/value store term/index to " + index + "t" + term, e);
-            return;
+            return false;
         }
 
         // Reset log, and delete any associated log files
@@ -1904,6 +1906,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.requestService(this.role.triggerKeyWatchesService);
 
         // Done
+        return true;
     }
 
     /**
@@ -2014,8 +2017,8 @@ public class RaftKVDatabase implements KVDatabase {
      * Append a log entry to the Raft log.
      *
      * @param term new log entry term
-     * @param newLogEntry entry to add; the {@linkplain NewLogEntry#getTempFile temporary file} must be already durably
-    *  persisted, and will be renamed
+     * @param newLogEntry entry to add; the {@linkplain NewLogEntry#getTempFile temporary file}
+     *  must be already durably persisted, and it will be renamed
      * @return new {@link LogEntry}
      * @throws IOException if an error occurs
      */

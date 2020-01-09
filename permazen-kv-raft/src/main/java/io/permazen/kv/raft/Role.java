@@ -191,9 +191,8 @@ public abstract class Role {
                 this.raft.kv.mutate(mutations,
                   !this.raft.disableSync && this.raft.log.getLastAppliedIndex() == this.raft.commitIndex);
             } catch (Exception e) {
-                if (e.getCause() instanceof IOException)
-                    e = (IOException)e.getCause();
-                this.error("error applying log entry " + logEntry + " to key/value store", e);
+                final Throwable cause = e.getCause() instanceof IOException ? (IOException)e.getCause() : e;
+                this.error("error applying log entry " + logEntry + " to key/value store", cause);
                 break;
             }
 

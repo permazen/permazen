@@ -12,6 +12,9 @@ import java.io.IOException;
 
 /**
  * Contains the information required to commit a new entry to the log.
+ *
+ * <p>
+ * Instances must be {@linkplain #cleanup cleaned up} when no longer needed to ensure the temporary file is deleted if not used.
  */
 class NewLogEntry {
 

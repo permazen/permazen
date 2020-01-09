@@ -876,7 +876,10 @@ public class FollowerRole extends NonLeaderRole {
                   + index + "t" + term + " with config " + snapshotConfig + " complete");
             }
             this.snapshotReceive = null;
-            this.raft.flipFlopStateMachine(term, index, snapshotConfig);
+            if (!this.raft.flipFlopStateMachine(term, index, snapshotConfig) && this.raft.isPerfLogEnabled()) {
+                this.perfLog("snapshot install from \"" + msg.getSenderId() + "\" of "
+                  + index + "t" + term + " with config " + snapshotConfig + " failed: state machine flip-flop error");
+            }
             this.updateElectionTimer();
 
             // Fail transactions we can no longer deal with
