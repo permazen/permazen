@@ -805,6 +805,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private final int id;
         private final KVDatabase store;
         private final Random random;
+        private final boolean randomSleeps;
         private final TreeMap<byte[], byte[]> committedData;            // tracks actual committed data, if known
         private final NavigableMap<String, String> committedDataView;
         private final ArrayList<String> log = new ArrayList<>(KVDatabaseTest.this.getRandomTaskMaxIterations());
@@ -822,6 +823,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             this.committedData = committedData;
             this.committedDataView = stringView(this.committedData);
             this.random = new Random(seed);
+            this.randomSleeps = committedData == null;       // only add random sleeps in parallel mode
             this.log("seed = " + seed);
         }
 
@@ -1049,7 +1051,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         knownValues.put(key, encodedCounter);
                         knownEmpty.remove(new KeyRange(key));
                         knownValuesChanged = true;
-                    } else {                                                        // sleep
+                    } else if (this.randomSleeps) {                                 // sleep
                         final int millis = this.r(50);
                         this.log("sleep " + millis + "ms");
                         try {
