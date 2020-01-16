@@ -58,13 +58,14 @@ public class AllFunction extends AbstractFunction {
         }
 
         // Parse type name or expression
-        final Object result;
+        Object result;
         final int startingMark = ctx.getIndex();
-        if (ctx.tryPattern("(" + ParseUtil.IDENT_PATTERN + ")\\s*\\)") != null) {
-            ctx.setIndex(startingMark);
+        try {
             result = new ObjTypeParser().parse(session, ctx, complete).getStorageId();
-        } else
+        } catch (ParseException e) {
+            ctx.setIndex(startingMark);
             result = ExprParser.INSTANCE.parse(session, ctx, complete);
+        }
 
         // Finish parse
         ctx.skipWhitespace();

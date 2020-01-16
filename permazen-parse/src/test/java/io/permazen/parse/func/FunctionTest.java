@@ -65,6 +65,11 @@ public class FunctionTest extends TestSupport {
           + this.parent.getObjId() + ").size()", 2);
     }
 
+    @Test
+    public void testAllParam() throws Exception {
+        this.testExpression("java.util.stream.Stream.of(Object.class).map(c -> all(c)).count()", 1L);
+    }
+
     private void testExpression(final String expression, Object expected) {
         final Object[] actual = new Object[1];
         this.session.performParseSessionAction((TestAction)session2 -> actual[0]
