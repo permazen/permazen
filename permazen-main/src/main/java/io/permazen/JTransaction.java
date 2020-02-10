@@ -504,7 +504,7 @@ public class JTransaction {
      * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange} notifications).
      * If {@link CopyState#isSuppressNotifications()} returns false, {@link io.permazen.annotation.OnCreate &#64;OnCreate}
-     * and {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
+     * and {@link io.permazen.annotation.OnChange &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
@@ -649,7 +649,7 @@ public class JTransaction {
      * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange} notifications).
      * If {@link CopyState#isSuppressNotifications()} returns false, {@link io.permazen.annotation.OnCreate &#64;OnCreate}
-     * and {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
+     * and {@link io.permazen.annotation.OnChange &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
