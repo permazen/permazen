@@ -188,10 +188,10 @@ public interface JObject {
      * <p>
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link io.permazen.annotation.OnCreate &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
-     * and {@link io.permazen.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
+     * Any {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
+     * and {@link io.permazen.annotation.OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
      * however, for {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnCreate &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
+     * {@link io.permazen.annotation.OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
      * if {@code dest} is a {@link SnapshotJTransaction}.
      *
      * <p>
@@ -335,10 +335,10 @@ public interface JObject {
      * <p>
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link io.permazen.annotation.OnCreate &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
-     * and {@link io.permazen.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
+     * Any {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
+     * and {@link io.permazen.annotation.OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
      * however, for {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnCreate &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
+     * {@link io.permazen.annotation.OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
      * if {@code dest} is a {@link SnapshotJTransaction}.
      *
      * <p>

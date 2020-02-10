@@ -120,7 +120,7 @@ public class CopyState implements Cloneable {
 
     /**
      * Determine whether to suppress {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications in the destination transaction.
+     * {@link io.permazen.annotation.OnChange &#64;OnChange} notifications in the destination transaction.
      *
      * <p>
      * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
@@ -130,7 +130,7 @@ public class CopyState implements Cloneable {
      * Default is false.
      *
      * @return true if {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     *  {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications should be suppressed, otherwise false
+     *  {@link io.permazen.annotation.OnChange &#64;OnChange} notifications should be suppressed, otherwise false
      */
     public boolean isSuppressNotifications() {
         return this.suppressNotifications;
@@ -138,14 +138,14 @@ public class CopyState implements Cloneable {
 
     /**
      * Configure whether to suppress {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications in the destination transaction.
+     * {@link io.permazen.annotation.OnChange &#64;OnChange} notifications in the destination transaction.
      *
      * <p>
      * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
      * also have {@code snapshotTransactions = true}, even if this property is set to false.
      *
      * @param suppressNotifications true if {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     *  {@link io.permazen.annotation.OnCreate &#64;OnChange} notifications should be suppressed, otherwise false
+     *  {@link io.permazen.annotation.OnChange &#64;OnChange} notifications should be suppressed, otherwise false
      */
     public void setSuppressNotifications(boolean suppressNotifications) {
         this.suppressNotifications = suppressNotifications;
