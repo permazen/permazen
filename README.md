@@ -55,6 +55,16 @@ Permazen does this by treating the database as just a _sorted key/value store_, 
 
 Permazen also adds several new features that traditional databases don't provide.
 
+### What's the Downside?
+
+Permazen gains advantages by fundamentally changing the equation with respect to persistence programming. However, in some situations, not all of these changes result in improvements when compared to traditional SQL/JPA. Here are some things to consider.
+
+**You have to learn something new.** Persistence programming with Permazen requires a different way of thinking. For example, a "DAO" layer is often no longer necessary, and you have to think harder about how to query your data efficiently (instead of crossing your fingers and hoping the database figures it out for you).
+
+**For an equivalent query, Permazen will perform more frequent, but smaller, database accesses.** As a result, in situations where the code and the data are separated by a high latency network, Permazen will tend to be slower.
+
+**More flexible type hiearchies are possible, but it's also easy to make a mess.** JPA has support for class inheritance and partial support for generics. Permazen supports interface inheritance (including Java's equivalent of "mix-ins") and fully supports generic types. The restrictions imposed by JPA tend to force model classes to stay simpler. With Permazen, implementing an interface (directly or indirectly) can mean that a model class inherits a bunch of new persistent fields.
+
 ### Permazen Slides
 
 For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group (Permazen was previously named JSimpleDB).
