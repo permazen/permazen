@@ -124,7 +124,7 @@
         <maven.wagon.scm.extension.version>3.0.0</maven.wagon.scm.extension.version>
         <mssql.version>6.4.0.jre8</mssql.version>
         <mvstore.version>1.4.199</mvstore.version>
-        <mysql.version>6.0.6</mysql.version>
+        <mysql.version>8.0.19</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.5.0</plugin-api.version>
         <postgresql.version>42.2.2</postgresql.version>
@@ -845,7 +845,7 @@
 
                         <!-- kv-mysql -->
                         <!--
-                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/permazen?user=permazen&amp;password=permazen&amp;logger=com.mysql.cj.core.log.Slf4JLogger&amp;serverTimezone=US/Central</mysqlURL>
+                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/permazen?user=permazen&amp;password=permazen&amp;logger=com.mysql.cj.log.Slf4JLogger&amp;serverTimezone=US/Central</mysqlURL>
                         -->
 
                         <!-- kv-raft -->

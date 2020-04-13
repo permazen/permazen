@@ -5,7 +5,7 @@
 
 package io.permazen.kv.mysql;
 
-import com.mysql.cj.core.exceptions.MysqlErrorNumbers;
+import com.mysql.cj.exceptions.MysqlErrorNumbers;
 import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
 
 import io.permazen.kv.KVTransactionException;
