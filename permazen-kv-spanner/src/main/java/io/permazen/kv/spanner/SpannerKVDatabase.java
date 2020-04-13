@@ -23,8 +23,10 @@ import io.permazen.util.MovingAverage;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -427,8 +429,14 @@ public class SpannerKVDatabase implements KVDatabase {
           .toLowerCase();
     }
 
-    private <T> T waitFor(Operation<T, ?> operation) {
-        return operation.waitFor().getResult();
+    private <T> T waitFor(Future<T> future) {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("interrupted", e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("operation failed", e.getCause());
+        }
     }
 
 // Transactions

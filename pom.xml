@@ -95,8 +95,7 @@
         <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
         <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
-        <google-cloud-java.suffix>-beta</google-cloud-java.suffix>
-        <google-cloud-java.version>0.44.0</google-cloud-java.version>
+        <google-cloud-java.version>1.52.0</google-cloud-java.version>
         <guava.version>24.0-jre</guava.version>
         <hawtjni.version>1.16</hawtjni.version>
         <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
@@ -442,7 +441,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-spanner</artifactId>
-                <version>${google-cloud-java.version}${google-cloud-java.suffix}</version>
+                <version>${google-cloud-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
