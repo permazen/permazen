@@ -89,7 +89,7 @@
         <asm.version>6.0</asm.version>
         <aspectj.maven-plugin.version>1.11</aspectj.maven-plugin.version>
         <aspectj.version>1.8.13</aspectj.version>
-        <bdb.version>6.4.9</bdb.version>
+        <bdb.version>18.3.12</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
         <commons-codec.version>1.11</commons-codec.version>
         <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
@@ -643,27 +643,6 @@
 
         </dependencies>
     </dependencyManagement>
-
-    <repositories>
-
-        <!-- For Berkeley DB Java Edition -->
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>interval:259200</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </snapshots>
-            <id>oracleReleases</id>
-            <name>Oracle Released Java Packages</name>
-            <url>http://download.oracle.com/maven</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
 
     <distributionManagement>
         <downloadUrl>https://github.com/permazen/permazen</downloadUrl>
