@@ -134,7 +134,7 @@
         <spotbugs.maven.plugin.version>3.1.12.2</spotbugs.maven.plugin.version>
         <spring.version>5.2.5.RELEASE</spring.version>
         <sqlite.version>3.21.0.1</sqlite.version>
-        <testng.version>6.14.2</testng.version>
+        <testng.version>7.1.0</testng.version>
         <xodus.version>1.2.2</xodus.version>
         <vaadin7.version>7.7.13</vaadin7.version>
         <validation-api.version>2.0.1.Final</validation-api.version>

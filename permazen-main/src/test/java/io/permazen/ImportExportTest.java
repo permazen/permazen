@@ -137,8 +137,8 @@ public class ImportExportTest extends TestSupport {
         Assert.assertSame(mom.getSpouse(), dad);
         Assert.assertEquals(mom.getBirthday(), LocalDate.parse("1982-11-16"));
         Assert.assertEquals(mom.getColorPrefs().get(Color.RED), null);
-        Assert.assertEquals(mom.getColorPrefs().get(Color.GREEN), 8.0f);
-        Assert.assertEquals(mom.getColorPrefs().get(Color.BLUE), 5.0f);
+        Assert.assertEquals((float)mom.getColorPrefs().get(Color.GREEN), 8.0f);
+        Assert.assertEquals((float)mom.getColorPrefs().get(Color.BLUE), 5.0f);
         Assert.assertEquals(mom.getFriends().size(), 1);
         Assert.assertTrue(mom.getFriends().contains(margo));
         Assert.assertEquals(mom.getNicknames().size(), 0);
