@@ -85,58 +85,58 @@
         <previous.version>4.1.2</previous.version>
 
         <!-- Dependency versions -->
-        <ant.version>1.10.2</ant.version>
-        <asm.version>6.0</asm.version>
+        <ant.version>1.10.7</ant.version>
+        <asm.version>8.0.1</asm.version>
         <aspectj.maven-plugin.version>1.11</aspectj.maven-plugin.version>
-        <aspectj.version>1.8.13</aspectj.version>
+        <aspectj.version>1.9.5</aspectj.version>
         <bdb.version>18.3.12</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
-        <commons-codec.version>1.11</commons-codec.version>
-        <dellroad-stuff.version>2.2.2</dellroad-stuff.version>
+        <commons-codec.version>1.14</commons-codec.version>
+        <dellroad-stuff.version>2.4.2</dellroad-stuff.version>
         <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.version>1.52.0</google-cloud-java.version>
-        <guava.version>24.0-jre</guava.version>
-        <hawtjni.version>1.16</hawtjni.version>
-        <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
-        <javax.el.version>3.0.1-b09</javax.el.version>
-        <javax.mail.version>1.6.1</javax.mail.version>
-        <jetty.version>9.4.18.v20190429</jetty.version>
+        <guava.version>28.2-jre</guava.version>
+        <hawtjni.version>1.17</hawtjni.version>
+        <hibernate-validator.version>6.1.3.Final</hibernate-validator.version>
+        <javax.el.version>3.0.1-b11</javax.el.version>
+        <javax.mail.version>1.6.2</javax.mail.version>
+        <jetty.version>9.4.28.v20200408</jetty.version>
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.9</leveldb.version>
-        <lmdbjava.version>0.6.1</lmdbjava.version>
+        <lmdbjava.version>0.7.0</lmdbjava.version>
         <log4j.version>1.2.17</log4j.version>
-        <maven.artifact.version>3.5.3</maven.artifact.version>
-        <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
+        <maven.artifact.version>3.6.3</maven.artifact.version>
+        <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
-        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.enforcer.plugin.version>3.0.0-M1</maven.enforcer.plugin.version>
+        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+        <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
-        <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
-        <maven.javadoc.plugin.version>3.0.0</maven.javadoc.plugin.version>
-        <maven.plugin.tools.version>3.5.1</maven.plugin.tools.version>
+        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+        <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+        <maven.plugin.tools.version>3.6.0</maven.plugin.tools.version>
         <maven.project.version>3.0-alpha-2</maven.project.version>
-        <maven.project.info.reports.plugin.version>2.9</maven.project.info.reports.plugin.version>
+        <maven.project.info.reports.plugin.version>3.0.0</maven.project.info.reports.plugin.version>
         <maven.shade.plugin.version>3.2.2</maven.shade.plugin.version>
-        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
-        <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
-        <maven.wagon.scm.extension.version>3.0.0</maven.wagon.scm.extension.version>
-        <mssql.version>6.4.0.jre8</mssql.version>
-        <mvstore.version>1.4.199</mvstore.version>
+        <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
+        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+        <maven.wagon.scm.extension.version>3.3.4</maven.wagon.scm.extension.version>
+        <mssql.version>8.2.2.jre8</mssql.version>
+        <mvstore.version>1.4.200</mvstore.version>
         <mysql.version>8.0.19</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
-        <plugin-api.version>3.5.0</plugin-api.version>
-        <postgresql.version>42.2.2</postgresql.version>
+        <plugin-api.version>3.6.3</plugin-api.version>
+        <postgresql.version>42.2.12</postgresql.version>
         <properties.maven.plugin.version>1.0.0</properties.maven.plugin.version>
-        <rocksdb.version>6.3.6</rocksdb.version>
-        <servlet-api.version>3.1.0</servlet-api.version>
-        <slf4j.version>1.7.25</slf4j.version>
-        <spotbugs.maven.plugin.version>3.1.12.2</spotbugs.maven.plugin.version>
+        <rocksdb.version>6.7.3</rocksdb.version>
+        <servlet-api.version>4.0.1</servlet-api.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <spotbugs.maven.plugin.version>4.0.0</spotbugs.maven.plugin.version>
         <spring.version>5.2.5.RELEASE</spring.version>
-        <sqlite.version>3.21.0.1</sqlite.version>
+        <sqlite.version>3.30.1</sqlite.version>
         <testng.version>7.1.0</testng.version>
-        <xodus.version>1.2.2</xodus.version>
-        <vaadin7.version>7.7.13</vaadin7.version>
+        <xodus.version>1.3.124</xodus.version>
+        <vaadin7.version>7.7.17</vaadin7.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
 
     </properties>
