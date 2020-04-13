@@ -19,6 +19,11 @@ import java.lang.annotation.Target;
  * been deleted or whose types have changed in the new schema version. This allows the object to perform any
  * schema migration "fixups" required before the old information is lost.
  *
+ * <p>
+ * Simple changes that only modify a simple field's type can often be handled automatically; see
+ * {@link io.permazen.core.FieldType#convert FieldType.convert()} and
+ * {@link JField#upgradeConversion &#64;JField.upgradeConversion()} for details.
+ *
  * <p><b>Method Parameters</b></p>
  *
  * <p>
@@ -57,7 +62,7 @@ import java.lang.annotation.Target;
  * If a class has multiple {@link OnVersionChange &#64;OnVersionChange}-annotated methods, methods with more specific
  * constraint(s) (i.e., non-zero {@link #oldVersion} and/or {@link #newVersion}) will be invoked first.
  *
- * <p><b>Incompatible Schema Changes</b></p>
+ * <p><b>Incompatible Object Type Changes</b></p>
  *
  * <p>
  * Permazen supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.
@@ -74,10 +79,10 @@ import java.lang.annotation.Target;
  * <ul>
  * <li>For a reference field whose type no longer exists, the referenced object will be an {@link io.permazen.UntypedJObject}.
  *      Note that the fields in the {@link io.permazen.UntypedJObject} may still be accessed by invoking the
- *      {@link io.permazen.JTransaction} field access methods with {@code upgradeVersion} set to false (to avoid
- *      a {@link io.permazen.core.TypeNotInSchemaVersionException} being thrown).
- * <li>For {@link Enum} fields, the old value will always be represented as an {@link io.permazen.core.EnumValue} object
- *      (for consistency, this is done even if the associated {@link Enum} type still exists unchanged).</li>
+ *      {@link io.permazen.JTransaction} field introspection methods with the {@code upgradeVersion} parameter set to false
+ *      (required to avoid {@link io.permazen.core.TypeNotInSchemaVersionException}).
+ * <li>For {@link Enum} fields, the old value will always be represented as an {@link io.permazen.core.EnumValue} object.
+ *      For consistency, this is done even if the associated {@link Enum} type still exists unchanged.</li>
  * </ul>
  *
  * <p>
@@ -93,6 +98,9 @@ import java.lang.annotation.Target;
  * This annotation may be configured indirectly as a Spring
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
+ *
+ * @see io.permazen.core.FieldType#convert FieldType.convert()
+ * @see JField#upgradeConversion &#64;JField.upgradeConversion()
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })

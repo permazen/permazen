@@ -446,8 +446,9 @@ public @interface JField {
      * to the {@link String} value {@code "1234"}).
      *
      * <p>
-     * See {@link io.permazen.core.FieldType#convert} for details about conversions between simple field types. In addition,
-     * {@link io.permazen.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
+     * See {@link io.permazen.core.FieldType#convert FieldType.convert()} for details about conversions between simple field types.
+     * In addition, {@link io.permazen.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper)
+     * type.
      *
      * <p>
      * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some
@@ -463,6 +464,7 @@ public @interface JField {
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
      * @see io.permazen.core.FieldType#convert FieldType.convert()
+     * @see OnVersionChange
      */
     UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }
