@@ -160,7 +160,7 @@ public class Main extends AbstractMain {
             assert false;
             break;
         }
-        try (final Console console = console0) {
+        try (Console console = console0) {
 
             // Configure history
             if (this.keyboardInput && !this.batchMode)
@@ -180,7 +180,7 @@ public class Main extends AbstractMain {
             // Handle file input
             for (String filename : this.execFiles) {
                 final File file = new File(filename);
-                try (final InputStream input = new FileInputStream(file)) {
+                try (InputStream input = new FileInputStream(file)) {
                     if (!this.parseAndExecuteCommands(console, new InputStreamReader(input), file.getName()))
                         return 1;
                 } catch (IOException e) {

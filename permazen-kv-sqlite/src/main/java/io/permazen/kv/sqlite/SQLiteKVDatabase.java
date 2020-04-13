@@ -154,7 +154,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
             + "    CONSTRAINT " + this.quote(this.getValueColumnName() + "_null") + " NOT NULL\n"
           + ")";
         this.beginTransaction(connection);
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
             statement.execute(sql);
             statement.execute("COMMIT");
@@ -166,7 +166,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
     protected void configureConnection(Connection connection) throws SQLException {
         if (!this.exclusiveLocking && (this.pragmas == null || this.pragmas.isEmpty()))
             return;
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             if (this.exclusiveLocking) {
                 this.log.debug("configuring database connection for exclusive locking");
                 statement.execute("PRAGMA locking_mode=EXCLUSIVE");

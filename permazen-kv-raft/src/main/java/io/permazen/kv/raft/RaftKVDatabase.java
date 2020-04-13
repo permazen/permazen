@@ -1849,7 +1849,7 @@ public class RaftKVDatabase implements KVDatabase {
     boolean discardFlipFloppedStateMachine() {
         final byte[] dirtyPrefix = this.getFlipFloppedStateMachinePrefix();
         final boolean dirty;
-        try (final CloseableIterator<KVPair> i = this.kv.getRange(KeyRange.forPrefix(dirtyPrefix))) {
+        try (CloseableIterator<KVPair> i = this.kv.getRange(KeyRange.forPrefix(dirtyPrefix))) {
             dirty = i.hasNext();
         }
         if (dirty)

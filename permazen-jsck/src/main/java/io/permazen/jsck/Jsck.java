@@ -140,7 +140,7 @@ public class Jsck {
         Map<Integer, SchemaModel> forceSchemaVersions = this.config.getForceSchemaVersions();
         if (forceSchemaVersions == null)
             forceSchemaVersions = Collections.emptyMap();
-        try (final CloseableIterator<KVPair> i = kv.getRange(Layout.getSchemaKeyRange())) {
+        try (CloseableIterator<KVPair> i = kv.getRange(Layout.getSchemaKeyRange())) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 int version = 0;
@@ -306,7 +306,7 @@ public class Jsck {
         for (int storageId : objectTypeStorageIds) {
             final String rangeDescription = "the key range of object type storage ID " + storageId;
             info.info("checking " + rangeDescription);
-            try (final CloseableIterator<KVPair> ci = kv.getRange(this.getKeyRange(storageId))) {
+            try (CloseableIterator<KVPair> ci = kv.getRange(this.getKeyRange(storageId))) {
                 for (final PeekingIterator<KVPair> i = Iterators.peekingIterator(ci); i.hasNext(); ) {
                     final KVPair pair = i.next();
                     final byte[] idKey = pair.getKey();
@@ -448,7 +448,7 @@ public class Jsck {
             final Index index = info.getIndexes().get(storageId);
             final String rangeDescription = "the key range of " + index;
             info.info("checking " + rangeDescription);
-            try (final CloseableIterator<KVPair> i = kv.getRange(index.getKeyRange())) {
+            try (CloseableIterator<KVPair> i = kv.getRange(index.getKeyRange())) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
 
@@ -471,7 +471,7 @@ public class Jsck {
         // Check the object version index
         info.info("checking object version index; recorded schema versions are " + info.getSchemas().keySet());
         final HashSet<Integer> unusedSchemaVersions = new HashSet<>(info.getSchemas().keySet());
-        try (final CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(objectVersionIndexKeyPrefix))) {
+        try (CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(objectVersionIndexKeyPrefix))) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
 
@@ -557,7 +557,7 @@ public class Jsck {
     private long checkEmpty(JsckInfo info, KeyRange range, String description) {
         info.info("checking that " + description + " is empty");
         long count = 0;
-        try (final CloseableIterator<KVPair> i = info.getKVStore().getRange(range)) {
+        try (CloseableIterator<KVPair> i = info.getKVStore().getRange(range)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 info.handle(new InvalidKey(pair.getKey(), pair.getValue()).setDetail(description));

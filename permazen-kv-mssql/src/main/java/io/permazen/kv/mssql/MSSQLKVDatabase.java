@@ -128,7 +128,7 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
           + "  " + this.getKeyColumnName() + " VARBINARY(" + keySize + ") NOT NULL PRIMARY KEY,\n"
           + "  " + this.getValueColumnName() + " VARBINARY(" + valSize + ") NOT NULL\n"
           + ")\n";
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
             statement.execute(sql);
         }
@@ -136,7 +136,7 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
 
     @Override
     protected void configureConnection(Connection connection) throws SQLException {
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.execute("SET LOCK_TIMEOUT " + this.lockTimeout);
         }
     }

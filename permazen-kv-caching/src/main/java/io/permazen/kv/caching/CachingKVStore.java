@@ -849,7 +849,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                 }
 
                 // Get iterator, load key/value pairs, then close iterator
-                try (final CloseableIterator<KVPair> iterator = this.reverse ?
+                try (CloseableIterator<KVPair> iterator = this.reverse ?
                   CachingKVStore.super.getRange(this.limit, this.start, true) :
                   CachingKVStore.super.getRange(this.start, this.limit, false)) {
                     this.load(iterator);

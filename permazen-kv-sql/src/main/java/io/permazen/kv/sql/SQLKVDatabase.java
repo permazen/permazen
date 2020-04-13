@@ -228,7 +228,7 @@ public class SQLKVDatabase implements KVDatabase {
     @Override
     @PostConstruct
     public void start() {
-        try (final Connection connection = this.createTransactionConnection()) {
+        try (Connection connection = this.createTransactionConnection()) {
             this.initializeDatabaseIfNecessary(connection);
         } catch (SQLException e) {
             throw new KVDatabaseException(this, e);

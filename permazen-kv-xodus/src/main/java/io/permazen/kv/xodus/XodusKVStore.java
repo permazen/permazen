@@ -164,7 +164,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
     @Override
     public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
-        try (final Cursor cursor = this.store.openCursor(this.tx)) {
+        try (Cursor cursor = this.store.openCursor(this.tx)) {
             final boolean found = minKey != null && minKey.length > 0 ?
               cursor.getSearchKeyRange(new ArrayByteIterable(minKey)) != null : cursor.getNext();
             if (!found)
@@ -179,7 +179,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
     @Override
     public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
-        try (final Cursor cursor = this.store.openCursor(this.tx)) {
+        try (Cursor cursor = this.store.openCursor(this.tx)) {
             // It's possible somebody could be simultaneously inserting keys just after maxKey, in which case we
             // could be tricked into returning a key > maxKey. This is unlikely, but make sure it can't affect us.
             while (true) {
@@ -225,7 +225,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
     public void removeRange(byte[] minKey, byte[] maxKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         Preconditions.checkState(!this.txType.isReadOnly(), "read-only transaction");
-        try (final Cursor cursor = this.store.openCursor(this.tx)) {
+        try (Cursor cursor = this.store.openCursor(this.tx)) {
             boolean found = minKey != null && minKey.length > 0 ?
               cursor.getSearchKeyRange(new ArrayByteIterable(minKey)) != null : cursor.getNext();
             while (found) {

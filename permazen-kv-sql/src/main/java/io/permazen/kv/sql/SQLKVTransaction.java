@@ -423,7 +423,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
     protected void update(StmtType stmtType, byte[]... params) {
         assert params.length == stmtType.getNumParams();
-        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
+        try (PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
@@ -449,7 +449,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         assert paramList.size() % numStmtParams == 0;
 
         // Create statement and do batches
-        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
+        try (PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numSqlParams = preparedStatement.getParameterMetaData().getParameterCount();
 
             // Set query timeout

@@ -29,8 +29,8 @@ import org.dellroad.nvt4j.impl.TerminalImpl;
  * This class can be used to implement an embedded CLI console within an application, accessed via telnet. For example:
  * <pre>
  *      // Accept a new connection and setup telnet CLI console
- *      try (final Socket socket = /* accept new TCP connection *&#47;;
- *           final TelnetConsole console = TelnetConsole.create(database, socket)) {
+ *      try (Socket socket = /* accept new TCP connection *&#47;;
+ *           TelnetConsole console = TelnetConsole.create(database, socket)) {
  *
  *          // Install commands and functions
  *          console.getSession().loadFunctionsFromClasspath();

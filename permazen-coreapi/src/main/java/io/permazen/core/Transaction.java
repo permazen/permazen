@@ -1180,7 +1180,7 @@ public class Transaction {
             final ByteWriter dstWriter = new ByteWriter();
             dstWriter.write(dstId.getBytes());
             final int dstMark = dstWriter.mark();
-            try (final CloseableIterator<KVPair> i = srcTx.kvt.getRange(srcKeyRange)) {
+            try (CloseableIterator<KVPair> i = srcTx.kvt.getRange(srcKeyRange)) {
                 while (i.hasNext()) {
                     final KVPair kv = i.next();
                     assert srcKeyRange.contains(kv.getKey());

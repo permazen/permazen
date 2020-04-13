@@ -24,7 +24,7 @@ class MySQLKVTransaction extends SQLKVTransaction {
     @Override
     public void setTimeout(long timeout) {
         super.setTimeout(timeout);
-        try (final Statement statement = this.connection.createStatement()) {
+        try (Statement statement = this.connection.createStatement()) {
             statement.execute("SET innodb_lock_wait_timeout = " + (timeout + 999) / 1000);
         } catch (SQLException e) {
             throw this.handleException(e);

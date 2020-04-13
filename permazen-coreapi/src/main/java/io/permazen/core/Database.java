@@ -391,7 +391,7 @@ public class Database {
         // Get iterator over meta-data key/value pairs
         final int formatVersion;
         final boolean uninitialized;
-        try (final CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(Layout.getMetaDataKeyRange())) {
+        try (CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(Layout.getMetaDataKeyRange())) {
 
             // Pretend user meta-data is not there
             final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(Layout.getUserMetaDataKeyPrefix(), key);

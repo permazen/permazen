@@ -36,7 +36,7 @@ public class CockroachKVDatabase extends SQLKVDatabase {
           + "  " + this.quote(this.getKeyColumnName()) + " BYTES PRIMARY KEY NOT NULL,\n"
           + "  " + this.quote(this.getValueColumnName()) + " BYTES NOT NULL\n"
           + ")";
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
             statement.execute(sql);
         }
@@ -49,7 +49,7 @@ public class CockroachKVDatabase extends SQLKVDatabase {
 
     @Override
     protected void postBeginTransaction(Connection connection) throws SQLException {
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.execute("SET TRANSACTION ISOLATION LEVEL " + this.isolationLevel.name().replace('_', ' '));
         }
     }

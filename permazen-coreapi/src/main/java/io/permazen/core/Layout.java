@@ -407,7 +407,7 @@ public final class Layout {
     }
 
     private static void copyRange(KVStore src, KVStore dst, byte[] minKey, byte[] maxKey) {
-        try (final CloseableIterator<KVPair> i = src.getRange(minKey, maxKey)) {
+        try (CloseableIterator<KVPair> i = src.getRange(minKey, maxKey)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 dst.put(pair.getKey(), pair.getValue());

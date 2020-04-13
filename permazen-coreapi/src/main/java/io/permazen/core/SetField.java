@@ -83,8 +83,8 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
         final FieldType<E> fieldType = this.elementField.fieldType;
         final NavigableSet<E> src = this.getValue(srcTx, srcId);
         final NavigableSet<E> dst = this.getValue(dstTx, dstId);
-        try (final CloseableIterator<E> si = CloseableIterator.wrap(src.iterator());
-             final CloseableIterator<E> di = CloseableIterator.wrap(dst.iterator())) {
+        try (CloseableIterator<E> si = CloseableIterator.wrap(src.iterator());
+             CloseableIterator<E> di = CloseableIterator.wrap(dst.iterator())) {
 
             // Check for empty
             if (!si.hasNext()) {

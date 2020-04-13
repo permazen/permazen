@@ -162,7 +162,7 @@ public abstract class ComplexField<T> extends Field<T> {
         Preconditions.checkArgument(subField.indexed, "not indexed");
         final byte[] prefix = this.buildKey(id);
         final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
-        try (final CloseableIterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd)) {
+        try (CloseableIterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 assert KeyRange.forPrefix(prefix).contains(pair.getKey());
@@ -204,7 +204,7 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, byte[] minKey, byte[] maxKey) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
-        try (final CloseableIterator<KVPair> i = tx.kvt.getRange(minKey, maxKey)) {
+        try (CloseableIterator<KVPair> i = tx.kvt.getRange(minKey, maxKey)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 assert new KeyRange(minKey, maxKey).contains(pair.getKey());

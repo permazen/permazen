@@ -1023,7 +1023,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             regularCopyFiles.add(this.modsFile);                     // it's ok if we copy a partial write
             regularCopyFiles.add(this.generationFile);               // copy this one last
             for (File file : regularCopyFiles) {
-                try (final FileOutputStream fileCopy = new FileOutputStream(new File(target, file.getName()))) {
+                try (FileOutputStream fileCopy = new FileOutputStream(new File(target, file.getName()))) {
                     Files.copy(file.toPath(), fileCopy);
                     fileCopy.getChannel().force(false);
                 }

@@ -86,7 +86,7 @@ public class MySQLKVDatabase extends SQLKVDatabase {
           + "  " + this.quote(this.getValueColumnName()) + " LONGBLOB NOT NULL,\n"
           + "  PRIMARY KEY(" + this.quote(this.getKeyColumnName()) + ")\n"
           + ") ENGINE=InnoDB default charset=utf8 collate=utf8_bin" + rowFormat;
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
             statement.execute(sql);
         }
@@ -94,7 +94,7 @@ public class MySQLKVDatabase extends SQLKVDatabase {
 
     @Override
     protected void configureConnection(Connection connection) throws SQLException {
-        try (final Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.execute("SET innodb_lock_wait_timeout = " + this.lockTimeout);
             statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long
         }

@@ -219,7 +219,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         s.read(new ByteArrayInputStream(text.getBytes("UTF-8")));
 
         // Compare transaction KV stores
-        try (final CloseableIterator<KVPair> i1 = tx.getKVTransaction().getRange(null, null);
+        try (CloseableIterator<KVPair> i1 = tx.getKVTransaction().getRange(null, null);
             final CloseableIterator<KVPair> i2 = stx.getKVTransaction().getRange(null, null)) {
             while (i1.hasNext() && i2.hasNext()) {
                 final KVPair p1 = i1.next();

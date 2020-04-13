@@ -25,7 +25,7 @@ class MSSQLKVTransaction extends SQLKVTransaction {
     @Override
     public void setTimeout(long timeout) {
         super.setTimeout(timeout);
-        try (final Statement statement = this.connection.createStatement()) {
+        try (Statement statement = this.connection.createStatement()) {
             statement.execute("SET LOCK_TIMEOUT " + timeout);
         } catch (SQLException e) {
             throw this.handleException(e);

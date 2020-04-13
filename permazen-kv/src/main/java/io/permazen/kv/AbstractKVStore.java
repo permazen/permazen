@@ -55,7 +55,7 @@ public abstract class AbstractKVStore implements KVStore {
     public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
             return null;
-        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
+        try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             return i.hasNext() ? i.next() : null;
         }
     }
@@ -64,7 +64,7 @@ public abstract class AbstractKVStore implements KVStore {
     public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
             return null;
-        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, true)) {
+        try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, true)) {
             return i.hasNext() ? i.next() : null;
         }
     }
@@ -81,7 +81,7 @@ public abstract class AbstractKVStore implements KVStore {
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
-        try (final CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
+        try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             while (i.hasNext()) {
                 i.next();
                 i.remove();

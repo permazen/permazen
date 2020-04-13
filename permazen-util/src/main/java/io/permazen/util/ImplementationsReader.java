@@ -146,7 +146,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
             final URL url = enumeration.nextElement();
             if (this.log.isDebugEnabled())
                 this.log.debug("reading " + this.name + " implementations from " + url);
-            try (final InputStream input = url.openStream()) {
+            try (InputStream input = url.openStream()) {
               classLoop:
                 for (String className : this.parse(input)) {
 

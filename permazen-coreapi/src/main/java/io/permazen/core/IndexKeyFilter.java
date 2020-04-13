@@ -105,7 +105,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
+        try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
             return i.hasNext();
         }
     }
@@ -131,7 +131,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Search for any key with that prefix, using the suffix filter(s)
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
+        try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
             i.setNextTarget(key);
             return i.hasNext() ? i.next().getKey() : ByteUtil.getKeyAfterPrefix(suffixPrefix);
         }
@@ -165,7 +165,7 @@ class IndexKeyFilter implements KeyFilter {
 
         // Check suffix fields
         final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
-        try (final KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true)) {
+        try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true)) {
             i.setNextTarget(next);
             return i.hasNext() ? ByteUtil.getNextKey(i.next().getKey()) : suffixPrefix;
         }

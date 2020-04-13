@@ -322,7 +322,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Verify data
         this.log.info("testSortOrder() on " + store + ": verifying data order");
         this.tryNtimes(store, tx -> {
-            try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
+            try (CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                 int index2 = 0;
                 while (i.hasNext()) {
                     final byte[][] pair = pairs[index2];
@@ -1077,7 +1077,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     }
 
                     // Verify everything we know to no be there is not there
-                    try (final CloseableIterator<KVPair> iter = tx.getRange(null, null, false)) {
+                    try (CloseableIterator<KVPair> iter = tx.getRange(null, null, false)) {
                         while (iter.hasNext()) {
                             pair = iter.next();
                             assert !knownEmpty.contains(pair.getKey()) :
@@ -1253,7 +1253,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         private TreeMap<byte[], byte[]> readDatabase(KVStore tx) {
             final TreeMap<byte[], byte[]> values = new TreeMap<>(ByteUtil.COMPARATOR);
-            try (final CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
+            try (CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
                     values.put(pair.getKey(), pair.getValue());
@@ -1265,7 +1265,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private String toString(KVStore kv) {
             final StringBuilder buf = new StringBuilder();
             buf.append('{');
-            try (final CloseableIterator<KVPair> i = kv.getRange(null, null, false)) {
+            try (CloseableIterator<KVPair> i = kv.getRange(null, null, false)) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
                     if (buf.length() > 1)

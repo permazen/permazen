@@ -148,8 +148,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         final FieldType<K> keyFieldType = this.keyField.fieldType;
         final NavigableMap<K, V> src = this.getValue(srcTx, srcId);
         final NavigableMap<K, V> dst = this.getValue(dstTx, dstId);
-        try (final CloseableIterator<Map.Entry<K, V>> si = CloseableIterator.wrap(src.entrySet().iterator());
-             final CloseableIterator<Map.Entry<K, V>> di = CloseableIterator.wrap(dst.entrySet().iterator())) {
+        try (CloseableIterator<Map.Entry<K, V>> si = CloseableIterator.wrap(src.entrySet().iterator());
+             CloseableIterator<Map.Entry<K, V>> di = CloseableIterator.wrap(dst.entrySet().iterator())) {
 
             // Check for empty
             if (!si.hasNext()) {

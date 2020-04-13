@@ -146,7 +146,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
         }
 
         // Remove them one-at-a-time
-        try (final CursorIterator<T> i = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, false))) {
+        try (CursorIterator<T> i = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, false))) {
             while (i.hasNext()) {
                 i.next();
                 i.remove();

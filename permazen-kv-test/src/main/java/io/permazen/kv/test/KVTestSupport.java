@@ -100,7 +100,7 @@ public abstract class KVTestSupport extends TestSupport {
     }
 
     protected String toXmlString(KVStore kv, byte[] minKey, byte[] maxKey) {
-        try (final ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
             new XMLSerializer(kv).write(writer, minKey, maxKey);
