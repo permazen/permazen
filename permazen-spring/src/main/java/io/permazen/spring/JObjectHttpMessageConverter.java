@@ -122,25 +122,25 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
         final MediaType mediaType = input.getHeaders().getContentType();
         if (mediaType == null) {
             throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "' missing; no `Content-Type' header found");
+              + "' missing; no `Content-Type' header found", input);
         }
         final String objId = mediaType.getParameter(ROOT_OBJECT_ID_PARAMETER_NAME);
         if (objId == null) {
             throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "' missing from Content-Type `" + mediaType + "'");
+              + "' missing from Content-Type `" + mediaType + "'", input);
         }
         final ObjId id;
         try {
             id = new ObjId(objId);
         } catch (IllegalArgumentException e) {
             throw new HttpMessageNotReadableException("invalid `" + ROOT_OBJECT_ID_PARAMETER_NAME + "' parameter value `"
-              + objId + "' in Content-Type `" + mediaType + "'");
+              + objId + "' in Content-Type `" + mediaType + "'", input);
         }
 
         // Find the root object
         final JObject jobj = jtx.get(id);
         if (!jobj.exists())
-            throw new HttpMessageNotReadableException("no object with object ID " + id + " found in object graph");
+            throw new HttpMessageNotReadableException("no object with object ID " + id + " found in object graph", input);
 
         // Done
         return jobj;

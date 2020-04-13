@@ -117,7 +117,7 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KV
                 kvstore.put(kv.getKey(), kv.getValue());
             }
         } catch (IllegalArgumentException e) {
-            throw new HttpMessageNotReadableException("invalid endoded key/value store", e);
+            throw new HttpMessageNotReadableException("invalid endoded key/value store", e, input);
         } catch (RuntimeException e) {
             if (e.getCause() instanceof IOException)
                 throw (IOException)e.getCause();

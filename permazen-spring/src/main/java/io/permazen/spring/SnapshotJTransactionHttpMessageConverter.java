@@ -135,7 +135,7 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
                 jtx.validate();
             } catch (ValidationException e) {
                 throw new HttpMessageNotReadableException("incoming object graph failed validation: "
-                  + ValidationUtil.describe(e.getViolations()));
+                  + ValidationUtil.describe(e.getViolations()), input);
             }
         }
 
