@@ -267,6 +267,8 @@ public abstract class NavigableSetPager<E> {
      * five times and then {@link #prevPage} is invoked two times, this method returns a value three higher than before,
      * regardless of whether items were concurrently added or removed from the underlying set. The page number is only
      * guaranteed to be accurate if the set hasn't changed since we most recently reached the start or end of the data.
+     *
+     * @return current page number, or zero if unknown
      */
     public int getPageNumber() {
         return this.pageNumber;

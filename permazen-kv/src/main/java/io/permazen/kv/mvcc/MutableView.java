@@ -169,6 +169,8 @@ public class MutableView extends AbstractKVStore implements Cloneable {
      *
      * <p>
      * Ignored if there is no (longer any) associated {@link Reads} instance.
+     *
+     * @param readTrackingPaused true to disable read tracking, false to enable
      */
     public synchronized void setReadTrackingPaused(final boolean readTrackingPaused) {
         this.readTrackingPaused = readTrackingPaused;
