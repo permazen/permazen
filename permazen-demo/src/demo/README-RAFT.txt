@@ -14,9 +14,17 @@ AtomicArrayKVStore as the local persistent store.
 Let A, B, C, ... represent the nodes in the cluster. In this example
 the identity of A is "nodeA" and the IP address of A is "A.A.A.A".
 
-If the nodes are running on the same host, you need to specify different
-TCP ports, either by appending them to the address like `127.0.0.1:1001'
-or by using the `--raft-port' flag.
+A Raft database stores its persistent state in two separate places: the
+`--raft-dir' stores state associated with the Raft protocol itself, such
+as uncommitted log entries. Raft also needs an AtomicKVStore to store
+the local copy of the state machine (i.e., the actual key/value pairs)
+as well as some additional associated meta-data. The exmaple below
+configures an AtomicArrayKVStore but other options exist as well.
+
+By default, Raft nodes bind to port 9660. If your nodes are running on
+the same host, you need to specify a different TCP port for each node
+by either appending them to the address like `127.0.0.1:1001' using the
+`--raft-port' flag.
 
  1. Choose a directory for the Raft persistent state on each machine.
     In this example we'll use ~/.raftX for machine X.
@@ -26,10 +34,10 @@ or by using the `--raft-port' flag.
 
         $ java -jar permazen-cli.jar
             --kv-mode                               # Start CLI in key/value mode
-            --raft-dir ~/.raftX                     # Raft persistent state dir
+            --raft-dir ~/.raftX                     # Raft protocol state dir
             --raft-identity nodeX                   # Raft node identity
-            --raft-address X.X.X.X                  # Raft node IP address
-            --arraydb ~/.raftX/kvstore              # Raft's local persistent store
+            --raft-address X.X.X.X:XXXX             # IP (and optional port) to bind to
+            --arraydb ~/.raftX/kvstore              # Raft's copy of the state machine
 
     Enter the "raft-status" command into the CLI running on each machine.
     It should show that the Raft cluster is in the unconfigured state:
