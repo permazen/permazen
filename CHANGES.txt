@@ -1,4 +1,4 @@
-Version Next
+Version 4.1.6 Released April 14, 2020
 
     - SnapshotJTransaction and SnapshotTransaction now implement Closeable
     - Added new key/value implementation based on MVStore (issue #34)
