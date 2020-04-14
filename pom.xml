@@ -232,6 +232,11 @@
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-continuation</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <!-- Spring -->
             <dependency>
