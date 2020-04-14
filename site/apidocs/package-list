@@ -25,6 +25,7 @@ io.permazen.kv.leveldb
 io.permazen.kv.lmdb
 io.permazen.kv.mssql
 io.permazen.kv.mvcc
+io.permazen.kv.mvstore
 io.permazen.kv.mysql
 io.permazen.kv.raft
 io.permazen.kv.raft.cmd
