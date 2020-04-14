@@ -67,8 +67,9 @@ public abstract class AbstractMain extends MainClass {
      */
     public int parseOptions(ArrayDeque<String> params) {
 
-        // Special logic to automate the demo when no flags are given
-        if (params.isEmpty() && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists()) {
+        // Special logic to automate the demo when no flags (other than "--port XXXX") are given
+        if (DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists()
+          && (params.isEmpty() || params.toString().matches("\\[--port, [0-9]+\\]"))) {
             params.add("--xml");
             params.add(DEMO_XML_FILE.toString());
             params.add("--classpath");
