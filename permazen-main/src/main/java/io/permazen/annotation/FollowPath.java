@@ -34,9 +34,9 @@ import java.lang.annotation.Target;
  * <pre>
  *
  *      public NavigableSet&lt;TreeNode&gt; getChildren() {
- *          final Permazen jdb = /* the Permazen instance associated with this instance *&#47;
- *          final ReferencePath path = jdb.parseReferencePath(this.getClass(), "^TreeNode:parent^", false);
- *          return jdb.followReferencePath(path, Collections.singleton(this));
+ *          final JTransaction jtx = this.getTransaction();
+ *          final ReferencePath path = jtx.getPermazen().parseReferencePath(this.getClass(), "^TreeNode:parent^", false);
+ *          return jtx.followReferencePath(path, Collections.singleton(this));
  *      }
  * </pre>
  *
