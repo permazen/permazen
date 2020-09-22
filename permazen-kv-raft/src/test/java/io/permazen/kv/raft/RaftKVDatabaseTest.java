@@ -9,6 +9,8 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.array.AtomicArrayKVStore;
 import io.permazen.kv.leveldb.LevelDBAtomicKVStore;
 import io.permazen.kv.mvcc.AtomicKVDatabase;
+import io.permazen.kv.mvstore.MVStoreAtomicKVStore;
+import io.permazen.kv.mvstore.MVStoreKVImplementation;
 import io.permazen.kv.rocksdb.RocksDBAtomicKVStore;
 import io.permazen.kv.sqlite.SQLiteKVDatabase;
 import io.permazen.kv.test.KVDatabaseTest;
@@ -119,6 +121,14 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 arraykv.setCompactLowWater(arrayCompactLowWater);
                 arraykv.setCompactHighWater(arrayCompactHighWater);
                 this.rafts[i].setKVStore(arraykv);
+                break;
+            }
+            case "mvstore":
+            {
+                final MVStoreKVImplementation.Config config = new MVStoreKVImplementation.Config();
+                config.setFile(new File(kvdir, "kvstore.mvstore"));
+                final MVStoreAtomicKVStore mvkv = new MVStoreKVImplementation().createAtomicKVStore(config);
+                this.rafts[i].setKVStore(mvkv);
                 break;
             }
             default:
