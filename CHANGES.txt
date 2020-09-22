@@ -1,3 +1,7 @@
+Version Next
+
+    - Added ReadTracking interface and JTransaction.weakConsistency()
+
 Version 4.1.6 Released April 14, 2020
 
     - SnapshotJTransaction and SnapshotTransaction now implement Closeable

@@ -45,7 +45,9 @@ import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
 import io.permazen.kv.KVDatabaseException;
+import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRanges;
+import io.permazen.kv.mvcc.ReadTracking;
 import io.permazen.kv.util.AbstractKVNavigableSet;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
@@ -67,6 +69,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -1779,6 +1782,40 @@ public class JTransaction {
         } finally {
             CURRENT.set(previous);
         }
+    }
+
+    /**
+     * Apply weaker transaction consistency while invoking the given {@link Runnable}, if applicable.
+     *
+     * <p>
+     * If the the underlying {@link KVTransaction} does not implement {@link ReadTracking}, then this method
+     * simply invokes {@code action}. Otherwise, it disables tracking of reads while performing {@code action},
+     * which means some reads could return stale data.
+     *
+     * <p>
+     * This method is for "experts only".
+     *
+     * <p>
+     * There must be a {@linkplain #getCurrent current transaction} associated with the current thread.
+     *
+     * @param action action to perform
+     * @throws IllegalStateException if there is no {@linkplain #getCurrent current transaction}
+     * @throws IllegalArgumentException if {@code action} is null
+     * @see ReadTracking
+     */
+    public static void weakConsistency(Runnable action) {
+        Preconditions.checkArgument(action != null, "null action");
+        final KVTransaction kvt = JTransaction.getCurrent().getTransaction().getKVTransaction();
+        if (kvt instanceof ReadTracking) {
+            final AtomicBoolean readTrackingControl = ((ReadTracking)kvt).getReadTrackingControl();
+            final boolean previous = readTrackingControl.getAndSet(false);
+            try {
+                action.run();
+            } finally {
+                readTrackingControl.set(previous);
+            }
+        } else
+            action.run();
     }
 
 // Internal methods
