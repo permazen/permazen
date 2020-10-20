@@ -1793,7 +1793,10 @@ public class JTransaction {
      * which means some reads could return stale data.
      *
      * <p>
-     * This method is for "experts only".
+     * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database. In particular,
+     * you should not perform any writes based on information read with weak consistency. Note that this includes
+     * the writes associated with implicit schema migration; therefore, you must ensure any objects accessed
+     * do not need to be upgraded.
      *
      * <p>
      * There must be a {@linkplain #getCurrent current transaction} associated with the current thread.
