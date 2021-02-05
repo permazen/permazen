@@ -19,10 +19,8 @@ import io.permazen.util.ParseContext;
 
 import java.math.BigInteger;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * Parses literal values.
@@ -111,27 +109,34 @@ public class LiteralExprParser implements Parser<Node> {
         }
 
         // Try to match a char literal
-        final Matcher charMatch = ctx.tryPattern(
-          StringEncoder.ENQUOTE_PATTERN.toString().replaceAll("\"", "'").replaceAll("\\*", ""));    // kludge
-        if (charMatch != null) {
-            String match = charMatch.group();
-            match = match.substring(1, match.length() - 1);
-            if (match.length() > 0 && match.charAt(0) == '\'') {
+        if (ctx.peek() == '\'') {
+            try {
+                ctx.expect('\'');
+                if (ctx.peek() == '\'')
+                    throw new IllegalArgumentException();
+                final char ch = this.tryLiteralChar(ctx);
+                ctx.expect('\'');
+                return new LiteralNode(ch);
+            } catch (IllegalArgumentException e) {
                 ctx.setIndex(start);
-                throw new ParseException(ctx, "invalid character: contains unescaped single quote");
+                throw new ParseException(ctx, "invalid character literal");
             }
-            match = StringEncoder.decode(match.replaceAll(Pattern.quote("\\'"), Matcher.quoteReplacement("'")));
-            if (match.length() != 1) {
-                ctx.setIndex(start);
-                throw new ParseException(ctx, "invalid character: quotes must contain exactly one character");
-            }
-            return new LiteralNode(match.charAt(0));
         }
 
         // Try to match a string literal
-        final Matcher stringMatch = ctx.tryPattern(StringEncoder.ENQUOTE_PATTERN);
-        if (stringMatch != null)
-            return new LiteralNode(StringEncoder.dequote(stringMatch.group()));
+        if (ctx.peek() == '\"') {
+            try {
+                ctx.expect('\"');
+                final StringBuilder buf = new StringBuilder();
+                while (ctx.peek() != '\"')
+                    buf.append(this.tryLiteralChar(ctx));
+                ctx.expect('\"');
+                return new LiteralNode(buf.toString());
+            } catch (IllegalArgumentException e) {
+                ctx.setIndex(start);
+                throw new ParseException(ctx, "invalid character literal");
+            }
+        }
 
         // Try to match variable
         if (ctx.tryLiteral("$")) {
@@ -168,5 +173,72 @@ public class LiteralExprParser implements Parser<Node> {
 
         // No match
         throw new ParseException(ctx);
+    }
+
+    // Parse the next character value that is part of a character or String literal.
+    // This assumes that there will be at least one input character AFTER the literal character.
+    private char tryLiteralChar(ParseContext ctx) {
+        char ch = ctx.read();
+        switch (ch) {
+        case '\r':
+            throw new IllegalArgumentException("illegal carriage return within literal");
+        case '\n':
+            throw new IllegalArgumentException("illegal newline within literal");
+        case '\\':
+
+            // Decode single-letter backslash escapes
+            ch = ctx.read();
+            switch (ch) {
+            case 'b':
+                return '\b';
+            case 't':
+                return '\t';
+            case 'n':
+                return '\n';
+            case 'f':
+                return '\f';
+            case 'r':
+                return '\r';
+            case '\'':
+            case '\"':
+            case '\\':
+                return ch;
+            default:
+                break;
+            }
+
+            // Decode octal escapes
+            int charValue = Character.digit(ch, 8);
+            if (charValue != -1) {
+                for (int i = 0; i < 2 && (charValue & ~0x1f) == 0; i++) {
+                    ch = ctx.peek();
+                    final int oct = Character.digit(ch, 8);
+                    if (oct == -1)
+                        break;
+                    charValue = (charValue << 3) | oct;
+                    ctx.read();
+                }
+                return (char)charValue;
+            }
+
+            // Decode Unicode escapes - here, as part of char & string literals, instead of earlier like real Java
+            if (ch == 'u') {
+                while (ctx.peek() == 'u')
+                    ctx.read();
+                charValue = 0;
+                for (int i = 0; i < 4; i++) {
+                    final int hex = Character.digit(ctx.read(), 16);
+                    if (hex == -1)
+                        throw new IllegalArgumentException("invalid Unicode escape");
+                    charValue = (charValue << 4) | hex;
+                }
+                return (char)charValue;
+            }
+
+            // Invalid backslash escape
+            throw new IllegalArgumentException("invalid backslash escape");
+        default:
+            return ch;
+        }
     }
 }
