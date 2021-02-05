@@ -115,6 +115,10 @@ public class CastNode implements Node {
                     return num.shortValue();
                 }
                 @Override
+                public Object caseCharacter() {
+                    return (char)num.intValue();
+                }
+                @Override
                 public Object caseInteger() {
                     return num.intValue();
                 }

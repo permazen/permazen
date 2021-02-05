@@ -400,6 +400,9 @@ public class ExprParseTest extends TestSupport {
             { "((Object[])new String[] { \"abc\" }).length",
                ((Object[])new String[] {  "abc"  }).length },
 
+            // Casts
+            { "(char)123", '{' },
+
             // Casts of String to field type
             { "(int)\"123\"",
                123 },

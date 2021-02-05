@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed expression parsing bug with casts to type char
+
 Version 4.1.7 Released November 12, 2020
 
     - Added ReadTracking interface and JTransaction.weakConsistency()
