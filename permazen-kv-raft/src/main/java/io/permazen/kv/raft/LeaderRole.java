@@ -393,6 +393,9 @@ public class LeaderRole extends Role {
                 this.debug("scrubbing leader lease timestamp " + this.leaseTimeout);
             this.leaseTimeout = null;
         }
+
+        // Restart timestamp scrub timer
+        this.timestampScrubTimer.timeoutAfter(TIMESTAMP_SCRUB_INTERVAL);
     }
 
     /**
