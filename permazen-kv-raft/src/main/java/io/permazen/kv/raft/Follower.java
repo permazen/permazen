@@ -186,7 +186,11 @@ public class Follower {
     }
     void setSynced(final boolean synced) {
         assert Thread.holdsLock(this.raft);
-        this.synced = synced;
+        if (this.synced != synced) {
+            this.synced = synced;
+            if (this.raft.isPerfLogEnabled())
+                this.raft.perfLog("sync status of \"" + this.identity + "\" changed -> " + (!synced ? "not " : "") + "synced");
+        }
     }
 
     /**
@@ -246,7 +250,7 @@ public class Follower {
             this.matchIndex = Math.min(this.matchIndex, this.snapshotTransmit.getSnapshotIndex());
             this.snapshotTransmit.close();
             this.snapshotTransmit = null;
-            this.synced = false;
+            this.setSynced(false);
         }
     }
 

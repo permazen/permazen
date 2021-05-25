@@ -831,13 +831,8 @@ public class LeaderRole extends Role {
         if (!msg.isSuccess())
             follower.setNextIndex(Math.max(follower.getNextIndex() - 1, 1));
         follower.setSynced(msg.isSuccess());
-        if (follower.isSynced() != wasSynced) {
-            if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("sync status of \"" + follower.getIdentity() + "\" changed -> "
-                  + (!follower.isSynced() ? "not " : "") + "synced");
-            }
+        if (follower.isSynced() != wasSynced)
             updateFollowerAgain = true;
-        }
 
         // Use follower's match index as a lower bound on follower's next index.
         follower.setNextIndex(Math.max(follower.getNextIndex(), follower.getMatchIndex() + 1));
