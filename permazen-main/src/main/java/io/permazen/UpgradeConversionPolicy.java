@@ -37,11 +37,13 @@ package io.permazen;
  *
  * <p>
  * Permazen considers {@link Enum} types with different identifier lists as different types. However, automatic
- * conversion of {@link Enum} values will work if the existing value's name is valid for the new {@link Enum} type.
+ * conversion of {@link Enum} values in simple fields will work if the existing value's name is valid for the new
+ * {@link Enum} type.
  *
  * <p>
- * Automatic conversion of reference fields also works as long as the referenced object's type is assignable
- * to the field's new Java type (otherwise, the field is set to null).
+ * Automatic conversion of reference fields works as long as the referenced object's type is assignable to the field's
+ * new Java type; otherwise, the field is {@linkplain io.permazen.core.DeleteAction#UNREFERENCE unreferenced},
+ * i.e., set to null (if a simple field) or removed (if an element in a complex field).
  *
  * <p>
  * <b>Conversion Policies</b>

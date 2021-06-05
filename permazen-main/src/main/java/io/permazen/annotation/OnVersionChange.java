@@ -12,7 +12,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever an object's schema version has just changed.
+ * Annotation for methods that are to be invoked whenever an object's schema version has just changed,
+ * in order to apply arbitrary "semantic" schema migration logic.
  *
  * <p>
  * The annotated method is given access to all of the previous object version's fields, including fields that have
@@ -21,8 +22,8 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Simple changes that only modify a simple field's type can often be handled automatically; see
- * {@link io.permazen.core.FieldType#convert FieldType.convert()} and
- * {@link JField#upgradeConversion &#64;JField.upgradeConversion()} for details.
+ * {@link io.permazen.UpgradeConversionPolicy}, {@link JField#upgradeConversion &#64;JField.upgradeConversion()},
+ * and {@link io.permazen.core.FieldType#convert FieldType.convert()} for details.
  *
  * <p><b>Method Parameters</b></p>
  *
@@ -66,31 +67,25 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Permazen supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.
- * As a result, it's possible for the previous version of an object to contain reference fields whose Java types no longer exist
- * in the current Java model. Specifically, this can happen in two ways:
+ * As a result, it's possible for non-primitive fields to have values that don't exist in the new schema. Therefore, it's
+ * not possible to provide the old values to {@link OnVersionChange &#64;OnVersionChange} methods in their original form.
+ *
+ * <p>
+ * Specifically, this can happen in two ways:
  * <ul>
- * <li>A reference field refers to an object type that no longer exists; or</li>
- * <li>An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed</li>
+ * <li>A reference field value refers to an object type that no longer exists; or</li>
+ * <li>An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed
+ *      (this is really just a special case of the previous scenario: when an {@link Enum} type's constants change
+ *      in any way, the new {@link Enum} is treated as a completely new type).</li>
  * </ul>
  *
  * <p>
- * In these cases, the old field's value cannot be represented in {@code oldValues} using the original Java types.
- * Therefore, more generic types are used in these situations:
+ * Therefore, the following special rules apply to the values in the {@code oldValues} map:
  * <ul>
  * <li>For a reference field whose type no longer exists, the referenced object will be an {@link io.permazen.UntypedJObject}.
- *      Note that the fields in the {@link io.permazen.UntypedJObject} may still be accessed by invoking the
- *      {@link io.permazen.JTransaction} field introspection methods with the {@code upgradeVersion} parameter set to false
- *      (required to avoid {@link io.permazen.core.TypeNotInSchemaVersionException}).
- * <li>For {@link Enum} fields, the old value will always be represented as an {@link io.permazen.core.EnumValue} object.
- *      For consistency, this is done even if the associated {@link Enum} type still exists unchanged.</li>
+ * <li>For {@link Enum} fields, old values are always represented as {@link io.permazen.core.EnumValue} objects.
+ *      For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  * </ul>
- *
- * <p>
- * In addition to Java types disappearing, it's also possible that the type of a reference field is narrower in the current
- * Java code than it was in the previous Java code. If an object held a reference in such a field to another object outside
- * the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.
- * Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of
- * {@link io.permazen.core.DeleteAction#UNREFERENCE}); use {@code oldValues} to access the previous field value(s) if needed.
  *
  * <p><b>Meta-Annotations</b></p>
  *
