@@ -18,6 +18,8 @@ import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.testng.Assert;
@@ -211,6 +213,60 @@ public class EnumFieldTest extends TestSupport {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testListOfEnumUpgrade() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+
+    // Version 1
+
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
+          + "    <ListField name=\"enumList\" storageId=\"2\">\n"
+          + "      <EnumField storageId=\"3\">\n"
+          + "         <Identifier>TAN</Identifier>\n"               /* note "TAN" instead of "FOO" */
+          + "         <Identifier>BAR</Identifier>\n"
+          + "         <Identifier>JAN</Identifier>\n"
+          + "      </EnumField>\n"
+          + "    </ListField>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+
+        final Database db = new Database(kvstore);
+
+        Transaction tx = db.createTransaction(schema1, 1, true);
+
+        final ObjId id1 = tx.create(1);
+
+        final List<EnumValue> list = (List<EnumValue>)tx.readListField(id1, 2, true);
+        list.add(new EnumValue("TAN", 0));
+        list.add(new EnumValue("BAR", 1));
+        list.add(new EnumValue("JAN", 2));
+
+        tx.commit();
+
+    // Version 2
+
+        Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Foo2.class));
+        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Foo2 foo2 = jtx.get(id1, Foo2.class);
+
+            foo2.upgrade();
+
+            Assert.assertEquals(foo2.getEnumList(), Collections.emptyList());
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     public enum MyEnum {
@@ -245,6 +301,21 @@ public class EnumFieldTest extends TestSupport {
 
         public abstract MyEnum[][] getEnums2();
         public abstract void setEnums2(MyEnum[][] value);
+    }
+
+    @PermazenType(storageId = 1)
+    public abstract static class Foo2 implements JObject {
+
+        @io.permazen.annotation.JListField(storageId = 2, element = @JField(storageId = 3))
+        public abstract List<MyEnum> getEnumList();
+
+        @OnVersionChange
+        private void versionChange(int oldVersion, int newVersion, Map<String, Object> oldValues) {
+            Assert.assertEquals(oldValues.get("enumList"), Arrays.asList(
+              new EnumValue("TAN", 0),
+              new EnumValue("BAR", 1),
+              new EnumValue("JAN", 2)));
+        }
     }
 
 // EnumConflict
