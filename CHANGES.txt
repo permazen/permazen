@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed Raft bug where timestamp scrub timer was not being restarted
+    - Fixed Raft bug where log entries were being discared too soon
     - Fixed expression parsing bug with casts to type char
     - Fixed bugs parsing certain char and String literals
 

@@ -199,16 +199,17 @@ public class LeaderRole extends Role {
     long calculateMaxAppliedDiscardIndex() {
         assert Thread.holdsLock(this.raft);
 
-        // Calculate MIN(discardIndex) over all followers, where discardIndex = follower match index, or snapshot base index
+        // Calculate MIN(discardIndex) - 1 over all followers, where discardIndex = follower match index, or snapshot base index
         // if follower is being sent a snapshot. Applied log entries <= this index can be discarded, because we know the
-        // follower already has them, or, in the case of a snapshot, will very likely soon have them.
+        // follower already has them, or, in the case of a snapshot, will very likely soon have them. The "- 1" is because
+        // we need to know the term of the entry just before the next index we send, so we need to keep one extra.
         long maxAppliedDiscardIndex = super.calculateMaxAppliedDiscardIndex();
         for (Follower follower : this.followerMap.values()) {
             final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
             final long discardIndex = snapshotTransmit != null ? snapshotTransmit.getSnapshotIndex() : follower.getMatchIndex();
             maxAppliedDiscardIndex = Math.min(maxAppliedDiscardIndex, discardIndex);
         }
-        return maxAppliedDiscardIndex;
+        return maxAppliedDiscardIndex - 1;
     }
 
     /**
