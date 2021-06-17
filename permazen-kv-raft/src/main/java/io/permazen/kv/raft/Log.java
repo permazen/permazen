@@ -27,7 +27,7 @@ import javax.annotation.concurrent.GuardedBy;
 final class Log {
 
     public static final int MIN_APPLIED = 10;                               // min # applied log entries to keep around
-    public static final int MAX_APPLIED = 500;                              // max # applied log entries to keep around
+    public static final int MAX_APPLIED = 2000;                             // max # applied log entries to keep around
 
     private final RaftKVDatabase raft;
     @GuardedBy("raft")
