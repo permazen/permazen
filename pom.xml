@@ -137,7 +137,7 @@
         <sqlite.version>3.30.1</sqlite.version>
         <testng.version>7.1.0</testng.version>
         <xodus.version>1.3.124</xodus.version>
-        <vaadin7.version>7.7.17</vaadin7.version>
+        <vaadin7.version>8.12.4</vaadin7.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
 
     </properties>
