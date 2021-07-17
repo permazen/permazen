@@ -1,4 +1,4 @@
-Version Next
+Version 4.1.8 Released July 17, 2021
 
     - Fixed Raft bug where timestamp scrub timer was not being restarted
     - Fixed Raft bug where log entries were being discared too soon
