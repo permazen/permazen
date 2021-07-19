@@ -767,8 +767,8 @@
                     <doclint>-reference</doclint>
                     <validateLinks>true</validateLinks>
                     <links>
-                        <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
-                        <link>http://archiecobbs.github.io/nvt4j/api/</link>
+                        <link>https://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
+                        <link>https://archiecobbs.github.io/nvt4j/api/</link>
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
@@ -977,8 +977,8 @@
                     <validateLinks>true</validateLinks>
                     <aggregate>true</aggregate>
                     <links>
-                        <link>http://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
-                        <link>http://archiecobbs.github.io/nvt4j/api/</link>
+                        <link>https://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
+                        <link>https://archiecobbs.github.io/nvt4j/api/</link>
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
