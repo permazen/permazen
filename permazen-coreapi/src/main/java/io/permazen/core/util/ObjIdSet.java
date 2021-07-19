@@ -6,6 +6,7 @@
 package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
 
 import io.permazen.core.ObjId;
 import io.permazen.util.ImmutableNavigableSet;
@@ -14,9 +15,11 @@ import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.stream.LongStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import org.dellroad.stuff.util.LongSet;
 
 /**
  * A set of {@link ObjId}s.
@@ -28,9 +31,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializable {
 
-    private static final long serialVersionUID = -8245070561628904936L;
+    private static final long serialVersionUID = -8245070561628904938L;
 
-    private /*final*/ ObjIdMap<?> map;
+    private /*final*/ LongSet set;
 
 // Constructors
 
@@ -38,7 +41,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
      * Constructs an empty instance.
      */
     public ObjIdSet() {
-        this(0);
+        this(new LongSet());
     }
 
     /**
@@ -48,7 +51,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
      * @throws IllegalArgumentException if {@code capacity} is negative
      */
     public ObjIdSet(int capacity) {
-        this(new ObjIdMap<Void>(capacity, false));
+        this(new LongSet(capacity));
     }
 
     /**
@@ -59,16 +62,17 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
      * @throws NullPointerException if any ID in {@code ids} is null
      */
     public ObjIdSet(Iterable<? extends ObjId> ids) {
-        this(0);
-        Preconditions.checkArgument(ids != null, "null ids");
+        this(new LongSet());
         for (ObjId id : ids)
             this.add(id);
     }
 
     // Internal constructor
-    ObjIdSet(ObjIdMap<?> map) {
-        this.map = map;
+    ObjIdSet(LongSet set) {
+        this.set = set;
     }
+
+// Methods
 
     /**
      * Remove a single, arbitrary {@link ObjId} from this instance and return it.
@@ -76,74 +80,51 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
      * @return the removed {@link ObjId}, or null if this instance is empty
      */
     public ObjId removeOne() {
-        final Map.Entry<ObjId, ?> entry = this.map.removeOne();
-        return entry != null ? entry.getKey() : null;
+        final long value = this.set.removeOne();
+        return value != 0 ? new ObjId(value) : null;
     }
-
-// Methods
 
     @Override
     public Iterator<ObjId> iterator() {
-        return new Iterator<ObjId>() {
-
-            private final ObjIdMap<?>.EntrySetIterator entryIterator = ObjIdSet.this.map.new EntrySetIterator();
-
-            @Override
-            public boolean hasNext() {
-                return this.entryIterator.hasNext();
-            }
-
-            @Override
-            public ObjId next() {
-                return this.entryIterator.next().getKey();
-            }
-
-            @Override
-            public void remove() {
-                this.entryIterator.remove();
-            }
-        };
+        return Iterators.transform(this.set.iterator(), ObjId::new);
     }
 
     @Override
     public int size() {
-        return this.map.size();
+        return this.set.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return this.map.isEmpty();
+        return this.set.isEmpty();
     }
 
     @Override
     public boolean contains(Object obj) {
-        return this.map.containsKey(obj);
+        return obj instanceof ObjId && this.set.contains(((ObjId)obj).asLong());
     }
 
     @Override
     public boolean add(ObjId id) {
-        if (this.map.containsKey(id))
-            return false;
-        this.map.put(id, null);
-        return true;
+        Preconditions.checkArgument(id != null, "null id");
+        return this.set.add(id.asLong());
     }
 
     @Override
     public boolean remove(Object obj) {
-        if (!this.map.containsKey(obj))
-            return false;
-        this.map.remove(obj);
-        return true;
+        return obj instanceof ObjId && this.set.remove(((ObjId)obj).asLong());
     }
 
     @Override
     public void clear() {
-        this.map.clear();
+        this.set.clear();
     }
 
     @Override
     public ObjId[] toArray() {
-        return this.map.toKeysArray();
+        return LongStream.of(this.set.toLongArray())
+          .mapToObj(ObjId::new)
+          .toArray(ObjId[]::new);
     }
 
     /**
@@ -158,25 +139,11 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
         return new ImmutableNavigableSet<>(array, ObjId::compareTo);
     }
 
-    /**
-     * Produce a debug dump of this instance.
-     */
-    String debugDump() {
-        return this.map.debugDump();
-    }
-
 // Object
 
-    // This works because ObjId.hashCode() == ObjId.asLong().hashCode()
     @Override
     public int hashCode() {
-        final long[] keyArray = this.map.getKeys();
-        int hash = 0;
-        for (final long key : keyArray) {
-            if (key != 0)
-                hash += Long.hashCode(key);
-        }
-        return hash;
+        return this.set.hashCode();         // this works because ObjId.hashCode() == Long.hashCode(ObjId.asLong())
     }
 
 // Cloneable
@@ -189,8 +156,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.map = clone.map.clone();
+        clone.set = clone.set.clone();
         return clone;
     }
 }
-

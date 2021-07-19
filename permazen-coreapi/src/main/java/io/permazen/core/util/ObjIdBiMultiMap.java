@@ -398,10 +398,10 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         final ObjIdMap<ObjIdSet> thisForward;
         final ObjIdMap<ObjIdSet> thatForward;
         synchronized (this.lock) {
-            thisForward = ObjIdBiMultiMap.deepClone(this.forward);
+            thisForward = this.forward.deepClone(ObjIdSet::clone);
         }
         synchronized (that.lock) {
-            thatForward = ObjIdBiMultiMap.deepClone(that.forward);
+            thatForward = that.forward.deepClone(ObjIdSet::clone);
         }
         return thisForward.equals(thatForward);
     }
@@ -433,8 +433,8 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         clone.lock = new Object();
         synchronized (clone.lock) {
             synchronized (this.lock) {
-                clone.forward = ObjIdBiMultiMap.deepClone(this.forward);
-                clone.reverse = ObjIdBiMultiMap.deepClone(this.reverse);
+                clone.forward = this.forward.deepClone(ObjIdSet::clone);
+                clone.reverse = this.reverse.deepClone(ObjIdSet::clone);
             }
             clone.inverse = null;
         }
@@ -468,17 +468,6 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         if (set.isEmpty())
             map.remove(source);
         return true;
-    }
-
-    private static ObjIdMap<ObjIdSet> deepClone(ObjIdMap<ObjIdSet> map) {
-        final ObjIdMap<ObjIdSet> clone = map.clone();
-        final int numSlots = map.getKeys().length;
-        for (int i = 0; i < numSlots; i++) {
-            final ObjIdSet set = map.getValue(i);
-            if (set != null)
-                clone.setValue(i, set.clone());
-        }
-        return clone;
     }
 
 // Serialization

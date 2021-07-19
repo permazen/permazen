@@ -44,7 +44,18 @@ public class ObjIdSetTest extends CoreAPITestSupport {
                     iter.remove();
                     expected.remove(id2);
                 }
-            } else if (action < 45) {
+            } else if (action < 37) {
+                final boolean actualWasEmpty = actual.isEmpty();
+                final boolean expectedWasEmpty = expected.isEmpty();
+                final ObjId removed = actual.removeOne();
+                if (removed != null) {
+                    actualResult = true;
+                    expectedResult = expected.remove(removed);
+                } else {
+                    actualResult = false;
+                    expectedResult = expected.remove(removed);
+                }
+            } else if (action < 65) {
                 actualResult = actual.add(id);
                 expectedResult = expected.add(id);
             } else if (action < 85) {
@@ -56,7 +67,7 @@ public class ObjIdSetTest extends CoreAPITestSupport {
             }
             TestSupport.checkSet(actual, expected);
             Assert.assertEquals(actualResult, expectedResult,
-              "wrong result: actual=" + actual.debugDump() + " expected=" + expected);
+              "wrong result: actual=" + actual + " expected=" + expected);
         }
     }
 }
