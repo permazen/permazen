@@ -771,7 +771,7 @@
                         <link>https://archiecobbs.github.io/nvt4j/api/</link>
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
-                        <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>https://guava.dev/releases/${guava.version}/api/docs/</link>
                         <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
@@ -981,7 +981,7 @@
                         <link>https://archiecobbs.github.io/nvt4j/api/</link>
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
-                        <link>https://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>https://guava.dev/releases/${guava.version}/api/docs/</link>
                         <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
