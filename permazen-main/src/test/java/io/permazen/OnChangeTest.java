@@ -315,6 +315,35 @@ public class OnChangeTest extends TestSupport {
         EVENTS.get().clear();
     }
 
+    @Test
+    public void testChangeWithDelete() {
+
+        final Permazen jdb = BasicTest.getPermazen(Node.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Node parent = jtx.create(Node.class);
+            final Node child = jtx.create(Node.class);
+
+            child.setParent(parent);
+            child.setColor(Color.RED);
+
+            child.delete();
+
+            final List<?> actual = parent.getChanges();
+            final List<?> expected = Arrays.asList(new SimpleFieldChange<>(child, 20, "color", null, Color.RED));
+            Assert.assertEquals(actual, expected,
+                "\n  ACTUAL: " + actual
+              + "\nEXPECTED: " + expected);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private static void recordChange(FieldChange<?> change) {
         if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
             return;
@@ -704,6 +733,31 @@ public class OnChangeTest extends TestSupport {
         @OnChange("counter")
         private void onChange(Change<HasCounter> change) {
             throw new RuntimeException("unexpected notification");
+        }
+    }
+
+// Delete Test
+
+    @PermazenType
+    public abstract static class Node implements JObject {
+
+        private final ArrayList<SimpleFieldChange<Node, Color>> changes = new ArrayList<>();
+
+        public List<SimpleFieldChange<Node, Color>> getChanges() {
+            return this.changes;
+        }
+
+        @JField(storageId = 10)
+        public abstract Node getParent();
+        public abstract void setParent(Node x);
+
+        @JField(storageId = 20)
+        public abstract Color getColor();
+        public abstract void setColor(Color color);
+
+        @OnChange("^Node:parent^.color")
+        private void onChange(SimpleFieldChange<Node, Color> change) {
+            this.changes.add(change);
         }
     }
 }
