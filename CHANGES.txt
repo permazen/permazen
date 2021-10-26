@@ -1,6 +1,7 @@
 Version Next
 
     - Updated lmdbjava to version 0.8.2
+    - Updated log4j to version 2.14.1
 
 Version 4.1.8 Released July 17, 2021
 

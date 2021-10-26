@@ -105,7 +105,7 @@
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.9</leveldb.version>
         <lmdbjava.version>0.8.2</lmdbjava.version>
-        <log4j.version>1.2.17</log4j.version>
+        <log4j.version>2.14.1</log4j.version>
         <maven.artifact.version>3.6.3</maven.artifact.version>
         <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
@@ -169,13 +169,8 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
 
