@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.lmdbjava.CursorIterator;
+import org.lmdbjava.CursorIterable;
 import org.lmdbjava.Dbi;
 import org.lmdbjava.KeyRange;
 import org.lmdbjava.Txn;
@@ -107,11 +107,11 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
         Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         this.cursorTracker.poll();
-        final CursorIterator<T> cusorIterator = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, reverse));
-        final Iterator<KVPair> i = Iterators.transform(cusorIterator,
+        final CursorIterable<T> cursorIterable = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, reverse));
+        final Iterator<KVPair> i = Iterators.transform(cursorIterable.iterator(),
           kv -> new KVPair(this.delPrefix(this.unwrap(kv.key(), false)), this.unwrap(kv.val(), true)));
-        final CloseableIterator<KVPair> ci = CloseableIterator.wrap(i, cusorIterator);
-        this.cursorTracker.add(ci, new CloseableAutoCloseable(cusorIterator));
+        final CloseableIterator<KVPair> ci = CloseableIterator.wrap(i, cursorIterable);
+        this.cursorTracker.add(ci, new CloseableAutoCloseable(cursorIterable));
         return ci;
     }
 
@@ -146,7 +146,8 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
         }
 
         // Remove them one-at-a-time
-        try (CursorIterator<T> i = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, false))) {
+        try (CursorIterable<T> iterable = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, false))) {
+            final Iterator<CursorIterable.KeyVal<T>> i = iterable.iterator();
             while (i.hasNext()) {
                 i.next();
                 i.remove();

@@ -1,3 +1,7 @@
+Version Next
+
+    - Updated lmdbjava to version 0.8.2
+
 Version 4.1.8 Released July 17, 2021
 
     - Fixed Raft bug where timestamp scrub timer was not being restarted
