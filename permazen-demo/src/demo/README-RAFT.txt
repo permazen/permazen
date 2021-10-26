@@ -18,7 +18,7 @@ A Raft database stores its persistent state in two separate places: the
 `--raft-dir' stores state associated with the Raft protocol itself, such
 as uncommitted log entries. Raft also needs an AtomicKVStore to store
 the local copy of the state machine (i.e., the actual key/value pairs)
-as well as some additional associated meta-data. The exmaple below
+as well as some additional associated meta-data. The example below
 configures an AtomicArrayKVStore but other options exist as well.
 
 By default, Raft nodes bind to port 9660. If your nodes are running on
