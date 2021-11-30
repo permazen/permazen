@@ -102,7 +102,7 @@
         <javax.mail.version>1.6.2</javax.mail.version>
         <jetty.version>9.4.43.v20210629</jetty.version>
         <jline.version>2.14.6</jline.version>
-        <leveldb.version>0.9</leveldb.version>
+        <leveldb.version>0.12</leveldb.version>
         <lmdbjava.version>0.8.2</lmdbjava.version>
         <log4j.version>2.14.1</log4j.version>
         <maven.artifact.version>3.6.3</maven.artifact.version>
