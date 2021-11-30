@@ -95,7 +95,7 @@
         <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.version>1.52.0</google-cloud-java.version>
-        <guava.version>30.0-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <hawtjni.version>1.17</hawtjni.version>
         <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <javax.el.version>3.0.1-b11</javax.el.version>
