@@ -424,6 +424,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Create object
                 snapshot.create(id, schema.getVersionNumber());
+
+                // Lookup object type if still unknown
+                if (objType == null)
+                    objType = schema.getObjType(id.getStorageId());
             }
 
             // Iterate over fields

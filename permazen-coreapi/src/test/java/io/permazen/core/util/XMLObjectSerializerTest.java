@@ -113,6 +113,9 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         s1.write(buf, false, true);
         this.compareResult(tx, buf.toByteArray(), "test1.xml");
 
+        // Check we properly derive object ID's when not specified explicitly
+        this.compareParse(tx, this.readResource(this.getClass().getResource("test1b.xml")).trim());
+
         buf.reset();
         s1.write(buf, true, true);
         this.compareResult(tx, buf.toByteArray(), "test2.xml");
