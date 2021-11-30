@@ -368,8 +368,8 @@ public class FallbackTarget implements Cloneable {
                     if (this.log.isDebugEnabled()) {
                         this.log.debug("single follower's leader timestamp is " + -leaderTimestamp.offsetFromNow()
                           + " > " + MAX_2NODE_FOLLOWER_STALENESS + " ms stale, returning unavailable");
-                        return false;
                     }
+                    return false;
                 }
             }
         }
