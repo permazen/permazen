@@ -10,6 +10,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,7 +60,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
           + "    <ReferenceField name=\"ref\" storageId=\"109\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
-        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema, 1, true);
 
@@ -421,7 +422,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"105\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
-        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
 
         final Transaction tx1 = db.createTransaction(schema, 1, true);
 

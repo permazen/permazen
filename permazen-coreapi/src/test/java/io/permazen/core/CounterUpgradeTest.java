@@ -9,6 +9,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,12 +36,12 @@ public class CounterUpgradeTest extends CoreAPITestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
         final Transaction tx1 = db.createTransaction(schema1, 1, true);
         final ObjId id = tx1.create(10);
         tx1.commit();
 
-        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
         final Transaction tx2 = db.createTransaction(schema2, 2, true);
         tx2.adjustCounterField(id, 20, 123, true);
         Assert.assertEquals(tx2.readCounterField(id, 20, true), 123L);

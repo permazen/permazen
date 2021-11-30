@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -441,7 +441,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String(buf.toByteArray(), Charset.forName("UTF-8"))
+        return new String(buf.toByteArray(), StandardCharsets.UTF_8)
           .replaceAll("(?s)<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>\n", "").trim();
     }
 

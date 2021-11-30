@@ -6,7 +6,6 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.core.util.ObjIdMap;
@@ -1612,7 +1611,7 @@ public class Transaction {
 
         // Lock down old field values map
         final NavigableMap<Integer, Object> readOnlyOldValuesMap = oldValueMap != null ?
-          Maps.unmodifiableNavigableMap(oldValueMap) : null;
+          Collections.unmodifiableNavigableMap(oldValueMap) : null;
 
         // Notify about version update
         if (this.versionChangeListeners != null) {

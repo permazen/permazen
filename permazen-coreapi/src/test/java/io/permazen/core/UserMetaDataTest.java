@@ -10,6 +10,7 @@ import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -46,7 +47,7 @@ public class UserMetaDataTest extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
     // Setup tx
 

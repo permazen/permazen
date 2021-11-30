@@ -11,6 +11,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
@@ -59,7 +60,7 @@ public class ReferencePathTest extends CoreAPITestSupport {
           + "    <ReferenceField name=\"ref\" storageId=\"109\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
-        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema, 1, true);
 
@@ -220,7 +221,7 @@ public class ReferencePathTest extends CoreAPITestSupport {
           + "    <ReferenceField name=\"ref\" storageId=\"1\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
-        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
         final Transaction tx = db.createTransaction(schema, 1, true);
 
         final ObjId a1 = new ObjId("0a11111111111111");

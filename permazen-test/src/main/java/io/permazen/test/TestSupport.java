@@ -160,7 +160,7 @@ public abstract class TestSupport {
     protected String readResource(URL url) {
         InputStreamReader reader = null;
         try {
-            reader = new InputStreamReader(url.openStream(), "UTF-8");
+            reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
             final StringWriter writer = new StringWriter();
             char[] buf = new char[1024];
             for (int r; (r = reader.read(buf)) != -1; )

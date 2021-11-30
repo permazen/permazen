@@ -10,6 +10,7 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.NavigableSet;
 
 import org.testng.Assert;
@@ -32,7 +33,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "    </SetField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -40,7 +41,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 

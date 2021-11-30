@@ -15,6 +15,7 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -51,7 +52,7 @@ public class SnapshotTest extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
     // Setup tx1
 
@@ -161,7 +162,7 @@ public class SnapshotTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"true\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -170,7 +171,7 @@ public class SnapshotTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"false\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx1 = db1.createTransaction(schema1, 1, true);
         Transaction tx2 = db2.createTransaction(schema2, 1, true);
@@ -210,7 +211,7 @@ public class SnapshotTest extends CoreAPITestSupport {
           + "    <ReferenceField name=\"ref\" storageId=\"8\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx1 = db1.createTransaction(schema1, 1, true);
 

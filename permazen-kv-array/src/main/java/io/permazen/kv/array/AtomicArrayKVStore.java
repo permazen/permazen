@@ -476,7 +476,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Read current generation number
             try (LineNumberReader reader = new LineNumberReader(
-              new InputStreamReader(new FileInputStream(this.generationFile), "UTF-8"))) {
+              new InputStreamReader(new FileInputStream(this.generationFile), StandardCharsets.UTF_8))) {
                 final String line = reader.readLine();
                 if (line == null)
                     throw new ArrayKVException("generation file " + this.generationFile + " is empty");

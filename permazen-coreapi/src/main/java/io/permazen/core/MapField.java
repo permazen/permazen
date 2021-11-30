@@ -6,7 +6,6 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -16,6 +15,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +131,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     NavigableMap<K, V> getValueReadOnlyCopy(Transaction tx, ObjId id) {
-        return Maps.unmodifiableNavigableMap(new TreeMap<K, V>(this.getValueInternal(tx, id)));
+        return Collections.unmodifiableNavigableMap(new TreeMap<K, V>(this.getValueInternal(tx, id)));
     }
 
     @Override

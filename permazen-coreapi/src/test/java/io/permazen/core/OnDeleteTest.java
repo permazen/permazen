@@ -14,6 +14,7 @@ import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple3;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
@@ -56,7 +57,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
         for (DeleteAction onDelete : DeleteAction.values()) {
             final String xml = XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name());
-            final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+            final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
             ObjId id1;
             ObjId id2;
@@ -352,7 +353,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
         final SchemaModel[] schemas = new SchemaModel[4];
         for (DeleteAction onDelete : DeleteAction.values()) {
             schemas[onDelete.ordinal()] = SchemaModel.fromXML(
-              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name()).getBytes("UTF-8")));
+              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name()).getBytes(StandardCharsets.UTF_8)));
         }
 
         // Create target object and friends, with all references set to onDelete=NOTHING

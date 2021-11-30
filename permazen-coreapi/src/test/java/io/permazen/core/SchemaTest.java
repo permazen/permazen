@@ -12,6 +12,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.testng.annotations.DataProvider;
@@ -31,7 +32,7 @@ public class SchemaTest extends CoreAPITestSupport {
         // Validate XML
         final SchemaModel schema;
         try {
-            schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+            schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         } catch (InvalidSchemaException e) {
             assert !valid : "XML was supposed to be valid: " + this.show(e);
             return;
@@ -57,11 +58,11 @@ public class SchemaTest extends CoreAPITestSupport {
             final Database db = new Database(kvstore);
 
             xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml1 + "</Schema>\n";
-            final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+            final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
             db.createTransaction(schema1, 1, true).commit();
 
             xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml2 + "</Schema>\n";
-            final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+            final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
             try {
                 db.createTransaction(schema2, 2, true);
                 assert valid : "upgrade schema was supposed to be invalid";
@@ -81,21 +82,21 @@ public class SchemaTest extends CoreAPITestSupport {
           + "  <SimpleField indexed=\"true\" name=\"i\" type=\"int\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
-        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
 
         final String xml2 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField indexed=\"true\" name=\"i\" type=\"float\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
-        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
 
         final String xml3 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField name=\"b\" type=\"bar\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
-        final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes("UTF-8")));
+        final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes(StandardCharsets.UTF_8)));
 
         final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
 

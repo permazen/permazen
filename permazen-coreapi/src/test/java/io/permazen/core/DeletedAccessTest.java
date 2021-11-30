@@ -9,6 +9,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +46,7 @@ public class DeletedAccessTest extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Transaction tx = db.createTransaction(schema, 1, true);
 

@@ -10,6 +10,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
           + "    </ReferenceField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 

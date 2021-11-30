@@ -18,6 +18,7 @@ import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.testng.Assert;
@@ -71,7 +72,7 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"s\" type=\"java.lang.String\" storageId=\"11\" indexed=\"true\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema1, 1, true);
 

@@ -12,11 +12,14 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +46,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"20\"/>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 
@@ -101,7 +104,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"CCC\" storageId=\"20\"/>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         tx = db.createTransaction(schema1a, 1, false);
         tx.rollback();
 
@@ -125,7 +128,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    <SimpleField name=\"date\" type=\"java.util.Date\" storageId=\"13\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         tx = db.createTransaction(schema2, 2, true);
         //this.showKV(tx, "testPrimitiveFields[2]: 1");
@@ -189,7 +192,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    <SimpleField name=\"str\" type=\"java.lang.String[]\" storageId=\"10\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         final Database db = new Database(kvstore);
 
         Transaction tx = db.createTransaction(schema, 1, true);
@@ -253,7 +256,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema, 1, true);
 
@@ -281,9 +284,9 @@ public class BasicTest1 extends CoreAPITestSupport {
         tx.delete(id);
 
         Assert.assertTrue(set.isEmpty());
-        Assert.assertEquals(set, Sets.<Integer>newHashSet());
+        Assert.assertEquals(set, new HashSet<Integer>());
         Assert.assertTrue(list.isEmpty());
-        Assert.assertEquals(list, Lists.<Integer>newArrayList());
+        Assert.assertEquals(list, new ArrayList<Integer>());
         Assert.assertTrue(map.isEmpty());
         Assert.assertEquals(map, Collections.<Integer, String>emptyMap());
 
@@ -362,7 +365,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);
@@ -417,7 +420,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(Sets.newHashSet(123, 456, 789), set);
         Assert.assertEquals(Sets.newHashSet(123, 456, 789), set);
 
-        Assert.assertTrue(set.containsAll(Sets.newHashSet()));
+        Assert.assertTrue(set.containsAll(new HashSet<Integer>()));
         Assert.assertTrue(set.containsAll(Sets.newHashSet(789)));
         Assert.assertTrue(set.containsAll(Sets.newHashSet(123, 456, 789)));
         Assert.assertFalse(set.containsAll(Sets.newHashSet(543)));
@@ -455,7 +458,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertTrue(set.comparator().compare(-23413, 743234) < 0);
         Assert.assertTrue(set.comparator().compare(12345, 12345) == 0);
 
-        Assert.assertEquals(set.headSet(123), Sets.newHashSet());
+        Assert.assertEquals(set.headSet(123), new HashSet<Integer>());
         Assert.assertEquals(set.headSet(124), Sets.newHashSet(123));
         Assert.assertEquals(set.headSet(456), Sets.newHashSet(123));
         Assert.assertEquals(set.headSet(457), Sets.newHashSet(123, 456));
@@ -492,10 +495,10 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(set.tailSet(456), Sets.newHashSet(456, 789));
         Assert.assertEquals(set.tailSet(457), Sets.newHashSet(789));
         Assert.assertEquals(set.tailSet(789), Sets.newHashSet(789));
-        Assert.assertEquals(set.tailSet(790), Sets.newHashSet());
+        Assert.assertEquals(set.tailSet(790), new HashSet<Integer>());
 
         Assert.assertEquals(set.subSet(456, 457), Sets.newHashSet(456));
-        Assert.assertEquals(set.subSet(456, 456), Sets.newHashSet());
+        Assert.assertEquals(set.subSet(456, 456), new HashSet<Integer>());
 
         Assert.assertEquals(set, Sets.newHashSet(123, 456, 789));
         NavigableSet<Integer> subSet = set.subSet(200, true, 800, true);
@@ -516,7 +519,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(set, Sets.newHashSet(123, 300, 456, 789));
         Assert.assertEquals(subSet, Sets.newHashSet(300, 456, 789));
         subSet.clear();
-        Assert.assertEquals(subSet, Sets.newHashSet());
+        Assert.assertEquals(subSet, new HashSet<Integer>());
         Assert.assertEquals(set, Sets.newHashSet(123));
         subSet.add(456);
         Assert.assertEquals(set, Sets.newHashSet(123, 456));
@@ -554,7 +557,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
     // NavigableSet
 
-        Assert.assertEquals(set.headSet(123, false), Sets.newHashSet());
+        Assert.assertEquals(set.headSet(123, false), new HashSet<Integer>());
         Assert.assertEquals(set.headSet(123, true), Sets.newHashSet(123));
         Assert.assertEquals(set.headSet(600, false), Sets.newHashSet(123, 456));
         Assert.assertEquals(set.headSet(789, false), Sets.newHashSet(123, 456));
@@ -681,7 +684,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(set.pollFirst(), (Integer)456);
         Assert.assertEquals(set, Sets.newHashSet(789));
         Assert.assertEquals(set.pollFirst(), (Integer)789);
-        Assert.assertEquals(set, Sets.newHashSet());
+        Assert.assertEquals(set, new HashSet<Integer>());
         Assert.assertEquals(set.pollFirst(), null);
 
         set.addAll(Sets.newHashSet(123, 456, 789));
@@ -692,7 +695,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(set.pollLast(), (Integer)456);
         Assert.assertEquals(set, Sets.newHashSet(123));
         Assert.assertEquals(set.pollLast(), (Integer)123);
-        Assert.assertEquals(set, Sets.newHashSet());
+        Assert.assertEquals(set, new HashSet<Integer>());
         Assert.assertEquals(set.pollLast(), null);
 
         set.addAll(Sets.newHashSet(123, 456, 789));
@@ -724,7 +727,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);
@@ -878,7 +881,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);

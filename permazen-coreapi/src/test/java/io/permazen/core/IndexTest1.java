@@ -13,6 +13,7 @@ import io.permazen.tuple.Tuple3;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,7 +68,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "    <ReferenceField name=\"r\" storageId=\"19\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         // Create objects
         Transaction tx = db.createTransaction(schema1, 1, true);
@@ -161,7 +162,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "    <SimpleField name=\"str\" type=\"java.lang.String[]\" storageId=\"18\" indexed=\"true\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Class<?>[] elementTypes = new Class<?>[] {
             boolean.class,
@@ -261,7 +262,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "    </MapField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId[] ids = new ObjId[] { null, tx.create(1), tx.create(1), tx.create(1) };

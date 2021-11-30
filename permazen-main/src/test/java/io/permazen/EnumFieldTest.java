@@ -17,6 +17,7 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +51,7 @@ public class EnumFieldTest extends TestSupport {
           + "    </EnumField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 
@@ -234,7 +235,7 @@ public class EnumFieldTest extends TestSupport {
           + "    </ListField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 

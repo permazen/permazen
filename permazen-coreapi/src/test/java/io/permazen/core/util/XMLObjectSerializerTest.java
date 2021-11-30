@@ -17,6 +17,7 @@ import io.permazen.util.CloseableIterator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "    </EnumArrayField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema1, 1, true);
 
@@ -149,7 +150,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "    </ListField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         tx = db.createTransaction(schema2, 2, true);
 
@@ -205,7 +206,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         // Compare generated XML to expected
         this.log.info("verifying XML output with \"" + resource + "\"");
-        Assert.assertEquals(new String(buf, "UTF-8"), text);
+        Assert.assertEquals(new String(buf, StandardCharsets.UTF_8), text);
 
         // Parse XML back into a snapshot transaction
         if (reparse)
@@ -216,7 +217,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         final Transaction stx = tx.createSnapshotTransaction();
         XMLObjectSerializer s = new XMLObjectSerializer(stx);
-        s.read(new ByteArrayInputStream(text.getBytes("UTF-8")));
+        s.read(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
 
         // Compare transaction KV stores
         try (CloseableIterator<KVPair> i1 = tx.getKVTransaction().getRange(null, null);

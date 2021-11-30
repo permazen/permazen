@@ -14,6 +14,7 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.SortedSet;
@@ -73,7 +74,7 @@ public class StorageIdTest extends TestSupport {
           + "    </CompositeIndex>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel actual = new Permazen(Foo.class).getSchemaModel();
 

@@ -121,6 +121,7 @@
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <maven.wagon.scm.extension.version>3.3.4</maven.wagon.scm.extension.version>
+        <modernizer.maven.plugin.version>2.2.0</modernizer.maven.plugin.version>
         <mssql.version>8.2.2.jre8</mssql.version>
         <mvstore.version>1.4.200</mvstore.version>
         <mysql.version>8.0.19</mysql.version>
@@ -691,6 +692,28 @@
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Modernizer -->
+            <plugin>
+                <groupId>org.gaul</groupId>
+                <artifactId>modernizer-maven-plugin</artifactId>
+                <version>${modernizer.maven.plugin.version}</version>
+                <configuration>
+                    <javaVersion>8</javaVersion>
+                    <exclusionPatterns>
+                        <exclusionPattern>com/google/common/base/Function.*</exclusionPattern>
+                    </exclusionPatterns>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>modernizer</id>
+                        <goals>
+                            <goal>modernizer</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

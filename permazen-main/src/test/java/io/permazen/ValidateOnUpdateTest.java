@@ -14,6 +14,7 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class ValidateOnUpdateTest extends TestSupport {
           + "    <SimpleField name=\"uuid\" storageId=\"11\" type=\"java.util.UUID\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
         Transaction tx = db.createTransaction(schema1, 1, true);

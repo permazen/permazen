@@ -12,6 +12,7 @@ import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.annotations.Test;
 
@@ -35,7 +36,7 @@ public class CompositeIndexTest extends CoreAPITestSupport {
           + "    </CompositeIndex>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema1, 1, true);
 

@@ -11,6 +11,8 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.NavigableSet;
 
 import org.testng.Assert;
@@ -31,7 +33,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"101\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -44,7 +46,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "    </SetField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -53,7 +55,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"s\" type=\"java.lang.String\" storageId=\"102\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 
@@ -136,7 +138,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
         Assert.assertEquals(tx.getSchemaVersion(id1), 3);
         Assert.assertTrue(notified[0]);
 
-        Assert.assertEquals(set, Sets.<Integer>newHashSet());
+        Assert.assertEquals(set, new HashSet<Integer>());
 
         Assert.assertFalse(tx.updateSchemaVersion(id1));
 

@@ -9,6 +9,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.annotations.Test;
 
@@ -29,7 +30,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"val\" type=\"int\" storageId=\"4\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -38,7 +39,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"val\" type=\"int\" storageId=\"3\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 

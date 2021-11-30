@@ -9,7 +9,7 @@ import io.permazen.core.util.XMLObjectSerializer;
 import io.permazen.kv.test.KVTestSupport;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -39,7 +39,7 @@ public abstract class CoreAPITestSupport extends KVTestSupport {
         try {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             new XMLObjectSerializer(tx).write(buf, true, true);
-            this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
+            this.log.info("{}\n{}", label, new String(buf.toByteArray(), StandardCharsets.UTF_8));
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }

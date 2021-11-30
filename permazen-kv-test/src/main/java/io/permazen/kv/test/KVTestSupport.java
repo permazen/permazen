@@ -17,7 +17,7 @@ import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -104,7 +104,7 @@ public abstract class KVTestSupport extends TestSupport {
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
             new XMLSerializer(kv).write(writer, minKey, maxKey);
-            return new String(buf.toByteArray(), Charset.forName("UTF-8")).replaceAll("^<\\?xml [^>]+>\\s+", "").trim();
+            return new String(buf.toByteArray(), StandardCharsets.UTF_8).replaceAll("^<\\?xml [^>]+>\\s+", "").trim();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

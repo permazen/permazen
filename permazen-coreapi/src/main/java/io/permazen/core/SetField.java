@@ -6,7 +6,6 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -15,6 +14,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 
+import java.util.Collections;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
@@ -69,7 +69,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     NavigableSet<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
-        return Sets.unmodifiableNavigableSet(new TreeSet<E>(this.getValueInternal(tx, id)));
+        return Collections.unmodifiableNavigableSet(new TreeSet<E>(this.getValueInternal(tx, id)));
     }
 
     @Override

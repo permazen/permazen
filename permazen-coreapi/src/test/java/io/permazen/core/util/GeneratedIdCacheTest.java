@@ -14,6 +14,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,7 +34,7 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
           + "  <ObjectType name=\"Foo\" storageId=\"1\"/>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"2\"/>\n"
           + "</Schema>\n"
-          ).getBytes("UTF-8")));
+          ).getBytes(StandardCharsets.UTF_8)));
 
         Transaction tx = db.createTransaction(schema1, 1, true);
 

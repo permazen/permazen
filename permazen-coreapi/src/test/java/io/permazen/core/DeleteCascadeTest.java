@@ -9,6 +9,7 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,7 +29,7 @@ public class DeleteCascadeTest extends CoreAPITestSupport {
           + "    <ReferenceField storageId=\"2\" name=\"Person\" cascadeDelete=\"true\" onDelete=\"EXCEPTION\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
-        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
         final Transaction tx = db.createTransaction(schema, 1, true);
 
