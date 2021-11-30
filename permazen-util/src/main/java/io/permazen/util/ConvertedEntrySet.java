@@ -32,8 +32,9 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
     /**
      * Constructor.
      *
-     * @param set wrapped set
-     * @param converter element converter
+     * @param map wrapped map
+     * @param keyConverter key converter
+     * @param valueConverter value converter
      * @throws IllegalArgumentException if any parameter is null
      */
     ConvertedEntrySet(Map<WK, WV> map, Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {

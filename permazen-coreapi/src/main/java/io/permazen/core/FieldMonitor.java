@@ -31,7 +31,7 @@ class FieldMonitor {
     /**
      * Constructor.
      *
-     * @param storageId storage ID of the field to monitor
+     * @param fieldStorageId storage ID of the field to monitor
      * @param path path of references to {@code field}; negated values denote inverse traversal of the field
      * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
      *  to object ID's after the corresponding steps in the path

@@ -98,7 +98,8 @@ public abstract class ComplexField<T> extends Field<T> {
      * Delete all content (but not index entries) for the given object in the given key range.
      *
      * @param tx transaction
-     * @param id object id
+     * @param minKey minimum key
+     * @param maxKey maximum key
      * @see #removeIndexEntries(Transaction, ObjId)
      */
     void deleteContent(Transaction tx, byte[] minKey, byte[] maxKey) {

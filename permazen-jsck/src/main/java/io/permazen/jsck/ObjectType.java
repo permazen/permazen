@@ -106,7 +106,6 @@ class ObjectType extends Storage {
      * @param info runtime info
      * @param id object ID
      * @param version object schema version
-     * @param objType object's schema object type
      * @param i iteration of all key/value pairs having {@code id} as a strict prefix
      * @throws IllegalArgumentException if entry is invalid
      */

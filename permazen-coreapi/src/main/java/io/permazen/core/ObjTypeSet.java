@@ -48,7 +48,8 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param tx transaction
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
      * @param prefix prefix of all keys
-     * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
+     * @param keyRange key range restriction; must at least restrict to {@code prefix}
+     * @param keyFilter key filter restriction, or null for none
      * @param bounds range restriction
      */
     private ObjTypeSet(Transaction tx, boolean reversed,

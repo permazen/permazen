@@ -523,7 +523,7 @@ public abstract class AbstractValue implements Value {
      * Verify object has a numeric type (i.e., {@link Number}).
      *
      * @param session current session
-     * @param object Java value
+     * @param obj Java value
      * @param operation description of operation for error messages
      * @return numeric value
      */

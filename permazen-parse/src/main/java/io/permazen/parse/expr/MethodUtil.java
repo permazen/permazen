@@ -162,7 +162,6 @@ final class MethodUtil {
      * @param name member name, or null to match all
      * @param paramTypes parameter type lower bounds; may contain {@link FunctionalType} and {@link NullType}
      * @param returnType return type upper bound, or null for don't care
-     * @param description description of member
      * @return the matching members
      */
     private static <T extends Executable> ArrayList<T> findCandidates(Class<?> type,

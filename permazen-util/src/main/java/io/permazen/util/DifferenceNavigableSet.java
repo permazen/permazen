@@ -22,7 +22,8 @@ class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     /**
      * Constructor.
      *
-     * @param sets the sets to difference
+     * @param set1 first set
+     * @param set2 second set
      */
     @SuppressWarnings("unchecked")
     DifferenceNavigableSet(NavigableSet<E> set1, NavigableSet<E> set2) {
@@ -32,7 +33,8 @@ class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     /**
      * Internal constructor.
      *
-     * @param sets the sets to difference
+     * @param set1 first set
+     * @param set2 second set
      * @param comparator common comparator
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code bounds} is null
