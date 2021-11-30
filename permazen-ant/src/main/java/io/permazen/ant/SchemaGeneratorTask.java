@@ -350,8 +350,6 @@ public class SchemaGeneratorTask extends Task {
             throw new BuildException("`mode' attribute must be one of `"
               + MODE_VERIFY + "', or `" + MODE_GENERATE + "', or `" + MODE_GENERATE_AND_VERIFY + "'");
         }
-        if (this.packages == null)
-            throw new BuildException("`packages' attribute is required specifying packages to scan for Java model classes");
         if (this.classPath == null)
             throw new BuildException("`classpath' attribute is required specifying search path for scanned classes");
 

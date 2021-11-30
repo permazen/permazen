@@ -742,7 +742,7 @@ public class JTransaction {
             }
 
             // Revalidate destination object if needed
-            if (dest.validationMode.equals(ValidationMode.AUTOMATIC) && jclass.requiresDefaultValidation)
+            if (dest.validationMode.equals(ValidationMode.AUTOMATIC) && jclass != null && jclass.requiresDefaultValidation)
                 dest.revalidate(Collections.singleton(dstId));
 
             // Add any deleted assignments from the core API copy to our copy state

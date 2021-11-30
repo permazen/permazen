@@ -487,7 +487,6 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                 XodusKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> " + this.next);
 
             // Done
-            assert this.next != null;
             return true;
         }
 

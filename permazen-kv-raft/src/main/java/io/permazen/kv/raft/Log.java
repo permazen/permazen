@@ -450,7 +450,7 @@ final class Log {
                 final int appliedSlot = this.getAppliedSlot(index);
                 if (index <= 0 || i == MAX_APPLIED) {
                     assert appliedSlot == -1;
-                    break;
+                    continue;
                 }
                 assert appliedSlot != -1;
                 final LogEntry logEntry = this.applied[appliedSlot];

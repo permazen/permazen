@@ -347,7 +347,7 @@ public class FallbackKVDatabase implements KVDatabase {
         // Sanity check
         Preconditions.checkState(this.stateFile != null, "no state file configured");
         Preconditions.checkState(this.standaloneKV != null, "no standaloneKV configured");
-        Preconditions.checkState(this.targets != null, "no targets configured");
+        Preconditions.checkState(!this.targets.isEmpty(), "no targets configured");
         try {
 
             // Logging

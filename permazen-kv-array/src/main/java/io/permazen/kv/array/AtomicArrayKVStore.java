@@ -1528,7 +1528,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 return false;
 
             // Attempt to cancel scheduled task
-            assert this.future != null;
             this.future.cancel(false);
 
             // Make this task do nothing even if it runs anyway

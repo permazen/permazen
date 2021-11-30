@@ -1001,7 +1001,6 @@ public class ReferencePath {
 
             // Sanity check
             Preconditions.checkState(this.jfield != null, "have not yet stepped through field");
-            assert this.jfield != null;
             assert this.reverseStep
               || this.jfield.parent == this.jclass
               || (this.jfield instanceof JSimpleField && ((JSimpleField)this.jfield).getParentField().parent == this.jclass);

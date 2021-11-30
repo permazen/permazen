@@ -883,7 +883,7 @@ public class Transaction {
             this.objInfoCache.put(id, new ObjInfo(this, id, info.getVersion(), true, info.schema, info.objType));
 
             // Issue delete notifications and retry
-            if (!this.disableListenerNotifications && this.deleteListeners != null) {
+            if (!this.disableListenerNotifications) {
                 for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
                     listener.onDelete(this, id);
             }

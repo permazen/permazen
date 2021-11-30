@@ -41,20 +41,20 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
             final DeletedObjectException e = (DeletedObjectException)e0;
             return new EmptyResultDataAccessException("object " + e.getId() + " not found", 1, e);
         }
+        if (e0 instanceof SchemaMismatchException)
+            return new DataIntegrityViolationException(message, e0);
         if (e0 instanceof InvalidSchemaException)
             return new InvalidDataAccessResourceUsageException(message, e0);
         if (e0 instanceof ReferencedObjectException)
             return new DataIntegrityViolationException(message, e0);
         if (e0 instanceof RollbackOnlyTransactionException)
             return new InvalidDataAccessApiUsageException(message, e0);
-        if (e0 instanceof SchemaMismatchException)
-            return new DataIntegrityViolationException(message, e0);
+        if (e0 instanceof TransactionTimeoutException)
+            return new QueryTimeoutException(message, e0);
         if (e0 instanceof StaleTransactionException || e0 instanceof io.permazen.kv.StaleTransactionException)
             return new InvalidDataAccessApiUsageException(message, e0);
         if (e0 instanceof RetryTransactionException)
             return new ConcurrencyFailureException(message, e0);
-        if (e0 instanceof TransactionTimeoutException)
-            return new QueryTimeoutException(message, e0);
         if (e0 instanceof ValidationException)
             return new DataIntegrityViolationException(message, e0);
         return null;

@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed NPE bug in XMLObjectSerializer when parsing implicit storage ID
+    - Applied various fixes and cleanups prompted from LGTM.com analysis
     - Updated lmdbjava to version 0.8.2
     - Updated log4j to version 2.14.1
 
