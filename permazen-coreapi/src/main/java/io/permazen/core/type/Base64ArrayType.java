@@ -15,13 +15,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.codec.binary.Base64;
 
 /**
  * For Primitive array types encode to {@link String} via Base-64 encoding of raw data. Does not support null arrays.
+ *
+ * <p>
+ * Note: in order to return a {@link String} that is self-delimiting, {@link #toParseableString toParseableString()} appends
+ * an extra {@code "="} character when the length of the array is equal to 3 (mod 4).
  *
  * @param <T> array type
  * @param <E> array element type
@@ -30,8 +34,11 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
 
     private static final long serialVersionUID = -7770505941381986791L;
 
+    private static final int BASE64_LINE_LENGTH = 76;
+    private static final byte[] BASE64_LINE_TERMINATOR = new byte[] { (byte)'\n' };
+
     private static final Pattern BASE64_PATTERN = Pattern.compile(
-      "(([-_+/\\p{Alnum}]\\s*){4})*(([-_+/\\p{Alnum}]\\s*){2}==|([-_+/\\p{Alnum}]\\s*){3}=|=)");
+      "((([-_+/\\p{Alnum}]\\s*){4})*)(([-_+/\\p{Alnum}]\\s*){2}==|([-_+/\\p{Alnum}]\\s*){3}=|=)");
 
     private final int size;
 
@@ -100,9 +107,21 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
 
     @Override
     public T fromParseableString(ParseContext context) {
-        if (context.peek() == '[')                                      // backward compat
+
+        // Check for "list" syntax
+        if (context.peek() == '[')
             return super.fromParseableString(context);
-        return this.decodeString(context.matchPrefix(BASE64_PATTERN).group());
+
+        // Strip off extra trailing "=", if any
+        final Matcher matcher = context.matchPrefix(BASE64_PATTERN);
+        final String head = matcher.group(1);
+        final String tail = matcher.group(4);
+        String base64 = head;
+        if (!tail.equals("="))
+            base64 += tail;
+
+        // Decode base 64
+        return this.decodeString(base64);
     }
 
     private String encodeString(T array) {
@@ -115,11 +134,14 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }
-        return Base64.encodeBase64String(buf.toByteArray());
+        return Base64.getMimeEncoder(BASE64_LINE_LENGTH, BASE64_LINE_TERMINATOR).encodeToString(buf.toByteArray());
     }
 
     private T decodeString(String base64) {
-        final byte[] data = Base64.decodeBase64(base64);
+        if (base64.trim().isEmpty())
+            return this.createArray(Collections.<E>emptyList());
+        base64 = base64.replace('-', '+').replace('_', '/');            // undo URL-safe mode, if needed
+        final byte[] data = Base64.getMimeDecoder().decode(base64);
         try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(data))) {
             return this.decode(input, data.length);
         } catch (IOException e) {

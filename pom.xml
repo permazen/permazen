@@ -91,7 +91,6 @@
         <aspectj.version>1.9.5</aspectj.version>
         <bdb.version>18.3.12</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
-        <commons-codec.version>1.14</commons-codec.version>
         <dellroad-stuff.version>2.4.10</dellroad-stuff.version>
         <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
@@ -316,13 +315,6 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-util</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-
-            <!-- Commons Codec -->
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
             </dependency>
 
             <!-- AspectJ -->
