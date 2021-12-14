@@ -104,7 +104,7 @@
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.12</leveldb.version>
         <lmdbjava.version>0.8.2</lmdbjava.version>
-        <log4j.version>2.15.0</log4j.version>
+        <log4j.version>2.16.0</log4j.version>
         <maven.artifact.version>3.6.3</maven.artifact.version>
         <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
