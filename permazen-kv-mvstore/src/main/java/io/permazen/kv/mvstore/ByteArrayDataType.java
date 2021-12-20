@@ -5,25 +5,18 @@
 
 package io.permazen.kv.mvstore;
 
-import io.permazen.kv.util.KeyListEncoder;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.UnsignedIntEncoder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.h2.mvstore.WriteBuffer;
 import org.h2.mvstore.type.DataType;
 
 /**
- * MVStore {@link DataType} for {@code byte[]} arrays sorted lexicographically.
- *
- * <p>
- * When keys are encoded in bulk, prefix compression is applied via {@link KeyListEncoder}.
+ * MVStore {@link DataType} implementation encoding {@code byte[]} arrays sorted lexicographically.
  */
-public final class ByteArrayDataType implements DataType {
+public final class ByteArrayDataType implements DataType<byte[]> {
 
     public static final ByteArrayDataType INSTANCE = new ByteArrayDataType();
 
@@ -32,50 +25,61 @@ public final class ByteArrayDataType implements DataType {
 
 // DataType
 
+    // Mostly copied from BasicDataType
     @Override
-    public int compare(Object a, Object b) {
-        return ByteUtil.compare((byte[])a, (byte[])b);
+    public int binarySearch(byte[] key, Object storage, int size, int initialGuess) {
+        final byte[][] array = (byte[][])storage;
+        int lo = 0;
+        int hi = size - 1;
+        int x = initialGuess - 1;
+        if (x < 0 || x > hi)
+            x = hi >>> 1;
+        while (lo <= hi) {
+            int diff = compare(key, array[x]);
+            if (diff > 0)
+                lo = x + 1;
+            else if (diff < 0)
+                hi = x - 1;
+            else
+                return x;
+            x = (lo + hi) >>> 1;
+        }
+        return ~lo;
     }
 
     @Override
-    public int getMemory(Object obj) {
-        return 16 + ((byte[])obj).length;                       // XXX accurate?
+    public int compare(byte[] a, byte[] b) {
+        return ByteUtil.compare(a, b);
+    }
+
+    @Override
+    public byte[][] createStorage(int size) {
+        return new byte[size][];
+    }
+
+    @Override
+    public int getMemory(byte[] value) {
+        return 8 * ((12 + value.length + 7) / 8);           // ref: https://www.baeldung.com/java-size-of-object
+    }
+
+    @Override
+    public boolean isMemoryEstimationAllowed() {
+        return true;
     }
 
 // Writing
 
     @Override
-    public void write(WriteBuffer buf, Object obj) {
-        final byte[] bytes = (byte[])obj;
-        buf.put(UnsignedIntEncoder.encode(bytes.length)).put(bytes);
+    public void write(WriteBuffer buf, byte[] value) {
+        buf.put(UnsignedIntEncoder.encode(value.length))
+          .put(value);
     }
 
     @Override
-    public void write(WriteBuffer buf, Object[] obj, int len, boolean key) {
-        if (key)
-            this.writeKeys(buf, obj, len);
-        else
-            this.writeValues(buf, obj, len);
-    }
-
-    protected void writeKeys(WriteBuffer buf, Object[] obj, int len) {
-        final ByteArrayOutputStream data = new ByteArrayOutputStream();
-        byte[] prev = null;
-        for (int i = 0; i < len; i++) {
-            final byte[] next = (byte[])obj[i];
-            try {
-                KeyListEncoder.write(data, next, prev);
-            } catch (IOException e) {
-                throw new RuntimeException("unexpected error", e);
-            }
-            prev = next;
-        }
-        buf.put(data.toByteArray());
-    }
-
-    protected void writeValues(WriteBuffer buf, Object[] obj, int len) {
+    public void write(WriteBuffer buf, Object storage, int len) {
+        final byte[][] array = (byte[][])storage;
         for (int i = 0; i < len; i++)
-            this.write(buf, (byte[])obj[i]);
+            this.write(buf, array[i]);
     }
 
 // Reading
@@ -88,30 +92,9 @@ public final class ByteArrayDataType implements DataType {
     }
 
     @Override
-    public void read(ByteBuffer buf, Object[] obj, int len, boolean key) {
-        if (key)
-            this.readKeys(buf, obj, len);
-        else
-            this.readValues(buf, obj, len);
-    }
-
-    protected void readKeys(ByteBuffer buf, Object[] obj, int len) {
-        final ByteBufferInputStream input = new ByteBufferInputStream(buf);
-        byte[] prev = null;
-        for (int i = 0; i < len; i++) {
-            final byte[] next;
-            try {
-                next = KeyListEncoder.read(input, prev);
-            } catch (IOException e) {
-                throw new RuntimeException("unexpected error", e);
-            }
-            obj[i] = next;
-            prev = next;
-        }
-    }
-
-    protected void readValues(ByteBuffer buf, Object[] obj, int len) {
+    public void read(ByteBuffer buf, Object storage, int len) {
+        final byte[][] array = (byte[][])storage;
         for (int i = 0; i < len; i++)
-            obj[i] = this.read(buf);
+            array[i] = this.read(buf);
     }
 }
