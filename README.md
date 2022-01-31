@@ -1,4 +1,20 @@
-### Permazen is a better persistence layer for Java
+## Permazen is a different persistence layer for Java
+
+Permazen is a ground-up rethink of Java persistence. It has been in production use in commercial software since 2015.
+
+### What is it?
+
+Permazen is:
+
+  * A Java persistence layer for SQL, key-value, or in-memory databases
+  * A rigorously defined, modular key/value API with adapters for 15+ database technologies
+  * An object serialization framework
+  * An automated schema management framework
+  * A library for inverting Java references
+  * A library for precise, non-local field change notifications
+  * An embeddable Java command line interface (CLI)
+
+### What's the motivation?
 
 Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
 
@@ -7,17 +23,6 @@ Mainstream Java solutions such as JDBC, JPA and JDO were designed simply to give
 Permazen is a completely different way of looking at persistence programming. Instead of starting from the storage technology side, it starts from the programming language side, asking the simple question, "What are the issues that are inherent to persistence programming, regardless of programming language or database storage technology, and how can they be addressed at the language level in the simplest, most correct, and most language-natural way?"
 
 With Permazen, not only are many issues inherent to persistence programming solved more easily and naturally than before, but also many issues that traditional solutions don't address at all are solved, and some entirely new, useful functionality is added.
-
-Permazen is:
-
-  * A Java persistence layer for SQL, key-value, or in-memory databases
-  * A rigorously defined, modular key/value API with adapters for multiple database technologies
-  * A way to make your application portable across different database technologies
-  * An object serialization framework
-  * An automated schema management framework
-  * A library for inverting Java references
-  * A library for automatic field change notification
-  * An embeddable Java command line interface (CLI)
 
 Permazen was inspired by years of frustration with existing persistence solutions, in particular JPA. Compared to using JPA, building an application with Permazen is a refreshingly straightforward experience.
 
@@ -39,9 +44,7 @@ Ask these questions of your persistence solution:
   * **Language-level data maintainability** Can database maintenance tasks and queries be performed via a command line interface (CLI) using Java types, values, and expressions (including Java 8 streams and lambdas)? Are there convenient tools for manual and scripted use?
   * **Data store independence** Are we restricted to using only a specific type of database technology, or can virtually any database technology be used by implementing a simple API, making it easy to change later if needed?
 
-Permazen addresses *all* of these issues, this without sacrificing flexibility or scalability.
-
-Permazen does this by treating the database as just a _sorted key/value store_, and implementing the following in Java:
+Permazen attempts to address all of these issues. It does so by treating the database as just a _sorted key/value store_ and implementing everything else in Java:
 
   * Encoding/decoding of field values
   * Referential integrity; forward/reverse delete cascades
@@ -53,17 +56,41 @@ Permazen does this by treating the database as just a _sorted key/value store_, 
   * Command line interface
   * GUI database editor
 
-Permazen also adds several new features that traditional databases don't provide.
+Permazen also adds several new features that traditional databases don't provide. For example, you can define your own basic types and then index them however you want.
 
 ### What's the Downside?
 
-Permazen gains advantages by fundamentally changing the equation with respect to persistence programming. However, in some situations, not all of these changes result in improvements when compared to traditional SQL/JPA. Here are some things to consider.
+Permazen redefines the "line of demarcation" between a Java application and its supporting database. However, this has some implications:
 
-**You have to learn something new.** Persistence programming with Permazen requires a different way of thinking. For example, a "DAO" layer is often no longer necessary, and you have to think harder about how to query your data efficiently (instead of crossing your fingers and hoping the database figures it out for you).
+**For an equivalent query, Permazen will perform more frequent, but smaller, database accesses.** As a result, in situations where the code and the data are separated by a high latency network, Permazen will probably be too slow. Permazen is best suited for scenarios where the code and the data are running on the same machine or in close proximity.
 
-**For an equivalent query, Permazen will perform more frequent, but smaller, database accesses.** As a result, in situations where the code and the data are separated by a high latency network, Permazen will tend to be slower.
+**You have to learn something new.** Persistence programming with Permazen requires a different way of thinking. For example, a "DAO" layer is often no longer necessary, and you may have to think harder about how to query your data efficiently, instead of crossing your fingers and hoping the database figures it out for you, because there is no [query planner](https://en.wikipedia.org/wiki/Query_plan) (_you_ are the query planner).
 
-**More flexible type hiearchies are possible, but it's also easy to make a mess.** JPA has support for class inheritance and partial support for generics. Permazen supports interface inheritance (including Java's equivalent of "mix-ins") and fully supports generic types. The restrictions imposed by JPA tend to force model classes to stay simpler. With Permazen, implementing an interface (directly or indirectly) can mean that a model class inherits a bunch of new persistent fields.
+**More flexible type hiearchies are possible, but it's also easy to make a mess.** JPA has support for class inheritance and only partial support for generics. Permazen supports interface inheritance (including Java's equivalent of "mix-ins") and fully supports generic types. The restrictions imposed by JPA tend to force model classes to stay simpler. With Permazen, implementing an interface (directly or indirectly) can mean that a model class inherits a bunch of new persistent fields.
+
+### What are some interesting Java classes to look at?
+
+*Key/Value Layer*
+
+  * [`KVStore`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
+  * [`KVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
+  * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
+  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/). 
+
+*Java Layer*
+
+  * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/Permazen.html) - A Permazen database instance
+  * [`JTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JTransaction.html) - A Permazen database transaction
+  * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/core/FieldType.html) - How all simple database types are defined
+  * [`JObject`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JObject.html) - Interface implemented by runtime-generated concrete model classes
+
+*Other*
+
+  * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
+  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving graphs of objects over the network using Spring
+  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/PermazenType.html) - The annotation you stick on your Java model classes
+  * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
+  * [Database Layout](https://github.com/permazen/permazen/blob/master/LAYOUT.txt) - How a Permazen database is mapped into key/value pairs
 
 ### Permazen Slides
 
