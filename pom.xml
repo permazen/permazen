@@ -841,7 +841,11 @@
                         <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
 
                         <!-- kv-lmdb -->
+                        <!--
+                            Disable until ARM64 support is fixed
+                            https://github.com/lmdbjava/lmdbjava/issues/190
                         <lmdbDirPrefix>LMDBJava</lmdbDirPrefix>
+                        -->
 
                         <!-- kv-mssql -->
                         <!--
@@ -873,7 +877,10 @@
                         <raftNetworkDropRatio>0.15</raftNetworkDropRatio>
 
                         <!-- kv-rocksdb -->
+                        <!--
+                            Disable until ARM64 support is fixed
                         <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
+                        -->
 
                         <!-- kv-simple -->
                         <testSimpleKV>true</testSimpleKV>
