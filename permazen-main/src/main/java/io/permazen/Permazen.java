@@ -62,39 +62,39 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Permazen is a Java persistence solution built on three layers of abstraction:
  *  <ul>
- *  <li>At the bottom layer is a simple {@code byte[]} <b>key/value</b> database represented by the
- *      {@link io.permazen.kv.KVDatabase} class. Transactions are supported at this layer and are accessed
- *      through the {@link io.permazen.kv.KVTransaction} interface.
+ *  <li>At the bottom is a simple <b>Key/Value Layer</b> represented by {@link io.permazen.kv.KVDatabase}.
+ *      Transactions are supported at this layer and are accessed via {@link io.permazen.kv.KVTransaction}.
  *      There are several available {@link io.permazen.kv.KVDatabase} implementations, including "wrappers"
  *      for several third party key/value stores.</li>
- *  <li>On top of that sits the <b>core API</b> layer, which provides a rigourous database abstraction on top of the
- *      key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
- *      tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
- *      It is not Java-specific or explicitly object-oriented. The core API is accessed through the {@link Database}
- *      and {@link io.permazen.core.Transaction} classes.</li>
- *  <li>The top layer is a Java-centric, type safe, object-oriented persistence layer for Java applications.
- *      It sits on top of the core API layer and provides a fully type-safe Java view of a core API {@link Transaction},
- *      where all access is through user-supplied Java model classes. Database types and fields, and Java listener methods
- *      are all declared using {@linkplain io.permazen.annotation Java annotations}. Incremental JSR 303 validation is supported.
+ *  <li>On top of that sits the <b>Core API Layer</b>, which provides a rigourous "object database" abstraction on top of
+ *      a {@link io.permazen.kv.KVDatabase}. It supports simple fields of any Java type that can be (de)serialized to/from
+ *      a {@code byte[]} array, as well as list, set, and map complex fields, tightly controlled schema versioning,
+ *      simple and composite indexes, and lifecycle and change notifications.
+ *      It is not Java-specific or explicitly object-oriented: an "object" at this layer is just a structure with defined fields.
+ *      The core API layer may be accessed through the {@link Database} and {@link io.permazen.core.Transaction} classes.</li>
+ *  <li>The <b>Java Layer</b> is a Java-centric, object-oriented persistence layer for Java applications.
+ *      It sits on top of the core API layer and provides a fully "Java" view of the underlying data
+ *      where all data access is through user-supplied Java model classes. All schema definition and listeners are specified
+ *      through {@linkplain io.permazen.annotation Java annotations}. Incremental JSR 303 validation is supported.
  *      The {@link Permazen} class represents an instance of this top layer database, and {@link JTransaction}
  *      represents the corresonding transactions.</li>
  *  </ul>
  *
  * <p>
- * User-provided Java model classes define database fields by declaring abstract Java bean property methods.
+ * User-provided Java model classes define database fields by declaring abstract Java bean methods.
  * {@link Permazen} generates concrete subclasses of the user-provided abstract model classes at runtime.
- * These runtime classes implement the abstract bean property methods, as well as the {@link JObject} interface.
- * Java model class instances are always associated with a specific {@link JTransaction}, and all of their database
+ * These runtime classes implement the Java bean methods as well as the {@link JObject} interface.
+ * Instances of these classes are always associated with a specific {@link JTransaction}, and all of their database
  * state derives from that the underlying key/value {@link io.permazen.kv.KVTransaction}.
  *
  * <p>
- * All Java model class instances have a unique {@link ObjId} which represents database identity. {@link Permazen}
- * guarantees that at most one Java model class instance instance will exist for any given {@link JTransaction} and {@link ObjId}.
+ * All Java model class instances have a unique {@link ObjId} which represents database identity.
+ * {@link Permazen} guarantees that at most one instance will exist for any given {@link JTransaction} and {@link ObjId}.
  * Instance creation, index queries, and certain other database-related tasks are initiated using a {@link JTransaction}.
  *
  * <p>
  * Normal database transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
- * purely in-memory transactions that are detached from the database and may persist indefinitely. Their purpose is to hold a
+ * purely in-memory transactions that are detached from the database and may persist indefinitely; their purpose is to hold a
  * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
  * they function like normal transactions, with support for index queries, listener callbacks, etc. See
  * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
@@ -108,6 +108,7 @@ import org.slf4j.LoggerFactory;
  * @see JTransaction
  * @see PermazenFactory
  * @see io.permazen.annotation
+ * @see <a href="https://github.com/permazen/permazen/">Permazen GitHub Page</a>
  */
 public class Permazen {
 

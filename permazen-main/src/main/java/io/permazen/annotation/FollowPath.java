@@ -106,7 +106,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * This annotation may be configured indirectly as a Spring
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * <a href="https://github.com/spring-projects/spring-framework/wiki/Spring-Annotation-Programming-Model#meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -10,14 +10,13 @@ import io.permazen.core.SnapshotTransaction;
 import java.io.Closeable;
 
 /**
- * A "snapshot" {@link JTransaction} that persists indefinitely.
+ * An in-memory {@link JTransaction} that persists indefinitely.
  *
  * <p>
- * {@link SnapshotJTransaction}s hold a "snapshot" some portion of the state of a {@link JTransaction} for later use.
- * Each {@link SnapshotJTransaction} contains its own set of "snapshot" {@link JObject}s that are (usually) copies of
- * the corresponding "real" database {@link JObject}s. Because a {@link SnapshotJTransaction}
- * lives indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
- * In addition, {@link Permazen} features such as indexing, listeners, validation, etc. also continue to work normally.
+ * The purpose of {@link SnapshotJTransaction}s is to hold a "snapshot" some portion of the state of a parent {@link JTransaction}
+ * for later use after the parent transaction closes. Each {@link SnapshotJTransaction} contains its own set of "snapshot"
+ * {@link JObject}s that are (usually) copies of the corresponding "real" database {@link JObject}s. A {@link SnapshotJTransaction}
+ * has the same {@linkplain Permazen#getSchemaModel schema} as its parent {@link JTransaction}.
  *
  * <p>
  * For convenience, each {@link JTransaction} has a default {@link SnapshotJTransaction} instance
@@ -25,9 +24,23 @@ import java.io.Closeable;
  * copies objects there.
  *
  * <p>
- * More general usage is possible via {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()}.
- * For example, for {@link io.permazen.kv.KVDatabase}s that support it, using the key/value store snapshot returned by
- * {@link io.permazen.kv.KVTransaction#mutableSnapshot} allows an efficient copying of the entire database.
+ * Because {@link SnapshotJTransaction}s live indefinitely, their objects can be used just like normal Java objects,
+ * outside of any regular transaction, yet all of the usual {@link Permazen} features such as indexing, listeners,
+ * validation, etc., continue to function normally.
+ *
+ * <p><b>Other Uses</b>
+ *
+ * <p>
+ * More general usage beyond snapshots of regular transactions is possible: an empty {@link SnapshotJTransaction} can be created
+ * on the fly via {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()} and then used as simple
+ * in-memory transaction "workspace". The resulting key/value pairs could then be (de)serialized and sent over the network;
+ * see for example {@link io.permazen.spring.JObjectHttpMessageConverter}.
+ *
+ * <p>
+ * For {@link io.permazen.kv.KVDatabase}'s that support it, using the key/value store snapshot returned by
+ * {@link io.permazen.kv.KVTransaction#mutableSnapshot} allows an efficient "copy" of the entire database into a
+ * {@link SnapshotJTransaction} using
+ * {@link Permazen#createSnapshotTransaction(KVStore, boolean, ValidationMode) Permazen.createSnapshotTransaction()}.
  *
  * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
  * @see Permazen#createSnapshotTransaction Permazen.createSnapshotTransaction()
