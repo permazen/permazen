@@ -127,7 +127,7 @@
         <mysql.version>8.0.19</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.6.3</plugin-api.version>
-        <postgresql.version>42.2.25</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
         <properties.maven.plugin.version>1.0.0</properties.maven.plugin.version>
         <rocksdb.version>6.7.3</rocksdb.version>
         <servlet-api.version>4.0.1</servlet-api.version>
