@@ -75,7 +75,7 @@ Permazen redefines the "line of demarcation" between a Java application and its 
   * [`KVStore`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
   * [`KVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
   * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
-  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/). 
+  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
 
 *Java Layer*
 
