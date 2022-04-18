@@ -84,12 +84,13 @@ Permazen redefines the "line of demarcation" between a Java application and its 
   * [`JTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JTransaction.html) - A Permazen database transaction
   * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/core/FieldType.html) - How all simple database types are defined
   * [`JObject`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JObject.html) - Interface implemented by runtime-generated concrete model classes
+  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
+  * [`@JField`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/JField.html) - Annotation configuring your database fields
 
 *Other*
 
   * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnChange.html) - How change notifications are delivered
   * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
-  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/PermazenType.html) - The annotation you stick on your Java model classes
   * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
   * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
 
