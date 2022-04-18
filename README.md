@@ -47,12 +47,13 @@ Ask these questions of your persistence solution:
 Permazen attempts to address all of these issues. It does so by treating the database as just a _sorted key/value store_ and implementing everything else in Java:
 
   * Encoding/decoding of field values
-  * Referential integrity; forward/reverse delete cascades
+  * Referential integrity; forward/reverse cascades
   * Indexes (simple and composite)
   * Query views
   * Schema management
   * Change notification
   * Validation queues
+  * "Offline" data
   * Command line interface
   * GUI database editor
 
@@ -86,11 +87,15 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 
 *Other*
 
+  * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnChange.html) - How change notifications are delivered
   * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
-  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving graphs of objects over the network using Spring
   * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/PermazenType.html) - The annotation you stick on your Java model classes
   * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
-  * [Database Layout](https://github.com/permazen/permazen/blob/master/LAYOUT.txt) - How a Permazen database is mapped into key/value pairs
+  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
+
+### How are Java object, data structures, and indexes mapped into key/value pairs?
+
+See [`LAYOUT.txt`](https://raw.githubusercontent.com/permazen/permazen/master/LAYOUT.txt).
 
 ### Permazen Slides
 
