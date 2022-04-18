@@ -1,4 +1,4 @@
-Version Next
+Version 4.1.9 Released April 18, 2022
 
     - Fixed NPE bug in XMLObjectSerializer when parsing implicit storage ID
     - Applied various fixes and cleanups prompted from LGTM.com analysis
