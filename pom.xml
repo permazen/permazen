@@ -124,7 +124,7 @@
         <maven.wagon.scm.extension.version>3.3.4</maven.wagon.scm.extension.version>
         <modernizer.maven.plugin.version>2.2.0</modernizer.maven.plugin.version>
         <mssql.version>8.2.2.jre8</mssql.version>
-        <mvstore.version>2.1.210</mvstore.version>
+        <mvstore.version>2.1.212</mvstore.version>
         <mysql.version>8.0.19</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.6.3</plugin-api.version>

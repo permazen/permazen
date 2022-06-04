@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.CloseableIterator;
 
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -96,10 +95,8 @@ public class MVMapKVStore extends AbstractKVStore {
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        return reverse ?
-          new ReverseIterator(this.getMVMap(), maxKey, minKey) :     // see https://github.com/h2database/h2database/issues/2000
-          new CursorIterator(this.getMVMap(), this.getMVMap().cursor(minKey != null ? minKey : ByteUtil.EMPTY), maxKey);
+    public CursorIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        return new CursorIterator(this.getMVMap(), minKey, maxKey, reverse);
     }
 
     @Override

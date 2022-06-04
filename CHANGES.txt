@@ -4,7 +4,7 @@ Version 4.1.9 Released April 18, 2022
     - Applied various fixes and cleanups prompted from LGTM.com analysis
     - Updated lmdbjava to version 0.8.2
     - Updated log4j to version 2.17.1
-    - Updated MVStore to version 2.0.202
+    - Updated MVStore to version 2.0.212
 
 Version 4.1.8 Released July 17, 2021
 

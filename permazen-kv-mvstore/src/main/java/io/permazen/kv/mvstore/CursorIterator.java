@@ -8,60 +8,84 @@ package io.permazen.kv.mvstore;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVPair;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.CloseableIterator;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.h2.mvstore.Cursor;
 import org.h2.mvstore.MVMap;
 
 /**
- * Forward {@link KVPair} iterator based on an underlying {@link Cursor}.
+ * {@link KVPair} iterator based on an underlying {@link Cursor}.
+ *
+ * <p>
+ * The {@link #remove} method is implemented by invoking {@link MVMap#remove(Object)}.
  */
-public class CursorIterator extends AbstractIterator {
+@ThreadSafe
+public class CursorIterator implements CloseableIterator<KVPair> {
 
-    private final Cursor<byte[], byte[]> cursor;
-    private final byte[] maxKey;
+    private final MVMap<byte[], byte[]> mvmap;
+    private final MVCursorIterator iterator;
+
+    @GuardedBy("this")
+    private byte[] lastKey;
 
 // Constructors
-
-    /**
-     * Constructor for a read-only instance.
-     *
-     * <p>
-     * Attempts to invoke {@link #remove} will result in {@link UnsupportedOperationException}.
-     *
-     * @param cursor the underlying {@link Cursor}
-     * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
-     * @throws IllegalArgumentException if {@code cursor} is null
-     */
-    public CursorIterator(Cursor<byte[], byte[]> cursor, byte[] maxKey) {
-        this(null, cursor, maxKey);
-    }
 
     /**
      * Constructor.
      *
      * @param mvmap the underlying {@link MVMap} (used to implement {@link #remove}), or null for read-only operation
      * @param cursor the underlying {@link Cursor}
-     * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
+     * @param minKey minimum key (inclusive), or null for no minimum
+     * @param maxKey maximum key (exclusive), or null for no maximum
+     * @param reverse true if {@code cursor} iterates keys in descending order
      * @throws IllegalArgumentException if {@code cursor} is null
      */
-    public CursorIterator(MVMap<byte[], byte[]> mvmap, Cursor<byte[], byte[]> cursor, byte[] maxKey) {
-        super(mvmap);
-        Preconditions.checkArgument(cursor != null, "null cursor");
-        this.cursor = cursor;
-        this.maxKey = maxKey;
+    public CursorIterator(MVMap<byte[], byte[]> mvmap, byte[] minKey, byte[] maxKey, boolean reverse) {
+        Preconditions.checkArgument(mvmap != null, "null mvmap");
+        this.mvmap = mvmap;
+        this.iterator = reverse ?
+          new MVCursorIterator(this.mvmap.cursor(maxKey, minKey, true), maxKey, reverse) :
+          new MVCursorIterator(this.mvmap.cursor(minKey, maxKey, false), maxKey, reverse);
     }
 
-// AbstractIterator
+    /**
+     * Get the {@link MVMap} underlying this instance, if any.
+     *
+     * @return underlying {@link MVMap}, or null if none provided
+     */
+    public MVMap<byte[], byte[]> getMVMap() {
+        return this.mvmap;
+    }
+
+// Iterator
 
     @Override
-    protected KVPair findNext() {
-        return this.cursor.hasNext() ? new KVPair(this.cursor.next(), this.cursor.getValue()) : null;
+    public synchronized KVPair next() {
+        final KVPair kv = this.iterator.next();
+        this.lastKey = kv.getKey();
+        return kv;
     }
 
     @Override
-    protected boolean boundsCheck(byte[] key) {
-        return this.maxKey == null || ByteUtil.compare(key, this.maxKey) < 0;
+    public synchronized boolean hasNext() {
+        return this.iterator.hasNext();
+    }
+
+    @Override
+    public synchronized void remove() {
+        Preconditions.checkState(this.lastKey != null);
+        this.mvmap.remove(this.lastKey);
+        this.lastKey = null;
+    }
+
+// Closeable
+
+    @Override
+    public void close() {
+        // nothing to do
     }
 
 // Object
@@ -70,6 +94,7 @@ public class CursorIterator extends AbstractIterator {
     public String toString() {
         return this.getClass().getSimpleName()
           + "[mvmap=" + this.mvmap
+          + ",iterator=" + this.iterator
           + "]";
     }
 }

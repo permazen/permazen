@@ -5,8 +5,13 @@
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
-        <Class name="io.permazen.kv.mvstore.ReverseIterator"/>
+        <Class name="io.permazen.kv.mvstore.MVCursorIterator"/>
         <Method name="&lt;init&gt;"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.kv.mvstore.MVCursorIterator"/>
+        <Method name="getMaxKey"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
 </FindBugsFilter>
