@@ -861,6 +861,17 @@
 
                         <!-- kv-mysql -->
                         <!--
+                            Initialize database with this script:
+
+                            CREATE DATABASE IF NOT EXISTS `permazen` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+                            GRANT USAGE ON *.* TO 'permazen'@'localhost' IDENTIFIED BY 'permazen'
+                                WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
+                            GRANT ALL PRIVILEGES ON `permazen`.* TO 'permazen'@'localhost';
+                            GRANT USAGE ON *.* TO 'permazen'@'127.0.0.1' IDENTIFIED BY 'permazen'
+                                WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
+                            GRANT ALL PRIVILEGES ON `permazen`.* TO 'permazen'@'127.0.0.1';
+                        -->
+                        <!--
                         <mysqlURL>jdbc:mysql://127.0.0.1:3306/permazen?user=permazen&amp;password=permazen&amp;logger=com.mysql.cj.log.Slf4JLogger&amp;serverTimezone=US/Central</mysqlURL>
                         -->
 
