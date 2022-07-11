@@ -36,7 +36,7 @@ public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementat
 
         // Load driver class
         try {
-            Class.forName(this.driverClassName);
+            Class.forName(this.driverClassName, false, Thread.currentThread().getContextClassLoader());
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
