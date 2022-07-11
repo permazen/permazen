@@ -10,9 +10,10 @@
         </Console>
     </Appenders>
 
-    <Logger name="org.hibernate.validator.internal.util.Version" level="warn"/>
-
     <Loggers>
+
+        <Logger name="org.hibernate.validator.internal.util.Version" level="warn"/>
+
         <Root level="info">
             <AppenderRef ref="console"/>
         </Root>
