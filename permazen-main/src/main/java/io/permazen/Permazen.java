@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * All Java model class instances have a unique {@link ObjId} which represents database identity.
- * {@link Permazen} guarantees that at most one instance will exist for any given {@link JTransaction} and {@link ObjId}.
+ * {@link Permazen} guarantees that at most one Java instance will exist for any given {@link JTransaction} and {@link ObjId}.
  * Instance creation, index queries, and certain other database-related tasks are initiated using a {@link JTransaction}.
  *
  * <p>
