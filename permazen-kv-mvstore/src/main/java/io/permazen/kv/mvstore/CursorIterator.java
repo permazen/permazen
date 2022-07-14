@@ -37,7 +37,6 @@ public class CursorIterator implements CloseableIterator<KVPair> {
      * Constructor.
      *
      * @param mvmap the underlying {@link MVMap} (used to implement {@link #remove}), or null for read-only operation
-     * @param cursor the underlying {@link Cursor}
      * @param minKey minimum key (inclusive), or null for no minimum
      * @param maxKey maximum key (exclusive), or null for no maximum
      * @param reverse true if {@code cursor} iterates keys in descending order
