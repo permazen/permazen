@@ -69,7 +69,7 @@ public class CandidateRole extends NonLeaderRole {
         final HashSet<String> voters = new HashSet<>(this.raft.currentConfig.keySet());
         voters.remove(this.raft.identity);
         if (this.log.isDebugEnabled())
-            this.debug("entering candidate role in term " + this.raft.currentTerm + "; requesting votes from " + voters);
+            this.debug("entering candidate role in term {}; requesting votes from {}", this.raft.currentTerm, voters);
         for (String voter : voters) {
             this.raft.sendMessage(new RequestVote(this.raft.clusterId, this.raft.identity, voter,
               this.raft.currentTerm, this.raft.log.getLastTerm(), this.raft.log.getLastIndex()));
@@ -101,12 +101,12 @@ public class CandidateRole extends NonLeaderRole {
         final int numVotes = this.getVotesReceived();
         final int votesRequired = this.getVotesRequired();
         if (this.log.isDebugEnabled())
-            this.debug("current election tally: " + numVotes + "/" + allVotes + " with " + votesRequired + " required to win");
+            this.debug("current election tally: {}/{} with {} required to win", numVotes, allVotes, votesRequired);
 
         // Did we win?
         if (numVotes >= votesRequired) {
             if (this.log.isDebugEnabled())
-                this.debug("won the election for term " + this.raft.currentTerm + "; becoming leader");
+                this.debug("won the election for term {}; becoming leader", this.raft.currentTerm);
             this.raft.changeRole(new LeaderRole(this.raft));
         }
     }
@@ -128,7 +128,7 @@ public class CandidateRole extends NonLeaderRole {
     void caseAppendRequest(AppendRequest msg, NewLogEntry newLogEntry) {
         assert Thread.holdsLock(this.raft);
         if (this.log.isDebugEnabled())
-            this.debug("rec'd " + msg + " in " + this + "; reverting to follower");
+            this.debug("rec'd {} in {}; reverting to follower", msg, this);
         this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
         this.raft.receiveMessage(this.raft.returnAddress, msg, -1, newLogEntry);
     }
@@ -153,7 +153,7 @@ public class CandidateRole extends NonLeaderRole {
 
         // Ignore - we are also a candidate and have already voted for ourself
         if (this.log.isDebugEnabled())
-            this.debug("ignoring " + msg + " rec'd while in " + this);
+            this.debug("ignoring {} rec'd while in {}", msg, this);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class CandidateRole extends NonLeaderRole {
         // Record vote
         this.votes.add(msg.getSenderId());
         if (this.log.isDebugEnabled())
-            this.debug("rec'd election vote from \"" + msg.getSenderId() + "\" in term " + this.raft.currentTerm);
+            this.debug("rec'd election vote from \"{}\" in term {}", msg.getSenderId(), this.raft.currentTerm);
 
         // Check election result
         this.raft.requestService(this.checkElectionResultService);

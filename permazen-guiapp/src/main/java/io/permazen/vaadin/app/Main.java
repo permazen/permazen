@@ -104,7 +104,7 @@ public class Main extends AbstractMain implements GUIConfig {
                 return 1;
             }
         }
-        this.log.debug("using root directory " + this.root);
+        this.log.debug("using root directory {}", this.root);
 
         // Set up database
         final Database db = this.startupKVDatabase();

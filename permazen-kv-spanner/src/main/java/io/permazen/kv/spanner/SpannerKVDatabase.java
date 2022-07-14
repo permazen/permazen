@@ -370,47 +370,47 @@ public class SpannerKVDatabase implements KVDatabase {
 // Setup
 
     private Instance setupInstance(InstanceAdminClient instanceAdminClient) {
-        this.log.debug("finding spanner instance with ID \"" + this.instanceId + "\"");
+        this.log.debug("finding spanner instance with ID \"{}\"", this.instanceId);
         final Instance instance = instanceAdminClient.getInstance(this.instanceId);
-        this.log.debug("found spanner instance with ID \"" + this.instanceId + "\"");
+        this.log.debug("found spanner instance with ID \"{}\"", this.instanceId);
         return instance;
     }
 
     private Database setupDatabase(Instance instance) {
 
         // Does database already exist?
-        this.log.debug("finding spanner database with ID \"" + this.databaseId + "\"");
+        this.log.debug("finding spanner database with ID \"{}\"", this.databaseId);
         try {
             final Database database = instance.getDatabase(this.databaseId);
-            this.log.debug("found spanner database with ID \"" + this.databaseId + "\"");
+            this.log.debug("found spanner database with ID \"{}\"", this.databaseId);
             return database;
         } catch (SpannerException e) {
             if (!ErrorCode.NOT_FOUND.equals(e.getErrorCode()))
                 throw e;
-            this.log.debug("spanner database with ID \"" + this.databaseId + "\" not found");
+            this.log.debug("spanner database with ID \"{}\" not found", this.databaseId);
         }
 
         // Create new database
-        this.log.info("creating new spanner database with ID \"" + this.instanceId + "\"");
+        this.log.info("creating new spanner database with ID \"{}\"", this.databaseId);
         return this.waitFor(instance.createDatabase(this.databaseId, Collections.singleton(this.getCreateTableDDL())));
     }
 
     private void setupTable(Database database) {
 
         // Does table already exist?
-        this.log.debug("finding key/value database table with name \"" + this.tableName + "\"");
+        this.log.debug("finding key/value database table with name \"{}\"", this.tableName);
         final String expectedDDL = this.normalizeDDL(this.getCreateTableDDL());
         for (String statement : database.getDdl()) {
             if (this.normalizeDDL(statement).equals(expectedDDL)) {
-                this.log.debug("found key/value database table with name \"" + this.tableName + "\"");
+                this.log.debug("found key/value database table with name \"{}\"", this.tableName);
                 return;
             }
         }
-        this.log.debug("key/value database table with name \"" + this.tableName + "\" not found");
+        this.log.debug("key/value database table with name \"{}\" not found", this.tableName);
 
         // Create new table
         final String ddl = this.getCreateTableDDL();
-        this.log.info("creating new key/value database table with name \"" + this.tableName + "\":\n" + ddl);
+        this.log.info("creating new key/value database table with name \"{}\":\n{}", this.tableName, ddl);
         this.waitFor(database.updateDdl(Collections.singleton(ddl), null));
     }
 

@@ -248,7 +248,7 @@ public class OnVersionChangeTest extends TestSupport {
             BasicTest.getPermazen(SignatureCheck1.class);
             assert false : "expected error";
         } catch (IllegalArgumentException e) {
-            log.info("got expected " + e);
+            log.info("got expected {}", e.toString());
         }
     }
 

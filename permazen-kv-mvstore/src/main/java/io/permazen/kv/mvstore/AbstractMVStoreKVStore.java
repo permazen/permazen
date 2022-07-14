@@ -115,7 +115,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
         // Already started?
         if (this.mvstore != null)
             return;
-        this.log.info("starting " + this);
+        this.log.info("starting {}", this);
 
         // Open MVStore and MVMap
         boolean success = false;
@@ -134,7 +134,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
         // Check state
         if (this.mvstore == null)
             return;
-        this.log.info("stopping " + this);
+        this.log.info("stopping {}", this);
 
         // Close k/v store view
         this.doClose();

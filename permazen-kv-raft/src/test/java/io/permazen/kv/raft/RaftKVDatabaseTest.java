@@ -86,7 +86,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 final String[] kvstoreTypes = new String[] { "leveldb", "rocksdb", /*"sqlite",*/ "array" };
                 nodeKVStoreType = kvstoreTypes[this.random.nextInt(kvstoreTypes.length)];
             }
-            this.log.info("using " + nodeKVStoreType + " as key/value store on " + name);
+            this.log.info("using {} as key/value store on {}", nodeKVStoreType, name);
             switch (nodeKVStoreType) {
             case "leveldb":
             {
@@ -152,7 +152,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             final int targetIndex = (i < 2 ? 1 : i) % numNodes;
             final int addIndex = (i + 1) % numNodes;
             final String node = this.rafts[addIndex].getIdentity();
-            this.log.debug("adding node \"" + node + "\" to test cluster");
+            this.log.debug("adding node \"{}\" to test cluster", node);
             this.tryNtimes(this.rafts[targetIndex], tx -> ((RaftKVTransaction)tx).configChange(node, node));
 
             // Verify first node can commit

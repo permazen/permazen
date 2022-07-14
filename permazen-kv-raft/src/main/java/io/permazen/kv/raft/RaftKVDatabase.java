@@ -1026,7 +1026,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Log
         if (this.logger.isDebugEnabled())
-            this.debug("starting " + this.getClass().getName() + " in directory " + this.logDir);
+            this.debug("starting {} in directory {}", this.getClass().getName(), this.logDir);
 
         // Start up local database
         boolean success = false;
@@ -1118,13 +1118,20 @@ public class RaftKVDatabase implements KVDatabase {
             // Show recovered state
             if (this.logger.isDebugEnabled()) {
                 this.debug("recovered Raft state:"
-                  + "\n  clusterId=" + (this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none")
-                  + "\n  currentTerm=" + this.currentTerm
-                  + "\n  lastAppliedEntry=" + this.log.getLastAppliedIndex() + "t" + this.log.getLastAppliedTerm()
-                  + "\n  lastAppliedConfig=" + this.log.getLastAppliedConfig()
-                  + "\n  currentConfig=" + this.currentConfig
-                  + "\n  votedFor=" + (votedFor != null ? "\"" + votedFor + "\"" : "nobody")
-                  + "\n  log=" + this.log.getUnapplied());
+                  + "\n  clusterId={}"
+                  + "\n  currentTerm={}"
+                  + "\n  lastAppliedEntry={}"
+                  + "\n  lastAppliedConfig={}"
+                  + "\n  currentConfig={}"
+                  + "\n  votedFor={}"
+                  + "\n  log={}",
+                  this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none",
+                  this.currentTerm,
+                  this.log.getLastAppliedIndex() + "t" + this.log.getLastAppliedTerm(),
+                  this.log.getLastAppliedConfig(),
+                  this.currentConfig,
+                  votedFor != null ? "\"" + votedFor + "\"" : "nobody",
+                  this.log.getUnapplied());
             }
 
             // Validate recovered state
@@ -1147,7 +1154,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.changeRole(new FollowerRole(this, null, null, votedFor));
 
             // Done
-            this.info("successfully started " + this + " in directory " + this.logDir);
+            this.info("successfully started {} in directory {}", this, this.logDir);
             success = true;
         } catch (IOException e) {
             throw new RuntimeException("error starting up database", e);
@@ -1174,7 +1181,7 @@ public class RaftKVDatabase implements KVDatabase {
                 return;
 
             // Set shutting down flag
-            this.info("starting shutdown of " + this);
+            this.info("starting shutdown of {}", this);
             this.shuttingDown = true;
 
             // Fail all remaining open transactions
@@ -1229,7 +1236,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         // Done
-        this.info("completed shutdown of " + this);
+        this.info("completed shutdown of {}", this);
     }
 
     /**
@@ -1313,7 +1320,7 @@ public class RaftKVDatabase implements KVDatabase {
                 final long[] parse = LogEntry.parseFileName(file.getName());
                 if (parse != null) {
                     if (this.logger.isDebugEnabled())
-                        this.debug("recovering log file " + file.getName());
+                        this.debug("recovering log file {}", file.getName());
                     final LogEntry logEntry;
                     try {
                         logEntry = LogEntry.fromFile(file, parse[0] > lastAppliedIndex);
@@ -1328,13 +1335,13 @@ public class RaftKVDatabase implements KVDatabase {
                 // Is this a leftover temporary file?
                 if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
                     if (this.logger.isDebugEnabled())
-                        this.debug("deleting leftover temporary file " + file.getName());
+                        this.debug("deleting leftover temporary file {}", file.getName());
                     this.deleteFile(file, "leftover temporary file");
                     continue;
                 }
 
                 // Unknown
-                this.warn("ignoring unrecognized file " + file.getName() + " in my log directory");
+                this.warn("ignoring unrecognized file {} in my log directory", file.getName());
             }
         }
 
@@ -1377,14 +1384,14 @@ public class RaftKVDatabase implements KVDatabase {
         // Reset log
         this.log.reset(lastAppliedTerm, lastAppliedIndex, entryList, config, false);
         if (this.logger.isDebugEnabled()) {
-            this.debug("recovered " + this.log.getNumApplied() + " applied and " + this.log.getNumUnapplied()
-              + " unapplied log entries (" + this.log.getUnappliedLogMemoryUsage() + " total bytes)");
+            this.debug("recovered {} applied and {} unapplied log entries ({} total bytes)",
+              this.log.getNumApplied(), this.log.getNumUnapplied(), this.log.getUnappliedLogMemoryUsage());
         }
     }
 
     private void nukeLogFilesFromList(List<LogEntry> entries, String problem) {
         for (LogEntry logEntry : entries) {
-            this.warn("deleting log file " + logEntry.getFile().getName() + ": " + problem);
+            this.warn("deleting log file {}: {}", logEntry.getFile().getName(), problem);
             this.deleteFile(logEntry.getFile(), problem + " log file");
         }
         entries.clear();
@@ -1542,7 +1549,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Done
         if (this.logger.isDebugEnabled())
-            this.debug("created new transaction " + tx);
+            this.debug("created new transaction {}", tx);
         return tx;
     }
 
@@ -1575,9 +1582,9 @@ public class RaftKVDatabase implements KVDatabase {
         // Make transaction special
         if (this.logger.isDebugEnabled()) {
             if (this.highPrioTx != null)
-                this.debug("setting high priority transaction " + tx + " (replacing " + this.highPrioTx + ")");
+                this.debug("setting high priority transaction {} (replacing {})", tx, this.highPrioTx);
             else
-                this.debug("setting new high priority transaction " + tx);
+                this.debug("setting new high priority transaction {}", tx);
         }
         this.highPrioTx = tx;
 
@@ -1588,7 +1595,7 @@ public class RaftKVDatabase implements KVDatabase {
               && followerRole.electionTimer.isRunning()
               && !followerRole.electionTimer.getDeadline().hasOccurred()) {
                 if (this.logger.isDebugEnabled())
-                    this.debug("starting early election on behalf of high priority transaction " + tx);
+                    this.debug("starting early election on behalf of high priority transaction {}", tx);
                 followerRole.startElection();
             }
         }
@@ -1617,7 +1624,7 @@ public class RaftKVDatabase implements KVDatabase {
 
                     // Transition to COMMIT_READY state
                     if (this.logger.isDebugEnabled())
-                        this.debug("committing transaction " + tx);
+                        this.debug("committing transaction {}", tx);
                     tx.setState(TxState.COMMIT_READY);
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
 
@@ -1651,7 +1658,7 @@ public class RaftKVDatabase implements KVDatabase {
                     assert false;
                     return;
                 default:                                            // another thread is already doing the commit
-                    this.warn("simultaneous commit()'s requested for " + tx + " by two different threads");
+                    this.warn("simultaneous commit()'s requested for {} by two different threads", tx);
                     break;
                 }
             }
@@ -1689,13 +1696,13 @@ public class RaftKVDatabase implements KVDatabase {
         switch (tx.getState()) {
         case EXECUTING:
             if (this.logger.isDebugEnabled())
-                this.debug("rolling back transaction " + tx);
+                this.debug("rolling back transaction {}", tx);
             this.cleanupTransaction(tx);
             break;
         case CLOSED:
             break;
         default:                                            // another thread is currently committing!
-            this.warn("simultaneous commit() and rollback() requested for " + tx + " by two different threads");
+            this.warn("simultaneous commit() and rollback() requested for {} by two different threads", tx);
             break;
         }
     }
@@ -1705,7 +1712,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Debug
         if (this.logger.isTraceEnabled())
-            this.trace("cleaning up transaction " + tx);
+            this.trace("cleaning up transaction {}", tx);
 
         // Do any per-role cleanups
         if (this.role != null)
@@ -1737,7 +1744,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Succeed transaction
         if (this.logger.isDebugEnabled())
-            this.debug("successfully committed " + tx);
+            this.debug("successfully committed {}", tx);
         tx.getCommitFuture().set(null);
         tx.setState(TxState.COMPLETED);
         tx.setNoLongerRebasable();
@@ -1756,7 +1763,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Fail transaction
         if (this.logger.isDebugEnabled())
-            this.debug("failing transaction " + tx + ": " + e);
+            this.debug("failing transaction {}: {}", tx, e.toString());
         switch (tx.getState()) {
         case EXECUTING:
             assert tx.getFailure() == null;
@@ -1826,11 +1833,11 @@ public class RaftKVDatabase implements KVDatabase {
                 assert service != null;
                 assert service.getRole() == null || service.getRole() == this.role;
                 if (this.logger.isTraceEnabled())
-                    this.trace("SERVICE [" + service + "] in " + this.role);
+                    this.trace("SERVICE [{}] in {}", service, this.role);
                 try {
                     service.run();
                 } catch (Throwable t) {
-                    RaftKVDatabase.this.error("exception in " + service, t);
+                    RaftKVDatabase.this.error("exception in {}", service, t);
                     this.lastInternalError = t;
                 }
             }
@@ -1869,7 +1876,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert term >= 0;
         assert index >= 0;
         if (this.logger.isDebugEnabled())
-            this.debug("performing state machine flip-flop to " + index + "t" + term + " with config " + config);
+            this.debug("performing state machine flip-flop to {}t{} with config {}", index, term, config);
         if (config == null)
             config = new HashMap<>(0);
 
@@ -1884,7 +1891,7 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
-            this.error("flip-flop error updating key/value store term/index to " + index + "t" + term, e);
+            this.error("flip-flop error updating key/value store term/index to {}t{}", index, term, e);
             return false;
         }
 
@@ -1897,7 +1904,7 @@ public class RaftKVDatabase implements KVDatabase {
         final TreeMap<String, String> previousConfig = new TreeMap<>(this.currentConfig);
         this.currentConfig = this.log.buildCurrentConfig();
         if (!this.currentConfig.equals(previousConfig))
-            this.info("apply new cluster configuration after snapshot install: " + this.currentConfig);
+            this.info("apply new cluster configuration after snapshot install: {}", this.currentConfig);
 
         // Discard the flip-flopped state machine
         this.discardFlipFloppedStateMachine();
@@ -1918,7 +1925,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert Thread.holdsLock(this);
         assert newTerm > this.currentTerm;
         if (this.logger.isDebugEnabled())
-            this.debug("advancing current term from " + this.currentTerm + " -> " + newTerm);
+            this.debug("advancing current term from {} -> {}", this.currentTerm, newTerm);
 
         // Update persistent store
         final Writes writes = new Writes();
@@ -1927,7 +1934,7 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
-            this.error("error persisting new term " + newTerm, e);
+            this.error("error persisting new term {}", newTerm, e);
             return false;
         }
 
@@ -1953,7 +1960,7 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkState(this.clusterId == 0);
 
         // Persist it
-        this.info("joining cluster with ID " + String.format("0x%08x", newClusterId));
+        this.info("joining cluster with ID {}", String.format("0x%08x", newClusterId));
         final Writes writes = new Writes();
         writes.getPuts().put(CLUSTER_ID_KEY, LongEncoder.encode(newClusterId));
         try {
@@ -2007,7 +2014,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.role = role;
         this.role.setup();
         if (this.logger.isDebugEnabled())
-            this.debug("changing role to " + role);
+            this.debug("changing role to {}", role);
 
         // Check state
         assert this.checkState();
@@ -2037,7 +2044,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Create new log entry
         final LogEntry logEntry = new LogEntry(term, this.log.getLastIndex() + 1, this.logDir, data, fileLength);
         if (this.logger.isDebugEnabled())
-            this.debug("adding new log entry " + logEntry + " using " + tempFile.getName());
+            this.debug("adding new log entry {} using {}", logEntry, tempFile.getName());
 
         // Atomically rename file and fsync() directory to durably persist
         Files.move(tempFile.toPath(), logEntry.getFile().toPath(), StandardCopyOption.ATOMIC_MOVE);
@@ -2052,7 +2059,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Update current config
         if (logEntry.applyConfigChange(this.currentConfig))
-            this.info("applying new cluster configuration from log entry " + logEntry + ": " + this.currentConfig);
+            this.info("applying new cluster configuration from log entry {}: {}", logEntry, this.currentConfig);
 
         // Done
         return logEntry;
@@ -2085,7 +2092,7 @@ public class RaftKVDatabase implements KVDatabase {
             protocolVersion = Message.decodeProtocolVersion(buf);
             msg = Message.decode(buf, protocolVersion);
         } catch (IllegalArgumentException e) {
-            this.error("rec'd bogus message from " + sender + ", ignoring", e);
+            this.error("rec'd bogus message from {}, ignoring", sender, e);
             return;
         }
 
@@ -2115,7 +2122,7 @@ public class RaftKVDatabase implements KVDatabase {
                 // Indicate success
                 tempFile = null;
             } catch (IOException e) {
-                this.error("error persisting mutations from " + msg + ", ignoring", e);
+                this.error("error persisting mutations from {}, ignoring", msg, e);
                 return;
             } finally {
                 if (tempFile != null)
@@ -2142,7 +2149,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (!this.transmitting.remove(address))
             return;
         if (this.logger.isTraceEnabled())
-            this.trace("QUEUE_EMPTY address " + address + " in " + this.role);
+            this.trace("QUEUE_EMPTY address {} in {}", address, this.role);
 
         // Notify role
         if (this.role == null)
@@ -2167,7 +2174,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (address == null)
             address = this.returnAddress;
         if (address == null) {
-            this.warn("can't send " + msg + " to unknown peer \"" + peer + "\"");
+            this.warn("can't send {} to unknown peer \"{}\"", msg, peer);
             return false;
         }
 
@@ -2176,12 +2183,12 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Encode messagse
         if (this.logger.isTraceEnabled())
-            this.trace("XMIT " + msg + " to " + address + " (version " + protocolVersion + ")");
+            this.trace("XMIT {} to {} (version {})" + msg, address, protocolVersion);
         final ByteBuffer encodedMessage;
         try {
             encodedMessage = msg.encode(protocolVersion);
         } catch (IllegalArgumentException e) {                                      // can happen if peer running older code
-            this.warn("can't send " + msg + " to peer \"" + peer + "\": " + e, e);
+            this.warn("can't send {} to peer \"{}\": {}", msg, peer, e.toString());
             return false;
         }
 
@@ -2192,7 +2199,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         // Transmit failed
-        this.warn("transmit of " + msg + " to \"" + peer + "\" failed locally");
+        this.warn("transmit of {} to \"{}\" failed locally", msg, peer);
         return false;
     }
 
@@ -2206,32 +2213,32 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.checkState();
         if (this.role == null) {
             if (this.logger.isDebugEnabled())
-                this.debug("rec'd " + msg + " rec'd in shutdown state; ignoring");
+                this.debug("rec'd {} rec'd in shutdown state; ignoring", msg);
             return;
         }
 
         // Sanity check cluster ID
         if (msg.getClusterId() == 0) {
-            this.warn("rec'd " + msg + " with zero cluster ID from " + address + "; ignoring");
+            this.warn("rec'd {} with zero cluster ID from {}; ignoring", msg, address);
             return;
         }
         if (this.clusterId != 0 && msg.getClusterId() != this.clusterId) {
-            this.warn("rec'd " + msg + " with foreign cluster ID "
-              + String.format("0x%08x", msg.getClusterId()) + " != " + String.format("0x%08x", this.clusterId) + "; ignoring");
+            this.warn("rec'd {} with foreign cluster ID {} {}; ignoring",
+              msg, String.format("0x%08x", msg.getClusterId()), String.format("0x%08x", this.clusterId));
             return;
         }
 
         // Sanity check sender
         final String peer = msg.getSenderId();
         if (peer.equals(this.identity)) {
-            this.warn("rec'd " + msg + " from myself (\"" + peer + "\", address " + address + "); ignoring");
+            this.warn("rec'd {} from myself (\"{}\", address {}); ignoring", msg, peer, address);
             return;
         }
 
         // Sanity check recipient
         final String dest = msg.getRecipientId();
         if (!dest.equals(this.identity)) {
-            this.warn("rec'd misdirected " + msg + " intended for \"" + dest + "\" from " + address + "; ignoring");
+            this.warn("rec'd misdirected {} intended for \"{}\" from {}; ignoring", msg, dest, address);
             return;
         }
 
@@ -2239,7 +2246,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (protocolVersion != -1) {
             final Integer previousVersion = this.protocolVersionMap.put(peer, protocolVersion);
             if (!((Integer)protocolVersion).equals(previousVersion) && this.logger.isDebugEnabled())
-                this.debug("set protocol encoding version for peer \"" + peer + "\" to " + protocolVersion);
+                this.debug("set protocol encoding version for peer \"{}\" to {}", peer, protocolVersion);
         }
 
         // Is my term too low? If so update and revert to follower
@@ -2248,17 +2255,17 @@ public class RaftKVDatabase implements KVDatabase {
             // First check with current role; in some special cases we ignore this
             if (!this.role.mayAdvanceCurrentTerm(msg)) {
                 if (this.logger.isTraceEnabled()) {
-                    this.trace("rec'd " + msg + " with term " + msg.getTerm() + " > " + this.currentTerm + " from \""
-                      + peer + "\" but current role says to ignore it");
+                    this.trace("rec'd {} with term {} > {} from \"{}\" but current role says to ignore it",
+                      msg, msg.getTerm(), this.currentTerm, peer);
                 }
                 return;
             }
 
             // Revert to follower
             if (this.logger.isDebugEnabled()) {
-                this.debug("rec'd " + msg.getClass().getSimpleName() + " with term " + msg.getTerm() + " > "
-                  + this.currentTerm + " from \"" + peer + "\", updating term and "
-                  + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
+                this.debug("rec'd {} with term {} > {} from \"{}\", updating term and {} follower",
+                  msg.getClass().getSimpleName(), msg.getTerm(), this.currentTerm, peer,
+                  this.role instanceof FollowerRole ? "remaining a" : "reverting to");
             }
             if (!this.advanceTerm(msg.getTerm()))
                 return;
@@ -2268,15 +2275,15 @@ public class RaftKVDatabase implements KVDatabase {
         // Is sender's term too low? Ignore it (except ping request)
         if (msg.getTerm() < this.currentTerm && !(msg instanceof PingRequest)) {
             if (this.logger.isDebugEnabled()) {
-                this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
-                  + " from \"" + peer + "\" at " + address + ", ignoring");
+                this.debug("rec'd {} with term {} < {} from \"{}\" at {}, ignoring",
+                  msg, msg.getTerm(), this.currentTerm, peer, address);
             }
             return;
         }
 
         // Debug
         if (this.logger.isTraceEnabled())
-            this.trace("RECV " + msg + " in " + this.role + " from " + address + " (protocol version " + protocolVersion + ")");
+            this.trace("RECV {} in {} from {} (protocol version {})", msg, this.role, address, protocolVersion);
 
         // Handle message
         this.returnAddress = address;
@@ -2434,7 +2441,7 @@ public class RaftKVDatabase implements KVDatabase {
             } catch (ThreadDeath t) {
                 throw t;
             } catch (Throwable t) {
-                this.log.error("error in " + this + ", bailing out", t);
+                this.log.error("error in {}, bailing out", this, t);
             } finally {
                 this.cleanup();
             }
@@ -2568,55 +2575,39 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Logging
 
-    void trace(String msg, Throwable t) {
-        this.logger.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+    void trace(String msg, Object... args) {
+        this.logger.trace(this.prefixLogFormat(msg), args);
     }
 
-    void trace(String msg) {
-        this.logger.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+    void debug(String msg, Object... args) {
+        this.logger.debug(this.prefixLogFormat(msg), args);
     }
 
-    void debug(String msg, Throwable t) {
-        this.logger.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+    void info(String msg, Object... args) {
+        this.logger.info(this.prefixLogFormat(msg), args);
     }
 
-    void debug(String msg) {
-        this.logger.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
+    void warn(String msg, Object... args) {
+        this.logger.warn(this.prefixLogFormat(msg), args);
     }
 
-    void info(String msg, Throwable t) {
-        this.logger.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
+    void error(String msg, Object... args) {
+        this.logger.error(this.prefixLogFormat(msg), args);
     }
 
-    void info(String msg) {
-        this.logger.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
-    }
-
-    void warn(String msg, Throwable t) {
-        this.logger.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
-    }
-
-    void warn(String msg) {
-        this.logger.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
-    }
-
-    void error(String msg, Throwable t) {
-        this.logger.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
-    }
-
-    void error(String msg) {
-        this.logger.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
-    }
-
-    void perfLog(String msg) {
+    void perfLog(String msg, Object... args) {
         if (this.performanceLogging)
-            this.info("PERF: " + msg);
+            this.info("PERF: " + msg, args);
         else
-            this.debug(msg);
+            this.debug(msg, args);
     }
 
     boolean isPerfLogEnabled() {
         return this.performanceLogging ? this.logger.isInfoEnabled() : this.logger.isDebugEnabled();
+    }
+
+    private String prefixLogFormat(String format) {
+        return new Timestamp() + " " + this.identity + ": " + format;
     }
 
 // Debug/Sanity Checking

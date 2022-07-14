@@ -185,7 +185,7 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
             this.context.close();
         } catch (Exception e) {
             if (this.log.isDebugEnabled())
-                this.log.debug("got exception close of " + this.context + " (ignoring)", e);
+                this.log.debug("got exception closing {} (ignoring)", this.context, e);
         }
     }
 

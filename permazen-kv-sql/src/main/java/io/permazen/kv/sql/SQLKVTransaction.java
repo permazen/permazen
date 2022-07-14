@@ -372,7 +372,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         assert params.length == stmtType.getNumParams();
         final byte[] result = this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
         if (this.log.isTraceEnabled())
-            this.log.trace("SQL query returned " + (result != null ? result.length + " bytes" : "not found"));
+            this.log.trace("SQL query returned {}", result != null ? result.length + " bytes" : "not found");
         return result;
     }
 
@@ -392,7 +392,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         assert params.length == stmtType.getNumParams();
         final CloseableIterator<KVPair> i = this.query(stmtType, ResultSetIterator::new, false, params);
         if (this.log.isTraceEnabled())
-            this.log.trace("SQL query returned " + (i.hasNext() ? "non-" : "") + "empty iterator");
+            this.log.trace("SQL query returned {}", (i.hasNext() ? "non-" : "") + "empty iterator");
         return i;
     }
 
@@ -403,7 +403,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
-                    this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(params[i]));
+                    this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(params[i]));
                 preparedStatement.setBytes(i + 1, params[i]);
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
@@ -427,7 +427,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
-                    this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(params[i]));
+                    this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(params[i]));
                 preparedStatement.setBytes(i + 1, params[i]);
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
@@ -467,7 +467,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                     for (int i = 0; i < numSqlParams; i++) {
                         final byte[] param = paramList.get(paramIndex + i);
                         if (this.log.isTraceEnabled())
-                            this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(param));
+                            this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(param));
                         preparedStatement.setBytes(i + 1, param);
                         batchTotalBytes += param.length;
                     }
@@ -892,7 +892,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         protected PreparedStatement prepare(Connection c, String sql, Logger log) throws SQLException {
             if (log.isTraceEnabled())
-                log.trace("preparing SQL statement: " + sql);
+                log.trace("preparing SQL statement: {}", sql);
             return c.prepareStatement(sql,
               ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         }

@@ -110,7 +110,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
         // Get writes
         final Writes writes = this.getWrites();
         if (this.log.isTraceEnabled())
-            this.log.trace("applying " + writes + " to " + context);
+            this.log.trace("applying {} to {}", writes, context);
 
         // Add removes
         for (io.permazen.kv.KeyRange range : writes.getRemoves()) {
@@ -164,7 +164,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
 
     private void buffer(TransactionContext context, Mutation mutation) {
         if (this.log.isTraceEnabled())
-            this.log.trace("adding mutation " + mutation);
+            this.log.trace("adding mutation {}", mutation);
         context.buffer(mutation);
     }
 

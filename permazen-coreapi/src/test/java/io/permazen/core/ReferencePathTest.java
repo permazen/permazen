@@ -114,10 +114,10 @@ public class ReferencePathTest extends CoreAPITestSupport {
         map3.put(null, id3);
         map4.put(null, null);
 
-        this.log.info("map1: " + map1);
-        this.log.info("map2: " + map2);
-        this.log.info("map3: " + map3);
-        this.log.info("map4: " + map4);
+        this.log.info("map1: {}", map1);
+        this.log.info("map2: {}", map2);
+        this.log.info("map3: {}", map3);
+        this.log.info("map4: {}", map4);
 
     /*
 

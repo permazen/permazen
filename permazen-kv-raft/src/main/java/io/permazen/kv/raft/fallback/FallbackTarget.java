@@ -308,13 +308,13 @@ public class FallbackTarget implements Cloneable {
         // Check whether we're even configured first - a read-only tx is allowed when unconfigured
         if (!this.raft.isConfigured()) {
             if (this.log.isTraceEnabled())
-                this.log.trace("checking availability of " + this.raft + " - cluster is not configured");
+                this.log.trace("checking availability of {} - cluster is not configured", this.raft);
             return false;
         }
 
         // Setup
         if (this.log.isTraceEnabled())
-            this.log.trace("checking availability of " + this.raft + " with timeout of " + this.transactionTimeout + "ms");
+            this.log.trace("checking availability of {} with timeout of {}ms", this.raft, this.transactionTimeout);
 
         // See if a linearizable transaction has committed recently, otherwise perform one ourselves
         final Timestamp linearizableCommitTimestamp = this.raft.getLinearizableCommitTimestamp();
@@ -343,13 +343,13 @@ public class FallbackTarget implements Cloneable {
             final int duration = (int)((System.nanoTime() - startTimeNanos) / 1000000L);
             final boolean timedOut = duration > this.transactionTimeout;
             if (this.log.isTraceEnabled()) {
-                this.log.trace("availability transaction on " + this.raft + " completed in "
-                  + duration + "ms (" + (timedOut ? "failed" : "successful") + ")");
+                this.log.trace("availability transaction on {} completed in {}ms ({})",
+                  this.raft, duration, timedOut ? "failed" : "successful");
             }
             if (timedOut) {
                 if (this.log.isDebugEnabled()) {
-                    this.log.debug("availability transaction on " + this.raft + " completed in "
-                      + duration + " > " + this.transactionTimeout + " ms, returning unavailable");
+                    this.log.trace("availability transaction on {} completed in {} > {} ms, returning unavailable",
+                      this.raft, duration, this.transactionTimeout);
                 }
                 return false;
             }

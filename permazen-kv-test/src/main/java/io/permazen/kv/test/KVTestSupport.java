@@ -86,9 +86,9 @@ public abstract class KVTestSupport extends TestSupport {
         try {
             xml = this.toXmlString(kv, minKey, maxKey);
         } catch (RuntimeException e) {
-            this.log.info("{} - oops, got " + e, label);
+            this.log.info("{} - oops, got {}", label, e.toString());
             if (this.log.isTraceEnabled())
-                this.log.trace(label + " exception trace:", e);
+                this.log.trace("{} exception trace", label, e);
             return e;
         }
         this.log.info("{}\n{}", label, xml);
@@ -153,7 +153,7 @@ public abstract class KVTestSupport extends TestSupport {
                 return result;
             } catch (RetryTransactionException e) {
                 this.updateRetryStats(e);
-                this.log.debug("attempt #" + (count + 1) + " yeilded " + e);
+                this.log.debug("attempt #{} yeilded {}", count + 1, e.toString());
                 retry = e;
             }
             try {

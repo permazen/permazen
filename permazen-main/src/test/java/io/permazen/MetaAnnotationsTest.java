@@ -39,7 +39,7 @@ public class MetaAnnotationsTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             baby2.setMommy(null);

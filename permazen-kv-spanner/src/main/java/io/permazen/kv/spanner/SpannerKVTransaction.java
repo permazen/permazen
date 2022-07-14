@@ -235,7 +235,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
             }
         } catch (SpannerException e) {
             if (this.log.isTraceEnabled())
-                this.log.trace("{}: commit failed: " + e);
+                this.log.trace("{}: commit failed: ", this, e.toString());
             throw this.wrapException(e);
         } finally {
             this.cleanup();

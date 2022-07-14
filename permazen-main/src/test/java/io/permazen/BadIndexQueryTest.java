@@ -35,7 +35,7 @@ public class BadIndexQueryTest extends TestSupport {
                 jtx.queryIndex(DataFile.class, "state", Analysis.State.class);
                 assert false : "expected exception here";
             } catch (IllegalArgumentException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             jtx.commit();
@@ -57,7 +57,7 @@ public class BadIndexQueryTest extends TestSupport {
                 jtx.queryIndex(DataFile.class, "state", DataFile.State.class);
                 assert false : "expected exception here";
             } catch (IllegalArgumentException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             jtx.commit();

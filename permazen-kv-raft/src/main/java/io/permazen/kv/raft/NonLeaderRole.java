@@ -82,7 +82,7 @@ public abstract class NonLeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         if (this.electionTimer.pollForTimeout()) {
             if (this.log.isDebugEnabled())
-                this.debug("election timeout while in " + this);
+                this.debug("election timeout while in {}", this);
             this.handleElectionTimeout();
         }
     }

@@ -153,7 +153,7 @@ public class XodusKVDatabase implements KVDatabase {
         // Already started?
         if (this.env != null)
             return;
-        this.log.info("starting " + this);
+        this.log.info("starting {}", this);
 
         // Check configuration
         Preconditions.checkState(this.directory != null, "no directory configured");
@@ -164,7 +164,7 @@ public class XodusKVDatabase implements KVDatabase {
 
         // Open database
         if (this.log.isDebugEnabled())
-            this.log.debug("starting Xodus database " + this);
+            this.log.debug("starting Xodus database {}", this);
         this.env = Environments.newInstance(this.directory, this.config);
     }
 
@@ -192,10 +192,10 @@ public class XodusKVDatabase implements KVDatabase {
                     continue;
 
                 // Shut down Xodus database
-                this.log.info("stopping " + this);
+                this.log.info("stopping {}", this);
                 try {
                     if (this.log.isDebugEnabled())
-                        this.log.debug("stopping Xodus database " + this);
+                        this.log.debug("stopping Xodus database {}", this);
                     this.env.close();
                 } catch (Throwable e) {
                     this.log.error("caught exception closing database during shutdown (ignoring)", e);

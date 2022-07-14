@@ -62,7 +62,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
         this.db = db;
         this.tx = tx;
         if (this.log.isTraceEnabled())
-            this.log.trace("created " + this);
+            this.log.trace("created {}", this);
     }
 
     /**
@@ -242,7 +242,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     protected void finalize() throws Throwable {
         try {
             if (!this.closed.get()) {
-                this.log.warn(this + " leaked without invoking close()");
+                this.log.warn("{} leaked without invoking close()", this);
                 this.close();
             }
         } finally {

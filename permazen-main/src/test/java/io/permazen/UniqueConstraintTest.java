@@ -35,7 +35,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         // Now make them distinct
@@ -54,7 +54,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         // Now make them have the excluded value
@@ -107,7 +107,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         // More test
@@ -142,7 +142,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             enum2.setColor(Color.BLUE);
@@ -184,7 +184,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -229,7 +229,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -303,7 +303,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -331,7 +331,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -390,7 +390,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -410,7 +410,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
@@ -430,7 +430,7 @@ public class UniqueConstraintTest extends TestSupport {
                 jtx.commit();
                 assert false;
             } catch (ValidationException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
         } finally {

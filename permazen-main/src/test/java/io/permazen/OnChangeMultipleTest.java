@@ -75,7 +75,7 @@ public class OnChangeMultipleTest extends TestSupport {
             BasicTest.getPermazen(classes);
             assert false;
         } catch (IllegalArgumentException e) {
-            this.log.info("got expected " + e);
+            this.log.info("got expected {}", e.toString());
         }
     }
 

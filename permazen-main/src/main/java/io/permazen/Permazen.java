@@ -252,8 +252,8 @@ public class Permazen {
             final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
             final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
-                this.log.trace("found @" + PermazenType.class.getSimpleName() + " annotation on " + type
-                  + " defining object type `" + name + "'");
+                this.log.trace("found @{} annotation on {} defining object type `{}'",
+                  PermazenType.class.getSimpleName(), type, name);
             }
 
             // Get storage ID
@@ -272,7 +272,7 @@ public class Permazen {
 
             // Add jclass
             this.addJClass(jclass);
-            this.log.debug("added Java model class `" + jclass.name + "' with storage ID " + jclass.storageId);
+            this.log.debug("added Java model class `{}' with storage ID {}", jclass.name, jclass.storageId);
         }
 
         // Inventory class generators

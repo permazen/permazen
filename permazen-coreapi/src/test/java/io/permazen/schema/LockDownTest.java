@@ -70,73 +70,73 @@ public class LockDownTest extends CoreAPITestSupport {
             schema.getSchemaObjectTypes().get(100).getSchemaFields().remove(12);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             schema.getSchemaObjectTypes().remove(100);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setType(null);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setIndexed(false);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingSignature(123);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((EnumSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(12)).getIdentifiers().clear();
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((EnumArraySchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).getIdentifiers().clear();
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((EnumArraySchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).setDimensions(123);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setOnDelete(null);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setCascadeDelete(true);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setAllowDeleted(false);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
         try {
             schema.getSchemaObjectTypes().get(100).getSchemaCompositeIndexes().remove(110);
             assert false;
         } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
 
         // Check calculations after lockdown

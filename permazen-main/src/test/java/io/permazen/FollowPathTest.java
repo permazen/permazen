@@ -113,7 +113,7 @@ public class FollowPathTest extends TestSupport {
             BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badChildClass);
             assert false;
         } catch (IllegalArgumentException e) {
-            this.log.info("got expected " + e);
+            this.log.info("got expected {}", e.toString());
         }
     }
 

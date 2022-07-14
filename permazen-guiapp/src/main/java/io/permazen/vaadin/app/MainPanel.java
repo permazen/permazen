@@ -159,7 +159,7 @@ public class MainPanel extends VerticalLayout {
         final ObjId id = this.objectChooser.getObjId();
         if (id == null)
             return;
-        this.log.info("editing object " + id);
+        this.log.info("editing object {}", id);
 
         // Copy object
         final JObject jobj = this.doCopyForEdit(id);
@@ -211,7 +211,7 @@ public class MainPanel extends VerticalLayout {
               "Please select an object type first", Notification.Type.WARNING_MESSAGE);
             return;
         }
-        this.log.info("creating new object of type " + jclass.getType().getName());
+        this.log.info("creating new object of type {}", jclass.getType().getName());
         new JObjectEditorWindow(this.getUI(), this.session, jclass).show();
     }
 
@@ -221,7 +221,7 @@ public class MainPanel extends VerticalLayout {
         final ObjId id = this.objectChooser.getObjId();
         if (id == null)
             return;
-        this.log.info("deleting object " + id);
+        this.log.info("deleting object {}", id);
         final boolean deleted;
         try {
             deleted = this.doDelete(id);
@@ -256,7 +256,7 @@ public class MainPanel extends VerticalLayout {
         if (id == null)
             return;
         final int newVersion = this.jdb.getActualVersion();
-        this.log.info("upgrading object " + id + " to schema version " + newVersion);
+        this.log.info("upgrading object {} to schema version {}", id, newVersion);
         final int oldVersion = this.doUpgrade(id);
         switch (oldVersion) {
         case -1:

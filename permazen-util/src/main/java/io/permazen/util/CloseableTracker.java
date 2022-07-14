@@ -178,7 +178,7 @@ public class CloseableTracker implements Closeable {
      */
     protected void exceptionDuringClose(Closeable item, Throwable e) {
         if (this.log.isDebugEnabled())
-            this.log.debug("caught exception attempting to close " + item + " (ignoring)", e);
+            this.log.debug("caught exception attempting to close {} (ignoring)", item, e);
     }
 
 // Object

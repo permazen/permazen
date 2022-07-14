@@ -73,7 +73,7 @@ public class TypeSafetyTest2 extends TestSupport {
                 final NavigableMap<Inventory2, NavigableSet<Car>> map = entry.getValue().asMap();
                 assert map.size() == 1;
                 for (Car car2 : map.values().iterator().next())
-                    this.log.info("found map value index entry with color " + color + " and car " + car2);
+                    this.log.info("found map value index entry with color {} and car {}", color, car2);
             }
 
             jtx.commit();

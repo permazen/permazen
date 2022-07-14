@@ -138,15 +138,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     public void testSimpleStuff(KVDatabase store) throws Exception {
 
         // Debug
-        this.log.info("starting testSimpleStuff() on " + store);
+        this.log.info("starting testSimpleStuff() on {}", store);
 
         // Clear database
-        this.log.info("testSimpleStuff() on " + store + ": clearing database");
+        this.log.info("testSimpleStuff() on {}: clearing database", store);
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
-        this.log.info("testSimpleStuff() on " + store + ": done clearing database");
+        this.log.info("testSimpleStuff() on {}: done clearing database", store);
 
         // Verify database is empty
-        this.log.info("testSimpleStuff() on " + store + ": verifying database is empty");
+        this.log.info("testSimpleStuff() on {}: verifying database is empty", store);
         this.tryNtimes(store, tx ->  {
             KVPair p = tx.getAtLeast(null, null);
             Assert.assertNull(p);
@@ -156,10 +156,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 Assert.assertFalse(it.hasNext());
             }
         });
-        this.log.info("testSimpleStuff() on " + store + ": done verifying database is empty");
+        this.log.info("testSimpleStuff() on {}: done verifying database is empty", store);
 
         // tx 1
-        this.log.info("testSimpleStuff() on " + store + ": starting tx1");
+        this.log.info("testSimpleStuff() on {}: starting tx1", store);
         this.tryNtimes(store, tx -> {
             final byte[] x = tx.get(b("01"));
             if (x != null)
@@ -167,10 +167,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             tx.put(b("01"), b("02"));
             Assert.assertEquals(tx.get(b("01")), b("02"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx1");
+        this.log.info("testSimpleStuff() on {}: committed tx1", store);
 
         // tx 2
-        this.log.info("testSimpleStuff() on " + store + ": starting tx2");
+        this.log.info("testSimpleStuff() on {}: starting tx2", store);
         this.tryNtimes(store, tx -> {
             final byte[] x = tx.get(b("01"));
             Assert.assertNotNull(x);
@@ -178,19 +178,19 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             tx.put(b("01"), b("03"));
             Assert.assertEquals(tx.get(b("01")), b("03"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx2");
+        this.log.info("testSimpleStuff() on {}: committed tx2", store);
 
         // tx 3
-        this.log.info("testSimpleStuff() on " + store + ": starting tx3");
+        this.log.info("testSimpleStuff() on {}: starting tx3", store);
         this.tryNtimes(store, tx -> {
             final byte[] x = tx.get(b("01"));
             Assert.assertEquals(x, b("03"));
             tx.put(b("10"), b("01"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx3");
+        this.log.info("testSimpleStuff() on {}: committed tx3", store);
 
         // Check stale access
-        this.log.info("testSimpleStuff() on " + store + ": checking stale access");
+        this.log.info("testSimpleStuff() on {}: checking stale access", store);
         final KVTransaction tx = this.tryNtimesWithResult(store, tx1 -> tx1);
         try {
             tx.get(b("01"));
@@ -198,20 +198,20 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         } catch (StaleTransactionException e) {
             // expected
         }
-        this.log.info("finished testSimpleStuff() on " + store);
+        this.log.info("finished testSimpleStuff() on {}", store);
 
         // Check read-only transaction (part 1)
-        this.log.info("testSimpleStuff() on " + store + ": starting tx4");
+        this.log.info("testSimpleStuff() on {}: starting tx4", store);
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(false);
             kvt.put(b("10"), b("dd"));
             final byte[] x = kvt.get(b("10"));
             Assert.assertEquals(x, b("dd"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx4");
+        this.log.info("testSimpleStuff() on {}: committed tx4", store);
 
         // Check read-only transaction (part 2)
-        this.log.info("testSimpleStuff() on " + store + ": starting tx5");
+        this.log.info("testSimpleStuff() on {}: starting tx5", store);
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(true);
             final byte[] x = kvt.get(b("10"));
@@ -220,45 +220,45 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             final byte[] y = kvt.get(b("10"));
             Assert.assertEquals(y, b("ee"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx5");
+        this.log.info("testSimpleStuff() on {}: committed tx5", store);
 
         // Check read-only transaction (part 3)
-        this.log.info("testSimpleStuff() on " + store + ": starting tx6");
+        this.log.info("testSimpleStuff() on {}: starting tx6", store);
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(true);
             final byte[] x = kvt.get(b("10"));
             Assert.assertEquals(x, b("dd"));
         });
-        this.log.info("testSimpleStuff() on " + store + ": committed tx6");
+        this.log.info("testSimpleStuff() on {}: committed tx6", store);
     }
 
     @Test(dataProvider = "kvdbs")
     public void testReadOnly(KVDatabase store) throws Exception {
 
         // Debug
-        this.log.info("starting testReadOnly() on " + store);
+        this.log.info("starting testReadOnly() on {}", store);
 
         // Put some data in database
-        this.log.info("testReadOnly() on " + store + ": initializing database");
+        this.log.info("testReadOnly() on {}: initializing database", store);
         this.tryNtimes(store, tx -> {
             tx.removeRange(null, null);
             tx.put(ByteUtil.EMPTY, ByteUtil.EMPTY);
         });
-        this.log.info("testReadOnly() on " + store + ": done initializing database");
+        this.log.info("testReadOnly() on {}: done initializing database", store);
 
         // Test we can set a transaction to read-only mode before reading some data
-        this.log.info("testReadOnly() on " + store + ": testing setReadOnly() before access");
+        this.log.info("testReadOnly() on {}: testing setReadOnly() before access", store);
         this.tryNtimes(store, tx -> {
             tx.setReadOnly(true);
             final byte[] value1 = tx.get(ByteUtil.EMPTY);
             Assert.assertEquals(value1, ByteUtil.EMPTY);
             Assert.assertTrue(tx.isReadOnly());
         });
-        this.log.info("testReadOnly() on " + store + ": done testing setReadOnly() after access");
+        this.log.info("testReadOnly() on {}: done testing setReadOnly() after access", store);
 
         // Test we can set a transaction to read-only mode after reading some data
         if (this.supportsReadOnlyAfterDataAccess()) {
-            this.log.info("testReadOnly() on " + store + ": testing setReadOnly()");
+            this.log.info("testReadOnly() on {}: testing setReadOnly()", store);
             this.tryNtimes(store, tx -> {
                 final byte[] value1 = tx.get(ByteUtil.EMPTY);
                 Assert.assertEquals(value1, ByteUtil.EMPTY);
@@ -267,7 +267,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 Assert.assertEquals(value2, ByteUtil.EMPTY);
                 Assert.assertTrue(tx.isReadOnly());
             });
-            this.log.info("testReadOnly() on " + store + ": done testing setReadOnly()");
+            this.log.info("testReadOnly() on {}: done testing setReadOnly()", store);
         }
     }
 
@@ -305,22 +305,22 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         };
 
         // Debug
-        this.log.info("starting testSortOrder() on " + store);
+        this.log.info("starting testSortOrder() on {}", store);
 
         // Clear database
-        this.log.info("testSortOrder() on " + store + ": clearing database");
+        this.log.info("testSortOrder() on {}: clearing database", store);
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
-        this.log.info("testSortOrder() on " + store + ": done clearing database");
+        this.log.info("testSortOrder() on {}: done clearing database", store);
 
         // Write data
-        this.log.info("testSortOrder() on " + store + ": writing data");
+        this.log.info("testSortOrder() on {}: writing data", store);
         this.tryNtimes(store, tx -> {
             for (byte[][] pair : pairs)
                 tx.put(pair[0], pair[1]);
         });
 
         // Verify data
-        this.log.info("testSortOrder() on " + store + ": verifying data order");
+        this.log.info("testSortOrder() on {}: verifying data order", store);
         this.tryNtimes(store, tx -> {
             try (CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                 int index2 = 0;
@@ -342,12 +342,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     public void testKeyWatch(KVDatabase store) throws Exception {
 
         // Debug
-        this.log.info("starting testKeyWatch() on " + store);
+        this.log.info("starting testKeyWatch() on {}", store);
 
         // Clear database
-        this.log.info("testKeyWatch() on " + store + ": clearing database");
+        this.log.info("testKeyWatch() on {}: clearing database", store);
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
-        this.log.info("testKeyWatch() on " + store + ": done clearing database");
+        this.log.info("testKeyWatch() on {}: done clearing database", store);
 
         // Set up the modifications we want to test
         final ArrayList<Consumer<KVTransaction>> mods = new ArrayList<>();
@@ -363,7 +363,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         for (Consumer<KVTransaction> mod : mods) {
 
             // Set watch
-            this.log.info("testKeyWatch() on " + store + ": creating key watch for " + mod);
+            this.log.info("testKeyWatch() on {}: creating key watch for {}", store, mod);
             final Future<Void> watch = this.tryNtimesWithResult(store, tx -> {
                 try {
                     return tx.watchKey(b("0123"));
@@ -372,24 +372,24 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 }
             });
             if (watch == null) {
-                this.log.info("testKeyWatch() on " + store + ": key watches not supported, bailing out");
+                this.log.info("testKeyWatch() on {}: key watches not supported, bailing out", store);
                 return;
             }
-            this.log.info("testKeyWatch() on " + store + ": created key watch: " + watch);
+            this.log.info("testKeyWatch() on {}: created key watch: {}", store, watch);
 
             // Perform modification
-            this.log.info("testKeyWatch() on " + store + ": testing " + mod);
+            this.log.info("testKeyWatch() on {}: testing {}", store, mod);
             this.tryNtimes(store, mod);
 
             // Get notification
-            this.log.info("testKeyWatch() on " + store + ": waiting for notification");
+            this.log.info("testKeyWatch() on {}: waiting for notification", store);
             final long start = System.nanoTime();
             watch.get(1, TimeUnit.SECONDS);
-            this.log.info("testKeyWatch() on " + store + ": got notification in " + ((System.nanoTime() - start) / 1000000) + "ms");
+            this.log.info("testKeyWatch() on {}: got notification in {}ms", store, (System.nanoTime() - start) / 1000000);
         }
 
         // Done
-        this.log.info("finished testKeyWatch() on " + store);
+        this.log.info("finished testKeyWatch() on {}", store);
     }
 
     @Test(dataProvider = "kvdbs")
@@ -412,7 +412,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     @Test(dataProvider = "kvdbs")
     public void testWriteSkewAnomaly(KVDatabase store) throws Exception {
         if (this.allowsWriteSkewAnomaly()) {
-            this.log.info("skipping testWriteSkewAnomaly() on " + store + ": database allows write skew anomalies");
+            this.log.info("skipping testWriteSkewAnomaly() on {}: database allows write skew anomalies", store);
             return;
         }
         this.testConflictingTransactions(store, "testWriteSkewAnomaly", (tx1, tx2) -> {
@@ -436,7 +436,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Conflicts handled?
         if (!this.supportsMultipleWriteTransactions()) {
-            this.log.info("skipping " + name + "() on " + store + ": database doesn't support simultaneous writers");
+            this.log.info("skipping {}() on {}: database doesn't support simultaneous writers", name, store);
             return;
         }
 
@@ -449,8 +449,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             this.threads[0].submit(() -> this.createKVTransaction(store)).get(),
             this.threads[1].submit(() -> this.createKVTransaction(store)).get()
         };
-        this.log.info("tx[0] is " + txs[0]);
-        this.log.info("tx[1] is " + txs[1]);
+        this.log.info("tx[0] is {}", txs[0]);
+        this.log.info("tx[1] is {}", txs[1]);
 
         // Do the conflicting activity
         Future<?>[] futures = conflictor.conflict(txs[0], txs[1]);
@@ -460,7 +460,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         for (int i = 0; i < 2; i++) {
             try {
                 futures[i].get();
-                this.log.info(txs[i] + " #" + (i + 1) + " succeeded on write");
+                this.log.info("{} #{} succeeded on write", txs[i], i + 1);
                 fails[i] = null;
             } catch (Throwable e) {
                 while (e instanceof ExecutionException)
@@ -473,9 +473,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     throw new AssertionError("wrong exception type: " + e, e);
                 final RetryTransactionException retry = (RetryTransactionException)e;
                 //Assert.assertSame(retry.getTransaction(), txs[i]);
-                this.log.info(txs[i] + " #" + (i + 1) + " failed on write");
+                this.log.info("{} #{} failed on write", txs[i], i + 1);
                 if (this.log.isTraceEnabled())
-                    this.log.trace(txs[i] + " #" + (i + 1) + " write failure exception trace:", e);
+                    this.log.info("{} #{} write failure exception trace", txs[i], i + 1, e);
                 fails[i] = "" + e;
             }
         }
@@ -501,7 +501,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (fails[i] == null) {
                 try {
                     futures[i].get();
-                    this.log.info(txs[i] + " #" + (i + 1) + " succeeded on commit");
+                    this.log.info("{} #{} succeeded on commit", txs[i], i + 1);
                     fails[i] = null;
                 } catch (AssertionError e) {
                     throw e;
@@ -515,9 +515,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     assert e instanceof RetryTransactionException : "wrong exception type: " + e;
                     final RetryTransactionException retry = (RetryTransactionException)e;
                     //Assert.assertSame(retry.getTransaction(), txs[i]);
-                    this.log.info(txs[i] + " #" + (i + 1) + " failed on commit");
+                    this.log.info("{} #{} failed on commit", txs[i], i + 1);
                     if (this.log.isTraceEnabled())
-                        this.log.trace(txs[i] + " #" + (i + 1) + " commit failure exception trace:", e);
+                        this.log.trace("{} #{} commit failure exception trace", txs[i], i + 1, e);
                     fails[i] = "" + e;
                 }
             }
@@ -529,7 +529,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
               + "\n  fails[0]: " + fails[0] + "\n  fails[1]: " + fails[1];
         }
         assert fails[0] != null || fails[1] != null : "both transactions succeeded";
-        this.log.info("exactly one transaction failed:\n  fails[0]: " + fails[0] + "\n  fails[1]: " + fails[1]);
+        this.log.info("exactly one transaction failed:\n  fails[0]: {}\n  fails[1]: {}", fails[0], fails[1]);
 
         // Verify the resulting change is consistent with the tx that succeeded
         final KVPair expected = fails[0] == null ? expected1 : fails[1] == null ? expected2 : null;
@@ -556,7 +556,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         // Clear database
-        this.log.info("starting testNonconflictingTransactions() on " + store);
+        this.log.info("starting testNonconflictingTransactions() on {}", store);
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Multiple concurrent transactions with overlapping read ranges and non-intersecting write ranges
@@ -609,7 +609,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 txs[i] = null;
             }
         }
-        this.log.info("finished testNonconflictingTransactions() on " + store);
+        this.log.info("finished testNonconflictingTransactions() on {}", store);
     }
 
     /**
@@ -622,16 +622,16 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
         if (!this.supportsMultipleWriteTransactions()) {
-            this.log.info("skipping testParallelTransactions() on " + store + ": database doesn't support simultaneous writers");
+            this.log.info("skipping testParallelTransactions() on {}: database doesn't support simultaneous writers", store);
             return;
         }
         this.testParallelTransactions(new KVDatabase[] { store });
     }
 
     public void testParallelTransactions(KVDatabase[] stores) throws Exception {
-        this.log.info("starting testParallelTransactions() on " + Arrays.asList(stores));
+        this.log.info("starting testParallelTransactions() on {}", Arrays.asList(stores));
         for (int count = 0; count < this.getParallelTransactionLoopCount(); count++) {
-            this.log.info("starting testParallelTransactions() iteration " + count);
+            this.log.info("starting testParallelTransactions() iteration {}", count);
             final RandomTask[] tasks = new RandomTask[this.getParallelTransactionTaskCount()];
             for (int i = 0; i < tasks.length; i++) {
                 tasks[i] = new RandomTask(i, stores[this.random.nextInt(stores.length)], this.random.nextLong());
@@ -644,9 +644,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 if (fail != null)
                     throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
             }
-            this.log.info("finished testParallelTransactions() iteration " + count);
+            this.log.info("finished testParallelTransactions() iteration {}", count);
         }
-        this.log.info("finished testParallelTransactions() on " + Arrays.asList(stores));
+        this.log.info("finished testParallelTransactions() on {}", Arrays.asList(stores));
         for (KVDatabase store : stores) {
             if (store instanceof Closeable)
                 ((Closeable)store).close();
@@ -662,7 +662,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
      */
     @Test(dataProvider = "kvdbs")
     public void testSequentialTransactions(KVDatabase store) throws Exception {
-        this.log.info("starting testSequentialTransactions() on " + store);
+        this.log.info("starting testSequentialTransactions() on {}", store);
 
         // Clear database
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
@@ -678,7 +678,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (fail != null)
                 throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
         }
-        this.log.info("finished testSequentialTransactions() on " + store);
+        this.log.info("finished testSequentialTransactions() on {}", store);
     }
 
     /**
@@ -691,10 +691,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     @Test(dataProvider = "kvdbs")
     public void testMultipleThreadsTransaction(KVDatabase store) throws Exception {
         if (!this.transactionsAreThreadSafe()) {
-            this.log.info("skipping testMultipleThreadsTransaction() on " + store + ": transactions are not thread safe");
+            this.log.info("skipping testMultipleThreadsTransaction() on {}: transactions are not thread safe", store);
             return;
         }
-        this.log.info("starting testMultipleThreadsTransaction() on " + store);
+        this.log.info("starting testMultipleThreadsTransaction() on {}", store);
 
         // Clear database
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
@@ -743,7 +743,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 }
             }
         });
-        this.log.info("finished testMultipleThreadsTransaction() on " + store);
+        this.log.info("finished testMultipleThreadsTransaction() on {}", store);
     }
 
     /**
@@ -754,7 +754,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
      */
     @Test(dataProvider = "kvdbs")
     public void testApplyMutations(KVDatabase store) throws Exception {
-        this.log.info("starting testApplyMutations() on " + store);
+        this.log.info("starting testApplyMutations() on {}", store);
 
         // Create some mutations
         final RandomTask task = new RandomTask(0, store, this.random.nextLong());
@@ -795,7 +795,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
           + "\n  mutations=" + mutations
           + "\n  expected=" + stringView(expected)
           + "\n  actual=" + stringView(actual) */);
-        this.log.info("finished testApplyMutations() on " + store);
+        this.log.info("finished testApplyMutations() on {}", store);
     }
 
 // RandomTask
@@ -824,22 +824,22 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             this.committedDataView = stringView(this.committedData);
             this.random = new Random(seed);
             this.randomSleeps = committedData == null;       // only add random sleeps in parallel mode
-            this.log("seed = " + seed);
+            this.log("seed = {}", seed);
         }
 
         @Override
         public void run() {
-            KVDatabaseTest.this.log.debug("*** " + this + " STARTING");
+            KVDatabaseTest.this.log.debug("*** {} STARTING", this);
             try {
                 this.test();
                 this.log("succeeded");
             } catch (Throwable t) {
                 final StringWriter buf = new StringWriter();
                 t.printStackTrace(new PrintWriter(buf, true));
-                this.log("failed: " + t + "\n" + buf.toString());
+                this.log("failed: {}\n{}", t, buf);
                 this.fail = t;
             } finally {
-                KVDatabaseTest.this.log.debug("*** " + this + " FINISHED");
+                KVDatabaseTest.this.log.debug("*** {} FINISHED", this);
                 this.dumpLog(this.fail != null);
             }
         }
@@ -871,7 +871,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Create transaction; every now and then, do transaction read-only
             final KVTransaction tx = KVDatabaseTest.this.createKVTransaction(this.store);
             final boolean readOnly = this.r(100) < 3;
-            KVDatabaseTest.this.log.debug("*** CREATED " + (readOnly ? "R/O" : "R/W") + " TX " + tx);
+            KVDatabaseTest.this.log.debug("*** CREATED {} TX {}", readOnly ? "R/O" : "R/W", tx);
             assert !tx.isReadOnly();
             if (readOnly) {
                 tx.setReadOnly(true);
@@ -905,7 +905,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     if (option < 10) {                                              // get
                         key = this.rb(1, false);
                         val = tx.get(key);
-                        this.log("get: " + s(key) + " -> " + s(val));
+                        this.log("get: {} -> {}", s(key), s(val));
                         if (val == null) {
                             assert !knownValues.containsKey(key) :
                               this + ": get(" + s(key) + ") returned null but"
@@ -929,7 +929,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     } else if (option < 20) {                                       // put
                         key = this.rb(1, false);
                         val = this.rb(2, true);
-                        this.log("put: " + s(key) + " -> " + s(val));
+                        this.log("put: {} -> {}", s(key), s(val));
                         tx.put(key, val);
                         knownValues.put(key, val);
                         putValues.add(key);
@@ -941,7 +941,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             max = this.rb2(this.r(2) + 1, 20);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
                         pair = tx.getAtLeast(min, max);
-                        this.log("getAtLeast: " + s(min) + "," + s(max) + " -> " + s(pair));
+                        this.log("getAtLeast: {},{} -> {}", s(min), s(max), s(pair));
                         assert pair == null || ByteUtil.compare(pair.getKey(), min) >= 0;
                         assert pair == null || max == null || ByteUtil.compare(pair.getKey(), max) < 0;
                         if (pair == null) {
@@ -968,7 +968,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             min = this.rb2(this.r(2) + 1, 20);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
                         pair = tx.getAtMost(max, min);
-                        this.log("getAtMost: " + s(max) + "," + s(min) + " -> " + s(pair));
+                        this.log("getAtMost: {},{} -> {}", s(max), s(min), s(pair));
                         assert pair == null || min == null || ByteUtil.compare(pair.getKey(), min) >= 0;
                         assert pair == null || ByteUtil.compare(pair.getKey(), max) < 0;
                         if (pair == null) {
@@ -995,7 +995,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         key = this.rb(1, false);
                         if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false), null)) != null)
                             key = pair.getKey();
-                        this.log("remove: " + s(key));
+                        this.log("remove: {}", s(key));
                         tx.remove(key);
                         knownValues.remove(key);
                         putValues.remove(key);
@@ -1006,7 +1006,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         do {
                             max = this.rb2(2, 30);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
-                        this.log("removeRange: " + s(min) + " to " + s(max));
+                        this.log("removeRange: {} to {}", s(min), s(max));
                         tx.removeRange(min, max);
                         if (min == null && max == null) {
                             knownValues.clear();
@@ -1031,9 +1031,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         if (val != null) {
                             try {
                                 counter = tx.decodeCounter(val);
-                                this.log("adj: found valid value " + s(val) + " (" + counter + ") at key " + s(key));
+                                this.log("adj: found valid value {} ({}) at key {}", s(val), counter, s(key));
                             } catch (IllegalArgumentException e) {
-                                this.log("adj: found bogus value " + s(val) + " at key " + s(key));
+                                this.log("adj: found bogus value {} key {}", s(val), s(key));
                                 val = null;
                             }
                         }
@@ -1042,18 +1042,18 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             final byte[] encodedCounter = tx.encodeCounter(counter);
                             tx.put(key, encodedCounter);
                             putValues.add(key);
-                            this.log("adj: initialize " + s(key) + " to " + s(encodedCounter));
+                            this.log("adj: initialize {} to {}", s(key), s(encodedCounter));
                         }
                         final long adj = this.random.nextInt(1 << this.random.nextInt(24)) - 1024;
                         final byte[] encodedCounter = tx.encodeCounter(counter + adj);
-                        this.log("adj: " + s(key) + " by " + adj + " -> should now be " + s(encodedCounter));
+                        this.log("adj: {} by {} -> should now be {}", s(key), adj, s(encodedCounter));
                         tx.adjustCounter(key, adj);
                         knownValues.put(key, encodedCounter);
                         knownEmpty.remove(new KeyRange(key));
                         knownValuesChanged = true;
                     } else if (this.randomSleeps) {                                 // sleep
                         final int millis = this.r(50);
-                        this.log("sleep " + millis + "ms");
+                        this.log("sleep {}ms", millis);
                         try {
                             Thread.sleep(millis);
                         } catch (InterruptedException e) {
@@ -1062,7 +1062,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     }
                     if (knownValuesChanged) {
                         this.log("new values:"
-                          + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView + "\n  emptys=" + knownEmpty);
+                          + "\n  knowns={}"
+                          + "\n  puts={}"
+                          + "\n  emptys={}",
+                          knownValuesView,
+                          putValuesView,
+                          knownEmpty);
                     }
 
                     // Verify everything we know to be there is there
@@ -1090,11 +1095,18 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
                 // Maybe commit
                 final boolean rollback = this.r(5) == 3;
-                KVDatabaseTest.this.log.debug("*** " + (rollback ? "ROLLING BACK" : "COMMITTING")
-                  + (readOnly ? " R/O" : " R/W") + " TX " + tx);
-                this.log("about to " + (rollback ? "rollback" : "commit") + ":"
-                  + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView + "\n  emptys=" + knownEmpty
-                  + "\n  committed: " + committedDataView);
+                KVDatabaseTest.this.log.debug("*** {} {} TX {}",
+                  rollback ? "ROLLING BACK" : "COMMITTING", readOnly ? "R/O" : "R/W", tx);
+                this.log("about to {}:"
+                  + "\n  knowns={}"
+                  + "\n  puts={}"
+                  + "\n  emptys={}"
+                  + "\n  committed: {}",
+                  rollback ? "rollback" : "commit",
+                  knownValuesView,
+                  putValuesView,
+                  knownEmpty,
+                  committedDataView);
                 if (rollback) {
                     tx.rollback();
                     committed = false;
@@ -1108,17 +1120,17 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         throw e;
                     }
                     committed = true;
-                    KVDatabaseTest.this.log.debug("*** COMMITTED TX " + tx);
+                    KVDatabaseTest.this.log.debug("*** COMMITTED TX {}", tx);
                     this.log("committed");
                 }
 
             } catch (TransactionTimeoutException e) {
-                KVDatabaseTest.this.log.debug("*** TX " + tx + " THREW " + e);
-                this.log("got " + e);
+                KVDatabaseTest.this.log.debug("*** TX {} THREW {}", tx, e.toString());
+                this.log("got {}", e.toString());
                 committed = false;
             } catch (RetryTransactionException e) {             // might have committed, might not have, we don't know for sure
-                KVDatabaseTest.this.log.debug("*** TX " + tx + " THREW " + e);
-                this.log("got " + e);
+                KVDatabaseTest.this.log.debug("*** TX {} THREW {}", tx, e.toString());
+                this.log("got {}", e.toString());
             }
 
             // Doing this should always be allowed and shouldn't affect anything
@@ -1146,7 +1158,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 } else if (Boolean.FALSE.equals(committed) || readOnly) {
 
                     // Verify
-                    this.log("tx was definitely rolled back (committed=" + committed + ", readOnly=" + readOnly + ")");
+                    this.log("tx was definitely rolled back (committed={}, readOnly={})", committed, readOnly);
                     assert actualView.equals(committedDataView) :
                       this + "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + committedDataView + "\n";
                     committed = false;
@@ -1183,13 +1195,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         }
 
         public void runRandomAccess(KVStore tx) {
-            KVDatabaseTest.this.log.debug("*** " + this + " runRandomAccess() STARTING");
+            KVDatabaseTest.this.log.debug("*** {} runRandomAccess() STARTING", this);
             try {
                 this.performRandomAccess(tx);
             } catch (Throwable t) {
                 this.fail = t;
             } finally {
-                KVDatabaseTest.this.log.debug("*** " + this + " runRandomAccess() FINISHED");
+                KVDatabaseTest.this.log.debug("*** {} runRandomAccess() FINISHED", this);
             }
         }
 
@@ -1277,7 +1289,16 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             return buf.toString();
         }
 
-        private void log(String s) {
+        private void log(String s, Object... args) {
+            final int numArgs = args.length;
+            if (args.length > 0) {
+                final String[] parts = s.split("\\{\\}", numArgs + 1);
+                final StringBuilder buf = new StringBuilder();
+                for (int i = 0; i < parts.length - 1; i++)
+                    buf.append(parts[i]).append(args[i]);
+                buf.append(parts[parts.length - 1]);
+                s = buf.toString();
+            }
             this.log.add(s);
         }
 
@@ -1288,7 +1309,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 final StringBuilder buf = new StringBuilder(this.log.size() * 40);
                 for (String s : this.log)
                     buf.append(s).append('\n');
-                KVDatabaseTest.this.log.debug("*** BEGIN " + this + " LOG ***\n\n{}\n*** END " + this + " LOG ***", buf);
+                KVDatabaseTest.this.log.debug("*** BEGIN {} LOG ***\n\n{}\n*** END {} LOG ***", this, buf, this);
             }
         }
 
@@ -1338,15 +1359,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         public byte[] call() {
             if (this.range) {
                 if (KVDatabaseTest.this.log.isTraceEnabled())
-                    KVDatabaseTest.this.log.trace("reading at least " + s(this.key) + " in " + this.tx);
+                    KVDatabaseTest.this.log.trace("reading at least {} in {}", s(this.key), this.tx);
                 final KVPair pair = this.tx.getAtLeast(this.key, null);
-                KVDatabaseTest.this.log.info("finished reading at least " + s(this.key) + " -> " + pair + " in " + this.tx);
+                KVDatabaseTest.this.log.info("finished reading at least {} -> {} in {}", s(this.key), pair, this.tx);
                 return pair != null ? pair.getValue() : null;
             } else {
                 if (KVDatabaseTest.this.log.isTraceEnabled())
-                    KVDatabaseTest.this.log.trace("reading " + s(this.key) + " in " + this.tx);
+                    KVDatabaseTest.this.log.trace("reading {} in {}", s(this.key), this.tx);
                 final byte[] value = this.tx.get(this.key);
-                KVDatabaseTest.this.log.info("finished reading " + s(this.key) + " -> " + s(value) + " in " + this.tx);
+                KVDatabaseTest.this.log.info("finished reading {} -> {} in {}", s(this.key), s(value), this.tx);
                 return value;
             }
         }
@@ -1369,14 +1390,14 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         @Override
         public void run() {
             try {
-                KVDatabaseTest.this.log.info("putting " + s(this.key) + " -> " + s(this.value) + " in " + this.tx);
+                KVDatabaseTest.this.log.info("putting {} -> {} in {}", s(this.key), s(this.value), this.tx);
                 this.tx.put(this.key, this.value);
             } catch (RuntimeException e) {
-                KVDatabaseTest.this.log.info("exception putting " + s(this.key) + " -> " + s(this.value)
-                  + " in " + this.tx + ": " + e);
+                KVDatabaseTest.this.log.info("exception putting {} -> {} in {}: {}",
+                  s(this.key), s(this.value), this.tx, e.toString());
                 if (KVDatabaseTest.this.log.isTraceEnabled()) {
-                    KVDatabaseTest.this.log.trace(this.tx + " put " + s(this.key) + " -> " + s(this.value)
-                      + " failure exception trace:", e);
+                    KVDatabaseTest.this.log.trace("{} put {} -> {} failure exception trace",
+                      this.tx, s(this.key), s(this.value), e);
                 }
                 throw e;
             }
@@ -1396,15 +1417,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         @Override
         public void run() {
             try {
-                KVDatabaseTest.this.log.info("committing " + this.tx);
+                KVDatabaseTest.this.log.info("committing {}", this.tx);
                 KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
                 this.tx.commit();
             } catch (RuntimeException e) {
                 if (e instanceof RetryTransactionException)
                     KVDatabaseTest.this.updateRetryStats((RetryTransactionException)e);
-                KVDatabaseTest.this.log.info("exception committing " + this.tx + ": " + e);
+                KVDatabaseTest.this.log.info("exception committing {}: {}", this.tx, e.toString());
                 if (KVDatabaseTest.this.log.isTraceEnabled())
-                    KVDatabaseTest.this.log.trace(this.tx + " commit failure exception trace:", e);
+                    KVDatabaseTest.this.log.trace("{} commit failure exception trace", this.tx, e);
                 throw e;
             }
         }

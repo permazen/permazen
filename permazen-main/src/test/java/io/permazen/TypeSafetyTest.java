@@ -91,7 +91,7 @@ public class TypeSafetyTest extends TestSupport {
             tx.writeSimpleField(f1, 12, f1, false);                         // foo1.setBar(foo1)
             assert false : "expected IllegalArgumentException";
         } catch (IllegalArgumentException e) {
-            this.log.info("got expected exception: " + e);
+            this.log.info("got expected exception: {}", e.toString());
         }
         Assert.assertEquals(tx.readSimpleField(f1, 12, false), b2);         // verify foo1.getBar() == bar2
 
@@ -155,14 +155,14 @@ public class TypeSafetyTest extends TestSupport {
                 jtx.getTransaction().writeSimpleField(bar1.getObjId(), 21, f1, false);
                 assert false : "expected IllegalArgumentException";
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected exception: " + e);
+                this.log.info("got expected exception: {}", e.toString());
             }
             //  via JDB API...
             try {
                 jtx.writeSimpleField(bar1, 21, foo1, false);
                 assert false : "expected IllegalArgumentException";
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected exception: " + e);
+                this.log.info("got expected exception: {}", e.toString());
             }
 
             // Try to upgrade Foo

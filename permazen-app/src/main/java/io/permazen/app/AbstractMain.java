@@ -223,11 +223,11 @@ public abstract class AbstractMain extends MainClass {
             final boolean isModel = modelPackages.contains(packageName);
             final boolean isType = typePackages.contains(packageName);
             if (isModel && isType)
-                this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");
+                this.log.warn("no Java model or custom FieldType classes found under package `{}'", packageName);
             else if (isModel)
-                this.log.warn("no Java model classes found under package `" + packageName + "'");
+                this.log.warn("no Java model classes found under package `{}'", packageName);
             else
-                this.log.warn("no custom FieldType classes found under package `" + packageName + "'");
+                this.log.warn("no custom FieldType classes found under package `{}'", packageName);
         }
 
         // Done
@@ -301,7 +301,7 @@ public abstract class AbstractMain extends MainClass {
             this.schemaClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
         new PermazenClassScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
-          .peek(name -> this.log.debug("loading Java model class " + name))
+          .peek(name -> this.log.debug("loading Java model class {}", name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
           .forEach(this.schemaClasses::add);
@@ -314,7 +314,7 @@ public abstract class AbstractMain extends MainClass {
             this.fieldTypeClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
         new PermazenFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
-          .peek(name -> this.log.debug("loading custom FieldType class " + name))
+          .peek(name -> this.log.debug("loading custom FieldType class {}", name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
           .map(cl -> {
@@ -393,7 +393,7 @@ public abstract class AbstractMain extends MainClass {
 
         // Start up database
         this.databaseDescription = this.getDescription(this.kvImplementation, config);
-        this.log.debug("using database: " + this.databaseDescription);
+        this.log.debug("using database: {}", this.databaseDescription);
         this.kvdb.start();
 
         // Construct core API Database

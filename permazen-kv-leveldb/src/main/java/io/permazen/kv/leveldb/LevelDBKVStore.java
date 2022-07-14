@@ -64,7 +64,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
         this.readOptions = readOptions != null ? readOptions : new ReadOptions();
         this.writeBatch = writeBatch;
         if (this.log.isTraceEnabled())
-            this.log.trace("created " + this);
+            this.log.trace("created {}", this);
     }
 
     /**
@@ -158,7 +158,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
             return;
         this.closed = true;
         if (this.log.isTraceEnabled())
-            this.log.trace("closing " + this);
+            this.log.trace("closing {}", this);
         this.cursorTracker.close();
     }
 
@@ -197,11 +197,11 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.maxKey = maxKey;
             this.reverse = reverse;
             if (LevelDBKVStore.this.log.isTraceEnabled())
-                LevelDBKVStore.this.log.trace("created " + this);
+                LevelDBKVStore.this.log.trace("created {}", this);
             if (reverse) {
                 if (maxKey != null) {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
-                        LevelDBKVStore.this.log.trace("seek to " + ByteUtil.toString(maxKey));
+                        LevelDBKVStore.this.log.trace("seek to {}", ByteUtil.toString(maxKey));
                     this.cursor.seek(maxKey);
                 } else {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
@@ -211,7 +211,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
             } else {
                 if (minKey != null) {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
-                        LevelDBKVStore.this.log.trace("seek to " + ByteUtil.toString(minKey));
+                        LevelDBKVStore.this.log.trace("seek to {}", ByteUtil.toString(minKey));
                     this.cursor.seek(minKey);
                 }
             }
@@ -242,7 +242,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
             Preconditions.checkState(!this.closed, "closed");
             Preconditions.checkState(this.removeKey != null);
             if (LevelDBKVStore.this.log.isTraceEnabled())
-                LevelDBKVStore.this.log.trace("remove " + ByteUtil.toString(this.removeKey));
+                LevelDBKVStore.this.log.trace("remove {}", ByteUtil.toString(this.removeKey));
             LevelDBKVStore.this.remove(this.removeKey);
             this.removeKey = null;
         }
@@ -258,10 +258,10 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
             try {
                 this.next = new KVPair(this.reverse ? this.cursor.prev() : this.cursor.next());
                 if (LevelDBKVStore.this.log.isTraceEnabled())
-                    LevelDBKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> " + this.next);
+                    LevelDBKVStore.this.log.trace("seek {} -> {}", this.reverse ? "previous" : "next", this.next);
             } catch (NoSuchElementException e) {
                 if (LevelDBKVStore.this.log.isTraceEnabled())
-                    LevelDBKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> NO MORE");
+                    LevelDBKVStore.this.log.trace("seek {} -> {}", this.reverse ? "previous" : "next", "NO MORE");
                 this.finished = true;
                 return false;
             }
@@ -271,8 +271,8 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
               (this.minKey != null && ByteUtil.compare(this.next.getKey(), this.minKey) < 0) :
               (this.maxKey != null && ByteUtil.compare(this.next.getKey(), this.maxKey) >= 0)) {
                 if (LevelDBKVStore.this.log.isTraceEnabled()) {
-                    LevelDBKVStore.this.log.trace("stopping at bound "
-                      + ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));
+                    LevelDBKVStore.this.log.trace("stopping at bound {}",
+                      ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));
                 }
                 this.next = null;
                 this.finished = true;
@@ -291,7 +291,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 return;
             this.closed = true;
             if (LevelDBKVStore.this.log.isTraceEnabled())
-                LevelDBKVStore.this.log.trace("closing " + this);
+                LevelDBKVStore.this.log.trace("closing {}", this);
             try {
                 this.cursor.close();
             } catch (Throwable e) {

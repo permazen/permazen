@@ -140,7 +140,7 @@ public class OnChangeWildcardTest extends TestSupport {
             BasicTest.getPermazen(Person.class, cl);
             assert false;
         } catch (IllegalArgumentException e) {
-            this.log.info("got expected exception from " + cl + ": " + e);
+            this.log.info("got expected exception from {}: {}", cl, e.toString());
         }
     }
 

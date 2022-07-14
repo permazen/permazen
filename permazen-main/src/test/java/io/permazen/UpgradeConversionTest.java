@@ -132,7 +132,7 @@ public class UpgradeConversionTest extends TestSupport {
                 jobj2.upgrade();
                 assert false : "expected UpgradeConversionException";
             } catch (UpgradeConversionException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             jtx.commit();

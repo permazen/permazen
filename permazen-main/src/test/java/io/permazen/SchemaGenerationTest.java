@@ -30,7 +30,7 @@ public class SchemaGenerationTest extends TestSupport {
             factory.newPermazen();
             assert false;
         } catch (IllegalArgumentException e) {
-            this.log.info("got expected " + e);
+            this.log.info("got expected {}", e.toString());
         }
     }
 

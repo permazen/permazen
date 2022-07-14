@@ -162,7 +162,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             a.setField2(Thread.State.TERMINATED);
@@ -244,7 +244,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             c.setField2(Thread.State.RUNNABLE);
@@ -256,7 +256,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             a.setField2(Thread.State.TERMINATED);
@@ -282,7 +282,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             c.setField3(4567);
@@ -294,7 +294,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             b.setField1(a);
@@ -351,7 +351,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             a.setField1(c);
@@ -385,7 +385,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             for (Thread.State s : new Thread.State[] {
@@ -437,7 +437,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             a.setField1(null);
@@ -468,7 +468,7 @@ public class CompositeIndexTest extends TestSupport {
                 jtx.validate();
                 assert false;
             } catch (ValidationException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             c.setField1(d);

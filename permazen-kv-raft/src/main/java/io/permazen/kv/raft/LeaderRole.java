@@ -133,7 +133,7 @@ public class LeaderRole extends Role {
     private void doStepDown(String reason) {
         synchronized (this.raft) {
             Preconditions.checkState(this.raft.role == this, "role is no longer active");
-            this.info("stepping down as leader: " + reason);
+            this.info("stepping down as leader: {}", reason);
             this.raft.changeRole(new FollowerRole(this.raft));
         }
     }
@@ -145,7 +145,7 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         super.setup();
         if (this.log.isDebugEnabled())
-            this.debug("entering leader role in term " + this.raft.currentTerm);
+            this.debug("entering leader role in term {}", this.raft.currentTerm);
 
         // Generate follower list
         this.updateKnownFollowers();
@@ -161,7 +161,7 @@ public class LeaderRole extends Role {
             return;
         }
         if (this.log.isDebugEnabled())
-            this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
+            this.debug("added log entry {} to commit at the beginning of my new term", logEntry);
 
         // Rebase transactions
         this.rebaseTransactions(false);
@@ -190,7 +190,7 @@ public class LeaderRole extends Role {
           .filter(follower -> follower.getAddress().equals(address))
           .forEach(follower -> {
             if (this.log.isTraceEnabled())
-                this.trace("updating peer \"" + follower.getIdentity() + "\" after queue empty notification");
+                this.trace("updating peer \"{}\" after queue empty notification", follower.getIdentity());
             this.raft.requestService(follower.getUpdateService());
         });
     }
@@ -259,8 +259,8 @@ public class LeaderRole extends Role {
 
             // Update index
             if (this.log.isDebugEnabled()) {
-                this.debug("advancing commit index from " + this.raft.commitIndex + " -> " + maxCommitIndex + " based on "
-                  + commitCount + "/" + totalCount + " nodes having received " + this.raft.log.getEntryAtIndex(maxCommitIndex));
+                this.debug("advancing commit index from {} -> {} based on {}/{} nodes having received {}",
+                  this.raft.commitIndex, maxCommitIndex, commitCount, totalCount, this.raft.log.getEntryAtIndex(maxCommitIndex));
             }
             this.raft.commitIndex = maxCommitIndex;
 
@@ -343,7 +343,7 @@ public class LeaderRole extends Role {
 
             // Update my leader lease timeout
             if (this.log.isTraceEnabled())
-                this.trace("updating my lease timeout from " + this.leaseTimeout + " -> " + newLeaseTimeout);
+                this.trace("updating my lease timeout from {} -> {}", this.leaseTimeout, newLeaseTimeout);
             this.leaseTimeout = newLeaseTimeout;
 
             // Notify any followers who care
@@ -371,27 +371,27 @@ public class LeaderRole extends Role {
             final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
             if (leaderTimestamp != null && leaderTimestamp.isRolloverDanger()) {
                 if (this.log.isDebugEnabled())
-                    this.debug("scrubbing " + follower + " leader timestamp " + leaderTimestamp);
+                    this.debug("scrubbing {} timestamp {}", follower, leaderTimestamp);
                 follower.setLeaderTimestamp(null);
             }
             final Timestamp snapshotTimestamp = follower.getSnapshotTimestamp();
             if (snapshotTimestamp != null && snapshotTimestamp.isRolloverDanger()) {
                 if (this.log.isDebugEnabled())
-                    this.debug("scrubbing " + follower + " snapshot timestamp " + snapshotTimestamp);
+                    this.debug("scrubbing {} snapshot timestamp {}", follower, snapshotTimestamp);
                 follower.setSnapshotTimestamp(null);
             }
             for (Iterator<Timestamp> i = follower.getCommitLeaseTimeouts().iterator(); i.hasNext(); ) {
                 final Timestamp leaseTimestamp = i.next();
                 if (leaseTimestamp.isRolloverDanger()) {
                     if (this.log.isDebugEnabled())
-                        this.debug("scrubbing " + follower + " commit lease timestamp " + leaseTimestamp);
+                        this.debug("scrubbing {} commit lease timestamp {}", follower, leaseTimestamp);
                     i.remove();
                 }
             }
         }
         if (this.leaseTimeout != null && this.leaseTimeout.isRolloverDanger()) {
             if (this.log.isDebugEnabled())
-                this.debug("scrubbing leader lease timestamp " + this.leaseTimeout);
+                this.debug("scrubbing leader lease timestamp {}", this.leaseTimeout);
             this.leaseTimeout = null;
         }
 
@@ -442,7 +442,7 @@ public class LeaderRole extends Role {
             final String address = this.raft.currentConfig.get(peer);
             final Follower follower = new Follower(this, peer, address, this.raft.log.getLastIndex());
             if (this.log.isDebugEnabled())
-                this.debug("adding new follower \"" + peer + "\" at " + address);
+                this.debug("adding new follower \"{}\" at {}", peer, address);
             this.followerMap.put(peer, follower);
             follower.updateNow();                                               // schedule an immediate update
         }
@@ -451,7 +451,7 @@ public class LeaderRole extends Role {
         for (String peer : dels) {
             final Follower follower = this.followerMap.remove(peer);
             if (this.log.isDebugEnabled())
-                this.debug("removing old follower \"" + peer + "\"");
+                this.debug("removing old follower \"{}\"", peer);
             follower.cleanup();
         }
     }
@@ -487,7 +487,7 @@ public class LeaderRole extends Role {
         SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
         if (snapshotTransmit != null && snapshotTransmit.getAge() > MAX_SNAPSHOT_AGE) {
             if (this.raft.isPerfLogEnabled())
-                this.perfLog("aborting stale snapshot install for " + follower + " (age " + snapshotTransmit.getAge() + "ms)");
+                this.perfLog("aborting stale snapshot install for {} (age {}ms)", follower, snapshotTransmit.getAge());
             follower.cancelSnapshotTransmit();
             follower.updateNow();
         }
@@ -495,7 +495,7 @@ public class LeaderRole extends Role {
         // Is follower's queue empty? If not, hold off until then
         if (this.raft.isTransmitting(follower.getAddress())) {
             if (this.log.isTraceEnabled())
-                this.trace("no update for \"" + peer + "\": output queue still not empty");
+                this.trace("no update for \"{}\": output queue still not empty", peer);
             return;
         }
 
@@ -517,14 +517,14 @@ public class LeaderRole extends Role {
                     return;
                 }
                 if (this.raft.isPerfLogEnabled())
-                    this.perfLog("canceling snapshot install for " + follower + " due to failure to send " + msg);
+                    this.perfLog("canceling snapshot install for {} due to failure to send {}", follower, msg);
 
                 // Message failed -> snapshot is fatally wounded, so cancel it
                 synced = false;
             }
             if (synced) {
                 if (this.raft.isPerfLogEnabled())
-                    this.perfLog("completed snapshot install for out-of-date " + follower);
+                    this.perfLog("completed snapshot install for out-of-date {}", follower);
             }
 
             // Snapshot transmit is complete (or failed)
@@ -555,8 +555,8 @@ public class LeaderRole extends Role {
             // Wait for timer to expire
             if (waitForTimerToExpire) {
                 if (this.log.isTraceEnabled()) {
-                    this.trace("no update for \"" + follower.getIdentity() + "\": timer not expired yet, and follower is "
-                      + (follower.isSynced() ? "up to date" : "not synced"));
+                    this.trace("no update for \"{}\": timer not expired yet, and follower is {}",
+                      follower.getIdentity(), follower.isSynced() ? "up to date" : "not synced");
                 }
                 return;
             }
@@ -579,8 +579,8 @@ public class LeaderRole extends Role {
             follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
               view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
             if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("started snapshot install for out-of-date " + follower
-                  + " with nextIndex " + nextIndex + " <= " + this.raft.log.getLastAppliedIndex());
+                this.perfLog("started snapshot install for out-of-date {} with nextIndex {} <= {}",
+                  follower, nextIndex, this.raft.log.getLastAppliedIndex());
             }
             follower.getSkipDataLogEntries().clear();               // avoid memory leak if snapshot leapfrogs follower log entries
             this.raft.requestService(follower.getUpdateService());
@@ -610,7 +610,7 @@ public class LeaderRole extends Role {
                 try {
                     mutationData = logEntry.getContent();
                 } catch (IOException e) {
-                    this.error("error reading log file " + logEntry.getFile(), e);
+                    this.error("error reading log file {}", logEntry.getFile(), e);
                     return;
                 }
             }
@@ -710,7 +710,7 @@ public class LeaderRole extends Role {
                 throw new KVTransactionException(tx, "error attempting to persist transaction", e);
             }
             if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " for local transaction " + tx);
+                this.debug("added log entry {} for local transaction {}", logEntry, tx);
 
             // Update transaction
             this.advanceReadyTransactionWithCommitInfo(tx, logEntry.getTerm(), logEntry.getIndex(), null);
@@ -804,14 +804,14 @@ public class LeaderRole extends Role {
         // Ignore if a snapshot install is in progress
         if (follower.getSnapshotTransmit() != null) {
             if (this.log.isTraceEnabled())
-                this.trace("rec'd " + msg + " while sending snapshot install; ignoring");
+                this.trace("rec'd {} while sending snapshot install; ignoring", msg);
             return;
         }
 
         // Ignore a response to a request that was sent prior to the most resent snapshot install
         if (follower.getSnapshotTimestamp() != null && msg.getLeaderTimestamp().compareTo(follower.getSnapshotTimestamp()) < 0) {
             if (this.log.isTraceEnabled())
-                this.trace("rec'd " + msg + " sent prior to snapshot install; ignoring");
+                this.trace("rec'd {} sent prior to snapshot install; ignoring", msg);
             return;
         }
 
@@ -846,7 +846,7 @@ public class LeaderRole extends Role {
 
         // Debug
         if (this.log.isTraceEnabled())
-            this.trace("updated follower: " + follower + ", update again = " + updateFollowerAgain);
+            this.trace("updated follower: {}, update again = {}", follower, updateFollowerAgain);
 
         // Immediately update follower again (if appropriate)
         if (updateFollowerAgain)
@@ -871,7 +871,7 @@ public class LeaderRole extends Role {
             try {
                 reads = new Reads(new ByteBufferInputStream(msg.getReadsData()));
             } catch (Exception e) {
-                this.error("error decoding reads data in " + msg, e);
+                this.error("error decoding reads data in {}", msg, e);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
                 return;
@@ -882,7 +882,7 @@ public class LeaderRole extends Role {
               this.raft.dumpConflicts ? msg.getSenderId() + " txId=" + msg.getTxId() : null);
             if (conflictMsg != null) {
                 if (this.log.isDebugEnabled())
-                    this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
+                    this.debug("commit request {} failed due to conflict: {}", msg, conflictMsg);
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                   this.raft.currentTerm, msg.getTxId(), conflictMsg));
                 return;
@@ -938,15 +938,15 @@ public class LeaderRole extends Role {
                     logEntry = this.applyNewLogEntry(newLogEntry);
                 } catch (Exception e) {
                     if (!(e instanceof IllegalStateException))
-                        this.error("error appending new log entry for " + msg, e);
+                        this.error("error appending new log entry for {}", msg, e);
                     else if (this.log.isDebugEnabled())
-                        this.debug("error appending new log entry for " + msg + ": " + e);
+                        this.debug("error appending new log entry for {}: {}", msg, e.toString());
                     this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                       this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
                     return;
                 }
                 if (this.log.isDebugEnabled())
-                    this.debug("added log entry " + logEntry + " for rec'd " + msg);
+                    this.debug("added log entry {} for rec'd {}", logEntry, msg);
 
                 // Rebase transactions
                 this.rebaseTransactions(needHighPriorityCheck);
@@ -979,7 +979,7 @@ public class LeaderRole extends Role {
 
         // Too late dude, I already won the election
         if (this.log.isDebugEnabled())
-            this.debug("ignoring " + msg + " rec'd while in " + this);
+            this.debug("ignoring {} rec'd while in {}", msg, this);
     }
 
     @Override
@@ -988,7 +988,7 @@ public class LeaderRole extends Role {
 
         // Thanks and all, but I already won the election
         if (this.log.isDebugEnabled())
-            this.debug("ignoring " + msg + " rec'd while in " + this);
+            this.debug("ignoring {} rec'd while in {}", msg, this);
     }
 
     private void failDuplicateLeader(Message msg) {
@@ -996,9 +996,9 @@ public class LeaderRole extends Role {
 
         // This should never happen - same term but two different leaders
         final boolean defer = this.raft.identity.compareTo(msg.getSenderId()) <= 0;
-        this.error("detected a duplicate leader in " + msg + " - should never happen; possible inconsistent cluster"
-          + " configuration on " + msg.getSenderId() + " (mine: " + this.raft.currentConfig + "); "
-          + (defer ? "reverting to follower" : "ignoring"));
+        this.error("detected a duplicate leader in {} - should never happen;"
+          + " possible inconsistent cluster configuration on {} (mine: {}); {}",
+          msg, msg.getSenderId(), this.raft.currentConfig, defer ? "reverting to follower" : "ignoring");
         if (defer)
             this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
     }
@@ -1154,7 +1154,7 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         final Follower follower = this.followerMap.get(msg.getSenderId());
         if (follower == null)
-            this.warn("rec'd " + msg + " from unknown follower \"" + msg.getSenderId() + "\", ignoring");
+            this.warn("rec'd {} from unknown follower \"{}\", ignoring", msg, msg.getSenderId());
         return follower;
     }
 }

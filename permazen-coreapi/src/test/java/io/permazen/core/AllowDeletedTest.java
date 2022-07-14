@@ -85,7 +85,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             tx.writeSimpleField(id1, 10, deleted1, true);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         tx.writeSimpleField(id1, 11, deleted1, true);
 
@@ -96,7 +96,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             ((Set)tx.readSetField(id1, 20, true)).add(deleted1);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         ((Set)tx.readSetField(id1, 20, true)).add(id3);
 
@@ -113,7 +113,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             ((List)tx.readListField(id1, 30, true)).add(deleted1);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         Assert.assertEquals(tx.readListField(id1, 30, true).size(), 2);
         ((List)tx.readListField(id1, 30, true)).add(id3);
@@ -123,7 +123,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             ((List)tx.readListField(id1, 30, true)).set(2, deleted1);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         Assert.assertEquals(tx.readListField(id1, 30, true).size(), 3);
         Assert.assertEquals(tx.readListField(id1, 30, true).get(2), id3);
@@ -141,7 +141,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             ((Map)tx.readMapField(id1, 40, true)).put(deleted1, id3);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         ((Map)tx.readMapField(id1, 40, true)).put(id4, deleted2);
 
@@ -152,7 +152,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             ((Map)tx.readMapField(id1, 41, true)).put(deleted2, id4);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
 
         tx.commit();
@@ -180,17 +180,17 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.create(id1);
         stx.writeSimpleField(id1, 10, deleted1, true);
         try {
-            this.log.info("doing copy #1: id=" + id1 + " tx=" + tx + " stx=" + stx);
+            this.log.info("doing copy #1: id={} tx={} stx={}", id1, tx, stx);
             stx.copy(id1, tx, true, false, null, null);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         assert !tx.exists(id1);
         final ObjIdMap<ReferenceField> deletedAssignments = new ObjIdMap<>();
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         assert tx.exists(id1);
-        this.log.info("deletedAssignments = " + deletedAssignments);
+        this.log.info("deletedAssignments = {}", deletedAssignments);
         checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(10, true)));
 
         // ref2
@@ -216,7 +216,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();
@@ -240,7 +240,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();
@@ -273,7 +273,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
         } catch (DeletedObjectException e) {
-            this.log.info("got expected exception:\n  " + e);
+            this.log.info("got expected {}", e.toString());
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();

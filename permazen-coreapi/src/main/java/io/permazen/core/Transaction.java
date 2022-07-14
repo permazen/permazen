@@ -356,7 +356,7 @@ public class Transaction {
 
         // Rollback only?
         if (this.rollbackOnly) {
-            this.log.debug("commit() invoked on transaction " + this + " marked rollback-only, rolling back");
+            this.log.debug("commit() invoked on transaction {} marked rollback-only, rolling back", this);
             this.rollback();
             throw new RollbackOnlyTransactionException(this);
         }
@@ -364,14 +364,14 @@ public class Transaction {
 
         // Do beforeCommit() and beforeCompletion() callbacks
         if (this.log.isTraceEnabled())
-            this.log.trace("commit() invoked on" + (this.isReadOnly() ? " read-only" : "") + " transaction " + this);
+            this.log.trace("commit() invoked on{} transaction {}", this.isReadOnly() ? " read-only" : "", this);
         Callback failedCallback = null;
         try {
             if (this.callbacks != null) {
                 for (Callback callback : this.callbacks) {
                     failedCallback = callback;
                     if (this.log.isTraceEnabled())
-                        this.log.trace("commit() invoking beforeCommit() on transaction " + this + " callback " + callback);
+                        this.log.trace("commit() invoking beforeCommit() on transaction {} callback {}", this, callback);
                     callback.beforeCommit(this.isReadOnly());
                 }
                 failedCallback = null;
@@ -409,7 +409,7 @@ public class Transaction {
                 for (Callback callback : this.callbacks) {
                     failedCallback = callback;
                     if (this.log.isTraceEnabled())
-                        this.log.trace("commit() invoking afterCommit() on transaction " + this + " callback " + callback);
+                        this.log.trace("commit() invoking afterCommit() on transaction {} callback {}", this, callback);
                     callback.afterCommit();
                 }
                 failedCallback = null;
@@ -418,7 +418,7 @@ public class Transaction {
 
             // Log the offending callback, if any
             if (failedCallback != null)
-                this.log.warn("error invoking afterCommit() method on transaction " + this + " callback " + failedCallback);
+                this.log.warn("error invoking afterCommit() method on transaction {} callback {}", this, failedCallback);
 
             // Do after completion callback
             this.triggerAfterCompletion(true);
@@ -443,7 +443,7 @@ public class Transaction {
         }
         this.ending = true;
         if (this.log.isTraceEnabled())
-            this.log.trace("rollback() invoked on" + (this.isReadOnly() ? " read-only" : "") + " transaction " + this);
+            this.log.trace("rollback() invoked on{} transaction {}", this.isReadOnly() ? " read-only" : "", this);
 
         // Do before completion callbacks
         try {
@@ -466,7 +466,7 @@ public class Transaction {
             return;
         for (Callback callback : this.callbacks) {
             if (this.log.isTraceEnabled())
-                this.log.trace("invoking beforeCompletion() on transaction " + this + " callback " + callback);
+                this.log.trace("invoking beforeCompletion() on transaction {} callback {}", this, callback);
             try {
                 callback.beforeCompletion();
             } catch (Throwable t) {
@@ -482,7 +482,7 @@ public class Transaction {
             return;
         for (Callback callback : this.callbacks) {
             if (this.log.isTraceEnabled())
-                this.log.trace("invoking afterCompletion() on transaction " + this + " callback " + callback);
+                this.log.trace("invoking afterCompletion() on transaction {} callback {}", this, callback);
             try {
                 callback.afterCompletion(committed);
             } catch (Throwable t) {

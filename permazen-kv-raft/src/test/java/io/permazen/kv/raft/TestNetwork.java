@@ -136,7 +136,7 @@ public class TestNetwork implements Network {
                     this.doHandle(myHandler);
             } catch (Throwable t) {
                 TestNetwork.this.lastException = t;
-                TestNetwork.this.log.error("error in network callback (\"" + TestNetwork.this.identity + "\")", t);
+                TestNetwork.this.log.error("error in network callback (\"{}\")", TestNetwork.this.identity, t);
             }
         }
 

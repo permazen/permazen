@@ -134,17 +134,17 @@ public class MutableViewTest extends TestSupport {
                 mv.put(minKey, value);
                 expected.put(minKey, value);
                 if (this.log.isTraceEnabled())
-                    this.log.trace("PUT: " + ByteUtil.toString(minKey) + " -> " + ByteUtil.toString(value));
+                    this.log.trace("PUT: {} -> {}", ByteUtil.toString(minKey), ByteUtil.toString(value));
             } else if (choice < 70) {
                 mv.remove(minKey);
                 expected.remove(minKey);
                 if (this.log.isTraceEnabled())
-                    this.log.trace("REMOVE: " + ByteUtil.toString(minKey));
+                    this.log.trace("REMOVE: {}", ByteUtil.toString(minKey));
             } else if (choice < 80) {
                 mv.removeRange(minKey, maxKey);
                 expected.removeRange(minKey, maxKey);
                 if (this.log.isTraceEnabled())
-                    this.log.trace("REMOVE_RANGE: " + ByteUtil.toString(minKey) + ", " + ByteUtil.toString(maxKey));
+                    this.log.trace("REMOVE_RANGE: {}, {}", ByteUtil.toString(minKey), ByteUtil.toString(maxKey));
             } else {
                 mv.getWrites().applyTo(kvstore);
                 mv = new MutableView(kvstore);

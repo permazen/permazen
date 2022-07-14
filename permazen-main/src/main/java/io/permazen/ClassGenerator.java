@@ -283,7 +283,7 @@ class ClassGenerator<T> {
     protected byte[] generateBytecode() {
 
         // Generate class
-        this.log.debug("begin generating class " + this.getClassName());
+        this.log.debug("begin generating class {}", this.getClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         final String[] interfaces = this.modelClass.isInterface() ?
           new String[] { Type.getInternalName(this.modelClass), Type.getInternalName(JObject.class) } :
@@ -296,7 +296,7 @@ class ClassGenerator<T> {
         this.outputMethods(cw);
         cw.visitEnd();
         final byte[] classfile = cw.toByteArray();
-        this.log.debug("done generating class " + this.getClassName());
+        this.log.debug("done generating class {}", this.getClassName());
         this.debugDump(System.out, classfile);
 
         // Done

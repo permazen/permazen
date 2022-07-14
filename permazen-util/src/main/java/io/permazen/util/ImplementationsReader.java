@@ -157,13 +157,13 @@ public class ImplementationsReader extends AbstractXMLStreaming {
                     try {
                         klass = Class.forName(className, false, loader).asSubclass(type);
                     } catch (Exception e) {
-                        this.log.error("error loading class `" + className + "' specified in " + url, e);
+                        this.log.error("error loading class `{}' specified in {}", className, url, e);
                         continue;
                     }
 
                     // Instantiate class
                     if (this.log.isDebugEnabled())
-                        this.log.debug("instantiating " + type.getSimpleName() + " implementation " + className);
+                        this.log.debug("instantiating {} implementation {}", type.getSimpleName(), className);
                     final Constructor<?>[] constructors = klass.getConstructors();
                     Throwable error = null;
                     for (Object[] params : this.constructorParamList) {
@@ -187,11 +187,8 @@ public class ImplementationsReader extends AbstractXMLStreaming {
                     }
 
                     // Report the error
-                    if (error == null) {
-                        this.log.error("error instantiating class `" + className + "' specified in " + url
-                          + ": no suitable constructor found");
-                    } else
-                        this.log.error("error instantiating class `" + className + "' specified in " + url, error);
+                    final String errmsg = error != null ? error.toString() : "no suitable constructor found";
+                    this.log.error("error instantiating class `{}' specified in {}: {}", className, url, errmsg);
                 }
             } catch (IOException | XMLStreamException e) {
                 this.log.error("error reading " + url, e);

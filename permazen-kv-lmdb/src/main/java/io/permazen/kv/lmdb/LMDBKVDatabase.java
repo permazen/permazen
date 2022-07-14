@@ -193,7 +193,7 @@ public abstract class LMDBKVDatabase<T> implements KVDatabase {
         // Already started?
         if (this.env != null)
             return;
-        this.log.info("starting " + this);
+        this.log.info("starting {}", this);
 
         // Check configuration
         Preconditions.checkState(this.directory != null, "no directory configured");
@@ -204,7 +204,7 @@ public abstract class LMDBKVDatabase<T> implements KVDatabase {
 
         // Open environment
         if (this.log.isDebugEnabled())
-            this.log.debug("starting LMDB database " + this);
+            this.log.debug("starting LMDB database {}", this);
         this.env = this.builder.open(this.directory, this.flags.toArray(new EnvFlags[this.flags.size()]));
 
         // Open database
@@ -243,10 +243,10 @@ public abstract class LMDBKVDatabase<T> implements KVDatabase {
                     continue;
 
                 // Shut down LMDB database
-                this.log.info("stopping " + this);
+                this.log.info("stopping {}", this);
                 try {
                     if (this.log.isDebugEnabled())
-                        this.log.debug("stopping LMDB database " + this);
+                        this.log.debug("stopping LMDB database {}", this);
                     //this.db.close();      // we're not supposed to use this
                     this.env.close();
                 } catch (Throwable e) {

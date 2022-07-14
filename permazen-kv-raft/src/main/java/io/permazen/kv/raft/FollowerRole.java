@@ -161,9 +161,9 @@ public class FollowerRole extends NonLeaderRole {
         assert Thread.holdsLock(this.raft);
         super.setup();
         if (this.log.isDebugEnabled()) {
-            this.debug("entering follower role in term " + this.raft.currentTerm
-              + (this.leader != null ? "; with leader \"" + this.leader + "\" at " + this.leaderAddress : "")
-              + (this.votedFor != null ? "; having voted for \"" + this.votedFor + "\"" : ""));
+            this.debug("entering follower role in term {}{}{}", this.raft.currentTerm,
+              this.leader != null ? "; with leader \"" + this.leader + "\" at " + this.leaderAddress : "",
+              this.votedFor != null ? "; having voted for \"" + this.votedFor + "\"" : "");
         }
     }
 
@@ -306,14 +306,14 @@ public class FollowerRole extends NonLeaderRole {
         // Did we already send a CommitRequest for this transaction?
         if (this.commitRequests.contains(tx)) {
             if (this.log.isTraceEnabled())
-                this.trace("not sending CommitRequest for tx " + tx + " because request already sent");
+                this.trace("not sending CommitRequest for tx {} because request already sent", tx);
             return;
         }
 
         // If we are installing a snapshot, we must wait
         if (this.snapshotReceive != null) {
             if (this.log.isTraceEnabled())
-                this.trace("not sending CommitRequest for tx " + tx + " because a snapshot install is in progress");
+                this.trace("not sending CommitRequest for tx {} because a snapshot install is in progress", tx);
             return;
         }
 
@@ -345,7 +345,7 @@ public class FollowerRole extends NonLeaderRole {
                 while (newClusterId == 0);
 
                 // Join new cluster
-                this.info("creating new cluster with ID " + String.format("0x%08x", newClusterId));
+                this.info("creating new cluster with ID {}", String.format("0x%08x", newClusterId));
                 if (!this.raft.joinCluster(newClusterId))
                     throw new KVTransactionException(tx, "error persisting new cluster ID");
             }
@@ -363,7 +363,7 @@ public class FollowerRole extends NonLeaderRole {
                 throw new KVTransactionException(tx, "error attempting to persist transaction", e);
             }
             if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " for local transaction " + tx);
+                this.debug("added log entry {} for local transaction {}", logEntry, tx);
             assert logEntry.getTerm() == 1;
             assert logEntry.getIndex() == 1;
 
@@ -394,8 +394,8 @@ public class FollowerRole extends NonLeaderRole {
         // If we don't have a leader yet, or leader's queue is full, we must wait
         if (this.leader == null || this.raft.isTransmitting(this.leaderAddress)) {
             if (this.log.isTraceEnabled()) {
-                this.trace("leaving alone tx " + tx + " because leader "
-                  + (this.leader == null ? "is not known yet" : "\"" + this.leader + "\" is not writable yet"));
+                this.trace("leaving alone tx {} because leader {}", tx,
+                  this.leader == null ? "is not known yet" : "\"" + this.leader + "\" is not writable yet");
             }
             return;
         }
@@ -458,7 +458,7 @@ public class FollowerRole extends NonLeaderRole {
         final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,
           this.raft.currentTerm, tx.txId, tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);
         if (this.log.isTraceEnabled())
-            this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);
+            this.trace("sending {} to \"{}\" for {}", msg, this.leader, tx);
         if (!this.raft.sendMessage(msg))
             throw new RetryTransactionException(tx, "error sending commit request to leader");
 
@@ -515,16 +515,16 @@ public class FollowerRole extends NonLeaderRole {
         // Record leader
         if (!msg.getSenderId().equals(this.leader)) {
             if (this.leader != null && !this.leader.equals(msg.getSenderId())) {
-                this.error("detected a conflicting leader in " + msg + " (previous leader was \"" + this.leader
-                  + "\") - should never happen; possible inconsistent cluster configuration (mine: " + this.raft.currentConfig
-                  + ")");
+                this.error("detected a conflicting leader in {} (previous leader was \"{}\")"
+                  + " - should never happen; possible inconsistent cluster configuration (mine: {})",
+                  msg, this.leader, this.raft.currentConfig);
             }
             this.leader = msg.getSenderId();
             this.leaderAddress = this.raft.returnAddress;
             this.leaderLeaseTimeout = null;
             this.lastLeaderMessageTime = null;
             if (this.log.isDebugEnabled())
-                this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);
+                this.debug("updated leader to \"{}\" at {}", this.leader, this.leaderAddress);
             this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent
         }
 
@@ -542,7 +542,7 @@ public class FollowerRole extends NonLeaderRole {
         if (msg.getLeaderLeaseTimeout() != null
           && (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) > 0)) {
             if (this.log.isTraceEnabled())
-                this.trace("advancing leader lease timeout " + this.leaderLeaseTimeout + " -> " + msg.getLeaderLeaseTimeout());
+                this.trace("advancing leader lease timeout {} -> {}", this.leaderLeaseTimeout, msg.getLeaderLeaseTimeout());
             this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();
             this.raft.requestService(this.checkWaitingTransactionsService);
         }
@@ -550,7 +550,7 @@ public class FollowerRole extends NonLeaderRole {
         // If a snapshot install is in progress, cancel it
         if (this.snapshotReceive != null) {
             if (this.raft.isPerfLogEnabled())
-                this.perfLog("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");
+                this.perfLog("rec'd {} during in-progress {}; aborting snapshot install", msg, this.snapshotReceive);
             this.raft.discardFlipFloppedStateMachine();
             this.snapshotReceive = null;
             this.updateElectionTimer();
@@ -568,7 +568,7 @@ public class FollowerRole extends NonLeaderRole {
         if (leaderPrevIndex >= this.raft.log.getLastAppliedIndex()
           && (leaderPrevIndex > lastLogIndex || leaderPrevTerm != this.raft.log.getTermAtIndex(leaderPrevIndex))) {
             if (this.log.isDebugEnabled())
-                this.debug("rejecting " + msg + " because previous log entry doesn't match");
+                this.debug("rejecting {} because previous log entry doesn't match",  msg);
             this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
               this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.log.getLastAppliedIndex(),
               this.raft.log.getLastIndex()));
@@ -587,7 +587,7 @@ public class FollowerRole extends NonLeaderRole {
                 try {
                     this.raft.logDirChannel.force(true);
                 } catch (IOException e) {
-                    this.warn("error fsync()'ing log directory " + this.raft.logDir, e);
+                    this.warn("error fsync()'ing log directory {}", this.raft.logDir, e);
                 }
 
                 // Rebuild current config
@@ -622,8 +622,8 @@ public class FollowerRole extends NonLeaderRole {
                           }).findAny().orElse(null);
                         if (pendingWrite == null) {
                             if (this.raft.isPerfLogEnabled()) {
-                                this.perfLog("rec'd " + msg + " but no read-write transaction matching commit "
-                                  + logIndex + "t" + logTerm + " found; rejecting");
+                                this.perfLog("rec'd {} but no read-write transaction matching commit {}t{} found; rejecting",
+                                  msg, logIndex, logTerm);
                             }
                             break;
                         }
@@ -636,7 +636,7 @@ public class FollowerRole extends NonLeaderRole {
                         try {
                             pendingWrite.getFileWriter().close();
                         } catch (IOException e) {
-                            this.error("error closing temporary transaction file for " + tx, e);
+                            this.error("error closing temporary transaction file for {}", tx, e);
                             pendingWrite.cleanup();
                             break;
                         }
@@ -646,16 +646,14 @@ public class FollowerRole extends NonLeaderRole {
                             logEntry = this.raft.appendLogEntry(logTerm,
                               new NewLogEntry(tx, pendingWrite.getFileWriter().getFile()));
                         } catch (Exception e) {
-                            this.error("error appending new log entry for " + tx, e);
+                            this.error("error appending new log entry for {}", tx, e);
                             pendingWrite.cleanup();
                             break;
                         }
 
                         // Debug
-                        if (this.log.isDebugEnabled()) {
-                            this.debug("now waiting for commit of " + tx.getCommitIndex() + "t" + tx.getCommitTerm()
-                              + " to commit " + tx);
-                        }
+                        if (this.log.isDebugEnabled())
+                            this.debug("now waiting for commit of {}t{} to commit {}", tx.getCommitIndex(), tx.getCommitTerm(), tx);
                     } else {
 
                         // Append new log entry normally using the data from the request
@@ -688,7 +686,7 @@ public class FollowerRole extends NonLeaderRole {
         final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);
         if (newCommitIndex > this.raft.commitIndex) {
             if (this.log.isDebugEnabled())
-                this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
+                this.debug("updating leader commit index from {} -> {}", this.raft.commitIndex, newCommitIndex);
             this.raft.commitIndex = newCommitIndex;
             this.checkCommittables();
             this.raft.requestService(this.checkWaitingTransactionsService);
@@ -698,12 +696,9 @@ public class FollowerRole extends NonLeaderRole {
 
         // Debug
         if (this.log.isTraceEnabled()) {
-            this.trace("my updated follower state: "
-              + "term=" + this.raft.currentTerm
-              + " commitIndex=" + this.raft.commitIndex
-              + " leaderLeaseTimeout=" + this.leaderLeaseTimeout
-              + " lastApplied=" + this.raft.log.getLastAppliedIndex() + "t" + this.raft.log.getLastAppliedTerm()
-              + " log=" + this.raft.log.getUnapplied());
+            this.trace("my updated follower state: term={} commitIndex={} leaderLeaseTimeout={} lastApplied={}t{} log={}",
+              this.raft.currentTerm, this.raft.commitIndex, this.leaderLeaseTimeout, this.raft.log.getLastAppliedIndex(),
+              this.raft.log.getLastAppliedTerm(), this.raft.log.getUnapplied());
         }
 
         // Send reply
@@ -732,7 +727,7 @@ public class FollowerRole extends NonLeaderRole {
         // Sanity check whether we're expecting this response
         if (!this.commitRequests.remove(tx)) {
             if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");
+                this.debug("rec'd {} for {} not expecting a response; ignoring", msg, tx);
             return;
         }
 
@@ -742,10 +737,8 @@ public class FollowerRole extends NonLeaderRole {
 
         // Do we already have a commit index & term? This would be unusual and can only happen with some leader change
         if (tx.hasCommitInfo()) {
-            if (this.log.isTraceEnabled()) {
-                this.trace("ignoring " + msg + " for " + tx + "; already have commit "
-                  + tx.getCommitIndex() + "t" + tx.getCommitTerm());
-            }
+            if (this.log.isTraceEnabled())
+                this.trace("ignoring {} for {}; already have commit {}t{}", msg, tx, tx.getCommitIndex(), tx.getCommitTerm());
             return;
         }
 
@@ -761,9 +754,9 @@ public class FollowerRole extends NonLeaderRole {
         if (tx.getBaseIndex() > commitIndex) {
             if (this.log.isTraceEnabled()) {
                 final long actualCommitTerm = this.raft.log.getTermAtIndexIfKnown(commitIndex);
-                this.trace(tx + " was rebased past its commit index " + commitIndex + "t" + commitTerm + " to "
-                  + tx.getBaseIndex() + "t" + tx.getBaseTerm() + "; actual term for index " + commitIndex + " is "
-                  + (actualCommitTerm != 0 ? "" + actualCommitTerm : "unknown"));
+                this.trace("{} was rebased past its commit index {}t{} to {}t{}; actual term for index {} is {}",
+                  commitIndex, commitTerm, tx.getBaseIndex(), tx.getBaseTerm(), commitIndex,
+                  actualCommitTerm != 0 ? "" + actualCommitTerm : "unknown");
             }
             this.raft.fail(tx, new RetryTransactionException(tx, "transaction was rebased past its commit index"));
             return;
@@ -783,7 +776,7 @@ public class FollowerRole extends NonLeaderRole {
             break;
         default:
             if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
+                this.debug("rec'd {} for {} in state {}; ignoring", msg, tx, tx.getState());
             return;
         }
     }
@@ -798,8 +791,8 @@ public class FollowerRole extends NonLeaderRole {
 
         // Sanity check that our log is not going backwards
         if (msg.getSnapshotIndex() < this.raft.commitIndex) {
-            this.warn("rec'd " + msg + " with retrograde index " + msg.getSnapshotIndex()
-              + " < my commit index " + this.raft.commitIndex + ", ignoring");
+            this.warn("rec'd {} with retrograde index {} < my commit index {}, ignoring",
+              msg, msg.getSnapshotIndex(), this.raft.commitIndex);
             return;
         }
 
@@ -813,15 +806,13 @@ public class FollowerRole extends NonLeaderRole {
                 // If the message is NOT the first one in a new install, ignore it
                 if (msg.getPairIndex() != 0) {
                     if (this.raft.isPerfLogEnabled())
-                        this.perfLog("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");
+                        this.perfLog("rec'd {} which doesn't match in-progress {}; ignoring", msg, this.snapshotReceive);
                     return;
                 }
 
                 // The message is the first one in a new install, so discard the existing install
-                if (this.raft.isPerfLogEnabled()) {
-                    this.perfLog("rec'd initial " + msg + " with in-progress " + this.snapshotReceive
-                      + "; aborting previous install");
-                }
+                if (this.raft.isPerfLogEnabled())
+                    this.perfLog("rec'd initial {} with in-progress {}; aborting previous install", msg, this.snapshotReceive);
                 startNewInstall = true;
             }
         } else {
@@ -829,7 +820,7 @@ public class FollowerRole extends NonLeaderRole {
             // If the message is NOT the first one in a new install, ignore it
             if (msg.getPairIndex() != 0) {
                 if (this.raft.isPerfLogEnabled())
-                    this.perfLog("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
+                    this.perfLog("rec'd non-initial {} with no in-progress snapshot install; ignoring", msg);
                 return;
             }
         }
@@ -847,15 +838,15 @@ public class FollowerRole extends NonLeaderRole {
             this.snapshotReceive = new SnapshotReceive(this.raft.kv,
               this.raft.getFlipFloppedStateMachinePrefix(), term, index, msg.getSnapshotConfig());
             if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("starting new snapshot install from \"" + msg.getSenderId()
-                  + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
+                this.perfLog("starting new snapshot install from \"{}\" of {}t{} with config {}",
+                  msg.getSenderId(), index, term, msg.getSnapshotConfig());
             }
         }
         assert this.snapshotReceive.matches(msg);
 
         // Apply next chunk of key/value pairs
         if (this.raft.isPerfLogEnabled())
-            this.perfLog("applying " + msg + " to " + this.snapshotReceive);
+            this.perfLog("applying {} to {}", msg, this.snapshotReceive);
         try {
             this.snapshotReceive.applyNextChunk(msg.getData());
         } catch (Exception e) {
@@ -872,13 +863,13 @@ public class FollowerRole extends NonLeaderRole {
             // Flip-flop state machine
             final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
             if (this.raft.isPerfLogEnabled()) {
-                this.perfLog("snapshot install from \"" + msg.getSenderId() + "\" of "
-                  + index + "t" + term + " with config " + snapshotConfig + " complete");
+                this.perfLog("snapshot install from \"{}\" of {}t{} with config {} complete",
+                  msg.getSenderId(), index, term, snapshotConfig);
             }
             this.snapshotReceive = null;
             if (!this.raft.flipFlopStateMachine(term, index, snapshotConfig) && this.raft.isPerfLogEnabled()) {
-                this.perfLog("snapshot install from \"" + msg.getSenderId() + "\" of "
-                  + index + "t" + term + " with config " + snapshotConfig + " failed: state machine flip-flop error");
+                this.perfLog("snapshot install from \"{}\" of {}t{} with config {} failed: state machine flip-flop error",
+                  msg.getSenderId(), index, term, snapshotConfig);
             }
             this.updateElectionTimer();
 
@@ -915,7 +906,7 @@ public class FollowerRole extends NonLeaderRole {
         final String peer = msg.getSenderId();
         if (this.votedFor != null && !this.votedFor.equals(peer)) {
             if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");
+                this.debug("rec'd {}; rejected because we already voted for \"{}\"", msg, this.votedFor);
             return;
         }
 
@@ -923,8 +914,8 @@ public class FollowerRole extends NonLeaderRole {
         if (msg.getLastLogTerm() < this.raft.log.getLastTerm()
           || (msg.getLastLogTerm() == this.raft.log.getLastTerm() && msg.getLastLogIndex() < this.raft.log.getLastIndex())) {
             if (this.log.isDebugEnabled()) {
-                this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
-                  + msg.getLastLogTerm() + " loses to ours " + this.raft.log.getLastIndex() + "t" + this.raft.log.getLastTerm());
+                this.debug("rec'd {}; rejected because their log {}t{} loses to ours {}t{}",
+                  msg, msg.getLastLogIndex(), msg.getLastLogTerm(), this.raft.log.getLastIndex(), this.raft.log.getLastTerm());
             }
             return;
         }
@@ -932,12 +923,12 @@ public class FollowerRole extends NonLeaderRole {
         // Persist our vote for this peer (if not already persisted)
         if (this.votedFor == null) {
             if (this.log.isDebugEnabled())
-                this.debug("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);
+                this.debug("granting vote to \"{}\" in term {}", peer, this.raft.currentTerm);
             if (!this.updateVotedFor(peer))
                 return;
         } else {
             if (this.log.isDebugEnabled())
-                this.debug("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);
+                this.debug("confirming existing vote for \"{}\" in term {}", peer, this.raft.currentTerm);
         }
 
         // Send reply
@@ -950,7 +941,7 @@ public class FollowerRole extends NonLeaderRole {
 
         // Ignore - we already lost the election to the real leader
         if (this.log.isDebugEnabled())
-            this.debug("ignoring " + msg + " rec'd while in " + this);
+            this.debug("ignoring {} rec'd while in {}", msg, this);
     }
 
     @Override
@@ -960,7 +951,7 @@ public class FollowerRole extends NonLeaderRole {
         // Are we probing?
         if (this.probeTimestamps == null) {
             if (this.log.isTraceEnabled())
-                this.trace("ignoring " + msg + " rec'd while not probing in " + this);
+                this.trace("ignoring {} rec'd while not probing in {}", msg, this);
             return;
         }
 
@@ -979,12 +970,12 @@ public class FollowerRole extends NonLeaderRole {
         final int numProbed = this.calculateProbedNodes();
         final int numRequired = this.raft.currentConfig.size() / 2 + 1;
         if (this.log.isTraceEnabled())
-            this.trace("now we have probed " + numProbed + "/" + numRequired + " required nodes");
+            this.trace("now we have probed {}/{} required nodes", numProbed, numRequired);
 
         // If we have successfully probed a majority, then we can finally become a candidate
         if (numProbed >= numRequired) {
             if (this.log.isDebugEnabled())
-                this.debug("successfully probed " + numProbed + " nodes, now converting to candidate");
+                this.debug("successfully probed {} nodes, now converting to candidate", numProbed);
             this.raft.changeRole(new CandidateRole(this.raft));
         }
     }
@@ -1006,7 +997,7 @@ public class FollowerRole extends NonLeaderRole {
         try {
             this.raft.kv.mutate(writes, true);
         } catch (Exception e) {
-            this.error("error persisting vote for \"" + recipient + "\"", e);
+            this.error("error persisting vote for \"{}\"", recipient, e);
             return false;
         }
 

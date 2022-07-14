@@ -52,7 +52,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
     private Options options = new Options().createIfMissing(true).logger(new org.iq80.leveldb.Logger() {
         @Override
         public void log(String message) {
-            LevelDBAtomicKVStore.this.log.info("[LevelDB] " + message);
+            LevelDBAtomicKVStore.this.log.info("[LevelDB] {}", message);
         }
       });
     @GuardedBy("this")
@@ -264,7 +264,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Already started?
         if (this.db != null)
             return;
-        this.log.info("starting " + this);
+        this.log.info("starting {}", this);
 
         // Check configuration
         Preconditions.checkState(this.directory != null, "no directory configured");
@@ -281,7 +281,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 
         // Open database
         if (this.log.isDebugEnabled())
-            this.log.debug("opening " + this + " LevelDB database");
+            this.log.debug("opening {} LevelDB database", this);
         try {
             this.db = this.factory.open(this.directory, this.options);
         } catch (IOException e) {
@@ -309,7 +309,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Check state
         if (this.db == null)
             return;
-        this.log.info("stopping " + this);
+        this.log.info("stopping {}", this);
 
         // Close k/v store view
         this.kv.close();
@@ -318,7 +318,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Shut down LevelDB database
         try {
             if (this.log.isDebugEnabled())
-                this.log.info("closing " + this + " LevelDB database");
+                this.log.info("closing {} LevelDB database", this);
             this.db.close();
         } catch (Throwable e) {
             this.log.error("caught exception closing database during shutdown (ignoring)", e);

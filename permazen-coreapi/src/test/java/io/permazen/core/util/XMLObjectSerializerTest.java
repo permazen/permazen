@@ -208,7 +208,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         String text = this.readResource(this.getClass().getResource(resource)).trim();
 
         // Compare generated XML to expected
-        this.log.info("verifying XML output with \"" + resource + "\"");
+        this.log.info("verifying XML output with \"{}\"", resource);
         Assert.assertEquals(new String(buf, StandardCharsets.UTF_8), text);
 
         // Parse XML back into a snapshot transaction

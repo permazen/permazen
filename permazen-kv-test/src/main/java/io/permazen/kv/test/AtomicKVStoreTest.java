@@ -95,7 +95,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         // Test
         final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
         for (int count = 0; count < 200; count++) {
-            this.log.trace("[" + count + "] next iteration");
+            this.log.trace("[{}] next iteration", count);
             Writes writes;
 
             // Do puts atomically
@@ -139,7 +139,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         final Writes mods = new Writes();
         mods.getPuts().put(KEY1, VAL1);
         kvstore.mutate(mods, true);
-        this.log.debug("step1: kvstore=" + stringView(this.asMap(kvstore)));
+        this.log.debug("step1: kvstore={}", stringView(this.asMap(kvstore)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
 
@@ -147,7 +147,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         final CloseableKVStore snapshot = kvstore.snapshot();
         final MutableView view = new MutableView(snapshot);
-        this.log.debug("step2: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        this.log.debug("step2: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
           s(KEY1), s(VAL1)));
 
@@ -157,7 +157,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         mods.getPuts().put(KEY2, VAL2);
         kvstore.mutate(mods, true);
 
-        this.log.debug("step3: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        this.log.debug("step3: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
@@ -167,7 +167,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         view.put(KEY2, VAL3);
 
-        this.log.debug("step4: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        this.log.debug("step4: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1), s(KEY2), s(VAL2)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
@@ -179,7 +179,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         mods.getRemoves().add(new KeyRange(KEY2, null));
         kvstore.mutate(mods, true);
 
-        this.log.debug("step5: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        this.log.debug("step5: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
@@ -191,7 +191,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         // Verify again
 
-        this.log.debug("step6: kvstore=" + stringView(this.asMap(kvstore)) + " view=" + stringView(this.asMap(view)));
+        this.log.debug("step6: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
@@ -216,9 +216,9 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
             final byte[] key = new byte[] { (byte)this.random.nextInt(0xff) };
             final byte[] key2 = new byte[] { (byte)this.random.nextInt(0xff), (byte)this.random.nextInt(0xff) };
             final byte[] value = LongEncoder.encode((1 << i) + i);
-            this.log.trace("[" + count + "]: PUT: " + ByteUtil.toString(key) + " -> " + ByteUtil.toString(value));
+            this.log.trace("[{}]: PUT: {} -> {}", count, ByteUtil.toString(key), ByteUtil.toString(value));
             writes.getPuts().put(key, value);
-            this.log.trace("[" + count + "]: PUT: " + ByteUtil.toString(key2) + " -> " + ByteUtil.toString(value));
+            this.log.trace("[{}]: PUT: {} -> {}", count, ByteUtil.toString(key2), ByteUtil.toString(value));
             writes.getPuts().put(key2, value);
             map.put(key, value);
             map.put(key2, value);
@@ -231,7 +231,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         for (int i = 0; i < 9; i++) {
             if (this.random.nextInt(5) > 0) {
                 final byte[] key = new byte[] { (byte)this.random.nextInt(0xff) };
-                this.log.trace("[" + count + "]: REMOVE: " + ByteUtil.toString(key));
+                this.log.trace("[{}]: REMOVE: {}", count, ByteUtil.toString(key));
                 writes.getRemoves().add(new KeyRange(key));
                 map.remove(key);
             } else {
@@ -239,7 +239,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
                 final byte[] y = this.random.nextInt(10) == 0 ? null : new byte[] { (byte)this.random.nextInt(0xff) };
                 final byte[] minKey = y == null || ByteUtil.compare(x, y) < 0 ? x : y;
                 final byte[] maxKey = y == null || ByteUtil.compare(x, y) < 0 ? y : x;
-                this.log.trace("[" + count + "]: REMOVE: [" + ByteUtil.toString(minKey) + ", " + ByteUtil.toString(maxKey) + ")");
+                this.log.trace("[{}]: REMOVE: [{}, {})", count, ByteUtil.toString(minKey), ByteUtil.toString(maxKey));
                 writes.getRemoves().add(new KeyRange(minKey, maxKey));
                 if (maxKey == null)
                     map.tailMap(minKey, true).clear();
@@ -256,7 +256,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
     private TreeMap<byte[], byte[]> read(int count, AtomicKVStore lkv, byte[] minKey, byte[] maxKey) {
         final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
-        this.log.trace("[" + count + "]: reading kv store");
+        this.log.trace("[{}]: reading kv store", count);
         final KVStore kv;
         final CloseableKVStore snapshot;
         if (this.random.nextBoolean()) {

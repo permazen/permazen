@@ -413,7 +413,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
             tx.delete(target);
             assert false : "expected ReferencedObjectException";
         } catch (ReferencedObjectException e) {
-            this.log.info("got expected " + e);
+            this.log.info("got expected {}", e.toString());
         }
 
         // Delete referrers[1] and try again - this time it should succeed

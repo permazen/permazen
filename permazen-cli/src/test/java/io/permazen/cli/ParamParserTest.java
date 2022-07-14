@@ -23,7 +23,7 @@ public class ParamParserTest extends TestSupport {
 
     @Test(dataProvider = "cases")
     public void testParamParser(String specs, String command, Map<String, Object> expected) throws Exception {
-        //this.log.info("*** ParamParserTest: specs=\"" + specs + "\" command=\"" + command + "\"");
+        //this.log.info("*** ParamParserTest: specs=\"{}\" command=\"{}\"", specs, command);
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
@@ -34,8 +34,8 @@ public class ParamParserTest extends TestSupport {
                 return new FieldTypeParser<>(fieldType);
             }
         };
-        //this.log.info("*** ParamParserTest: optionFlags=" + parser.getOptionFlags());
-        //this.log.info("*** ParamParserTest: parameters=" + parser.getParameters());
+        //this.log.info("*** ParamParserTest: optionFlags={}", parser.getOptionFlags());
+        //this.log.info("*** ParamParserTest: parameters={}", parser.getParameters());
         try {
             final Map<String, Object> actual = parser.parse(null, new ParseContext(command), false);
             Assert.assertEquals(actual, expected, "\n  ACTUAL: " + actual + "\nEXPECTED: " + expected + "\n");

@@ -107,7 +107,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                     expected.add(ids[k]);
 
                 // Query index
-                //this.log.info("testSimpleFieldIndexes: checking for value `" + value + "' in field #" + (10 + i));
+                //this.log.info("testSimpleFieldIndexes: checking for value `{}' in field #{}", value, 10 + i);
                 Assert.assertEquals(tx.queryIndex(10 + i).asMap().get(value), expected);
             }
         }
@@ -125,7 +125,7 @@ public class IndexTest1 extends CoreAPITestSupport {
             }
 
             // Query index
-            //this.log.info("testSimpleFieldIndexes: checking for reference " + ref + " in field #19");
+            //this.log.info("testSimpleFieldIndexes: checking for reference {} in field #19", ref);
             Assert.assertEquals(tx.queryIndex(19).asMap().get(ref), !expected.isEmpty() ? expected : null);
         }
 
@@ -210,7 +210,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                     expected.add(ids[k]);
 
                 // Query index
-                //this.log.info("testArrayFieldIndexes: checking for array with `" + value + "' in field #" + (10 + i));
+                //this.log.info("testArrayFieldIndexes: checking for array with `{}' in field #{}", value, 10 + i);
                 Assert.assertEquals(tx.queryIndex(10 + i).asMap().get(array), expected);
             }
         }

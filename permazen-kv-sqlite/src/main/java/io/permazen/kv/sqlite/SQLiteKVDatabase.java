@@ -134,14 +134,14 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
         if (this.getDataSource() == null && this.file != null) {
             final SQLiteDataSource dataSource = this.config != null ? new SQLiteDataSource(this.config) : new SQLiteDataSource();
             final String uri = "jdbc:sqlite:" + this.file.toURI().toString().substring("file:".length());
-            this.log.debug("auto-configuring SQLite DataSource using URI `" + uri + "'");
+            this.log.debug("auto-configuring SQLite DataSource using URI `{}'", uri);
             dataSource.setUrl(uri);
             this.setDataSource(dataSource);
         }
 
         // Proceed
         super.start();
-        this.log.debug("SQLite database " + (this.file != null ? this.file + " " : "") + "started");
+        this.log.debug("SQLite database {}started", this.file != null ? this.file + " " : "");
     }
 
     @Override
@@ -155,11 +155,11 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
           + ")";
         this.beginTransaction(connection);
         try (Statement statement = connection.createStatement()) {
-            this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
+            this.log.debug("auto-creating table `{}' if not already existing:\n{}", this.getTableName(), sql);
             statement.execute(sql);
             statement.execute("COMMIT");
         }
-        this.log.debug("SQLite database " + (this.file != null ? this.file + " " : "") + "started");
+        this.log.debug("SQLite database {}initialized", this.file != null ? this.file + " " : "");
     }
 
     @Override
@@ -173,7 +173,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
             }
             if (this.pragmas != null) {
                 for (String pragma : this.pragmas) {
-                    this.log.debug("configuring database connection with PRAGMA " + pragma);
+                    this.log.debug("configuring database connection with PRAGMA {}", pragma);
                     statement.execute("PRAGMA " + pragma);
                 }
             }

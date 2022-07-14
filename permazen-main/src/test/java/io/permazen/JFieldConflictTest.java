@@ -26,7 +26,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -52,7 +52,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -78,7 +78,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -104,7 +104,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -130,7 +130,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -156,7 +156,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -181,7 +181,7 @@ public class JFieldConflictTest extends TestSupport {
             BasicTest.getPermazen(UpgradeConversionConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -206,7 +206,7 @@ public class JFieldConflictTest extends TestSupport {
             BasicTest.getPermazen(AllowDeletedConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -231,7 +231,7 @@ public class JFieldConflictTest extends TestSupport {
             BasicTest.getPermazen(AllowDeletedSnapshotConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -257,7 +257,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 
@@ -283,7 +283,7 @@ public class JFieldConflictTest extends TestSupport {
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
-            this.log.debug("got expected exception: " + e);
+            this.log.debug("got expected exception: {}", e.toString());
         }
     }
 

@@ -48,10 +48,10 @@ public class SimpleLockTest extends KVTestSupport {
     }
 
     private void waitForStep(int requiredStep) throws InterruptedException {
-        this.log.debug(Thread.currentThread().getName() + " waiting for " + requiredStep);
+        this.log.debug("{} waiting for {}", Thread.currentThread().getName(), requiredStep);
         while (this.step < requiredStep)
             Thread.sleep(50);
-        this.log.debug(Thread.currentThread().getName() + " ready for " + requiredStep);
+        this.log.debug("{} ready for {}", Thread.currentThread().getName(), requiredStep);
     }
 
 /*

@@ -164,7 +164,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         synchronized (this) {
             if (!this.started || this.stopping)
                 return;
-            this.log.info("stopping " + this);
+            this.log.info("stopping {}", this);
             this.stopping = true;
         }
 
@@ -211,7 +211,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         assert !this.transactions.contains(tx);
         this.transactions.add(tx);
         if (this.log.isTraceEnabled())
-            this.log.trace("created new transaction " + tx + " (new total " + this.transactions.size() + ")");
+            this.log.trace("created new transaction {} (new total {})", tx, this.transactions.size());
 
         // Done
         return tx;
@@ -277,7 +277,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
      */
     protected KVTransactionException logException(KVTransactionException e) {
         if (this.log.isDebugEnabled())
-            this.log.debug("throwing exception for " + e.getTransaction() + ": " + e);
+            this.log.debug("throwing exception for {}: {}", e.getTransaction(), e.toString());
         return e;
     }
 
@@ -316,7 +316,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     synchronized void rollback(SnapshotKVTransaction tx) {
         assert Thread.holdsLock(tx);
         if (this.log.isTraceEnabled())
-            this.log.trace("rolling back transaction " + tx);
+            this.log.trace("rolling back transaction {}", tx);
         tx.error = null;                                    // from this point on, throw a StaleTransactionException if accessed
         this.cleanupTransaction(tx);
     }
@@ -340,8 +340,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
         // Debug
         if (this.log.isTraceEnabled()) {
-            this.log.trace("committing transaction " + tx + " based on version "
-              + tx.baseVersion + " (current version is " + this.currentVersion + ")");
+            this.log.trace("committing transaction {} based on version {} (current version is {})",
+              tx, tx.baseVersion, this.currentVersion);
         }
 
         // Remove transaction; if not there, it's already been invalidated
@@ -363,14 +363,14 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // If transaction is (effectively) read-only, no need to create a new version
         if (readOnly || txWrites.isEmpty()) {
             if (this.log.isTraceEnabled())
-                this.log.trace("no mutations in " + tx + ", staying at version " + this.currentVersion);
+                this.log.trace("no mutations in {}, staying at version {}", tx, this.currentVersion);
             return;
         }
 
         // Apply the transaction's mutations
         if (this.log.isTraceEnabled()) {
-            this.log.trace("applying " + tx + " mutations and advancing version from "
-              + this.currentVersion + " -> " + (this.currentVersion + 1));
+            this.log.trace("applying {} mutations and advancing version from {} -> {}",
+              tx, this.currentVersion, this.currentVersion + 1);
         }
         this.kvstore.mutate(txWrites, true);
 
@@ -389,8 +389,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                 // Check for conflict
                 final Conflict conflict = victim.view.getReads().findConflict(txWrites);
                 if (this.log.isTraceEnabled()) {
-                    this.log.trace("ordering " + victim + " after " + tx + " writes in version " + this.currentVersion
-                      + " results in " + (conflict != null ? conflict : "no conflict"));
+                    this.log.trace("ordering {} after {} writes in version {} results in {}",
+                      victim, tx, this.currentVersion, conflict != null ? conflict : "no conflict");
 //                    if (conflict != null)
 //                        this.log.trace("conflicts: {}", victim.view.getReads().getConflicts(txWrites));
                 }
@@ -402,7 +402,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                       + victim.baseVersion + " but the transaction committed at version "
                       + this.currentVersion + " contains conflicting writes");
                     if (this.log.isTraceEnabled())
-                        this.log.trace("removed conflicting transaction " + victim + " (new total " + --numTx + ")");
+                        this.log.trace("removed conflicting transaction {} (new total {})", victim, --numTx);
 
                     // This looks weird. What it's really doing is ensuring that any subsequent attempt to access the
                     // data in the transaction via iterators that have already been created will "fail fast" and throw the
@@ -429,11 +429,11 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // Debug
         assert Thread.holdsLock(this);
         if (this.log.isTraceEnabled())
-            this.log.trace("cleaning up transaction " + tx);
+            this.log.trace("cleaning up transaction {}", tx);
 
         // Remove open transaction from version
         if (this.transactions.remove(tx) && this.log.isTraceEnabled())
-            this.log.trace("removed transaction " + tx + " (new total " + this.transactions.size() + ")");
+            this.log.trace("removed transaction {} (new total {})", tx, this.transactions.size());
     }
 
     // Get current k/v snapshot, creating on demand if necessary
@@ -442,7 +442,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         if (this.snapshot == null) {
             this.snapshot = new SnapshotRefs(this.kvstore.snapshot());
             if (this.log.isTraceEnabled())
-                this.log.trace("created new snapshot for version " + this.currentVersion);
+                this.log.trace("created new snapshot for version {}", this.currentVersion);
         }
         return this.snapshot;
     }

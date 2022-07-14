@@ -180,7 +180,7 @@ public class JClass<T> extends JSchemaObject {
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             final TypeToken<?> fieldTypeToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());
             if (this.log.isTraceEnabled())
-                this.log.trace("found " + description);
+                this.log.trace("found {}", description);
 
             // Get storage ID
             int storageId = annotation.storageId();
@@ -244,7 +244,7 @@ public class JClass<T> extends JSchemaObject {
             final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
-                this.log.trace("found " + description);
+                this.log.trace("found {}", description);
 
             // Get storage ID's
             int storageId = annotation.storageId();
@@ -284,7 +284,7 @@ public class JClass<T> extends JSchemaObject {
             final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
-                this.log.trace("found " + description);
+                this.log.trace("found {}", description);
 
             // Get storage ID's
             int storageId = annotation.storageId();
@@ -325,7 +325,7 @@ public class JClass<T> extends JSchemaObject {
             final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
-                this.log.trace("found " + description);
+                this.log.trace("found {}", description);
 
             // Get storage ID's
             int storageId = annotation.storageId();
@@ -538,7 +538,7 @@ public class JClass<T> extends JSchemaObject {
 
         // Logging
         if (this.log.isTraceEnabled())
-            this.log.trace("added " + jfield + " to object type `" + this.name + "'");
+            this.log.trace("added {} to object type `{}'", jfield, this.name);
     }
 
     // Get field name, deriving it from the getter property name if necessary

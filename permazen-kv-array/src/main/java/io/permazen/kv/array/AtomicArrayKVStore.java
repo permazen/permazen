@@ -357,7 +357,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 success = true;
                 return;
             }
-            this.log.info("starting " + this);
+            this.log.info("starting {}", this);
 
             // Sanity check
             assert this.compaction == null;
@@ -500,7 +500,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 for (Path path : paths) {
                     final File file = path.toFile();
                     if (!expectedFiles.contains(file))
-                        this.log.warn("ignoring unexpected file " + file.getName() + " in my database directory");
+                        this.log.warn("ignoring unexpected file {} in my database directory", file.getName());
                 }
             }
 
@@ -526,7 +526,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Read and apply pre-existing uncompacted modifications from modifications file
             if (this.modsFileLength > 0) {
-                this.log.info("reading " + this.modsFileLength + " bytes of uncompacted modifications from " + this.modsFile);
+                this.log.info("reading {} bytes of uncompacted modifications from {}", this.modsFileLength, this.modsFile);
                 try (FileInputStream input = new FileInputStream(this.modsFile)) {
                     while (input.available() > 0) {
                         final Writes writes;
@@ -567,7 +567,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Check state
             if (this.kvstore == null)
                 return;
-            this.log.info("stopping " + this);
+            this.log.info("stopping {}", this);
 
             // Cleanup
             this.cleanup();
@@ -596,7 +596,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
         // Wait for any in-progress hot copies to complete
         if (this.hotCopiesInProgress > 0) {
-            this.log.debug("waiting for " + this.hotCopiesInProgress + " hot copies to complete before shutdown");
+            this.log.debug("waiting for {} hot copies to complete before shutdown", this.hotCopiesInProgress);
             boolean interrupted = false;
             do {
 
@@ -870,7 +870,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 writes.serialize(buf);
                 buf.flush();
             } catch (IOException e) {
-                this.log.error("error writing transaction mutations to " + this.modsFile, e);
+                this.log.error("error writing transaction mutations to {}", this.modsFile, e);
 
                 // Attempt to recover by closing and re-opening the mods file, and discard our partially-written additions
                 this.closeIgnoreException(this.modsFileOutput);
@@ -889,8 +889,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 throw new ArrayKVException("error getting length of " + this.modsFile, e);
             }
             if (this.log.isDebugEnabled()) {
-                this.log.debug("appended " + (newModsFileLength - this.modsFileLength) + " bytes to "
-                  + this.modsFile + " (new length " + newModsFileLength + ")");
+                this.log.debug("appended {} bytes to {} (new length {})",
+                  newModsFileLength - this.modsFileLength, this.modsFile, newModsFileLength);
             }
             this.modsFileLength = newModsFileLength;
 
@@ -1007,7 +1007,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         try {
 
             // Logit
-            this.log.debug("started hot copy into " + target);
+            this.log.debug("started hot copy into {}", target);
 
             // Copy index, keys, and values files using hard links (if possible) as these files are read-only
             final ArrayList<File> regularCopyFiles = new ArrayList<>(5);
@@ -1045,7 +1045,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 assert this.kvstore != null;
 
                 // Logit
-                this.log.debug("completed hot copy into " + target);
+                this.log.debug("completed hot copy into {}", target);
 
                 // Decrement counter
                 this.hotCopiesInProgress--;
@@ -1116,7 +1116,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             assert this.compaction == null;
             this.compaction = new Compaction(millis);
             if (this.log.isTraceEnabled())
-                this.log.trace("scheduling compaction for " + millis + "ms from now");
+                this.log.trace("scheduling compaction for {}ms from now", millis);
         }
 
         // Done
@@ -1148,7 +1148,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             final long firstModAgeMillis = (System.nanoTime() - this.firstModTimestamp) / 1000000L;     // convert ns -> ms
             final long remainingDelay = Math.max(0, this.compactMaxDelay * 1000L - firstModAgeMillis);
             if (this.log.isTraceEnabled())
-                this.log.trace("first modification was " + firstModAgeMillis + "ms ago, remainingDelay = " + remainingDelay);
+                this.log.trace("first modification was {}ms ago, remainingDelay = {}ms", firstModAgeMillis, remainingDelay);
             this.scheduleCompaction(remainingDelay);
             return;
         }
@@ -1200,8 +1200,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                     // Wait for any in-progress hot copies to complete
                     while (this.hotCopiesInProgress > 0) {
-                        this.log.debug("waiting for " + this.hotCopiesInProgress
-                          + " hot copies to complete before completing (trivial) compaction");
+                        this.log.debug("waiting for {} hot copies to complete before completing (trivial) compaction",
+                          this.hotCopiesInProgress);
                         try {
                             this.hotCopyFinishedCondition.await();
                         } catch (InterruptedException e) {
@@ -1230,8 +1230,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 this.writeLock.unlock();
             }
             if (this.log.isDebugEnabled()) {
-                this.log.debug("starting compaction for generation " + this.generation + " -> " + (this.generation + 1)
-                  + " with mods file length " + previousModsFileLength);
+                this.log.debug("starting compaction for generation {} -> {} with mods file length {}",
+                  this.generation, this.generation + 1, previousModsFileLength);
             }
 
             // Create the next generation
@@ -1306,15 +1306,15 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         // Logit
                         if (this.log.isDebugEnabled()) {
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
-                            this.log.debug("compaction for generation " + this.generation + " -> " + (this.generation + 1)
-                              + " finishing up with " + additionalModsLength + " bytes of new modifications after "
-                              + String.format("%.4f", duration) + " seconds");
+                            this.log.debug("compaction for generation {} -> {} finishing up"
+                              + " with {} bytes of new modifications after {} seconds",
+                              this.generation, this.generation + 1, additionalModsLength, String.format("%.4f", duration));
                         }
 
                         // Wait for any in-progress hot copies to complete
                         while (this.hotCopiesInProgress > 0) {
-                            this.log.debug("waiting for " + this.hotCopiesInProgress
-                              + " hot copies to complete before completing compaction");
+                            this.log.debug("waiting for {} hot copies to complete before completing compaction",
+                              this.hotCopiesInProgress);
                             try {
                                 this.hotCopyFinishedCondition.await();
                             } catch (InterruptedException e) {
@@ -1404,7 +1404,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             try {
                                 this.directoryChannel.force(false);
                             } catch (IOException e) {
-                                this.log.error("error syncing directory " + this.directory + " (ignoring)", e);
+                                this.log.error("error syncing directory {} (ignoring)", this.directory, e);
                             }
                         }
 
@@ -1423,9 +1423,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         // Logit
                         if (this.log.isDebugEnabled()) {
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
-                            this.log.debug("compaction for generation " + (newGeneration - 1) + " -> " + newGeneration
-                              + (success ? " successfully compacted " + previousModsFileLength + " bytes" : " failed")
-                              + " in " + String.format("%.4f", duration) + " seconds");
+                            this.log.debug("compaction for generation {} -> {} {} in {} seconds", newGeneration - 1, newGeneration,
+                              success ? "successfully compacted " + previousModsFileLength + " bytes" : "failed",
+                              String.format("%.4f", duration));
                         }
 
                         // Cleanup/undo on failure
@@ -1474,7 +1474,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         try {
             Files.delete(file.toPath());
         } catch (IOException e) {
-            this.log.warn("error deleting " + file + " (proceeding anyway): " + e);
+            this.log.warn("error deleting {} (proceeding anyway): {}", file, e.toString());
         }
     }
 

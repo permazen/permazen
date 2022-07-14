@@ -282,7 +282,7 @@ public class FallbackKVDatabase implements KVDatabase {
     public synchronized void setMaximumTargetIndex(int maximumTargetIndex) {
         maximumTargetIndex = Math.max(-1, maximumTargetIndex);
         if (this.maximumTargetIndex != maximumTargetIndex) {
-            this.log.info("adjusting maximum target index to " + maximumTargetIndex);
+            this.log.info("adjusting maximum target index to {}", maximumTargetIndex);
             this.maximumTargetIndex = maximumTargetIndex;
             this.executor.submit(new MigrationCheckTask());
         }
@@ -352,7 +352,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
             // Logging
             if (this.log.isDebugEnabled())
-                this.log.info("starting up " + this);
+                this.log.info("starting up {}", this);
 
             // Create service thread pool
             final AtomicInteger threadId = new AtomicInteger();
@@ -371,17 +371,17 @@ public class FallbackKVDatabase implements KVDatabase {
 
             // Perform initial availability checks and initialize target runtime state
             for (FallbackTarget target : this.targets) {
-                this.log.info("performing initial availability check for " + target);
+                this.log.info("performing initial availability check for {}", target);
                 target.available = false;
                 try {
                     target.available = target.checkAvailability(this);
                 } catch (Exception e) {
                     if (this.log.isTraceEnabled())
-                        this.log.trace("checkAvailable() for " + target + " threw exception", e);
+                        this.log.trace("checkAvailable() for {} threw exception", target, e);
                     else if (this.log.isDebugEnabled())
-                        this.log.debug("checkAvailable() for " + target + " threw exception: " + e);
+                        this.log.debug("checkAvailable() for {} threw exception: {}", target, e.toString());
                 }
-                this.log.info(target + " is initially " + (target.available ? "" : "un") + "available");
+                this.log.info("{} is initially {}available", target, target.available ? "" : "un");
                 target.lastChangeTimestamp = null;
             }
 
@@ -450,23 +450,23 @@ public class FallbackKVDatabase implements KVDatabase {
 
         // Logging
         if (this.log.isDebugEnabled())
-            this.log.info("shutting down " + this);
+            this.log.info("shutting down {}", this);
 
         // Wait for migration to complete
         if (this.migrating) {
             if (this.log.isDebugEnabled())
-                this.log.info("waiting for migration to finish to shut down " + this);
+                this.log.info("waiting for migration to finish to shut down {}", this);
             do {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    this.log.warn("interrupted during " + this + " shutdown while waiting for migration to finish (ignoring)", e);
+                    this.log.warn("interrupted during {} shutdown while waiting for migration to finish (ignoring)", this, e);
                 }
                 if (!this.started)              // we lost a race with another thread invoking stop()
                     return;
             } while (this.migrating);
             if (this.log.isDebugEnabled())
-                this.log.info("migration finished, continuing with shut down of " + this);
+                this.log.info("migration finished, continuing with shut down of {}", this);
         }
 
         // Reset target runtime state
@@ -498,13 +498,13 @@ public class FallbackKVDatabase implements KVDatabase {
             try {
                 target.getRaftKVDatabase().stop();
             } catch (Exception e) {
-                this.log.warn("error stopping database target " + target + " (ignoring)", e);
+                this.log.warn("error stopping database target {} (ignoring)", this, e);
             }
         }
         try {
             this.standaloneKV.stop();
         } catch (Exception e) {
-            this.log.warn("error stopping fallback database " + this.standaloneKV + " (ignoring)", e);
+            this.log.warn("error stopping fallback database {} (ignoring)", this.standaloneKV, e);
         }
 
         // Done
@@ -601,10 +601,8 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         // Logging
-        if (this.log.isTraceEnabled()) {
-            this.log.trace("performing availability check for " + target
-              + " (currently " + (wasAvailable ? "" : "un") + "available)");
-        }
+        if (this.log.isTraceEnabled())
+            this.log.trace("performing availability check for {} (currently {}available)", target, wasAvailable ? "" : "un");
 
         // Perform check
         boolean available = false;
@@ -612,9 +610,9 @@ public class FallbackKVDatabase implements KVDatabase {
             available = target.checkAvailability(this);
         } catch (Exception e) {
             if (this.log.isTraceEnabled())
-                this.log.trace("checkAvailable() for " + target + " threw exception", e);
+                this.log.trace("checkAvailable() for {} threw exception", target, e);
             else if (wasAvailable && this.log.isDebugEnabled())
-                this.log.debug("checkAvailable() for " + target + " threw exception: " + e);
+                this.log.debug("checkAvailable() for {} threw exception: {}", target, e.toString());
         }
 
         // Handle result
@@ -639,7 +637,7 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         // Log result
-        this.log.info(target + " has become " + (available ? "" : "un") + "available");
+        this.log.info("{} has become {}available", target, available ? "" : "un");
     }
 
     // Perform migration if necessary
@@ -681,8 +679,8 @@ public class FallbackKVDatabase implements KVDatabase {
                 else
                     hysteresisAvailable = previousAvailable && timeSinceChange < target.getMinUnavailableTime();
                 if (this.log.isTraceEnabled()) {
-                    this.log.trace(target + " availability: previous=" + previousAvailable + ", current=" + currentAvailable
-                      + ", hysteresis=" + hysteresisAvailable);
+                    this.log.trace("{} availability: previous={}, current={}, hysteresis={}",
+                      target, previousAvailable, currentAvailable, hysteresisAvailable);
                 }
 
                 // If this target is available, use it
@@ -705,7 +703,7 @@ public class FallbackKVDatabase implements KVDatabase {
             // Ask subclass if migration is allowed right now
             if (!this.isMigrationAllowed(currIndex, bestIndex)) {
                 if (this.log.isTraceEnabled())
-                    this.log.trace("migration canceled: denied by " + this.getClass().getSimpleName() + ".isMigrationAllowed()");
+                    this.log.trace("migration canceled: denied by {}.isMigrationAllowed()", this.getClass().getSimpleName());
                 return;
             }
 
@@ -733,7 +731,7 @@ public class FallbackKVDatabase implements KVDatabase {
                   currTarget.getUnavailableMergeStrategy() : bestTarget.getRejoinMergeStrategy();
 
                 // Logit
-                this.log.info("starting fallback " + desc + " using " + mergeStrategy);
+                this.log.info("starting fallback {} using {}", desc, mergeStrategy);
 
                 // Create source transaction. Note the combination of read-only and EVENTUAL_COMMITTED is important, because this
                 // guarantees that the transaction will generate no network traffic (and not require any majority) on commit().
@@ -772,7 +770,7 @@ public class FallbackKVDatabase implements KVDatabase {
                     src.rollback();                     // no effect if already committed
                 }
             } catch (RetryTransactionException e) {
-                this.log.info(desc + " failed (will try again later): " + e);
+                this.log.info("{} failed (will try again later): {}", desc, e.toString());
             } catch (Throwable t) {
                 this.log.error(desc + " failed", t);
             }
@@ -790,7 +788,7 @@ public class FallbackKVDatabase implements KVDatabase {
             try {
                 this.writeStateFile();
             } catch (IOException e) {
-                this.log.error("error writing state to state file " + this.stateFile, e);
+                this.log.error("error writing state to state file {}", this.stateFile, e);
             }
         }
 
@@ -869,8 +867,8 @@ public class FallbackKVDatabase implements KVDatabase {
             }
             final int numTargets = input.readInt();
             if (numTargets != this.targets.size()) {
-                this.log.warn("state file " + this.stateFile + " lists " + numTargets + " != " + this.targets.size()
-                  + ", assuming configuration change and ignoring file");
+                this.log.warn("state file {} lists {} != {}, assuming configuration change and ignoring file",
+                  this.stateFile, numTargets, this.targets.size());
                 return;
             }
             targetIndex = input.readInt();
@@ -1002,7 +1000,7 @@ public class FallbackKVDatabase implements KVDatabase {
             try {
                 FallbackKVDatabase.this.performCheck(this.target, this.startCount);
             } catch (Throwable t) {
-                FallbackKVDatabase.this.log.error("exception from " + this.target + " availability check", t);
+                FallbackKVDatabase.this.log.error("exception from {} availability check", this.target, t);
             }
         }
     }

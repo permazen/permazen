@@ -34,7 +34,7 @@ public class AllowDeletedTest extends TestSupport {
             try {
                 person.setDefinitelyExistsFriend(deletedPerson);
             } catch (DeletedObjectException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
                 // expected
             }
 
@@ -68,7 +68,7 @@ public class AllowDeletedTest extends TestSupport {
                 p1.copyIn();
                 assert false;
             } catch (DeletedObjectException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             // copyIn() of one object and one other object it refers to
@@ -77,7 +77,7 @@ public class AllowDeletedTest extends TestSupport {
                 p1.copyIn("definitelyExistsFriend");
                 assert false;
             } catch (DeletedObjectException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
             }
 
             // copyIn() of all three objects through reference paths from first object
@@ -91,7 +91,7 @@ public class AllowDeletedTest extends TestSupport {
                 stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2));
                 assert false;
             } catch (DeletedObjectException e) {
-                this.log.debug("got expected " + e);
+                this.log.debug("got expected {}", e.toString());
                 Assert.assertEquals(e.getId(), p3.getObjId());
             }
 

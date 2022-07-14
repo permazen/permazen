@@ -440,7 +440,7 @@ public class Database {
 
                 // Initialize database
                 formatVersion = Layout.CURRENT_FORMAT_VERSION;
-                this.log.debug("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
+                this.log.debug("detected an uninitialized database; initializing now (format version {})", formatVersion);
                 final byte[] encodedFormatVersion = UnsignedIntEncoder.encode(formatVersion);
                 kvstore.put(Layout.getFormatVersionKey(), encodedFormatVersion);
 
@@ -531,13 +531,13 @@ public class Database {
                     if (!uninitialized)
                         throw new InconsistentDatabaseException("database is initialized but contains no recorded schema versions");
                 } else
-                    this.log.debug("schema version " + version + " not found in database; known versions are " + bytesMap.keySet());
+                    this.log.debug("schema version {} not found in database; known versions are {}", version, bytesMap.keySet());
 
                 // Check whether we can add a new schema version
                 this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
                 // Record new schema in database
-                this.log.debug("recording new schema version " + version + " into database");
+                this.log.debug("recording new schema version {} into database", version);
                 kvstore.put(Layout.getSchemaKey(version), Layout.encodeSchema(schemaModel, formatVersion));
 
                 // Try again
@@ -547,7 +547,7 @@ public class Database {
 
             // Compare transaction schema with the schema of the same version found in the database
             if (this.log.isTraceEnabled())
-                this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
+                this.log.trace("found schema version {} in database; known versions are {}", version, bytesMap.keySet());
             final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();
             if (schemaModel != null) {
                 if (!schemaModel.isCompatibleWith(dbSchemaModel)) {

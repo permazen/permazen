@@ -72,7 +72,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
             tx.readSetField(id1, 2, true);
             assert false : "expected UnknownFieldException";
         } catch (UnknownFieldException e) {
-            this.log.info("got expected " + e);
+            this.log.info("got expected {}", e.toString());
         }
         TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap());        // verify index is now empty!
 

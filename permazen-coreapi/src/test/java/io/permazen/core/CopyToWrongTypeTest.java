@@ -60,7 +60,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
             tx.copy(bar1, tx, false, false, null, remap);
             assert false : "copied foo1 to bar1!";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
 
         // Try to copy mapping bar1.ref -> foo1: incompatible type in reference field
@@ -71,7 +71,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
             tx.copy(bar1, tx, false, false, null, remap);
             assert false : "copied bar1.ref to foo!";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
 
         // Try to copy mapping bar2 -> wrong storage ID
@@ -81,7 +81,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
             tx.copy(bar2, tx, false, false, null, remap);
             assert false : "copied bar2 to id#1!";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
 
         // Try to copy mapping bar2 -> null
@@ -91,7 +91,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
             tx.copy(bar2, tx, false, false, null, remap);
             assert false : "copied bar2 to null!";
         } catch (IllegalArgumentException e) {
-            this.log.debug("got expected " + e);
+            this.log.debug("got expected {}", e.toString());
         }
     }
 }

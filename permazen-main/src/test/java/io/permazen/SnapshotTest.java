@@ -215,28 +215,28 @@ public class SnapshotTest extends TestSupport {
                 p1.copyOut("age");
                 assert false;
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             try {
                 p1.copyOut("set.foo");
                 assert false;
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             try {
                 p1.copyOut("map1.value");
                 assert false;
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
             try {
                 p1.copyOut("map2.key");
                 assert false;
             } catch (IllegalArgumentException e) {
-                this.log.info("got expected " + e);
+                this.log.info("got expected {}", e.toString());
             }
 
         } finally {

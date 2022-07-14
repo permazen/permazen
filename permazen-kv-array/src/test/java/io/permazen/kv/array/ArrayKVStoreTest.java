@@ -51,7 +51,7 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
                     byte[] val = new byte[this.random.nextInt(32)];
                     if (val.length > 0)
                         this.random.nextBytes(val);
-                    //this.log.info("NEXT KV: " + ByteUtil.toString(key) + " VALUE " + ByteUtil.toString(val));
+                    //this.log.info("NEXT KV: {} VALUE {}", ByteUtil.toString(key), ByteUtil.toString(val));
                     writer.writeKV(key, val);
                     reference.put(key, val);
                 }
@@ -80,9 +80,9 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
               ByteBuffer.wrap(valsOutput.toByteArray()));
 
             // Debug
-            //this.log.info("INDX:" + this.format(indxOutput.toByteArray()));
-            //this.log.info("KEYS:" + this.format(keysOutput.toByteArray()));
-            //this.log.info("VALS:" + this.format(valsOutput.toByteArray()));
+            //this.log.info("INDX:{}", this.format(indxOutput.toByteArray()));
+            //this.log.info("KEYS:{}", this.format(keysOutput.toByteArray()));
+            //this.log.info("VALS:{}", this.format(valsOutput.toByteArray()));
 
             // Perform a bunch of queries and verify we get the same thing from both
             for (int j = 0; j < 100; j++) {

@@ -126,18 +126,18 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             protected void log(InfoLogLevel level, String message) {
                 switch (level) {
                 case DEBUG_LEVEL:
-                    RocksDBAtomicKVStore.this.log.trace("[RocksDB] " + message);
+                    RocksDBAtomicKVStore.this.log.trace("[RocksDB] {}", message);
                     break;
                 case INFO_LEVEL:
-                    RocksDBAtomicKVStore.this.log.info("[RocksDB] " + message);
+                    RocksDBAtomicKVStore.this.log.info("[RocksDB] {}", message);
                     break;
                 case WARN_LEVEL:
-                    RocksDBAtomicKVStore.this.log.warn("[RocksDB] " + message);
+                    RocksDBAtomicKVStore.this.log.warn("[RocksDB] {}", message);
                     break;
                 case ERROR_LEVEL:
                 case FATAL_LEVEL:
                 default:
-                    RocksDBAtomicKVStore.this.log.error("[RocksDB] " + message);
+                    RocksDBAtomicKVStore.this.log.error("[RocksDB] {}", message);
                     break;
                 }
             }
@@ -153,7 +153,7 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Already started?
         if (this.db != null)
             return;
-        this.log.info("starting " + this);
+        this.log.info("starting {}", this);
 
         // Check configuration
         Preconditions.checkState(this.directory != null, "no directory configured");
@@ -170,7 +170,7 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 
         // Open database
         if (this.log.isDebugEnabled())
-            this.log.debug("opening " + this + " RocksDB database");
+            this.log.debug("opening {} RocksDB database", this);
         try {
             this.db = RocksDB.open(this.options, this.directory.toString());
         } catch (RocksDBException e) {
@@ -198,7 +198,7 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Check state
         if (this.db == null)
             return;
-        this.log.info("stopping " + this);
+        this.log.info("stopping {}", this);
 
         // Close k/v store view
         this.kv.close();
@@ -207,7 +207,7 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Shut down RocksDB database
         try {
             if (this.log.isDebugEnabled())
-                this.log.info("closing " + this + " RocksDB database");
+                this.log.info("closing {} RocksDB database", this);
             this.db.close();
         } catch (Throwable e) {
             this.log.error("caught exception closing database during shutdown (ignoring)", e);

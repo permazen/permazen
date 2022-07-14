@@ -88,7 +88,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                 this.tx.abort();
         }
         if (this.log.isTraceEnabled())
-            this.log.trace("created " + this);
+            this.log.trace("created {}", this);
     }
 
     // Used by readOnlySnapshot()
@@ -304,7 +304,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
         if (!this.closed.compareAndSet(false, true))
             return true;
         if (this.log.isTraceEnabled())
-            this.log.trace("closing " + this);
+            this.log.trace("closing {}", this);
         if (commit) {
             if (this.tx.commit())
                 return true;
@@ -344,7 +344,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
             this.maxKey = maxKey;
             this.reverse = reverse;
             if (XodusKVStore.this.log.isTraceEnabled())
-                XodusKVStore.this.log.trace("created " + this);
+                XodusKVStore.this.log.trace("created {}", this);
             if (this.reverse) {
                 if (this.maxKey != null) {
                     final boolean found = this.cursor.getSearchKeyRange(new ArrayByteIterable(this.maxKey)) != null;
@@ -352,12 +352,12 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                       "cusor.getSearchKeyRange() returned " + ByteUtil.toString(XodusKVStore.get(this.cursor.getKey(), false))
                       + " < " + ByteUtil.toString(this.maxKey);
                     if (XodusKVStore.this.log.isTraceEnabled())
-                        XodusKVStore.this.log.trace("initial seek to " + ByteUtil.toString(this.maxKey) + " -> " + found);
+                        XodusKVStore.this.log.trace("initial seek to {} -> {}", ByteUtil.toString(this.maxKey), found);
                 }
             } else if (this.minKey != null) {
                 final boolean found = this.cursor.getSearchKeyRange(new ArrayByteIterable(this.minKey)) != null;
                 if (XodusKVStore.this.log.isTraceEnabled())
-                    XodusKVStore.this.log.trace("initial seek to " + ByteUtil.toString(this.minKey) + " -> " + found);
+                    XodusKVStore.this.log.trace("initial seek to {} -> {}", ByteUtil.toString(this.minKey), found);
                 if (found) {
                     final byte[] key = XodusKVStore.get(cursor.getKey(), true);
                     assert ByteUtil.compare(key, this.minKey) >= 0 : "cusor.getSearchKeyRange() returned "
@@ -401,7 +401,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
             Preconditions.checkState(this.removeKey != null);
             Preconditions.checkState(!XodusKVStore.this.txType.isReadOnly(), "read-only transaction");
             if (XodusKVStore.this.log.isTraceEnabled())
-                XodusKVStore.this.log.trace("remove " + ByteUtil.toString(this.removeKey));
+                XodusKVStore.this.log.trace("remove {}", ByteUtil.toString(this.removeKey));
             if (this.removable)
                 this.cursor.deleteCurrent();
             else
@@ -484,7 +484,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
             // We found the next pair
             this.next = new KVPair(key, XodusKVStore.get(cursor.getValue(), true));
             if (XodusKVStore.this.log.isTraceEnabled())
-                XodusKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> " + this.next);
+                XodusKVStore.this.log.trace("seek {} -> {}", this.reverse ? "previous" : "next", this.next);
 
             // Done
             return true;
@@ -500,7 +500,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                 this.closed = true;
             }
             if (XodusKVStore.this.log.isTraceEnabled())
-                XodusKVStore.this.log.trace("closing " + this);
+                XodusKVStore.this.log.trace("closing {}", this);
             try {
                 this.cursor.close();
             } catch (Throwable e) {

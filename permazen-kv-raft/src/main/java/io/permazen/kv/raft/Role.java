@@ -186,13 +186,13 @@ public abstract class Role {
 
             // Apply updates to the key/value store; when applying the last one, durably persist
             if (this.log.isDebugEnabled())
-                this.debug("applying committed log entry " + logEntry + " to key/value store");
+                this.debug("applying committed log entry {} to key/value store", logEntry);
             try {
                 this.raft.kv.mutate(mutations,
                   !this.raft.disableSync && this.raft.log.getLastAppliedIndex() == this.raft.commitIndex);
             } catch (Exception e) {
                 final Throwable cause = e.getCause() instanceof IOException ? (IOException)e.getCause() : e;
-                this.error("error applying log entry " + logEntry + " to key/value store", cause);
+                this.error("error applying log entry {} to key/value store", logEntry, cause);
                 break;
             }
 
@@ -384,7 +384,7 @@ public abstract class Role {
 
         // Update state
         if (this.log.isTraceEnabled())
-            this.trace("advancing " + tx + " to " + TxState.COMMIT_WAITING);
+            this.trace("advancing {} to {}", tx, TxState.COMMIT_WAITING);
         tx.setState(TxState.COMMIT_WAITING);
         tx.setNoLongerRebasable();
         this.checkCommittable(tx);
@@ -424,13 +424,13 @@ public abstract class Role {
         final Timestamp commitLeaderLeaseTimeout = tx.getCommitLeaderLeaseTimeout();
         if (commitLeaderLeaseTimeout != null && !this.isLeaderLeaseActiveAt(commitLeaderLeaseTimeout)) {
             if (this.log.isTraceEnabled())
-                this.trace("committable " + tx + " must wait for leader lease timeout " + commitLeaderLeaseTimeout);
+                this.trace("committable {} must wait for leader lease timeout {}", tx, commitLeaderLeaseTimeout);
             return;
         }
 
         // Allow transaction commit to complete
         if (this.log.isTraceEnabled())
-            this.trace("commit successful for " + tx);
+            this.trace("commit successful for {}", tx);
         this.raft.succeed(tx);
     }
 
@@ -519,7 +519,7 @@ public abstract class Role {
 
         // The transaction's commit log entry is committed, so mark the transaction as committable
         if (this.log.isTraceEnabled())
-            this.trace(tx + " is now committable: " + this.raft.commitIndex + " >= " + commitIndex + "t" + commitTerm);
+            this.trace("{} is now committable: {} >= {}t{}", tx, this.raft.commitIndex, commitIndex, commitTerm);
         tx.setCommittable();
         if (tx.isRebasable())
             tx.setNoLongerRebasable();
@@ -604,7 +604,7 @@ public abstract class Role {
                 final Conflict conflict;
                 if (!skipConflictCheck && (conflict = tx.view.getReads().findConflict(logEntry.getWrites())) != null) {
                     if (this.log.isDebugEnabled())
-                        this.debug("cannot rebase " + tx + " past " + logEntry + ", failing: " + conflict);
+                        this.debug("cannot rebase {} past {}, failing: {}", tx, logEntry, conflict);
                     if (this.raft.dumpConflicts) {
                         this.dumpConflicts(tx.view.getReads(), logEntry.getWrites(),
                           "local txId=" + tx.txId + " fails due to conflicts with " + logEntry);
@@ -622,10 +622,8 @@ public abstract class Role {
 
             // Update transaction
             final long baseTerm = this.raft.log.getTermAtIndex(baseIndex);
-            if (this.log.isDebugEnabled()) {
-                this.debug("rebased " + tx + " from " + tx.getBaseIndex() + "t" + tx.getBaseTerm()
-                  + " -> " + baseIndex + "t" + baseTerm);
-            }
+            if (this.log.isDebugEnabled())
+                this.debug("rebased {} from {}t{} -> {}t{}", tx, tx.getBaseIndex(), tx.getBaseTerm(), baseIndex, baseTerm);
             switch (tx.getState()) {
             case EXECUTING:
                 assert !tx.hasCommitInfo() || tx.isReadOnly();
@@ -734,7 +732,7 @@ public abstract class Role {
     }
 
     void failUnexpectedMessage(Message msg) {
-        this.warn("rec'd unexpected message " + msg + " while in role " + this + "; ignoring");
+        this.warn("rec'd unexpected message {} while in role {}; ignoring", msg, this);
     }
 
 // Debug
@@ -747,48 +745,28 @@ public abstract class Role {
 
 // Logging
 
-    void trace(String msg, Throwable t) {
-        this.raft.trace(msg, t);
+    void trace(String msg, Object... args) {
+        this.raft.trace(msg, args);
     }
 
-    void trace(String msg) {
-        this.raft.trace(msg);
+    void debug(String msg, Object... args) {
+        this.raft.debug(msg, args);
     }
 
-    void debug(String msg, Throwable t) {
-        this.raft.debug(msg, t);
+    void info(String msg, Object... args) {
+        this.raft.info(msg, args);
     }
 
-    void debug(String msg) {
-        this.raft.debug(msg);
+    void warn(String msg, Object... args) {
+        this.raft.warn(msg, args);
     }
 
-    void info(String msg, Throwable t) {
-        this.raft.info(msg, t);
+    void error(String msg, Object... args) {
+        this.raft.error(msg, args);
     }
 
-    void info(String msg) {
-        this.raft.info(msg);
-    }
-
-    void warn(String msg, Throwable t) {
-        this.raft.warn(msg, t);
-    }
-
-    void warn(String msg) {
-        this.raft.warn(msg);
-    }
-
-    void error(String msg, Throwable t) {
-        this.raft.error(msg, t);
-    }
-
-    void error(String msg) {
-        this.raft.error(msg);
-    }
-
-    void perfLog(String msg) {
-        this.raft.perfLog(msg);
+    void perfLog(String msg, Object... args) {
+        this.raft.perfLog(msg, args);
     }
 
 // Object
