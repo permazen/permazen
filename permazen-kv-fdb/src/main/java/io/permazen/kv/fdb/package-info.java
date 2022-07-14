@@ -6,6 +6,6 @@
 /**
  * {@link io.permazen.kv.KVDatabase} implementation based on FoundationDB.
  *
- * @see <a href="https://foundationdb.com/">FoundationDB</a>
+ * @see <a href="https://www.foundationdb.org/">FoundationDB</a>
  */
 package io.permazen.kv.fdb;

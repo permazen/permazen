@@ -24,7 +24,7 @@ package io.permazen.kv.raft;
  * no matter what {@link Consistency} level is configured for that transaction.
  *
  * @see RaftKVTransaction#getConsistency RaftKVTransaction.getConsistency()
- * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
+ * @see <a href="https://jepsen.io/consistency">Strong consistency models</a>
  */
 public enum Consistency {
 

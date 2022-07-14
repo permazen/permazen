@@ -29,6 +29,8 @@ import javax.annotation.PreDestroy;
  * <p>
  * Allows specifying a {@linkplain #setKeyPrefix key prefix} for all keys, allowing multiple independent databases.
  * {@linkplain FoundationKVTransaction#watchKey Key watches} are supported.
+ *
+ * @see <a href="https://www.foundationdb.org/">FoundationDB</a>
  */
 public class FoundationKVDatabase implements KVDatabase {
 

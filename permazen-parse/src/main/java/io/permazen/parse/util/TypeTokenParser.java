@@ -108,7 +108,7 @@ public class TypeTokenParser {
      * @param target raw class
      * @param params type parameters
      * @return generic {@link TypeToken} for {@code target}
-     * @see <a href="https://code.google.com/p/guava-libraries/issues/detail?id=1645">Guava Issue #1645</a>
+     * @see <a href="https://github.com/google/guava/issues/1645">Guava Issue #1645</a>
      */
     @SuppressWarnings("unchecked")
     private <T> TypeToken<? extends T> newParameterizedType(Class<T> target, List<Type> params) {

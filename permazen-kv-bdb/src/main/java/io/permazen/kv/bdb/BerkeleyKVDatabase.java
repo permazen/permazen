@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
  * {@link Environment}, {@link Database}, and {@link Transaction}s may all be configured.
  * Instances may be stopped and (re)started multiple times.
  *
- * @see <a href="http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-093405.html"
- *  >Oracle Berkeley DB Java Edition</a>
+ * @see <a href="https://www.oracle.com/database/technologies/related/berkeleydb.html">Oracle Berkeley DB Java Edition</a>
  */
 public class BerkeleyKVDatabase implements KVDatabase {
 

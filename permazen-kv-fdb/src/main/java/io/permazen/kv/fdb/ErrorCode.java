@@ -10,7 +10,7 @@ import org.dellroad.stuff.util.LongMap;
 /**
  * FoundationDB error codes.
  *
- * @see <a href="https://github.com/apple/foundationdb/blob/master/flow/error_definitions.h">Error Codes</a>
+ * @see <a href="https://github.com/apple/foundationdb/blob/main/flow/include/flow/error_definitions.h">Error Codes</a>
  */
 public enum ErrorCode {
 
