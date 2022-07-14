@@ -19,9 +19,6 @@ import java.sql.Statement;
  *
  * <p>
  * Automatically creates the key/value table on startup if it doesn't already exist.
- *
- * <p>
- * <b>WARNING:</b> not fully working yet; see <a href="https://github.com/cockroachdb/cockroach/issues/1962">issue #1962</a>.
  */
 public class CockroachKVDatabase extends SQLKVDatabase {
 
