@@ -331,7 +331,7 @@ public class FollowerRole extends NonLeaderRole {
 
             // Otherwise, we can only handle an initial config change that is adding the local node
             if (configChange == null || !configChange[0].equals(this.raft.identity) || configChange[1] == null) {
-                throw new RetryTransactionException(tx, "unconfigured system: an initial configuration change adding"
+                throw new RetryTransactionException(tx, "unconfigured node: an initial configuration change adding"
                   + " the local node (\"" + this.raft.identity + "\") as the first member of a new cluster is required");
             }
 
