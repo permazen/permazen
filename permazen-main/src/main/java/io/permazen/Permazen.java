@@ -33,6 +33,7 @@ import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
+import io.permazen.util.ApplicationClassLoader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -1124,7 +1125,7 @@ public class Permazen {
 
         // Set up class loader
         Loader() {
-            super(Thread.currentThread().getContextClassLoader());
+            super(ApplicationClassLoader.getInstance());
         }
 
         // Find matching ClassGenerator, if any, otherwise defer to parent

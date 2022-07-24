@@ -13,6 +13,7 @@ import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaObjectType;
+import io.permazen.util.ApplicationClassLoader;
 import io.permazen.util.ParseContext;
 
 import java.util.ArrayDeque;
@@ -929,7 +930,7 @@ public class ReferencePath {
                     type = ReferencePath.this.jdb.getJClass(schemaType.getStorageId()).getType();
                 else {
                     try {
-                        type = Class.forName(typeName, false, Thread.currentThread().getContextClassLoader());
+                        type = Class.forName(typeName, false, ApplicationClassLoader.getInstance());
                     } catch (Exception e) {
                         throw new IllegalArgumentException("Unknown type `" + typeName
                           + "' in reference path reverse traversal step `" + step + "'");

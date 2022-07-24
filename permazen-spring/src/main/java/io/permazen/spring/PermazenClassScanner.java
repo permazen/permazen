@@ -18,19 +18,33 @@ public class PermazenClassScanner extends AnnotatedClassScanner {
 
     /**
      * Constructor.
+     *
+     * <p>
+     * The current thread's {@linkplain Thread#getContextClassLoader context class loader} will be used.
+     * as the underlying {@link ClassLoader}.
      */
     public PermazenClassScanner() {
-        super(PermazenType.class);
+        this(Thread.currentThread().getContextClassLoader());
     }
 
     /**
      * Constructor.
      *
+     * @param loader the underlying {@link ClassLoader} to use
+     */
+    public PermazenClassScanner(ClassLoader loader) {
+        super(loader, PermazenType.class);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param loader the underlying {@link ClassLoader} to use
      * @param useDefaultFilters whether to register the default filters for {@link PermazenType &#64;PermazenType} type annotations
      * @param environment environment to use
      */
-    public PermazenClassScanner(boolean useDefaultFilters, Environment environment) {
-        super(useDefaultFilters, environment, PermazenType.class);
+    public PermazenClassScanner(ClassLoader loader, boolean useDefaultFilters, Environment environment) {
+        super(loader, useDefaultFilters, environment, PermazenType.class);
     }
 
     /**

@@ -7,6 +7,7 @@ package io.permazen.parse.util;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.util.ApplicationClassLoader;
 import io.permazen.util.ParseContext;
 
 import java.lang.reflect.Method;
@@ -36,12 +37,11 @@ public class TypeTokenParser {
     /**
      * Primary constructor.
      *
-     * @param loader class loader to use for loading classes,
-     *  or null for the current thread's {@linkplain Thread#getContextClassLoader context loader}
+     * @param loader class loader to use for loading classes, or null for the {@link ApplicationClassLoader}
      */
     public TypeTokenParser(ClassLoader loader) {
         if (loader == null)
-            loader = Thread.currentThread().getContextClassLoader();
+            loader = ApplicationClassLoader.getInstance();
         this.loader = loader;
     }
 

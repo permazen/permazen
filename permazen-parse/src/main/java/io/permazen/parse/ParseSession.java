@@ -14,6 +14,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.parse.expr.Node;
 import io.permazen.parse.expr.Value;
 import io.permazen.parse.func.Function;
+import io.permazen.util.ApplicationClassLoader;
 import io.permazen.util.ImplementationsReader;
 
 import java.util.ArrayList;
@@ -238,7 +239,7 @@ public class ParseSession extends Session {
             // Try package vs. nested classes
             while (true) {
                 try {
-                    baseClass = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                    baseClass = Class.forName(className, false, ApplicationClassLoader.getInstance());
                     break search;
                 } catch (ClassNotFoundException e) {
                     // not found

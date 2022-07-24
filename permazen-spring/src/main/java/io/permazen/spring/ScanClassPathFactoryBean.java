@@ -7,6 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ApplicationClassLoader;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.TypeFilter;
 
@@ -29,6 +32,13 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
     protected List<TypeFilter> includeFilters;
     protected List<TypeFilter> excludeFilters;
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * Note: the given {@link ResourceLoader} is not actually used; we extract its {@link ClassLoader},
+     * wrap that in a {@link ApplicationClassLoader}, and then create a new {@link DefaultResourceLoader}.
+     */
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -71,8 +81,7 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
     protected List<Class<?>> createInstance() {
 
         // Build and configure scanner
-        final AnnotatedClassScanner scanner = this.createScanner();
-        scanner.setResourceLoader(this.resourceLoader);
+        final AnnotatedClassScanner scanner = this.createScanner(this.resourceLoader.getClassLoader());
         if (this.resourcePattern != null)
             scanner.setResourcePattern(this.resourcePattern);
         if (this.includeFilters != null) {
@@ -91,7 +100,7 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
         final ArrayList<Class<?>> classes = new ArrayList<>();
         for (String name : classNames) {
             try {
-                classes.add(Class.forName(name, false, this.resourceLoader.getClassLoader()));
+                classes.add(Class.forName(name, false, scanner.getResourceLoader().getClassLoader()));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("failed to load class `" + name + "'", e);
             }
@@ -106,6 +115,5 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
         return List.class;
     }
 
-    abstract AnnotatedClassScanner createScanner();
+    abstract AnnotatedClassScanner createScanner(ClassLoader loader);
 }
-

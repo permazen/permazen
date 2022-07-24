@@ -5,6 +5,8 @@
 
 package io.permazen.app;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.PermazenFactory;
 import io.permazen.annotation.JFieldType;
 import io.permazen.core.Database;
@@ -14,11 +16,11 @@ import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.spring.PermazenClassScanner;
 import io.permazen.spring.PermazenFieldTypeScanner;
+import io.permazen.util.ApplicationClassLoader;
 
 import java.io.File;
-import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +52,7 @@ public abstract class AbstractMain extends MainClass {
     protected String databaseDescription;
 
     // Misc
+    protected final ApplicationClassLoader loader = ApplicationClassLoader.getInstance();
     protected boolean verbose;
     protected boolean readOnly;
 
@@ -66,6 +69,9 @@ public abstract class AbstractMain extends MainClass {
      * @return -1 to proceed, otherwise process exit value
      */
     public int parseOptions(ArrayDeque<String> params) {
+
+        // Sanity check
+        Preconditions.checkArgument(params != null, "null params");
 
         // Special logic to automate the demo when no flags (other than "--port XXXX") are given
         if (DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists()
@@ -273,34 +279,32 @@ public abstract class AbstractMain extends MainClass {
      *
      * @param path classpath path component
      * @return true if successful, false if an error occured
+     * @throws IllegalArgumentException if {@code path} is null
      */
     protected boolean appendClasspath(String path) {
-        this.log.trace("adding classpath `" + path + "' to system classpath");
-        try {
-
-            // Get URLClassLoader.addURL() method and make accessible
-            final Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            addURLMethod.setAccessible(true);
-
-            // Split path and add components
-            for (String file : path.split(System.getProperty("path.separator", ":"))) {
-                if (file.length() == 0)
-                    continue;
-                addURLMethod.invoke(ClassLoader.getSystemClassLoader(), new Object[] { new File(file).toURI().toURL() });
-                this.log.trace("added path component `" + file + "' to system classpath");
+        Preconditions.checkArgument(path != null, "null path");
+        this.log.trace("adding classpath `{}' to application classpath", path);
+        for (String file : path.split(System.getProperty("path.separator", ":"))) {
+            if (file.length() == 0)
+                continue;
+            final URL url;
+            try {
+                url = new File(file).toURI().toURL();
+            } catch (MalformedURLException e) {
+                this.log.error("can't append `{}' to classpath: {}", file, e.toString(), e);
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            this.log.error("can't append `" + path + " to classpath: " + e, e);
-            return false;
+            this.loader.addURL(url);
+            this.log.trace("added path component `{}' to classpath", file);
         }
+        return true;
     }
 
     private boolean scanModelClasses(String pkgname) {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
-        new PermazenClassScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+        new PermazenClassScanner(this.loader).scanForClasses(pkgname.split("[\\s,]")).stream()
           .peek(name -> this.log.debug("loading Java model class {}", name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
@@ -313,7 +317,7 @@ public abstract class AbstractMain extends MainClass {
         if (this.fieldTypeClasses == null)
             this.fieldTypeClasses = new HashSet<>();
         final boolean[] foundAny = new boolean[1];
-        new PermazenFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")).stream()
+        new PermazenFieldTypeScanner(this.loader).scanForClasses(pkgname.split("[\\s,]")).stream()
           .peek(name -> this.log.debug("loading custom FieldType class {}", name))
           .map(this::loadClass)
           .peek(cl -> foundAny[0] = true)
@@ -367,10 +371,12 @@ public abstract class AbstractMain extends MainClass {
      * @param className class name
      * @return class with name {@code className}
      * @throws RuntimeException if load fails
+     * @throws IllegalArgumentException if {@code className} is null
      */
     protected Class<?> loadClass(String className) {
+        Preconditions.checkArgument(className != null, "null className");
         try {
-            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            return Class.forName(className, false, this.loader);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("failed to load class `" + className + "'", e);
         }

@@ -59,6 +59,7 @@ import io.permazen.core.type.YearType;
 import io.permazen.core.type.ZoneIdType;
 import io.permazen.core.type.ZoneOffsetType;
 import io.permazen.core.type.ZonedDateTimeType;
+import io.permazen.util.ApplicationClassLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -316,7 +317,7 @@ public class FieldTypeRegistry {
         this.addClasses(StreamSupport.stream(classNames.spliterator(), false)
           .map(className -> {
             try {
-                return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                return Class.forName(className, false, ApplicationClassLoader.getInstance());
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {

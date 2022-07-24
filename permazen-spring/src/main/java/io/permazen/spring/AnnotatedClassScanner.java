@@ -7,6 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ApplicationClassLoader;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
@@ -29,12 +31,13 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
     /**
      * Constructor. Enables use of default filters and uses a {@link org.springframework.core.env.StandardEnvironment}.
      *
+     * @param loader {@link ClassLoader} to use for finding classes
      * @param annotationTypes type annotations to search for
      * @throws IllegalArgumentException if {@code annotationTypes} is null, empty, or contains any non-annotation types
      */
-    public AnnotatedClassScanner(Class<?>... annotationTypes) {
+    public AnnotatedClassScanner(ClassLoader loader, Class<?>... annotationTypes) {
         super(AnnotatedClassScanner.initHack(true, annotationTypes));
-        this.setResourceLoader(new DefaultResourceLoader());
+        this.initializeResourceLoader(loader);
         this.annotationTypes = INIT_HACK.get();
         INIT_HACK.remove();
     }
@@ -42,13 +45,16 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
     /**
      * Constructor.
      *
+     * @param loader {@link ClassLoader} to use for finding classes
      * @param useDefaultFilters whether to register the default filters for the specified {@code annotationTypes}
      * @param environment environment to use
      * @param annotationTypes type annotations to search for
      * @throws IllegalArgumentException if {@code annotationTypes} is null, empty, or contains any non-annotation types
      */
-    public AnnotatedClassScanner(boolean useDefaultFilters, Environment environment, Class<?>... annotationTypes) {
+    public AnnotatedClassScanner(ClassLoader loader, boolean useDefaultFilters, Environment environment,
+      Class<?>... annotationTypes) {
         super(AnnotatedClassScanner.initHack(useDefaultFilters, annotationTypes), environment);
+        this.initializeResourceLoader(loader);
         this.annotationTypes = INIT_HACK.get();
         INIT_HACK.remove();
     }
@@ -96,5 +102,8 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
         for (Class<? extends Annotation> annotationType : this.annotationTypes != null ? this.annotationTypes : INIT_HACK.get())
             this.addIncludeFilter(new AnnotationTypeFilter(annotationType));
     }
-}
 
+    protected void initializeResourceLoader(ClassLoader loader) {
+        this.setResourceLoader(new DefaultResourceLoader(ApplicationClassLoader.getInstance(loader)));
+    }
+}

@@ -16,9 +16,20 @@ public class PermazenFieldTypeScanner extends AnnotatedClassScanner {
 
     /**
      * Constructor.
+     *
+     * <p>
+     * The current thread's {@linkplain Thread#getContextClassLoader context class loader} will be used.
+     * as the underlying {@link ClassLoader}.
      */
     public PermazenFieldTypeScanner() {
-        super(JFieldType.class);
+        this(Thread.currentThread().getContextClassLoader());
+    }
+
+    /**
+     * Constructor.
+     */
+    public PermazenFieldTypeScanner(ClassLoader loader) {
+        super(loader, JFieldType.class);
     }
 
     /**
@@ -27,8 +38,8 @@ public class PermazenFieldTypeScanner extends AnnotatedClassScanner {
      * @param useDefaultFilters whether to register the default filters for {@link JFieldType &#64;JFieldType} type annotations
      * @param environment environment to use
      */
-    public PermazenFieldTypeScanner(boolean useDefaultFilters, Environment environment) {
-        super(useDefaultFilters, environment, JFieldType.class);
+    public PermazenFieldTypeScanner(ClassLoader loader, boolean useDefaultFilters, Environment environment) {
+        super(loader, useDefaultFilters, environment, JFieldType.class);
     }
 }
 

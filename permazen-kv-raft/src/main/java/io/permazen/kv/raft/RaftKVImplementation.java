@@ -13,6 +13,7 @@ import io.permazen.kv.raft.fallback.FallbackTarget;
 import io.permazen.kv.raft.fallback.MergeStrategy;
 import io.permazen.kv.raft.fallback.NullMergeStrategy;
 import io.permazen.kv.raft.fallback.OverwriteMergeStrategy;
+import io.permazen.util.ApplicationClassLoader;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -131,7 +132,7 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
         if (className == null)
             return null;
         try {
-            return (MergeStrategy)Class.forName(className, false, Thread.currentThread().getContextClassLoader()).newInstance();
+            return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance()).newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException("invalid Raft fallback merge strategy `" + className + "': " + e.getMessage(), e);
         }

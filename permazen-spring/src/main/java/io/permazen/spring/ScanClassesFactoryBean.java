@@ -8,8 +8,7 @@ package io.permazen.spring;
 class ScanClassesFactoryBean extends ScanClassPathFactoryBean {
 
     @Override
-    AnnotatedClassScanner createScanner() {
-        return new PermazenClassScanner(this.useDefaultFilters, this.environment);
+    AnnotatedClassScanner createScanner(ClassLoader loader) {
+        return new PermazenClassScanner(loader, this.useDefaultFilters, this.environment);
     }
 }
-

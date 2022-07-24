@@ -131,7 +131,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
         Preconditions.checkArgument(resource != null, "null resource");
 
         // Find XML files
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader loader = ApplicationClassLoader.getInstance();
         final Enumeration<URL> enumeration;
         try {
             enumeration = loader.getResources(resource);
