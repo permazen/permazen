@@ -91,7 +91,7 @@
         <aspectj.version>1.9.7</aspectj.version>
         <bdb.version>18.3.12</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
-        <dellroad-stuff.version>2.4.10</dellroad-stuff.version><!-- Remove ThrowableUtil after 2.5.0 -->
+        <dellroad-stuff.version>2.5.2</dellroad-stuff.version>
         <fdb.version>6.2.10</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
         <google-cloud-java.version>1.52.0</google-cloud-java.version>

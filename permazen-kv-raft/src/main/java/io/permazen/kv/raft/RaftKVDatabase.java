@@ -32,7 +32,6 @@ import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ThrowableUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -71,6 +70,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
+import org.dellroad.stuff.java.ThrowableUtil;
 import org.dellroad.stuff.java.TimedWait;
 import org.dellroad.stuff.net.Network;
 import org.dellroad.stuff.net.TCPNetwork;
