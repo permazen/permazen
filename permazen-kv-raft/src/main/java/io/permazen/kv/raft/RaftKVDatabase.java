@@ -2182,7 +2182,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Encode messagse
         if (this.logger.isTraceEnabled())
-            this.trace("XMIT {} to {} (version {})" + msg, address, protocolVersion);
+            this.trace("XMIT {} to {} (protocol version {})", msg, address, protocolVersion);
         final ByteBuffer encodedMessage;
         try {
             encodedMessage = msg.encode(protocolVersion);
