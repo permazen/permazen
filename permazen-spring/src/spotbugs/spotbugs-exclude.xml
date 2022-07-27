@@ -1,5 +1,9 @@
 <FindBugsFilter>
     <Match>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
         <Class name="io.permazen.spring.AnnotatedClassScanner"/>
         <Method name="registerDefaultFilters"/>
         <Bug pattern="UR_UNINIT_READ_CALLED_FROM_SUPER_CONSTRUCTOR"/>

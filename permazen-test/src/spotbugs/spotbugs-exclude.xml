@@ -1,5 +1,9 @@
 <FindBugsFilter>
     <Match>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
         <Class name="io.permazen.test.TestSupport"/>
         <Method name="diff"/>
         <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>

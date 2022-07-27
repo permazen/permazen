@@ -1,5 +1,9 @@
 <FindBugsFilter>
     <Match>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
         <Class name="io.permazen.Util"/>
         <Method name="newParameterizedType"/>
         <Bug pattern="LI_LAZY_INIT_UPDATE_STATIC"/>

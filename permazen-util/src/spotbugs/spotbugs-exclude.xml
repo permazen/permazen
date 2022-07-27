@@ -1,5 +1,9 @@
 <FindBugsFilter>
     <Match>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
         <Class name="io.permazen.util.AbstractXMLStreaming"/>
         <Method name="getBooleanAttr"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
@@ -11,16 +15,6 @@
     <Match>
         <Class name="io.permazen.util.MapEntryConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.util.ByteWriter"/>
-        <Method name="getBytes"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.util.ByteReader"/>
-        <Method name="&lt;init&gt;"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
         <Class name="io.permazen.util.ConvertedMapEntry"/>

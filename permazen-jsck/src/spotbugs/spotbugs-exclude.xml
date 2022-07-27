@@ -1,17 +1,6 @@
 <FindBugsFilter>
     <Match>
-        <Class name="io.permazen.jsck.Issue"/>
-        <Method name="getKey"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.jsck.Issue"/>
-        <Method name="getNewValue"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.jsck.Issue"/>
-        <Method name="getOldValue"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>

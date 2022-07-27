@@ -1,11 +1,10 @@
 <FindBugsFilter>
-    <!-- https://sourceforge.net/p/findbugs/bugs/1463/ -->
     <Match>
-        <Class name="io.permazen.kv.raft.Role"/>
-        <Method name="applyCommittedLogEntries"/>
-        <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
-    <!-- https://mailman.cs.umd.edu/pipermail/findbugs-discuss/2016-August/004305.html -->
+
+    <!-- https://github.com/spotbugs/spotbugs/issues/2121 -->
     <Match>
         <Or>
             <Class name="io.permazen.kv.raft.FollowerRole"/>

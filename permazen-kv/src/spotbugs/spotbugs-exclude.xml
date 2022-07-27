@@ -1,18 +1,7 @@
 <FindBugsFilter>
     <Match>
-        <Class name="io.permazen.kv.KVPair"/>
-        <Method name="getKey"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.kv.KVPair"/>
-        <Method name="getValue"/>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.kv.KVPair"/>
-        <Method name="&lt;init&gt;"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="~.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
     <Match>
         <Class name="io.permazen.kv.mvcc.MutableView$RangeIterator"/>
