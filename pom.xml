@@ -76,8 +76,6 @@
     <properties>
 
         <!-- Basic stuff -->
-        <compiler.source>1.8</compiler.source>
-        <compiler.target>1.8</compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
@@ -99,6 +97,7 @@
         <guava.version>31.1-jre</guava.version>
         <hawtjni.version>1.17</hawtjni.version>
         <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
+        <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
         <javax.el.version>3.0.1-b11</javax.el.version>
         <javax.mail.version>1.6.2</javax.mail.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
@@ -109,16 +108,16 @@
         <maven.artifact.version>3.6.3</maven.artifact.version>
         <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-        <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+        <maven.compiler.plugin.version>3.10.1</maven.compiler.plugin.version>
+        <maven.enforcer.plugin.version>3.0.0</maven.enforcer.plugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
         <maven.plugin.tools.version>3.6.0</maven.plugin.tools.version>
         <maven.project.version>3.0-alpha-2</maven.project.version>
-        <maven.project.info.reports.plugin.version>3.0.0</maven.project.info.reports.plugin.version>
+        <maven.project.info.reports.plugin.version>3.1.2</maven.project.info.reports.plugin.version>
         <maven.shade.plugin.version>3.2.2</maven.shade.plugin.version>
-        <maven.site.plugin.version>3.9.0</maven.site.plugin.version>
+        <maven.site.plugin.version>3.9.1</maven.site.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <maven.wagon.scm.extension.version>3.3.4</maven.wagon.scm.extension.version>
@@ -324,6 +323,13 @@
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
                 <version>${aspectj.version}</version>
+            </dependency>
+
+            <!-- For @PostConstruct, etc. -->
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax.annotation.api.version}</version>
             </dependency>
 
             <!-- Servlet API -->
@@ -675,7 +681,7 @@
                 </executions>
             </plugin>
 
-            <!-- Java version enforcer -->
+            <!-- Maven Enforcer -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -688,10 +694,21 @@
                         </goals>
                         <configuration>
                             <rules>
+
+                                <!-- Enforce Java version -->
                                 <requireJavaVersion>
-                                    <version>1.8.0</version>
+                                    <version>[1.8,)</version>
                                 </requireJavaVersion>
+
+                                <!-- Check for dependency conflicts -->
+                                <!-- <dependencyConvergence/> -->
+                                <banDuplicatePomDependencyVersions/>
+
+                                <!-- Other rules -->
+                                <reactorModuleConvergence/>
+                                <!-- <requireUpperBoundDeps/> -->
                             </rules>
+
                         </configuration>
                     </execution>
                 </executions>
@@ -729,6 +746,9 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
+                        <manifestEntries>
+                            <Automatic-Module-Name>${automatic.module.name}</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -739,11 +759,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>${compiler.source}</source>
-                    <target>${compiler.target}</target>
+                    <source>8</source>
+                    <target>8</target>
+                    <release>8</release>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
-                        <arg>-Xlint:all,-processing</arg>
+                        <arg>-Xlint:all,-processing,-path</arg>
                         <arg>-Werror</arg>
                     </compilerArgs>
                 </configuration>
@@ -770,6 +791,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.plugin.version}</version>
                 <configuration>
+                    <source>8</source>
                     <notimestamp>true</notimestamp>
                     <doclint>-reference</doclint>
                     <validateLinks>true</validateLinks>
@@ -998,9 +1020,12 @@
                 <version>${maven.javadoc.plugin.version}</version>
                 <inherited>false</inherited>
                 <configuration>
+                    <source>8</source>
                     <notimestamp>true</notimestamp>
                     <validateLinks>true</validateLinks>
                     <aggregate>true</aggregate>
+                    <inherited>false</inherited>
+                    <doclint>-html</doclint>
                     <links>
                         <link>https://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>https://archiecobbs.github.io/nvt4j/api/</link>

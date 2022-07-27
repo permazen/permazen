@@ -12,13 +12,16 @@
     </parent>
     <artifactId>permazen-vaadin</artifactId>
     <name>Permazen Vaadin Classes</name>
-    <description>Permazen classes supporting Vaadin applications.</description>
+    <description>Permazen classes supporting Vaadin 7.x applications.</description>
     <distributionManagement>
         <site>
             <id>${project.artifactId}-site</id>
             <url>file://${project.basedir}/../site/${project.artifactId}/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <automatic.module.name>io.permazen.vaadin7</automatic.module.name>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

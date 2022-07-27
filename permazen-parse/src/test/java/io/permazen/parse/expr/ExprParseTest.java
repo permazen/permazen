@@ -473,7 +473,7 @@ public class ExprParseTest extends TestSupport {
             { "(float)s1", PARSE_FAIL },
 
             // Non-public methods
-            { "new java.util.ArrayList().ensureCapacityInternal(10)",
+            { "new java.lang.Object().finalize()",
               null },
 
             // Varargs

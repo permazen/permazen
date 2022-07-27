@@ -19,6 +19,9 @@
             <url>file://${project.basedir}/../site/${project.artifactId}/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <automatic.module.name>io.permazen.kv.spanner</automatic.module.name>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -40,6 +43,10 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-spanner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

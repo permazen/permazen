@@ -19,6 +19,9 @@
             <url>file://${project.basedir}/../site/${project.artifactId}/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <automatic.module.name>io.permazen.coreapi</automatic.module.name>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -50,6 +53,10 @@
         <dependency>
             <groupId>org.dellroad</groupId>
             <artifactId>dellroad-stuff-main</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>

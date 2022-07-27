@@ -19,6 +19,9 @@
             <url>file://${project.basedir}/../site/${project.artifactId}/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <automatic.module.name>io.permazen.ant</automatic.module.name>
+    </properties>
     <dependencies>
 
         <!-- Siblings -->

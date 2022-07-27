@@ -19,6 +19,9 @@
             <url>file://${project.basedir}/../site/${project.artifactId}/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <automatic.module.name>io.permazen.guiapp</automatic.module.name>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -111,9 +114,9 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <source>${compiler.source}</source>
-                    <target>${compiler.target}</target>
-                    <complianceLevel>${compiler.source}</complianceLevel>
+                    <complianceLevel>8</complianceLevel>
+                    <source>8</source>
+                    <target>8</target>
                     <encoding>UTF-8</encoding>
                     <showWeaveInfo>true</showWeaveInfo>
                     <aspectLibraries>
