@@ -365,7 +365,7 @@ public class FieldTypeRegistry {
         // Instantiate class
         final FieldType<?> fieldType;
         try {
-            fieldType = (FieldType<?>)typeClass.newInstance();
+            fieldType = (FieldType<?>)typeClass.getConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException("can't instantiate " + typeClass, e);
         }
