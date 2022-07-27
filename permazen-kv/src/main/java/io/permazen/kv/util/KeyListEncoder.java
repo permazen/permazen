@@ -242,8 +242,7 @@ public final class KeyListEncoder {
     private static int readSignedInt(InputStream input) throws IOException {
         final long longValue = LongEncoder.read(input);
         final int intValue = (int)longValue;
-        Preconditions.checkArgument(intValue == (int)longValue, "read out-of-range encoded int value %s", longValue);
+        Preconditions.checkArgument((long)intValue == longValue, "read out-of-range encoded int value %s", longValue);
         return intValue;
     }
 }
-
