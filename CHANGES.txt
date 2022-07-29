@@ -1,6 +1,7 @@
 Version Next
 
     - Added ApplicationClassLoader to support running on JDK 9+
+    - Fixed Raft assertion failure when > 20 unapplied log entries
 
 Version 4.1.9 Released April 18, 2022
 

@@ -51,9 +51,6 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
    When a transaction is created, a MutableView is setup using the log entry corresponding to the transaction's base
    term+index as the underlying read-only data. The transaction's consistency determines whether this log entry is
    the last log entry (LINEARIZABLE, EVENTUAL, UNCOMMITTED) or the last committed log entry (EVENTUAL_COMMITTED).
-   In the former case, if the current unapplied log has more than MAX_MUTABLE_VIEW_DEPTH entries, we will choose the
-   log entry that is MAX_MUTABLE_VIEW_DEPTH from the last applied log entry, to limit the performance degradation
-   caused by multiple nested MutableView's.
 
    For non-LINEARIZABLE transactions, the commit term+index can always be determined immediately: for EVENTUAL and
    EVENTUAL_COMMITTED, it is just the base log entry; for UNCOMMITTED, both values are zero. Therefore, UNCOMMITTED

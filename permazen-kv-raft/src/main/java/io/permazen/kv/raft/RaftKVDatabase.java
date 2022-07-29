@@ -386,7 +386,6 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Internal constants
     static final float MAX_CLOCK_DRIFT = 0.01f;                         // max clock drift per heartbeat as a percentage ratio
-    static final int MAX_MUTABLE_VIEW_DEPTH = 20;                       // max depth for a stack of MutableView's
 
     // File prefixes and suffixes
     static final String TX_FILE_PREFIX = "tx-";
@@ -1508,11 +1507,11 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkState(this.role != null, "not started");
         Preconditions.checkState(!this.shuttingDown, "shutting down");
 
-        // Base transaction on the most recent log entry (if !committed). This is itself a form of optimistic locking: we assume
-        // that the most recent log entry has a high probability of being committed (in the Raft sense), which is of course
-        // required in order to commit any transaction based on it. But limit to at most MAX_MUTABLE_VIEW_DEPTH log entries.
-        final long maxIndex = consistency.isBasedOnCommittedLogEntry() ?
-          this.commitIndex : Math.min(this.log.getLastIndex(), this.log.getLastAppliedIndex() + MAX_MUTABLE_VIEW_DEPTH);
+        // Base transaction on the most recent log entry (unless it's supposed to be based on the most recent COMMITTED log entry).
+        // This is itself a form of optimistic locking: we assume that the most recent log entry has a high probability of being
+        // committed (in the Raft sense), which is of course required in order to commit any transaction based on it. But note
+        // all reads will have to go through every unapplied log entry (as they would in any fully rebased transaction).
+        final long maxIndex = consistency.isBasedOnCommittedLogEntry() ? this.commitIndex : this.log.getLastIndex();
         final MostRecentView view = new MostRecentView(this, maxIndex);
         final long baseTerm = view.getTerm();
         final long baseIndex = view.getIndex();
