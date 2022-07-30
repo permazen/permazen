@@ -354,6 +354,9 @@ public class LeaderRole extends Role {
                     timeouts.clear();
                 }
             }
+
+            // Check for any transactions that are waiting on leader lease time
+            this.checkWaitingTransactions();
         }
     }
 

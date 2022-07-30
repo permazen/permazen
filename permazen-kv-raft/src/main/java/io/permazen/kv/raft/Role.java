@@ -405,6 +405,7 @@ public abstract class Role {
      *  <li>After advancing my {@code commitIndex} (as leader or follower)</li>
      *  <li>After receiving an updated {@linkplain AppendRequest#getLeaderLeaseTimeout leader lease timeout}
      *      (in {@link FollowerRole})</li>
+     *  <li>After updating my {@linkplain AppendRequest#getLeaderLeaseTimeout leader lease timeout} (in {@link LeaderRole})</li>
      * </ul>
      *
      * @param tx the transaction
