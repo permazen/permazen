@@ -2216,6 +2216,10 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         }
 
+        // Debug
+        if (this.logger.isTraceEnabled())
+            this.trace("RECV {} in {} from {} (protocol version {})", msg, this.role, address, protocolVersion);
+
         // Sanity check cluster ID
         if (msg.getClusterId() == 0) {
             this.warn("rec'd {} with zero cluster ID from {}; ignoring", msg, address);
@@ -2279,10 +2283,6 @@ public class RaftKVDatabase implements KVDatabase {
             }
             return;
         }
-
-        // Debug
-        if (this.logger.isTraceEnabled())
-            this.trace("RECV {} in {} from {} (protocol version {})", msg, this.role, address, protocolVersion);
 
         // Handle message
         this.returnAddress = address;
