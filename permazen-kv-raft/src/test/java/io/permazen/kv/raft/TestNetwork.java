@@ -9,10 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.AbstractMap;
-import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,13 +24,13 @@ import org.slf4j.LoggerFactory;
  */
 public class TestNetwork implements Network {
 
-    private static final HashMap<String, TestNetwork> NETWORK = new HashMap<>();
+    private static final HashMap<String, TestNetwork> ALL_NETWORKS = new HashMap<>();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final String identity;
+    private final int delayAverage;
     private final int delayStdDev;
     private final float failureRate;
-    private final ArrayDeque<Map.Entry<String, ByteBuffer>> inputQueue = new ArrayDeque<>();
     private final Random random = new Random();
 
     private ScheduledExecutorService executor;
@@ -44,12 +41,15 @@ public class TestNetwork implements Network {
     /**
      * Constructor.
      *
-     * @param delayStdDev standard deviation of the delay for messages in milliseconds
+     * @param delayAverage average message delay in milliseconds
+     * @param delayStdDev standard deviation of message delay in milliseconds
      * @param failureRate probability that a message will get dropped
      */
-    public TestNetwork(String identity, int delayStdDev, float failureRate) {
+    public TestNetwork(String identity, int delayAverage, int delayStdDev, float failureRate) {
+        Preconditions.checkArgument(delayAverage >= 0, "delayAverage < 0");
         Preconditions.checkArgument(delayStdDev >= 0, "delayStdDev < 0");
         this.identity = identity;
+        this.delayAverage = delayAverage;
         this.delayStdDev = delayStdDev;
         this.failureRate = failureRate;
     }
@@ -57,11 +57,11 @@ public class TestNetwork implements Network {
     @Override
     public void start(Handler handler) throws IOException {
         Preconditions.checkArgument(handler != null, "null handler");
-        synchronized (NETWORK) {
+        synchronized (ALL_NETWORKS) {
             Preconditions.checkState(this.handler == null, "already started");
-            Preconditions.checkState(!NETWORK.containsKey(this.identity),
+            Preconditions.checkState(!ALL_NETWORKS.containsKey(this.identity),
               "network identity \"" + this.identity + "\" already in use");
-            NETWORK.put(this.identity, this);
+            ALL_NETWORKS.put(this.identity, this);
             this.handler = handler;
             this.executor = Executors.newSingleThreadScheduledExecutor();
         }
@@ -69,52 +69,39 @@ public class TestNetwork implements Network {
 
     @Override
     public void stop() {
-        synchronized (NETWORK) {
+        synchronized (ALL_NETWORKS) {
             if (this.handler == null)
                 return;
             this.handler = null;
             this.executor.shutdown();
             this.executor = null;
-            this.inputQueue.clear();
-            NETWORK.remove(this.identity);
+            ALL_NETWORKS.remove(this.identity);
         }
     }
 
     @Override
     public boolean send(final String peer, final ByteBuffer msg) {
-        synchronized (NETWORK) {
+        synchronized (ALL_NETWORKS) {
 
             // Sanity check
             Preconditions.checkState(this.handler != null, "not started");
-            if (this.handler == null)
-                return false;
-            final TestNetwork target = NETWORK.get(peer);
+            final TestNetwork target = ALL_NETWORKS.get(peer);
             if (target == null)
                 return false;
 
-            // Randomly drop
+            // Calculate random delay
+            final int delay = Math.max(0, (int)(this.delayAverage + this.random.nextGaussian() * this.delayStdDev));
+
+            // Notify caller that senders's output queue is empty after 10% of delay
+            this.executor.schedule(new OutputEmptyTask(this, peer), (int)(delay * 0.10f), TimeUnit.MILLISECONDS);
+
+            // Randomly drop packagte
             final boolean drop = this.random.nextFloat() < this.failureRate;
+            if (drop)
+                return true;
 
-            // Calculate delay
-            final int delay = (int)(Math.abs(this.random.nextGaussian()) * this.delayStdDev);
-
-            // Send packet
-            final Map.Entry<String, ByteBuffer> entry = new AbstractMap.SimpleEntry<>(this.identity, msg.asReadOnlyBuffer());
-            target.executor.schedule(target.new NetworkRunnable() {
-                @Override
-                protected void doHandle(Handler handler) {
-                    if (!drop)
-                        handler.handle(TestNetwork.this.identity, msg.asReadOnlyBuffer());
-                }
-            }, delay, TimeUnit.MILLISECONDS);
-
-            // Notify caller when recipient's output queue goes empty
-            this.executor.schedule(this.new NetworkRunnable() {
-                @Override
-                protected void doHandle(Handler handler) {
-                    handler.outputQueueEmpty(peer);
-                }
-            }, (int)(delay * 0.25f), TimeUnit.MILLISECONDS);
+            // Send packet after delay
+            target.executor.schedule(new DeliverTask(target, this.identity, msg.asReadOnlyBuffer()), delay, TimeUnit.MILLISECONDS);
         }
         return true;
     }
@@ -123,24 +110,67 @@ public class TestNetwork implements Network {
         return this.lastException;
     }
 
-    private abstract class NetworkRunnable implements Runnable {
+// NetworkTask
+
+    private abstract static class NetworkTask implements Runnable {
+
+        protected final TestNetwork target;
+
+        NetworkTask(TestNetwork target) {
+            this.target = target;
+        }
 
         @Override
         public final void run() {
             try {
-                final Handler myHandler;
-                synchronized (NETWORK) {
-                    myHandler = TestNetwork.this.handler;
+                final Handler targetHandler;
+                synchronized (ALL_NETWORKS) {
+                    targetHandler = this.target.handler;
                 }
-                if (myHandler != null)
-                    this.doHandle(myHandler);
+                if (targetHandler != null)
+                    this.performTask(targetHandler);
             } catch (Throwable t) {
-                TestNetwork.this.lastException = t;
-                TestNetwork.this.log.error("error in network callback (\"{}\")", TestNetwork.this.identity, t);
+                this.target.lastException = t;
+                this.target.log.error("error in network callback (\"{}\")", this.target.identity, t);
             }
         }
 
-        protected abstract void doHandle(Handler handler);
+        protected abstract void performTask(Handler handler);
+    }
+
+// DeliverTask
+
+    private static class DeliverTask extends NetworkTask {
+
+        private final String sender;
+        private final ByteBuffer msg;
+
+        DeliverTask(TestNetwork target, String sender, ByteBuffer msg) {
+            super(target);
+            this.sender = sender;
+            this.msg = msg;
+        }
+
+        @Override
+        protected void performTask(Handler handler) {
+            handler.handle(this.sender, this.msg);
+        }
+    }
+
+// OutputEmptyTask
+
+    private static class OutputEmptyTask extends NetworkTask {
+
+        private final String recipient;
+
+        OutputEmptyTask(TestNetwork target, String recipient) {
+            super(target);
+            this.recipient = recipient;
+        }
+
+        @Override
+        protected void performTask(Handler handler) {
+            handler.outputQueueEmpty(this.recipient);
+        }
     }
 }
-

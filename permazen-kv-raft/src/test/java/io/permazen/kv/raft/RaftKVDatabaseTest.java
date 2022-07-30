@@ -49,7 +49,8 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
       "raftHeartbeatTimeout",
       "raftMaxTransactionDuration",
       "raftFollowerProbingEnabled",
-      "raftNetworkDelayMillis",
+      "raftNetworkDelayAverage",
+      "raftNetworkDelayStdDev",
       "raftNetworkDropRatio",
       "arrayCompactMaxDelay",
       "arrayCompactSpaceLowWater",
@@ -60,7 +61,9 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
       @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
       @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
       @Optional("true") boolean followerProbingEnabled,
-      @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio,
+      @Optional("25") int raftNetworkDelayAverage,
+      @Optional("15") int raftNetworkDelayStdDev,
+      @Optional("0.075") float networkDropRatio,
       @Optional("90") int arrayCompactMaxDelay,
       @Optional("65536") int arrayCompactLowWater,
       @Optional("1073741824") int arrayCompactHighWater)
@@ -77,7 +80,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             final String name = "node" + i;
             final File dir = new File(this.topRaftDir, name);
             dir.mkdirs();
-            this.raftNetworks[i] = new TestNetwork(name, networkDelayMillis, networkDropRatio);
+            this.raftNetworks[i] = new TestNetwork(name, raftNetworkDelayAverage, raftNetworkDelayStdDev, networkDropRatio);
             this.rafts[i] = new RaftKVDatabase();
             final File kvdir = new File(dir, "kvstore");
             kvdir.mkdirs();

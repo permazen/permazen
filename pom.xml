@@ -902,13 +902,14 @@
                         <raftNumNodes>5</raftNumNodes>
                         <raftKVStore>array</raftKVStore>
                         <raftCommitTimeout>5000</raftCommitTimeout>
-                        <raftMinElectionTimeout>200</raftMinElectionTimeout>
-                        <raftMaxElectionTimeout>250</raftMaxElectionTimeout>
-                        <raftHeartbeatTimeout>90</raftHeartbeatTimeout>
+                        <raftMinElectionTimeout>400</raftMinElectionTimeout>
+                        <raftMaxElectionTimeout>500</raftMaxElectionTimeout>
+                        <raftHeartbeatTimeout>110</raftHeartbeatTimeout>
                         <raftMaxTransactionDuration>5000</raftMaxTransactionDuration>
                         <raftFollowerProbingEnabled>true</raftFollowerProbingEnabled>
-                        <raftNetworkDelayMillis>35</raftNetworkDelayMillis>
-                        <raftNetworkDropRatio>0.15</raftNetworkDropRatio>
+                        <raftNetworkDelayAverage>35</raftNetworkDelayAverage>
+                        <raftNetworkDelayStdDev>15</raftNetworkDelayStdDev>
+                        <raftNetworkDropRatio>0.10</raftNetworkDropRatio>
 
                         <!-- kv-rocksdb -->
                         <!--
