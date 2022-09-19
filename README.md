@@ -102,6 +102,10 @@ See [`LAYOUT.txt`](https://raw.githubusercontent.com/permazen/permazen/master/LA
 
 For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group (Permazen was previously named JSimpleDB).
 
+### Permazen Article
+
+[Persistence Programming: Are We Doing This Right?](https://queue.acm.org/detail.cfm?id=3526210) appears in the Jan/Feb 2022 issue of ACM Queue magazine.
+
 ### Permazen Paper
 
 For a deeper understanding of the motivation and design decisions behind Permazen, read [Permazen: Language-Driven Persistence for Java](https://cdn.rawgit.com/permazen/permazen/master/permazen-language-driven.pdf).
