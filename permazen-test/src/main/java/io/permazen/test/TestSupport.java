@@ -44,6 +44,7 @@ import javax.validation.ValidatorFactory;
 
 import org.dellroad.stuff.java.ProcessRunner;
 import org.dellroad.stuff.string.ByteArrayEncoder;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -65,7 +66,10 @@ public abstract class TestSupport {
 
     @BeforeClass
     public void setUpValidator() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        final ValidatorFactory factory = Validation.byDefaultProvider()
+          .configure()
+          .messageInterpolator(new ParameterMessageInterpolator())
+          .buildValidatorFactory();
         this.validator = factory.getValidator();
     }
 

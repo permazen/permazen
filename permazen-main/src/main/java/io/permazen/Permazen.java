@@ -54,6 +54,7 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 import org.dellroad.stuff.util.LongMap;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -966,9 +967,16 @@ public class Permazen {
         try {
             this.validatorFactory = Validation.buildDefaultValidatorFactory();
         } catch (Exception e) {
-            throw new PermazenException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
-              + " but creation of default ValidatorFactory failed; is there a JSR 303 validation implementation on the classpath?",
-              e);
+            try {
+                this.validatorFactory = Validation.byDefaultProvider()
+                  .configure()
+                  .messageInterpolator(new ParameterMessageInterpolator())
+                  .buildValidatorFactory();
+            } catch (Exception e2) {
+                throw new PermazenException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
+                  + " but creation of default ValidatorFactory failed; is there a JSR 303 validation implementation"
+                  + " on the classpath?", e2);
+            }
         }
 
         // Done

@@ -98,7 +98,6 @@
         <hawtjni.version>1.17</hawtjni.version>
         <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
-        <javax.el.version>3.0.1-b11</javax.el.version>
         <javax.mail.version>1.6.2</javax.mail.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <jline.version>2.14.6</jline.version>
@@ -380,12 +379,6 @@
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate-validator.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>${javax.el.version}</version>
                 <optional>true</optional>
             </dependency>
 
