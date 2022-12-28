@@ -80,7 +80,7 @@ public enum UpgradeConversionPolicy {
     ATTEMPT(true, false),
 
     /**
-     * Attempt automatic conversion of field values to the new type, and iIf automatic conversion fails,
+     * Attempt automatic conversion of field values to the new type, and if automatic conversion fails,
      * throw a {@link UpgradeConversionException}.
      */
     REQUIRE(true, true);
