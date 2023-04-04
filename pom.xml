@@ -8,7 +8,7 @@
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
     <name>Permazen</name>
-    <version>4.1.9</version>
+    <version>4.2.0</version>
     <packaging>pom</packaging>
     <description>Permazen is a better persistence layer for Java.</description>
     <url>https://github.com/permazen/permazen/</url>
@@ -80,30 +80,30 @@
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- An already existing version (needed to avoid cycles during build) -->
-        <previous.version>4.1.8</previous.version>
+        <previous.version>4.1.9</previous.version>
 
         <!-- Dependency versions -->
         <ant.version>1.10.11</ant.version>
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.4</asm.version>
         <aspectj.maven-plugin.version>1.14.0</aspectj.maven-plugin.version>
-        <aspectj.version>1.9.7</aspectj.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
         <bdb.version>18.3.12</bdb.version>
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
-        <dellroad-stuff.version>2.5.5</dellroad-stuff.version>
-        <fdb.version>6.2.10</fdb.version>
+        <dellroad-stuff.version>2.5.9</dellroad-stuff.version>
+        <fdb.version>7.1.25</fdb.version>
         <findbugs.version>3.0.2</findbugs.version>
-        <google-cloud-java.version>1.52.0</google-cloud-java.version>
+        <google-cloud-java.version>6.33.0</google-cloud-java.version>
         <guava.javadoc.version>29.0-jre</guava.javadoc.version>
         <guava.version>31.1-jre</guava.version>
         <hawtjni.version>1.17</hawtjni.version>
-        <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.2.4.Final</hibernate-validator.version>
         <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
         <javax.mail.version>1.6.2</javax.mail.version>
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty.version>9.4.49.v20220914</jetty.version>
         <jline.version>2.14.6</jline.version>
         <leveldb.version>0.12</leveldb.version>
         <lmdbjava.version>0.8.2</lmdbjava.version>
-        <log4j.version>2.17.1</log4j.version>
+        <log4j.version>2.19.0</log4j.version>
         <maven.artifact.version>3.6.3</maven.artifact.version>
         <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
@@ -119,23 +119,24 @@
         <maven.site.plugin.version>3.9.1</maven.site.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+        <maven.versions.plugin.version>2.13.0</maven.versions.plugin.version>
         <maven.wagon.scm.extension.version>3.3.4</maven.wagon.scm.extension.version>
         <modernizer.maven.plugin.version>2.2.0</modernizer.maven.plugin.version>
-        <mssql.version>8.2.2.jre8</mssql.version>
-        <mvstore.version>2.1.212</mvstore.version>
-        <mysql.version>8.0.28</mysql.version>
+        <mssql.version>11.2.1.jre8</mssql.version>
+        <mvstore.version>2.1.214</mvstore.version>
+        <mysql.version>8.0.31</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.6.3</plugin-api.version>
-        <postgresql.version>42.4.3</postgresql.version>
+        <postgresql.version>42.5.1</postgresql.version>
         <properties.maven.plugin.version>1.0.0</properties.maven.plugin.version>
-        <rocksdb.version>6.7.3</rocksdb.version>
+        <rocksdb.version>7.7.3</rocksdb.version>
         <servlet-api.version>4.0.1</servlet-api.version>
-        <slf4j.version>1.7.30</slf4j.version>
+        <slf4j.version>2.0.5</slf4j.version>
         <spotbugs.maven.plugin.version>4.7.1.0</spotbugs.maven.plugin.version>
-        <spring.version>5.3.20</spring.version>
-        <sqlite.version>3.36.0.3</sqlite.version>
-        <testng.version>7.1.0</testng.version>
-        <xodus.version>1.3.124</xodus.version>
+        <spring.version>5.3.24</spring.version>
+        <sqlite.version>3.40.0.0</sqlite.version>
+        <testng.version>7.6.1</testng.version>
+        <xodus.version>2.0.1</xodus.version>
         <vaadin7.version>7.7.17</vaadin7.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
 
@@ -707,7 +708,6 @@
                 </executions>
             </plugin>
 
-
             <!-- Modernizer -->
             <plugin>
                 <groupId>org.gaul</groupId>
@@ -727,6 +727,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Versions -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${maven.versions.plugin.version}</version>
             </plugin>
 
             <!-- JAR -->
@@ -794,7 +801,6 @@
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://guava.dev/releases/${guava.javadoc.version}/api/docs/</link>
-                        <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
@@ -1026,7 +1032,6 @@
                         <link>https://apple.github.io/foundationdb/javadoc/</link>
                         <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
                         <link>https://guava.dev/releases/${guava.javadoc.version}/api/docs/</link>
-                        <link>https://googleapis.dev/java/google-cloud-clients/latest/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                         <link>https://vaadin.com/download/release/7.7/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
