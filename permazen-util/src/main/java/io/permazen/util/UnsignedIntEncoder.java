@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
  * The encoding uses a simple prefixing format:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Encoding Format">
+ * <table border="1px" cellpadding="5px" cellspacing="0px" summary="Encoding Format">
  * <tr style="bgcolor:#ccffcc">
  *  <th align="left">Encoded Bytes</th>
  *  <th align="left">Value</th>

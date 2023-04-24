@@ -17,6 +17,337 @@ import java.util.Arrays;
  * encoding is optimized for values near zero.
  *
  * <p>
+ * Some examples (in numerical order):
+ *
+ * <div style="margin-left: 20px;">
+ * <table border="1px" cellpadding="5px" cellspacing="0px" summary="Encoding Examples">
+ * <tr style="bgcolor:#ccffcc">
+ *  <th>Value (decimal)</th>
+ *  <th>Value (hex)</th>
+ *  <th>Length</th>
+ *  <th>Bytes</th>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x8000000000000000</code></td>
+ *  <td align="right"><code>-9223372036854775808</code></td>
+ *  <td align="center"><code>9</code></td>
+ *  <td align="right"><code>018000000000000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfeffffffffffff89</code></td>
+ *  <td align="right"><code>-72057594037928055</code></td>
+ *  <td align="center"><code>9</code></td>
+ *  <td align="right"><code>01feffffffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfeffffffffffff8a</code></td>
+ *  <td align="right"><code>-72057594037928054</code></td>
+ *  <td align="center"><code>8</code></td>
+ *  <td align="right"><code>0200000000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xff00000000000000</code></td>
+ *  <td align="right"><code>-72057594037927936</code></td>
+ *  <td align="center"><code>8</code></td>
+ *  <td align="right"><code>0200000000000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffeffffffffff89</code></td>
+ *  <td align="right"><code>-281474976710775</code></td>
+ *  <td align="center"><code>8</code></td>
+ *  <td align="right"><code>02feffffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffeffffffffff8a</code></td>
+ *  <td align="right"><code>-281474976710774</code></td>
+ *  <td align="center"><code>7</code></td>
+ *  <td align="right"><code>03000000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffff000000000000</code></td>
+ *  <td align="right"><code>-281474976710656</code></td>
+ *  <td align="center"><code>7</code></td>
+ *  <td align="right"><code>03000000000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffeffffffff89</code></td>
+ *  <td align="right"><code>-1099511627895</code></td>
+ *  <td align="center"><code>7</code></td>
+ *  <td align="right"><code>03feffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffeffffffff8a</code></td>
+ *  <td align="right"><code>-1099511627894</code></td>
+ *  <td align="center"><code>6</code></td>
+ *  <td align="right"><code>040000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffff0000000000</code></td>
+ *  <td align="right"><code>-1099511627776</code></td>
+ *  <td align="center"><code>6</code></td>
+ *  <td align="right"><code>040000000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffeffffff89</code></td>
+ *  <td align="right"><code>-4294967415</code></td>
+ *  <td align="center"><code>6</code></td>
+ *  <td align="right"><code>04feffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffeffffff8a</code></td>
+ *  <td align="right"><code>-4294967414</code></td>
+ *  <td align="center"><code>5</code></td>
+ *  <td align="right"><code>0500000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffff00000000</code></td>
+ *  <td align="right"><code>-4294967296</code></td>
+ *  <td align="center"><code>5</code></td>
+ *  <td align="right"><code>0500000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffeffff89</code></td>
+ *  <td align="right"><code>-16777335</code></td>
+ *  <td align="center"><code>5</code></td>
+ *  <td align="right"><code>05feffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffeffff8a</code></td>
+ *  <td align="right"><code>-16777334</code></td>
+ *  <td align="center"><code>4</code></td>
+ *  <td align="right"><code>06000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffff000000</code></td>
+ *  <td align="right"><code>-16777216</code></td>
+ *  <td align="center"><code>4</code></td>
+ *  <td align="right"><code>06000076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffffeff89</code></td>
+ *  <td align="right"><code>-65655</code></td>
+ *  <td align="center"><code>4</code></td>
+ *  <td align="right"><code>06feffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffffeff8a</code></td>
+ *  <td align="right"><code>-65654</code></td>
+ *  <td align="center"><code>3</code></td>
+ *  <td align="right"><code>070000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffff0000</code></td>
+ *  <td align="right"><code>-65536</code></td>
+ *  <td align="center"><code>3</code></td>
+ *  <td align="right"><code>070076</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffffffe89</code></td>
+ *  <td align="right"><code>-375</code></td>
+ *  <td align="center"><code>3</code></td>
+ *  <td align="right"><code>07feff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffffffe8a</code></td>
+ *  <td align="right"><code>-374</code></td>
+ *  <td align="center"><code>2</code></td>
+ *  <td align="right"><code>0800</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffff00</code></td>
+ *  <td align="right"><code>-256</code></td>
+ *  <td align="center"><code>2</code></td>
+ *  <td align="right"><code>0876</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffff89</code></td>
+ *  <td align="right"><code>-119</code></td>
+ *  <td align="center"><code>2</code></td>
+ *  <td align="right"><code>08ff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffff8a</code></td>
+ *  <td align="right"><code>-118</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>09</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffff8b</code></td>
+ *  <td align="right"><code>-117</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>0a</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffff8c</code></td>
+ *  <td align="right"><code>-116</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>0b</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffffa9</code></td>
+ *  <td align="right"><code>-87</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>28</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffffc9</code></td>
+ *  <td align="right"><code>-55</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>48</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffffe9</code></td>
+ *  <td align="right"><code>-23</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>68</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xfffffffffffffffe</code></td>
+ *  <td align="right"><code>-2</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>7d</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0xffffffffffffffff</code></td>
+ *  <td align="right"><code>-1</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>7e</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000000</code></td>
+ *  <td align="right"><code>0</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>7f</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000001</code></td>
+ *  <td align="right"><code>1</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>80</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000002</code></td>
+ *  <td align="right"><code>2</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>81</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000071</code></td>
+ *  <td align="right"><code>113</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>f0</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000077</code></td>
+ *  <td align="right"><code>119</code></td>
+ *  <td align="center"><code>1</code></td>
+ *  <td align="right"><code>f6</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000078</code></td>
+ *  <td align="right"><code>120</code></td>
+ *  <td align="center"><code>2</code></td>
+ *  <td align="right"><code>f700</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000177</code></td>
+ *  <td align="right"><code>375</code></td>
+ *  <td align="center"><code>2</code></td>
+ *  <td align="right"><code>f7ff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000000178</code></td>
+ *  <td align="right"><code>376</code></td>
+ *  <td align="center"><code>3</code></td>
+ *  <td align="right"><code>f80100</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000010077</code></td>
+ *  <td align="right"><code>65655</code></td>
+ *  <td align="center"><code>3</code></td>
+ *  <td align="right"><code>f8ffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000000010078</code></td>
+ *  <td align="right"><code>65656</code></td>
+ *  <td align="center"><code>4</code></td>
+ *  <td align="right"><code>f9010000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000001000077</code></td>
+ *  <td align="right"><code>16777335</code></td>
+ *  <td align="center"><code>4</code></td>
+ *  <td align="right"><code>f9ffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000001000078</code></td>
+ *  <td align="right"><code>16777336</code></td>
+ *  <td align="center"><code>5</code></td>
+ *  <td align="right"><code>fa01000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000100000077</code></td>
+ *  <td align="right"><code>4294967415</code></td>
+ *  <td align="center"><code>5</code></td>
+ *  <td align="right"><code>faffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000000100000078</code></td>
+ *  <td align="right"><code>4294967416</code></td>
+ *  <td align="center"><code>6</code></td>
+ *  <td align="right"><code>fb0100000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000010000000077</code></td>
+ *  <td align="right"><code>1099511627895</code></td>
+ *  <td align="center"><code>6</code></td>
+ *  <td align="right"><code>fbffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0000010000000078</code></td>
+ *  <td align="right"><code>1099511627896</code></td>
+ *  <td align="center"><code>7</code></td>
+ *  <td align="right"><code>fc010000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0001000000000077</code></td>
+ *  <td align="right"><code>281474976710775</code></td>
+ *  <td align="center"><code>7</code></td>
+ *  <td align="right"><code>fcffffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0001000000000078</code></td>
+ *  <td align="right"><code>281474976710776</code></td>
+ *  <td align="center"><code>8</code></td>
+ *  <td align="right"><code>fd01000000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0100000000000077</code></td>
+ *  <td align="right"><code>72057594037928055</code></td>
+ *  <td align="center"><code>8</code></td>
+ *  <td align="right"><code>fdffffffffffffff</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x0100000000000078</code></td>
+ *  <td align="right"><code>72057594037928056</code></td>
+ *  <td align="center"><code>9</code></td>
+ *  <td align="right"><code>fe0100000000000000</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x7fffffffffffff78</code></td>
+ *  <td align="right"><code>9223372036854775672</code></td>
+ *  <td align="center"><code>9</code></td>
+ *  <td align="right"><code>fe7fffffffffffff00</code></td>
+ * </tr>
+ * <tr>
+ *  <td align="right"><code>0x7fffffffffffffff</code></td>
+ *  <td align="right"><code>9223372036854775807</code></td>
+ *  <td align="center"><code>9</code></td>
+ *  <td align="right"><code>fe7fffffffffffff87</code></td>
+ * </tr>
+ * </table>
+ *
+ * <p>
  * Encoded values are guaranteed to not start with {@code 0x00} or {@code 0xff}.
  */
 public final class LongEncoder {
