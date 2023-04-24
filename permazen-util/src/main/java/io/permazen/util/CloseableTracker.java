@@ -83,11 +83,8 @@ public class CloseableTracker implements Closeable {
      * @param item item to track
      * @throws IllegalArgumentException if either parameter is null
      */
-    public void add(Object holder, Closeable item) {
-        final HolderRef holderRef = new HolderRef(holder, item, this.queue);
-        synchronized (this) {
-            this.unclosedItems.add(holderRef);
-        }
+    public synchronized void add(Object holder, Closeable item) {
+        this.unclosedItems.add(new HolderRef(holder, item, this.queue));
     }
 
     /**
@@ -100,15 +97,20 @@ public class CloseableTracker implements Closeable {
 
         // Poll for refs and close the associated items
         ArrayList<HolderRef> closedItems = null;
-        for (HolderRef ref; (ref = (HolderRef)this.queue.poll()) != null; ) {
-            if (closedItems == null)
-                closedItems = new ArrayList<>();
+        while (true) {
+            final HolderRef ref;
+            synchronized (this) {
+                if ((ref = (HolderRef)this.queue.poll()) == null)
+                    break;
+            }
             final Closeable item = ref.getItem();
             try {
                 item.close();
             } catch (Throwable e) {
                 this.exceptionDuringClose(item, e);
             }
+            if (closedItems == null)
+                closedItems = new ArrayList<>();
             closedItems.add(ref);
         }
 
