@@ -22,7 +22,7 @@ import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaFieldSwitchAdapter;
+import io.permazen.schema.SchemaFieldSwitch;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
@@ -48,7 +48,7 @@ class ObjectType extends Storage {
 
         // Get FieldType's for each simple field
         for (SchemaField field : objType.getSchemaFields().values()) {
-            field.visit(new SchemaFieldSwitchAdapter<Void>() {
+            field.visit(new SchemaFieldSwitch<Void>() {
                 @Override
                 protected Void caseCollectionSchemaField(CollectionSchemaField field) {
                     field.getElementField().visit(this);
@@ -85,7 +85,7 @@ class ObjectType extends Storage {
 
         // Inventory simple fields that are not sub-fields
         for (SchemaField field : objType.getSchemaFields().values()) {
-            field.visit(new SchemaFieldSwitchAdapter<Void>() {
+            field.visit(new SchemaFieldSwitch<Void>() {
                 @Override
                 public Void caseSimpleSchemaField(SimpleSchemaField field) {
                     if (field.isIndexed())
@@ -158,7 +158,7 @@ class ObjectType extends Storage {
             // Scan field
             if (info.isDetailEnabled())
                 info.detail("checking object " + id + " " + field);
-            field.visit(new SchemaFieldSwitchAdapter<Void>() {
+            field.visit(new SchemaFieldSwitch<Void>() {
                 @Override
                 public Void caseSimpleSchemaField(SimpleSchemaField field) {
                     final byte[] value = ObjectType.this.checkSimpleField(info, id, field, fieldPrefix, i);

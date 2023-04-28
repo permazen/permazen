@@ -16,65 +16,143 @@ public interface SchemaFieldSwitch<R> {
     /**
      * Handle a {@link SetSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseCollectionSchemaField caseCollectionSchemaField()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseSetSchemaField(SetSchemaField field);
+    default R caseSetSchemaField(SetSchemaField field) {
+        return this.caseCollectionSchemaField(field);
+    }
 
     /**
      * Handle a {@link ListSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseCollectionSchemaField caseCollectionSchemaField()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseListSchemaField(ListSchemaField field);
+    default R caseListSchemaField(ListSchemaField field) {
+        return this.caseCollectionSchemaField(field);
+    }
 
     /**
      * Handle a {@link MapSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseComplexSchemaField caseComplexSchemaField()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseMapSchemaField(MapSchemaField field);
+    default R caseMapSchemaField(MapSchemaField field) {
+        return this.caseComplexSchemaField(field);
+    }
 
     /**
      * Handle a {@link SimpleSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseDefault caseDefault()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseSimpleSchemaField(SimpleSchemaField field);
+    default R caseSimpleSchemaField(SimpleSchemaField field) {
+        return this.caseDefault(field);
+    }
 
     /**
      * Handle a {@link ReferenceSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseReferenceSchemaField(ReferenceSchemaField field);
+    default R caseReferenceSchemaField(ReferenceSchemaField field) {
+        return this.caseSimpleSchemaField(field);
+    }
 
     /**
      * Handle a {@link EnumSchemaField}.
      *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
+     *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseEnumSchemaField(EnumSchemaField field);
+    default R caseEnumSchemaField(EnumSchemaField field) {
+        return this.caseSimpleSchemaField(field);
+    }
 
     /**
      * Handle a {@link EnumArraySchemaField}.
      *
-     * @param field visiting field
-     * @return visitor return value
-     */
-    R caseEnumArraySchemaField(EnumArraySchemaField field);
-
-    /**
-     * Handle a {@link CounterSchemaField}.
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
      *
      * @param field visiting field
      * @return visitor return value
      */
-    R caseCounterSchemaField(CounterSchemaField field);
-}
+    default R caseEnumArraySchemaField(EnumArraySchemaField field) {
+        return this.caseSimpleSchemaField(field);
+    }
 
+    /**
+     * Handle a {@link CounterSchemaField}.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseDefault caseDefault()}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    default R caseCounterSchemaField(CounterSchemaField field) {
+        return this.caseDefault(field);
+    }
+
+    /**
+     * Visitor pattern roll-up method.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseComplexSchemaField caseComplexSchemaField()}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    default R caseCollectionSchemaField(CollectionSchemaField field) {
+        return this.caseComplexSchemaField(field);
+    }
+
+    /**
+     * Visitor pattern roll-up method.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} delegates to {@link #caseDefault caseDefault()}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    default R caseComplexSchemaField(ComplexSchemaField field) {
+        return this.caseDefault(field);
+    }
+
+    /**
+     * Visitor pattern roll-up method.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitch} always throws {@link UnsupportedOperationException}.
+     *
+     * @param field visiting field
+     * @return visitor return value
+     */
+    default R caseDefault(SchemaField field) {
+        throw new UnsupportedOperationException("field type not handled: " + field);
+    }
+}

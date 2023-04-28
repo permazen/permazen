@@ -15,14 +15,14 @@ import io.permazen.schema.EnumSchemaField;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.ReferenceSchemaField;
-import io.permazen.schema.SchemaFieldSwitchAdapter;
+import io.permazen.schema.SchemaFieldSwitch;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 
 /**
  * Builds {@link Field}s from {@link SchemaField}s.
  */
-class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
+class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     final Schema schema;
     final FieldTypeRegistry fieldTypeRegistry;
@@ -34,7 +34,7 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
         this.fieldTypeRegistry = fieldTypeRegistry;
     }
 
-// SchemaFieldSwitchAdapter
+// SchemaFieldSwitch
 
     @Override
     public SetField<?> caseSetSchemaField(SetSchemaField field) {

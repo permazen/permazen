@@ -20,7 +20,7 @@ import io.permazen.core.CreateListener;
 import io.permazen.core.DeleteListener;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.Field;
-import io.permazen.core.FieldSwitchAdapter;
+import io.permazen.core.FieldSwitch;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
@@ -2230,7 +2230,7 @@ public class JTransaction {
      * Returns null if no conversion is necessary.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private class OldVersionValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
+    private class OldVersionValueConverterBuilder extends FieldSwitch<Converter<?, ?>> {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {

@@ -16,7 +16,7 @@ import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaFieldSwitchAdapter;
+import io.permazen.schema.SchemaFieldSwitch;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SetSchemaField;
@@ -138,7 +138,7 @@ class JsckInfo implements JsckLogger {
 
         // Add storage for field indexes
         for (SchemaField field : objectType.getSchemaFields().values()) {
-            field.visit(new SchemaFieldSwitchAdapter<Void>() {
+            field.visit(new SchemaFieldSwitch<Void>() {
 
                 @Override
                 public Void caseSimpleSchemaField(SimpleSchemaField field) {
@@ -184,7 +184,7 @@ class JsckInfo implements JsckLogger {
 
     // Find FieldType for field
     FieldType<?> findFieldType(final int schemaVersion, final SimpleSchemaField schemaField) {
-        return schemaField.visit(new SchemaFieldSwitchAdapter<FieldType<?>>() {
+        return schemaField.visit(new SchemaFieldSwitch<FieldType<?>>() {
 
             @Override
             public FieldType<?> caseEnumSchemaField(EnumSchemaField field) {

@@ -356,7 +356,7 @@ public class Permazen {
         for (JClass<?> jclass0 : this.jclasses.values()) {
             final JClass<?> jclass = jclass0;
             for (JField jfield : jclass.jfields.values()) {
-                jfield.visit(new JFieldSwitchAdapter<Void>() {
+                jfield.visit(new JFieldSwitch<Void>() {
 
                     @Override
                     public Void caseJReferenceField(JReferenceField field) {
@@ -1001,7 +1001,7 @@ public class Permazen {
         // Visit fields
         final ArrayList<Stream<JObject>> streamList = new ArrayList<>();
         for (JField jfield : this.getJClass(id).getJFieldsByStorageId().values()) {
-            jfield.visit(new JFieldSwitchAdapter<Void>() {
+            jfield.visit(new JFieldSwitch<Void>() {
 
                 @Override
                 public Void caseJReferenceField(JReferenceField field) {

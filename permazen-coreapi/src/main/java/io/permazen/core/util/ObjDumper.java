@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.Field;
-import io.permazen.core.FieldSwitchAdapter;
+import io.permazen.core.FieldSwitch;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
@@ -146,7 +146,7 @@ public final class ObjDumper {
         // Display fields
         for (Field<?> field : type.getFields().values()) {
             writer.print(String.format("%" + nameFieldSize + "s = ", field.getName()));
-            field.visit(new FieldSwitchAdapter<Void>() {
+            field.visit(new FieldSwitch<Void>() {
 
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {

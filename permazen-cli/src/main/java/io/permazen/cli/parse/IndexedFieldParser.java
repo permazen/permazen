@@ -8,7 +8,7 @@ package io.permazen.cli.parse;
 import io.permazen.cli.Session;
 import io.permazen.core.ComplexField;
 import io.permazen.core.Field;
-import io.permazen.core.FieldSwitchAdapter;
+import io.permazen.core.FieldSwitch;
 import io.permazen.core.ObjType;
 import io.permazen.core.SimpleField;
 import io.permazen.util.ParseContext;
@@ -74,16 +74,15 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
                 fieldName)));
 
         // Get sub-field if field is a complex field
-        return field.visit(new FieldSwitchAdapter<Result>() {
+        return field.visit(new FieldSwitch<Result>() {
 
             @Override
             protected <T> Result caseComplexField(ComplexField<T> field) {
 
                 // Get sub-field name
                 ctx.skipWhitespace();
-                if (!ctx.tryLiteral(".")) {
+                if (!ctx.tryLiteral("."))
                     throw new ParseException(ctx, "expected sub-field name").addCompletion(".");
-                }
                 final Matcher subfieldMatcher = ctx.tryPattern("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
                 if (subfieldMatcher == null) {
                     throw new ParseException(ctx, "expected sub-field name").addCompletions(field.getSubFields().stream()

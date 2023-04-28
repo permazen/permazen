@@ -32,7 +32,7 @@ import io.permazen.Counter;
 import io.permazen.JClass;
 import io.permazen.JCounterField;
 import io.permazen.JField;
-import io.permazen.JFieldSwitchAdapter;
+import io.permazen.JFieldSwitch;
 import io.permazen.JListField;
 import io.permazen.JMapField;
 import io.permazen.JObject;
@@ -249,7 +249,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
 // Field Builders
 
     private Field<?> buildFieldField(String fieldName, JField jfield) {
-        return jfield.visit(new JFieldSwitchAdapter<Field<?>>() {
+        return jfield.visit(new JFieldSwitch<Field<?>>() {
             @Override
             public Field<?> caseJSimpleField(JSimpleField jfield) {
                 final boolean allowNull = jfield.getGetter().getAnnotation(NotNull.class) == null
@@ -285,7 +285,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
     }
 
     private Property<?> buildFieldProperty(final JObject jobj, JField jfield) {
-        return jfield.visit(new JFieldSwitchAdapter<Property<?>>() {
+        return jfield.visit(new JFieldSwitch<Property<?>>() {
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Property<?> caseJSimpleField(JSimpleField jfield) {

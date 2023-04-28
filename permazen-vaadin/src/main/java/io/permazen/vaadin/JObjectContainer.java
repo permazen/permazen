@@ -18,7 +18,7 @@ import io.permazen.CopyState;
 import io.permazen.JCollectionField;
 import io.permazen.JCounterField;
 import io.permazen.JField;
-import io.permazen.JFieldSwitchAdapter;
+import io.permazen.JFieldSwitch;
 import io.permazen.JMapField;
 import io.permazen.JObject;
 import io.permazen.JSimpleField;
@@ -494,7 +494,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         @Override
         public Component extract(final JObject jobj) {
             try {
-                return this.getJField(jobj).visit(new JFieldSwitchAdapter<Component>() {
+                return this.getJField(jobj).visit(new JFieldSwitch<Component>() {
 
                     @Override
                     public Component caseJSimpleField(JSimpleField field) {
@@ -545,7 +545,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                 final JField jfield2 = this.getJField(jobj2);
 
                 // Compare using core API field type
-                return jfield1.visit(new JFieldSwitchAdapter<Integer>() {
+                return jfield1.visit(new JFieldSwitch<Integer>() {
 
                     @Override
                     public Integer caseJSimpleField(JSimpleField field1) {

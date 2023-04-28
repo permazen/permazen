@@ -1428,7 +1428,7 @@ public class Transaction {
 
             // Copy the old field's original value for the version change notification, if any
             if (oldValueMap != null) {
-                oldField.visit(new FieldSwitchAdapter<Void>() {
+                oldField.visit(new FieldSwitch<Void>() {
 
                     @Override
                     @SuppressWarnings("shadow")
@@ -1459,7 +1459,7 @@ public class Transaction {
             }
 
             // Reset the field's value and add/remove index entries as needed
-            oldField.visit(new FieldSwitchAdapter<Void>() {
+            oldField.visit(new FieldSwitch<Void>() {
 
                 @Override
                 @SuppressWarnings("shadow")
@@ -1565,7 +1565,7 @@ public class Transaction {
 
         // Iterate over the new fields that are truly new or got reset
         for (Field<?> newField : incompatibleNewFields) {
-            newField.visit(new FieldSwitchAdapter<Void>() {
+            newField.visit(new FieldSwitch<Void>() {
 
                 @Override
                 @SuppressWarnings("shadow")

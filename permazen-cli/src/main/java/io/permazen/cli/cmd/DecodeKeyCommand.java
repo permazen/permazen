@@ -12,7 +12,7 @@ import io.permazen.cli.parse.Parser;
 import io.permazen.core.ComplexField;
 import io.permazen.core.CompositeIndex;
 import io.permazen.core.Field;
-import io.permazen.core.FieldSwitchAdapter;
+import io.permazen.core.FieldSwitch;
 import io.permazen.core.FieldType;
 import io.permazen.core.Layout;
 import io.permazen.core.ListField;
@@ -96,7 +96,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                 for (CompositeIndex index : objType.getCompositeIndexes().values())
                     storageIdMap.put(index.getStorageId(), index);
                 for (Field<?> field0 : objType.getFields().values()) {
-                    field0.visit(new FieldSwitchAdapter<Void>() {
+                    field0.visit(new FieldSwitch<Void>() {
 
                         @Override
                         public <T> Void caseSimpleField(SimpleField<T> field) {
@@ -208,7 +208,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     // Describe list index or key
                     final ComplexField<?> parent = parentMap.get(field.getStorageId());
                     if (parent != null) {
-                        parent.visit(new FieldSwitchAdapter<Void>() {
+                        parent.visit(new FieldSwitch<Void>() {
 
                             @Override
                             public <E> Void caseListField(ListField<E> field) {
@@ -248,7 +248,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     decodes.add("Invalid storage ID " + fieldStorageId);
                     break;
                 }
-                field.visit(new FieldSwitchAdapter<Void>() {
+                field.visit(new FieldSwitch<Void>() {
 
                     @Override
                     public <E> Void caseListField(ListField<E> field) {
