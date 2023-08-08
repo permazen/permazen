@@ -210,7 +210,7 @@ public class LiteralExprParser implements Parser<Node> {
             // Decode octal escapes
             int charValue = Character.digit(ch, 8);
             if (charValue != -1) {
-                for (int i = 0; i < 2 && (charValue & ~0x1f) == 0; i++) {
+                for (int i = 0; i < 2 && (charValue & ~0x3f) == 0; i++) {
                     ch = ctx.peek();
                     final int oct = Character.digit(ch, 8);
                     if (oct == -1)
