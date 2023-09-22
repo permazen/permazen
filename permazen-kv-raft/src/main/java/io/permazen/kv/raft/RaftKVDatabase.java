@@ -185,7 +185,7 @@ import org.slf4j.LoggerFactory;
  *      This guarantees that the leader's lease timeout calculation is valid.</li>
  *  <li>Due to the optimistic locking approach used, this implementation will perform poorly when there is a high
  *      rate of conflicting transactions; the result will be many transaction retries.</li>
- *  <li>Performance will suffer when the amount of data associated with a typical transaction cannot be delivered
+ *  <li>Performance will suffer if the mutation data associated with a typical transaction cannot be delivered
  *      quickly and reliably over the network.</li>
  * </ul>
  *
