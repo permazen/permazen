@@ -14,6 +14,8 @@ Permazen is:
   * A library for precise, non-local field change notifications
   * An embeddable Java command line interface (CLI)
 
+Got five minutes? Read [Persistence Programming: Are We Doing This Right?](https://queue.acm.org/detail.cfm?id=3526210) in the Jan/Feb 2022 issue of ACM Queue magazine for an overview of the Permazen "story".
+
 ### What's the motivation?
 
 Persistence is central to most applications. But there are many challenges involved in persistence programming that lie outside of the domain of simply storing the data.
@@ -73,38 +75,38 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 
 *Key/Value Layer*
 
-  * [`KVStore`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
-  * [`KVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
-  * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
-  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
+  * [`KVStore`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
+  * [`KVDatabase`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
+  * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
+  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
 
 *Java Layer*
 
-  * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/Permazen.html) - A Permazen database instance
-  * [`JTransaction`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JTransaction.html) - A Permazen database transaction
-  * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/core/FieldType.html) - How all simple database types are defined
-  * [`JObject`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/JObject.html) - Interface implemented by runtime-generated concrete model classes
-  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
-  * [`@JField`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/JField.html) - Annotation configuring your database fields
+  * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html) - A Permazen database instance
+  * [`JTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/JTransaction.html) - A Permazen database transaction
+  * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/FieldType.html) - How all simple database types are defined
+  * [`JObject`](http://permazen.github.io/permazen/site/apidocs/io/permazen/JObject.html) - Interface implemented by runtime-generated concrete model classes
+  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
+  * [`@JField`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/JField.html) - Annotation configuring your database fields
 
 *Other*
 
-  * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnChange.html) - How change notifications are delivered
-  * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
-  * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
-  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
+  * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnChange.html) - How change notifications are delivered
+  * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
+  * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
+  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
 
 ### How are Java object, data structures, and indexes mapped into key/value pairs?
 
 See [`LAYOUT.txt`](https://raw.githubusercontent.com/permazen/permazen/master/LAYOUT.txt).
 
+### Permazen Article
+
+[Persistence Programming: Are We Doing This Right?](https://queue.acm.org/detail.cfm?id=3526210) appears in the Jan/Feb 2022 issue of ACM Queue magazine. This gives a good overview of how Permazen tries to improve the persistence programming experience.
+
 ### Permazen Slides
 
 For a quick overview, check out these slides from a [JSimpleDB talk](https://s3.amazonaws.com/archie-public/jsimpledb/JSimpleDB-BJUG-Slides2016-05-05.pdf) at a local Java user's group (Permazen was previously named JSimpleDB).
-
-### Permazen Article
-
-[Persistence Programming: Are We Doing This Right?](https://queue.acm.org/detail.cfm?id=3526210) appears in the Jan/Feb 2022 issue of ACM Queue magazine.
 
 ### Permazen Paper
 
@@ -127,12 +129,6 @@ Permazen is available from [Maven Central](http://search.maven.org/#search|ga|1|
     </dependency>
 ```
 
-or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy repository:
-
-```xml
-<dependency org="io.permazen" name="permazen"/>
-```
-
 You should also add the key/value store module(s) for whatever key/value store(s) you want to use, e.g.:
 
 ```xml
@@ -151,7 +147,7 @@ Documentation and links:
   * [Introduction](https://github.com/permazen/permazen/wiki/Introduction)
   * [Getting Started](https://github.com/permazen/permazen/wiki/GettingStarted)
   * [FAQ](https://github.com/permazen/permazen/wiki/FAQ)
-  * [API Javadocs](http://permazen.github.io/permazen/site/apidocs/index.html?io/permazen/Permazen.html)
+  * [API Javadocs](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html)
   * Bullet-point [JPA Comparison](https://github.com/permazen/permazen/wiki/JPA_Comparison)
   * [Key/value pair database layout](https://github.com/permazen/permazen/blob/master/LAYOUT.txt)
   * [Permazen Users](https://groups.google.com/forum/#!forum/permazen-users) discussion group
