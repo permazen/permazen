@@ -19,7 +19,6 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -42,17 +41,9 @@ public final class Layout {
     public static final int FORMAT_VERSION_1 = 1;                                       // original format
 
     /**
-     * {@link Database} layout format version #2.
-     *
-     * <p>
-     * This version switched to compressed schema XML.
-     */
-    public static final int FORMAT_VERSION_2 = 2;                                       // added compressed schema XML
-
-    /**
      * The current {@link Database} layout format version ({@value #CURRENT_FORMAT_VERSION}).
      */
-    public static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_2;
+    public static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_1;
 
     /**
      * The single byte value that is a prefix of all meta-data keys.
@@ -62,8 +53,7 @@ public final class Layout {
     private static final byte[] METADATA_PREFIX = new byte[] { METADATA_PREFIX_BYTE };
 
     private static final byte[] FORMAT_VERSION_KEY = new byte[] {
-      METADATA_PREFIX_BYTE, (byte)0x00,
-      (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
+      METADATA_PREFIX_BYTE, (byte)0x00, (byte)'P', (byte)'e', (byte)'r', (byte)'m', (byte)'a', (byte)'z', (byte)'e', (byte)'n'
     };
 
     private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {
@@ -75,50 +65,6 @@ public final class Layout {
     private static final byte[] USER_META_DATA_KEY_PREFIX = new byte[] {
       METADATA_PREFIX_BYTE, (byte)0xff
     };
-
-    // Note: this string must not ever change
-    private static final byte[] SCHEMA_XML_COMPRESSION_DICTIONARY = (""
-      + "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      + "<Schema formatVersion=\"2"
-      + "<CompositeIndex"
-      + "<Counter"
-      + "<Enum"
-      + "<Identifier"
-      + "<Indexed"
-      + "<List"
-      + "<Map"
-      + "<ObjectType"
-      + "<ReferenceField"
-      + "<SetField"
-      + "<SimpleField storageId=\""
-      + " cascadeDelete=\""
-      + " encodingSignature=\""
-      + " indexed=\""
-      + " name=\""
-      + " onDelete=\""
-      + " type=\""
-      + "boolean"
-      + "byte[]"
-      + "short"
-      + "char"
-      + "integer"
-      + "float"
-      + "long"
-      + "double"
-      + "java.lang.String"
-      + "util.Date"
-      + "UUID"
-      + "URI"
-      + "io.File"
-      + "regex.Pattern"
-      + "true"
-      + "false"
-      + "NOTHING"
-      + "EXCEPTION"
-      + "UNREFERENCE"
-      + "DELETE"
-      + "\"><")
-      .getBytes(StandardCharsets.UTF_8);
 
     private Layout() {
     }
@@ -251,35 +197,29 @@ public final class Layout {
         // Sanity check
         Preconditions.checkArgument(value != null, "null value");
 
-        // Compressed XML?
-        final boolean compressed;
+        // Check format version
         switch (formatVersion) {
         case FORMAT_VERSION_1:
-        case FORMAT_VERSION_2:
-            compressed = formatVersion >= FORMAT_VERSION_2;
             break;
         default:
             throw new IllegalArgumentException("unrecognized format version " + formatVersion);
         }
 
-        // Decompress if needed
-        if (compressed) {
-            try {
-                final Inflater inflater = new Inflater(true);
-                inflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);
-                inflater.setInput(Bytes.concat(value, new byte[1]));
-                final ByteArrayOutputStream decompressed = new ByteArrayOutputStream();
-                final byte[] temp = new byte[1000];
-                int r;
-                while ((r = inflater.inflate(temp)) != 0)
-                    decompressed.write(temp, 0, r);
-                if (!inflater.finished())
-                    throw new RuntimeException("internal error: inflater did not finish");
-                inflater.end();
-                value = decompressed.toByteArray();
-            } catch (DataFormatException e) {
-                throw new InvalidSchemaException("error in compressed schema XML data", e);
-            }
+        // Decompress XML
+        try {
+            final Inflater inflater = new Inflater(true);
+            inflater.setInput(Bytes.concat(value, new byte[1]));
+            final ByteArrayOutputStream decompressed = new ByteArrayOutputStream();
+            final byte[] temp = new byte[1000];
+            int r;
+            while ((r = inflater.inflate(temp)) != 0)
+                decompressed.write(temp, 0, r);
+            if (!inflater.finished())
+                throw new RuntimeException("internal error: inflater did not finish");
+            inflater.end();
+            value = decompressed.toByteArray();
+        } catch (DataFormatException e) {
+            throw new InvalidSchemaException("error in compressed schema XML data", e);
         }
 
         // Decode XML
@@ -308,8 +248,6 @@ public final class Layout {
         final boolean compress;
         switch (formatVersion) {
         case FORMAT_VERSION_1:
-        case FORMAT_VERSION_2:
-            compress = formatVersion >= FORMAT_VERSION_2;
             break;
         default:
             throw new IllegalArgumentException("unrecognized format version " + formatVersion);
@@ -324,22 +262,19 @@ public final class Layout {
         }
         byte[] value = buf.toByteArray();
 
-        // Compress if needed
-        if (compress) {
-            final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
-            deflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);
-            deflater.setInput(value);
-            deflater.finish();
-            final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-            final byte[] temp = new byte[1000];
-            int r;
-            while ((r = deflater.deflate(temp)) != 0)
-                compressed.write(temp, 0, r);
-            if (!deflater.finished())
-                throw new RuntimeException("internal error: deflater did not finish");
-            deflater.end();
-            value = compressed.toByteArray();
-        }
+        // Compress XML
+        final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
+        deflater.setInput(value);
+        deflater.finish();
+        final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+        final byte[] temp = new byte[1000];
+        int r;
+        while ((r = deflater.deflate(temp)) != 0)
+            compressed.write(temp, 0, r);
+        if (!deflater.finished())
+            throw new RuntimeException("internal error: deflater did not finish");
+        deflater.end();
+        value = compressed.toByteArray();
 
         // Done
         return value;

@@ -98,7 +98,7 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 
 ### How are Java object, data structures, and indexes mapped into key/value pairs?
 
-See [`LAYOUT.txt`](https://raw.githubusercontent.com/permazen/permazen/master/LAYOUT.txt).
+See [`LAYOUT.md`](https://github.com/permazen/permazen/blob/master/LAYOUT.md).
 
 ### Permazen Article
 

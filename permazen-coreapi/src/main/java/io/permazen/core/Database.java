@@ -467,7 +467,6 @@ public class Database {
                 // Validate format version
                 switch (formatVersion) {
                 case Layout.FORMAT_VERSION_1:
-                case Layout.FORMAT_VERSION_2:
                     break;
                 default:
                     throw new InconsistentDatabaseException("database contains unrecognized format version "

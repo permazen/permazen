@@ -4,17 +4,19 @@ REVAMPS
 
 - Update to the new generation
 - More regulated identifier system for FieldType's
-- "Snapshot" -> "Memory"
+- permazen-coreapi -> permazen-core
+- "SnapshotFoo" -> "MemoryFoo"
 - See VAADIN-23-TODO.txt
 - Remove Adapter classes (see "revamps" branch)
 - stash@{0}: On revamps: Revamps WIP
 - Remove parse module (fold into cli)
 - Fold app, cliapp, guiapp modules into demo
+- Eliminate @JFieldType, instead @JField contains link to implementation class
+    - Use URN's for FieldTypes: "urn:fdc:permazen.io:2023:fieldType:int"
+    - Eliminate encodingSignature
+- Switch from Iterators to Streams for everything, and CLOSE THEM
 
-? Switch from Iterators to Streams for everything, and CLOSE THEM
-? Eliminate @JFieldType, instead @JField contains link to implementation class
-    - Use UUID's or URN's for FieldTypes
-        "urn:fdc:permazen.io:2023:fieldType:xxx"
+? Replace all byte[] with com.google.protobuf.ByteString ?
 
 SHORT TERM
 ==========

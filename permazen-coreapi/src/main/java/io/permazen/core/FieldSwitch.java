@@ -5,6 +5,8 @@
 
 package io.permazen.core;
 
+import java.util.Collection;
+
 /**
  * Visitor pattern interface for {@link Field}s.
  *
