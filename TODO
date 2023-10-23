@@ -14,6 +14,8 @@ REVAMPS
 - Eliminate @JFieldType, instead @JField contains link to implementation class
     - Use URN's for FieldTypes: "urn:fdc:permazen.io:2023:fieldType:int"
     - Eliminate encodingSignature
+- Remove @JFieldType, instead specify type implementation in @JField annotation
+    - Full meta-annotation support
 - Switch from Iterators to Streams for everything, and CLOSE THEM
 
 ? Replace all byte[] with com.google.protobuf.ByteString ?
