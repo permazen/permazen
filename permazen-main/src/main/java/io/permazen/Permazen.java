@@ -392,14 +392,14 @@ public class Permazen {
                     }
 
                     @Override
-                    protected Void caseJCollectionField(JCollectionField field) {
+                    public Void caseJCollectionField(JCollectionField field) {
                         if (field.getElementField() instanceof JReferenceField)
                             this.caseJReferenceField((JReferenceField)field.getElementField());
                         return null;
                     }
 
                     @Override
-                    protected Void caseJField(JField field) {
+                    public Void caseJField(JField field) {
                         return null;
                     }
                 });
@@ -1027,7 +1027,7 @@ public class Permazen {
                 }
 
                 @Override
-                protected Void caseJCollectionField(JCollectionField field) {
+                public Void caseJCollectionField(JCollectionField field) {
                     if (field.getElementField() instanceof JReferenceField) {
                         streamList.add(field.getValue(jobj).stream()
                           .filter(JObject.class::isInstance)
@@ -1037,7 +1037,7 @@ public class Permazen {
                 }
 
                 @Override
-                protected Void caseJField(JField field) {
+                public Void caseJField(JField field) {
                     return null;
                 }
             });

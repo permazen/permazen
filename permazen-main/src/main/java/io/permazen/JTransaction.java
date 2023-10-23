@@ -2230,7 +2230,7 @@ public class JTransaction {
      * Returns null if no conversion is necessary.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private class OldVersionValueConverterBuilder extends FieldSwitch<Converter<?, ?>> {
+    private class OldVersionValueConverterBuilder implements FieldSwitch<Converter<?, ?>> {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {

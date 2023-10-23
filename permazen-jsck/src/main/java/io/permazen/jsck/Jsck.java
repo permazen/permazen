@@ -114,7 +114,6 @@ public class Jsck {
             }
             switch (info.getFormatVersion()) {
             case Layout.FORMAT_VERSION_1:
-            case Layout.FORMAT_VERSION_2:
                 break;
             default:
                 throw new IllegalArgumentException("invalid Permazen signature/format version key value "

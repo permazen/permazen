@@ -233,7 +233,7 @@ public interface ChangeSwitch<R> {
      * @param <T> changed object type
      * @return visitor return value
      */
-    protected <T> R caseListFieldChange(ListFieldChange<T> change) {
+    default <T> R caseListFieldChange(ListFieldChange<T> change) {
         return this.caseFieldChange(change);
     }
 
@@ -247,7 +247,7 @@ public interface ChangeSwitch<R> {
      * @param <T> changed object type
      * @return visitor return value
      */
-    protected <T> R caseMapFieldChange(MapFieldChange<T> change) {
+    default <T> R caseMapFieldChange(MapFieldChange<T> change) {
         return this.caseFieldChange(change);
     }
 
@@ -261,7 +261,7 @@ public interface ChangeSwitch<R> {
      * @param <T> changed object type
      * @return visitor return value
      */
-    protected <T> R caseSetFieldChange(SetFieldChange<T> change) {
+    default <T> R caseSetFieldChange(SetFieldChange<T> change) {
         return this.caseFieldChange(change);
     }
 
@@ -275,7 +275,7 @@ public interface ChangeSwitch<R> {
      * @param <T> changed object type
      * @return visitor return value
      */
-    protected <T> R caseFieldChange(FieldChange<T> change) {
+    default <T> R caseFieldChange(FieldChange<T> change) {
         return this.caseChange(change);
     }
 
@@ -289,7 +289,7 @@ public interface ChangeSwitch<R> {
      * @param <T> changed object type
      * @return visitor return value
      */
-    protected <T> R caseChange(Change<T> change) {
+    default <T> R caseChange(Change<T> change) {
         return null;
     }
 }

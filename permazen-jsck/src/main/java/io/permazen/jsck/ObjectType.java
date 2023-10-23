@@ -50,7 +50,7 @@ class ObjectType extends Storage {
         for (SchemaField field : objType.getSchemaFields().values()) {
             field.visit(new SchemaFieldSwitch<Void>() {
                 @Override
-                protected Void caseCollectionSchemaField(CollectionSchemaField field) {
+                public Void caseCollectionSchemaField(CollectionSchemaField field) {
                     field.getElementField().visit(this);
                     return null;
                 }
@@ -93,7 +93,7 @@ class ObjectType extends Storage {
                     return null;
                 }
                 @Override
-                protected Void caseDefault(SchemaField field) {
+                public Void caseDefault(SchemaField field) {
                     return null;
                 }
             });
