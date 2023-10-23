@@ -8,6 +8,8 @@ package io.permazen.annotation;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.core.DeleteAction;
 
+import jakarta.validation.groups.Default;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -351,7 +353,7 @@ public @interface JField {
      * <p>
      * The constraint will be checked any time normal validation is performed on an object containing the field.
      * More precisely, a uniqueness constraint behaves like a JSR 303
-     * validation constraint with {@code groups() = }<code>{ </code>{@link javax.validation.groups.Default}{@code .class,
+     * validation constraint with {@code groups() = }<code>{ </code>{@link Default}{@code .class,
      * }{@link io.permazen.UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
      * are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
      * {@link io.permazen.JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.

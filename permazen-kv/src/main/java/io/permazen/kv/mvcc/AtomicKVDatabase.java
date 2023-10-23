@@ -20,11 +20,11 @@ import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.util.ByteUtil;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import org.slf4j.LoggerFactory;
 
@@ -209,6 +209,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
     // Object
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void finalize() throws Throwable {
             try {
                 if (!this.closed)

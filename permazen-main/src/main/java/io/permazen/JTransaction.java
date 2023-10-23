@@ -8,9 +8,7 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.CoreIndex;
@@ -56,6 +54,11 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.groups.Default;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,10 +77,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import javax.validation.groups.Default;
 
 import org.dellroad.stuff.validation.ValidationContext;
 import org.dellroad.stuff.validation.ValidationUtil;
@@ -548,7 +547,7 @@ public class JTransaction {
      * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
-     * @see #copyTo(JTransaction, CopyState, Iterable)
+     * @see #copyTo(JTransaction, CopyState, Stream)
      * @see ReferencePath
      */
     public JObject copyTo(JTransaction dest, JObject jobj, CopyState copyState, String... refPaths) {
@@ -594,32 +593,6 @@ public class JTransaction {
 
         // Done
         return dest.get(copyState.getDestinationId(id));
-    }
-
-    /**
-     * Copy the specified objects into the specified destination transaction.
-     *
-     * <p>
-     * This is a convenience method; equivalent to:
-     * <blockquote>
-     *  {@link #copyTo(JTransaction, CopyState, Stream) copyTo}{@code
-     *      (dest, copyState, }{@link Streams#stream(Iterable) Streams.stream}{@code (jobjs))}
-     * </blockquote>
-     *
-     * @param dest destination transaction
-     * @param copyState tracks which objects have already been copied and whether to remap object ID's
-     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
-     * @throws DeletedObjectException if any object to be copied does not actually exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
-     *  in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
-     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
-     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws IllegalArgumentException if any parameter is null
-     */
-    public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
-        Preconditions.checkArgument(jobjs != null, "null jobjs");
-        this.copyTo(dest, copyState, Streams.stream(jobjs));
     }
 
     /**
@@ -676,7 +649,7 @@ public class JTransaction {
      * deadlock could result.
      *
      * @param dest destination transaction
-     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
+     * @param jobjs the objects to copy; null values are ignored
      * @param copyState tracks which objects have already been copied and whether to remap object ID's
      * @throws DeletedObjectException if any object to be copied does not actually exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
@@ -1137,7 +1110,7 @@ public class JTransaction {
      * This method is typically only used by generated classes; normally, {@link JObject#revalidate} would be used instead.
      *
      * @param id ID of the object to revalidate
-     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
+     * @param groups validation group(s) to use for validation; if empty, {@link jakarta.validation.groups.Default} is assumed
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws DeletedObjectException if the object does not exist in this transaction
@@ -1408,10 +1381,10 @@ public class JTransaction {
      * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
      */
-    public NavigableSet<JObject> followReferencePath(ReferencePath path, Iterable<? extends JObject> startObjects) {
+    public NavigableSet<JObject> followReferencePath(ReferencePath path, Stream<? extends JObject> startObjects) {
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(startObjects != null, "null startObjects");
-        final NavigableSet<ObjId> ids = this.tx.followReferencePath(Iterables.transform(startObjects, this.referenceConverter),
+        final NavigableSet<ObjId> ids = this.tx.followReferencePath(startObjects.map(this.referenceConverter),
           path.getReferenceFields(), path.getPathKeyRanges());
         return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }
@@ -1426,11 +1399,11 @@ public class JTransaction {
      * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
      */
-    public NavigableSet<JObject> invertReferencePath(ReferencePath path, Iterable<? extends JObject> targetObjects) {
+    public NavigableSet<JObject> invertReferencePath(ReferencePath path, Stream<? extends JObject> targetObjects) {
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(targetObjects != null, "null targetObjects");
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(path.getReferenceFields(), path.getPathKeyRanges(),
-          Iterables.transform(targetObjects, this.referenceConverter));
+          targetObjects.map(this.referenceConverter));
         return new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }
 

@@ -88,7 +88,7 @@ public class AllowDeletedTest extends TestSupport {
             // copyTo() of 2/3 objects
             jtx.getAll(Person.class).forEach(JObject::delete);
             try {
-                stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2));
+                stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2).stream());
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -97,7 +97,7 @@ public class AllowDeletedTest extends TestSupport {
 
             // copyTo() of all 3/3 objects
             jtx.getAll(Person.class).forEach(JObject::delete);
-            stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2, p3));
+            stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2, p3).stream());
             Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
 
         } finally {

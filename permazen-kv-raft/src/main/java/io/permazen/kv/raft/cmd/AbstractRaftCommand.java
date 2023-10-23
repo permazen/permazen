@@ -5,8 +5,8 @@
 
 package io.permazen.kv.raft.cmd;
 
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.cmd.AbstractCommand;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.raft.RaftKVDatabase;
@@ -25,10 +25,10 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
         return EnumSet.allOf(SessionMode.class);
     }
 
-    protected abstract class RaftAction implements CliSession.Action {
+    protected abstract class RaftAction implements Session.Action {
 
         @Override
-        public final void run(CliSession session) throws Exception {
+        public final void run(Session session) throws Exception {
             final KVDatabase db = session.getKVDatabase();
             final RaftKVDatabase raftKV;
             if (db instanceof RaftKVDatabase)
@@ -40,7 +40,7 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
             this.run(session, raftKV);
         }
 
-        protected abstract void run(CliSession session, RaftKVDatabase db) throws Exception;
+        protected abstract void run(Session session, RaftKVDatabase db) throws Exception;
     }
 }
 

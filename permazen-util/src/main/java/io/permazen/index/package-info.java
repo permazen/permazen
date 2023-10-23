@@ -71,13 +71,14 @@
  * Therefore the resulting index types associated with indexes on complex sub-fields are as follows:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Index Types">
+ * <table class="striped">
+ * <caption>Index Types</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Complex Field</th>
- *  <th align="left">Indexed Sub-Field</th>
- *  <th align="left">Distinguising Value</th>
- *  <th align="left">Distinguising Type</th>
- *  <th align="left">Index Type</th>
+ *  <th style="font-weight: bold; text-align: left">Complex Field</th>
+ *  <th style="font-weight: bold; text-align: left">Indexed Sub-Field</th>
+ *  <th style="font-weight: bold; text-align: left">Distinguising Value</th>
+ *  <th style="font-weight: bold; text-align: left">Distinguising Type</th>
+ *  <th style="font-weight: bold; text-align: left">Index Type</th>
  * </tr>
  * <tr>
  *  <td>{@link java.util.Set}{@code <E>}</td>

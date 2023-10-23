@@ -38,6 +38,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -2897,7 +2898,7 @@ public class Transaction {
      * value in {@code path} is negated, then the field is traversed in the inverse direction.
      *
      * <p>
-     * If {@code path} is empty, then {@code startObjects} is returned.
+     * If {@code path} is empty, then the contents of {@code startObjects} is returned.
      *
      * <p>
      * The {@code filters}, if any, are applied to {@link ObjId}'s at the corresponding steps in the path: {@code filters[0]}
@@ -2916,7 +2917,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code filters} is not null and does not have length {@code path.length + 1}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public NavigableSet<ObjId> followReferencePath(Iterable<? extends ObjId> startObjects, int[] path, KeyRanges[] filters) {
+    public NavigableSet<ObjId> followReferencePath(Stream<? extends ObjId> startObjects, int[] path, KeyRanges[] filters) {
 
         // Sanity check
         Preconditions.checkArgument(startObjects != null, "null startObjects");
@@ -2926,10 +2927,9 @@ public class Transaction {
         // Perform initial filtering
         final ObjIdSet startIds = new ObjIdSet();
         final KeyRanges firstFilter = filters != null ? filters[0] : null;
-        for (ObjId id : startObjects) {
-            if (firstFilter == null || firstFilter.contains(id.getBytes()))
-                startIds.add(id);
-        }
+        if (firstFilter != null)
+            startObjects = startObjects.filter(id -> firstFilter.contains(id.getBytes()));
+        startObjects.forEach(startIds::add);
         if (path.length == 0)
             return startIds.sortedSnapshot();
 
@@ -2960,7 +2960,7 @@ public class Transaction {
      * value in {@code path} is negated, then the field is traversed in the inverse direction.
      *
      * <p>
-     * If {@code path} is empty, then {@code targetObjects} is returned.
+     * If {@code path} is empty, then the contents of {@code targetObjects} is returned.
      *
      * <p>
      * The {@code filters}, if any, are applied to {@link ObjId}'s at the corresponding steps in the path:
@@ -2980,7 +2980,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code filters} is not null and does not have length {@code path.length + 1}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public NavigableSet<ObjId> invertReferencePath(int[] path, KeyRanges[] filters, Iterable<? extends ObjId> targetObjects) {
+    public NavigableSet<ObjId> invertReferencePath(int[] path, KeyRanges[] filters, Stream<? extends ObjId> targetObjects) {
 
         // Invert path
         final int[] invertedPath = new int[path.length];
@@ -3004,7 +3004,7 @@ public class Transaction {
         return this.followReferencePath(targetObjects, invertedPath, invertedFilters);
     }
 
-    private ArrayList<NavigableSet<ObjId>> traverseReference(Iterable<? extends ObjId> objects, int referenceId, KeyRanges filter) {
+    private ArrayList<NavigableSet<ObjId>> traverseReference(Set<ObjId> objects, int referenceId, KeyRanges filter) {
         assert objects != null;
 
         // Check forward vs. inverse and get storage info

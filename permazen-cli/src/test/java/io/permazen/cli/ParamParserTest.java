@@ -5,25 +5,29 @@
 
 package io.permazen.cli;
 
+import io.permazen.cli.parse.FieldTypeParser;
+import io.permazen.cli.parse.Parser;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.parse.FieldTypeParser;
-import io.permazen.parse.ParseException;
-import io.permazen.parse.Parser;
 import io.permazen.test.TestSupport;
-import io.permazen.util.ParseContext;
 
+import java.util.List;
 import java.util.Map;
 
+import org.dellroad.jct.core.simple.CommandLineParser;
+import org.dellroad.jct.core.simple.SimpleCommandLineParser;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class ParamParserTest extends TestSupport {
 
+    private final SimpleCommandLineParser commandLineParser = new SimpleCommandLineParser();
+
     @Test(dataProvider = "cases")
     public void testParamParser(String specs, String command, Map<String, Object> expected) throws Exception {
-        //this.log.info("*** ParamParserTest: specs=\"{}\" command=\"{}\"", specs, command);
+        this.log.info("*** ParamParserTest: specs=\"{}\"", specs);
+        this.log.info("*** ParamParserTest: command=\"{}\"", command);
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
@@ -34,12 +38,14 @@ public class ParamParserTest extends TestSupport {
                 return new FieldTypeParser<>(fieldType);
             }
         };
-        //this.log.info("*** ParamParserTest: optionFlags={}", parser.getOptionFlags());
-        //this.log.info("*** ParamParserTest: parameters={}", parser.getParameters());
+        this.log.info("*** ParamParserTest: optionFlags={}", parser.getOptionFlags());
+        this.log.info("*** ParamParserTest: parameters={}", parser.getParameters());
         try {
-            final Map<String, Object> actual = parser.parse(null, new ParseContext(command), false);
+            final List<String> params = this.commandLineParser.parseCommandLine(command);
+            this.log.info("*** ParamParserTest: split command={} (len={})", params, params.size());
+            final Map<String, Object> actual = parser.parse(null, params);
             Assert.assertEquals(actual, expected, "\n  ACTUAL: " + actual + "\nEXPECTED: " + expected + "\n");
-        } catch (ParseException e) {
+        } catch (CommandLineParser.SyntaxException | IllegalArgumentException e) {
             if (expected != null)
                 throw new Exception("parse failed for \"" + command + "\"", e);
         }
@@ -105,7 +111,7 @@ public class ParamParserTest extends TestSupport {
 
         {
             "-c:count:word",
-            " -c foo; bar",
+            " -c foo",
             buildMap("count", "foo")
         },
 
@@ -129,35 +135,34 @@ public class ParamParserTest extends TestSupport {
 
         {
             "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double?",
-            " --foo -v 123 -d -- \"hello there\"",
+            " --foo -v 123 -d -- \"\\\"hello there\\\"\"",
             buildMap("foo", true, "version", 123, "debug", true, "p1", "hello there")
         },
 
         {
-            "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double?",
+            "-v:version:int -d:debug --foo:foo p1 p2:double?",
             " --foo -v 123 -d -- \"why not?\" 15.3",
             buildMap("foo", true, "version", 123, "debug", true, "p1", "why not?", "p2", 15.3)
         },
 
         {
             "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double+",
-            " --foo -v 123 -d -- \"frobbely wobbely\"",
+            " --foo -v 123 -d -- \"\\\"frobbely wobbely\\\"\"",
             null
         },
 
         {
             "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double+",
-            " --foo -v 123 -d -- \"hello there\" -342.574e17",
-            buildMap("foo", true, "version", 123, "debug", true, "p1", "hello there", "p2", buildList(-342.574e17))
+            " --foo -v 123 -d -- \"\\\"goodbye there\\\"\" -342.574e17",
+            buildMap("foo", true, "version", 123, "debug", true, "p1", "goodbye there", "p2", buildList(-342.574e17))
         },
 
         {
             "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double*",
-            " \"\" -Infinity -0.0 +0.0 123.45",
+            " \\\"\\\" -Infinity -0.0 +0.0 123.45",
             buildMap("p1", "", "p2", buildList(Double.NEGATIVE_INFINITY, -0.0, +0.0, 123.45))
         },
 
         };
     }
 }
-

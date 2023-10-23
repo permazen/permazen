@@ -10,7 +10,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.test.TestSupport;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 import org.testng.annotations.Test;
 

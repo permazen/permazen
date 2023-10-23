@@ -6,7 +6,7 @@
 package io.permazen.cli.cmd;
 
 import io.permazen.Permazen;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.core.Schema;
 import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.Transaction;
@@ -19,7 +19,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
     }
 
     // Get the schema having the specified version
-    protected static SchemaModel getSchemaModel(CliSession session, final int version) {
+    protected static SchemaModel getSchemaModel(Session session, final int version) {
 
         // Version zero means "the configured schema"
         if (version == 0) {
@@ -30,7 +30,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
                     schemaModel = jdb.getSchemaModel();
             }
             if (schemaModel == null) {
-                session.getWriter().println("No schema configured on this session");
+                session.getOutput().println("No schema configured on this session");
                 return null;
             }
             return schemaModel;
@@ -40,7 +40,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         return AbstractSchemaCommand.runWithoutSchema(session, (session1, tx) -> {
             final Schema schema = tx.getSchemas().getVersions().get(version);
             if (schema == null) {
-                session1.getWriter().println("Schema version " + version
+                session1.getOutput().println("Schema version " + version
                   + " not found (known versions: " + tx.getSchemas().getVersions().keySet() + ")");
                 return null;
             }
@@ -49,13 +49,13 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
     }
 
     // Perform action in a transaction that doesn't have any preconceived notion of what schema(s) should be in there
-    protected static <R> R runWithoutSchema(CliSession session, SchemaAgnosticAction<R> action) {
+    protected static <R> R runWithoutSchema(Session session, SchemaAgnosticAction<R> action) {
 
         final Transaction tx;
         try {
             tx = session.getDatabase().createTransaction(null, 0, false);
         } catch (SchemaMismatchException e) {                                   // must be a uninitialized database
-            session.getWriter().println("Database is uninitialized");
+            session.getOutput().println("Database is uninitialized");
             return null;
         }
         boolean success = false;
@@ -71,7 +71,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
     }
 
     protected interface SchemaAgnosticAction<R> {
-        R runWithoutSchema(CliSession session, Transaction tx);
+        R runWithoutSchema(Session session, Transaction tx);
     }
 }
 

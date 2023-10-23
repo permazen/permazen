@@ -154,7 +154,7 @@ class IndexQueryInfo {
             throw new IllegalArgumentException("no sub-type of " + context
               + " contains and indexed simple field with storage ID " + storageId);
         }
-        return Util.findLowestCommonAncestors(contextFieldTypes);
+        return Util.findLowestCommonAncestors(contextFieldTypes.stream());
     }
 
     private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {

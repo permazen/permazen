@@ -6,7 +6,6 @@
 package io.permazen.core.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import io.permazen.core.CollectionField;
 import io.permazen.core.CounterField;
@@ -38,12 +37,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -585,7 +586,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
           .collect(Collectors.toCollection(() -> new ArrayList<>(storageIds.size())));
 
         // Output all objects
-        return this.write(writer, nameFormat, Iterables.concat(sets));
+        return this.write(writer, nameFormat, sets.stream().flatMap(NavigableSet::stream));
     }
 
     /**
@@ -603,13 +604,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} or {@code objIds} is null
      */
-    public int write(XMLStreamWriter writer, boolean nameFormat, Iterable<? extends ObjId> objIds) throws XMLStreamException {
+    public int write(XMLStreamWriter writer, boolean nameFormat, Stream<? extends ObjId> objIds) throws XMLStreamException {
         Preconditions.checkArgument(writer != null, "null writer");
         Preconditions.checkArgument(objIds != null, "null objIds");
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
         int count = 0;
-        for (ObjId id : objIds) {
+        for (Iterator<? extends ObjId> i = objIds.iterator(); i.hasNext(); ) {
+            final ObjId id = i.next();
 
             // Get object info
             final int typeStorageId = id.getStorageId();

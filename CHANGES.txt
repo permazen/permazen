@@ -1,3 +1,11 @@
+Version 5.0.0
+
+    - Update to the new generation:
+        - Java 17
+        - Jakarta EE 9
+        - Spring 6
+        - Vaadin 24
+
 Version 4.2.0 Released April 4, 2023
 
     - Added ApplicationClassLoader to support running on JDK 9+

@@ -7,6 +7,7 @@ package io.permazen.kv.raft;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Streams;
 import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.KeyRange;
@@ -18,8 +19,8 @@ import io.permazen.kv.util.KeyListEncoder;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 
@@ -130,18 +131,18 @@ class SnapshotReceive {
     // Mutations
 
         @Override
-        public Iterable<KeyRange> getRemoveRanges() {
-            return Collections.emptySet();
+        public Stream<KeyRange> getRemoveRanges() {
+            return Stream.empty();
         }
 
         @Override
-        public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-            return () -> new PutIterator(this, this.buf.asReadOnlyBuffer(), this.prefix, this.startKey);
+        public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+            return Streams.stream(new PutIterator(this, this.buf.asReadOnlyBuffer(), this.prefix, this.startKey));
         }
 
         @Override
-        public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-            return Collections.emptySet();
+        public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+            return Stream.empty();
         }
 
     // Iteration completion writebacks

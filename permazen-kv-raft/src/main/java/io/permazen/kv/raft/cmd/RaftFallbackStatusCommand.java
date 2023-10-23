@@ -5,14 +5,13 @@
 
 package io.permazen.kv.raft.cmd;
 
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.cmd.AbstractCommand;
 import io.permazen.kv.raft.fallback.FallbackKVDatabase;
 import io.permazen.kv.raft.fallback.FallbackTarget;
-import io.permazen.util.ParseContext;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
@@ -36,47 +35,47 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session0, Map<String, Object> params) {
         return session -> {
             if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
                 throw new Exception("key/value store is not Raft fallback");
-            RaftFallbackStatusCommand.printStatus(session.getWriter(), (FallbackKVDatabase)session.getKVDatabase());
+            RaftFallbackStatusCommand.printStatus(session.getOutput(), (FallbackKVDatabase)session.getKVDatabase());
         };
     }
 
     /**
      * Print the fallback status status to the given destination.
      *
-     * @param writer destination for status
+     * @param out destination for status
      * @param db Raft database
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static void printStatus(PrintWriter writer, FallbackKVDatabase db) {
+    public static void printStatus(PrintStream out, FallbackKVDatabase db) {
 
         final List<FallbackTarget> targets = db.getFallbackTargets();
 
         // Show configuration
-        writer.println();
-        writer.println("Configuration");
-        writer.println("=============");
-        writer.println();
-        writer.println(String.format("%15s: %s", "Standalone KV", db.getStandaloneTarget()));
-        writer.println(String.format("%15s: %s", "State file", db.getStateFile()));
-        writer.println(String.format("%15s: %s", "Initial Target", db.getInitialTargetIndex()));
-        writer.println(String.format("%15s: %s%s", "Maximum Target",
+        out.println();
+        out.println("Configuration");
+        out.println("=============");
+        out.println();
+        out.println(String.format("%15s: %s", "Standalone KV", db.getStandaloneTarget()));
+        out.println(String.format("%15s: %s", "State file", db.getStateFile()));
+        out.println(String.format("%15s: %s", "Initial Target", db.getInitialTargetIndex()));
+        out.println(String.format("%15s: %s%s", "Maximum Target",
           Math.min(db.getFallbackTargets().size() - 1, db.getMaximumTargetIndex()),
           db.getMaximumTargetIndex() == -1 ? " [STANDALONE MODE]" : ""));
-        writer.println();
-        writer.println("Raft Targets");
-        writer.println("============");
-        writer.println();
-        writer.println(String.format("  %5s %-10s %-10s %-9s %-11s %-20.20s %-20.20s %s",
+        out.println();
+        out.println("Raft Targets");
+        out.println("============");
+        out.println();
+        out.println(String.format("  %5s %-10s %-10s %-9s %-11s %-20.20s %-20.20s %s",
           "Index", "Check Int.", "Tx Timeout", "Min Avail", "Min Unavail", "Merge", "Rejoin", "Description"));
-        writer.println(String.format("  %5s %-10s %-10s %-9s %-11s %-20.20s %-20.20s %s",
+        out.println(String.format("  %5s %-10s %-10s %-9s %-11s %-20.20s %-20.20s %s",
           "-----", "----------", "----------", "---------", "-----------", "-----", "------", "-----------"));
         for (int i = 0; i < targets.size(); i++) {
             final FallbackTarget target = targets.get(i);
-            writer.println(String.format("  %5s %10s %10s %9s %11s %-20.20s %-20.20s %.38s",
+            out.println(String.format("  %5s %10s %10s %9s %11s %-20.20s %-20.20s %.38s",
               i, target.getCheckInterval() + "ms", target.getTransactionTimeout() + "ms",
               target.getMinAvailableTime() + "ms", target.getMinUnavailableTime() + "ms",
               RaftFallbackStatusCommand.objString(target.getUnavailableMergeStrategy()),
@@ -84,22 +83,22 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
         }
 
         // Show status
-        writer.println();
-        writer.println("Fallback Status");
-        writer.println("===============");
-        writer.println();
-        writer.println(String.format("  %5s %-6s %-9s %-20s %s", "Index", "Active", "Available", "Last Change", "Last Active"));
-        writer.println(String.format("  %5s %-6s %-9s %-20s %s", "-----", "------", "---------", "-----------", "-----------"));
+        out.println();
+        out.println("Fallback Status");
+        out.println("===============");
+        out.println();
+        out.println(String.format("  %5s %-6s %-9s %-20s %s", "Index", "Active", "Available", "Last Change", "Last Active"));
+        out.println(String.format("  %5s %-6s %-9s %-20s %s", "-----", "------", "---------", "-----------", "-----------"));
         for (int i = -1; i < targets.size(); i++) {
             final FallbackTarget target = i >= 0 ? targets.get(i) : null;
             final boolean active = i == db.getCurrentTargetIndex();
             final boolean available = target == null || target.isAvailable();
-            writer.println(String.format("  %3d   %3s    %6s    %-20s %s",
+            out.println(String.format("  %3d   %3s    %6s    %-20s %s",
               i, active ? "*" : "", available ? "Yes" : "No ",
               RaftFallbackStatusCommand.date(target != null ? target.getLastChangeTime() : null),
               active ? "Now" : RaftFallbackStatusCommand.date(target != null ? target.getLastActiveTime() : null)));
         }
-        writer.println();
+        out.println();
     }
 
     private static String date(Date date) {

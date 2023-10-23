@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>4.2.0</version>
+        <version>5.0.0</version>
     </parent>
     <artifactId>permazen-kv-xodus</artifactId>
     <name>Permazen Xodus Key/Value Store</name>
@@ -21,8 +21,33 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.xodus</automatic.module.name>
+        <xodus.version>2.0.1</xodus.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.xodus</groupId>
+            <artifactId>xodus-environment</artifactId>
+            <version>${xodus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.xodus</groupId>
+            <artifactId>xodus-openAPI</artifactId>
+            <version>${xodus.version}</version>
+        </dependency>
+
+        <!-- Siblings -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv</artifactId>
@@ -35,22 +60,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.xodus</groupId>
-            <artifactId>xodus-environment</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.xodus</groupId>
-            <artifactId>xodus-openAPI</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -6,11 +6,10 @@
 package io.permazen.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +32,7 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * @param sets sets to be combined; assumed to not contain any {@link EmptyNavigableSet}s
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      */
-    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
+    protected AbstractMultiNavigableSet(Collection<? extends NavigableSet<E>> sets) {
         this(sets, AbstractMultiNavigableSet.getComparator(sets), new Bounds<>());
     }
 
@@ -47,7 +46,7 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      * @throws IllegalArgumentException if {@code bounds} is null
      */
-    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets,
+    protected AbstractMultiNavigableSet(Collection<? extends NavigableSet<E>> sets,
       Comparator<? super E> comparator, Bounds<E> bounds) {
         super(bounds);
         Preconditions.checkArgument(sets != null, "null sets");
@@ -64,10 +63,10 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
     /**
      * Get and verify a common {@link Comparator} (possibly null).
      */
-    private static <E> Comparator<? super E> getComparator(Iterable<? extends NavigableSet<E>> sets) {
+    private static <E> Comparator<? super E> getComparator(Collection<? extends NavigableSet<E>> sets) {
 
         // Empty sets should have already been filtered out
-        assert Iterables.find(sets, Predicates.instanceOf(EmptyNavigableSet.class), null) == null;
+        assert sets.stream().noneMatch(EmptyNavigableSet.class::isInstance);
 
         // Get the first comparator
         final Iterator<? extends NavigableSet<E>> i = sets.iterator();
@@ -160,4 +159,3 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      */
     protected abstract NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds, List<NavigableSet<E>> list);
 }
-

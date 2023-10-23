@@ -242,7 +242,7 @@ public abstract class Message {
         this.writeTo(buf, version);
         if (buf.hasRemaining())
             throw new RuntimeException("internal error: " + buf.remaining() + " remaining bytes in buffer from " + this);
-        return (ByteBuffer)buf.flip();
+        return buf.flip();
     }
 
     /**
@@ -317,7 +317,7 @@ public abstract class Message {
         final int numBytes = UnsignedIntEncoder.read(buf);
         if (numBytes > buf.remaining())
             throw new IllegalArgumentException("bogus buffer length " + numBytes + " > " + buf.remaining());
-        final ByteBuffer result = (ByteBuffer)buf.slice().limit(numBytes);
+        final ByteBuffer result = buf.slice().limit(numBytes);
         buf.position(buf.position() + numBytes);
         return result;
     }

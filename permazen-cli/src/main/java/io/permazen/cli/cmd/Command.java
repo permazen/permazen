@@ -5,18 +5,18 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
-import io.permazen.parse.Parser;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 
 import java.util.EnumSet;
+import java.util.List;
 
 /**
- * {@link io.permazen.cli.CliSession} command.
+ * {@link io.permazen.cli.Session} command.
  *
  * @see AbstractCommand
  */
-public interface Command extends Parser<CliSession.Action> {
+public interface Command {
 
     /**
      * Get the name of this command.
@@ -52,4 +52,16 @@ public interface Command extends Parser<CliSession.Action> {
      * @return set of supported {@link SessionMode}s
      */
     EnumSet<SessionMode> getSessionModes();
+
+    /**
+     * Execute this command.
+     *
+     * @param session CLI session
+     * @param name command name
+     * @param args command line arguments
+     * @return command return value
+     * @throws InterruptedException if the current thread is interrupted
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    int execute(Session session, String name, List<String> args) throws InterruptedException;
 }

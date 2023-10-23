@@ -14,10 +14,10 @@ import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.test.TestSupport;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Arrays;
 import java.util.Map;
-
-import javax.validation.constraints.NotNull;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

@@ -16,13 +16,14 @@ import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.KeyWatchTracker;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 

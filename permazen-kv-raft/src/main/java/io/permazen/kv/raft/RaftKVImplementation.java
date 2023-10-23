@@ -132,7 +132,8 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
         if (className == null)
             return null;
         try {
-            return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance()).newInstance();
+            return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance())
+              .getConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException("invalid Raft fallback merge strategy `" + className + "': " + e.getMessage(), e);
         }

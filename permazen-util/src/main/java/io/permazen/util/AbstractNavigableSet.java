@@ -16,8 +16,7 @@ import java.util.Spliterators;
 import java.util.function.Consumer;
 
 /**
- * Support superclass for {@link NavigableSet} implementations for which calculating {@link #size size()} requires
- * an iteration through all of the set's elements to count them.
+ * Support superclass for {@link NavigableSet} implementations based on database entries.
  *
  * <p>
  * For a read-only implementation, subclasses should implement {@link #comparator comparator()}, {@link #contains contains()},
@@ -70,22 +69,27 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E first() {
-        return this.iterator().next();
+        try (CloseableIterator<E> i = this.iterator()) {
+            return i.next();
+        }
     }
 
     @Override
     public E last() {
-        return this.descendingIterator().next();
+        try (CloseableIterator<E> i = this.descendingIterator()) {
+            return i.next();
+        }
     }
 
     @Override
     public E pollFirst() {
-        final Iterator<E> i = this.iterator();
-        if (!i.hasNext())
-            return null;
-        final E value = i.next();
-        i.remove();
-        return value;
+        try (CloseableIterator<E> i = this.iterator()) {
+            if (!i.hasNext())
+                return null;
+            final E value = i.next();
+            i.remove();
+            return value;
+        }
     }
 
     @Override
@@ -94,8 +98,8 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     }
 
     @Override
-    public Iterator<E> descendingIterator() {
-        return this.descendingSet().iterator();
+    public CloseableIterator<E> descendingIterator() {
+        return CloseableIterator.wrap(this.descendingSet().iterator());
     }
 
     @Override
@@ -164,15 +168,13 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     }
 
     @Override
-    public Spliterator<E> spliterator() {
+    protected Spliterator<E> buildSpliterator(final Iterator<E> iterator) {
         return new Spliterators.AbstractSpliterator<E>(Long.MAX_VALUE,
           Spliterator.ORDERED | Spliterator.SORTED | Spliterator.DISTINCT) {
 
-            private final Iterator<E> iterator = AbstractNavigableSet.this.iterator();
-
             @Override
             public boolean tryAdvance(Consumer<? super E> action) {
-                if (!this.iterator.hasNext())
+                if (!iterator.hasNext())
                     return false;
                 action.accept(iterator.next());
                 return true;
@@ -276,4 +278,3 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
         return this.bounds.isWithinUpperBound(this.comparator(), elem);
     }
 }
-

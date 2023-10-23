@@ -5,6 +5,7 @@
 
 package io.permazen.util;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableSet;
@@ -22,7 +23,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      *
      * @param sets the sets to intersect
      */
-    IntersectionNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
+    IntersectionNavigableSet(Collection<? extends NavigableSet<E>> sets) {
         super(sets);
     }
 
@@ -34,7 +35,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code bounds} is null
      */
-    protected IntersectionNavigableSet(Iterable<? extends NavigableSet<E>> sets,
+    protected IntersectionNavigableSet(Collection<? extends NavigableSet<E>> sets,
       Comparator<? super E> comparator, Bounds<E> bounds) {
         super(sets, comparator, bounds);
     }
@@ -55,13 +56,13 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     }
 
     @Override
-    public java.util.Iterator<E> iterator() {
+    public CloseableIterator<E> iterator() {
         return new Iterator();
     }
 
 // Iterator
 
-    private class Iterator implements java.util.Iterator<E> {
+    private class Iterator implements CloseableIterator<E> {
 
         private final Comparator<? super E> comparator = IntersectionNavigableSet.this.getComparator(false);
 
@@ -86,6 +87,10 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void close() {
         }
 
         private boolean advance() {
@@ -162,4 +167,3 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
         }
     }
 }
-

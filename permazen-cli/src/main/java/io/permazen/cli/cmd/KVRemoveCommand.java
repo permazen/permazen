@@ -5,12 +5,9 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.kv.KVTransaction;
-import io.permazen.parse.ParseException;
-import io.permazen.util.ParseContext;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -41,16 +38,16 @@ public class KVRemoveCommand extends AbstractKVCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final boolean range = params.containsKey("range");
         final byte[] key = (byte[])params.get("key");
         final byte[] maxKey = (byte[])params.get("maxKey");
         if (maxKey != null && !range)
-            throw new ParseException(ctx, "`-range' must be specified to delete a range of keys");
+            throw new IllegalArgumentException("`-range' must be specified to delete a range of keys");
         return new RemoveAction(range, key, maxKey);
     }
 
-    private static class RemoveAction implements CliSession.Action, Session.RetryableAction {
+    private static class RemoveAction implements Session.Action, Session.RetryableAction {
 
         private final boolean range;
         private final byte[] key;
@@ -63,7 +60,7 @@ public class KVRemoveCommand extends AbstractKVCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final KVTransaction kvt = session.getKVTransaction();
             if (!this.range)
                 kvt.remove(this.key);

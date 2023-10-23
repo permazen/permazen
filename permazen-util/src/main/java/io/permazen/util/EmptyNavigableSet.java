@@ -5,9 +5,7 @@
 
 package io.permazen.util;
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 
 /**
  * An empty {@link java.util.NavigableSet} implementation.
@@ -51,8 +49,8 @@ class EmptyNavigableSet<E> extends AbstractNavigableSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return Collections.emptyIterator();
+    public CloseableIterator<E> iterator() {
+        return CloseableIterator.emptyIterator();
     }
 
     @Override
@@ -60,4 +58,3 @@ class EmptyNavigableSet<E> extends AbstractNavigableSet<E> {
         return new EmptyNavigableSet<>(this.getComparator(reverse), bounds);
     }
 }
-

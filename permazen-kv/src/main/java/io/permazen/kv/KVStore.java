@@ -12,6 +12,7 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
@@ -299,19 +300,22 @@ public interface KVStore {
      */
     default void apply(Mutations mutations) {
         Preconditions.checkArgument(mutations != null, "null mutations");
-        for (KeyRange remove : mutations.getRemoveRanges()) {
-            final byte[] min = remove.getMin();
-            final byte[] max = remove.getMax();
-            assert min != null;
-            if (max != null && ByteUtil.isConsecutive(min, max))
-                this.remove(min);
-            else
-                this.removeRange(min, max);
+        try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+            removes.forEach(remove -> {
+                final byte[] min = remove.getMin();
+                final byte[] max = remove.getMax();
+                assert min != null;
+                if (max != null && ByteUtil.isConsecutive(min, max))
+                    this.remove(min);
+                else
+                    this.removeRange(min, max);
+            });
         }
-        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
-            this.put(entry.getKey(), entry.getValue());
-        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
-            this.adjustCounter(entry.getKey(), entry.getValue());
+        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            puts.forEach(entry -> this.put(entry.getKey(), entry.getValue()));
+        }
+        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            adjusts.forEach(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+        }
     }
 }
-

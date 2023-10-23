@@ -5,6 +5,8 @@
 
 package io.permazen.annotation;
 
+import jakarta.validation.groups.Default;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -25,7 +27,7 @@ import java.lang.annotation.Target;
  * <p>
  * An optional list of validation {@link #groups} may be specified; if so, the annotated method will only be invoked when
  * one or more of specified validation groups (or a superclass thereof) is being validated. In particular, if {@link #groups}
- * is non-empty and does not contain a class that extends {@link javax.validation.groups.Default}, then the method will
+ * is non-empty and does not contain a class that extends {@link Default}, then the method will
  * not be invoked by automatic validation.
  *
  * <p>
@@ -52,7 +54,7 @@ public @interface OnValidate {
     /**
      * Specify the validation group(s) for which the annotated method should be invoked.
      *
-     * @return validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
+     * @return validation group(s) to use for validation; if empty, {@link jakarta.validation.groups.Default} is assumed
      */
     Class<?>[] groups() default {};
 }

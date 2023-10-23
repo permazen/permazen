@@ -5,10 +5,9 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.Diffs;
-import io.permazen.util.ParseContext;
 
 import java.util.Map;
 
@@ -30,13 +29,13 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final int version1 = (Integer)params.get("version1");
         final int version2 = (Integer)params.get("version2");
         return new CompareAction(version1, version2);
     }
 
-    private static class CompareAction implements CliSession.Action {
+    private static class CompareAction implements Session.Action {
 
         private final int version1;
         private final int version2;
@@ -47,7 +46,7 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final SchemaModel schema1 = AbstractSchemaCommand.getSchemaModel(session, this.version1);
             final SchemaModel schema2 = AbstractSchemaCommand.getSchemaModel(session, this.version2);
             if (schema1 == null || schema2 == null)
@@ -56,9 +55,9 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
             final String desc2 = this.version2 == 0 ? "the schema configured on this session" : "schema version " + this.version2;
             final Diffs diffs = schema2.differencesFrom(schema1);
             if (diffs.isEmpty())
-                session.getWriter().println("No differences found between " + desc1 + " and " + desc2);
+                session.getOutput().println("No differences found between " + desc1 + " and " + desc2);
             else
-                session.getWriter().println("Found differences found between " + desc1 + " and " + desc2 + "\n" + diffs);
+                session.getOutput().println("Found differences found between " + desc1 + " and " + desc2 + "\n" + diffs);
         }
     }
 }

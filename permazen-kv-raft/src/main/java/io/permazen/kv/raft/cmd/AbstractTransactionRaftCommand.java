@@ -5,8 +5,7 @@
 
 package io.permazen.kv.raft.cmd;
 
-import io.permazen.Session;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.raft.Consistency;
 import io.permazen.kv.raft.RaftKVDatabase;
@@ -27,7 +26,7 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
       implements Session.RetryableAction, Session.HasTransactionOptions {
 
         @Override
-        public final void run(CliSession session, RaftKVDatabase db) throws Exception {
+        public final void run(Session session, RaftKVDatabase db) throws Exception {
 
             // Run in the current thread's Raft transaction if we can (if not, we're in standalone mode)
             final KVTransaction kvt = session.getKVTransaction();
@@ -67,6 +66,6 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
             return Consistency.LINEARIZABLE;
         }
 
-        protected abstract void run(CliSession session, RaftKVTransaction tx) throws Exception;
+        protected abstract void run(Session session, RaftKVTransaction tx) throws Exception;
     }
 }

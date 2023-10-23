@@ -15,9 +15,9 @@ import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
-import java.util.Set;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

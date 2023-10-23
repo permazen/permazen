@@ -5,11 +5,10 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ParseContext;
 
 import java.util.Map;
 
@@ -30,12 +29,12 @@ public class ShowAllSchemasCommand extends AbstractSchemaCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final boolean xml = params.containsKey("xml");
         return new ShowSchemasAction(xml);
     }
 
-    private static class ShowSchemasAction implements CliSession.Action {
+    private static class ShowSchemasAction implements Session.Action {
 
         private final boolean xml;
 
@@ -44,18 +43,18 @@ public class ShowAllSchemasCommand extends AbstractSchemaCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             AbstractSchemaCommand.runWithoutSchema(session, new SchemaAgnosticAction<Void>() {
                 @Override
-                public Void runWithoutSchema(CliSession session, Transaction tx) {
+                public Void runWithoutSchema(Session session, Transaction tx) {
                     for (Map.Entry<Integer, Schema> entry : tx.getSchemas().getVersions().entrySet()) {
                         final int number = entry.getKey();
                         final SchemaModel model = entry.getValue().getSchemaModel();
                         if (ShowSchemasAction.this.xml) {
-                            session.getWriter().println("=== Schema version " + number + " ===\n"
+                            session.getOutput().println("=== Schema version " + number + " ===\n"
                               + model.toString().replaceAll("^<.xml[^>]+>\\n", ""));
                         } else
-                            session.getWriter().println(number);
+                            session.getOutput().println(number);
                     }
                     return null;
                 }

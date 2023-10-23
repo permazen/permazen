@@ -10,8 +10,8 @@ import io.permazen.annotation.OnValidate;
 import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.groups.Default;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
 
 import org.testng.annotations.Test;
 

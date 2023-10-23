@@ -186,6 +186,7 @@ public class CloseableTracker implements Closeable {
 // Object
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             this.close();

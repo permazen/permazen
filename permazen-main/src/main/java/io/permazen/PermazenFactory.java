@@ -10,9 +10,10 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
 
-import java.util.Arrays;
+import jakarta.validation.ValidatorFactory;
 
-import javax.validation.ValidatorFactory;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Factory for {@link Permazen} instances.
@@ -28,7 +29,7 @@ public class PermazenFactory {
     private Database database;
     private int schemaVersion = -1;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
-    private Iterable<? extends Class<?>> modelClasses;
+    private Collection<Class<?>> modelClasses;
     private ValidatorFactory validatorFactory;
 
     /**
@@ -41,7 +42,7 @@ public class PermazenFactory {
      * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
      * @return this instance
      */
-    public PermazenFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
+    public PermazenFactory setModelClasses(Collection<Class<?>> modelClasses) {
         this.modelClasses = modelClasses;
         return this;
     }
@@ -50,11 +51,11 @@ public class PermazenFactory {
      * Configure the Java model classes.
      *
      * <p>
-     * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(modelClasses))}.
+     * Equivalent to {@link #setModelClasses(Collection) setModelClasses}{@code (Arrays.asList(modelClasses))}.
      *
      * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
      * @return this instance
-     * @see #setModelClasses(Iterable)
+     * @see #setModelClasses(Collection)
      */
     public PermazenFactory setModelClasses(Class<?>... modelClasses) {
         return this.setModelClasses(Arrays.asList(modelClasses));
@@ -116,11 +117,11 @@ public class PermazenFactory {
     }
 
     /**
-     * Configure a custom {@link ValidatorFactory} used to create {@link javax.validation.Validator}s
+     * Configure a custom {@link ValidatorFactory} used to create {@link jakarta.validation.Validator}s
      * for validation within transactions.
      *
      * <p>
-     * The default is to use the result from {@link javax.validation.Validation#buildDefaultValidatorFactory}.
+     * The default is to use the result from {@link jakarta.validation.Validation#buildDefaultValidatorFactory}.
      *
      * @param validatorFactory factory for validators
      * @return this instance

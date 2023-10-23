@@ -5,22 +5,35 @@
 
 package io.permazen.util;
 
-import com.google.common.collect.Iterators;
-
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
- * Support superclass for {@link Set} implementations for which calculating {@link #size} requires
- * an iteration through all of the set's elements to count them.
+ * Support superclass for {@link Set} implementations based on database entries.
  *
  * <p>
- * Superclass methods in {@link AbstractSet} that rely on {@link #size} are overridden with alternate
- * implementations that avoid the use of {@link #size} when possible.
+ * This class assumes the following:
+ * <ul>
+ *  <li>The size of the set is not cached, i.e., it requires an actual enumeration of all of the set's elements; and
+ *  <li>Iteration may utilize a resource that needs to be closed
+ * </ul>
+ *
+ * <p>
+ * As a result:
+ * <ul>
+ *  <li>{@link AbstractSet} methods that rely on {@link #size} are overridden with implementations
+ *      that avoid the use of {@link #size} where possible; and
+ *  <li>{@link #iterator} returns a {@link CloseableIterator}
+ *  <li>{@link #stream}, which is based on {@link #iterator}, arranges (via {@link Stream#onClose Stream.onClose()})
+ *      for the iterator to be closed on {@link Stream#close Stream.close()}.
+ * </ul>
+ * To be safe, try-with-resources should be used with {@link #iterator} and {@link #stream}.
  *
  * <p>
  * For a read-only implementation, subclasses should implement {@link #contains contains()} and {@link #iterator iterator()}.
@@ -34,6 +47,9 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
     protected AbstractIterationSet() {
     }
 
+    @Override
+    public abstract CloseableIterator<E> iterator();
+
     /**
      * Calculate size.
      *
@@ -42,7 +58,14 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
      */
     @Override
     public int size() {
-        return Iterators.size(this.iterator());
+        try (CloseableIterator<E> i = this.iterator()) {
+            int count = 0;
+            while (i.hasNext()) {
+                i.next();
+                count++;
+            }
+            return count;
+        }
     }
 
     /**
@@ -55,18 +78,22 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
         if (!(obj instanceof Set))
             return false;
         final Set<?> that = (Set<?>)obj;
-        final Iterator<?> i1 = this.iterator();
         final Iterator<?> i2 = that.iterator();
-        while (true) {
-            final boolean hasNext1 = i1.hasNext();
-            final boolean hasNext2 = i2.hasNext();
-            if (!hasNext1 && !hasNext2)
-                return true;
-            if (!hasNext1 || !hasNext2)
-                return false;
-            if (!this.contains(i2.next()))
-                return false;
-            i1.next();
+        try (CloseableIterator<?> i1 = this.iterator()) {
+            while (true) {
+                final boolean hasNext1 = i1.hasNext();
+                final boolean hasNext2 = i2.hasNext();
+                if (!hasNext1 && !hasNext2)
+                    return true;
+                if (!hasNext1 || !hasNext2)
+                    return false;
+                if (!this.contains(i2.next()))
+                    return false;
+                i1.next();
+            }
+        } finally {
+            if (i2 instanceof CloseableIterator)
+                ((CloseableIterator<?>)i2).close();
         }
     }
 
@@ -89,10 +116,7 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
      */
     @Override
     public Object[] toArray() {
-        final ArrayList<E> list = new ArrayList<>();
-        for (E elem : this)
-            list.add(elem);
-        return list.toArray();
+        return this.toArray(new Object[0]);
     }
 
     /**
@@ -101,17 +125,50 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
     @Override
     public <T> T[] toArray(T[] array) {
         final ArrayList<E> list = new ArrayList<>();
-        for (E elem : this)
-            list.add(elem);
+        try (CloseableIterator<E> i = this.iterator()) {
+            while (i.hasNext())
+                list.add(i.next());
+        }
         return list.toArray(array);
     }
 
     /**
      * Overridden in {@link AbstractIterationSet} to avoid the use of {@link #size}.
+     *
+     * <p>
+     * Note: the underlying {@link CloseableIterator} is <i>not</i> closed when this method is used.
+     * Prefer using {@link #buildSpliterator} and arranging for the iterator to be closed separately.
      */
     @Override
     public Spliterator<E> spliterator() {
-        return Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.DISTINCT);
+        return this.buildSpliterator(this.iterator());
+    }
+
+    /**
+     * Build a {@link Spliterator} appropriate for this set from the given instance iterator.
+     *
+     * <p>
+     * Implementations should probably use {@link Spliterators#spliteratorUnknownSize(Iterator, int)
+     * Spliterators.spliteratorUnknownSize()} unless the size is known.
+     *
+     * @param iterator a new iterator returned from {#link #iterator}
+     */
+    protected Spliterator<E> buildSpliterator(Iterator<E> iterator) {
+        return Spliterators.spliteratorUnknownSize(iterator, Spliterator.DISTINCT);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * The implementation in {@link AbstractIterationSet} build a stream from the results from {@link #iterator}
+     * and {@link #buildSpliterator buildSpliterator()}, and marks the iterator for close via
+     * {@link Stream#onClose Stream.onClose()}.
+     */
+    @Override
+    public Stream<E> stream() {
+        final CloseableIterator<E> iterator = this.iterator();
+        final Spliterator<E> spliterator = this.buildSpliterator(iterator);
+        return StreamSupport.stream(spliterator, false).onClose(iterator::close);
     }
 }
-

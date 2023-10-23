@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>4.2.0</version>
+        <version>5.0.0</version>
     </parent>
     <artifactId>permazen-cliapp</artifactId>
     <name>Permazen CLI Application</name>
@@ -24,6 +24,28 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.dellroad</groupId>
+            <artifactId>java-console-toolkit-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dellroad</groupId>
+            <artifactId>java-console-toolkit-ssh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dellroad</groupId>
+            <artifactId>java-console-toolkit-jshell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+        </dependency>
+
+        <!-- Siblings -->
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-app</artifactId>
         </dependency>
@@ -38,18 +60,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-coreapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.hawtjni</groupId>
-            <artifactId>hawtjni-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
     </dependencies>
 </project>

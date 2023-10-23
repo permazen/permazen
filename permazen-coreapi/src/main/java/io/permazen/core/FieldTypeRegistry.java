@@ -59,14 +59,12 @@ import io.permazen.core.type.YearType;
 import io.permazen.core.type.ZoneIdType;
 import io.permazen.core.type.ZoneOffsetType;
 import io.permazen.core.type.ZonedDateTimeType;
-import io.permazen.util.ApplicationClassLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
@@ -111,8 +109,8 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *  <li>{@link java.net.Inet4Address}</li>
  *  <li>{@link java.net.Inet6Address}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
- *  <li>{@link javax.mail.internet.InternetAddress}</li>
  *  <li>{@link java.time java.time.*}</li>
+ *  <li>{@link jakarta.mail.internet.InternetAddress}</li>
  * </ul>
  *
  * <p>
@@ -301,51 +299,6 @@ public class FieldTypeRegistry {
         } catch (NoClassDefFoundError e) {
             // ignore
         }
-    }
-
-    /**
-     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the named classes.
-     *
-     * @param classNames names of classes that implement {@link FieldType}
-     * @throws IllegalArgumentException if {@code classNames} is null
-     * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class
-     * @throws RuntimeException if instantiation of a class fails
-     */
-    @SuppressWarnings("unchecked")
-    public void addNamedClasses(Iterable<String> classNames) {
-        Preconditions.checkArgument(classNames != null, "null classNames");
-        this.addClasses(StreamSupport.stream(classNames.spliterator(), false)
-          .map(className -> {
-            try {
-                return Class.forName(className, false, ApplicationClassLoader.getInstance());
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-          })
-          .map(cl -> {
-            try {
-                return (Class<? extends FieldType<?>>)(Object)cl.asSubclass(FieldType.class);
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException(cl + " does not implement " + FieldType.class, e);
-            }
-          })
-          .collect(Collectors.toList()));
-    }
-
-    /**
-     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the specified classes.
-     *
-     * @param classes implementations of types to add
-     * @throws IllegalArgumentException if {@code classes} is null
-     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
-     * @throws IllegalArgumentException if {@code classes} contains an invalid {@link FieldType} class
-     */
-    public void addClasses(Iterable<? extends Class<? extends FieldType<?>>> classes) {
-        Preconditions.checkArgument(classes != null, "null classes");
-        for (Class<? extends FieldType<?>> type : classes)
-            this.addClass(type);
     }
 
     /**

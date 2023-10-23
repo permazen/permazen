@@ -16,6 +16,8 @@ import io.permazen.core.FieldType;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
@@ -26,8 +28,8 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
     private KVDatabase kvstore;
     private int schemaVersion = -1;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
-    private Iterable<? extends Class<?>> modelClasses;
-    private Iterable<? extends Class<? extends FieldType<?>>> fieldTypeClasses;
+    private Collection<Class<?>> modelClasses;
+    private Collection<Class<? extends FieldType<?>>> fieldTypeClasses;
 
 // Properties
 
@@ -43,11 +45,11 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         this.storageIdGenerator = storageIdGenerator;
     }
 
-    public void setModelClasses(Iterable<? extends Class<?>> modelClasses) {
+    public void setModelClasses(Collection<Class<?>> modelClasses) {
         this.modelClasses = modelClasses;
     }
 
-    public void setFieldTypeClasses(Iterable<? extends Class<? extends FieldType<?>>> fieldTypeClasses) {
+    public void setFieldTypeClasses(Collection<Class<? extends FieldType<?>>> fieldTypeClasses) {
         this.fieldTypeClasses = fieldTypeClasses;
     }
 
@@ -78,7 +80,7 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
         // Add custom field types
         if (this.fieldTypeClasses != null)
-            db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
+            this.fieldTypeClasses.forEach(db.getFieldTypeRegistry()::addClass);
 
         // Build Permazen
         return new PermazenFactory()
@@ -89,4 +91,3 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
           .newPermazen();
     }
 }
-

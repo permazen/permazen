@@ -5,9 +5,8 @@
 
 package io.permazen.kv.raft.cmd;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.kv.raft.RaftKVTransaction;
-import io.permazen.util.ParseContext;
 
 import java.util.Map;
 
@@ -34,13 +33,13 @@ public class RaftAddCommand extends AbstractTransactionRaftCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final String identity = (String)params.get("identity");
         final String address = (String)params.get("address");
         return new RaftTransactionAction() {
 
             @Override
-            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+            protected void run(Session session, RaftKVTransaction tx) throws Exception {
                 tx.configChange(identity, address);
             }
         };

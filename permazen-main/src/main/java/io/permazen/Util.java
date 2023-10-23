@@ -7,10 +7,12 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.OnValidate;
+
+import jakarta.validation.Constraint;
+import jakarta.validation.groups.Default;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -25,14 +27,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.validation.Constraint;
-import javax.validation.groups.Default;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -418,15 +420,11 @@ public final class Util {
      *
      * @param types sub-types
      * @return narrowest common super-type
-     * @throws IllegalArgumentException if any type in {@code types} is null
+     * @throws IllegalArgumentException if {@code types} or any type in {@code types} is null
      * @see #findLowestCommonAncestor findLowestCommonAncestor()
      */
-    public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
-        types.forEach(type -> {
-            if (type == null)
-                throw new IllegalArgumentException("null type");
-        });
-        return Util.findLowestCommonAncestor(Iterables.transform(types, TypeToken::of));
+    public static TypeToken<?> findLowestCommonAncestorOfClasses(Stream<Class<?>> types) {
+        return Util.findLowestCommonAncestor(Util.noNulls(types, "type").map(TypeToken::of));
     }
 
     /**
@@ -441,12 +439,8 @@ public final class Util {
      * @throws IllegalArgumentException if any type in {@code types} is null
      * @see #findLowestCommonAncestors findLowestCommonAncestors()
      */
-    public static Set<TypeToken<?>> findLowestCommonAncestorsOfClasses(Iterable<Class<?>> types) {
-        types.forEach(type -> {
-            if (type == null)
-                throw new IllegalArgumentException("null type");
-        });
-        return Util.findLowestCommonAncestors(Iterables.transform(types, TypeToken::of));
+    public static Set<TypeToken<?>> findLowestCommonAncestorsOfClasses(Stream<Class<?>> types) {
+        return Util.findLowestCommonAncestors(Util.noNulls(types, "type").map(TypeToken::of));
     }
 
     /**
@@ -464,7 +458,7 @@ public final class Util {
      * @param types sub-types
      * @return narrowest common super-type
      */
-    public static TypeToken<?> findLowestCommonAncestor(Iterable<TypeToken<?>> types) {
+    public static TypeToken<?> findLowestCommonAncestor(Stream<TypeToken<?>> types) {
 
         // Gather candidates
         final Set<TypeToken<?>> supertypes = Util.findLowestCommonAncestors(types);
@@ -497,17 +491,20 @@ public final class Util {
      * @param types sub-types
      * @return maximally narrow common supertype(s)
      */
-    public static Set<TypeToken<?>> findLowestCommonAncestors(Iterable<TypeToken<?>> types) {
+    public static Set<TypeToken<?>> findLowestCommonAncestors(Stream<TypeToken<?>> types) {
+
+        // Gather types, since we need to iterate over them multiple times
+        final List<TypeToken<?>> typeList = types.collect(Collectors.toList());
 
         // Gather all supertypes of types recursively
         final HashSet<TypeToken<?>> supertypes = new HashSet<>();
-        for (TypeToken<?> type : types)
+        for (TypeToken<?> type : typeList)
             Util.addSupertypes(supertypes, type);
 
         // Throw out all supertypes that are not supertypes of every type
         for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
             final TypeToken<?> supertype = i.next();
-            for (TypeToken<?> type : types) {
+            for (TypeToken<?> type : typeList) {
                 if (!supertype.isSupertypeOf(type)) {
                     i.remove();
                     break;
@@ -528,6 +525,24 @@ public final class Util {
 
         // Done
         return supertypes;
+    }
+
+    /**
+     * Substitute for {@link Stream#of(Object)}.
+     *
+     * <p>
+     * Permazen needs this method because the v1.6 class files we generate don't support invoking
+     * static methods on interfaces.
+     */
+    public static <T> Stream<T> streamOf(T obj) {
+        return Stream.of(obj);
+    }
+
+    private static <T> Stream<T> noNulls(Stream<T> stream, String name) {
+        return stream.peek(x -> {
+            if (x == null)
+                throw new IllegalArgumentException("null " + name);
+        });
     }
 
     @SuppressWarnings("unchecked")

@@ -4,6 +4,8 @@
  */
 
 /**
- * Permazen Command Line Interface (CLI) classes.
+ * Components that support integrating Permazen into a Java Console Toolkit console.
+ *
+ * @see <a href="https://github.com/archiecobbs/java-console-toolkit">Java Console Toolkit</a>
  */
 package io.permazen.cli;

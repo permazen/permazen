@@ -5,9 +5,8 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ParseContext;
 
 import java.util.Map;
 
@@ -23,12 +22,12 @@ public class ShowSchemaCommand extends AbstractSchemaCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final Integer version = (Integer)params.get("version");
         return new ShowSchemaAction(version != null ? version : 0);
     }
 
-    private static class ShowSchemaAction implements CliSession.Action {
+    private static class ShowSchemaAction implements Session.Action {
 
         private final int version;
 
@@ -37,7 +36,7 @@ public class ShowSchemaCommand extends AbstractSchemaCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
 
             // Get schema model
             final SchemaModel schemaModel = AbstractSchemaCommand.getSchemaModel(session, this.version);
@@ -46,8 +45,8 @@ public class ShowSchemaCommand extends AbstractSchemaCommand {
 
             // Print it out with version (if known)
             if (this.version != 0)
-                session.getWriter().println("=== Schema version " + this.version + " ===");
-            session.getWriter().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+                session.getOutput().println("=== Schema version " + this.version + " ===");
+            session.getOutput().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
         }
     }
 }

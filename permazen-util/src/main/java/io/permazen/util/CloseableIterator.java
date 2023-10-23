@@ -7,6 +7,10 @@ package io.permazen.util;
 
 import java.io.Closeable;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * An {@link Iterator} that is {@link Closeable} and can be {@link Closeable#close close()}'d without
@@ -59,5 +63,40 @@ public interface CloseableIterator<E> extends Iterator<E>, Closeable {
         if (iterator == null)
             return null;
         return new CloseableIteratorWrapper<>(iterator, resource);
+    }
+
+    /**
+     * Return an empty {@link CloseableIterator}.
+     *
+     * @return empty {@link CloseableIterator}
+     */
+    static <E> CloseableIterator<E> emptyIterator() {
+        return new CloseableIterator<E>() {
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+            @Override
+            public E next() {
+                throw new NoSuchElementException();
+            }
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+            @Override
+            public void close() {
+            }
+        };
+    }
+
+    /**
+     * Create a {@link Stream} from this iterator, and arrange for this iterator to be closed
+     * when the stream is closed.
+     *
+     * @return this instance wrapped as a {@link Stream}
+     */
+    default Stream<E> toStream() {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, 0), false).onClose(this::close);
     }
 }

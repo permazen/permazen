@@ -9,8 +9,8 @@ import io.permazen.JObject;
 import io.permazen.annotation.JField;
 import io.permazen.vaadin.JObjectContainer;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 

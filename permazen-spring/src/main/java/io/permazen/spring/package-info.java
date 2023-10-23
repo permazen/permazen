@@ -19,8 +19,6 @@
  *      {@link io.permazen.Permazen} transactions.</li>
  *  <li>A {@link org.springframework.dao.support.PersistenceExceptionTranslator}
  *      {@linkplain io.permazen.spring.PermazenExceptionTranslator implementation} suitable for use with Permazen</li>
- *  <li>{@link io.permazen.spring.OpenTransactionInViewFilter}, which allows {@link io.permazen.Permazen}
- *      transactions to span an entire web request.</li>
  *  <li>Various {@link org.springframework.http.converter.HttpMessageConverter}'s that bring Permazen's encoding,
  *      indexing, and schema management features to data being sent over a network:
  *      <ul>
@@ -41,10 +39,11 @@
  * {@code http://permazen.io/schema/spring/permazen} XML namespace:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Elements">
+ * <table class="striped">
+ * <caption>Supported Elements</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Element</th>
- *  <th align="left">Description</th>
+ *  <th style="font-weight: bold; text-align: left">Element</th>
+ *  <th style="font-weight: bold; text-align: left">Description</th>
  * </tr>
  * <tr>
  *  <td>{@code <permazen:scan-classes>}</td>
@@ -71,12 +70,13 @@
  * The {@code <permazen:permazen>} element supports the following attributes:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Attributes">
+ * <table class="striped">
+ * <caption>Supported Attributes</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Attribute</th>
- *  <th align="left">Type</th>
- *  <th align="left">Required?</th>
- *  <th align="left">Description</th>
+ *  <th style="font-weight: bold; text-align: left">Attribute</th>
+ *  <th style="font-weight: bold; text-align: left">Type</th>
+ *  <th style="font-weight: bold; text-align: left">Required?</th>
+ *  <th style="font-weight: bold; text-align: left">Description</th>
  * </tr>
  * <tr>
  *  <td>{@code kvstore}</td>

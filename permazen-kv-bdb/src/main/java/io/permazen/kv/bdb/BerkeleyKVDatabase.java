@@ -17,13 +17,13 @@ import com.sleepycat.je.TransactionConfig;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

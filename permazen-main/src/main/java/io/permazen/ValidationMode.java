@@ -5,6 +5,8 @@
 
 package io.permazen;
 
+import jakarta.validation.groups.Default;
+
 /**
  * Configures whether and how objects are enqueued for validation in a {@link JTransaction}.
  *
@@ -47,8 +49,8 @@ public enum ValidationMode {
      *
      * <p>
      * Note that {@link #AUTOMATIC} enqueues as if by {@link JObject#revalidate}, i.e., the
-     * {@link javax.validation.groups.Default} validation group applies. Therefore, if a constraint has explicit {@code groups()},
-     * and none extend {@link javax.validation.groups.Default}, then it will not be applied automatically.
+     * {@link Default} validation group applies. Therefore, if a constraint has explicit {@code groups()},
+     * and none extend {@link Default}, then it will not be applied automatically.
      */
     AUTOMATIC;
 }

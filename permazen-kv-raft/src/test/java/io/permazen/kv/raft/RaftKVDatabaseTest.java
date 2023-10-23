@@ -11,7 +11,6 @@ import io.permazen.kv.leveldb.LevelDBAtomicKVStore;
 import io.permazen.kv.mvcc.AtomicKVDatabase;
 import io.permazen.kv.mvstore.MVStoreAtomicKVStore;
 import io.permazen.kv.mvstore.MVStoreKVImplementation;
-import io.permazen.kv.rocksdb.RocksDBAtomicKVStore;
 import io.permazen.kv.sqlite.SQLiteKVDatabase;
 import io.permazen.kv.test.KVDatabaseTest;
 
@@ -86,7 +85,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
             kvdir.mkdirs();
             String nodeKVStoreType = kvstoreType;
             if (nodeKVStoreType == null) {
-                final String[] kvstoreTypes = new String[] { "leveldb", "rocksdb", /*"sqlite",*/ "array" };
+                final String[] kvstoreTypes = new String[] { "leveldb", /*"sqlite",*/ "array" };
                 nodeKVStoreType = kvstoreTypes[this.random.nextInt(kvstoreTypes.length)];
             }
             this.log.info("using {} as key/value store on {}", nodeKVStoreType, name);
@@ -97,13 +96,6 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 levelkv.setDirectory(kvdir);
                 levelkv.setCreateIfMissing(true);
                 this.rafts[i].setKVStore(levelkv);
-                break;
-            }
-            case "rocksdb":
-            {
-                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
-                rockskv.setDirectory(kvdir);
-                this.rafts[i].setKVStore(rockskv);
                 break;
             }
             case "sqlite":

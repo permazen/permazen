@@ -5,8 +5,7 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.cli.CliSession;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
 
 import java.util.Map;
 
@@ -22,11 +21,11 @@ public class SetAllowNewSchemaCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session0, Map<String, Object> params) {
         final boolean allowed = (Boolean)params.get("allowed");
         return session -> {
             session.setAllowNewSchema(allowed);
-            session.getWriter().println("Set allow new schema to " + allowed);
+            session.getOutput().println("Set allow new schema to " + allowed);
         };
     }
 }

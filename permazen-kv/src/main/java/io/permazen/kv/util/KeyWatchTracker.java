@@ -10,7 +10,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -24,10 +23,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -205,7 +207,7 @@ public class KeyWatchTracker implements Closeable {
      * @return true if any watches were triggered, otherwise false
      * @throws IllegalArgumentException if {@code keys} is null
      */
-    public boolean trigger(Iterable<byte[]> keys) {
+    public boolean trigger(Stream<byte[]> keys) {
 
         // Sanity check
         Preconditions.checkArgument(keys != null, "null keys");
@@ -213,11 +215,9 @@ public class KeyWatchTracker implements Closeable {
         // Extract KeyInfo objects for all keys
         final ArrayList<KeyInfo> triggerList = new ArrayList<>();
         synchronized (this) {
-            for (byte[] key : keys) {
-                final KeyInfo keyInfo = this.keyInfos.remove(key);
-                if (keyInfo != null)
-                    triggerList.add(keyInfo);
-            }
+            keys.map(this.keyInfos::remove)
+              .filter(Objects::nonNull)
+              .forEach(triggerList::add);
         }
         if (triggerList.isEmpty())
             return false;
@@ -271,10 +271,14 @@ public class KeyWatchTracker implements Closeable {
 
         // Trigger all keys affected by any mutation
         boolean result = false;
-        for (KeyRange range : mutations.getRemoveRanges())
-            result |= this.trigger(range);
-        result |= this.trigger(Iterables.transform(mutations.getPutPairs(), Map.Entry::getKey));
-        result |= this.trigger(Iterables.transform(mutations.getAdjustPairs(), Map.Entry::getKey));
+        try (Stream<KeyRange> removeRanges = mutations.getRemoveRanges()) {
+            result |= removeRanges.map(this::trigger)
+              .reduce(false, Boolean::logicalOr);
+        }
+        try (Stream<byte[]> keys = Stream.concat(mutations.getPutPairs(), mutations.getAdjustPairs()).map(Map.Entry::getKey)) {
+            result |= keys.map(this::trigger)
+              .reduce(false, Boolean::logicalOr);
+        }
 
         // Done
         return result;

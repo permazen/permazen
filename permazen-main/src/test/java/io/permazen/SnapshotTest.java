@@ -5,8 +5,6 @@
 
 package io.permazen;
 
-import com.google.common.collect.Iterables;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
@@ -21,11 +19,11 @@ import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -385,8 +383,8 @@ public class SnapshotTest extends TestSupport {
             return this.getTransaction().queryIndex(Foo.class, "ref", Foo.class);
         }
 
-        public Iterable<Foo> getWithRelatedObjects() {
-            return Iterables.concat(Collections.singleton(this), this.getReferrers());
+        public Stream<Foo> getWithRelatedObjects() {
+            return Stream.concat(Stream.of(this), this.getReferrers().stream());
         }
 
         @Override
@@ -399,8 +397,8 @@ public class SnapshotTest extends TestSupport {
     public abstract static class Foo2 extends Foo {
 
         @Override
-        public Iterable<Foo> getWithRelatedObjects() {
-            return Arrays.<Foo>asList(this, this.getRef());
+        public Stream<Foo> getWithRelatedObjects() {
+            return Arrays.<Foo>asList(this, this.getRef()).stream();
         }
     }
 }

@@ -11,36 +11,47 @@ import com.google.common.collect.PeekingIterator;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
- * {@link Iterator} implementation that provides a read-only view of an inner {@link Iterator}
+ * {@link CloseableIterator} implementation that provides a read-only view of an inner {@link Iterator}
  * in which consecutive duplicate values are eliminated.
  */
-public class UniqueIterator<E> implements Iterator<E> {
+public class UniqueIterator<E> implements CloseableIterator<E> {
 
+    private final Iterator<? extends E> inner;
     private final PeekingIterator<E> iterator;
     private final Comparator<? super E> comparator;
 
     /**
-     * Constructor. Object equality using {@link Object#equals} is used to detect duplicates.
+     * Constructor.
+     *
+     * <p>
+     * Object equality using {@link Object#equals} is used to detect duplicates.
      *
      * @param iterator wrapped {@link Iterator}
+     * @throws IllegalArgumentException if {@code iterator} is null
      */
     public UniqueIterator(Iterator<? extends E> iterator) {
-        this.iterator = Iterators.<E>peekingIterator(iterator);
-        this.comparator = null;
+        this(iterator, null);
     }
 
     /**
-     * Constructor. A zero result from the provided {@link Comparator} is used to detect duplicates.
+     * Constructor.
+     *
+     * <p>
+     * A zero result from {@code comparator} is used to detect duplicates.
+     * If {@code comparator} is null, {@link Object#equals} is used.
      *
      * @param iterator wrapped {@link Iterator}
-     * @param comparator used to compare consecutive values
-     * @throws IllegalArgumentException if {@code comparator} is null
+     * @param comparator used to compare consecutive values, or null to use {@link Object#equals}
+     * @throws IllegalArgumentException if {@code iterator} is null
      */
     public UniqueIterator(Iterator<? extends E> iterator, Comparator<? super E> comparator) {
+        Preconditions.checkArgument(iterator != null, "null iterator");
         Preconditions.checkArgument(comparator != null, "null comparator");
-        this.iterator = Iterators.<E>peekingIterator(iterator);
+        this.inner = iterator;
+        this.iterator = Iterators.<E>peekingIterator(this.inner);
         this.comparator = comparator;
     }
 
@@ -54,8 +65,9 @@ public class UniqueIterator<E> implements Iterator<E> {
         final E next = this.iterator.next();
         while (this.iterator.hasNext()) {
             final E peek = this.iterator.peek();
-            if (this.comparator != null ? this.comparator.compare(next, peek) != 0 :
-              next != null ? !next.equals(peek) : peek != null)
+            final boolean duplicate = this.comparator != null ?
+              this.comparator.compare(next, peek) == 0 : Objects.equals(next, peek);
+            if (!duplicate)
                 break;
             this.iterator.next();
         }
@@ -66,5 +78,10 @@ public class UniqueIterator<E> implements Iterator<E> {
     public void remove() {
         throw new UnsupportedOperationException();
     }
-}
 
+    @Override
+    public void close() {
+        if (this.inner instanceof CloseableIterator)
+            ((CloseableIterator<? extends E>)this.inner).close();
+    }
+}

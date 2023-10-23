@@ -354,7 +354,8 @@ public class ReferencePathTest extends CoreAPITestSupport {
     private void check(Transaction tx, boolean forward, ObjId[] ids, int[] path, KeyRanges[] filters, Set<?> expected) {
         final List<ObjId> idList = Arrays.asList(ids);
         final NavigableSet<ObjId> actual = forward ?
-          tx.followReferencePath(idList, path, filters) : tx.invertReferencePath(path, filters, idList);
+          tx.followReferencePath(idList.stream(), path, filters) :
+          tx.invertReferencePath(path, filters, idList.stream());
         checkSet(actual, expected);
     }
 }

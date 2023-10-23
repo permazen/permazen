@@ -10,7 +10,6 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
@@ -35,12 +34,15 @@ import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.ApplicationClassLoader;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,10 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.util.LongMap;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
@@ -175,7 +176,7 @@ public class Permazen {
      * @throws IllegalArgumentException if {@code classes} contains a class with no suitable subclass constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public Permazen(Iterable<? extends Class<?>> classes) {
+    public Permazen(Collection<Class<?>> classes) {
         this(new Database(new SimpleKVDatabase()), -1, new DefaultStorageIdGenerator(), classes);
     }
 
@@ -183,10 +184,10 @@ public class Permazen {
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
      *
      * <p>
-     * Equivalent to {@link #Permazen(Iterable) Permazen}{@code (Arrays.asList(classes))}.
+     * Equivalent to {@link #Permazen(Collection) Permazen}{@code (Arrays.asList(classes).stream())}.
      *
      * @param classes classes annotated with {@link PermazenType &#64;PermazenType} annotations
-     * @see #Permazen(Iterable)
+     * @see #Permazen(Collection)
      */
     public Permazen(Class<?>... classes) {
         this(Arrays.asList(classes));
@@ -206,7 +207,7 @@ public class Permazen {
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public Permazen(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
+    public Permazen(Database database, int version, StorageIdGenerator storageIdGenerator, Collection<Class<?>> classes) {
 
         // Initialize
         Preconditions.checkArgument(database != null, "null database");
@@ -214,12 +215,7 @@ public class Permazen {
         Preconditions.checkArgument(classes != null, "null classes");
         this.db = database;
         this.storageIdGenerator = storageIdGenerator;
-        this.loader = AccessController.doPrivileged(new PrivilegedAction<Loader>() {
-            @Override
-            public Loader run() {
-                return Permazen.this.new Loader();
-            }
-        });
+        this.loader = new Loader();
 
         // Inventory classes; automatically add all @PermazenType-annotated superclasses of @PermazenType-annotated classes
         final HashSet<Class<?>> permazenTypes = new HashSet<>();
@@ -937,7 +933,7 @@ public class Permazen {
 // Validation
 
     /**
-     * Configure a custom {@link ValidatorFactory} used to create {@link javax.validation.Validator}s
+     * Configure a custom {@link ValidatorFactory} used to create {@link Validator}s
      * for validation within transactions.
      *
      * @param validatorFactory factory for validators
@@ -996,14 +992,14 @@ public class Permazen {
      * @return all objects directly referenced by {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public Iterable<JObject> getReferencedObjects(final JObject jobj) {
+    public Stream<JObject> getReferencedObjects(final JObject jobj) {
 
         // Sanity check
         Preconditions.checkArgument(jobj != null, "null jobj");
         final ObjId id = jobj.getObjId();
 
         // Visit fields
-        final ArrayList<Iterable<JObject>> iterables = new ArrayList<>();
+        final ArrayList<Stream<JObject>> streamList = new ArrayList<>();
         for (JField jfield : this.getJClass(id).getJFieldsByStorageId().values()) {
             jfield.visit(new JFieldSwitchAdapter<Void>() {
 
@@ -1011,23 +1007,32 @@ public class Permazen {
                 public Void caseJReferenceField(JReferenceField field) {
                     final JObject ref = field.getValue(jobj);
                     if (ref != null)
-                        iterables.add(Collections.singleton(ref));
+                        streamList.add(Stream.of(ref));
                     return null;
                 }
 
                 @Override
                 public Void caseJMapField(JMapField field) {
-                    if (field.getKeyField() instanceof JReferenceField)
-                        iterables.add(Iterables.filter(field.getValue(jobj).keySet(), JObject.class));
-                    if (field.getValueField() instanceof JReferenceField)
-                        iterables.add(Iterables.filter(field.getValue(jobj).values(), JObject.class));
+                    if (field.getKeyField() instanceof JReferenceField) {
+                        streamList.add(field.getValue(jobj).keySet().stream()
+                          .filter(JObject.class::isInstance)
+                          .map(JObject.class::cast));
+                    }
+                    if (field.getValueField() instanceof JReferenceField) {
+                        streamList.add(field.getValue(jobj).values().stream()
+                          .filter(JObject.class::isInstance)
+                          .map(JObject.class::cast));
+                    }
                     return null;
                 }
 
                 @Override
                 protected Void caseJCollectionField(JCollectionField field) {
-                    if (field.getElementField() instanceof JReferenceField)
-                        iterables.add(Iterables.filter(field.getValue(jobj), JObject.class));
+                    if (field.getElementField() instanceof JReferenceField) {
+                        streamList.add(field.getValue(jobj).stream()
+                          .filter(JObject.class::isInstance)
+                          .map(JObject.class::cast));
+                    }
                     return null;
                 }
 
@@ -1039,7 +1044,7 @@ public class Permazen {
         }
 
         // Done
-        return Iterables.concat(iterables);
+        return streamList.stream().flatMap(Function.identity());
     }
 
 // IndexQueryInfo Cache
@@ -1131,6 +1136,10 @@ public class Permazen {
 
     private class Loader extends ClassLoader {
 
+        static {
+            ClassLoader.registerAsParallelCapable();
+        }
+
         // Set up class loader
         Loader() {
             super(ApplicationClassLoader.getInstance());
@@ -1139,14 +1148,13 @@ public class Permazen {
         // Find matching ClassGenerator, if any, otherwise defer to parent
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
-            byte[] bytes = null;
             for (ClassGenerator<?> generator : Permazen.this.classGenerators) {
                 if (name.equals(generator.getClassName().replace('/', '.'))) {
-                    bytes = generator.generateBytecode();
-                    break;
+                    final byte[] bytes = generator.generateBytecode();
+                    return this.defineClass(name, bytes, 0, bytes.length);
                 }
             }
-            return bytes != null ? this.defineClass(name, bytes, 0, bytes.length) : super.findClass(name);
+            return super.findClass(name);
         }
     }
 

@@ -14,6 +14,8 @@ import io.permazen.ValidationException;
 import io.permazen.ValidationMode;
 import io.permazen.kv.util.NavigableMapKVStore;
 
+import jakarta.validation.groups.Default;
+
 import java.io.IOException;
 
 import org.dellroad.stuff.validation.ValidationUtil;
@@ -79,12 +81,12 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      *
      * <p>
      * If set to null, no validation is performed. Otherwise, all incoming objects in the transaction are validated,
-     * using the specified validation groups, or {@link javax.validation.groups.Default} if an empty is specified.
+     * using the specified validation groups, or {@link Default} if an empty is specified.
      *
      * <p>
      * By default, this is null.
      *
-     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed;
+     * @param groups validation group(s) to use for validation; if empty, {@link Default} is assumed;
      *  if null, no validation is performed
      */
     public void setValidationGroups(Class<?>... groups) {

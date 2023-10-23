@@ -20,6 +20,9 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVDatabase;
 import io.permazen.util.MovingAverage;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -30,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -78,10 +79,11 @@ import org.slf4j.LoggerFactory;
  * {@link org.springframework.transaction.annotation.Transactional#isolation isolation()} property:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
+ * <table class="striped">
+ * <caption>Isolation Level Mapping</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Spring isolation level</th>
- *  <th align="left">{@link SpannerKVDatabase} consistency level</th>
+ *  <th style="font-weight: bold; text-align: left">Spring isolation level</th>
+ *  <th style="font-weight: bold; text-align: left">{@link SpannerKVDatabase} consistency level</th>
  * </tr>
  * <tr>
  *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT DEFAULT}</td>

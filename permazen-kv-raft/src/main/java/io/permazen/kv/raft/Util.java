@@ -101,7 +101,7 @@ final class Util {
                 if (numRead == -1)
                     throw new IOException("file length was " + length + " but only read " + buf.position() + " bytes");
             }
-            return (ByteBuffer)buf.flip();
+            return buf.flip();
         }
     }
 

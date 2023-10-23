@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,24 +193,26 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         final EnumMap<StmtType, ArrayList<byte[]>> removeBatchMap = new EnumMap<>(StmtType.class);
         final Function<StmtType, ArrayList<byte[]>> listInit = st -> new ArrayList<>();
         boolean removeAll = false;
-        for (KeyRange remove : mutations.getRemoveRanges()) {
-            final byte[] min = remove.getMin();
-            final byte[] max = remove.getMax();
-            assert min != null;
-            if (min.length == 0 && max == null) {
-                removeAll = true;
-                break;
-            }
-            if (min.length == 0)
-                removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_MOST, listInit).add(this.encodeKey(max));
-            else if (max == null)
-                removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_LEAST, listInit).add(this.encodeKey(min));
-            else if (ByteUtil.isConsecutive(min, max))
-                removeBatchMap.computeIfAbsent(StmtType.REMOVE, listInit).add(this.encodeKey(min));
-            else {
-                final ArrayList<byte[]> batch = removeBatchMap.computeIfAbsent(StmtType.REMOVE_RANGE, listInit);
-                batch.add(this.encodeKey(min));
-                batch.add(this.encodeKey(max));
+        try (Stream<KeyRange> ranges = mutations.getRemoveRanges()) {
+            for (KeyRange remove : (Iterable<KeyRange>)ranges::iterator) {
+                final byte[] min = remove.getMin();
+                final byte[] max = remove.getMax();
+                assert min != null;
+                if (min.length == 0 && max == null) {
+                    removeAll = true;
+                    return;
+                }
+                if (min.length == 0)
+                    removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_MOST, listInit).add(this.encodeKey(max));
+                else if (max == null)
+                    removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_LEAST, listInit).add(this.encodeKey(min));
+                else if (ByteUtil.isConsecutive(min, max))
+                    removeBatchMap.computeIfAbsent(StmtType.REMOVE, listInit).add(this.encodeKey(min));
+                else {
+                    final ArrayList<byte[]> batch = removeBatchMap.computeIfAbsent(StmtType.REMOVE_RANGE, listInit);
+                    batch.add(this.encodeKey(min));
+                    batch.add(this.encodeKey(max));
+                }
             }
         }
         if (removeAll)
@@ -221,16 +224,19 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         // Do puts
         final ArrayList<byte[]> putBatch = new ArrayList<byte[]>();
-        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
-            putBatch.add(this.encodeKey(entry.getKey()));
-            putBatch.add(entry.getValue());
-            putBatch.add(entry.getValue());
+        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            puts.forEach(entry -> {
+                putBatch.add(this.encodeKey(entry.getKey()));
+                putBatch.add(entry.getValue());
+                putBatch.add(entry.getValue());
+            });
         }
         this.updateBatch(StmtType.PUT, putBatch);
 
         // Do adjusts
-        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
-            this.adjustCounter(entry.getKey(), entry.getValue());
+        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            adjusts.forEach(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+        }
     }
 
     @Override
@@ -312,6 +318,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (!this.stale)
@@ -723,6 +730,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     // Object
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void finalize() throws Throwable {
             try {
                 this.close();

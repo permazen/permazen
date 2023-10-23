@@ -5,8 +5,7 @@
 
 package io.permazen.util;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Lists;
 
 import java.util.Comparator;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.NavigableSet;
 
 /**
- * Provides a read-only view of the difference of two or more {@link NavigableSet}s.
+ * Provides a read-only view of the difference of two {@link NavigableSet}s.
  */
 class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
 
@@ -57,8 +56,36 @@ class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return Iterators.filter(this.list.get(0).iterator(), Predicates.not(Predicates.in(this.list.get(1))));
+    public CloseableIterator<E> iterator() {
+        return new Iter<>(this.list.get(0), this.list.get(1));
+    }
+
+// Iter
+
+    private static class Iter<E> extends AbstractIterator<E> implements CloseableIterator<E> {
+
+        private final Iterator<E> iter1;
+        private final NavigableSet<E> set2;
+
+        Iter(NavigableSet<E> set1, NavigableSet<E> set2) {
+            this.iter1 = set1.iterator();
+            this.set2 = set2;
+        }
+
+        @Override
+        protected E computeNext() {
+            while (this.iter1.hasNext()) {
+                final E next = this.iter1.next();
+                if (!this.set2.contains(next))
+                    return next;
+            }
+            return this.endOfData();
+        }
+
+        @Override
+        public void close() {
+            if (this.iter1 instanceof CloseableIterator)
+                ((CloseableIterator<E>)this.iter1).close();
+        }
     }
 }
-

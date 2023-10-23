@@ -134,7 +134,7 @@ class SnapshotTransmit implements Closeable {
 
         // Done
         this.anyChunksSent = true;
-        return (ByteBuffer)buf.flip();
+        return buf.flip();
     }
 
 // Private methods

@@ -124,6 +124,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
      * Finalize this instance. Invokes {@link #close} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (!this.closed)

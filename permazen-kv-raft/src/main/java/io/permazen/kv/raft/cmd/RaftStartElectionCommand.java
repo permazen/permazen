@@ -5,10 +5,9 @@
 
 package io.permazen.kv.raft.cmd;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.kv.raft.NonLeaderRole;
 import io.permazen.kv.raft.RaftKVDatabase;
-import io.permazen.util.ParseContext;
 
 import java.util.Map;
 
@@ -31,10 +30,10 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return new RaftAction() {
             @Override
-            protected void run(CliSession session, RaftKVDatabase db) throws Exception {
+            protected void run(Session session, RaftKVDatabase db) throws Exception {
 
                 // Get current role, which must not be leader
                 final NonLeaderRole role;
@@ -45,7 +44,7 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
                 }
 
                 // Trigger an election
-                session.getWriter().println("Triggering early Raft election");
+                session.getOutput().println("Triggering early Raft election");
                 role.startElection();
             }
         };

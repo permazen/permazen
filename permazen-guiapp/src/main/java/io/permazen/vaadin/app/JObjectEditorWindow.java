@@ -50,13 +50,13 @@ import io.permazen.vaadin.NullableField;
 import io.permazen.vaadin.ReloadableJObjectContainer;
 import io.permazen.vaadin.SimpleFieldConverter;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import javax.validation.constraints.NotNull;
 
 import org.dellroad.stuff.spring.RetryTransaction;
 import org.dellroad.stuff.vaadin7.EnumComboBox;

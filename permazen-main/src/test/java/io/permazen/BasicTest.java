@@ -273,7 +273,7 @@ public class BasicTest extends TestSupport {
         return BasicTest.getPermazen(Arrays.<Class<?>>asList(classes));
     }
 
-    public static Permazen getPermazen(Iterable<Class<?>> classes) {
+    public static Permazen getPermazen(Collection<Class<?>> classes) {
         return new Permazen(classes);
     }
 

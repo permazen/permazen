@@ -7,6 +7,7 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Streams;
 import com.google.common.collect.UnmodifiableIterator;
 
 import io.permazen.kv.KVStore;
@@ -26,9 +27,9 @@ import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 /**
  * Holds a set of writes to a {@link KVStore}.
@@ -115,18 +116,18 @@ public class Writes implements Cloneable, Mutations {
 // Mutations
 
     @Override
-    public NavigableSet<KeyRange> getRemoveRanges() {
-        return this.removes.asSet();
+    public Stream<KeyRange> getRemoveRanges() {
+        return this.removes.asSet().stream();
     }
 
     @Override
-    public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-        return this.getPuts().entrySet();
+    public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+        return this.getPuts().entrySet().stream();
     }
 
     @Override
-    public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-        return this.getAdjusts().entrySet();
+    public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+        return this.getAdjusts().entrySet().stream();
     }
 
 // Application
@@ -438,29 +439,16 @@ public class Writes implements Cloneable, Mutations {
         }
 
         @Override
-        public Iterable<? extends KeyRange> getRemoveRanges() {
-            return this::removeRanges;
-        }
-
-        @Override
-        public Iterable<? extends Map.Entry<byte[], byte[]>> getPutPairs() {
-            return this::putPairs;
-        }
-
-        @Override
-        public Iterable<? extends Map.Entry<byte[], Long>> getAdjustPairs() {
-            return this::adjustPairs;
-        }
-
-        private Iterator<KeyRange> removeRanges() {
+        public Stream<KeyRange> getRemoveRanges() {
             Preconditions.checkState(this.state == 0, "duplicate or out-of-order invocation");
             final Iterator<KeyRange> iterator = KeyRanges.deserializeIterator(this.input);
             this.currentIterator = iterator;
-            this.state = 1;
-            return iterator;
+            this.state++;
+            return Streams.stream(iterator);
         }
 
-        private Iterator<Map.Entry<byte[], byte[]>> putPairs() {
+        @Override
+        public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
             Preconditions.checkState(this.state == 1, "duplicate or out-of-order invocation");
             this.exhaustCurrentIterator();
             final MapEntryIterator<byte[]> iterator = new MapEntryIterator<byte[]>(this.input) {
@@ -470,11 +458,12 @@ public class Writes implements Cloneable, Mutations {
                 }
             };
             this.currentIterator = iterator;
-            this.state = 2;
-            return iterator;
+            this.state++;
+            return Streams.stream(iterator);
         }
 
-        private Iterator<Map.Entry<byte[], Long>> adjustPairs() {
+        @Override
+        public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
             Preconditions.checkState(this.state == 2, "duplicate or out-of-order invocation");
             this.exhaustCurrentIterator();
             final MapEntryIterator<Long> iterator = new MapEntryIterator<Long>(this.input) {
@@ -484,8 +473,8 @@ public class Writes implements Cloneable, Mutations {
                 }
             };
             this.currentIterator = iterator;
-            this.state = 3;
-            return iterator;
+            this.state++;
+            return Streams.stream(iterator);
         }
 
         private void exhaustCurrentIterator() {

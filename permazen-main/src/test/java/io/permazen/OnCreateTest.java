@@ -10,9 +10,9 @@ import io.permazen.annotation.OnCreate;
 import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
-import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

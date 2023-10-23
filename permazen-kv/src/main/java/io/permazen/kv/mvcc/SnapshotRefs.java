@@ -105,6 +105,7 @@ public class SnapshotRefs {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             final int remaining = this.refs.get();

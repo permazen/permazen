@@ -5,18 +5,17 @@
 
 package io.permazen;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
 import java.util.AbstractMap;
-import java.util.Arrays;
+import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -130,13 +129,11 @@ public class BadIndexQueryTest extends TestSupport {
         static NavigableSet<Analysis> getInState(State... states) {
             final NavigableMap<State, NavigableSet<Analysis>> indexMap
               = JTransaction.getCurrent().queryIndex(Analysis.class, "state", State.class).asMap();
-            return NavigableSets.union(Iterables.transform(Arrays.asList(states), new Function<State, NavigableSet<Analysis>>() {
-                @Override
-                public NavigableSet<Analysis> apply(State state) {
-                    final NavigableSet<Analysis> set = indexMap.get(state);
-                    return set != null ? set : NavigableSets.<Analysis>empty();
-                }
-            }));
+            final List<NavigableSet<Analysis>> list = Stream.of(states)
+              .map(indexMap::get)
+              .map(set -> set != null ? set : NavigableSets.<Analysis>empty())
+              .collect(Collectors.toList());
+            return NavigableSets.union(list);
         }
 
         enum State {

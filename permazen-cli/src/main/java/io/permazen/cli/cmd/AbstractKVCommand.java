@@ -7,11 +7,11 @@ package io.permazen.cli.cmd;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.parse.ParseException;
-import io.permazen.parse.ParseSession;
-import io.permazen.parse.Parser;
+import io.permazen.cli.Session;
+import io.permazen.cli.parse.Parser;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ParseContext;
+import io.permazen.util.ParseException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -189,7 +189,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
     public static class BytesParser implements Parser<byte[]> {
 
         @Override
-        public byte[] parse(ParseSession session, ParseContext ctx, boolean complete) {
+        public byte[] parse(Session session, ParseContext ctx, boolean complete) {
             final Matcher cstringMatcher = ctx.tryPattern(CSTRING_PATTERN);
             if (cstringMatcher != null)
                 return AbstractKVCommand.fromCString(cstringMatcher.group());

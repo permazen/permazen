@@ -9,12 +9,13 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -231,6 +232,7 @@ public class XodusKVDatabase implements KVDatabase {
      * Finalize this instance. Invokes {@link #stop} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (this.env != null)

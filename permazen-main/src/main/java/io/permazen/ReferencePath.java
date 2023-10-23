@@ -105,12 +105,13 @@ import org.slf4j.LoggerFactory;
  * Then these paths have the following meanings:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Reference Path Examples">
+ * <table class="striped">
+ * <caption>Reference Path Examples</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Start&nbsp;Type</th>
- *  <th align="left">Path</th>
- *  <th align="left">Has Target Field?</th>
- *  <th align="left">Description</th>
+ *  <th style="font-weight: bold; text-align: left">Start&nbsp;Type</th>
+ *  <th style="font-weight: bold; text-align: left">Path</th>
+ *  <th style="font-weight: bold; text-align: left">Has Target Field?</th>
+ *  <th style="font-weight: bold; text-align: left">Description</th>
  * </tr>
  * <tr>
  *  <td>{@code Employee}</td>
@@ -512,7 +513,7 @@ public class ReferencePath {
      * @return the Java type at which this reference path ends
      */
     public Class<?> getTargetType() {
-        return Util.findLowestCommonAncestorOfClasses(this.getTargetTypes()).getRawType();
+        return Util.findLowestCommonAncestorOfClasses(this.getTargetTypes().stream()).getRawType();
     }
 
     /**
@@ -575,7 +576,7 @@ public class ReferencePath {
         return this.pathKeyRanges;
     }
 
-    private boolean isAnyAssignableFrom(Iterable<? extends Class<?>> tos, Class<?> from) {
+    private boolean isAnyAssignableFrom(Iterable<Class<?>> tos, Class<?> from) {
         for (Class<?> to : tos) {
             if (to.isAssignableFrom(from))
                 return true;
@@ -775,7 +776,7 @@ public class ReferencePath {
 
     private static Set<Class<?>> minimizeAndSeal(Set<Class<?>> types) {
         final HashSet<Class<?>> minimalTypes = new HashSet<>(types.size());
-        for (TypeToken<?> typeToken : Util.findLowestCommonAncestorsOfClasses(types))
+        for (TypeToken<?> typeToken : Util.findLowestCommonAncestorsOfClasses(types.stream()))
             minimalTypes.add((Class<?>)typeToken.getRawType());
         return Collections.unmodifiableSet(minimalTypes);
     }

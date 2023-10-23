@@ -7,15 +7,13 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.cli.parse.Parser;
+import io.permazen.cli.parse.WhateverParser;
+import io.permazen.cli.parse.WordParser;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.parse.ParseException;
-import io.permazen.parse.ParseSession;
-import io.permazen.parse.ParseUtil;
-import io.permazen.parse.Parser;
-import io.permazen.parse.SpaceParser;
-import io.permazen.parse.WordParser;
 import io.permazen.util.ParseContext;
+import io.permazen.util.ParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +31,7 @@ import java.util.regex.Pattern;
  * <p>
  * The specification string contains whitespace-separated parameter specifications; see {@link Param} for syntax.
  */
-public class ParamParser implements Parser<Map<String, Object>> {
+public class ParamParser {
 
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
@@ -129,78 +127,54 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * Parse command line parameters.
      *
      * @param session associated session
-     * @param ctx parse context positioned at whitespace preceeding parameters (if any)
-     * @param complete true if we're only determining completions
+     * @param params command parameters
      * @throws ParseException if parse fails
      */
-    @Override
-    public Map<String, Object> parse(ParseSession session, ParseContext ctx, boolean complete) {
+    public Map<String, Object> parse(Session session, List<String> params) {
 
         // Store results here
         final HashMap<String, Object> values = new HashMap<>();
 
-        // First parse options
-        boolean needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
-        while (true) {
+        // First parse option flags
+        int pos = 0;
+        while (pos < params.size()) {
+            final String param = params.get(pos);
 
-            // Get next option
-            new SpaceParser(needSpace).parse(ctx, complete);
-            needSpace = false;
-            if (ctx.getInput().matches("(?s)^--([\\s;].*)?$")) {
-                ctx.setIndex(ctx.getIndex() + 2);
-                needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
+            // Explicit end of option flags?
+            if (param.equals("--")) {
+                pos++;
                 break;
             }
-            final Matcher matcher = ctx.tryPattern("(-[^\\s;]+)");
-            if (matcher == null)
+
+            // Done with option flags?
+            if (!param.matches("-.+"))
                 break;
+            pos++;
 
             // Find matching Param
-            final String option = matcher.group(1);
-            final Param param = this.optionFlags.stream()
-              .filter(p -> option.equals(p.getOptionFlag()))
-              .findAny().orElseThrow(() -> new ParseException(ctx, "unrecognized option `" + option + "'")
-                .addCompletions(ParseUtil.complete(this.optionFlags.stream().map(Param::getOptionFlag), option)));
+            final Param optionFlag = this.optionFlags.stream()
+              .filter(p -> param.equals(p.getOptionFlag()))
+              .findAny().orElseThrow(() -> new IllegalArgumentException("unrecognized option `" + param + "'"));
 
-            // Parse argument, if any
-            final Parser<?> parser = param.getParser();
+            // Parse option argument, if any
+            final Parser<?> parser = optionFlag.getParser();
             if (parser != null) {
-                new SpaceParser(true).parse(ctx, complete);
-                values.put(param.getName(), parser.parse(session, ctx, complete));
+                if (pos == params.size())
+                    throw new IllegalArgumentException("option `" + param + "' requires an argument");
+                values.put(optionFlag.getName(), parser.parse(session, new ParseContext(params.get(pos++)), false));
             } else
-                values.put(param.getName(), true);
-            needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
+                values.put(optionFlag.getName(), true);
         }
 
-        // Next parse parameters
+        // Next parse regular parameters
         for (Param param : this.params) {
             final ArrayList<Object> paramValues = new ArrayList<>();
             final String typeName = param.getTypeName();
             final Parser<?> parser = param.getParser();
-            while (paramValues.size() < param.getMax()) {
-                new SpaceParser(needSpace).parse(ctx, complete);
-                needSpace = false;
-                if (!ctx.getInput().matches("(?s)^[^\\s;].*$")) {
-                    if (complete) {
-                        parser.parse(session, new ParseContext(""), true);      // calculate completions from empty string
-                        throw new ParseException(ctx, "");                      // should never get here
-                    }
-                    break;
-                }
-                paramValues.add(parser.parse(session, ctx, complete));
-                needSpace = paramValues.size() < param.getMin();
-            }
-            if (paramValues.size() < param.getMin()) {
-                final ParseException e = new ParseException(ctx, "missing `" + param.getName() + "' parameter");
-                if (complete) {
-                    try {
-                        parser.parse(session, new ParseContext(""), true);
-                    } catch (ParseException e2) {
-                        e.addCompletions(e2.getCompletions());
-                    }
-                }
-                throw e;
-            }
+            while (paramValues.size() < param.getMax() && pos < params.size())
+                paramValues.add(parser.parse(session, new ParseContext(params.get(pos++)), false));
+            if (paramValues.size() < param.getMin())
+                throw new IllegalArgumentException("missing `" + param.getName() + "' parameter");
             if (param.getMax() > 1)
                 values.put(param.getName(), Arrays.asList(paramValues.toArray()));
             else if (!paramValues.isEmpty())
@@ -208,9 +182,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
         }
 
         // Check for trailing garbage
-        new SpaceParser().parse(ctx, complete);
-        if (!ctx.getInput().matches("(?s)^(;.*)?$"))
-            throw new ParseException(ctx);
+        if (pos != params.size())
+            throw new IllegalArgumentException("too many parameters");
 
         // Done
         return values;
@@ -224,9 +197,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * <p>
      * {@link String} form is {@code -flag:name:type}, where the {@code -flag} is optional and indicates
      * an option flag, {@code name} is the name of the flag or parameter, and {@code type} is optional as well:
-     * if missing, it indicates either an argumment-less option flag or a "word" type ({@link String} that is a
-     * sequence of one or more non-whitespace characters). Otherwise {@code type} is the name of a parameter type
-     * supported by {@link ParamParser#getParser ParamParser.getParser()}.
+     * if missing, it indicates either an argument-less option flag, or a arbitrary string. Otherwise {@code type}
+     * is the name of a parameter type supported by {@link ParamParser#getParser ParamParser.getParser()}.
      *
      * <p>
      * Non-option parameters may have a {@code ?} suffix if optional,
@@ -287,7 +259,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
             // Get parser
             this.parser = this.typeName != null ?
-              ParamParser.this.getParser(typeName) : !this.isOption() ? new WordParser("parameter") : null;
+              ParamParser.this.getParser(typeName) : !this.isOption() ? new WhateverParser() : null;
         }
 
         public String getOptionFlag() {
@@ -329,4 +301,3 @@ public class ParamParser implements Parser<Map<String, Object>> {
         }
     }
 }
-

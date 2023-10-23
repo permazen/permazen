@@ -6,7 +6,6 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.kv.KeyRanges;
@@ -100,7 +99,7 @@ public class Schemas {
         }
 
         // Calculate the KeyRanges containing all object types
-        this.objTypesKeyRanges = new KeyRanges(Iterables.transform(this.objTypeStorageIds, ObjId::getKeyRange));
+        this.objTypesKeyRanges = new KeyRanges(this.objTypeStorageIds.stream().map(ObjId::getKeyRange));
     }
 
     /**

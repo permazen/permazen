@@ -5,8 +5,8 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.parse.ParseException;
 import io.permazen.util.ParseContext;
+import io.permazen.util.ParseException;
 
 import java.io.File;
 

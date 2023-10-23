@@ -76,8 +76,8 @@ public class ExportContext {
         this.objectMapper = id -> {
             final Class<?> type = this.jtx.jdb.getJClass(id).getType();
             try {
-                return type.newInstance();
-            } catch (Exception e) {
+                return type.getConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
                 throw new IllegalArgumentException("can't instatiate " + type + " using default constructor for POJO export", e);
             }
         };

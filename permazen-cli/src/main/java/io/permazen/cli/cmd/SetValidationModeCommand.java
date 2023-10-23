@@ -5,12 +5,11 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.SessionMode;
 import io.permazen.ValidationMode;
-import io.permazen.cli.CliSession;
-import io.permazen.parse.EnumNameParser;
-import io.permazen.parse.Parser;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
+import io.permazen.cli.parse.EnumNameParser;
+import io.permazen.cli.parse.Parser;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -42,11 +41,11 @@ public class SetValidationModeCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session0, Map<String, Object> params) {
         final ValidationMode mode = (ValidationMode)params.get("mode");
         return session -> {
             session.setValidationMode(mode);
-            session.getWriter().println("Setting validation mode to " + mode);
+            session.getOutput().println("Setting validation mode to " + mode);
         };
     }
 }

@@ -33,11 +33,11 @@ public class FollowPathTest extends TestSupport {
             mom.setFamily(family);
             dad.setFamily(family);
 
-            Assert.assertSame(family.getMom().get(), mom);
-            Assert.assertSame(family.getDad().get(), dad);
+            Assert.assertSame(family.getMom().orElse(null), mom);
+            Assert.assertSame(family.getDad().orElse(null), dad);
 
-            Assert.assertSame(mom.getHusband().get(), dad);
-            Assert.assertSame(dad.getWife().get(), mom);
+            Assert.assertSame(mom.getHusband().orElse(null), dad);
+            Assert.assertSame(dad.getWife().orElse(null), mom);
 
             TestSupport.checkSet(family.getMembers(), buildSet(mom, dad));
             TestSupport.checkSet(mom.getAllFamilyMembers(), buildSet(mom, dad));
@@ -82,21 +82,22 @@ public class FollowPathTest extends TestSupport {
             child3.setVehicle(bike2);
 
             TestSupport.checkSet(bike1.getAllOwners(), buildSet(child1));
-            Assert.assertSame(bike1.getFirstOwner().get(), child1);
+            Assert.assertSame(bike1.getFirstOwner().orElse(null), child1);
 
             TestSupport.checkSet(bike2.getAllOwners(), buildSet(child2, child3));
-            Assert.assertSame(bike2.getFirstOwner().get(), child2.getObjId().compareTo(child3.getObjId()) < 0 ? child2 : child3);
+            Assert.assertSame(bike2.getFirstOwner().orElse(null),
+              child2.getObjId().compareTo(child3.getObjId()) < 0 ? child2 : child3);
 
             TestSupport.checkSet(bike3.getAllOwners(), buildSet());
             Assert.assertFalse(bike3.getFirstOwner().isPresent());
 
-            Assert.assertSame(child1.getDadsVehicle().get(), dcar);
-            Assert.assertSame(child2.getDadsVehicle().get(), dcar);
-            Assert.assertSame(child3.getDadsVehicle().get(), dcar);
+            Assert.assertSame(child1.getDadsVehicle().orElse(null), dcar);
+            Assert.assertSame(child2.getDadsVehicle().orElse(null), dcar);
+            Assert.assertSame(child3.getDadsVehicle().orElse(null), dcar);
 
-            Assert.assertSame(child1.getDadsVehicle2().get(), dcar);
-            Assert.assertSame(child2.getDadsVehicle2().get(), dcar);
-            Assert.assertSame(child3.getDadsVehicle2().get(), dcar);
+            Assert.assertSame(child1.getDadsVehicle2().orElse(null), dcar);
+            Assert.assertSame(child2.getDadsVehicle2().orElse(null), dcar);
+            Assert.assertSame(child3.getDadsVehicle2().orElse(null), dcar);
 
             TestSupport.checkSet(child1.getSiblingBikes(), buildSet(bike1, bike2));
             TestSupport.checkSet(child2.getSiblingBikes(), buildSet(bike1, bike2));

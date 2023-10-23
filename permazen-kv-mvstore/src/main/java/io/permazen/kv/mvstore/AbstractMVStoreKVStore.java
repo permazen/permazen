@@ -7,10 +7,11 @@ package io.permazen.kv.mvstore;
 
 import com.google.common.base.Preconditions;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -109,6 +110,9 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
 
 // Lifecycle
 
+    /**
+     * Start this instance.
+     */
     @PostConstruct
     public synchronized void start() {
 
@@ -128,6 +132,9 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
         }
     }
 
+    /**
+     * Stop this instance.
+     */
     @PreDestroy
     public synchronized void stop() {
 
@@ -161,6 +168,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
      * Finalize this instance. Invokes {@link #stop} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (this.mvstore != null)

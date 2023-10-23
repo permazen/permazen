@@ -59,11 +59,12 @@ import org.apache.tools.ant.types.Resource;
  * The following attributes are supported by this task:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Tasks">
+ * <table class="striped">
+ * <caption>Supported Tasks</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Attribute</th>
- *  <th align="left">Required?</th>
- *  <th align="left">Description</th>
+ *  <th style="font-weight: bold; text-align: left">Attribute</th>
+ *  <th style="font-weight: bold; text-align: left">Required?</th>
+ *  <th style="font-weight: bold; text-align: left">Description</th>
  * </tr>
  * <tr>
  *  <td>{@code mode}</td>

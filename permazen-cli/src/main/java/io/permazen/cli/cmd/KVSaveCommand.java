@@ -5,12 +5,10 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
+import io.permazen.cli.parse.Parser;
 import io.permazen.kv.util.XMLSerializer;
-import io.permazen.parse.Parser;
-import io.permazen.util.ParseContext;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -59,7 +57,7 @@ public class KVSaveCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
 
         // Parse parameters
         final File file = (File)params.get("file.xml");
@@ -72,7 +70,7 @@ public class KVSaveCommand extends AbstractCommand {
         return new SaveAction(file, indent, weak, minKey, maxKey);
     }
 
-    private static class SaveAction implements CliSession.Action, Session.RetryableAction, Session.HasTransactionOptions {
+    private static class SaveAction implements Session.Action, Session.RetryableAction, Session.HasTransactionOptions {
 
         private final File file;
         private final boolean indent;
@@ -89,7 +87,7 @@ public class KVSaveCommand extends AbstractCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final FileOutputStream updateOutput = !this.isWindows() ?
               new AtomicUpdateFileOutputStream(this.file) : new FileOutputStream(this.file);
             final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
@@ -114,7 +112,7 @@ public class KVSaveCommand extends AbstractCommand {
                 } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-            session.getWriter().println("Wrote " + count + " key/value pairs to `" + this.file + "'");
+            session.getOutput().println("Wrote " + count + " key/value pairs to `" + this.file + "'");
         }
 
         // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries

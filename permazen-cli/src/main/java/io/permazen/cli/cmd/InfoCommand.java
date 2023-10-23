@@ -5,17 +5,16 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.SessionMode;
 import io.permazen.ValidationMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ParseContext;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.EnumSet;
 import java.util.Map;
 
-public class InfoCommand extends AbstractCommand implements CliSession.Action {
+public class InfoCommand extends AbstractCommand implements Session.Action {
 
     public InfoCommand() {
         super("info");
@@ -27,7 +26,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return this;
     }
 
@@ -36,11 +35,11 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         return EnumSet.allOf(SessionMode.class);
     }
 
-// CliSession.Action
+// Session.Action
 
     @Override
-    public void run(CliSession session) throws Exception {
-        final PrintWriter writer = session.getWriter();
+    public void run(Session session) throws Exception {
+        final PrintStream writer = session.getOutput();
         writer.println("  CLI Mode: " + session.getMode());
         writer.println("  Database: " + session.getDatabaseDescription());
         writer.println("  Access Mode: " + (session.isReadOnly() ? "Read-Only" : "Read/Write"));
@@ -59,7 +58,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         }
     }
 
-    static int getSchemaVersion(CliSession session) {
+    static int getSchemaVersion(Session session) {
         int schemaVersion = session.getSchemaVersion();
         if (schemaVersion == 0 && session.getPermazen() != null) {
             schemaVersion = session.getPermazen().getActualVersion();
@@ -69,7 +68,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         return schemaVersion;
     }
 
-    static SchemaModel getSchemaModel(CliSession session) {
+    static SchemaModel getSchemaModel(Session session) {
         SchemaModel schemaModel = session.getSchemaModel();
         if (schemaModel == null && session.getPermazen() != null)
             schemaModel = session.getPermazen().getSchemaModel();

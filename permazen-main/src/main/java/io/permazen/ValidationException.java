@@ -7,9 +7,9 @@ package io.permazen;
 
 import io.permazen.core.DatabaseException;
 
-import java.util.Set;
+import jakarta.validation.ConstraintViolation;
 
-import javax.validation.ConstraintViolation;
+import java.util.Set;
 
 /**
  * Thrown when {@link JTransaction#validate} (or {@link JTransaction#commit}) fails due to one or more validation errors.

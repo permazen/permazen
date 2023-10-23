@@ -5,7 +5,7 @@
 
 package io.permazen.demo;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Implemented by heavenly bodies that can orbit around other heavenly bodies.

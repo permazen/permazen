@@ -31,7 +31,7 @@ class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
     }
 
     /**
-     * Determine whether this instance is {@linkplain #lockDown locked down}.
+     * Determine whether this instance is locked down.
      *
      * @return true if instance is locked down, otherwise false
      */

@@ -5,13 +5,29 @@
 
 package io.permazen.cli.app;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.Permazen;
-import io.permazen.SessionMode;
 import io.permazen.app.AbstractMain;
-import io.permazen.cli.CliSession;
 import io.permazen.cli.Console;
+import io.permazen.cli.PermazenExec;
+import io.permazen.cli.PermazenExecSession;
+import io.permazen.cli.PermazenShell;
+import io.permazen.cli.PermazenShellSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.core.Database;
 import io.permazen.schema.SchemaModel;
+import io.permazen.PermazenFactory;
+import io.permazen.annotation.JFieldType;
+import io.permazen.core.Database;
+import io.permazen.core.FieldType;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVImplementation;
+import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.spring.PermazenClassScanner;
+import io.permazen.spring.PermazenFieldTypeScanner;
+import io.permazen.util.ApplicationClassLoader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -22,27 +38,57 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 
-import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into the jline jar
+import org.apache.common.cli.CommandLine;
+import org.apache.common.cli.CommandLineParser;
+import org.apache.common.cli.Option;
+import org.apache.common.cli.Options;
+import org.dellroad.jct.core.ConsoleSession;
+import org.dellroad.jct.core.ExecSession;
+import org.dellroad.jct.core.ShellRequest;
+import org.dellroad.jct.core.ShellSession;
+import org.dellroad.jct.core.simple.CommandBundle;
+import org.dellroad.jct.core.simple.SimpleCommandSupport;
+import org.dellroad.jct.core.simple.SimpleExec;
+import org.dellroad.jct.core.simple.SimpleExecRequest;
+import org.dellroad.jct.core.simple.SimpleShell;
+import org.dellroad.jct.core.simple.SimpleShellRequest;
+import org.dellroad.jct.core.simple.command.HelpCommand;
+import org.dellroad.jct.core.util.ConsoleUtil;
+import org.dellroad.jct.jshell.JShellShell;
+import org.dellroad.jct.jshell.JShellShellSession;
+import org.dellroad.jct.jshell.command.JShellCommand;
+import org.dellroad.jct.ssh.simple.SimpleConsoleSshServer;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 /**
- * CLI main entry point.
+ * Permazen CLI application main entry point.
  */
-public class Main extends AbstractMain {
+public class Main {
 
     public static final String HISTORY_FILE = ".permazen_history";
 
+    private final List<CommandBundle> commandBundles = CommandBundle.scanAndGenerate().collect(Collectors.toList());
     private File schemaFile;
     private File historyFile = new File(new File(System.getProperty("user.home")), HISTORY_FILE);
     private SessionMode mode = SessionMode.PERMAZEN;
-    private final ArrayList<String> execCommands = new ArrayList<>();
-    private final ArrayList<String> execFiles = new ArrayList<>();
-    private boolean keyboardInput = Main.isWindows() || CLibrary.isatty(0) != 0;                // i.e., if stdin is a terminal
-    private boolean batchMode = !keyboardInput;
+    private boolean readOnly;
+
+    protected final ConsoleExec exec;
+    protected final ConsoleShell shell;
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -52,34 +98,19 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
             break;
-        case "--command":
-        case "-c":
-            if (params.isEmpty())
-                this.usageError();
-            this.execCommands.add(params.removeFirst());
-            break;
         case "--history-file":
             if (params.isEmpty())
                 this.usageError();
             this.historyFile = new File(params.removeFirst());
             break;
-        case "--file":
-        case "-f":
-            if (params.isEmpty())
-                this.usageError();
-            this.execFiles.add(params.removeFirst());
+        case "--read-only":
+            this.readOnly = true;
             break;
         case "--core-mode":
             this.mode = SessionMode.CORE_API;
             break;
         case "--kv-mode":
             this.mode = SessionMode.KEY_VALUE;
-            break;
-        case "--batch":
-        case "-n":
-            this.batchMode = true;
-            if (Main.isWindows())
-                keyboardInput = false;
             break;
         default:
             return false;
@@ -95,13 +126,6 @@ public class Main extends AbstractMain {
         final int result = this.parseOptions(params);
         if (result != -1)
             return result;
-        switch (params.size()) {
-        case 0:
-            break;
-        default:
-            this.usageError();
-            return 1;
-        }
 
         // Read schema file from `--schema-file' (if any)
         SchemaModel schemaModel = null;
@@ -143,39 +167,29 @@ public class Main extends AbstractMain {
             this.mode = SessionMode.CORE_API;
         }
 
-        // Set up console
-        final Console console0;
+        // Create and configure console components
         switch (this.mode) {
         case KEY_VALUE:
-            console0 = new Console(db.getKVDatabase(), new FileInputStream(FileDescriptor.in), System.out);
+            this.exec = this.createConsoleExec(db.getKVDatabase(), null, null);
+            this.shell = this.createConsoleShell(db.getKVDatabase(), null, null);
             break;
         case CORE_API:
-            console0 = new Console(db, new FileInputStream(FileDescriptor.in), System.out);
+            this.exec = this.createConsoleExec(null, db, null);
+            this.shell = this.createConsoleShell(null, db, null);
             break;
         case PERMAZEN:
-            console0 = new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
+            this.exec = this.createConsoleExec(null, null, jdb);
+            this.shell = this.createConsoleShell(null, null, jdb);
             break;
         default:
-            console0 = null;
-            assert false;
-            break;
+            throw new RuntimeException("unexpected case");
         }
-        try (Console console = console0) {
+        exec.getCommandBundles().addAll(this.commandBundles);
+        shell.getCommandBundles().addAll(this.commandBundles);
 
-            // Configure history
-            if (this.keyboardInput && !this.batchMode)
-                console.setHistoryFile(this.historyFile);
 
-            // Set up CLI session
-            final CliSession session = console.getSession();
-            session.setDatabaseDescription(this.getDatabaseDescription());
-            session.setReadOnly(this.readOnly);
-            session.setVerbose(this.verbose);
-            session.setSchemaModel(schemaModel);
-            session.setSchemaVersion(this.schemaVersion);
-            session.setAllowNewSchema(this.allowNewSchema);
-            session.loadFunctionsFromClasspath();
-            session.loadCommandsFromClasspath();
+        // Handle exec mode
+        if (!params.isEmpty()) {
 
             // Handle file input
             for (String filename : this.execFiles) {
@@ -184,7 +198,7 @@ public class Main extends AbstractMain {
                     if (!this.parseAndExecuteCommands(console, new InputStreamReader(input), file.getName()))
                         return 1;
                 } catch (IOException e) {
-                    session.getWriter().println("Error: error opening " + file.getName() + ": " + e);
+                    session.getError().println("Error: error opening " + file.getName() + ": " + e);
                     return 1;
                 }
             }
@@ -230,16 +244,14 @@ public class Main extends AbstractMain {
     @Override
     protected void usageMessage() {
         System.err.println("Usage:");
-        System.err.println("  " + this.getName() + " [options]");
+        System.err.println("  " + this.getName() + " [options] [command ...]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
           { "--history-file file",      "Specify file for CLI command history (default ~/" + HISTORY_FILE + ")" },
           { "--schema-file file",       "Load core database schema from XML file" },
           { "--core-mode",              "Force core API mode (default if neither Java model classes nor schema are provided)" },
           { "--kv-mode",                "Force key/value mode" },
-          { "--command, -c command",    "Execute the given command (may be repeated)" },
-          { "--file, -f file",          "Read and execute commands from `file' (may be repeated)" },
-          { "--batch, -n",              "Batch mode: do not start the interactive CLI console" },
+          { "--read-only",              "Read-only mode" },
         });
     }
 
@@ -249,5 +261,73 @@ public class Main extends AbstractMain {
 
     private static boolean isWindows() {
         return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
+    }
+
+// Subclass Hooks
+
+    protected ConsoleExec createConsoleExec(KVDatabase kvdb, Database db, Permazen jdb) {
+        return new ConsoleExec(kvdb, db, jdb);
+    }
+
+    protected ConsoleShell createConsoleShell(KVDatabase kvdb) {
+        return new ConsoleShell(kvdb, db, jdb);
+    }
+
+    protected Session createSession(ConsoleSession<?, ?> session) {
+        final Session session = new Session(session, this.jdb, this.db, this.kvdb);
+        session.setDatabaseDescription(this.getDatabaseDescription());
+        session.setReadOnly(this.readOnly);
+        session.setVerbose(this.verbose);
+        session.setSchemaModel(this.schemaModel);
+        session.setSchemaVersion(this.schemaVersion);
+        session.setAllowNewSchema(this.allowNewSchema);
+        session.loadCommandsFromClasspath();
+        return session;
+    }
+
+        // Create and configure console components
+        switch (this.mode) {
+        case KEY_VALUE:
+            exec = new PermazenExec(db.getKVDatabase());
+            shell = new PermazenShell(db.getKVDatabase());
+            break;
+        case CORE_API:
+            exec = new PermazenExec(db);
+            shell = new PermazenShell(db);
+            break;
+        case PERMAZEN:
+            exec = new PermazenExec(jdb);
+            shell = new PermazenShell(jdb);
+            break;
+        default:
+            throw new RuntimeException("unexpected case");
+        }
+        exec.getCommandBundles().addAll(this.commandBundles);
+        shell.getCommandBundles().addAll(this.commandBundles);
+
+
+// ConsoleExec
+
+    protected class ConsoleExec extends PermazenExec {
+
+        protected ConsoleExec(KVDatabase kvdb, Database db, Permazen jdb {
+            super(kvdb, db, jdb);
+        }
+
+        @Override
+        protected PermazenExecSession createPermazenExecSession(ExecRequest request, FoundCommand command) throws IOException {
+            return new PermazenExecSession(this, request, command);
+        }
+
+        @Override
+        protected io.permazen.cli.Session createSession(PermazenExecSession execSession) {
+            return new io.permazen.cli.Session(execSession, this.jdb, this.db, this.kvdb);
+        }
+    }
+
+// ConsoleShell
+
+    protected io.permazen.cli.Session createSession(PermazenShellSession shellSession) {
+        return new io.permazen.cli.Session(shellSession, this.jdb, this.db, this.kvdb);
     }
 }

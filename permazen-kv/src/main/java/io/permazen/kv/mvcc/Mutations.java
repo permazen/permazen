@@ -8,6 +8,7 @@ package io.permazen.kv.mvcc;
 import io.permazen.kv.KeyRange;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Represents a set of mutations that can be applied to a {@link io.permazen.kv.KVStore}.
@@ -22,31 +23,27 @@ public interface Mutations {
     /**
      * Get the key ranges removals contained by this instance.
      *
-     * <p>
-     * The caller must not invoke {@link java.util.Iterator#remove}.
-     *
      * @return key ranges removed
      */
-    Iterable<? extends KeyRange> getRemoveRanges();
+    Stream<KeyRange> getRemoveRanges();
 
     /**
      * Get the written key/value pairs contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays, nor invoke {@link java.util.Iterator#remove}.
+     * The caller must not modify any of the returned {@code byte[]} arrays.
      *
      * @return mapping from key to corresponding value
      */
-    Iterable<? extends Map.Entry<byte[], byte[]>> getPutPairs();
+    Stream<Map.Entry<byte[], byte[]>> getPutPairs();
 
     /**
      * Get the counter adjustments contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays, nor invoke {@link java.util.Iterator#remove}.
+     * The caller must not modify any of the returned {@code byte[]} arrays.
      *
      * @return mapping from key to corresponding counter adjustment
      */
-    Iterable<? extends Map.Entry<byte[], Long>> getAdjustPairs();
+    Stream<Map.Entry<byte[], Long>> getAdjustPairs();
 }
-

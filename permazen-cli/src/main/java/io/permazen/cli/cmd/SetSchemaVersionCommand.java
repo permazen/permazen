@@ -5,9 +5,7 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.cli.CliSession;
-import io.permazen.parse.ParseException;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
 
 import java.util.Map;
 
@@ -30,13 +28,13 @@ public class SetSchemaVersionCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session0, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session0, Map<String, Object> params) {
         final int version = (Integer)params.get("version");
         if (version < -1)
-            throw new ParseException(ctx, "invalid negative schema version");
+            throw new IllegalArgumentException("invalid negative schema version");
         return session -> {
             session.setSchemaVersion(version);
-            session.getWriter().println("Set schema version to " + version);
+            session.getOutput().println("Set schema version to " + version);
         };
     }
 }

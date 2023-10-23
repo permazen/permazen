@@ -22,6 +22,9 @@ import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -51,9 +54,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -853,11 +855,15 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 writes = (Writes)mutations;
             else {
                 writes = new Writes();
-                writes.getRemoves().add(new KeyRanges(mutations.getRemoveRanges()));
-                for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
-                    writes.getPuts().put(entry.getKey(), entry.getValue());
-                for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
-                    writes.getAdjusts().put(entry.getKey(), entry.getValue());
+                try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+                    writes.getRemoves().add(new KeyRanges(removes));
+                }
+                try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+                    puts.forEach(entry -> writes.getPuts().put(entry.getKey(), entry.getValue()));
+                }
+                try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+                    adjusts.forEach(entry -> writes.getAdjusts().put(entry.getKey(), entry.getValue()));
+                }
             }
 
             // Check for the trivial case where there are zero modifications
@@ -895,27 +901,33 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             this.modsFileLength = newModsFileLength;
 
             // Apply removes
-            for (KeyRange range : mutations.getRemoveRanges()) {
-                final byte[] min = range.getMin();
-                final byte[] max = range.getMax();
-                this.mods.removeRange(min, max);
-                this.modsWritesSnapshot = null;
+            try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+                removes.forEach(range -> {
+                    final byte[] min = range.getMin();
+                    final byte[] max = range.getMax();
+                    this.mods.removeRange(min, max);
+                    this.modsWritesSnapshot = null;
+                });
             }
 
             // Apply puts
-            for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
-                final byte[] key = entry.getKey();
-                final byte[] val = entry.getValue();
-                this.mods.put(key, val);
-                this.modsWritesSnapshot = null;
+            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+                puts.forEach(entry -> {
+                    final byte[] key = entry.getKey();
+                    final byte[] val = entry.getValue();
+                    this.mods.put(key, val);
+                    this.modsWritesSnapshot = null;
+                });
             }
 
             // Apply counter adjustments
-            for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs()) {
-                final byte[] key = entry.getKey();
-                final long adjust = entry.getValue();
-                this.mods.adjustCounter(key, adjust);
-                this.modsWritesSnapshot = null;
+            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+                adjusts.forEach(entry -> {
+                    final byte[] key = entry.getKey();
+                    final long adjust = entry.getValue();
+                    this.mods.adjustCounter(key, adjust);
+                    this.modsWritesSnapshot = null;
+                });
             }
 
             // Set first uncompacted modification timestamp, if not already set
@@ -1628,6 +1640,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
      * Finalize this instance. Invokes {@link #stop} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (this.kvstore != null)

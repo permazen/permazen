@@ -16,6 +16,8 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 
+import jakarta.mail.internet.InternetAddress;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -42,8 +44,6 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-
-import javax.mail.internet.InternetAddress;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

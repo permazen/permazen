@@ -7,8 +7,8 @@ package io.permazen.cli.cmd;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.Session;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.parse.Parser;
 import io.permazen.core.ComplexField;
 import io.permazen.core.CompositeIndex;
 import io.permazen.core.Field;
@@ -27,14 +27,12 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.type.ReferenceFieldType;
-import io.permazen.parse.Parser;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,7 +64,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
     @Override
     @SuppressWarnings("unchecked")
-    public DecodeKeyAction getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public DecodeKeyAction getAction(Session session, Map<String, Object> params) {
         return new DecodeKeyAction((List<byte[]>)params.get("bytes"));
     }
 
@@ -292,7 +290,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         return decodes.toString();
     }
 
-    private static class DecodeKeyAction implements CliSession.Action, Session.RetryableAction {
+    private static class DecodeKeyAction implements Session.Action, Session.RetryableAction {
 
         private final List<byte[]> bytesList;
 
@@ -301,10 +299,10 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
 
             // Get info
-            final PrintWriter writer = session.getWriter();
+            final PrintStream writer = session.getOutput();
             final Transaction tx = session.getTransaction();
 
             // Concatenate byte[] arrays

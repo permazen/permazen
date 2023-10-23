@@ -12,6 +12,8 @@ import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.core.ObjId;
 
+import jakarta.validation.groups.Default;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -78,9 +80,9 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
      *
      * <p>
      * Otherwise, validation of <b>all</b> incoming objects (not just the root object) is performed using the specified
-     * validation groups, or {@link javax.validation.groups.Default} if an empty array is specified.
+     * validation groups, or {@link Default} if an empty array is specified.
      *
-     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed;
+     * @param groups validation group(s) to use for validation; if empty, {@link Default} is assumed;
      *  if null, no validation is performed
      */
     public void setValidationGroups(Class<?>... groups) {

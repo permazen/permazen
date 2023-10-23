@@ -5,13 +5,11 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
+import io.permazen.cli.parse.Parser;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.util.XMLSerializer;
-import io.permazen.parse.Parser;
-import io.permazen.util.ParseContext;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -48,11 +46,11 @@ public class KVLoadCommand extends AbstractKVCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return new LoadAction(params.containsKey("reset"), (File)params.get("file.xml"));
     }
 
-    private static class LoadAction implements CliSession.Action, Session.RetryableAction {
+    private static class LoadAction implements Session.Action, Session.RetryableAction {
 
         private final boolean reset;
         private final File file;
@@ -63,7 +61,7 @@ public class KVLoadCommand extends AbstractKVCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final KVTransaction kvt = session.getKVTransaction();
             if (this.reset)
                 kvt.removeRange(null, null);
@@ -71,7 +69,7 @@ public class KVLoadCommand extends AbstractKVCommand {
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                 count = new XMLSerializer(kvt).read(input);
             }
-            session.getWriter().println("Read " + count + " key/value pairs from `" + this.file + "'");
+            session.getOutput().println("Read " + count + " key/value pairs from `" + this.file + "'");
         }
     }
 }

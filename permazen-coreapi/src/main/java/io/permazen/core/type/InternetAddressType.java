@@ -7,13 +7,13 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+
 import java.io.Serializable;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
 /**
- * {@link InternetAddress} email address field type. Use requires {@code javax.mail} on the classpath.
+ * {@link InternetAddress} email address field type.
  *
  * <p>
  * Null values are supported by this class.

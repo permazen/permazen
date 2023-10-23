@@ -20,6 +20,9 @@ import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.kv.raft.Timestamp;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -41,8 +44,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;

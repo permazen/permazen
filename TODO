@@ -1,4 +1,21 @@
 
+REVAMPS
+=======
+
+- Update to the new generation
+- More regulated identifier system for FieldType's
+- "Snapshot" -> "Memory"
+- See VAADIN-23-TODO.txt
+- Remove Adapter classes (see "revamps" branch)
+- stash@{0}: On revamps: Revamps WIP
+- Remove parse module (fold into cli)
+- Fold app, cliapp, guiapp modules into demo
+
+? Switch from Iterators to Streams for everything, and CLOSE THEM
+? Eliminate @JFieldType, instead @JField contains link to implementation class
+    - Use UUID's or URN's for FieldTypes
+        "urn:fdc:permazen.io:2023:fieldType:xxx"
+
 SHORT TERM
 ==========
 
@@ -79,24 +96,12 @@ LONG TERM
 - Add a network accessible API for KVDatabase
     - New "over the network" KVDatabase client
         - Includes server-side classes as well for embeddability
+    - Use muxable project
 
 - Reference path extensions:
     - Add expression predicates
         E.g.: "friend[this.name.length() > 3].name"
-
-- More JLS-correct expression parsing, method resolution, etc.
-    - Carry "compile time" type information along with each Node?
-    - Fix varargs methods when last param passed with a cast
-    - Support (still optional) generics
-
-- CLI
-    - New console "expr" input mode
-        - Command "expr -i" enters this mode
-        - Identifer "exit" exits this mode
-        - All input is evaluated; if result != Value.NO_VALUE, assigned to $N (like gdb)
-            - Unless expression is of the form "$foo = ..."
-        - Optional flag "-n" disables assignment to $N
-        - Different prompt "Expr>"
+    - Leverage JShell
 
 - More built-in field types:
     - SimpleDateFormat

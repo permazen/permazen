@@ -6,7 +6,6 @@
 package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import io.permazen.kv.KVDatabase;
@@ -23,17 +22,18 @@ import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,20 +261,25 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     /**
      * Apply mutations to the underlying {@link KVStore}.
      */
-    void applyMutations(final Iterable<Mutation> mutations) {
+    void applyMutations(final Collection<Mutation> mutations) {
         if (this.kv instanceof AtomicKVStore) {
             ((AtomicKVStore)this.kv).mutate(new Mutations() {
                 @Override
-                public Iterable<Del> getRemoveRanges() {
-                    return Iterables.filter(mutations, Del.class);
+                public Stream<KeyRange> getRemoveRanges() {
+                    return mutations.stream()
+                      .filter(Del.class::isInstance)
+                      .map(Del.class::cast);
                 }
                 @Override
-                public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-                    return Iterables.transform(Iterables.filter(mutations, Put.class), Put::toMapEntry);
+                public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+                    return mutations.stream()
+                      .filter(Put.class::isInstance)
+                      .map(Put.class::cast)
+                      .map(Put::toMapEntry);
                 }
                 @Override
-                public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-                    return Collections.<Map.Entry<byte[], Long>>emptySet();
+                public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+                    return Stream.empty();
                 }
             }, true);
         } else {

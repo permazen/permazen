@@ -21,10 +21,11 @@ import java.nio.ByteBuffer;
  * The encoding uses a simple prefixing format:
  *
  * <div style="margin-left: 20px;">
- * <table border="1px" cellpadding="5px" cellspacing="0px" summary="Encoding Format">
+ * <table class="striped">
+ * <caption>Encoding Format</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Encoded Bytes</th>
- *  <th align="left">Value</th>
+ *  <th style="font-weight: bold; text-align: left">Encoded Bytes</th>
+ *  <th style="font-weight: bold; text-align: left">Value</th>
  * </tr>
  * <tr>
  *  <td>{@code 0x00 ... 0xfa}</td>

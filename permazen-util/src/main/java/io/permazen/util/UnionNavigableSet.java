@@ -8,8 +8,8 @@ package io.permazen.util;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -23,7 +23,7 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      *
      * @param sets the sets to union
      */
-    UnionNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
+    UnionNavigableSet(Collection<? extends NavigableSet<E>> sets) {
         super(sets);
     }
 
@@ -35,7 +35,7 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code bounds} is null
      */
-    protected UnionNavigableSet(Iterable<? extends NavigableSet<E>> sets, Comparator<? super E> comparator, Bounds<E> bounds) {
+    protected UnionNavigableSet(Collection<? extends NavigableSet<E>> sets, Comparator<? super E> comparator, Bounds<E> bounds) {
         super(sets, comparator, bounds);
     }
 
@@ -55,12 +55,10 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
-    public Iterator<E> iterator() {
+    public CloseableIterator<E> iterator() {
         final Comparator<? super E> comparator = this.getComparator(false);
         return new UniqueIterator<E>(
           Iterators.mergeSorted(Lists.transform(this.list, NavigableSet::iterator), comparator),
           comparator);
     }
 }
-

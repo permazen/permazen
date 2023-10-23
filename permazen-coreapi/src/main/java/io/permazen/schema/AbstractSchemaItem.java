@@ -170,8 +170,8 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         for (Map.Entry<QName, Class<? extends T>> entry : tagMap.entrySet()) {
             if (reader.getName().equals(entry.getKey())) {
                 try {
-                    return entry.getValue().newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                    return entry.getValue().getConstructor().newInstance();
+                } catch (ReflectiveOperationException e) {
                     throw new RuntimeException("unexpected exception", e);
                 }
             }

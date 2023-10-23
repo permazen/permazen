@@ -5,9 +5,7 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.cli.CliSession;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
 
 import java.util.Map;
 
@@ -29,11 +27,11 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return new DeleteSchemaAction((Integer)params.get("version"));
     }
 
-    private static class DeleteSchemaAction implements CliSession.Action, Session.TransactionalAction {
+    private static class DeleteSchemaAction implements Session.Action, Session.TransactionalAction {
 
         private final int version;
 
@@ -42,9 +40,9 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final boolean deleted = session.getTransaction().deleteSchemaVersion(this.version);
-            session.getWriter().println("Schema version " + this.version + " " + (deleted ? "deleted" : "not found"));
+            session.getOutput().println("Schema version " + this.version + " " + (deleted ? "deleted" : "not found"));
         }
     }
 }

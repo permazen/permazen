@@ -20,10 +20,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 
@@ -324,9 +324,9 @@ public class LogEntry {
         dataOutput.flush();
     }
 
-    private static void exhaust(Iterable<?> iterable) {
-        for (Iterator<?> i = iterable.iterator(); i.hasNext(); )
-            i.next();
+    private static void exhaust(Stream<?> stream) {
+        stream.forEach(i -> { });
+        stream.close();
     }
 
 // Object

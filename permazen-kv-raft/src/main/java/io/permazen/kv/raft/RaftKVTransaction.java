@@ -840,6 +840,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             synchronized (this.raft) {

@@ -90,6 +90,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
      * Ensure the associated resource is {@link #close}'d before reclaiming memory.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             final boolean leaked;

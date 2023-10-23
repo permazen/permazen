@@ -6,12 +6,12 @@
 package io.permazen.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.NavigableSet;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods relating to {@link NavigableSet}.
@@ -36,9 +36,9 @@ public final class NavigableSets {
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
-    public static <E> NavigableSet<E> intersection(Iterable<? extends NavigableSet<E>> sets) {
+    public static <E> NavigableSet<E> intersection(Collection<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
-        if (Iterables.find(sets, Predicates.instanceOf(EmptyNavigableSet.class), null) != null)
+        if (sets.stream().anyMatch(EmptyNavigableSet.class::isInstance))
             return new EmptyNavigableSet<>(null);
         return new IntersectionNavigableSet<>(sets);
     }
@@ -94,11 +94,12 @@ public final class NavigableSets {
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      * @throws IllegalArgumentException if {@code sets}, or any {@link NavigableSet} therein, is null
      */
-    public static <E> NavigableSet<E> union(Iterable<? extends NavigableSet<E>> sets) {
+    public static <E> NavigableSet<E> union(Collection<? extends NavigableSet<E>> sets) {
         Preconditions.checkArgument(sets != null, "null sets");
-        if (!(sets = Iterables.filter(sets, Predicates.not(Predicates.instanceOf(EmptyNavigableSet.class)))).iterator().hasNext())
-            return new EmptyNavigableSet<>(null);
-        return new UnionNavigableSet<>(sets);
+        sets = sets.stream()
+          .filter(set -> !(set instanceof EmptyNavigableSet))
+          .collect(Collectors.toList());
+        return sets.isEmpty() ? new EmptyNavigableSet<>(null) : new UnionNavigableSet<>(sets);
     }
 
     /**

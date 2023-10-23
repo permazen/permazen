@@ -5,13 +5,11 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.parse.Parser;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.util.XMLObjectSerializer;
-import io.permazen.parse.Parser;
-import io.permazen.util.ParseContext;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -41,13 +39,13 @@ public class LoadCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final boolean reset = params.containsKey("reset");
         final File file = (File)params.get("file.xml");
         return new LoadAction(file, reset);
     }
 
-    private static class LoadAction implements CliSession.Action, Session.RetryableAction {
+    private static class LoadAction implements Session.Action, Session.RetryableAction {
 
         private final File file;
         private final boolean reset;
@@ -58,7 +56,7 @@ public class LoadCommand extends AbstractCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             final Transaction tx = session.getTransaction();
             if (this.reset) {
                 int deleteCount = 0;
@@ -66,13 +64,13 @@ public class LoadCommand extends AbstractCommand {
                     tx.delete(id);
                     deleteCount++;
                 }
-                session.getWriter().println("Deleted " + deleteCount + " object(s)");
+                session.getOutput().println("Deleted " + deleteCount + " object(s)");
             }
             final int readCount;
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                 readCount = new XMLObjectSerializer(session.getTransaction()).read(input);
             }
-            session.getWriter().println("Read " + readCount + " object(s) from `" + this.file + "'");
+            session.getOutput().println("Read " + readCount + " object(s) from `" + this.file + "'");
         }
     }
 }

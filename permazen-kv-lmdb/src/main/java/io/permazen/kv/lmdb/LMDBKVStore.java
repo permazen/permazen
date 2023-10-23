@@ -239,6 +239,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
      * Finalize this instance. Invokes {@link #close} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (!this.closed.get()) {

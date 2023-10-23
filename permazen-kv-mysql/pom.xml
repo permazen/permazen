@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>4.2.0</version>
+        <version>5.0.0</version>
     </parent>
     <artifactId>permazen-kv-mysql</artifactId>
     <name>Permazen MySQL Key/Value Store</name>
@@ -21,8 +21,16 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.mysql</automatic.module.name>
+        <mysql.version>8.0.31</mysql.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+
+        <!-- Siblings -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv</artifactId>
@@ -35,10 +43,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
         </dependency>
     </dependencies>
 </project>

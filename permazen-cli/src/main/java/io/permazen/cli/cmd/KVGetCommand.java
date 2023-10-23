@@ -5,17 +5,14 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
-import io.permazen.parse.ParseException;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
-import io.permazen.util.ParseContext;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -47,7 +44,7 @@ public class KVGetCommand extends AbstractKVCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         final boolean cstrings = params.containsKey("cstrings");
         final boolean range = params.containsKey("range");
         final boolean novals = params.containsKey("novals");
@@ -55,11 +52,11 @@ public class KVGetCommand extends AbstractKVCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
         final Integer limit = (Integer)params.get("limit");
         if (maxKey != null && !range)
-            throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");
+            throw new IllegalArgumentException("`-range' must be specified to retrieve a range of keys");
         return new GetAction(cstrings, range, novals, key, maxKey, limit);
     }
 
-    private static class GetAction implements CliSession.Action, Session.TransactionalAction {
+    private static class GetAction implements Session.Action, Session.TransactionalAction {
 
         private final boolean cstrings;
         private final boolean range;
@@ -78,8 +75,8 @@ public class KVGetCommand extends AbstractKVCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
-            final PrintWriter writer = session.getWriter();
+        public void run(Session session) throws Exception {
+            final PrintStream writer = session.getOutput();
             final KVTransaction kvt = session.getKVTransaction();
 
             // Handle single key
@@ -112,7 +109,7 @@ public class KVGetCommand extends AbstractKVCommand {
         }
     }
 
-    private static void decode(PrintWriter writer, String prefix, byte[] value) {
+    private static void decode(PrintStream writer, String prefix, byte[] value) {
         for (int i = 0; i < value.length; i += 32) {
             writer.print(prefix);
             for (int j = 0; j < 32; j++) {

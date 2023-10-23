@@ -9,8 +9,10 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.NavigableSet;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -106,9 +108,9 @@ public class InvertReferencePathTest extends TestSupport {
             final ReferencePath inverseB = jdb.parseReferencePath(A.class, "^B:a^", false);
             final ReferencePath inverseC = jdb.parseReferencePath(A.class, "^C:a^", false);
 
-            TestSupport.checkSet(jtx.followReferencePath(inverseAny, Collections.singleton(a)), buildSet(b, c));
-            TestSupport.checkSet(jtx.followReferencePath(inverseB, Collections.singleton(a)), buildSet(b));
-            TestSupport.checkSet(jtx.followReferencePath(inverseC, Collections.singleton(a)), buildSet(c));
+            TestSupport.checkSet(jtx.followReferencePath(inverseAny, Stream.of(a)), buildSet(b, c));
+            TestSupport.checkSet(jtx.followReferencePath(inverseB, Stream.of(a)), buildSet(b));
+            TestSupport.checkSet(jtx.followReferencePath(inverseC, Stream.of(a)), buildSet(c));
 
             jtx.commit();
 
@@ -118,9 +120,9 @@ public class InvertReferencePathTest extends TestSupport {
     }
 
     private NavigableSet<JObject> invertRefPath(JTransaction jtx,
-      Class<?> startType, String path, Iterable<? extends JObject> objs) {
+      Class<?> startType, String path, Collection<? extends JObject> objs) {
         final ReferencePath refPath = jtx.getPermazen().parseReferencePath(startType, path, false);
-        return jtx.invertReferencePath(refPath, objs);
+        return jtx.invertReferencePath(refPath, objs.stream());
     }
 
 // Model Classes

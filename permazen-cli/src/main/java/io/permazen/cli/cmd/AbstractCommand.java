@@ -7,21 +7,18 @@ package io.permazen.cli.cmd;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
 import io.permazen.cli.ParamParser;
-import io.permazen.parse.FieldTypeParser;
-import io.permazen.parse.ObjIdParser;
-import io.permazen.parse.ObjTypeParser;
-import io.permazen.parse.ParseSession;
-import io.permazen.parse.Parser;
-import io.permazen.parse.expr.ExprParser;
-import io.permazen.parse.expr.Node;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
+import io.permazen.cli.parse.FieldTypeParser;
+import io.permazen.cli.parse.ObjIdParser;
+import io.permazen.cli.parse.ObjTypeParser;
+import io.permazen.cli.parse.Parser;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,36 +121,39 @@ public abstract class AbstractCommand implements Command {
      * {@inheritDoc}
      *
      * <p>
-     * The implementation in {@link AbstractCommand} parses the parameters and delegates to {@link #getAction getAction()}
-     * with the result.
-     *
-     * @param session CLI session
-     * @param ctx input to parse
-     * @param complete false if parse is "for real", true if only for tab completion calculation
-     * @return action to perform for the parsed command
-     * @throws io.permazen.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
-     * @throws io.permazen.parse.ParseException if parameters are invalid
-     * @throws IllegalArgumentException if {@code session} is not a {@link CliSession}
+     * The implementation in {@link AbstractCommand} parses the parameters, delegates to {@link #getAction getAction()}
+     * to generate an action, and then executes the action.
      */
     @Override
-    public CliSession.Action parse(ParseSession session, ParseContext ctx, boolean complete) {
-        Preconditions.checkArgument(session instanceof CliSession, "session is not a CliSession");
-        return this.getAction((CliSession)session, ctx, complete, this.paramParser.parse(session, ctx, complete));
+    public int execute(Session session, String name, List<String> params) throws InterruptedException {
+
+        // Sanity check
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(params != null, "null params");
+
+        // Parse command line arguments and ask the command for an action to perform
+        final AtomicReference<Session.Action> ref = new AtomicReference<>();
+        if (!session.performSessionAction(s -> ref.set(this.getAction(s, this.paramParser.parse(s, params)))))
+            return 1;
+
+        // Perform the action
+        if (!session.performSessionAction(ref.get()))
+            return 1;
+
+        // Done
+        return 0;
     }
 
     /**
      * Process command line parameters and return action.
      *
      * @param session CLI session
-     * @param ctx input to parse
-     * @param complete false if parse is "for real", true if only for tab completion calculation
      * @param params parsed parameters indexed by name
      * @return action to perform for the parsed command
-     * @throws io.permazen.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
-     * @throws io.permazen.parse.ParseException if parameters are invalid
+     * @throws IllegalArgumentException if parameters are invalid
      */
-    protected abstract CliSession.Action getAction(CliSession session,
-      ParseContext ctx, boolean complete, Map<String, Object> params);
+    protected abstract Session.Action getAction(Session session, Map<String, Object> params);
 
     /**
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.
@@ -164,7 +164,6 @@ public abstract class AbstractCommand implements Command {
      * <ul>
      *  <li>{@code type} for an object type name (returns {@link Integer})</li>
      *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link io.permazen.core.ObjId})</li>
-     *  <li>{@code expr} for an arbitrary Java expression</li>
      * </ul>
      *
      * @param typeName parameter type name
@@ -176,53 +175,6 @@ public abstract class AbstractCommand implements Command {
             return new ObjTypeParser();
         if (typeName.equals("objid"))
             return new ObjIdParser();
-        if (typeName.equals("expr"))
-            return new ExprParser();
         return FieldTypeParser.getFieldTypeParser(typeName);
     }
-
-    /**
-     * Evaluate an {@code "expr"} parameter, expecting the specified type.
-     *
-     * @param session CLI session
-     * @param node parsed parameter
-     * @param name parameter name
-     * @param type expected type
-     * @param <T> expected result type
-     * @return parameter value
-     */
-    protected <T> T getExprParam(CliSession session, Node node, String name, Class<T> type) {
-        Preconditions.checkArgument(type != null, "null type");
-        return this.getExprParam(session, node, name, obj -> {
-            if (!type.isInstance(obj)) {
-                throw new IllegalArgumentException("must be of type " + type.getName()
-                  + " (found " + (obj != null ? obj.getClass().getName() : "null") + ")");
-            }
-            return type.cast(obj);
-        });
-    }
-
-    /**
-     * Evaluate an {@code "expr"} parameter, expecting the parameter to pass the given test.
-     *
-     * @param session CLI session
-     * @param node parsed parameter
-     * @param name parameter name
-     * @param validator validates value, or throws {@link IllegalArgumentException} if value is invalid
-     * @param <T> expected result type
-     * @return parameter value
-     */
-    protected <T> T getExprParam(CliSession session, Node node, String name, Function<Object, T> validator) {
-        Preconditions.checkArgument(session != null, "null session");
-        Preconditions.checkArgument(node != null, "null node");
-        Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(validator != null, "null validator");
-        final Object value = node.evaluate(session).get(session);
-        try {
-            return validator.apply(value);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid `" + name + "' parameter: " + e.getMessage());
-        }
-    }
 }
-

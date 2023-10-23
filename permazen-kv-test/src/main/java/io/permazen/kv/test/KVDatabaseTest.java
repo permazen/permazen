@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -767,19 +768,23 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Apply them using remove(), removeRange(), put(), and adjustCounter()
         this.tryNtimes(store, tx -> {
-            for (KeyRange remove : mutations.getRemoveRanges()) {
-                final byte[] min = remove.getMin();
-                final byte[] max = remove.getMax();
-                assert min != null;
-                if (max != null && ByteUtil.isConsecutive(min, max))
-                    tx.remove(min);
-                else
-                    tx.removeRange(min, max);
+            try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+                removes.forEach(remove -> {
+                    final byte[] min = remove.getMin();
+                    final byte[] max = remove.getMax();
+                    assert min != null;
+                    if (max != null && ByteUtil.isConsecutive(min, max))
+                        tx.remove(min);
+                    else
+                        tx.removeRange(min, max);
+                });
             }
-            for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
-                tx.put(entry.getKey(), entry.getValue());
-            for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
-                tx.adjustCounter(entry.getKey(), entry.getValue());
+            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+                puts.forEach(entry -> tx.put(entry.getKey(), entry.getValue()));
+            }
+            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+                adjusts.forEach(entry -> tx.adjustCounter(entry.getKey(), entry.getValue()));
+            }
         });
         final TreeMap<byte[], byte[]> expected = task.readDatabase();
 

@@ -18,6 +18,7 @@ import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+import io.permazen.util.CloseableIterator;
 
 import java.util.AbstractMap;
 import java.util.Comparator;
@@ -474,7 +475,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     private class EntrySet extends AbstractIterationSet<Map.Entry<K, V>> {
 
         @Override
-        public Iterator<Map.Entry<K, V>> iterator() {
+        public CloseableIterator<Map.Entry<K, V>> iterator() {
             return new AbstractKVIterator<Map.Entry<K, V>>(AbstractKVNavigableMap.this.kv, AbstractKVNavigableMap.this.prefixMode,
               AbstractKVNavigableMap.this.reversed, AbstractKVNavigableMap.this.keyRange, AbstractKVNavigableMap.this.keyFilter) {
 
@@ -557,4 +558,3 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         }
     }
 }
-

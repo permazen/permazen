@@ -9,7 +9,7 @@ import com.google.common.collect.Iterators;
 
 import io.permazen.JObject;
 import io.permazen.Session;
-import io.permazen.parse.ParseException;
+import io.permazen.util.ParseException;
 import io.permazen.parse.ParseSession;
 import io.permazen.parse.expr.EvalException;
 import io.permazen.parse.expr.ExprParser;

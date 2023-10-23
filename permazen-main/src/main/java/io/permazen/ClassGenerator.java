@@ -19,10 +19,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.stream.Stream;
 
 import org.dellroad.stuff.java.Primitive;
 import org.objectweb.asm.ClassWriter;
@@ -94,13 +94,15 @@ class ClassGenerator<T> {
     static final Method OBJ_DUMPER_TO_STRING_METHOD;
 
     // Collections method handles
-    static final Method COLLECTIONS_SINGLETON_METHOD;
     static final Method OPTIONAL_OF_METHOD;
     static final Method OPTIONAL_EMPTY_METHOD;
     static final Method SORTED_SET_FIRST_METHOD;
 
     // Object method handles
     static final Method OBJECT_TO_STRING_METHOD;
+
+    // Util method handles
+    static final Method UTIL_STREAM_OF_METHOD;
 
     // Max number of collection entries for ObjDumper.toString()
     private static final int TO_STRING_MAX_COLLECTION_ENTRIES = 16;
@@ -128,9 +130,9 @@ class ClassGenerator<T> {
             JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
             JTRANSACTION_GET_PERMAZEN_METHOD = JTransaction.class.getMethod("getPermazen");
             JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
-              ReferencePath.class, Iterable.class);
+              ReferencePath.class, Stream.class);
             JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
-              ReferencePath.class, Iterable.class);
+              ReferencePath.class, Stream.class);
             JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
 
             // Permazen methods
@@ -155,10 +157,12 @@ class ClassGenerator<T> {
             OBJ_DUMPER_TO_STRING_METHOD = ObjDumper.class.getMethod("toString", Transaction.class, ObjId.class, int.class);
 
             // Collections
-            COLLECTIONS_SINGLETON_METHOD = Collections.class.getMethod("singleton", Object.class);
             OPTIONAL_OF_METHOD = Optional.class.getMethod("of", Object.class);
             OPTIONAL_EMPTY_METHOD = Optional.class.getMethod("empty");
             SORTED_SET_FIRST_METHOD = SortedSet.class.getMethod("first");
+
+            // Util
+            UTIL_STREAM_OF_METHOD = Util.class.getMethod("streamOf", Object.class);
 
             // Object
             OBJECT_TO_STRING_METHOD = Object.class.getMethod("toString");
@@ -509,7 +513,7 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, ClassGenerator.COLLECTIONS_SINGLETON_METHOD);
+        this.emitInvoke(mv, ClassGenerator.UTIL_STREAM_OF_METHOD);
         this.emitInvoke(mv, info.isInverse() ?
           JTRANSACTION_INVERT_REFERENCE_PATH_METHOD : JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
 
@@ -572,7 +576,7 @@ class ClassGenerator<T> {
     void emitInvoke(MethodVisitor mv, Method method) {
         final boolean isInterface = method.getDeclaringClass().isInterface();
         final boolean isStatic = (method.getModifiers() & Modifier.STATIC) != 0;
-        mv.visitMethodInsn(isInterface ? Opcodes.INVOKEINTERFACE : isStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL,
+        mv.visitMethodInsn(isStatic ? Opcodes.INVOKESTATIC : isInterface ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL,
           Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), isInterface);
     }
 

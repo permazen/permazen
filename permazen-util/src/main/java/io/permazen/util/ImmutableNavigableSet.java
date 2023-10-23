@@ -166,12 +166,12 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public CloseableIterator<E> iterator() {
         return new Iter(this.minIndex, this.maxIndex, 1);
     }
 
     @Override
-    public Iterator<E> descendingIterator() {
+    public CloseableIterator<E> descendingIterator() {
         return new Iter(this.maxIndex - 1, this.minIndex - 1, -1);
     }
 
@@ -179,6 +179,11 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     public Spliterator<E> spliterator() {
         return Spliterators.spliterator(this.elems, this.minIndex, this.maxIndex,
           Spliterator.CONCURRENT | Spliterator.IMMUTABLE | Spliterator.ORDERED | Spliterator.SORTED);
+    }
+
+    @Override
+    protected Spliterator<E> buildSpliterator(Iterator<E> iterator) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -274,7 +279,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
 
 // Iter
 
-    private class Iter implements Iterator<E> {
+    private class Iter implements CloseableIterator<E> {
 
         private final int stopIndex;
         private final int step;
@@ -305,6 +310,9 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
         public void remove() {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void close() {
+        }
     }
 }
-

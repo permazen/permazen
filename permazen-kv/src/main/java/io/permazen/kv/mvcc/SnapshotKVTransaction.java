@@ -230,6 +230,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (!this.closed.get()) {

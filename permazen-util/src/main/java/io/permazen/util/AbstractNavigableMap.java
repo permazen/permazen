@@ -9,14 +9,13 @@ import com.google.common.base.Preconditions;
 
 import java.util.AbstractMap;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 
 /**
- * Support superclass for {@link NavigableMap} implementations.
+ * Support superclass for {@link NavigableMap} implementations based on database entries.
  *
  * <p>
  * For a read-only implementation, subclasses should implement {@link #comparator comparator()}, {@link #get get()},
@@ -82,7 +81,9 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public K firstKey() {
-        return this.navigableKeySet().iterator().next();
+        try (CloseableIterator<K> i = CloseableIterator.wrap(this.navigableKeySet().iterator())) {
+            return i.next();
+        }
     }
 
     @Override
@@ -141,8 +142,8 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> firstEntry() {
-        try {
-            return this.entrySet().iterator().next();
+        try (CloseableIterator<Map.Entry<K, V>> i = CloseableIterator.wrap(this.entrySet().iterator())) {
+            return i.next();
         } catch (NoSuchElementException e) {
             return null;
         }
@@ -155,12 +156,13 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> pollFirstEntry() {
-        final Iterator<Map.Entry<K, V>> i = this.entrySet().iterator();
-        if (!i.hasNext())
-            return null;
-        final Map.Entry<K, V> entry = i.next();
-        i.remove();
-        return entry;
+        try (CloseableIterator<Map.Entry<K, V>> i = CloseableIterator.wrap(this.entrySet().iterator())) {
+            if (!i.hasNext())
+                return null;
+            final Map.Entry<K, V> entry = i.next();
+            i.remove();
+            return entry;
+        }
     }
 
     @Override
@@ -308,4 +310,3 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
         return this.bounds.isWithinUpperBound(this.comparator(), key);
     }
 }
-

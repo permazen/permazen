@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Holds a set of reads from a {@link io.permazen.kv.KVStore}.
@@ -80,21 +81,21 @@ public class Reads extends KeyRanges {
         Preconditions.checkArgument(mutations != null, "null mutations");
 
         // Check for read/remove conflicts
-        for (KeyRange remove : mutations.getRemoveRanges()) {
-            if (this.intersects(remove))
+        try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+            if (removes.anyMatch(this::intersects))
                 return true;
         }
 
         // Check for read/write conflicts
-        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
-            if (this.contains(entry.getKey()))
+        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            if (puts.map(Map.Entry::getKey).anyMatch(this::contains))
                 return true;
         }
 
         // Check for read/adjust conflicts
-        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs()) {
-            if (this.contains(entry.getKey()))
-                return true;                    // read/adjust conflict
+        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            if (adjusts.map(Map.Entry::getKey).anyMatch(this::contains))
+                return true;
         }
 
         // No conflicts
@@ -174,35 +175,41 @@ public class Reads extends KeyRanges {
         final ArrayList<Conflict> conflictList = new ArrayList<>();
 
         // Check for read/remove conflicts
-        for (KeyRange remove : mutations.getRemoveRanges()) {
-            if (this.intersects(remove)) {
-                final KeyRanges intersection = new KeyRanges(remove);
-                intersection.intersect(this);
-                for (KeyRange range : intersection) {
-                    conflictList.add(new ReadRemoveConflict(range));
+        try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+            for (KeyRange remove : (Iterable<KeyRange>)removes::iterator) {
+                if (this.intersects(remove)) {
+                    final KeyRanges intersection = new KeyRanges(remove);
+                    intersection.intersect(this);
+                    for (KeyRange range : intersection) {
+                        conflictList.add(new ReadRemoveConflict(range));
+                        if (returnFirst)
+                            return conflictList;
+                    }
+                }
+            }
+        }
+
+        // Check for read/write conflicts
+        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            for (Map.Entry<byte[], byte[]> entry : (Iterable<Map.Entry<byte[], byte[]>>)puts::iterator) {
+                final byte[] key = entry.getKey();
+                if (this.contains(key)) {
+                    conflictList.add(new ReadWriteConflict(key));
                     if (returnFirst)
                         return conflictList;
                 }
             }
         }
 
-        // Check for read/write conflicts
-        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
-            final byte[] key = entry.getKey();
-            if (this.contains(key)) {
-                conflictList.add(new ReadWriteConflict(key));
-                if (returnFirst)
-                    return conflictList;
-            }
-        }
-
         // Check for read/adjust conflicts
-        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs()) {
-            final byte[] key = entry.getKey();
-            if (this.contains(key)) {
-                conflictList.add(new ReadAdjustConflict(key));
-                if (returnFirst)
-                    return conflictList;
+        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            for (Map.Entry<byte[], Long> entry : (Iterable<Map.Entry<byte[], Long>>)adjusts::iterator) {
+                final byte[] key = entry.getKey();
+                if (this.contains(key)) {
+                    conflictList.add(new ReadAdjustConflict(key));
+                    if (returnFirst)
+                        return conflictList;
+                }
             }
         }
 

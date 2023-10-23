@@ -11,6 +11,8 @@ import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.util.NavigableSets;
 
+import jakarta.validation.groups.Default;
+
 import java.util.NavigableSet;
 
 /**
@@ -143,7 +145,7 @@ public interface JObject {
      * <p>
      * If the associated transaction was opened with {@link ValidationMode#DISABLED}, no validation will be performed.
      *
-     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
+     * @param groups validation group(s) to use for validation; if empty, {@link Default} is assumed
      * @throws io.permazen.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress

@@ -5,23 +5,17 @@
 
 package io.permazen.jsck.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.cmd.AbstractCommand;
-import io.permazen.core.FieldTypeRegistry;
 import io.permazen.jsck.Jsck;
 import io.permazen.jsck.JsckConfig;
 import io.permazen.jsck.JsckLogger;
 import io.permazen.kv.KVStore;
-import io.permazen.parse.expr.Node;
-import io.permazen.schema.SchemaModel;
-import io.permazen.util.ParseContext;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,10 +28,12 @@ public class JsckCommand extends AbstractCommand {
          + " -weak:weak"
          + " -limit:limit:int"
          + " -gc:gc"
+/*
          + " -kv:kv:expr"
+         + " -registry:registry:expr"
          + " -force-schemas:schema-map:expr"
-         + " -force-format-version:format-version:int"
-         + " -registry:registry:expr");
+*/
+         + " -force-format-version:format-version:int");
     }
 
     @Override
@@ -56,6 +52,7 @@ public class JsckCommand extends AbstractCommand {
           + "   -gc\n"
           + "       Garbage collect any unused schema versions at the end of inspection.\n"
           + "       Note: this garbage collection will occur even without `-repair'.\n"
+/*
           + "   -kv\n"
           + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
           + "   -registry\n"
@@ -66,6 +63,7 @@ public class JsckCommand extends AbstractCommand {
           + "       Forcibly override schema versions. The parameter must be a Java expression returning a\n"
           + "       Map<Integer, SchemaModel>. WARNING: only use this if you know what you are doing.\n"
           + "       This flag is ignored without `-repair'.\n"
+*/
           + "   -force-format-version\n"
           + "       Forcibly override format version. WARNING: only use this if you know what you are doing.\n"
           + "       This flag is ignored without `-repair'.\n"
@@ -82,7 +80,7 @@ public class JsckCommand extends AbstractCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
 
         // Setup config (partially)
         final JsckConfig config = new JsckConfig();
@@ -103,30 +101,38 @@ public class JsckCommand extends AbstractCommand {
 
         // Done
         return new JsckAction(config,
-          (Node)params.get("kv"), (Node)params.get("registry"), (Node)params.get("schema-map"), verbose, weak);
+/*
+          (Node)params.get("kv"), (Node)params.get("registry"), (Node)params.get("schema-map"),
+*/
+          verbose, weak);
     }
 
-    private class JsckAction implements CliSession.Action, Session.TransactionalAction, Session.HasTransactionOptions {
+    private static class JsckAction implements Session.Action, Session.TransactionalAction, Session.HasTransactionOptions {
 
         private final JsckConfig config;
+/*
         private final Node kvNode;
         private final Node registryNode;
         private final Node schemasNode;
+*/
         private final boolean verbose;
         private final boolean weak;
 
-        JsckAction(JsckConfig config, Node kvNode, Node registryNode, Node schemasNode, boolean verbose, boolean weak) {
+        JsckAction(JsckConfig config, /*Node kvNode, Node registryNode, Node schemasNode,*/ boolean verbose, boolean weak) {
             this.config = config;
+/*
             this.kvNode = kvNode;
             this.registryNode = registryNode;
             this.schemasNode = schemasNode;
+*/
             this.verbose = verbose;
             this.weak = weak;
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
 
+/*
             // Evaluate KVStore, if any
             final KVStore kv = this.kvNode != null ?
               JsckCommand.this.getExprParam(session, this.kvNode, "kv", KVStore.class) : session.getKVTransaction();
@@ -157,9 +163,13 @@ public class JsckCommand extends AbstractCommand {
                     return versionMap;
                 }));
             }
+*/
+            final KVStore kv = session.getKVTransaction();
+            if (session.getDatabase() != null)
+                config.setFieldTypeRegistry(session.getDatabase().getFieldTypeRegistry());
 
             // Configure logger to log to console
-            final PrintWriter writer = session.getWriter();
+            final PrintStream out = session.getOutput();
             this.config.setJsckLogger(new JsckLogger() {
                 @Override
                 public boolean isDetailEnabled() {
@@ -167,12 +177,12 @@ public class JsckCommand extends AbstractCommand {
                 }
                 @Override
                 public void info(String message) {
-                    writer.println("jsck: " + message);
+                    out.println("jsck: " + message);
                 }
                 @Override
                 public void detail(String message) {
                     if (verbose)
-                        writer.println("jsck: " + message);
+                        out.println("jsck: " + message);
                 }
             });
 
@@ -180,10 +190,10 @@ public class JsckCommand extends AbstractCommand {
             final Jsck jsck = new Jsck(this.config);
             final AtomicInteger count = new AtomicInteger();
             final long numHandled = jsck.check(kv, issue -> {
-                writer.println(String.format("[%05d] %s%s", count.incrementAndGet(),
+                out.println(String.format("[%05d] %s%s", count.incrementAndGet(),
                   issue, this.config.isRepair() ? " [FIXED]" : ""));
             });
-            writer.println("jsck: " + (this.config.isRepair() ? "repaired" : "found") + " " + numHandled + " issue(s)");
+            out.println("jsck: " + (this.config.isRepair() ? "repaired" : "found") + " " + numHandled + " issue(s)");
         }
 
         // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
@@ -193,4 +203,3 @@ public class JsckCommand extends AbstractCommand {
         }
     }
 }
-

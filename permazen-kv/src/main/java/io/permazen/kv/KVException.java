@@ -54,7 +54,7 @@ public class KVException extends RuntimeException implements Cloneable {
      * with different outer stack frames. The {@link #clone} method is used to copy this instance.
      *
      * @return duplicate of this exception with the current thread's stack frame context
-     * @see io.permazen.util.ThrowableUtil#prependCurrentStackTrace
+     * @see ThrowableUtil#appendStackFrames
      */
     public KVException duplicate() {
 

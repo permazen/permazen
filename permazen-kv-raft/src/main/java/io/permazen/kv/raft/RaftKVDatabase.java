@@ -33,6 +33,9 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.LongEncoder;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -64,8 +67,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -291,10 +292,11 @@ import org.slf4j.LoggerFactory;
  * {@link RaftKVDatabase}'s consistency levels is only semantically approximate:
  *
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
+ * <table class="striped">
+ * <caption>Isolation Level Mapping</caption>
  * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Spring isolation level</th>
- *  <th align="left">{@link RaftKVDatabase} consistency level</th>
+ *  <th style="font-weight: bold; text-align: left">Spring isolation level</th>
+ *  <th style="font-weight: bold; text-align: left">{@link RaftKVDatabase} consistency level</th>
  * </tr>
  * <tr>
  *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT DEFAULT}</td>

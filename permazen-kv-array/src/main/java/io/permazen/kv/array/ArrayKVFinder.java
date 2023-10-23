@@ -147,7 +147,7 @@ class ArrayKVFinder {
             while (len-- > 0)
                 dest[off++] = buf.get(position++);
         } else
-            ((ByteBuffer)buf.duplicate().position(position)).get(dest, off, len);
+            buf.duplicate().position(position).get(dest, off, len);
         return dest;
     }
 }

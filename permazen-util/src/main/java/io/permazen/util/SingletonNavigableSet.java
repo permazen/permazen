@@ -5,11 +5,11 @@
 
 package io.permazen.util;
 
-import com.google.common.collect.Iterators;
-
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.Spliterator;
 
 /**
  * An singleton {@link NavigableSet} implementation.
@@ -74,8 +74,13 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return Iterators.singletonIterator(this.value);
+    public CloseableIterator<E> iterator() {
+        return CloseableIterator.wrap(Collections.singleton(this.value).iterator());
+    }
+
+    @Override
+    protected Spliterator<E> buildSpliterator(Iterator<E> iterator) {
+        return Collections.singleton(this.value).spliterator();
     }
 
     @Override
@@ -90,4 +95,3 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
           new EmptyNavigableSet<>(newComparator, newBounds);
     }
 }
-

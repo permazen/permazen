@@ -12,7 +12,9 @@
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
-    <module name="NewlineAtEndOfFile"/>
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
 
     <!-- Checks that property files contain the same keys.         -->
     <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
@@ -117,7 +119,7 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
         <module name="ImportOrder">
-            <property name="groups" value="/[^.]+/"/>
+            <property name="groups" value="au,bsh,ca,com,info,io,jakarta,java,javax,jetbrains,junit,net,org"/>
             <property name="ordered" value="true"/>
             <property name="separated" value="true"/>
         </module>

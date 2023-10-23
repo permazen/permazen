@@ -272,10 +272,53 @@ public class ParseContext implements Cloneable {
      * @return truncated string
      */
     public static String truncate(String string, int len) {
+        Preconditions.checkArgument(string != null, "null string");
         Preconditions.checkArgument(len >= 4, "len < 4");
         if (string.length() <= len)
             return string;
         return string.substring(0, len - 3) + "...";
+    }
+
+    /**
+     * Encode a string into ASCII.
+     *
+     * @param string original string
+     * @return encoded string
+     */
+    public static String encode(String string) {
+        if (string == null)
+            return null;
+        final StringBuilder buf = new StringBuilder(string.length() + 4);
+        for (int i = 0; i < string.length(); i++) {
+            char ch = string.charAt(i);
+            switch (ch) {
+            case '\\':
+                break;
+            case '\b':
+                ch = 'b';
+                break;
+            case '\f':
+                ch = 'f';
+                break;
+            case '\t':
+                ch = 't';
+                break;
+            case '\n':
+                ch = 'n';
+                break;
+            case '\r':
+                ch = 'r';
+                break;
+            default:
+                if ((int)ch >= 0x20 && (int)ch < 0x80)
+                    buf.append(ch);
+                else
+                    buf.append(String.format("\\u%04x", (int)ch));
+                continue;
+            }
+            buf.append('\\').append(ch);
+        }
+        return buf.toString();
     }
 
 // Object
@@ -300,4 +343,3 @@ public class ParseContext implements Cloneable {
         return this.getClass().getSimpleName() + "[index=" + this.index + ",input=" + this.input + "]";
     }
 }
-

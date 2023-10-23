@@ -7,7 +7,7 @@ package io.permazen.kv.raft.cmd;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.cli.CliSession;
+import io.permazen.cli.Session;
 import io.permazen.kv.raft.CandidateRole;
 import io.permazen.kv.raft.Follower;
 import io.permazen.kv.raft.FollowerRole;
@@ -17,9 +17,8 @@ import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.kv.raft.Role;
 import io.permazen.kv.raft.Timestamp;
-import io.permazen.util.ParseContext;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +35,11 @@ public class RaftStatusCommand extends AbstractRaftCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return new RaftAction() {
             @Override
-            protected void run(CliSession session, RaftKVDatabase db) throws Exception {
-                RaftStatusCommand.printStatus(session.getWriter(), db);
+            protected void run(Session session, RaftKVDatabase db) throws Exception {
+                RaftStatusCommand.printStatus(session.getOutput(), db);
             }
         };
     }
@@ -48,87 +47,87 @@ public class RaftStatusCommand extends AbstractRaftCommand {
     /**
      * Print the local Raft node's status to the given destination.
      *
-     * @param writer destination for status
+     * @param out destination for status
      * @param db Raft database
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static void printStatus(PrintWriter writer, RaftKVDatabase db) {
+    public static void printStatus(PrintStream out, RaftKVDatabase db) {
 
         // Sanity check
-        Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(out != null, "null out");
         Preconditions.checkArgument(db != null, "null db");
 
         // Configuration info
-        writer.println();
-        writer.println("Configuration");
-        writer.println("=============");
-        writer.println();
-        writer.println(String.format("%-24s: %s", "Log directory", db.getLogDirectory()));
-        writer.println(String.format("%-24s: %s", "Min election timeout",
+        out.println();
+        out.println("Configuration");
+        out.println("=============");
+        out.println();
+        out.println(String.format("%-24s: %s", "Log directory", db.getLogDirectory()));
+        out.println(String.format("%-24s: %s", "Min election timeout",
           RaftStatusCommand.describeMillis(db.getMinElectionTimeout())));
-        writer.println(String.format("%-24s: %s", "Max election timeout",
+        out.println(String.format("%-24s: %s", "Max election timeout",
           RaftStatusCommand.describeMillis(db.getMaxElectionTimeout())));
-        writer.println(String.format("%-24s: %s", "Heartbeat timeout",
+        out.println(String.format("%-24s: %s", "Heartbeat timeout",
           RaftStatusCommand.describeMillis(db.getHeartbeatTimeout())));
-        writer.println(String.format("%-24s: %s", "Commit timeout",
+        out.println(String.format("%-24s: %s", "Commit timeout",
           RaftStatusCommand.describeMillis(db.getCommitTimeout())));
-        writer.println(String.format("%-24s: %s", "Max transaction duration",
+        out.println(String.format("%-24s: %s", "Max transaction duration",
           RaftStatusCommand.describeMillis(db.getMaxTransactionDuration())));
-        writer.println(String.format("%-24s: %s", "Follower probing enabled", db.isFollowerProbingEnabled()));
+        out.println(String.format("%-24s: %s", "Follower probing enabled", db.isFollowerProbingEnabled()));
 
         // Cluster info
-        writer.println();
-        writer.println("Cluster Info");
-        writer.println("============");
-        writer.println();
-        writer.println(String.format("%-24s: \"%s\"", "Cluster identity", db.getIdentity()));
-        writer.println(String.format("%-24s: %s", "Cluster ID",
+        out.println();
+        out.println("Cluster Info");
+        out.println("============");
+        out.println();
+        out.println(String.format("%-24s: \"%s\"", "Cluster identity", db.getIdentity()));
+        out.println(String.format("%-24s: %s", "Cluster ID",
           db.getClusterId() != 0 ? String.format("0x%08x", db.getClusterId()) : "Unconfigured"));
-        writer.println(String.format("%-24s: %s", "Node is cluster member", db.isClusterMember() ? "Yes" : "No"));
+        out.println(String.format("%-24s: %s", "Node is cluster member", db.isClusterMember() ? "Yes" : "No"));
         final Map<String, String> config = db.getCurrentConfig();
         if (config.isEmpty())
-            writer.println(String.format("%-24s: %s", "Cluster configuration", "Unconfigured"));
+            out.println(String.format("%-24s: %s", "Cluster configuration", "Unconfigured"));
         else {
-            writer.println();
-            writer.println(String.format("Cluster configuration:"));
-            writer.println();
-            writer.println(String.format("%1s %-16s %s", "", "Identity", "Address"));
-            writer.println(String.format("%1s %-16s %s", "", "--------", "-------"));
+            out.println();
+            out.println(String.format("Cluster configuration:"));
+            out.println();
+            out.println(String.format("%1s %-16s %s", "", "Identity", "Address"));
+            out.println(String.format("%1s %-16s %s", "", "--------", "-------"));
             for (Map.Entry<String, String> entry : db.getCurrentConfig().entrySet()) {
                 final String identity = entry.getKey();
                 final String address = entry.getValue();
-                writer.println(String.format("%1s %-16s %s",
+                out.println(String.format("%1s %-16s %s",
                   identity.equals(db.getIdentity()) ? "*" : "", "\"" + identity + "\"", address));
             }
         }
 
         // General Raft status
-        writer.println();
-        writer.println("Raft State");
-        writer.println("==========");
-        writer.println();
-        writer.println(String.format("%-24s: %dt%d", "Last applied log entry", db.getLastAppliedIndex(), db.getLastAppliedTerm()));
-        writer.println(String.format("%-24s: %d", "Commit Index", db.getCommitIndex()));
-        writer.println(String.format("%-24s: %d", "Current term", db.getCurrentTerm()));
+        out.println();
+        out.println("Raft State");
+        out.println("==========");
+        out.println();
+        out.println(String.format("%-24s: %dt%d", "Last applied log entry", db.getLastAppliedIndex(), db.getLastAppliedTerm()));
+        out.println(String.format("%-24s: %d", "Commit Index", db.getCommitIndex()));
+        out.println(String.format("%-24s: %d", "Current term", db.getCurrentTerm()));
         final long currentTermStartTime = db.getCurrentTermStartTime();
-        writer.println(String.format("%-24s: %s", "Term started", currentTermStartTime != 0 ?
+        out.println(String.format("%-24s: %s", "Term started", currentTermStartTime != 0 ?
           new Date(currentTermStartTime)
            + " (" + RaftStatusCommand.describeMillis(System.currentTimeMillis() - currentTermStartTime) + ")" :
           "Unknown"));
         final Role role = db.getCurrentRole();
-        writer.println(String.format("%-24s: %s", "Current Role",
+        out.println(String.format("%-24s: %s", "Current Role",
           role instanceof LeaderRole ? "LEADER" :
           role instanceof FollowerRole ? "FOLLOWER" :
           role instanceof CandidateRole ? "CANDIDATE" : "?" + role));
-        writer.println(String.format("%-24s: %d", "Unapplied memory usage", db.getUnappliedLogMemoryUsage()));
+        out.println(String.format("%-24s: %d", "Unapplied memory usage", db.getUnappliedLogMemoryUsage()));
         final List<LogEntry> log = db.getUnappliedLog();
-        writer.println(String.format("%-24s: %d", "Unapplied log entries", log.size()));
+        out.println(String.format("%-24s: %d", "Unapplied log entries", log.size()));
         if (!log.isEmpty()) {
-            writer.println();
-            writer.println(String.format("  %-13s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
-            writer.println(String.format("  %-13s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
+            out.println();
+            out.println(String.format("  %-13s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
+            out.println(String.format("  %-13s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
             for (LogEntry entry : log) {
-                writer.println(String.format("  %-13s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
+                out.println(String.format("  %-13s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
                   entry.getIndex() <= db.getCommitIndex() ? "Yes" : "No", entry.getFileSize(),
                   RaftStatusCommand.describeMillis(entry.getAge()), RaftStatusCommand.describe(entry.getConfigChange())));
             }
@@ -138,22 +137,22 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         if (role instanceof LeaderRole) {
             final LeaderRole leader = (LeaderRole)role;
 
-            writer.println();
-            writer.println("Leader Info");
-            writer.println("===========");
-            writer.println();
-            writer.println(String.format("%-24s: %s", "Lease Timeout", leader.getLeaseTimeout() != null ?
+            out.println();
+            out.println("Leader Info");
+            out.println("===========");
+            out.println();
+            out.println(String.format("%-24s: %s", "Lease Timeout", leader.getLeaseTimeout() != null ?
               String.format("%+dms", leader.getLeaseTimeout().offsetFromNow()) : "Not established"));
             final List<Follower> followers = leader.getFollowers();
-            writer.println(String.format("%-24s: %d", "Followers", followers.size()));
+            out.println(String.format("%-24s: %d", "Followers", followers.size()));
             if (!followers.isEmpty()) {
-                writer.println();
-                writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
+                out.println();
+                out.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
                   "Identity", "Status", "Match", "Next", "Commit", "Timestamp"));
-                writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
+                out.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s",
                   "--------", "------", "-----", "----", "------", "---------"));
                 for (Follower follower : leader.getFollowers()) {
-                    writer.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s", follower.getIdentity(),
+                    out.println(String.format("  %-16s %-8s %-10s %-10s %-10s %s", follower.getIdentity(),
                       follower.isReceivingSnapshot() ? "Snapshot" : follower.isSynced() ? "Synced" : "No Sync",
                       follower.getMatchIndex(), follower.getNextIndex(), follower.getLeaderCommit(),
                       follower.getLeaderTimestamp() != null ?
@@ -163,51 +162,51 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         } else if (role instanceof FollowerRole) {
             final FollowerRole follower = (FollowerRole)role;
 
-            writer.println();
-            writer.println("Follower Info");
-            writer.println("=============");
-            writer.println();
-            writer.println(String.format("%-24s: %s", "Leader Identity",
+            out.println();
+            out.println("Follower Info");
+            out.println("=============");
+            out.println();
+            out.println(String.format("%-24s: %s", "Leader Identity",
               follower.getLeaderIdentity() != null ? "\"" + follower.getLeaderIdentity() + "\"" : "Unknown"));
-            writer.println(String.format("%-24s: %s", "Leader Address",
+            out.println(String.format("%-24s: %s", "Leader Address",
               follower.getLeaderAddress() != null ? follower.getLeaderAddress() : "Unknown"));
-            writer.println(String.format("%-24s: %s", "Voted For",
+            out.println(String.format("%-24s: %s", "Voted For",
               follower.getVotedFor() != null ? "\"" + follower.getVotedFor() + "\"" : "Nobody"));
-            writer.println(String.format("%-24s: %s", "Installing snapshot", follower.isInstallingSnapshot() ? "Yes" : "No"));
+            out.println(String.format("%-24s: %s", "Installing snapshot", follower.isInstallingSnapshot() ? "Yes" : "No"));
             final Timestamp electionTimeout = follower.getElectionTimeout();
-            writer.println(String.format("%-24s: %s", "Election timer running",
+            out.println(String.format("%-24s: %s", "Election timer running",
               electionTimeout != null ? "Yes; expires in " + electionTimeout.offsetFromNow() + "ms" : "No"));
             final int probed = follower.getNodesProbed();
-            writer.println(String.format("%-24s: %s", "Election nodes probed",
+            out.println(String.format("%-24s: %s", "Election nodes probed",
               probed != -1 ? String.format("%d / %d", follower.getNodesProbed(), config.size()) : "Not probing"));
         } else if (role instanceof CandidateRole) {
             final CandidateRole candidate = (CandidateRole)role;
 
-            writer.println();
-            writer.println("Candidate Info");
-            writer.println("==============");
-            writer.println();
-            writer.println(String.format("%-24s: %d", "Votes Required", candidate.getVotesRequired()));
-            writer.println(String.format("%-24s: %d", "Votes Received", candidate.getVotesReceived()));
+            out.println();
+            out.println("Candidate Info");
+            out.println("==============");
+            out.println();
+            out.println(String.format("%-24s: %d", "Votes Required", candidate.getVotesRequired()));
+            out.println(String.format("%-24s: %d", "Votes Received", candidate.getVotesReceived()));
         }
 
         // Transactions
-        writer.println();
-        writer.println("Open Transactions");
-        writer.println("=================");
-        writer.println();
-        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
+        out.println();
+        out.println("Open Transactions");
+        out.println("=================");
+        out.println();
+        out.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
           "", "ID", "State", "Since", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
+        out.println(String.format("%1s %-10s %-14s %-8s %-5s %-18s %-13s %-13s %s",
           "", "--", "-----", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("  %-10d %-14s %-8s %-5s %-18s %-13s %-13s %s", tx2.getTxId(),
+            out.println(String.format("  %-10d %-14s %-8s %-5s %-18s %-13s %-13s %s", tx2.getTxId(),
               tx2.getState(), RaftStatusCommand.describeMillis(-tx2.getLastStateChangeTime().offsetFromNow()),
               tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getCommitIndex() != 0 || tx2.getCommitTerm() != 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               RaftStatusCommand.describe(tx2.getConfigChange())));
         }
-        writer.println();
+        out.println();
     }
 
     // Describe a config change

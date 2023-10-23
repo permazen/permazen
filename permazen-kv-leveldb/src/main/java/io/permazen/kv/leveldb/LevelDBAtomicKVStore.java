@@ -13,13 +13,15 @@ import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -352,41 +354,46 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 
             // Apply removes
             final ReadOptions iteratorOptions = new ReadOptions().verifyChecksums(this.options.verifyChecksums()).fillCache(false);
-            for (KeyRange range : mutations.getRemoveRanges()) {
-                final byte[] min = range.getMin();
-                final byte[] max = range.getMax();
-                if (min != null && max != null && ByteUtil.isConsecutive(min, max))
-                    batch.delete(min);
-                else {
-                    try (LevelDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {
-                        while (i.hasNext())
-                            batch.delete(i.next().getKey());
+            try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
+                removes.forEach(range -> {
+                    final byte[] min = range.getMin();
+                    final byte[] max = range.getMax();
+                    if (min != null && max != null && ByteUtil.isConsecutive(min, max))
+                        batch.delete(min);
+                    else {
+                        try (LevelDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {
+                            while (i.hasNext())
+                                batch.delete(i.next().getKey());
+                        }
                     }
-                }
+                });
             }
 
             // Apply puts
-            for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
-                batch.put(entry.getKey(), entry.getValue());
+            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+                puts.forEach(entry -> batch.put(entry.getKey(), entry.getValue()));
+            }
 
             // Convert counter adjustments into puts and apply them
-            for (Map.Entry<byte[], Long> adjust : mutations.getAdjustPairs()) {
+            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+                for (Map.Entry<byte[], Long> adjust : (Iterable<Map.Entry<byte[], Long>>)adjusts::iterator) {
 
-                // Decode old value
-                final byte[] key = adjust.getKey();
-                final long diff = adjust.getValue();
-                byte[] oldBytes = this.kv.get(key);
-                if (oldBytes == null)
-                    oldBytes = new byte[8];
-                final long oldValue;
-                try {
-                    oldValue = this.kv.decodeCounter(oldBytes);
-                } catch (IllegalArgumentException e) {
-                    return;
+                    // Decode old value
+                    final byte[] key = adjust.getKey();
+                    final long diff = adjust.getValue();
+                    byte[] oldBytes = this.kv.get(key);
+                    if (oldBytes == null)
+                        oldBytes = new byte[8];
+                    final long oldValue;
+                    try {
+                        oldValue = this.kv.decodeCounter(oldBytes);
+                    } catch (IllegalArgumentException e) {
+                        return;
+                    }
+
+                    // Add adjustment and put new value
+                    batch.put(key, this.kv.encodeCounter(oldValue + diff));
                 }
-
-                // Add adjustment and put new value
-                batch.put(key, this.kv.encodeCounter(oldValue + diff));
             }
 
             // Write the batch
@@ -402,6 +409,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
      * Finalize this instance. Invokes {@link #stop} to close any unclosed iterators.
      */
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (this.db != null)

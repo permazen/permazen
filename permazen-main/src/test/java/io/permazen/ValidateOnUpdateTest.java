@@ -13,12 +13,12 @@ import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
 
 import org.testng.annotations.Test;
 

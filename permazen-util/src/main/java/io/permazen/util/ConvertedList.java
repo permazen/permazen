@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides a transformed view of a wrapped {@link List} using a strictly invertable {@link Converter}.
@@ -149,13 +150,22 @@ public class ConvertedList<E, W> extends AbstractList<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return Iterators.transform(this.list.iterator(), this.converter.reverse());
+    public CloseableIterator<E> iterator() {
+        final Iterator<W> wrappedIterator = this.list.iterator();
+        final Iterator<E> convertedIterator = Iterators.transform(wrappedIterator, this.converter.reverse());
+        return wrappedIterator instanceof CloseableIterator ?
+          CloseableIterator.wrap(convertedIterator, (CloseableIterator<W>)wrappedIterator) :
+          CloseableIterator.wrap(convertedIterator);
     }
 
     @Override
     public Spliterator<E> spliterator() {
         return new ConvertedSpliterator<E, W>(this.list.spliterator(), this.converter.reverse());
+    }
+
+    @Override
+    public Stream<E> stream() {
+        return this.list.stream().map(this.converter.reverse()::convert);
     }
 
     @Override
@@ -168,4 +178,3 @@ public class ConvertedList<E, W> extends AbstractList<E> {
         this.list.subList(min, max).clear();
     }
 }
-

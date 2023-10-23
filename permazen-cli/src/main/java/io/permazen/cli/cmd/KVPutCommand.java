@@ -5,10 +5,8 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.Session;
-import io.permazen.SessionMode;
-import io.permazen.cli.CliSession;
-import io.permazen.util.ParseContext;
+import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -37,11 +35,11 @@ public class KVPutCommand extends AbstractKVCommand {
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public Session.Action getAction(Session session, Map<String, Object> params) {
         return new PutAction((byte[])params.get("key"), (byte[])params.get("value"));
     }
 
-    private static class PutAction implements CliSession.Action, Session.RetryableAction {
+    private static class PutAction implements Session.Action, Session.RetryableAction {
 
         private final byte[] key;
         private final byte[] value;
@@ -52,7 +50,7 @@ public class KVPutCommand extends AbstractKVCommand {
         }
 
         @Override
-        public void run(CliSession session) throws Exception {
+        public void run(Session session) throws Exception {
             session.getKVTransaction().put(this.key, this.value);
         }
     }

@@ -242,6 +242,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
 // Object
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         try {
             if (!this.closed)
