@@ -82,9 +82,9 @@ public abstract class TestSupport {
     protected File createTempDirectory() throws IOException {
         File file = File.createTempFile(this.getClass().getName(), "");
         if (!file.delete())
-            throw new IOException("error deleting `" + file + "'");
+            throw new IOException("error deleting \"" + file + "\"");
         if (!file.mkdir())
-            throw new IOException("error creating directory `" + file + "'");
+            throw new IOException("error creating directory \"" + file + "\"");
         return file;
     }
 
@@ -151,7 +151,7 @@ public abstract class TestSupport {
     protected String readResource(String path) {
         final URL url = getClass().getResource(path);
         if (url == null)
-            throw new RuntimeException("can't find resource `" + path + "'");
+            throw new RuntimeException("can't find resource \"" + path + "\"");
         return this.readResource(url);
     }
 

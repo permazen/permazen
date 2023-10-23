@@ -69,7 +69,7 @@ public class KVLoadCommand extends AbstractKVCommand {
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                 count = new XMLSerializer(kvt).read(input);
             }
-            session.getOutput().println("Read " + count + " key/value pairs from `" + this.file + "'");
+            session.getOutput().println("Read " + count + " key/value pairs from \"" + this.file + "\"");
         }
     }
 }

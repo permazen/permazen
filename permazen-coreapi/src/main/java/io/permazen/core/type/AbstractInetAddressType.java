@@ -75,7 +75,7 @@ abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullFie
         try {
             return this.addrType.cast(InetAddresses.forString(string));
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("invalid " + this.addrType.getSimpleName() + " `" + string + "'");
+            throw new IllegalArgumentException("invalid " + this.addrType.getSimpleName() + " \"" + string + "\"");
         }
     }
 

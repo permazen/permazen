@@ -45,7 +45,7 @@ public class URIType extends StringEncodedType<URI> {
             try {
                 return new URI(string);
             } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("invalid URI `" + string + "'", e);
+                throw new IllegalArgumentException("invalid URI \"" + string + "\"", e);
             }
         }
     }

@@ -70,7 +70,7 @@ public class LoadCommand extends AbstractCommand {
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                 readCount = new XMLObjectSerializer(session.getTransaction()).read(input);
             }
-            session.getOutput().println("Read " + readCount + " object(s) from `" + this.file + "'");
+            session.getOutput().println("Read " + readCount + " object(s) from \"" + this.file + "\"");
         }
     }
 }

@@ -407,7 +407,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
         @Override
         protected Label initContent() {
-            return new Label("TODO: editor for field `" + this.jfield.getName() + "'");
+            return new Label("TODO: editor for field \"" + this.jfield.getName() + "\"");
         }
     }
 }

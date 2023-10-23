@@ -51,7 +51,7 @@ public class InternetAddressType extends StringEncodedType<InternetAddress> {
             try {
                 return new InternetAddress(string);
             } catch (AddressException e) {
-                throw new IllegalArgumentException("invalid email address `" + string + "'", e);
+                throw new IllegalArgumentException("invalid email address \"" + string + "\"", e);
             }
         }
     }

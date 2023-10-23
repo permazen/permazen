@@ -24,7 +24,7 @@ public class BerkeleyKVImplementation extends KVImplementation<BerkeleyKVImpleme
             { "--bdb directory",
               "Use Berkeley DB Java Edition key/value database in specified directory" },
             { "--bdb-database name",
-              "Specify Berkeley DB database name (default `" + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
+              "Specify Berkeley DB database name (default \"" + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "\")" },
         };
     }
 

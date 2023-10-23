@@ -40,7 +40,7 @@ public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementat
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("can't load SQL driver class `" + this.driverClassName + "'", e);
+            throw new RuntimeException("can't load SQL driver class \"" + this.driverClassName + "\"", e);
         }
 
         // Extract JDBC URL from configuration

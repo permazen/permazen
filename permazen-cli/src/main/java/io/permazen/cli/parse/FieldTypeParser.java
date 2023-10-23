@@ -43,7 +43,7 @@ public class FieldTypeParser<T> implements Parser<T> {
         final FieldType<?> actualFieldType = this.fieldType != null ?
           this.fieldType : session.getDatabase().getFieldTypeRegistry().getFieldType(this.typeName);
         if (actualFieldType == null)
-            throw new ParseException(ctx, "no known field type `" + this.typeName + "' registered with database");
+            throw new ParseException(ctx, "no known field type \"" + this.typeName + "\" registered with database");
         try {
             return (T)actualFieldType.fromParseableString(ctx);
         } catch (IllegalArgumentException e) {

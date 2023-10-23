@@ -84,11 +84,11 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
             final int index = identifierMap.size();
             Preconditions.checkArgument(ident != null, "invalid null enum identifier at index " + index);
             Preconditions.checkArgument(!ident.equals("null") && ident.matches(IDENT_PATTERN),
-              "invalid enum identifier `" + ident + "' at index " + index);
+              "invalid enum identifier \"" + ident + "\" at index " + index);
             final EnumValue otherValue = identifierMap.put(ident, new EnumValue(ident, index));
             if (otherValue != null) {
-                throw new IllegalArgumentException("invalid duplicate enum identifier `" + ident
-                  + "' at indexes " + otherValue.getOrdinal() + " and " + index);
+                throw new IllegalArgumentException("invalid duplicate enum identifier \"" + ident
+                  + "\" at indexes " + otherValue.getOrdinal() + " and " + index);
             }
         }
         return identifierMap;

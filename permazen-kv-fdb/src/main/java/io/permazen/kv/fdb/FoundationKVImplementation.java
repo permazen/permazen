@@ -36,7 +36,7 @@ public class FoundationKVImplementation extends KVImplementation<FoundationKVImp
         if (clusterFile == null)
             return null;
         if (!new File(clusterFile).exists())
-            throw new IllegalArgumentException("file `" + clusterFile + "' does not exist");
+            throw new IllegalArgumentException("file \"" + clusterFile + "\" does not exist");
         final Config config = new Config(clusterFile);
         final String prefix = this.parseCommandLineOption(options, "--fdb-prefix");
         if (prefix != null) {

@@ -77,7 +77,7 @@ public class WordParser implements Parser<String> {
         if (validWords != null) {
             final TreeSet<String> sortedWords = new TreeSet<>(validWords);
             if (!sortedWords.contains(word)) {
-                throw new ParseException(ctx, "unknown " + this.description + " `" + word + "'")
+                throw new ParseException(ctx, "unknown " + this.description + " \"" + word + "\"")
                   .addCompletions(ParseUtil.complete(sortedWords, word));
             }
         } else if (word.length() == 0)

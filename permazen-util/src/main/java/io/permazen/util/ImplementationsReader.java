@@ -136,7 +136,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
         try {
             enumeration = loader.getResources(resource);
         } catch (IOException e) {
-            this.log.error("error finding resources `" + resource + "'", e);
+            this.log.error("error finding resources \"" + resource + "\"", e);
             return Collections.emptyList();
         }
 

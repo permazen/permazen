@@ -127,7 +127,7 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 break;
             }
             default:
-                throw new IllegalArgumentException("unknown k/v store type `" + nodeKVStoreType + "'");
+                throw new IllegalArgumentException("unknown k/v store type \"" + nodeKVStoreType + "\"");
             }
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);

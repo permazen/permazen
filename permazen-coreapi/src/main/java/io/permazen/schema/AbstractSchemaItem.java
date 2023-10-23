@@ -63,7 +63,7 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         if (name == null)
             throw new InvalidSchemaException(this + " must specify a name");
         if (!name.matches(SchemaItem.NAME_PATTERN))
-            throw new InvalidSchemaException(this + " has an invalid name `" + name + "'");
+            throw new InvalidSchemaException(this + " has an invalid name \"" + name + "\"");
         if (this.storageId <= 0)
             throw new InvalidSchemaException(this + " has an invalid storage ID " + this.storageId + "; must be greater than zero");
     }
@@ -94,8 +94,8 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         Preconditions.checkArgument(that != null, "null that");
         final Diffs diffs = new Diffs();
         if (!(this.name != null ? this.name.equals(that.name) : that.name == null)) {
-            diffs.add("changed name from " + (that.name != null ? "`" + that.name + "'" : null)
-              + " to " + (this.name != null ? "`" + this.name + "'" : null));
+            diffs.add("changed name from " + (that.name != null ? "\"" + that.name + "\"" : null)
+              + " to " + (this.name != null ? "\"" + this.name + "\"" : null));
         }
         if (this.storageId != that.storageId)
             diffs.add("changed storage ID from " + that.storageId + " to " + this.storageId);
@@ -194,8 +194,8 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         try {
             return Enum.valueOf(type, text);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException("invalid value `" + text
-              + " for \"" + name.getLocalPart() + "\" attribute in " + this, reader.getLocation());
+            throw new XMLStreamException("invalid value \"" + text
+              + "\" for \"" + name.getLocalPart() + "\" attribute in " + this, reader.getLocation());
         }
     }
 
@@ -220,7 +220,7 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
 
     @Override
     public String toString() {
-        return "#" + this.storageId + (this.name != null ? " `" + this.name + "'" : "");
+        return "#" + this.storageId + (this.name != null ? " \"" + this.name + "\"" : "");
     }
 
     @Override

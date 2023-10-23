@@ -86,7 +86,7 @@ public class SaveCommand extends AbstractCommand {
                 } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-            session.getOutput().println("Wrote " + count + " objects to `" + this.file + "'");
+            session.getOutput().println("Wrote " + count + " objects to \"" + this.file + "\"");
         }
 
         // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries

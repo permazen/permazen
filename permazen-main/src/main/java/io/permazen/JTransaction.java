@@ -445,7 +445,7 @@ public class JTransaction {
         final Class<?> type = this.jdb.getJClass(jobj.getObjId()).type;
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, true, false);
         if (refPath.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
+            throw new IllegalArgumentException("invalid field name \"" + fieldName + "\"");
         assert refPath.getTargetTypes().iterator().next().isInstance(jobj);
         return this.tx.getKey(jobj.getObjId(), refPath.targetFieldStorageId);
     }
@@ -1451,7 +1451,7 @@ public class JTransaction {
     public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
         final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
         if (!(info.indexInfo instanceof ListElementIndexInfo))
-            throw new IllegalArgumentException("field `" + fieldName + "' is not a list element sub-field");
+            throw new IllegalArgumentException("field \"" + fieldName + "\" is not a list element sub-field");
         final ListElementIndexInfo indexInfo = (ListElementIndexInfo)info.indexInfo;
         final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(indexInfo.storageId));
         final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
@@ -1480,7 +1480,7 @@ public class JTransaction {
         final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
           new IndexQueryInfoKey(fieldName, false, targetType, valueType, keyType));
         if (!(info.indexInfo instanceof MapValueIndexInfo))
-            throw new IllegalArgumentException("field `" + fieldName + "' is not a map value sub-field");
+            throw new IllegalArgumentException("field \"" + fieldName + "\" is not a map value sub-field");
         final MapValueIndexInfo indexInfo = (MapValueIndexInfo)info.indexInfo;
         final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(indexInfo.storageId));
         final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
@@ -1837,8 +1837,8 @@ public class JTransaction {
                     throw e;
                 }
                 if (!violations.isEmpty()) {
-                    throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
-                      + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
+                    throw new ValidationException(jobj, violations, "validation error for object " + id + " of type \""
+                      + this.jdb.jclasses.get(id.getStorageId()).name + "\":\n" + ValidationUtil.describe(violations));
                 }
             }
 
@@ -1928,8 +1928,8 @@ public class JTransaction {
                     // Seach for other objects with the same values in the same fields and report violation if any are found
                     final List<ObjId> conflictors = this.findUniqueConflictors(id, ids);
                     if (!conflictors.isEmpty()) {
-                        throw new ValidationException(jobj, "uniqueness constraint on composite index `" + index.name
-                          + "' failed for object " + id + ": field value combination " + values + " is also shared by object(s) "
+                        throw new ValidationException(jobj, "uniqueness constraint on composite index \"" + index.name
+                          + "\" failed for object " + id + ": field value combination " + values + " is also shared by object(s) "
                           + conflictors);
                     }
                 }

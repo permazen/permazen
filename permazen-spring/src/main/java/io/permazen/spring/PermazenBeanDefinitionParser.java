@@ -48,8 +48,8 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             builder.addPropertyValue("storageIdGenerator", null);
         if (element.hasAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE)) {
             if (!autogenStorageIds) {
-                parserContext.getReaderContext().fatal("<" + element.getTagName() + "> cannot have a `"
-                  + STORAGE_ID_GENERATOR_ATTRIBUTE + "' attribute and " + AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE + "=\"false\"",
+                parserContext.getReaderContext().fatal("<" + element.getTagName() + "> cannot have a \""
+                  + STORAGE_ID_GENERATOR_ATTRIBUTE + "\" attribute and " + AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE + "=\"false\"",
                   parserContext.extractSource(element));
                 return;
             }

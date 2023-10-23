@@ -403,10 +403,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             boolean initializeFiles = false;
             if (!this.directory.exists()) {
                 if (!this.directory.mkdirs())
-                    throw new ArrayKVException("failed to create directory `" + this.directory + "'");
+                    throw new ArrayKVException("failed to create directory \"" + this.directory + "\"");
             }
             if (!this.directory.isDirectory())
-                throw new ArrayKVException("file `" + this.directory + "' is not a directory");
+                throw new ArrayKVException("file \"" + this.directory + "\" is not a directory");
 
             // Get directory channel we can fsync()
             try {
@@ -998,10 +998,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         if (!Files.exists(dir))
             Files.createDirectories(dir);
         if (!Files.isDirectory(dir))
-            throw new IllegalArgumentException("target `" + dir + "' is not a directory");
+            throw new IllegalArgumentException("target \"" + dir + "\" is not a directory");
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
             for (Path path : stream)
-                throw new IllegalArgumentException("target `" + dir + "' is not empty");
+                throw new IllegalArgumentException("target \"" + dir + "\" is not empty");
         }
 
         // Increment hot copy counter - this prevents compaction from removing files while we're copying them

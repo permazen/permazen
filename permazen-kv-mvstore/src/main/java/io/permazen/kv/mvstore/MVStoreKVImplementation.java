@@ -42,7 +42,7 @@ public class MVStoreKVImplementation extends KVImplementation<MVStoreKVImplement
             { "--mvstore-encrypt key",
               "Enable MVStore encryption using the specified key" },
             { "--mvstore-map name",
-              "Specify MVStore map name (default `" + DEFAULT_MAP_NAME + "')" },
+              "Specify MVStore map name (default \"" + DEFAULT_MAP_NAME + "\")" },
         };
     }
 

@@ -75,6 +75,6 @@ public class EnumArrayField extends SimpleField<Object> {
 
     @Override
     public String toString() {
-        return "enum array field `" + this.name + "'";
+        return "enum array field \"" + this.name + "\"";
     }
 }

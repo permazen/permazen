@@ -102,7 +102,7 @@ public class NameIndex {
         Preconditions.checkArgument(name != null, "null name");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
-            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+            throw new IllegalArgumentException("unknown type \"" + type.getName() + "\" with storage ID " + type.getStorageId());
         return fieldMap.get(name);
     }
 
@@ -117,7 +117,7 @@ public class NameIndex {
         Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
-            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+            throw new IllegalArgumentException("unknown type \"" + type.getName() + "\" with storage ID " + type.getStorageId());
         return Collections.unmodifiableNavigableSet(fieldMap.navigableKeySet());
     }
 
@@ -135,7 +135,7 @@ public class NameIndex {
         Preconditions.checkArgument(name != null, "null name");
         final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
         if (indexMap == null)
-            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+            throw new IllegalArgumentException("unknown type \"" + type.getName() + "\" with storage ID " + type.getStorageId());
         return indexMap.get(name);
     }
 
@@ -150,7 +150,7 @@ public class NameIndex {
         Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
         if (indexMap == null)
-            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+            throw new IllegalArgumentException("unknown type \"" + type.getName() + "\" with storage ID " + type.getStorageId());
         return Collections.unmodifiableNavigableSet(indexMap.navigableKeySet());
     }
 }

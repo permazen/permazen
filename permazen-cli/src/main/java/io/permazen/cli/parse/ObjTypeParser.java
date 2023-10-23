@@ -80,7 +80,7 @@ public class ObjTypeParser implements Parser<ObjType> {
                 schema = tx.getSchemas().getVersion(Integer.parseInt(versionString));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(startIndex);
-                throw new ParseException(ctx, "invalid object type schema version `" + versionString + "'");
+                throw new ParseException(ctx, "invalid object type schema version \"" + versionString + "\"");
             }
             nameIndex = new NameIndex(schema.getSchemaModel());
         } else {
@@ -91,7 +91,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         // Find type by name
         final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(typeName);
         if (schemaObjectType == null) {
-            throw new ParseException(ctx, "unknown object type `" + typeName + "'")
+            throw new ParseException(ctx, "unknown object type \"" + typeName + "\"")
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));
         }
         return schema.getObjType(schemaObjectType.getStorageId());

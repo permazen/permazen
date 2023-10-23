@@ -139,7 +139,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         try {
             urls.add(this.getClassOutputDirectory().toURI().toURL());
         } catch (MalformedURLException e) {
-            throw new MojoExecutionException("error creating URL from directory `" + this.getClassOutputDirectory() + "'", e);
+            throw new MojoExecutionException("error creating URL from directory \"" + this.getClassOutputDirectory() + "\"", e);
         }
         final ArrayList<String> dependencies = new ArrayList<>();
         try {
@@ -151,7 +151,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             try {
                 urls.add(new File(dependency).toURI().toURL());
             } catch (MalformedURLException e) {
-                throw new MojoExecutionException("error creating URL from classpath element `" + dependency + "'", e);
+                throw new MojoExecutionException("error creating URL from classpath element \"" + dependency + "\"", e);
             }
         }
 
@@ -215,18 +215,18 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
-                        throw new MojoExecutionException("failed to load model class `" + className + "'", e);
+                        throw new MojoExecutionException("failed to load model class \"" + className + "\"", e);
                     }
                 }
 
                 // Scan for @JFieldType classes
                 this.getLog().info("scanning for @JFieldType annotations in packages: " + packageNames);
                 for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
-                    this.getLog().info("adding Permazen field type class `" + className + "'");
+                    this.getLog().info("adding Permazen field type class \"" + className + "\"");
                     try {
                         fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (Exception e) {
-                        throw new MojoExecutionException("failed to load field type class `" + className + "'", e);
+                        throw new MojoExecutionException("failed to load field type class \"" + className + "\"", e);
                     }
                 }
             }
@@ -240,7 +240,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                     try {
                         cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
                     } catch (ClassNotFoundException e) {
-                        throw new MojoExecutionException("failed to load class `" + className + "'", e);
+                        throw new MojoExecutionException("failed to load class \"" + className + "\"", e);
                     }
 
                     // Add model classes
@@ -265,8 +265,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                        Thread.currentThread().getContextClassLoader())
                       .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
                 } catch (Exception e) {
-                    throw new MojoExecutionException("error instantiatiating the configured <storageIdGeneratorClass> `"
-                      + storageIdGeneratorClass + "'", e);
+                    throw new MojoExecutionException("error instantiatiating the configured <storageIdGeneratorClass> \""
+                      + storageIdGeneratorClass + "\"", e);
                 }
             } else
                 storageIdGenerator = new DefaultStorageIdGenerator();
@@ -283,14 +283,14 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 try {
                     fieldType = this.asFieldTypeClass(cl).getConstructor().newInstance();
                 } catch (Exception e) {
-                    throw new MojoExecutionException("failed to instantiate class `" + cl.getName() + "'", e);
+                    throw new MojoExecutionException("failed to instantiate class \"" + cl.getName() + "\"", e);
                 }
 
                 // Add field type
                 try {
                     db.getFieldTypeRegistry().add(fieldType);
                 } catch (Exception e) {
-                    throw new MojoExecutionException("failed to register custom field type class `" + cl.getName() + "'", e);
+                    throw new MojoExecutionException("failed to register custom field type class \"" + cl.getName() + "\"", e);
                 }
             }
 
@@ -339,20 +339,20 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         // Create directory
         final File dir = file.getParentFile();
         if (!dir.exists()) {
-            this.getLog().info("creating directory `" + dir + "'");
+            this.getLog().info("creating directory \"" + dir + "\"");
             try {
                 Files.createDirectories(dir.toPath());
             } catch (IOException e) {
-                throw new MojoExecutionException("error creating directory `" + dir + "'", e);
+                throw new MojoExecutionException("error creating directory \"" + dir + "\"", e);
             }
         }
 
         // Write schema model to file
-        this.getLog().info("writing Permazen schema to `" + file + "'");
+        this.getLog().info("writing Permazen schema to \"" + file + "\"");
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
             schema.toXML(output, true);
         } catch (IOException e) {
-            throw new MojoExecutionException("error writing schema to `" + file + "': " + e, e);
+            throw new MojoExecutionException("error writing schema to \"" + file + "\": " + e, e);
         }
     }
 
@@ -369,12 +369,12 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected boolean verify(SchemaModel schema, File file, boolean matchNames) throws MojoExecutionException {
 
         // Read file
-        this.getLog().info("verifying Permazen schema matches `" + file + "'");
+        this.getLog().info("verifying Permazen schema matches \"" + file + "\"");
         final SchemaModel verifyModel;
         try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
             verifyModel = SchemaModel.fromXML(input);
         } catch (IOException | InvalidSchemaException e) {
-            throw new MojoExecutionException("error reading schema from `" + file + "': " + e, e);
+            throw new MojoExecutionException("error reading schema from \"" + file + "\": " + e, e);
         }
 
         // Compare
@@ -408,7 +408,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
                 otherSchema = SchemaModel.fromXML(input);
             } catch (IOException | InvalidSchemaException e) {
-                throw new MojoExecutionException("error reading schema from `" + file + "': " + e, e);
+                throw new MojoExecutionException("error reading schema from \"" + file + "\": " + e, e);
             }
 
             // Check compatible

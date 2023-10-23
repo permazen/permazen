@@ -24,7 +24,7 @@ public class ArrayDimensionTest extends CoreAPITestSupport {
                 buf.append("[]");
                 final String typeName = buf.toString();
                 final FieldType<?> fieldType = registry.getFieldType(typeName);
-                assert fieldType != null : "didn't find `" + typeName + "'";
+                assert fieldType != null : "didn't find \"" + typeName + "\"";
                 assert fieldType instanceof NullSafeType;
                 final NullSafeType<?> nullSafeType = (NullSafeType<?>)fieldType;
                 assert nullSafeType.getInnerType() instanceof ArrayType;

@@ -141,11 +141,11 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
                 assert thisName != null || thatName != null;
                 final int diff = thisName == null ? 1 : thatName == null ? -1 : thisName.compareTo(thatName);
                 if (diff < 0)
-                    enumDiffs.add("added `" + thisName + "' (ordinal " + thisOrdinals.get(thisName) + ")");
+                    enumDiffs.add("added \"" + thisName + "\" (ordinal " + thisOrdinals.get(thisName) + ")");
                 else
                     thatIterator.next();
                 if (diff > 0)
-                    enumDiffs.add("removed `" + thatName + "' (ordinal " + thatOrdinals.get(thatName) + ")");
+                    enumDiffs.add("removed \"" + thatName + "\" (ordinal " + thatOrdinals.get(thatName) + ")");
                 else
                     thisIterator.next();
             }

@@ -68,7 +68,7 @@ public class BitSetType extends NonNullFieldType<BitSet> {
         Preconditions.checkArgument(string != null);
         final int length = string.length();
         Preconditions.checkArgument(length > 0 && string.charAt(0) == '[' && string.charAt(length - 1) == ']',
-          "invalid BitSet string `" + string + "'");
+          "invalid BitSet string \"" + string + "\"");
         return BitSet.valueOf(this.reverse(ByteUtil.parse(string.substring(1, length - 1))));
     }
 

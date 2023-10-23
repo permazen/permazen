@@ -216,7 +216,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
             final String schemaObjectTypeName = schemaObjectType.getName();
             final SchemaObjectType otherSchemaObjectType = schemaObjectTypesByName.put(schemaObjectTypeName, schemaObjectType);
             if (otherSchemaObjectType != null)
-                throw new InvalidSchemaException("duplicate object name `" + schemaObjectTypeName + "'");
+                throw new InvalidSchemaException("duplicate object name \"" + schemaObjectTypeName + "\"");
         }
 
         // Collect all field storage ID's

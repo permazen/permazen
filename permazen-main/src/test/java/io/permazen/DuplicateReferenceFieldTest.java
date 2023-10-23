@@ -211,7 +211,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         }
         boolean comparable = valueType.isAssignableFrom(correctType) || correctType.isAssignableFrom(valueType);
         assert (failure != null) == !comparable : "unexpected " + (failure != null ? "failure" : "success")
-          + " for index query with start type " + startType + ", field `" + fieldName + "', and value type " + valueType
+          + " for index query with start type " + startType + ", field \"" + fieldName + "\", and value type " + valueType
           + "; comparable value type is " + correctType + "; failure = " + failure;
     }
 

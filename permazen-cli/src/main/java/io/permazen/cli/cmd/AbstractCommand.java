@@ -47,7 +47,7 @@ public abstract class AbstractCommand implements Command {
         Preconditions.checkArgument(spec != null, "null spec");
         final Matcher matcher = Pattern.compile("([^\\s]+)(\\s+(.*))?").matcher(spec);
         if (!matcher.matches())
-            throw new IllegalArgumentException("invalid command specification `" + spec + "'");
+            throw new IllegalArgumentException("invalid command specification \"" + spec + "\"");
         this.name = matcher.group(1);
         final String paramSpec = matcher.group(3);
         this.paramParser = new ParamParser(paramSpec != null ? paramSpec : "") {

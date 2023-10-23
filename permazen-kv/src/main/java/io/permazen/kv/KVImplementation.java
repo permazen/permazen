@@ -120,7 +120,7 @@ public abstract class KVImplementation<C> {
             if (option.equals(flag)) {
                 i.remove();
                 if (!i.hasNext())
-                    throw new IllegalArgumentException("`" + flag + "' missing required argument");
+                    throw new IllegalArgumentException("\"" + flag + "\" missing required argument");
                 arg = i.next();
                 i.remove();
             }

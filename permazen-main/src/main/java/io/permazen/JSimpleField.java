@@ -73,7 +73,7 @@ public class JSimpleField extends JField {
                     try {
                         this.uniqueExcludes.add(this.fieldType.fromString(string));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
+                        throw new IllegalArgumentException("invalid uniqueExclude() value \"" + string + "\": " + e.getMessage(), e);
                     }
                 }
             }

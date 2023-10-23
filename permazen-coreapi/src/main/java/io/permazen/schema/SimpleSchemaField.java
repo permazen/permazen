@@ -81,8 +81,8 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         if (this.type == null)
             throw new InvalidSchemaException("invalid " + this + ": no type specified");
         if (!Pattern.compile(FieldType.NAME_PATTERN).matcher(this.type).matches()) {
-            throw new InvalidSchemaException("invalid " + super.toString() + " type `" + this.type
-              + "': does not match pattern \"" + FieldType.NAME_PATTERN + "\"");
+            throw new InvalidSchemaException("invalid " + super.toString() + " type \"" + this.type
+              + "\": does not match pattern \"" + FieldType.NAME_PATTERN + "\"");
         }
     }
 
@@ -136,7 +136,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 
     void addTypeDifference(Diffs diffs, SimpleSchemaField that) {
         if (!Objects.equals(this.type, that.type))
-            diffs.add("changed field type from `" + that.type + "' to `" + this.type + "'");
+            diffs.add("changed field type from \"" + that.type + "\" to \"" + this.type + "\"");
     }
 
 // XML Reading

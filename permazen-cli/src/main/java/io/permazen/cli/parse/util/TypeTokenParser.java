@@ -94,7 +94,7 @@ public class TypeTokenParser {
                 if (ch == '>')
                     break;
                 if (ch != ',')
-                    throw new IllegalArgumentException("unexpected character `" + ch + "' at index " + ctx.getIndex());
+                    throw new IllegalArgumentException("unexpected character \"" + ch + "\" at index " + ctx.getIndex());
             }
         }
         if (parameterTypes.size() != typeParameters.length) {

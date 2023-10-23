@@ -56,7 +56,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
     @Test(dataProvider = "cases")
     public void testFieldType(String typeName, Object[] values) throws Exception {
         final FieldType<?> fieldType = registry.getFieldType(typeName);
-        assert fieldType != null : "didn't find `" + typeName + "'";
+        assert fieldType != null : "didn't find \"" + typeName + "\"";
         this.testFieldType2(fieldType, values);
     }
 

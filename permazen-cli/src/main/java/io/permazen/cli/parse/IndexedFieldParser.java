@@ -65,7 +65,7 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
           .filter(f -> f.getName().equals(fieldName))
           .filter(this.getFieldFilter())
           .findAny().orElseThrow(() ->
-            new ParseException(ctx, "error accessing field `" + fieldName + "': there is no such indexed field in " + objType)
+            new ParseException(ctx, "error accessing field \"" + fieldName + "\": there is no such indexed field in " + objType)
               .addCompletions(ParseUtil.complete(
                 objType.getFields().values().stream()
                   .filter(this.getFieldFilter())
@@ -96,7 +96,7 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
                   .filter(f -> f.getName().equals(subFieldName))
                   .filter(IndexedFieldParser.this.getSubFieldFilter())
                   .findAny().orElseThrow(() ->
-                    new ParseException(ctx, "unknown sub-field `" + subFieldName + "' of complex field `" + fieldName + "'")
+                    new ParseException(ctx, "unknown sub-field \"" + subFieldName + "\" of complex field \"" + fieldName + "\"")
                     .addCompletions(ParseUtil.complete(
                       field.getSubFields().stream()
                         .filter(IndexedFieldParser.this.getSubFieldFilter())

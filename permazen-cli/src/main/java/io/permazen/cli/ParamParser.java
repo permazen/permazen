@@ -120,7 +120,7 @@ public class ParamParser {
                 }
             };
         }
-        throw new IllegalArgumentException("unknown parameter type `" + typeName + "'");
+        throw new IllegalArgumentException("unknown parameter type \"" + typeName + "\"");
     }
 
     /**
@@ -154,13 +154,13 @@ public class ParamParser {
             // Find matching Param
             final Param optionFlag = this.optionFlags.stream()
               .filter(p -> param.equals(p.getOptionFlag()))
-              .findAny().orElseThrow(() -> new IllegalArgumentException("unrecognized option `" + param + "'"));
+              .findAny().orElseThrow(() -> new IllegalArgumentException("unrecognized option \"" + param + "\""));
 
             // Parse option argument, if any
             final Parser<?> parser = optionFlag.getParser();
             if (parser != null) {
                 if (pos == params.size())
-                    throw new IllegalArgumentException("option `" + param + "' requires an argument");
+                    throw new IllegalArgumentException("option \"" + param + "\" requires an argument");
                 values.put(optionFlag.getName(), parser.parse(session, new ParseContext(params.get(pos++)), false));
             } else
                 values.put(optionFlag.getName(), true);
@@ -174,7 +174,7 @@ public class ParamParser {
             while (paramValues.size() < param.getMax() && pos < params.size())
                 paramValues.add(parser.parse(session, new ParseContext(params.get(pos++)), false));
             if (paramValues.size() < param.getMin())
-                throw new IllegalArgumentException("missing `" + param.getName() + "' parameter");
+                throw new IllegalArgumentException("missing \"" + param.getName() + "\" parameter");
             if (param.getMax() > 1)
                 values.put(param.getName(), Arrays.asList(paramValues.toArray()));
             else if (!paramValues.isEmpty())
@@ -235,7 +235,7 @@ public class ParamParser {
             final Pattern pattern = Pattern.compile("((-[^\\s:]+):)?([^-][^\\s:?+*]*)(:([^\\s?+*]+))?([?+*])?");
             final Matcher matcher = pattern.matcher(spec);
             if (!matcher.matches())
-                throw new IllegalArgumentException("invalid parameter spec `" + spec + "'");
+                throw new IllegalArgumentException("invalid parameter spec \"" + spec + "\"");
 
             // Get components
             this.optionFlag = matcher.group(2);
@@ -255,7 +255,7 @@ public class ParamParser {
                 this.min = 1;
                 this.max = Integer.MAX_VALUE;
             } else
-                throw new IllegalArgumentException("invalid parameter spec `" + spec + "'");
+                throw new IllegalArgumentException("invalid parameter spec \"" + spec + "\"");
 
             // Get parser
             this.parser = this.typeName != null ?

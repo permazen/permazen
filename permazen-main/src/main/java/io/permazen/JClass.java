@@ -88,7 +88,7 @@ public class JClass<T> extends JSchemaObject {
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     JClass(Permazen jdb, String name, int storageId, Class<T> type) {
-        super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
+        super(jdb, name, storageId, "object type \"" + name + "\" (" + type + ")");
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(!UntypedJObject.class.isAssignableFrom(type),
           "invalid model type " + type.getName() + ": model types may not subclass " + UntypedJObject.class.getName());
@@ -153,11 +153,11 @@ public class JClass<T> extends JSchemaObject {
         Preconditions.checkArgument(type != null, "null type");
         final JField jfield = this.jfields.get(storageId);
         if (jfield == null)
-            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID " + storageId);
+            throw new UnknownFieldException(storageId, "object type \"" + this.name + "\" has no field with storage ID " + storageId);
         try {
             return type.cast(jfield);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID "
+            throw new UnknownFieldException(storageId, "object type \"" + this.name + "\" has no field with storage ID "
               + storageId + " of type " + type.getName() + " (found " + jfield + " instead)");
         }
     }
@@ -198,7 +198,7 @@ public class JClass<T> extends JSchemaObject {
 
                 // Create counter field
                 final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId, annotation,
-                  "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
+                  "counter field \"" + fieldName + "\" of object type \"" + this.name + "\"", getter);
 
                 // Remember upgrade conversion fields
                 if (annotation.upgradeConversion().isConvertsValues())
@@ -219,7 +219,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create simple field
             final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,
-              fieldName, storageId, annotation, getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
+              fieldName, storageId, annotation, getter, setter, "field \"" + fieldName + "\" of object type \"" + this.name + "\"");
 
             // Add field
             this.addField(jfield);
@@ -262,11 +262,11 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
               SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
-              "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
+              "element field of set field \"" + fieldName + "\" in object type \"" + this.name + "\"");
 
             // Create set field
             final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, annotation, elementField,
-              "set field `" + fieldName + "' in object type `" + this.name + "'", getter);
+              "set field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
             elementField.parent = jfield;
 
             // Add field
@@ -302,11 +302,11 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
               ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
-              "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
+              "element field of list field \"" + fieldName + "\" in object type \"" + this.name + "\"");
 
             // Create list field
             final JListField jfield = new JListField(this.jdb, fieldName, storageId, annotation, elementField,
-              "list field `" + fieldName + "' in object type `" + this.name + "'", getter);
+              "list field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
             elementField.parent = jfield;
 
             // Add field
@@ -345,14 +345,14 @@ public class JClass<T> extends JSchemaObject {
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,
               MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,
-              "key field of map field `" + fieldName + "' in object type `" + this.name + "'");
+              "key field of map field \"" + fieldName + "\" in object type \"" + this.name + "\"");
             final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,
               MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,
-              "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
+              "value field of map field \"" + fieldName + "\" in object type \"" + this.name + "\"");
 
             // Create map field
             final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, annotation, keyField, valueField,
-              "map field `" + fieldName + "' in object type `" + this.name + "'", getter);
+              "map field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
             keyField.parent = jfield;
             valueField.parent = jfield;
 
@@ -403,10 +403,10 @@ public class JClass<T> extends JSchemaObject {
         for (int i = 0; i < fieldNames.length; i++) {
             final String fieldName = fieldNames[i];
             if (!seenFieldNames.add(fieldName))
-                throw this.invalidIndex(annotation, "field `" + fieldName + "' appears more than once");
+                throw this.invalidIndex(annotation, "field \"" + fieldName + "\" appears more than once");
             final JField jfield = this.jfieldsByName.get(fieldName);
             if (!(jfield instanceof JSimpleField)) {
-                throw this.invalidIndex(annotation, "field `" + fieldName + "' "
+                throw this.invalidIndex(annotation, "field \"" + fieldName + "\" "
                   + (jfield != null ? "is not a simple field" : "not found"));
             }
             indexFields[i] = (JSimpleField)jfield;
@@ -425,7 +425,7 @@ public class JClass<T> extends JSchemaObject {
         if (this.jcompositeIndexes.put(index.storageId, index) != null)
             throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
         if (this.jcompositeIndexesByName.put(index.name, index) != null)
-            throw this.invalidIndex(annotation, "duplicate use of composite index name `" + index.name + "'");
+            throw this.invalidIndex(annotation, "duplicate use of composite index name \"" + index.name + "\"");
 
         // Remember unique constraint composite indexes and trigger validation when any indexed field changes
         if (index.unique) {
@@ -500,8 +500,8 @@ public class JClass<T> extends JSchemaObject {
     }
 
     private IllegalArgumentException invalidIndex(io.permazen.annotation.JCompositeIndex annotation, String message) {
-        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `"
-          + annotation.name() + "' on " + this.type + ": " + message);
+        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index \""
+          + annotation.name() + "\" on " + this.type + ": " + message);
     }
 
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts
@@ -532,7 +532,7 @@ public class JClass<T> extends JSchemaObject {
 
         // Check for name conflict
         if ((other = this.jfieldsByName.get(jfield.name)) != null)
-            throw new IllegalArgumentException("illegal duplicate use of field name `" + jfield.name + "' in " + this);
+            throw new IllegalArgumentException("illegal duplicate use of field name \"" + jfield.name + "\" in " + this);
         this.jfieldsByName.put(jfield.name, jfield);
         jfield.parent = this;
 
@@ -604,13 +604,13 @@ public class JClass<T> extends JSchemaObject {
 
             // Field type is explicitly specified by name
             if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)
-                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type `" + typeName + "'");
+                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type \"" + typeName + "\"");
 
             // Verify field type matches what we expect
             final TypeToken<?> expectedType = isSubField ? nonReferenceType.getTypeToken().wrap() : nonReferenceType.getTypeToken();
             if (!expectedType.equals(fieldTypeToken)) {
-                throw new IllegalArgumentException("invalid " + description + ": field type `" + typeName
-                  + "' supports values of type " + nonReferenceType.getTypeToken() + " but " + fieldTypeToken
+                throw new IllegalArgumentException("invalid " + description + ": field type \"" + typeName
+                  + "\" supports values of type " + nonReferenceType.getTypeToken() + " but " + fieldTypeToken
                   + " is required (according to the getter method's return type)");
             }
         } else {
@@ -696,7 +696,7 @@ public class JClass<T> extends JSchemaObject {
             else {
                 throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
                   + " because type " + fieldTypeToken + " is ambiguous, being both a @" + PermazenType.class.getSimpleName()
-                  + " reference type and a simple Java type supported by type `" + nonReferenceType + "'");
+                  + " reference type and a simple Java type supported by type \"" + nonReferenceType + "\"");
             }
         }
 

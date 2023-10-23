@@ -79,7 +79,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
     public EnumValue fromString(String string) {
         final EnumValue value = this.identifierMap.get(string);
         if (value == null)
-            throw new IllegalArgumentException("unknown identifier `" + string + "' for enum type `" + this.getName() + "'");
+            throw new IllegalArgumentException("unknown identifier \"" + string + "\" for enum type \"" + this.getName() + "\"");
         return value;
     }
 

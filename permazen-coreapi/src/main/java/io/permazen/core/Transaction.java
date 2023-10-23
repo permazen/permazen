@@ -1979,7 +1979,7 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         final int storageId = id.getStorageId();
         final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
-        return type != null ? "type `" + type.getName() + "'" : "type #" + storageId;
+        return type != null ? "type \"" + type.getName() + "\"" : "type #" + storageId;
     }
 
     String getObjDescription(ObjId id) {
@@ -1998,7 +1998,7 @@ public class Transaction {
         } catch (UnknownFieldException e) {
             return "field #" + storageId;
         }
-        return "field `" + field.getName() + "'";
+        return "field \"" + field.getName() + "\"";
     }
 
     private void checkStaleFieldAccess(ObjId id, int storageId) {

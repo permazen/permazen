@@ -19,7 +19,7 @@ class OutputFileParser extends AbstractFileParser {
 
     @Override
     protected ParseException createParseException(ParseContext ctx, File file) {
-        return new ParseException(ctx, "can't write to file `" + file + "'");
+        return new ParseException(ctx, "can't write to file \"" + file + "\"");
     }
 }
 

@@ -118,8 +118,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     void validate() {
         super.validate();
         if (!FieldType.REFERENCE_TYPE_NAME.equals(this.getType())) {
-            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `"
-              + FieldType.REFERENCE_TYPE_NAME + "'");
+            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type \""
+              + FieldType.REFERENCE_TYPE_NAME + "\"");
         }
         if (!this.isIndexed())
             throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");

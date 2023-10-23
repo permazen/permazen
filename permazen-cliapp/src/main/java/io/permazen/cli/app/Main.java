@@ -135,7 +135,7 @@ public class Main {
                     schemaModel = SchemaModel.fromXML(input);
                 }
             } catch (Exception e) {
-                System.err.println(this.getName() + ": can't load schema from `" + this.schemaFile + "': " + e.getMessage());
+                System.err.println(this.getName() + ": can't load schema from \"" + this.schemaFile + "\": " + e.getMessage());
                 if (this.verbose)
                     e.printStackTrace(System.err);
                 return 1;
@@ -152,7 +152,7 @@ public class Main {
         if (jdb != null) {
             if (schemaModel != null) {
                 if (!schemaModel.equals(jdb.getSchemaModel())) {
-                    System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
+                    System.err.println(this.getName() + ": schema from \"" + this.schemaFile + "\" conflicts with schema generated"
                       + " from scanned classes");
                     System.err.println(schemaModel.differencesFrom(jdb.getSchemaModel()));
                     return 1;

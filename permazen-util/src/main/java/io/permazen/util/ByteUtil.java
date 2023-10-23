@@ -210,10 +210,10 @@ public final class ByteUtil {
         for (int i = 0; pos < text.length(); i++) {
             final int nib1 = Character.digit(text.charAt(pos++), 16);
             if (nib1 == -1)
-                throw new IllegalArgumentException("invalid hex digit `" + text.charAt(pos - 1) + "'");
+                throw new IllegalArgumentException("invalid hex digit \"" + text.charAt(pos - 1) + "\"");
             final int nib2 = Character.digit(text.charAt(pos++), 16);
             if (nib2 == -1)
-                throw new IllegalArgumentException("invalid hex digit `" + text.charAt(pos - 1) + "'");
+                throw new IllegalArgumentException("invalid hex digit \"" + text.charAt(pos - 1) + "\"");
             array[i] = (byte)((nib1 << 4) | nib2);
         }
         return array;

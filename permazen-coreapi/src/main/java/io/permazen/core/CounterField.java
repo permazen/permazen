@@ -57,7 +57,7 @@ public class CounterField extends Field<Long> {
 
     @Override
     public String toString() {
-        return "counter field `" + this.name + "'";
+        return "counter field \"" + this.name + "\"";
     }
 
 // Non-public methods

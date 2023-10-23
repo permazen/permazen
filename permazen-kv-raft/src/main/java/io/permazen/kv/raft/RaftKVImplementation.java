@@ -60,11 +60,11 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
               "Specify Raft fallback availability check TX timeout in milliseconds (default "
                 + FallbackTarget.DEFAULT_TRANSACTION_TIMEOUT + ")" },
             { "--raft-fallback-unavailable-merge class",
-              "Specify Raft fallback unavailable merge strategy class name (default `"
-                + OverwriteMergeStrategy.class.getName() + "')" },
+              "Specify Raft fallback unavailable merge strategy class name (default \""
+                + OverwriteMergeStrategy.class.getName() + "\")" },
             { "--raft-fallback-rejoin-merge class",
-              "Specify Raft fallback rejoin merge strategy class name (default `"
-                + NullMergeStrategy.class.getName() + "')" },
+              "Specify Raft fallback rejoin merge strategy class name (default \""
+                + NullMergeStrategy.class.getName() + "\")" },
         };
     }
 
@@ -91,7 +91,7 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
         if ((arg = this.parseCommandLineOption(options, "--raft-port")) != null) {
             final int port = TCPNetwork.parsePortPart("x:" + arg, -1);
             if (port == -1)
-                throw new IllegalArgumentException("invalid TCP port `" + arg + "'");
+                throw new IllegalArgumentException("invalid TCP port \"" + arg + "\"");
             config.setPort(port);
         }
         int value;
@@ -114,7 +114,7 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
         if ((arg = this.parseCommandLineOption(options, "--raft-fallback")) != null) {
             final File stateFile = new File(arg);
             if (stateFile.exists() && !stateFile.isFile())
-                throw new IllegalArgumentException("file `" + arg + "' is not a regular file");
+                throw new IllegalArgumentException("file \"" + arg + "\" is not a regular file");
             config.getFallback().setStateFile(stateFile);
         }
         MergeStrategy mergeStrategy;
@@ -135,7 +135,7 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
             return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance())
               .getConstructor().newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException("invalid Raft fallback merge strategy `" + className + "': " + e.getMessage(), e);
+            throw new IllegalArgumentException("invalid Raft fallback merge strategy \"" + className + "\": " + e.getMessage(), e);
         }
     }
 
@@ -149,8 +149,8 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
                 throw new NumberFormatException("value cannot be negative");
             return value;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("invalid milliseconds value `"
-              + arg + "' for `--raft-" + name + "': " + e.getMessage(), e);
+            throw new IllegalArgumentException("invalid milliseconds value \""
+              + arg + "\" for \"--raft-" + name + "\": " + e.getMessage(), e);
         }
     }
 
@@ -229,7 +229,7 @@ public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.
                 network.setListenAddress(this.address != null ?
                   new InetSocketAddress(InetAddress.getByName(this.address), this.port) : new InetSocketAddress(this.port));
             } catch (UnknownHostException e) {
-                throw new RuntimeException("can't resolve local Raft address `" + this.address + "'", e);
+                throw new RuntimeException("can't resolve local Raft address \"" + this.address + "\"", e);
             }
             this.raft.setNetwork(network);
             return this.raft;

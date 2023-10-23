@@ -81,7 +81,7 @@ public final class ParseUtil {
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
         if (info == null)
-            throw new IllegalArgumentException("error accessing field `" + name + "': object " + id + " does not exist");
+            throw new IllegalArgumentException("error accessing field \"" + name + "\": object " + id + " does not exist");
         final ObjType objType = info.getObjType();
 
         // Find JClass
@@ -89,13 +89,13 @@ public final class ParseUtil {
         try {
             jclass = session.getPermazen().getJClass(objType.getStorageId());
         } catch (UnknownTypeException e) {
-            throw new IllegalArgumentException("error accessing field `" + name + "': " + e.getMessage(), e);
+            throw new IllegalArgumentException("error accessing field \"" + name + "\": " + e.getMessage(), e);
         }
 
         // Find JField
         final JField jfield = jclass.getJFieldsByName().get(name);
         if (jfield == null)
-            throw new IllegalArgumentException("error accessing field `" + name + "': there is no such field in " + objType);
+            throw new IllegalArgumentException("error accessing field \"" + name + "\": there is no such field in " + objType);
         return jfield;
     }
 
@@ -120,14 +120,14 @@ public final class ParseUtil {
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
         if (info == null)
-            throw new IllegalArgumentException("error accessing field `" + fieldName + "': object " + id + " does not exist");
+            throw new IllegalArgumentException("error accessing field \"" + fieldName + "\": object " + id + " does not exist");
         final ObjType objType = info.getObjType();
 
         // Find the field
         return objType.getFields().values().stream()
           .filter(field -> field.getName().equals(fieldName))
           .findAny().orElseThrow(() ->
-            new IllegalArgumentException("error accessing field `" + fieldName + "': there is no such field in " + objType));
+            new IllegalArgumentException("error accessing field \"" + fieldName + "\": there is no such field in " + objType));
     }
 
     /**
@@ -157,7 +157,7 @@ public final class ParseUtil {
         try {
             return Class.forName(className, false, base.getClassLoader());
         } catch (Exception e) {
-            throw new RuntimeException("error loading array class `" + className + "'");
+            throw new RuntimeException("error loading array class \"" + className + "\"");
         }
     }
 }

@@ -341,7 +341,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 try {
                     schema = this.tx.getSchemas().getVersion(Integer.parseInt(versionAttr));
                 } catch (IllegalArgumentException e) {
-                    throw new XMLStreamException("invalid object schema version `" + versionAttr + "': " + e,
+                    throw new XMLStreamException("invalid object schema version \"" + versionAttr + "\": " + e,
                       reader.getLocation(), e);
                 }
             } else
@@ -356,7 +356,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 try {
                     objType = schema.getObjType(Integer.parseInt(storageIdAttr));
                 } catch (UnknownTypeException e) {
-                    throw new XMLStreamException("invalid object type storage ID `" + storageIdAttr + "': " + e,
+                    throw new XMLStreamException("invalid object type storage ID \"" + storageIdAttr + "\": " + e,
                       reader.getLocation(), e);
                 }
                 if (!name.equals(OBJECT_TAG)) {
@@ -378,7 +378,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(name.getLocalPart());
                     if (schemaObjectType == null) {
                         throw new XMLStreamException("unexpected element <" + name.getLocalPart()
-                          + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
+                          + ">; no object type named \"" + name.getLocalPart() + "\" found in schema version "
                           + schema.getVersionNumber(), reader.getLocation());
                     }
                     objType = schema.getObjType(schemaObjectType.getStorageId());
@@ -410,14 +410,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 } catch (IllegalArgumentException e) {
                     final Matcher matcher = GENERATED_ID_PATTERN.matcher(idAttr);
                     if (!matcher.matches())
-                        throw new XMLStreamException("invalid object ID `" + idAttr + "'", reader.getLocation());
+                        throw new XMLStreamException("invalid object ID \"" + idAttr + "\"", reader.getLocation());
                     final String typeAttr = matcher.group(1);
                     final ObjType genType = this.parseGeneratedType(reader, idAttr, typeAttr, schema);
                     if (objType == null)
                         objType = genType;
                     else if (!genType.equals(objType)) {
-                        throw new XMLStreamException("type `" + typeAttr + "' in generated object ID `" + idAttr
-                          + "' does not match type `" + objType.getName() + "' in schema version "
+                        throw new XMLStreamException("type \"" + typeAttr + "\" in generated object ID \"" + idAttr
+                          + "\" does not match type \"" + objType.getName() + "\" in schema version "
                           + schema.getVersionNumber(), reader.getLocation());
                     }
                     id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), matcher.group(2));
@@ -443,12 +443,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     try {
                         field = objType.getFields().get(Integer.parseInt(storageIdAttr));
                     } catch (IllegalArgumentException e) {
-                        throw new XMLStreamException("invalid field storage ID `" + storageIdAttr
-                          + "': " + e, reader.getLocation(), e);
+                        throw new XMLStreamException("invalid field storage ID \"" + storageIdAttr
+                          + "\": " + e, reader.getLocation(), e);
                     }
                     if (field == null) {
-                        throw new XMLStreamException("unknown field storage ID `" + storageIdAttr + "' for object type `"
-                          + objType.getName() + "' #" + objType.getStorageId() + " in schema version "
+                        throw new XMLStreamException("unknown field storage ID \"" + storageIdAttr + "\" for object type \""
+                          + objType.getName() + "\" #" + objType.getStorageId() + " in schema version "
                           + schema.getVersionNumber(), reader.getLocation());
                     }
                 } else {
@@ -458,8 +458,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     }
                     final SchemaField schemaField = nameIndex.getSchemaField(schemaObjectType, name.getLocalPart());
                     if (schemaField == null) {
-                        throw new XMLStreamException("unexpected element <" + name.getLocalPart() + ">; unknown field `"
-                          + name.getLocalPart() + "' in object type `" + objType.getName() + "' #"
+                        throw new XMLStreamException("unexpected element <" + name.getLocalPart() + ">; unknown field \""
+                          + name.getLocalPart() + "\" in object type \"" + objType.getName() + "\" #"
                           + objType.getStorageId() + " in schema version " + schema.getVersionNumber(),
                           reader.getLocation());
                     }
@@ -475,7 +475,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     try {
                         value = Long.parseLong(reader.getElementText());
                     } catch (Exception e) {
-                        throw new XMLStreamException("invalid counter value for field `" + field.getName() + "': " + e,
+                        throw new XMLStreamException("invalid counter value for field \"" + field.getName() + "\": " + e,
                           reader.getLocation(), e);
                     }
                     snapshot.writeCounterField(id, field.getStorageId(), value, false);
@@ -747,8 +747,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 isNull = Boolean.valueOf(nullAttr);
                 break;
             default:
-                throw new XMLStreamException("invalid value `" + nullAttr + "' for `" + NULL_ATTR.getLocalPart()
-                 + "' attribute: value must be \"true\" or \"false\"", reader.getLocation());
+                throw new XMLStreamException("invalid value \"" + nullAttr + "\" for \"" + NULL_ATTR.getLocalPart()
+                 + "\" attribute: value must be \"true\" or \"false\"", reader.getLocation());
             }
         }
 
@@ -757,7 +757,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             text = reader.getElementText();
         } catch (Exception e) {
-            throw new XMLStreamException("invalid value for field `" + field.getName() + "': " + e, reader.getLocation(), e);
+            throw new XMLStreamException("invalid value for field \"" + field.getName() + "\": " + e, reader.getLocation(), e);
         }
 
         // If null, verify there is no text content
@@ -780,7 +780,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             return fieldType.fromString(text);
         } catch (Exception e) {
-            throw new XMLStreamException("invalid value `" + text + "' for field `" + field.getName() + "': " + e,
+            throw new XMLStreamException("invalid value \"" + text + "\" for field \"" + field.getName() + "\": " + e,
               reader.getLocation(), e);
         }
     }
@@ -796,15 +796,15 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 continue;
             }
             if (storageId != -1 && storageId != objType.getStorageId()) {
-                throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
-                  + text + "': two or more incompatible object types named `" + attr
-                  + "' exist (in different schema versions)", reader.getLocation());
+                throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
+                  + text + "\": two or more incompatible object types named \"" + attr
+                  + "\" exist (in different schema versions)", reader.getLocation());
             }
             storageId = objType.getStorageId();
         }
         if (storageId == -1) {
-            throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
-              + text + "': no such object type found in any schema version", reader.getLocation());
+            throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
+              + text + "\": no such object type found in any schema version", reader.getLocation());
         }
         return storageId;
     }
@@ -824,14 +824,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             storageId = Integer.parseInt(attr);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
-              + text + "': no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
+            throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
+              + text + "\": no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
         }
         try {
             return schema.getObjType(storageId);
         } catch (UnknownTypeException e) {
-            throw new XMLStreamException("invalid storage ID " + storageId + " in generated object ID `"
-              + text + "': no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
+            throw new XMLStreamException("invalid storage ID " + storageId + " in generated object ID \""
+              + text + "\": no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
         }
     }
 

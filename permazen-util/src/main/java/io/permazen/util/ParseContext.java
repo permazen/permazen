@@ -109,7 +109,7 @@ public class ParseContext implements Cloneable {
     public Matcher matchPrefix(Pattern regex) {
         final Matcher matcher = this.tryPattern(regex);
         if (matcher == null)
-            throw buildException("expected input matching pattern `" + regex + "'");
+            throw buildException("expected input matching pattern \"" + regex + "\"");
         return matcher;
     }
 
@@ -208,7 +208,7 @@ public class ParseContext implements Cloneable {
     public void expect(char ch) {
         if (this.read() != ch) {
             this.unread();
-            throw buildException("expected `" + ch + "'");
+            throw buildException("expected \"" + ch + "\"");
         }
     }
 
@@ -257,7 +257,7 @@ public class ParseContext implements Cloneable {
         else {
             if (bogus.length() > MAX_REJECT_QUOTE)
                 bogus = bogus.substring(0, MAX_REJECT_QUOTE - 3) + "...";
-            text += "starting with `" + bogus + "'";
+            text += "starting with \"" + bogus + "\"";
         }
         if (message != null)
             text += ": " + message;

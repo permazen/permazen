@@ -52,7 +52,7 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
         // Find corresponding enum value
         return EnumUtil.getValues(this.type).stream()
           .filter(value -> valueName.equals(this.nameFunction.apply(value)))
-          .findAny().orElseThrow(() -> new ParseException(ctx, "unknown value `" + valueName + "'")
+          .findAny().orElseThrow(() -> new ParseException(ctx, "unknown value \"" + valueName + "\"")
             .addCompletions(ParseUtil.complete(EnumUtil.getValues(this.type).stream().map(this.nameFunction), valueName)));
     }
 }

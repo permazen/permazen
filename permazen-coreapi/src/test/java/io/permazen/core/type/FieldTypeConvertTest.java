@@ -23,12 +23,12 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
     @Test(dataProvider = "convertCases")
     public void testConvertFieldType(String typeName, Object[] values, Object[] cases) throws Exception {
         final FieldType<?> stype = this.registry.getFieldType(typeName);
-        assert stype != null : "didn't find field type `" + typeName + "'";
+        assert stype != null : "didn't find field type \"" + typeName + "\"";
         for (int i = 0; i < cases.length; i += 2) {
             final String targetTypeName = (String)cases[i];
             final Object[] targetValues = (Object[])cases[i + 1];
             final FieldType<?> dtype = this.registry.getFieldType(targetTypeName);
-            assert dtype != null : "didn't find target field type `" + targetTypeName + "'";
+            assert dtype != null : "didn't find target field type \"" + targetTypeName + "\"";
             for (int j = 0; j < values.length; j++)
                 this.check(stype, dtype, values[j], targetValues[j]);
         }

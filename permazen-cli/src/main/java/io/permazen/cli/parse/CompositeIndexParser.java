@@ -46,7 +46,7 @@ public class CompositeIndexParser implements Parser<CompositeIndex> {
         final String indexName = nameMatcher.group();
         final CompositeIndex index = indexMap.get(indexName);
         if (index == null) {
-            throw new ParseException(ctx, "unknown composite index `" + indexName + "' on " + objType)
+            throw new ParseException(ctx, "unknown composite index \"" + indexName + "\" on " + objType)
               .addCompletions(ParseUtil.complete(indexMap.keySet(), indexName));
         }
 

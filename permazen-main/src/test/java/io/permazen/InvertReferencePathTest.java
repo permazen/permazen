@@ -74,7 +74,7 @@ public class InvertReferencePathTest extends TestSupport {
             for (String path : new String[] { "ratings", "string", "ratings.key.string" }) {
                 try {
                     this.invertRefPath(tx, BasicTest.MeanPerson.class, path, Collections.<JObject>emptySet());
-                    assert false : "path `" + path + "' should be invalid";
+                    assert false : "path \"" + path + "\" should be invalid";
                 } catch (IllegalArgumentException e) {
                     // expected
                 }

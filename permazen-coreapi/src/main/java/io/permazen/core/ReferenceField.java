@@ -109,7 +109,7 @@ public class ReferenceField extends SimpleField<ObjId> {
 
     @Override
     public String toString() {
-        return "reference field `" + this.name + "'";
+        return "reference field \"" + this.name + "\"";
     }
 
 // Non-public methods

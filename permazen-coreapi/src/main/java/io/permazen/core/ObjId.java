@@ -251,14 +251,14 @@ public class ObjId implements Comparable<ObjId>, Serializable {
         if (string == null)
             throw new IllegalArgumentException("null string");
         if (string.length() != NUM_BYTES * 2)
-            throw new IllegalArgumentException("invalid object ID `" + string + "'");
+            throw new IllegalArgumentException("invalid object ID \"" + string + "\"");
         final byte[] buf = new byte[NUM_BYTES];
         int off = 0;
         for (int i = 0; i < buf.length; i++) {
             final int digit1 = Character.digit(string.charAt(off++), 16);
             final int digit2 = Character.digit(string.charAt(off++), 16);
             if (digit1 == -1 || digit2 == -1)
-                throw new IllegalArgumentException("invalid object ID `" + string + "'");
+                throw new IllegalArgumentException("invalid object ID \"" + string + "\"");
             buf[i] = (byte)((digit1 << 4) | digit2);
         }
         return new ByteReader(buf);

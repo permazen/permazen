@@ -90,8 +90,8 @@ public class JMapField extends JComplexField {
             return this.keyField;
         if (MapField.VALUE_FIELD_NAME.equals(name))
             return this.valueField;
-        throw new IllegalArgumentException("unknown sub-field `" + name
-          + "' (did you mean `" + MapField.KEY_FIELD_NAME + "' or `" + MapField.VALUE_FIELD_NAME + "' instead?)");
+        throw new IllegalArgumentException("unknown sub-field \"" + name
+          + "\" (did you mean \"" + MapField.KEY_FIELD_NAME + "\" or \"" + MapField.VALUE_FIELD_NAME + "\" instead?)");
     }
 
     @Override

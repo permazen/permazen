@@ -62,7 +62,7 @@ public class CompositeIndex extends SchemaItem {
 
     @Override
     public String toString() {
-        return "composite index `" + this.name + "' on fields " + this.fields.stream()
+        return "composite index \"" + this.name + "\" on fields " + this.fields.stream()
           .map(field -> field.name)
           .collect(Collectors.toList());
     }

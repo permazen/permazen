@@ -54,8 +54,8 @@ public abstract class JCollectionField extends JComplexField {
     public JSimpleField getSubField(String name) {
         if (CollectionField.ELEMENT_FIELD_NAME.equals(name))
             return this.elementField;
-        throw new IllegalArgumentException("unknown sub-field `"
-          + name + "' (did you mean `" + CollectionField.ELEMENT_FIELD_NAME + "' instead?)");
+        throw new IllegalArgumentException("unknown sub-field \""
+          + name + "\" (did you mean \"" + CollectionField.ELEMENT_FIELD_NAME + "\" instead?)");
     }
 
     @Override

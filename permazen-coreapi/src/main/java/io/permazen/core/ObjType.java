@@ -186,7 +186,7 @@ public class ObjType extends SchemaItem {
 
     @Override
     public String toString() {
-        return "object type `" + this.name + "' in " + this.schema;
+        return "object type \"" + this.name + "\" in " + this.schema;
     }
 
 // Internal methods
@@ -206,8 +206,8 @@ public class ObjType extends SchemaItem {
         }
         previous = byName.put(item.name, item);
         if (previous != null) {
-            throw new IllegalArgumentException("duplicate use of name `" + item.name
-              + "' by " + previous + " and " + item + " in " + this);
+            throw new IllegalArgumentException("duplicate use of name \"" + item.name
+              + "\" by " + previous + " and " + item + " in " + this);
         }
     }
 

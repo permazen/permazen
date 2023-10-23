@@ -57,11 +57,11 @@ class IndexQueryInfo {
         // Parse reference path
         final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true, true);
         if (path.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
+            throw new IllegalArgumentException("invalid field name \"" + fieldName + "\": contains intermediate reference(s)");
 
         // Verify the field is actually indexed in the specified type
         if (!path.someTargetFieldIndexed)
-            throw new IllegalArgumentException("invalid index query on non-indexed field `" + fieldName + "' in " + startType);
+            throw new IllegalArgumentException("invalid index query on non-indexed field \"" + fieldName + "\" in " + startType);
 
         // Get field index info (this verifies the field is indexed); keyType != null iff the field is a map value field
         final SimpleFieldIndexInfo fieldIndexInfo = jdb.getIndexInfo(path.targetFieldStorageId,
@@ -86,7 +86,7 @@ class IndexQueryInfo {
 
         // Check values
         valueChecks.stream()
-          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field `" + fieldName + "'"))
+          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field \"" + fieldName + "\""))
           .forEach(this.filters::add);
     }
 
@@ -120,7 +120,7 @@ class IndexQueryInfo {
 
         // Check values
         valueChecks.stream()
-          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "query on composite index `" + indexName + "'"))
+          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "query on composite index \"" + indexName + "\""))
           .forEach(this.filters::add);
     }
 
@@ -171,19 +171,19 @@ class IndexQueryInfo {
             if (index != null) {
                 final CompositeIndexInfo candidate = jdb.getIndexInfo(index.storageId, CompositeIndexInfo.class);
                 if (indexInfo != null && !candidate.equals(indexInfo)) {
-                    throw new IllegalArgumentException("ambiguous composite index name `" + indexName
-                      + "': multiple incompatible composite indexes with that name exist on sub-types of " + startType.getName());
+                    throw new IllegalArgumentException("ambiguous composite index name \"" + indexName
+                      + "\": multiple incompatible composite indexes with that name exist on sub-types of " + startType.getName());
                 }
                 indexInfo = candidate;
             }
         }
         if (indexInfo == null) {
-            throw new IllegalArgumentException("no composite index named `" + indexName
-              + "' exists on any sub-type of " + startType.getName());
+            throw new IllegalArgumentException("no composite index named \"" + indexName
+              + "\" exists on any sub-type of " + startType.getName());
         }
         if (numValues != indexInfo.getFieldTypes().size()) {
-            throw new IllegalArgumentException("composite index `" + indexName
-              + "' on " + startType.getName() + " has " + indexInfo.getFieldTypes().size() + " fields, not " + numValues);
+            throw new IllegalArgumentException("composite index \"" + indexName
+              + "\" on " + startType.getName() + " has " + indexInfo.getFieldTypes().size() + " fields, not " + numValues);
         }
         return indexInfo;
     }

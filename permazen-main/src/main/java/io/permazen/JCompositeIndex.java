@@ -43,7 +43,7 @@ public class JCompositeIndex extends JSchemaObject {
      */
     JCompositeIndex(Permazen jdb, String name, int storageId, Class<?> declaringType,
       io.permazen.annotation.JCompositeIndex annotation, JSimpleField... jfields) {
-        super(jdb, name, storageId, "composite index `" + name + "' on fields " + Arrays.asList(jfields));
+        super(jdb, name, storageId, "composite index \"" + name + "\" on fields " + Arrays.asList(jfields));
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(declaringType != null, "null declaringType");
         Preconditions.checkArgument(jfields.length >= 2 && jfields.length <= Database.MAX_INDEXED_FIELDS, "invalid field count");
@@ -67,7 +67,7 @@ public class JCompositeIndex extends JSchemaObject {
                     try {
                         values.add(jfield.fieldType.fromParseableString(ctx));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
+                        throw new IllegalArgumentException("invalid uniqueExclude() value \"" + string + "\": " + e.getMessage(), e);
                     }
                     if (values.size() < numFields) {
                         ctx.skipWhitespace();

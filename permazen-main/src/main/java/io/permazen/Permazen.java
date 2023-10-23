@@ -861,7 +861,7 @@ public class Permazen {
         try {
             return type.cast(jfield);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId, jfield + "' is not a "
+            throw new UnknownFieldException(storageId, jfield + " is not a "
               + type.getSimpleName().replaceAll("^J(.*)Field$", "").toLowerCase() + " field");
         }
     }

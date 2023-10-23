@@ -51,7 +51,7 @@ public class EnumField extends SimpleField<EnumValue> {
 
     @Override
     public String toString() {
-        return "enum field `" + this.name + "'";
+        return "enum field \"" + this.name + "\"";
     }
 }
 

@@ -201,7 +201,7 @@ class JsckInfo implements JsckLogger {
                 final FieldType<?> fieldType = JsckInfo.this.config.getFieldTypeRegistry().getFieldType(
                   field.getType(), field.getEncodingSignature());
                 if (fieldType == null) {
-                    throw new IllegalArgumentException("no FieldType named `" + field.getType() + "'"
+                    throw new IllegalArgumentException("no FieldType named \"" + field.getType() + "\""
                       + (field.getEncodingSignature() != 0 ? " with signature " + field.getEncodingSignature() : "")
                       + " (used by " + field + " in schema version " + schemaVersion
                       + ") was found in the configured FieldTypeRepository");

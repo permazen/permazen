@@ -348,15 +348,15 @@ public class SchemaGeneratorTask extends Task {
             verify = true;
             break;
         default:
-            throw new BuildException("`mode' attribute must be one of `"
-              + MODE_VERIFY + "', or `" + MODE_GENERATE + "', or `" + MODE_GENERATE_AND_VERIFY + "'");
+            throw new BuildException("`mode' attribute must be one of \""
+              + MODE_VERIFY + "\", or \"" + MODE_GENERATE + "\", or \"" + MODE_GENERATE_AND_VERIFY + "\"");
         }
         if (this.classPath == null)
             throw new BuildException("`classpath' attribute is required specifying search path for scanned classes");
 
         // Create directory containing file
         if (generate && this.file.getParent() != null && !this.file.getParentFile().exists() && !this.file.getParentFile().mkdirs())
-            throw new BuildException("error creating directory `" + this.file.getParentFile() + "'");
+            throw new BuildException("error creating directory \"" + this.file.getParentFile() + "\"");
 
         // Set up mysterious classloader stuff
         final AntClassLoader loader = this.getProject().createClassLoader(this.classPath);
@@ -389,14 +389,14 @@ public class SchemaGeneratorTask extends Task {
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
-                        throw new BuildException("failed to load class `" + className + "'", e);
+                        throw new BuildException("failed to load class \"" + className + "\"", e);
                     }
                 }
 
                 // Scan for @JFieldType classes
                 this.log("scanning for @JFieldType annotations in packages: " + packageNames);
                 for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
-                    this.log("adding Permazen field type class `" + className + "'");
+                    this.log("adding Permazen field type class \"" + className + "\"");
                     try {
                         fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (Exception e) {
@@ -413,7 +413,7 @@ public class SchemaGeneratorTask extends Task {
                 try {
                     cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
                 } catch (ClassNotFoundException e) {
-                    throw new BuildException("failed to load class `" + className + "'", e);
+                    throw new BuildException("failed to load class \"" + className + "\"", e);
                 }
 
                 // Add model classes
@@ -436,7 +436,7 @@ public class SchemaGeneratorTask extends Task {
                    false, Thread.currentThread().getContextClassLoader())
                   .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
             } catch (Exception e) {
-                throw new BuildException("failed to instantiate class `" + storageIdGeneratorClassName + "'", e);
+                throw new BuildException("failed to instantiate class \"" + storageIdGeneratorClassName + "\"", e);
             }
 
             // Set up database
@@ -487,21 +487,21 @@ public class SchemaGeneratorTask extends Task {
             if (verify)  {
 
                 // Read file
-                this.log("reading Permazen verification file `" + this.file + "'");
+                this.log("reading Permazen verification file \"" + this.file + "\"");
                 try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                     verifyModel = SchemaModel.fromXML(input);
                 } catch (IOException e) {
-                    throw new BuildException("error reading schema from `" + this.file + "': " + e, e);
+                    throw new BuildException("error reading schema from \"" + this.file + "\": " + e, e);
                 }
             }
 
             // Generate new file
             if (generate) {
-                this.log("writing generated Permazen schema to `" + this.file + "'");
+                this.log("writing generated Permazen schema to \"" + this.file + "\"");
                 try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
                     schemaModel.toXML(output, true);
                 } catch (IOException e) {
-                    throw new BuildException("error writing schema to `" + this.file + "': " + e, e);
+                    throw new BuildException("error writing schema to \"" + this.file + "\": " + e, e);
                 }
             }
 
@@ -527,7 +527,7 @@ public class SchemaGeneratorTask extends Task {
                         try (BufferedInputStream input = new BufferedInputStream(resource.getInputStream())) {
                             otherSchema = SchemaModel.fromXML(input);
                         } catch (IOException e) {
-                            throw new BuildException("error reading schema from `" + resource + "': " + e, e);
+                            throw new BuildException("error reading schema from \"" + resource + "\": " + e, e);
                         }
                         try {
                             db.createTransaction(otherSchema, schemaVersion++, true).commit();

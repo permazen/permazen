@@ -33,7 +33,7 @@ public class ParseException extends IllegalArgumentException {
 
     public ParseException(ParseContext ctx, String message, Throwable cause) {
         super((message != null ? message : "parse error") + " at "
-          + (ctx.isEOF() ? "end of input" : "`" + ParseContext.encode(ParseContext.truncate(ctx.getInput(), 50)) + "'"),
+          + (ctx.isEOF() ? "end of input" : "\"" + ParseContext.encode(ParseContext.truncate(ctx.getInput(), 50)) + "\""),
           cause);
         this.ctx = ctx;
     }

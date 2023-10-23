@@ -65,7 +65,7 @@ public final class Tuples {
         try {
             return Class.forName(name, false, Tuple.class.getClassLoader()).asSubclass(Tuple.class);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("can't find class `" + name + "' of size " + size, e);
+            throw new UnsupportedOperationException("can't find class \"" + name + "\" of size " + size, e);
         }
     }
 

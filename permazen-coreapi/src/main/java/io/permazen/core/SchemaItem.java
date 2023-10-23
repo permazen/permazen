@@ -29,7 +29,7 @@ public abstract class SchemaItem {
 
     SchemaItem(String name, int storageId, Schema schema) {
         Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(name.matches(NAME_PATTERN), "invalid name `" + name + "'");
+        Preconditions.checkArgument(name.matches(NAME_PATTERN), "invalid name \"" + name + "\"");
         Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
         Preconditions.checkArgument(schema != null, "null schema");
         this.name = name;

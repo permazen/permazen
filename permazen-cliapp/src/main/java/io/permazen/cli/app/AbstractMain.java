@@ -160,7 +160,7 @@ public abstract class AbstractMain {
                     if (this.schemaVersion < -1)
                         throw new IllegalArgumentException("schema version is < -1");
                 } catch (Exception e) {
-                    System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());
+                    System.err.println(this.getName() + ": invalid schema version \"" + vstring + "\": " + e.getMessage());
                     return false;
                 }
             } else if (option.equals("--model-pkg")) {
@@ -182,7 +182,7 @@ public abstract class AbstractMain {
             else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
-                System.err.println(this.getName() + ": unknown option `" + option + "'");
+                System.err.println(this.getName() + ": unknown option \"" + option + "\"");
                 this.usageError();
                 return false;
             }
@@ -356,11 +356,11 @@ public abstract class AbstractMain {
 
     private boolean createDirectory(File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
-            System.err.println(this.getName() + ": could not create directory `" + dir + "'");
+            System.err.println(this.getName() + ": could not create directory \"" + dir + "\"");
             return false;
         }
         if (!dir.isDirectory()) {
-            System.err.println(this.getName() + ": file `" + dir + "' is not a directory");
+            System.err.println(this.getName() + ": file \"" + dir + "\" is not a directory");
             return false;
         }
         return true;
@@ -399,7 +399,7 @@ public abstract class AbstractMain {
         try {
             return Class.forName(className, false, this.loader);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("failed to load class `" + className + "'", e);
+            throw new RuntimeException("failed to load class \"" + className + "\"", e);
         }
     }
 

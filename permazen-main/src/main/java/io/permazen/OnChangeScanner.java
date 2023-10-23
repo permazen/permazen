@@ -200,8 +200,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         anyFieldsFound = true;
                     }
                     if (possibleChangeTypes.isEmpty() && !wildcard) {
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                          + "' is invalid because change notifications are not supported for any target field");
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path \"" + stringPath
+                          + "\" is invalid because change notifications are not supported for any target field");
                     }
 
                     // Check whether method parameter type accepts as least one of them; it must do so consistently raw vs. generic
@@ -213,7 +213,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         if (matchesGeneric != matchesRaw) {
                             throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
                               + "parameter type " + genericParameterType + " will match change events of type "
-                              + possibleChangeType + " from field `" + stringPath + "' at runtime due to type erasure,"
+                              + possibleChangeType + " from field \"" + stringPath + "\" at runtime due to type erasure,"
                               + " but its generic type is does not match " + possibleChangeType
                               + "; try narrowing or widening the parameter type, keeping it compatible with "
                               + (possibleChangeTypes.size() != 1 ?
@@ -229,8 +229,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     if (!anyChangeMatch) {
                         if (wildcard)
                             continue;
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                          + "' is invalid because no changes emitted by the target field match the method's"
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path \"" + stringPath
+                          + "\" is invalid because no changes emitted by the target field match the method's"
                           + " parameter type " + genericParameterType + "; the emitted change type is "
                           + (possibleChangeTypes.size() != 1 ? "one of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                     }

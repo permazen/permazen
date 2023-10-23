@@ -66,7 +66,7 @@ public final class LevelDBUtil {
                 return Class.forName(className, false, loader).asSubclass(DBFactory.class).getConstructor().newInstance();
             } catch (Exception e) {
                 if (log.isDebugEnabled())
-                    log.debug("can't load factory class `" + className + "': " + e);
+                    log.debug("can't load factory class \"" + className + "\": " + e);
                 continue;
             }
         }

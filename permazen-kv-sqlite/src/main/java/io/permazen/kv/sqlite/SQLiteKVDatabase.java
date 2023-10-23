@@ -127,7 +127,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("can't load SQLite driver class `" + SQLITE_DRIVER_CLASS_NAME + "'", e);
+            throw new RuntimeException("can't load SQLite driver class \"" + SQLITE_DRIVER_CLASS_NAME + "\"", e);
         }
 
         // Auto-configure DataSource

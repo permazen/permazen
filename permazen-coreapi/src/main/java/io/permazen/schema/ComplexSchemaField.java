@@ -32,11 +32,11 @@ public abstract class ComplexSchemaField extends SchemaField {
             final String subFieldName = entry.getKey();
             final SimpleSchemaField subField = entry.getValue();
             if (subField == null)
-                throw new InvalidSchemaException("invalid " + this + ": missing sub-field `" + subFieldName + "'");
+                throw new InvalidSchemaException("invalid " + this + ": missing sub-field \"" + subFieldName + "\"");
             subField.validate();
             if (!subFieldName.equals(subField.getName())) {
-                throw new InvalidSchemaException("sub-" + subField + " of " + this + " has the wrong name `"
-                  + subField.getName() + "' != `" + subFieldName + "'");
+                throw new InvalidSchemaException("sub-" + subField + " of " + this + " has the wrong name \""
+                  + subField.getName() + "\" != \"" + subFieldName + "\"");
             }
         }
     }

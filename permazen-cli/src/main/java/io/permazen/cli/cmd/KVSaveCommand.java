@@ -112,7 +112,7 @@ public class KVSaveCommand extends AbstractCommand {
                 } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-            session.getOutput().println("Wrote " + count + " key/value pairs to `" + this.file + "'");
+            session.getOutput().println("Wrote " + count + " key/value pairs to \"" + this.file + "\"");
         }
 
         // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries

@@ -276,7 +276,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
             } catch (IOException e2) {
                 throw new KVDatabaseException(this, "error opening initial XML content", e2);
             }
-            final String desc = this.file != null ? "file `" + this.file + "'" : "database file";
+            final String desc = this.file != null ? "file \"" + this.file + "\"" : "database file";
             if (input == null)
                 this.log.info(desc + " not found and no initial content is configured; creating new, empty database");
             else

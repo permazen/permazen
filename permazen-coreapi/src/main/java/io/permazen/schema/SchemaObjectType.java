@@ -77,7 +77,7 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
             field.validate();
             final String fieldName = field.getName();
             if (fieldsByName.put(fieldName, field) != null)
-                throw new InvalidSchemaException("duplicate field name `" + fieldName + "'");
+                throw new InvalidSchemaException("duplicate field name \"" + fieldName + "\"");
         }
 
         // Validate composite indexes and verify index names are unique
@@ -86,7 +86,7 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
             index.validate();
             final String indexName = index.getName();
             if (compositeIndexesByName.put(indexName, index) != null)
-                throw new InvalidSchemaException("duplicate composite index name `" + indexName + "'");
+                throw new InvalidSchemaException("duplicate composite index name \"" + indexName + "\"");
         }
 
         // Verify indexes index valid simple fields that are not sub-fields of complex fields

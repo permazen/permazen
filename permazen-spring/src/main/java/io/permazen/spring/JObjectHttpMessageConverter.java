@@ -123,20 +123,20 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
         // Get the root object's ID
         final MediaType mediaType = input.getHeaders().getContentType();
         if (mediaType == null) {
-            throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "' missing; no `Content-Type' header found", input);
+            throw new HttpMessageNotReadableException("required parameter \"" + ROOT_OBJECT_ID_PARAMETER_NAME
+              + "\" missing; no `Content-Type' header found", input);
         }
         final String objId = mediaType.getParameter(ROOT_OBJECT_ID_PARAMETER_NAME);
         if (objId == null) {
-            throw new HttpMessageNotReadableException("required parameter `" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "' missing from Content-Type `" + mediaType + "'", input);
+            throw new HttpMessageNotReadableException("required parameter \"" + ROOT_OBJECT_ID_PARAMETER_NAME
+              + "\" missing from Content-Type \"" + mediaType + "\"", input);
         }
         final ObjId id;
         try {
             id = new ObjId(objId);
         } catch (IllegalArgumentException e) {
-            throw new HttpMessageNotReadableException("invalid `" + ROOT_OBJECT_ID_PARAMETER_NAME + "' parameter value `"
-              + objId + "' in Content-Type `" + mediaType + "'", input);
+            throw new HttpMessageNotReadableException("invalid \"" + ROOT_OBJECT_ID_PARAMETER_NAME + "\" parameter value \""
+              + objId + "\" in Content-Type \"" + mediaType + "\"", input);
         }
 
         // Find the root object

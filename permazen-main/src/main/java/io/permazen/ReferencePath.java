@@ -280,7 +280,7 @@ public class ReferencePath {
         Preconditions.checkArgument(jdb != null, "null jdb");
         Preconditions.checkArgument(startType != null, "null startType");
         Preconditions.checkArgument(path != null, "null path");
-        final String errorPrefix = "invalid path `" + path + "': ";
+        final String errorPrefix = "invalid path \"" + path + "\": ";
         this.jdb = jdb;
         this.startType = startType;
         this.path = path;
@@ -303,8 +303,8 @@ public class ReferencePath {
             // Parse next step (either forward or reverse)
             Matcher matcher = ctx.tryPattern(FWD_STEP);
             if (matcher == null && (matcher = ctx.tryPattern(REV_STEP)) == null) {
-                throw new IllegalArgumentException(errorPrefix + "invalid path starting at `"
-                  + ParseContext.truncate(ctx.getInput(), 32) + "'");
+                throw new IllegalArgumentException(errorPrefix + "invalid path starting at \""
+                  + ParseContext.truncate(ctx.getInput(), 32) + "\"");
             }
             fieldNames.add(matcher.group());
         }
@@ -440,8 +440,8 @@ public class ReferencePath {
               .map(sf -> sf != null ? sf.storageId : 0)
               .collect(Collectors.toSet());
             if (targetFieldStorageIds.size() != 1 || targetSuperFieldStorageIds.size() != 1) {
-                throw new IllegalArgumentException(errorPrefix + "the target field `" + fieldNames.pollLast()
-                  + "' is ambiguous: " + completedCursors.stream().map(Cursor::getField).collect(Collectors.toSet()));
+                throw new IllegalArgumentException(errorPrefix + "the target field \"" + fieldNames.pollLast()
+                  + "\" is ambiguous: " + completedCursors.stream().map(Cursor::getField).collect(Collectors.toSet()));
             }
 
             // Calculate all possible target field types, and whether any target field is indexed
@@ -677,7 +677,7 @@ public class ReferencePath {
 
         // Get field name and containing type
         final String fieldName = fieldNames.removeFirst();
-        String description = "field `" + fieldName + "' in " + jclass.getType();
+        String description = "field \"" + fieldName + "\" in " + jclass.getType();
 
         // Parse explicit storage ID, if any
         final int hash = fieldName.indexOf('#');
@@ -687,7 +687,7 @@ public class ReferencePath {
             try {
                 explicitStorageId = Integer.parseInt(fieldName.substring(hash + 1));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
+                throw new IllegalArgumentException("invalid field name \"" + fieldName + "\"");
             }
             searchName = fieldName.substring(0, hash);
         } else
@@ -696,7 +696,7 @@ public class ReferencePath {
         // Find the JField matching 'fieldName' in jclass
         JField matchingField = jclass.jfieldsByName.get(searchName);
         if (matchingField == null || (explicitStorageId != 0 && matchingField.storageId != explicitStorageId)) {
-            throw new IllegalArgumentException("there is no field named `" + searchName + "'"
+            throw new IllegalArgumentException("there is no field named \"" + searchName + "\""
               + (explicitStorageId != 0 ? " with storage ID " + explicitStorageId : "") + " in " + jclass.getType());
         }
 
@@ -740,7 +740,7 @@ public class ReferencePath {
 
             // Get the specified sub-field
             final String subFieldName = fieldNames.removeFirst();
-            description = "sub-field `" + subFieldName + "' of complex " + description;
+            description = "sub-field \"" + subFieldName + "\" of complex " + description;
             try {
                 matchingField = superField.getSubField(subFieldName);
             } catch (IllegalArgumentException e) {
@@ -909,8 +909,8 @@ public class ReferencePath {
 
                 // This field cannot be the target field
                 if (withTargetField && remainingFieldNames.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid reference path: missing target field after last step `"
-                      + step + "'");
+                    throw new IllegalArgumentException("Invalid reference path: missing target field after last step \""
+                      + step + "\"");
                 }
 
                 // Get type and field names
@@ -933,8 +933,8 @@ public class ReferencePath {
                     try {
                         type = Class.forName(typeName, false, ApplicationClassLoader.getInstance());
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("Unknown type `" + typeName
-                          + "' in reference path reverse traversal step `" + step + "'");
+                        throw new IllegalArgumentException("Unknown type \"" + typeName
+                          + "\" in reference path reverse traversal step \"" + step + "\"");
                     }
                 }
                 List<? extends JClass<?>> jclasses = ReferencePath.this.jdb.getJClasses(type);
@@ -947,9 +947,9 @@ public class ReferencePath {
 
                 // Any types found?
                 if (jclasses.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid type `" + typeName
-                      + "' in reference path reverse traversal step `" + step
-                      + "': no schema model types are assignable to `" + typeName + "'");
+                    throw new IllegalArgumentException("Invalid type \"" + typeName
+                      + "\" in reference path reverse traversal step \"" + step
+                      + "\": no schema model types are assignable to \"" + typeName + "\"");
                 }
 
                 // Find field in each type and create corresponding cursors
@@ -969,12 +969,12 @@ public class ReferencePath {
 
                 // Any fields found?
                 if (newCursors.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid reference path reverse traversal step `" + step
-                      + "': field `" + fieldName + "' does not exist in "
-                      + (schemaType == null ? "any model type assignable to " : "") + "`" + typeName + "'");
+                    throw new IllegalArgumentException("Invalid reference path reverse traversal step \"" + step
+                      + "\": field \"" + fieldName + "\" does not exist in "
+                      + (schemaType == null ? "any model type assignable to " : "") + "\"" + typeName + "\"");
                 }
             } else {
-                assert Pattern.compile(FWD_STEP).matcher(step).matches() : "`" + step + "' is not a forward step";
+                assert Pattern.compile(FWD_STEP).matcher(step).matches() : "\"" + step + "\" is not a forward step";
 
                 // Resolve field
                 if (this.jclass != null) {

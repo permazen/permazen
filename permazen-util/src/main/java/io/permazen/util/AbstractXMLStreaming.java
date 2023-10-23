@@ -287,7 +287,7 @@ public abstract class AbstractXMLStreaming {
     protected XMLStreamException newInvalidAttributeException(XMLStreamReader reader,
       QName name, String description, Throwable... cause) throws XMLStreamException {
         final String value = this.getAttr(reader, name, false);
-        final String content = value != null ? "value `" + value + "'" : "left unspecified";
+        final String content = value != null ? "value \"" + value + "\"" : "left unspecified";
         final String message = "<" + reader.getName().getLocalPart() + "> element attribute \""
           + name + "\" " + content + " is invalid: " + description;
         switch (cause.length) {

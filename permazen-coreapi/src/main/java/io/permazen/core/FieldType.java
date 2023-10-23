@@ -103,7 +103,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
      */
     protected FieldType(String name, TypeToken<T> typeToken, long signature, T defaultValue) {
         Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(name.matches(FieldType.NAME_PATTERN), "invalid type name `" + name + "'");
+        Preconditions.checkArgument(name.matches(FieldType.NAME_PATTERN), "invalid type name \"" + name + "\"");
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.name = name;
         this.typeToken = typeToken;
@@ -266,8 +266,8 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
         final ParseContext ctx = new ParseContext(string);
         final T value = this.fromParseableString(ctx);
         if (!ctx.isEOF()) {
-            throw new IllegalArgumentException("found trailing garbage starting with `"
-              + ParseContext.truncate(ctx.getInput(), 20) + "'");
+            throw new IllegalArgumentException("found trailing garbage starting with \""
+              + ParseContext.truncate(ctx.getInput(), 20) + "\"");
         }
         return value;
     }
@@ -508,7 +508,7 @@ public abstract class FieldType<T> implements Comparator<T>, Serializable {
 
     @Override
     public String toString() {
-        return "field type `" + this.name + "'";
+        return "field type \"" + this.name + "\"";
     }
 
     @Override

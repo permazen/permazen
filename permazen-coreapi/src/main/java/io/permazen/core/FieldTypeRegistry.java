@@ -338,13 +338,13 @@ public class FieldTypeRegistry {
      */
     public synchronized boolean add(FieldType<?> type) {
         Preconditions.checkArgument(type != null, "null type");
-        Preconditions.checkArgument(!type.name.endsWith(ArrayType.ARRAY_SUFFIX), "illegal array type name `" + type.name + "'");
+        Preconditions.checkArgument(!type.name.endsWith(ArrayType.ARRAY_SUFFIX), "illegal array type name \"" + type.name + "\"");
         final Key key = type.toKey();
         final FieldType<?> other = this.types.get(key);
         if (other != null) {
             if (other.equals(type))
                 return false;
-            throw new IllegalArgumentException("type name `" + type.name + "'"
+            throw new IllegalArgumentException("type name \"" + type.name + "\""
               + (type.signature != 0 ? " and encoding signature " + type.signature : "")
               +  " conflicts with existing type " + other);
         }
@@ -419,7 +419,7 @@ public class FieldTypeRegistry {
           primitive.visit(new PrimitiveSwitch<ArrayType<?, ?>>() {
             @Override
             public ArrayType<?, ?> caseVoid() {
-                throw new IllegalArgumentException("cannot create array of type `" + elementType.name + "'");
+                throw new IllegalArgumentException("cannot create array of type \"" + elementType.name + "\"");
             }
             @Override
             public ArrayType<?, ?> caseBoolean() {

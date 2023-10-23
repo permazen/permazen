@@ -203,7 +203,7 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
      */
     protected String getErrorPrefix(Method method) {
         return "invalid " + this.getAnnotationDescription() + " annotation on method " + method
-          + " for type `" + this.jclass.getName() + "': ";
+          + " for type \"" + this.jclass.getName() + "\": ";
     }
 }
 
