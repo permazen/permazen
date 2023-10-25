@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -28,7 +29,7 @@ public class YearType extends NonNullFieldType<Year> {
     private static final long serialVersionUID = 6800527893478605289L;
 
     public YearType() {
-        super(Year.class, 0);
+        super(EncodingIds.builtin("Year"), Year.class);
     }
 
 // FieldType

@@ -8,6 +8,7 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 
+import io.permazen.core.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -26,9 +27,11 @@ abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullFie
     private final Class<T> addrType;
     private final String pattern;
 
-    protected AbstractInetAddressType(Class<T> type, String pattern) {
-        super(type, 0);
-        this.addrType = type;
+    protected AbstractInetAddressType(EncodingId encodingId, Class<T> addrType, String pattern) {
+        super(encodingId, addrType);
+        Preconditions.checkArgument(addrType != null);
+        Preconditions.checkArgument(pattern != null);
+        this.addrType = addrType;
         this.pattern = pattern;
     }
 
@@ -100,4 +103,3 @@ abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullFie
         return ByteUtil.compare(bytes1, bytes2);
     }
 }
-

@@ -21,7 +21,7 @@ import org.dellroad.stuff.java.EnumUtil;
  * {@link io.permazen.core.EnumField}.
  *
  * <p>
- * Each {@link EnumFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumFieldType}
+ * Each {@link EnumValueFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumValueFieldType}
  * instances are not compatible unless they have identical identifier lists. The identifiers must be valid Java identifiers.
  *
  * <p>
@@ -31,7 +31,7 @@ import org.dellroad.stuff.java.EnumUtil;
  * <p>
  * Null values are supported by this class.
  */
-public class EnumFieldType extends NullSafeType<EnumValue> {
+public class EnumValueFieldType extends NullSafeType<EnumValue> {
 
     public static final String IDENT_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
@@ -44,8 +44,8 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @param <T> enum type
      * @throws NullPointerException if {@code enumType} is null
      */
-    public <T extends Enum<?>> EnumFieldType(Class<T> enumType) {
-        this(EnumFieldType.getIdentifiers(enumType));
+    public <T extends Enum<?>> EnumValueFieldType(Class<T> enumType) {
+        this(EnumValueFieldType.getIdentifiers(enumType));
     }
 
     /**
@@ -55,8 +55,8 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
-    public EnumFieldType(List<String> idents) {
-        super(new EnumType(idents));
+    public EnumValueFieldType(List<String> idents) {
+        super(new EnumValueType(idents));
     }
 
     /**
@@ -65,7 +65,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @return unmodifiable, ordinally ordered list of identifiers
      */
     public List<String> getIdentifiers() {
-        return ((EnumType)this.inner).getIdentifiers();
+        return ((EnumValueType)this.inner).getIdentifiers();
     }
 
     /**
@@ -94,10 +94,6 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
         return identifierMap;
     }
 
-    @SuppressWarnings({
-        "unchecked",
-        "rawtypes"      // https://bugs.openjdk.java.net/browse/JDK-8012685
-    })
     private static <T extends Enum<?>> List<String> getIdentifiers(Class<T> enumType) {
         return EnumUtil.getValues(enumType).stream()
           .map(Enum::name)

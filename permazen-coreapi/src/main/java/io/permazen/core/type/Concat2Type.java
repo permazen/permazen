@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -18,14 +19,14 @@ abstract class Concat2Type<T, S1, S2> extends NonNullFieldType<T> {
     protected final FieldType<S1> type1;
     protected final FieldType<S2> type2;
 
-    protected Concat2Type(Class<T> type, long signature, T defaultValue, FieldType<S1> type1, FieldType<S2> type2) {
-       super(type, signature, defaultValue);
+    protected Concat2Type(EncodingId encodingId, Class<T> type, T defaultValue, FieldType<S1> type1, FieldType<S2> type2) {
+       super(encodingId, type, defaultValue);
        this.type1 = type1;
        this.type2 = type2;
     }
 
-    protected Concat2Type(Class<T> type, long signature, FieldType<S1> type1, FieldType<S2> type2) {
-       this(type, signature, null, type1, type2);
+    protected Concat2Type(EncodingId encodingId, Class<T> type, FieldType<S1> type1, FieldType<S2> type2) {
+       this(encodingId, type, null, type1, type2);
     }
 
 // FieldType

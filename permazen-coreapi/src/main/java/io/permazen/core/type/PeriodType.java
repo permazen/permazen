@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -29,7 +30,7 @@ public class PeriodType extends NonNullFieldType<Period> {
     private static final long serialVersionUID = -5481674489895732054L;
 
     public PeriodType() {
-        super(Period.class, 0, Period.ZERO);
+        super(EncodingIds.builtin("Period"), Period.class, Period.ZERO);
     }
 
 // FieldType

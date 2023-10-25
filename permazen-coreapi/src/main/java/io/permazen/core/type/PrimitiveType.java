@@ -5,8 +5,7 @@
 
 package io.permazen.core.type;
 
-import com.google.common.reflect.TypeToken;
-
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
 
@@ -22,7 +21,7 @@ public abstract class PrimitiveType<T> extends NonNullFieldType<T> {
     final Primitive<T> primitive;
 
     protected PrimitiveType(Primitive<T> primitive) {
-        super(primitive.getName(), TypeToken.of(primitive.getType()), 0,
+        super(EncodingIds.builtin(primitive.getName()), primitive.getType(),
           !primitive.equals(Primitive.VOID) ? primitive.getDefaultValue() : null);
         this.primitive = primitive;
     }
@@ -106,4 +105,3 @@ public abstract class PrimitiveType<T> extends NonNullFieldType<T> {
         return this.primitive.equals(that.primitive);
     }
 }
-

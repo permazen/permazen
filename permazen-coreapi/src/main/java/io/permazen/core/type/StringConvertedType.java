@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -39,18 +40,29 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
     /**
      * Primary constructor.
      *
-     * @param name the name for this {@link io.permazen.core.FieldType}
+     * @param encodingId the encoding ID for this {@link io.permazen.core.FieldType}
      * @param type represented Java type
-     * @param signature binary encoding signature (in this case, {@link String} encoding signature)
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected StringConvertedType(String name, TypeToken<T> type, long signature, Converter<T, String> converter) {
-        super(name, type, signature);
+    protected StringConvertedType(EncodingId encodingId, TypeToken<T> type, Converter<T, String> converter) {
+        super(encodingId, type);
         Preconditions.checkArgument(converter != null, "null converter");
         Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
           "invalid converter: does not convert null <-> null");
         this.converter = converter;
+    }
+
+    /**
+     * Convenience constructor taking {@link Class} instead of {@link TypeToken}.
+     *
+     * @param encodingId the encoding ID for this {@link io.permazen.core.FieldType}
+     * @param type represented Java type
+     * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    protected StringConvertedType(EncodingId encodingId, Class<T> type, Converter<T, String> converter) {
+        this(encodingId, TypeToken.of(type), converter);
     }
 
     @Override
@@ -59,7 +71,7 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
         try {
             string = this.stringType.read(reader);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid encoded " + this.getName(), e);
+            throw new IllegalArgumentException("invalid encoded value", e);
         }
         return this.converter.reverse().convert(string);
     }
@@ -77,7 +89,7 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
     @Override
     public String toString(T obj) {
         if (obj == null)
-            throw new IllegalArgumentException("illegal null " + this.getName());
+            throw new IllegalArgumentException("illegal null value");
         return this.converter.convert(obj);
     }
 
@@ -117,4 +129,3 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
         return this.stringType.hasPrefix0xff();
     }
 }
-

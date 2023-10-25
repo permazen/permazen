@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -29,7 +30,7 @@ public class DurationType extends NonNullFieldType<Duration> {
     private static final long serialVersionUID = 969067179729229705L;
 
     public DurationType() {
-        super(Duration.class, 0, Duration.ZERO);
+        super(EncodingIds.builtin("Duration"), Duration.class, Duration.ZERO);
     }
 
 // FieldType

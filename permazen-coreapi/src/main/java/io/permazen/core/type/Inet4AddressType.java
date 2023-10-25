@@ -5,6 +5,7 @@
 
 package io.permazen.core.type;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 
 import java.net.Inet4Address;
@@ -24,7 +25,7 @@ public class Inet4AddressType extends AbstractInetAddressType<Inet4Address> {
     private static final long serialVersionUID = -1737266234876361236L;
 
     public Inet4AddressType() {
-        super(Inet4Address.class, PATTERN);
+        super(EncodingIds.builtin("Inet4Address"), Inet4Address.class, PATTERN);
     }
 
     @Override

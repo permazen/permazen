@@ -7,9 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.ArrayType;
-import io.permazen.core.type.EnumFieldType;
-import io.permazen.core.type.NullSafeType;
+import io.permazen.core.type.EnumValueFieldType;
 
 /**
  * A field that contains an array (having one or more dimensions) of values chosen from
@@ -20,7 +18,7 @@ import io.permazen.core.type.NullSafeType;
  */
 public class EnumArrayField extends SimpleField<Object> {
 
-    private final EnumFieldType baseType;
+    private final EnumValueFieldType baseType;
     private final int dimensions;
 
     /**
@@ -40,12 +38,11 @@ public class EnumArrayField extends SimpleField<Object> {
      */
     @SuppressWarnings("unchecked")
     EnumArrayField(String name, int storageId, Schema schema,
-      boolean indexed, EnumFieldType baseType, FieldType<?> fieldType, int dimensions) {
+      boolean indexed, EnumValueFieldType baseType, FieldType<?> fieldType, int dimensions) {
         super(name, storageId, schema, (FieldType<Object>)fieldType, indexed);
-        Preconditions.checkArgument(dimensions >= 1 && dimensions <= ArrayType.MAX_DIMENSIONS);
+        Preconditions.checkArgument(dimensions >= 1 && dimensions <= FieldType.MAX_ARRAY_DIMENSIONS);
         this.baseType = baseType;
         this.dimensions = dimensions;
-        assert this.dimensions == ((ArrayType<?, ?>)((NullSafeType<?>)fieldType).getInnerType()).getDimensions();
     }
 
     /**
@@ -53,7 +50,7 @@ public class EnumArrayField extends SimpleField<Object> {
      *
      * @return array base field type
      */
-    public EnumFieldType getBaseType() {
+    public EnumValueFieldType getBaseType() {
         return this.baseType;
     }
 

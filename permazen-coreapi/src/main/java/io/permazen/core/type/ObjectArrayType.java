@@ -101,4 +101,3 @@ public class ObjectArrayType<E> extends ArrayType<E[], E> {
         return elements.toArray((E[])Array.newInstance(this.elementType.getTypeToken().getRawType(), elements.size()));
     }
 }
-

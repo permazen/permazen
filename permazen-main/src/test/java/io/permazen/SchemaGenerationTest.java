@@ -62,7 +62,7 @@ public class SchemaGenerationTest extends TestSupport {
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"2\">\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" type=\"long\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class } },
@@ -71,11 +71,11 @@ public class SchemaGenerationTest extends TestSupport {
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"2\">\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" type=\"long\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
           + "    </ObjectType>\n"
           + "    <ObjectType storageId=\"3\" name=\"Foo3\">\n"
-          + "        <SimpleField storageId=\"7189\" name=\"concreteField\" type=\"int\"/>\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" type=\"long\"/>\n"
+          + "        <SimpleField storageId=\"7189\" name=\"concreteField\" encoding=\"urn:fdc:permazen.io:2020:enc:int\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class, Foo3.class } },

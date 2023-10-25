@@ -22,7 +22,7 @@ public class LockDownTest extends CoreAPITestSupport {
         final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"3\">\n"
           + "<ObjectType name=\"Foo\" storageId=\"100\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"10\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"10\"/>\n"
           + "  <EnumField name=\"e\" storageId=\"12\">\n"
           + "    <Identifier>FOO</Identifier>\n"
           + "    <Identifier>BAR</Identifier>\n"
@@ -33,14 +33,14 @@ public class LockDownTest extends CoreAPITestSupport {
           + "    </ObjectTypes>\n"
           + "  </ReferenceField>\n"
           + "  <SetField name=\"set\" storageId=\"14\">\n"
-          + "    <SimpleField name=\"element\" type=\"int\" storageId=\"15\"/>\n"
+          + "    <SimpleField name=\"element\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"15\"/>\n"
           + "  </SetField>\n"
           + "  <ListField name=\"list\" storageId=\"16\">\n"
-          + "    <SimpleField name=\"element\" type=\"int\" storageId=\"17\"/>\n"
+          + "    <SimpleField name=\"element\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"17\"/>\n"
           + "  </ListField>\n"
           + "  <MapField name=\"map\" storageId=\"18\">\n"
-          + "    <SimpleField name=\"key\" type=\"int\" storageId=\"19\"/>\n"
-          + "    <SimpleField name=\"value\" type=\"int\" storageId=\"20\"/>\n"
+          + "    <SimpleField name=\"key\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"19\"/>\n"
+          + "    <SimpleField name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"20\"/>\n"
           + "  </MapField>\n"
           + "  <EnumArrayField name=\"ea\" storageId=\"20\" dimensions=\"2\">\n"
           + "    <Identifier>AAA</Identifier>\n"
@@ -79,19 +79,13 @@ public class LockDownTest extends CoreAPITestSupport {
             this.log.debug("got expected {}", e.toString());
         }
         try {
-            ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setType(null);
+            ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingId(null);
             assert false;
         } catch (UnsupportedOperationException e) {
             this.log.debug("got expected {}", e.toString());
         }
         try {
             ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setIndexed(false);
-            assert false;
-        } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected {}", e.toString());
-        }
-        try {
-            ((SimpleSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingSignature(123);
             assert false;
         } catch (UnsupportedOperationException e) {
             this.log.debug("got expected {}", e.toString());
@@ -157,9 +151,8 @@ public class LockDownTest extends CoreAPITestSupport {
         Assert.assertEquals(hash4, hash1);
 
         // We should be able to modify the clone
-        ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setType(null);
+        ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingId(null);
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setIndexed(false);
-        ((SimpleSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(10)).setEncodingSignature(123);
         ((EnumSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(12)).getIdentifiers().clear();
         ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).getIdentifiers().clear();
         ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).setDimensions(123);

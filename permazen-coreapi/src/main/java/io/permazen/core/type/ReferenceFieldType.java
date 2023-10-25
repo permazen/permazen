@@ -5,8 +5,8 @@
 
 package io.permazen.core.type;
 
+import io.permazen.core.Encodings;
 import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidReferenceException;
 import io.permazen.core.ObjId;
 import io.permazen.util.ByteWriter;
@@ -48,7 +48,7 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
      * @param objectTypes allowed object type storage IDs, or null for no restriction
      */
     public ReferenceFieldType(Set<Integer> objectTypes) {
-        super(FieldType.REFERENCE_TYPE_NAME, FieldTypeRegistry.OBJ_ID);
+        super(null, Encodings.OBJ_ID);
         this.objectTypes = objectTypes != null ? new TreeSet<>(objectTypes) : null;
     }
 
@@ -127,4 +127,3 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
         return super.hashCode() ^ Objects.hashCode(this.objectTypes);
     }
 }
-

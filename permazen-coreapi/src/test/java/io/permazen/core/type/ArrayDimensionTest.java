@@ -6,30 +6,34 @@
 package io.permazen.core.type;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.PermazenFieldTypeRegistry;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ArrayDimensionTest extends CoreAPITestSupport {
 
-    private final FieldTypeRegistry registry = new FieldTypeRegistry();
+    private final PermazenFieldTypeRegistry registry = new PermazenFieldTypeRegistry();
 
     @Test
     public void testArrayDimensions() throws Exception {
-        for (String base : new String[] { "java.util.Date", "int" }) {
-            final StringBuilder buf = new StringBuilder(base);
-            for (int dims = 1; dims <= ArrayType.MAX_DIMENSIONS; dims++) {
-                buf.append("[]");
-                final String typeName = buf.toString();
-                final FieldType<?> fieldType = registry.getFieldType(typeName);
-                assert fieldType != null : "didn't find \"" + typeName + "\"";
+        for (String base : new String[] { "Date", "int" }) {
+            EncodingId encodingId = EncodingIds.builtin(base);
+            FieldType<?> previous = registry.getFieldType(encodingId);
+            for (int dims = 1; dims <= FieldType.MAX_ARRAY_DIMENSIONS; dims++) {
+                encodingId = encodingId.getArrayId();
+                Assert.assertEquals(encodingId.getArrayDimensions(), dims);
+                final FieldType<?> fieldType = registry.getFieldType(encodingId);
+                assert fieldType != null : "didn't find \"" + encodingId + "\"";
                 assert fieldType instanceof NullSafeType;
                 final NullSafeType<?> nullSafeType = (NullSafeType<?>)fieldType;
                 assert nullSafeType.getInnerType() instanceof ArrayType;
                 final ArrayType<?, ?> arrayType = (ArrayType<?, ?>)nullSafeType.getInnerType();
-                Assert.assertEquals(arrayType.getDimensions(), dims);
+                assert arrayType.getElementType() == previous;
+                previous = fieldType;
             }
         }
     }

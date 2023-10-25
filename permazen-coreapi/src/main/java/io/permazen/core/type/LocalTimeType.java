@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -29,7 +30,7 @@ public class LocalTimeType extends NonNullFieldType<LocalTime> {
     private static final long serialVersionUID = -6138317689607411426L;
 
     public LocalTimeType() {
-        super(LocalTime.class, 0);
+        super(EncodingIds.builtin("LocalTime"), LocalTime.class);
     }
 
 // FieldType

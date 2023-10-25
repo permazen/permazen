@@ -22,6 +22,9 @@ import java.util.List;
  *
  * <p>
  * Binary encoding is via the concatenation of the individual element encodings.
+ *
+ * <p>
+ * Instances are {@linkplain FieldType#getEncodingId anonymous}.
  */
 public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
 
@@ -31,7 +34,7 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
     final int size;
 
     protected TupleFieldType(TypeToken<T> typeToken, FieldType<?>... fieldTypes) {
-        super("Tuple" + fieldTypes.length, typeToken, TupleFieldType.hashEncodingSignatures(fieldTypes));
+        super(null, typeToken);
         this.fieldTypes = Arrays.<FieldType<?>>asList(fieldTypes);
         this.size = this.fieldTypes.size();
     }
@@ -120,14 +123,6 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
         if (list.size() != this.size)
             throw new IllegalArgumentException("tuple has the wrong cardinality " + list.size() + " != " + this.size);
         return list;
-    }
-
-    // This is not entirely fool-proof, but the signature shouldn't really matter as this class is only used internally
-    private static long hashEncodingSignatures(FieldType<?>... fieldTypes) {
-        long hash = 0;
-        for (FieldType<?> fieldType : fieldTypes)
-            hash = hash * 65537 + fieldType.getEncodingSignature();
-        return hash;
     }
 
     // This method exists solely to bind the generic type parameters

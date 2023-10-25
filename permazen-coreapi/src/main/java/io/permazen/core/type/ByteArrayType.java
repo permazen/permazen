@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.primitives.Bytes;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +22,7 @@ public class ByteArrayType extends IntegralArrayType<byte[], Byte> {
     private static final long serialVersionUID = -5978203098536001843L;
 
     public ByteArrayType() {
-       super(FieldTypeRegistry.BYTE, byte[].class);
+       super(Encodings.BYTE, byte[].class);
     }
 
     @Override

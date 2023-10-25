@@ -23,7 +23,7 @@ public class ObjIdType extends NonNullFieldType<ObjId> {
     private static final long serialVersionUID = 6921359865864012847L;
 
     public ObjIdType() {
-        super(ObjId.class, 0);
+        super(null, ObjId.class);
     }
 
 // FieldType

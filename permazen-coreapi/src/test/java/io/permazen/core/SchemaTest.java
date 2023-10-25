@@ -27,7 +27,7 @@ public class SchemaTest extends CoreAPITestSupport {
         final Database db = new Database(kvstore);
 
         // Register custom type
-        db.getFieldTypeRegistry().add(new BarType());
+        ((PermazenFieldTypeRegistry)db.getFieldTypeRegistry()).add(new BarType());
 
         // Validate XML
         final SchemaModel schema;
@@ -79,26 +79,26 @@ public class SchemaTest extends CoreAPITestSupport {
 
         final String xml1 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField indexed=\"true\" name=\"i\" type=\"int\" storageId=\"20\"/>\n"
+          + "  <SimpleField indexed=\"true\" name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
 
         final String xml2 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField indexed=\"true\" name=\"i\" type=\"float\" storageId=\"20\"/>\n"
+          + "  <SimpleField indexed=\"true\" name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
 
         final String xml3 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"b\" type=\"bar\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"b\" encoding=\"urn:foo:bar\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes(StandardCharsets.UTF_8)));
 
-        final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
+        final PermazenFieldTypeRegistry fieldTypeRegistry = new PermazenFieldTypeRegistry();
 
         this.validate(fieldTypeRegistry, true, schema1);
         this.validate(fieldTypeRegistry, true, schema1);
@@ -165,7 +165,7 @@ public class SchemaTest extends CoreAPITestSupport {
     @SuppressWarnings("serial")
     public static class BarType extends StringEncodedType<Bar> {
         public BarType() {
-            super("bar", Bar.class, 12345, new BarConverter());
+            super(new EncodingId("urn:foo:bar"), Bar.class, new BarConverter());
         }
     }
 
@@ -229,7 +229,7 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 9 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
-          + "  <SimpleField type=\"int\"/>\n"
+          + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -243,35 +243,35 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 11 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "</ObjectType>\n"
           },
 
           { false,
             "<!-- test 12 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"0\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"0\"/>\n"
           + "</ObjectType>\n"
           },
 
           { false,
             "<!-- test 13 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"-456\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"-456\"/>\n"
           + "</ObjectType>\n"
           },
 
           { false,
             "<!-- test 14 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"10\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"10\"/>\n"
           + "</ObjectType>\n"
           },
 
           { true,
             "<!-- test 15 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -279,8 +279,8 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 16 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"aaa\" type=\"int\" storageId=\"2\"/>\n"
-          + "  <SimpleField name=\"bbb\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"aaa\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"bbb\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -288,8 +288,8 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 17 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"3\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -297,40 +297,40 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 18a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
           { true,
             "<!-- test 18b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\" indexed=\"true\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
           { true,
             "<!-- test 18c -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\" indexed=\"true\"/>\n"
           + "</ObjectType>\n"
           },
 
           { false,
             "<!-- test 18d -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\" indexed=\"true\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\" indexed=\"true\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -338,10 +338,10 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 18 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"float\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -359,10 +359,10 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 20 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -370,7 +370,7 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 21 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" name=\"dummy\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"dummy\" storageId=\"21\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -379,12 +379,12 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 22 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"11\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -393,12 +393,12 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 22.5 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"       // indexed
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"true\"/>\n"       // indexed
           + "  </SetField>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"11\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"false\"/>\n"      // not indexed
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"false\"/>\n"      // not indexed
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -408,12 +408,12 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 23 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -423,12 +423,12 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 23.5 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
           + "  <SetField name=\"set\" storageId=\"21\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -468,10 +468,10 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 28 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -491,7 +491,7 @@ public class SchemaTest extends CoreAPITestSupport {
           { false,
             "<!-- test 31 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"2foo\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"2foo\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -500,7 +500,7 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 32 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField name=\"element\" type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"element\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -509,8 +509,8 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 33 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"map\" storageId=\"20\">\n"
-          + "    <SimpleField name=\"key\" type=\"int\" storageId=\"22\"/>\n"
-          + "    <SimpleField name=\"value\" type=\"int\" storageId=\"23\"/>\n"
+          + "    <SimpleField name=\"key\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"value\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"23\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n"
           },
@@ -519,7 +519,7 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 34 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField name=\"item\" type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"item\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n"
           },
@@ -528,8 +528,8 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 35 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"map\" storageId=\"20\">\n"
-          + "    <SimpleField name=\"KEY\" type=\"int\" storageId=\"22\"/>\n"
-          + "    <SimpleField name=\"VALUE\" type=\"int\" storageId=\"23\"/>\n"
+          + "    <SimpleField name=\"KEY\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"VALUE\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"23\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n"
           },
@@ -540,19 +540,19 @@ public class SchemaTest extends CoreAPITestSupport {
           + "<ObjectType storageId=\"10\"/>\n"
           },
 
-          // Correct signature
+          // Correct encoding
           { true,
             "<!-- test 37 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"bar\" type=\"bar\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"bar\" encoding=\"urn:foo:bar\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           },
 
-          // Incorrect signature
+          // Incorrect encoding
           { false,
             "<!-- test 38 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"bar\" type=\"bar\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"bar\" encoding=\"urn:something:else\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -579,7 +579,7 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 1.1a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField type=\"int\" name=\"dummy\" storageId=\"20\"/>\n"
+          + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"dummy\" storageId=\"20\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.1b -->\n"
@@ -592,13 +592,13 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 1.2a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.2b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"20\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\" indexed=\"true\"/>\n"
           + "</ObjectType>\n",
           },
 
@@ -606,17 +606,17 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 1.3a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"true\"/>\n"
           + "  </SetField>\n"
           + "  <ReferenceField name=\"ref1\" storageId=\"30\"/>\n"
-          + "  <SimpleField type=\"int\" name=\"i\" storageId=\"31\"/>\n"
+          + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"i\" storageId=\"31\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.3b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
           + "  <SetField name=\"set\" storageId=\"30\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"31\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"31\" indexed=\"true\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n",
           },
@@ -656,16 +656,16 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 4a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
-          + "    <SimpleField type=\"java.lang.String\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"22\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n",
 
             "<!-- test 4b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"java.lang.String\" storageId=\"21\" indexed=\"true\"/>\n"
-          + "    <SimpleField type=\"int\" storageId=\"22\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\" indexed=\"true\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n",
           },
@@ -675,16 +675,16 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 5a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"
-          + "    <SimpleField type=\"java.lang.String\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"22\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n",
 
             "<!-- test 5b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField type=\"java.lang.String\" storageId=\"21\" indexed=\"true\"/>\n"
-          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n",
           },

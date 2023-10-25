@@ -6,7 +6,6 @@
 package io.permazen.schema;
 
 import io.permazen.core.DeleteAction;
-import io.permazen.core.FieldType;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.util.Diffs;
 
@@ -33,8 +32,6 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     private NavigableSet<Integer> objectTypes;
 
     public ReferenceSchemaField() {
-        this.setType(FieldType.REFERENCE_TYPE_NAME);
-        this.setIndexed(true);
         this.setAllowDeletedSnapshot(true);
     }
 
@@ -117,20 +114,22 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void validate() {
         super.validate();
-        if (!FieldType.REFERENCE_TYPE_NAME.equals(this.getType())) {
-            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type \""
-              + FieldType.REFERENCE_TYPE_NAME + "\"");
-        }
-        if (!this.isIndexed())
-            throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");
-        if (this.getEncodingSignature() != 0)
-            throw new IllegalArgumentException("invalid " + this + ": encoding signature must be zero");
         if (this.onDelete == null)
             throw new InvalidSchemaException("invalid " + this + ": no delete action specified");
         if (this.onDelete == DeleteAction.NOTHING && (!this.allowDeleted || !this.allowDeletedSnapshot)) {
             throw new InvalidSchemaException("invalid " + this + ": delete action " + this.onDelete
               + " is incompatible with disallowing assignment to deleted objects");
         }
+    }
+
+    @Override
+    boolean hasFixedEncoding() {
+        return true;
+    }
+
+    @Override
+    boolean isAlwaysIndexed() {
+        return true;
     }
 
 // SchemaFieldSwitch
@@ -150,7 +149,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    void writeFieldTypeCompatibilityHashData(DataOutputStream output) throws IOException {
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
         output.writeBoolean(this.objectTypes != null);
         if (this.objectTypes != null) {
             output.writeInt(this.objectTypes.size());
@@ -262,7 +262,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 
     @Override
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        // don't need to write type or indexed
+        super.writeSimpleAttributes(writer);
         if (this.cascadeDelete) {
             writer.writeAttribute(XMLConstants.CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(),
               XMLConstants.CASCADE_DELETE_ATTRIBUTE.getLocalPart(), "" + this.cascadeDelete);
@@ -305,4 +305,3 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return clone;
     }
 }
-

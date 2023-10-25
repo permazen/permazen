@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.EncodingIds;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,7 +24,7 @@ public class URIType extends StringEncodedType<URI> {
     private static final long serialVersionUID = -7746505152033541526L;
 
     public URIType() {
-        super(URI.class, 0, new URIConverter());
+        super(EncodingIds.builtin("URI"), URI.class, new URIConverter());
     }
 
 // URIConverter

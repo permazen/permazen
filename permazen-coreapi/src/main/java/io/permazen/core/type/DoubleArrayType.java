@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -38,7 +38,7 @@ public class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     @SuppressWarnings("serial")
     public DoubleArrayType() {
-        super(FieldTypeRegistry.DOUBLE, new TypeToken<double[]>() { });
+        super(Encodings.DOUBLE, new TypeToken<double[]>() { });
     }
 
     @Override

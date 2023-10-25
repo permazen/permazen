@@ -2942,7 +2942,7 @@ public class Transaction {
             // Traverse reference
             final ArrayList<NavigableSet<ObjId>> refsList = this.traverseReference(ids, pathId, filter);
             if (refsList.isEmpty())
-                return NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
+                return NavigableSets.empty(Encodings.OBJ_ID);
 
             // Recurse on the union of the resulting object sets
             ids = NavigableSets.union(refsList);
@@ -3260,7 +3260,7 @@ public class Transaction {
                 final byte[] prefix = writer.getBytes();
 
                 // Query the index to get all objects referring to the target object through this field (in any schema version)
-                final IndexSet<ObjId> indexSet = new IndexSet<>(this.kvt, FieldTypeRegistry.OBJ_ID, true, prefix);
+                final IndexSet<ObjId> indexSet = new IndexSet<>(this.kvt, Encodings.OBJ_ID, true, prefix);
 
                 // Now restrict those referrers to only those object types where the field's DeleteAction matches (if necessary)
                 NavigableSet<ObjId> referrers = keyRanges != null ? indexSet.filterKeys(keyRanges) : indexSet;

@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -33,7 +33,7 @@ public class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 
     @SuppressWarnings("serial")
     public BooleanArrayType() {
-        super(FieldTypeRegistry.BOOLEAN, new TypeToken<boolean[]>() { });
+        super(Encodings.BOOLEAN, new TypeToken<boolean[]>() { });
     }
 
     @Override
@@ -113,4 +113,3 @@ loop:   while (true) {
         return Booleans.toArray(elements);
     }
 }
-

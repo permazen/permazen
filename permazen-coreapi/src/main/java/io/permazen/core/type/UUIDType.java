@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -29,7 +30,7 @@ public class UUIDType extends NonNullFieldType<UUID> {
     private static final String PATTERN = "\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}";
 
     public UUIDType() {
-        super(UUID.class, 0);
+        super(EncodingIds.builtin("UUID"), UUID.class);
     }
 
 // FieldType

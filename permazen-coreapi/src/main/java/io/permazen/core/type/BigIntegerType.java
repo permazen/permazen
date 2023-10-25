@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -23,7 +24,7 @@ public class BigIntegerType extends NonNullFieldType<BigInteger> {
     private static final int MAX_NUM_BYTES = (Integer.MAX_VALUE / Byte.SIZE) + 1;
 
     public BigIntegerType() {
-        super(BigInteger.class, 0);
+        super(EncodingIds.builtin("BigInteger"), BigInteger.class);
     }
 
 // FieldType

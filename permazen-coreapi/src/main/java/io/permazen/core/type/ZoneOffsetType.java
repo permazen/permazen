@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -30,7 +31,7 @@ public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
     private static final long serialVersionUID = 4606196393878370203L;
 
     public ZoneOffsetType() {
-        super(ZoneOffset.class, 0);
+        super(EncodingIds.builtin("ZoneOffset"), ZoneOffset.class);
     }
 
 // FieldType

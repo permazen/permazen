@@ -5,6 +5,7 @@ Version 5.0.0
         - Jakarta EE 9
         - Spring 6
         - Vaadin 24
+    - Use globally unique URNs to identify field encodings
 
 Version 4.2.0 Released April 4, 2023
 

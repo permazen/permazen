@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.primitives.Ints;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +22,7 @@ public class IntegerArrayType extends IntegralArrayType<int[], Integer> {
     private static final long serialVersionUID = 2097437088172327725L;
 
     public IntegerArrayType() {
-       super(FieldTypeRegistry.INTEGER, int[].class);
+       super(Encodings.INTEGER, int[].class);
     }
 
     @Override

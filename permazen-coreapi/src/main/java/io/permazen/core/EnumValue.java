@@ -16,7 +16,7 @@ import java.io.Serializable;
  * <p>
  * Instances are immutable.
  *
- * @see io.permazen.core.type.EnumFieldType
+ * @see io.permazen.core.type.EnumValueFieldType
  * @see io.permazen.EnumConverter
  */
 public class EnumValue implements Serializable {

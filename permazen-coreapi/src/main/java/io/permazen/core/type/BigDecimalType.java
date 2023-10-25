@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -37,7 +38,7 @@ public class BigDecimalType extends NonNullFieldType<BigDecimal> {
     private static final int FLAG_POSITIVE = 0x03;
 
     public BigDecimalType() {
-        super(BigDecimal.class, 0);
+        super(EncodingIds.builtin("BigDecimal"), BigDecimal.class);
     }
 
 // FieldType

@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.AbstractFieldType;
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -30,7 +32,7 @@ import io.permazen.util.ParseContext;
  *
  * @param <T> The associated Java type
  */
-public class NullSafeType<T> extends FieldType<T> {
+public class NullSafeType<T> extends AbstractFieldType<T> {
 
     /**
      * Not null sentinel byte value. Used only when inlining is not in effect.
@@ -54,24 +56,27 @@ public class NullSafeType<T> extends FieldType<T> {
     /**
      * Constructor.
      *
-     * @param name type name
+     * @param encodingId encoding ID
      * @param inner inner type that is not null safe
      */
-    public NullSafeType(String name, FieldType<T> inner) {
-        super(name, inner.getTypeToken().wrap(), inner.getEncodingSignature(), null);
+    public NullSafeType(EncodingId encodingId, FieldType<T> inner) {
+        super(encodingId, inner.getTypeToken().wrap(), null);
         Preconditions.checkArgument(!(inner instanceof NullSafeType), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();
     }
 
     /**
-     * Constructor. Takes type name from {@code inner}; therefore, this instance and {@code inner}
+     * Constructor when wrapping a non-registered inner type.
+     *
+     * <p>
+     * Takes encoding ID from {@code inner}; therefore, this instance and {@code inner}
      * cannot be both registered in a {@link io.permazen.core.FieldTypeRegistry}.
      *
      * @param inner inner type that is not null safe
      */
     public NullSafeType(FieldType<T> inner) {
-       this(inner.getName(), inner);
+       this(inner.getEncodingId(), inner);
     }
 
     /**
@@ -211,4 +216,3 @@ public class NullSafeType<T> extends FieldType<T> {
         return this.inner.equals(that.inner);
     }
 }
-

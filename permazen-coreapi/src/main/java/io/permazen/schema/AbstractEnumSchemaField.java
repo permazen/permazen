@@ -9,7 +9,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.type.EnumFieldType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;
@@ -55,18 +55,16 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
     @Override
     void validate() {
         super.validate();
-        if (this.getEncodingSignature() != 0)
-            throw new IllegalArgumentException("invalid " + this + ": encoding signature must be zero");
         try {
-            EnumFieldType.validateIdentifiers(this.idents);
+            EnumValueFieldType.validateIdentifiers(this.idents);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid " + this + ": " + e.getMessage(), e);
         }
     }
 
     @Override
-    void validateType() {
-        // we ignore the type
+    final boolean hasFixedEncoding() {
+        return true;
     }
 
 // Compatibility
@@ -80,7 +78,8 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    void writeFieldTypeCompatibilityHashData(DataOutputStream output) throws IOException {
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
         output.writeInt(this.idents.size());
         for (String ident : this.idents)
             output.writeUTF(ident);
@@ -106,11 +105,6 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
             writer.writeEndElement();
         }
         writer.writeEndElement();
-    }
-
-    @Override
-    void writeTypeAttribute(XMLStreamWriter writer) throws XMLStreamException {
-        // we ignore the type
     }
 
     abstract void writeElement(XMLStreamWriter writer, boolean includeName) throws XMLStreamException;
@@ -152,11 +146,6 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
             diffs.add("changed enum identifier list", enumDiffs);
         }
         return diffs;
-    }
-
-    @Override
-    void addTypeDifference(Diffs diffs, SimpleSchemaField that) {
-        // we ignore the type
     }
 
 // Object

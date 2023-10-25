@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -32,7 +33,7 @@ public class StringType extends NonNullFieldType<String> {
     private static final int ESCAPE = 0x01;
 
     public StringType() {
-       super(String.class, 0);
+       super(EncodingIds.builtin("String"), String.class);
     }
 
     @Override

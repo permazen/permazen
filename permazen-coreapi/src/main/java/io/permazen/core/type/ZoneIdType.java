@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.EncodingIds;
+
 import java.io.Serializable;
 import java.time.ZoneId;
 
@@ -18,7 +20,7 @@ public class ZoneIdType extends StringEncodedType<ZoneId> {
     private static final long serialVersionUID = -4059733969700779261L;
 
     public ZoneIdType() {
-        super(ZoneId.class, 0, new ZoneIdConverter());
+        super(EncodingIds.builtin("ZoneId"), ZoneId.class, new ZoneIdConverter());
     }
 
 // ZoneIdConverter

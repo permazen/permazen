@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.EncodingIds;
+
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
@@ -23,7 +25,7 @@ public class PatternType extends StringEncodedType<Pattern> {
     private static final long serialVersionUID = -6406385779194286899L;
 
     public PatternType() {
-        super(Pattern.class, 0, new PatternConverter());
+        super(EncodingIds.builtin("Pattern"), Pattern.class, new PatternConverter());
     }
 
 // PatternConverter

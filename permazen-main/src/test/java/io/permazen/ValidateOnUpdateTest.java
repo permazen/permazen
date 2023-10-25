@@ -35,7 +35,7 @@ public class ValidateOnUpdateTest extends TestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "    <SimpleField name=\"uuid\" storageId=\"11\" type=\"java.util.UUID\"/>\n"
+          + "    <SimpleField name=\"uuid\" storageId=\"11\" encoding=\"urn:fdc:permazen.io:2020:enc:UUID\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));

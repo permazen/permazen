@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.EnumValue;
 import io.permazen.util.ByteReader;
@@ -22,21 +21,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This is the inner, non-null supporting {@link io.permazen.core.FieldType} for {@link EnumFieldType}.
+ * This is the inner, non-null supporting {@link io.permazen.core.FieldType} for {@link EnumValueFieldType}.
  *
  * <p>
  * Binary encoding is via the {@link UnsignedIntEncoder}-encoded {@linkplain EnumValue#getOrdinal ordinal} value.
  */
-public class EnumType extends NonNullFieldType<EnumValue> {
+public class EnumValueType extends NonNullFieldType<EnumValue> {
 
     private static final long serialVersionUID = -5645700883023141035L;
 
     private final Map<String, EnumValue> identifierMap;
     private final List<EnumValue> enumValueList;
 
-    public EnumType(List<String> idents) {
-        super("enum", TypeToken.of(EnumValue.class), 0);
-        this.identifierMap = Collections.unmodifiableMap(EnumFieldType.validateIdentifiers(idents));
+    public EnumValueType(List<String> idents) {
+        super(null, EnumValue.class);
+        this.identifierMap = Collections.unmodifiableMap(EnumValueFieldType.validateIdentifiers(idents));
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));
     }
 
@@ -79,7 +78,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
     public EnumValue fromString(String string) {
         final EnumValue value = this.identifierMap.get(string);
         if (value == null)
-            throw new IllegalArgumentException("unknown identifier \"" + string + "\" for enum type \"" + this.getName() + "\"");
+            throw new IllegalArgumentException("unknown enum identifier \"" + string + "\"");
         return value;
     }
 
@@ -90,7 +89,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
 
     @Override
     public EnumValue fromParseableString(ParseContext context) {
-        final Matcher matcher = context.tryPattern(Pattern.compile(EnumFieldType.IDENT_PATTERN));
+        final Matcher matcher = context.tryPattern(Pattern.compile(EnumValueFieldType.IDENT_PATTERN));
         if (matcher == null)
             throw context.buildException("expected enum identifier");
         final String ident = matcher.group();
@@ -141,7 +140,7 @@ public class EnumType extends NonNullFieldType<EnumValue> {
             return true;
         if (!super.equals(obj))
             return false;
-        final EnumType that = (EnumType)obj;
+        final EnumValueType that = (EnumValueType)obj;
         return this.enumValueList.equals(that.enumValueList);
     }
 }

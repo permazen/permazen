@@ -69,7 +69,7 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "    <SimpleField name=\"s\" type=\"java.lang.String\" storageId=\"11\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"s\" encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"11\" indexed=\"true\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));

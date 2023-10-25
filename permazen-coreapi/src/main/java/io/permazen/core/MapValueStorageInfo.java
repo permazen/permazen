@@ -22,7 +22,7 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
 
     CoreIndex2<V, ObjId, K> getValueIndex(Transaction tx) {
         return new CoreIndex2<>(tx.kvt,
-          new Index2View<>(this.storageId, this.fieldType, FieldTypeRegistry.OBJ_ID, this.keyFieldType));
+          new Index2View<>(this.storageId, this.fieldType, Encodings.OBJ_ID, this.keyFieldType));
     }
 
     @Override

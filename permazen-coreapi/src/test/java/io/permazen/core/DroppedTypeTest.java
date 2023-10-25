@@ -24,10 +24,10 @@ public class DroppedTypeTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"val\" type=\"int\" storageId=\"3\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"2\">\n"
-          + "    <SimpleField name=\"val\" type=\"int\" storageId=\"4\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"4\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
@@ -36,7 +36,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"val\" type=\"int\" storageId=\"3\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));

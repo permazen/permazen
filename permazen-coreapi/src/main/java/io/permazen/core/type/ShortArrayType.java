@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.primitives.Shorts;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +22,7 @@ public class ShortArrayType extends IntegralArrayType<short[], Short> {
     private static final long serialVersionUID = 2001467018347663363L;
 
     public ShortArrayType() {
-       super(FieldTypeRegistry.SHORT, short[].class);
+       super(Encodings.SHORT, short[].class);
     }
 
     @Override

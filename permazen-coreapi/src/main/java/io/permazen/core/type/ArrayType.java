@@ -5,15 +5,16 @@
 
 package io.permazen.core.type;
 
-import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Superclass for all array {@link FieldType}s.
@@ -33,51 +34,32 @@ import java.util.List;
  */
 public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
-    /**
-     * Array type name suffix.
-     */
-    public static final String ARRAY_SUFFIX = "[]";
-
-    /**
-     * Maximum allowed array dimensions ({@value #MAX_DIMENSIONS}).
-     */
-    public static final int MAX_DIMENSIONS = 255;
-
     private static final long serialVersionUID = 3776218636387986632L;
 
     final FieldType<E> elementType;
-    final int dimensions;
 
     /**
      * Constructor.
      *
      * @param elementType array element type (possibly also an {@link ArrayType})
      * @param typeToken array type token
+     * @throws IllegalArgumentException if {@code elementType} is an {@link ArrayType} with
+     *  {@link FieldType#MAX_ARRAY_DIMENSIONS} dimensions
      */
     @SuppressWarnings("unchecked")
     protected ArrayType(FieldType<E> elementType, TypeToken<T> typeToken) {
-        super(elementType.getName() + "[]", typeToken, elementType.getEncodingSignature(),
-          (T)Array.newInstance(elementType.getTypeToken().getRawType(), 0));
+        super(Optional.ofNullable(elementType.getEncodingId()).map(EncodingId::getArrayId).orElse(null),
+          typeToken, (T)Array.newInstance(elementType.getTypeToken().getRawType(), 0));
         this.elementType = elementType;
-
-        // Introspect to deduce the total number of dimensions
-        FieldType<?> etype = elementType;
-        if (etype instanceof NullSafeType)
-            etype = ((NullSafeType<?>)elementType).getInnerType();
-        if (etype instanceof ArrayType)
-            this.dimensions = ((ArrayType<?, ?>)etype).dimensions + 1;
-        else
-            this.dimensions = 1;
-        Preconditions.checkArgument(this.dimensions <= MAX_DIMENSIONS, "too many array dimensions");
     }
 
     /**
-     * Get the number of array dimensions.
+     * Get the element type.
      *
-     * @return array dimensions, a value between 1 and {@link #MAX_DIMENSIONS} (inclusive)
+     * @return element type
      */
-    public int getDimensions() {
-        return this.dimensions;
+    public FieldType<E> getElementType() {
+        return this.elementType;
     }
 
     @Override
@@ -133,7 +115,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.elementType.hashCode() ^ this.dimensions;
+        return super.hashCode() ^ this.elementType.hashCode();
     }
 
     @Override
@@ -143,7 +125,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
         if (!super.equals(obj))
             return false;
         final ArrayType<?, ?> that = (ArrayType<?, ?>)obj;
-        return this.dimensions == that.dimensions && this.elementType.equals(that.elementType);
+        return this.elementType.equals(that.elementType);
     }
 
 // Conversion
@@ -202,4 +184,3 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      */
     protected abstract T createArray(List<E> elements);
 }
-

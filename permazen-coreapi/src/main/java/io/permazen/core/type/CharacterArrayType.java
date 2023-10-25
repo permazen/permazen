@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.Encodings;
 import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -30,7 +30,7 @@ public class CharacterArrayType extends ArrayType<char[], Character> {
 
     @SuppressWarnings("serial")
     public CharacterArrayType() {
-        super(FieldTypeRegistry.CHARACTER, new TypeToken<char[]>() { });
+        super(Encodings.CHARACTER, new TypeToken<char[]>() { });
     }
 
     @Override

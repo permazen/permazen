@@ -8,8 +8,11 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.PermazenFieldTypeRegistry;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
@@ -51,11 +54,12 @@ import org.testng.annotations.Test;
 
 public class FieldTypeTest extends CoreAPITestSupport {
 
-    private final FieldTypeRegistry registry = new FieldTypeRegistry();
+    private final FieldTypeRegistry registry = new PermazenFieldTypeRegistry();
 
     @Test(dataProvider = "cases")
     public void testFieldType(String typeName, Object[] values) throws Exception {
-        final FieldType<?> fieldType = registry.getFieldType(typeName);
+        final EncodingId encodingId = EncodingIds.builtin(typeName);
+        final FieldType<?> fieldType = registry.getFieldType(encodingId);
         assert fieldType != null : "didn't find \"" + typeName + "\"";
         this.testFieldType2(fieldType, values);
     }
@@ -212,7 +216,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 false, true
             }},
 
-            {   "java.lang.Boolean", new Boolean[] {
+            {   "Boolean", new Boolean[] {
                 Boolean.FALSE, Boolean.TRUE, null
             }},
 
@@ -262,7 +266,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 null
             }},
 
-            {   "java.util.Date[]", new Date[][] {
+            {   "Date[]", new Date[][] {
                 { },
                 { new Date() },
                 { null },
@@ -274,7 +278,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 null
             }},
 
-            {   "java.lang.String", new String[] {
+            {   "String", new String[] {
                 "",
                 "\u0000",
                 "\u0000x",
@@ -376,7 +380,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 null
             }},
 
-            {   UUID.class.getName(), new UUID[] {
+            {   UUID.class.getSimpleName(), new UUID[] {
                 UUID.fromString("89b3ed7f-5a7e-4604-9d42-2072248c91e7"),
                 UUID.fromString("b9c069d9-8b09-445e-ad99-9f4b89a14779"),
                 UUID.fromString("e82fd154-7027-479c-ba47-3d01374d82ad"),
@@ -391,108 +395,108 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 null
             }},
 
-            {   URI.class.getName(), new URI[] {
+            {   URI.class.getSimpleName(), new URI[] {
                 new URI("/foobar"),
                 new URI("http://www.google.com/"),
                 new URI("http://www.google.com/?q=permazen"),
                 null
             }},
 
-            {   File.class.getName(), new File[] {
+            {   File.class.getSimpleName(), new File[] {
                 new File(".profile"),
                 new File("/lost+found"),
                 new File("/tmp/foo"),
                 null
             }},
 
-            {   Pattern.class.getName(), new Pattern[] {
+            {   Pattern.class.getSimpleName(), new Pattern[] {
                 Pattern.compile("(foo)?(bar)?"),
                 Pattern.compile("^.*([\\s@]+)$"),
                 Pattern.compile("ab*c"),
                 null
             }},
 
-            {   Duration.class.getName(), this.genSorted(
+            {   Duration.class.getSimpleName(), this.genSorted(
                 () -> Duration.ofSeconds((long)this.random.nextInt() << 32 + this.random.nextInt(), this.randomNano()),
                 Duration.ZERO)
             },
 
-            {   Instant.class.getName(), this.genSorted(
+            {   Instant.class.getSimpleName(), this.genSorted(
                 () -> Instant.ofEpochSecond(this.random.nextInt(), this.randomNano()),
                 Instant.now())
             },
 
-            {   LocalDateTime.class.getName(), this.genSorted(
+            {   LocalDateTime.class.getSimpleName(), this.genSorted(
                 () -> LocalDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(),
                   this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano()),
                 LocalDateTime.now())
             },
 
-            {   LocalDate.class.getName(), this.genSorted(
+            {   LocalDate.class.getSimpleName(), this.genSorted(
                 () -> LocalDate.of(this.randomYear(), this.randomMonth(), this.randomDay()),
                 LocalDate.now())
             },
 
-            {   LocalTime.class.getName(), this.genSorted(
+            {   LocalTime.class.getSimpleName(), this.genSorted(
                 () -> LocalTime.of(this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano()),
                 LocalTime.now())
             },
 
-            {   MonthDay.class.getName(), this.genSorted(
+            {   MonthDay.class.getSimpleName(), this.genSorted(
                 () -> MonthDay.of(this.randomMonth(), this.randomDay()),
                 MonthDay.now())
             },
 
-            {   OffsetDateTime.class.getName(), this.genSorted(
+            {   OffsetDateTime.class.getSimpleName(), this.genSorted(
                 () -> OffsetDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(),
                   this.randomHour(), this.randomMinute(), this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
                 OffsetDateTime.now())
             },
 
-            {   OffsetTime.class.getName(), this.genSorted(
+            {   OffsetTime.class.getSimpleName(), this.genSorted(
                 () -> OffsetTime.of(this.randomHour(), this.randomMinute(),
                   this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
                 OffsetTime.now())
             },
 
-            {   Period.class.getName(), new Period[] {
+            {   Period.class.getSimpleName(), new Period[] {
                 Period.of(-10, 0, 0),
                 Period.ZERO,
                 Period.of(0, 3, 17),
                 Period.of(20, 3, 17),
             }},
 
-            {   YearMonth.class.getName(), this.genSorted(
+            {   YearMonth.class.getSimpleName(), this.genSorted(
                 () -> YearMonth.of(this.randomYear(), this.randomMonth()),
                 YearMonth.now())
             },
 
-            {   Year.class.getName(), this.genSorted(
+            {   Year.class.getSimpleName(), this.genSorted(
                 () -> Year.of(this.randomYear()),
                 Year.now())
             },
 
-            {   ZoneOffset.class.getName(), this.genSorted(
+            {   ZoneOffset.class.getSimpleName(), this.genSorted(
                 () -> ZoneOffset.ofTotalSeconds(this.randomOffsetSeconds()),
                 ZoneOffset.UTC,
                 ZoneOffset.MIN,
                 ZoneOffset.MAX)
             },
 
-            {   ZonedDateTime.class.getName(), this.genSorted(
+            {   ZonedDateTime.class.getSimpleName(), this.genSorted(
                 () -> ZonedDateTime.of(this.randomYear(), this.randomMonth(), this.randomDay(), this.randomHour(),
                   this.randomMinute(), this.randomSecond(), this.randomNano(), ZoneOffset.UTC),
                 ZonedDateTime.now())
             },
 
-            {   InternetAddress.class.getName(), new InternetAddress[] {
+            {   InternetAddress.class.getSimpleName(), new InternetAddress[] {
                 new InternetAddress("\"Abercrombie & Kent\" <safari@ak.com>"),
                 new InternetAddress("Fred Example <fred@example.com>"),
                 new InternetAddress("linus@kernel.org"),
                 new InternetAddress("xxx+foobar@3com.net"),
             }},
 
-            {   Inet4Address.class.getName(), new Inet4Address[] {
+            {   Inet4Address.class.getSimpleName(), new Inet4Address[] {
                 (Inet4Address)InetAddresses.forString("0.0.0.0"),
                 (Inet4Address)InetAddresses.forString("10.7.7.32"),
                 (Inet4Address)InetAddresses.forString("192.168.0.1"),
@@ -500,7 +504,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 (Inet4Address)InetAddresses.forString("255.255.255.255"),
             }},
 
-            {   Inet6Address.class.getName(), new Inet6Address[] {
+            {   Inet6Address.class.getSimpleName(), new Inet6Address[] {
                 (Inet6Address)InetAddresses.forString("::0"),
                 (Inet6Address)InetAddresses.forString("::1"),
                 (Inet6Address)InetAddresses.forString("::0a07:0730"),
@@ -512,7 +516,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 (Inet6Address)InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
             }},
 
-            {   InetAddress.class.getName(), new InetAddress[] {
+            {   InetAddress.class.getSimpleName(), new InetAddress[] {
                 InetAddresses.forString("0.0.0.0"),
                 InetAddresses.forString("10.7.7.32"),
                 InetAddresses.forString("192.168.0.1"),
@@ -529,7 +533,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
             }},
 
-            {   BitSet.class.getName(), new BitSet[] {
+            {   BitSet.class.getSimpleName(), new BitSet[] {
                 new BitSet(),
                 BitSet.valueOf(new byte[] { (byte)0x01                          }),
                 BitSet.valueOf(new byte[] { (byte)0x05, (byte)0x00              }),
@@ -551,7 +555,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 BitSet.valueOf(new byte[] { (byte)0xff, (byte)0xff, (byte)0xff  }),
             }},
 
-            {   BigInteger.class.getName(), new BigInteger[] {
+            {   BigInteger.class.getSimpleName(), new BigInteger[] {
                 new BigInteger("-9999999999999999999999999999999999999"),
                 new BigInteger("-4089446911"),
                 new BigInteger("-62915071"),
@@ -598,7 +602,7 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 new BigInteger("9999999999999999999999999999999999999"),
             }},
 
-            {   BigDecimal.class.getName(), new BigDecimal[] {
+            {   BigDecimal.class.getSimpleName(), new BigDecimal[] {
                 new BigDecimal("-9999999999999999999999999999999999999e1000"),
                 new BigDecimal("-9999999999999999999999999999999999999e100"),
                 new BigDecimal("-9999999999999999999999999999999999999e10"),

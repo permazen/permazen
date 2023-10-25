@@ -7,8 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.ArrayType;
-import io.permazen.core.type.EnumFieldType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.EnumSchemaField;
@@ -54,54 +53,33 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
-        final String fieldTypeName = field.getType();
-        final long signature = field.getEncodingSignature();
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName, signature);
+        final EncodingId encodingId = field.getEncodingId();
+        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(encodingId);
         if (fieldType == null) {
-            final StringBuilder buf = new StringBuilder("unknown field type \"" + fieldTypeName + "\"");
-            if (signature != 0)
-                buf.append(" with signature ").append(signature);
-            buf.append(" for field \"").append(field.getName()).append('\"');
-            boolean foundAny = false;
-            for (FieldType<?> otherFieldType : this.fieldTypeRegistry.getAll()) {
-                if (otherFieldType.getName().equals(fieldTypeName)) {
-                    if (!foundAny) {
-                        buf.append(" (note: field type(s) named \"").append(fieldTypeName)
-                          .append("\" exist but with different signature(s): ");
-                        foundAny = true;
-                    } else
-                        buf.append(", ");
-                    buf.append(otherFieldType.getEncodingSignature());
-                }
-            }
-            if (foundAny)
-                buf.append(')');
-            throw new IllegalArgumentException(buf.toString());
+            throw new IllegalArgumentException(
+              String.format("unknown encoding \"%s\" for field \"%s\"", encodingId, field.getName()));
         }
         return this.buildSimpleField(field, field.getName(), fieldType);
     }
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
         return new ReferenceField(field.getName(), field.getStorageId(), this.schema, field.getOnDelete(),
           field.isCascadeDelete(), field.isAllowDeleted(), field.isAllowDeletedSnapshot(), field.getObjectTypes());
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
-        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
         return new EnumField(field.getName(), field.getStorageId(), this.schema, field.isIndexed(), field.getIdentifiers());
     }
 
     @Override
     public EnumArrayField caseEnumArraySchemaField(EnumArraySchemaField field) {
-        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
-        Preconditions.checkArgument(field.getDimensions() >= 1 && field.getDimensions() <= ArrayType.MAX_DIMENSIONS);
-        final EnumFieldType baseType = new EnumFieldType(field.getIdentifiers());
+        Preconditions.checkArgument(field.getDimensions() >= 1 && field.getDimensions() <= FieldType.MAX_ARRAY_DIMENSIONS);
+        final EnumValueFieldType baseType = new EnumValueFieldType(field.getIdentifiers());
         FieldType<?> fieldType = baseType;
         for (int dims = 0; dims < field.getDimensions(); dims++)
-            fieldType = this.fieldTypeRegistry.getArrayType(fieldType);
+            fieldType = SimpleFieldTypeRegistry.buildArrayType(fieldType);
         return new EnumArrayField(field.getName(), field.getStorageId(),
           this.schema, field.isIndexed(), baseType, fieldType, field.getDimensions());
     }
@@ -115,7 +93,6 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
-        assert field.getEncodingSignature() == fieldType.getEncodingSignature();
         return new SimpleField<>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
     }
 
@@ -134,4 +111,3 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
         return new MapField<>(field.getName(), field.getStorageId(), this.schema, keyField, valueField);
     }
 }
-

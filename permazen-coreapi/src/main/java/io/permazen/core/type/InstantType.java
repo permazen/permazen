@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -29,7 +30,7 @@ public class InstantType extends NonNullFieldType<Instant> {
     private static final long serialVersionUID = -3907615112193058091L;
 
     public InstantType() {
-        super(Instant.class, 0);
+        super(EncodingIds.builtin("Instant"), Instant.class);
     }
 
 // FieldType

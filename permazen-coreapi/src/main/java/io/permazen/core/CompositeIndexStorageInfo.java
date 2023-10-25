@@ -55,7 +55,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
         return new CoreIndex2<>(tx.kvt, new Index2View<>(this.storageId,
           value1Type,
           value2Type,
-          FieldTypeRegistry.OBJ_ID));
+          Encodings.OBJ_ID));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -67,7 +67,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
           value1Type,
           value2Type,
           value3Type,
-          FieldTypeRegistry.OBJ_ID));
+          Encodings.OBJ_ID));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -81,7 +81,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
           value2Type,
           value3Type,
           value4Type,
-          FieldTypeRegistry.OBJ_ID));
+          Encodings.OBJ_ID));
     }
 
 // Object

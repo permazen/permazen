@@ -42,7 +42,7 @@ class ObjInfo {
         this.version = UnsignedIntEncoder.read(reader);
         if (this.version == 0)
             throw new InvalidObjectVersionException(this.id, this.version);
-        this.deleteNotified = FieldTypeRegistry.BOOLEAN.read(reader);
+        this.deleteNotified = Encodings.BOOLEAN.read(reader);
     }
 
     // Constructor for explicitly given data
@@ -95,7 +95,7 @@ class ObjInfo {
         final ByteWriter writer = new ByteWriter();
         UnsignedIntEncoder.write(writer, META_DATA_VERSION);
         UnsignedIntEncoder.write(writer, version);
-        FieldTypeRegistry.BOOLEAN.write(writer, deleteNotified);
+        Encodings.BOOLEAN.write(writer, deleteNotified);
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }
 

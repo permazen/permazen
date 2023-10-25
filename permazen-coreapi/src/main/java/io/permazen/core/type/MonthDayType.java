@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -29,7 +30,7 @@ public class MonthDayType extends NonNullFieldType<MonthDay> {
     private static final long serialVersionUID = -8813919603844250786L;
 
     public MonthDayType() {
-        super(MonthDay.class, 0);
+        super(EncodingIds.builtin("MonthDay"), MonthDay.class);
     }
 
 // FieldType

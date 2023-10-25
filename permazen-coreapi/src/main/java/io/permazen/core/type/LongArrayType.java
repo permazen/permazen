@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.primitives.Longs;
 
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encodings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +22,7 @@ public class LongArrayType extends IntegralArrayType<long[], Long> {
     private static final long serialVersionUID = 7577070533837522681L;
 
     public LongArrayType() {
-       super(FieldTypeRegistry.LONG, long[].class);
+       super(Encodings.LONG, long[].class);
     }
 
     @Override

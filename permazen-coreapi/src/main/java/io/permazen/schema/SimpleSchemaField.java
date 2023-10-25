@@ -5,7 +5,8 @@
 
 package io.permazen.schema;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
@@ -13,7 +14,6 @@ import io.permazen.util.Diffs;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -24,22 +24,26 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class SimpleSchemaField extends SchemaField implements DiffGenerating<SimpleSchemaField> {
 
-    private String type;
-    private long encodingSignature;
+    private EncodingId encodingId;
     private boolean indexed;
 
-    /**
-     * Get the name of this field's type. For example {@code "int"} for primitive integer type,
-     * {@code "java.util.Date"} for the built-in {@link java.util.Date} type, any custom type name, etc.
-     *
-     * @return field type name
-     */
-    public String getType() {
-        return this.type;
+    @SuppressWarnings("this-escape")
+    public SimpleSchemaField() {
+        if (this.isAlwaysIndexed())
+            this.setIndexed(true);
     }
-    public void setType(String type) {
+
+    /**
+     * Get the {@link EncodingId} that identifies how this field's values are encoded.
+     *
+     * @return field encoding ID
+     */
+    public EncodingId getEncodingId() {
+        return this.encodingId;
+    }
+    public void setEncodingId(EncodingId encodingId) {
         this.verifyNotLockedDown();
-        this.type = type;
+        this.encodingId = encodingId;
     }
 
     /**
@@ -55,35 +59,25 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         this.indexed = indexed;
     }
 
-    /**
-     * Get the encoding signature associated with this field's type.
-     *
-     * @return this field's encoding signature
-     * @see io.permazen.core.FieldType
-     */
-    public long getEncodingSignature() {
-        return this.encodingSignature;
-    }
-    public void setEncodingSignature(long encodingSignature) {
-        this.verifyNotLockedDown();
-        this.encodingSignature = encodingSignature;
-    }
-
 // Validation
 
     @Override
     void validate() {
         super.validate();
-        this.validateType();
+        if (!this.hasFixedEncoding() && this.encodingId == null)
+            throw new InvalidSchemaException("invalid " + this + ": no encoding ID specified");
+        else if (this.hasFixedEncoding() && this.encodingId != null)
+            throw new InvalidSchemaException("invalid " + this + ": encoding ID should be null");
+        if (this.isAlwaysIndexed() && !this.isIndexed())
+            throw new IllegalArgumentException("invalid " + this + ": field must always be indexed");
     }
 
-    void validateType() {
-        if (this.type == null)
-            throw new InvalidSchemaException("invalid " + this + ": no type specified");
-        if (!Pattern.compile(FieldType.NAME_PATTERN).matcher(this.type).matches()) {
-            throw new InvalidSchemaException("invalid " + super.toString() + " type \"" + this.type
-              + "\": does not match pattern \"" + FieldType.NAME_PATTERN + "\"");
-        }
+    boolean hasFixedEncoding() {
+        return false;
+    }
+
+    boolean isAlwaysIndexed() {
+        return false;
     }
 
 // SchemaFieldSwitch
@@ -101,24 +95,20 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
             return false;
         final SimpleSchemaField that = (SimpleSchemaField)field;
         return this.isCompatibleType(that)
-          && this.encodingSignature == that.encodingSignature
           && this.indexed == that.indexed;
     }
 
     boolean isCompatibleType(SimpleSchemaField that) {
-        return Objects.equals(this.type, that.type);
+        return Objects.equals(this.encodingId, that.encodingId);
     }
 
     @Override
-    final void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
         super.writeCompatibilityHashData(output);
-        this.writeFieldTypeCompatibilityHashData(output);
-        output.writeLong(this.encodingSignature);
+        output.writeBoolean(this.encodingId != null);
+        if (this.encodingId != null)
+            output.writeUTF(this.encodingId.getId());
         output.writeBoolean(this.indexed);
-    }
-
-    void writeFieldTypeCompatibilityHashData(DataOutputStream output) throws IOException {
-        output.writeUTF(this.type);
     }
 
 // DiffGenerating
@@ -126,17 +116,11 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     public Diffs differencesFrom(SimpleSchemaField that) {
         final Diffs diffs = new Diffs(super.differencesFrom(that));
-        this.addTypeDifference(diffs, that);
-        if (this.encodingSignature != that.encodingSignature)
-            diffs.add("changed field type encoding signature from " + that.encodingSignature + " to " + this.encodingSignature);
+        if (!this.hasFixedEncoding() && !Objects.equals(this.encodingId, that.encodingId))
+            diffs.add("changed field encoding ID from \"" + that.encodingId + "\" to \"" + this.encodingId + "\"");
         if (this.indexed != that.indexed)
             diffs.add((this.indexed ? "added" : "removed") + " index on field");
         return diffs;
-    }
-
-    void addTypeDifference(Diffs diffs, SimpleSchemaField that) {
-        if (!Objects.equals(this.type, that.type))
-            diffs.add("changed field type from \"" + that.type + "\" to \"" + this.type + "\"");
     }
 
 // XML Reading
@@ -144,23 +128,26 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        final String typeAttr = this.getAttr(reader, XMLConstants.TYPE_ATTRIBUTE, false);
-        if (typeAttr != null)
-            this.setType(typeAttr);
+        final String encodingAttr = this.getAttr(reader, XMLConstants.ENCODING_ATTRIBUTE, false);
+        if (encodingAttr != null) {
+            try {
+                this.setEncodingId(new EncodingId(encodingAttr));
+            } catch (IllegalArgumentException e) {
+                throw this.newInvalidAttributeException(reader, XMLConstants.ENCODING_ATTRIBUTE,
+                  "invalid encoding ID \"" + encodingAttr + "\"");
+            }
+        }
         final Boolean indexedAttr = this.getBooleanAttr(reader, XMLConstants.INDEXED_ATTRIBUTE, false);
         if (indexedAttr != null)
             this.setIndexed(indexedAttr);
-        final Long encodingSignatureAttr = this.getLongAttr(reader, XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE, false);
-        if (encodingSignatureAttr != null)
-            this.setEncodingSignature(encodingSignatureAttr);
     }
+
+// XML Writing
 
     @Override
     final void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         this.writeXML(writer, true);
     }
-
-// XML Writing
 
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         writer.writeEmptyElement(XMLConstants.SIMPLE_FIELD_TAG.getNamespaceURI(), XMLConstants.SIMPLE_FIELD_TAG.getLocalPart());
@@ -171,24 +158,16 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     final void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         super.writeAttributes(writer, includeName);
         this.writeSimpleAttributes(writer);
-        if (this.encodingSignature != 0) {
-            writer.writeAttribute(XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(), "" + this.encodingSignature);
-        }
     }
 
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        this.writeTypeAttribute(writer);
-        if (this.indexed) {
+        if (this.encodingId != null) {
+            writer.writeAttribute(XMLConstants.ENCODING_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.ENCODING_ATTRIBUTE.getLocalPart(), this.encodingId.getId());
+        }
+        if (!this.isAlwaysIndexed() && this.indexed) {
             writer.writeAttribute(XMLConstants.INDEXED_ATTRIBUTE.getNamespaceURI(),
               XMLConstants.INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
-        }
-    }
-
-    void writeTypeAttribute(XMLStreamWriter writer) throws XMLStreamException {
-        if (this.type != null) {
-            writer.writeAttribute(XMLConstants.TYPE_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.TYPE_ATTRIBUTE.getLocalPart(), this.type);
         }
     }
 
@@ -196,9 +175,14 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 
     @Override
     public String toString() {
-        return super.toString()
-          + (this.type != null ? " of type " + this.type : "")
-          + (this.encodingSignature != 0 ? " (encoding " + this.encodingSignature + ")" : "");
+        String string = super.toString();
+        if (this.encodingId != null) {
+            final String id = this.encodingId.getId();
+            string += id.startsWith(EncodingIds.PERMAZEN_PREFIX) ?
+              " type " + id.substring(EncodingIds.PERMAZEN_PREFIX.length()) :
+              " type \"" + id + "\"";
+        }
+        return string;
     }
 
     @Override
@@ -208,17 +192,15 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         if (!super.equals(obj))
             return false;
         final SimpleSchemaField that = (SimpleSchemaField)obj;
-        return Objects.equals(this.type, that.type)
-          && this.encodingSignature == that.encodingSignature
+        return Objects.equals(this.encodingId, that.encodingId)
           && this.indexed == that.indexed;
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
-          ^ Objects.hashCode(this.type)
-          ^ ((Long)this.encodingSignature).hashCode()
-          ^ (this.indexed ? 1 : 0);
+          ^ Objects.hashCode(this.encodingId)
+          ^ Boolean.hashCode(this.indexed);
     }
 
 // Cloneable
@@ -228,4 +210,3 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         return (SimpleSchemaField)super.clone();
     }
 }
-

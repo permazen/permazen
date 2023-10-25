@@ -8,8 +8,11 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.PermazenFieldTypeRegistry;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -18,16 +21,18 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
 
     private static final Object FAIL = "<FAIL>";
 
-    private final FieldTypeRegistry registry = new FieldTypeRegistry();
+    private final FieldTypeRegistry registry = new PermazenFieldTypeRegistry();
 
     @Test(dataProvider = "convertCases")
     public void testConvertFieldType(String typeName, Object[] values, Object[] cases) throws Exception {
-        final FieldType<?> stype = this.registry.getFieldType(typeName);
+        final EncodingId encodingId = EncodingIds.builtin(typeName);
+        final FieldType<?> stype = this.registry.getFieldType(encodingId);
         assert stype != null : "didn't find field type \"" + typeName + "\"";
         for (int i = 0; i < cases.length; i += 2) {
             final String targetTypeName = (String)cases[i];
+            final EncodingId targetEncodingId = EncodingIds.builtin(targetTypeName);
             final Object[] targetValues = (Object[])cases[i + 1];
-            final FieldType<?> dtype = this.registry.getFieldType(targetTypeName);
+            final FieldType<?> dtype = this.registry.getFieldType(targetEncodingId);
             assert dtype != null : "didn't find target field type \"" + targetTypeName + "\"";
             for (int j = 0; j < values.length; j++)
                 this.check(stype, dtype, values[j], targetValues[j]);
@@ -40,21 +45,21 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
         try {
             actual = dtype.convert(stype, stype.validate(input));
             if (expected0 == FAIL) {
-                throw new AssertionError("convert glitch: " + stype.getName() + " -> " + dtype.getName()
+                throw new AssertionError("convert glitch: " + stype + " -> " + dtype
                   + "; value " + stype.toParseableString(stype.validate(input))
                   + "; expected failure"
                   + " but got " + dtype.toParseableString(dtype.validate(actual)));
             }
         } catch (IllegalArgumentException e) {
             if (expected0 != FAIL) {
-                throw new AssertionError("convert failure: " + stype.getName() + " -> " + dtype.getName()
+                throw new AssertionError("convert failure: " + stype + " -> " + dtype
                   + "; value " + stype.toParseableString(stype.validate(input))
                   + "; expected " + dtype.toParseableString(expected)
                   + " but got " + e, e);
             }
             return;
         }
-        FieldTypeTest.assertEquals(dtype, actual, expected, "convert mismatch: " + stype.getName() + " -> " + dtype.getName()
+        FieldTypeTest.assertEquals(dtype, actual, expected, "convert mismatch: " + stype + " -> " + dtype
           + "; value " + stype.toParseableString(stype.validate(input))
           + "; expected " + dtype.toParseableString(expected)
           + " but got " + dtype.toParseableString(dtype.validate(actual)));
@@ -75,8 +80,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                     "float",    new Object[] { (float)0, (float)1 },
                     "long",     new Object[] { (long)0, (long)1 },
                     "double",   new Object[] { (double)0, (double)1 },
-                    "java.lang.String",
-                                new Object[] { "false", "true" },
+                    "String",   new Object[] { "false", "true" },
                 }
             },
 
@@ -90,8 +94,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                     "float",    new Object[] { (float)(byte)0x80, (float)(byte)0xff, (float)(byte)0x00, (float)(byte)0x7f },
                     "long",     new Object[] { (long)(byte)0x80, (long)(byte)0xff, (long)(byte)0x00, (long)(byte)0x7f },
                     "double",   new Object[] { (double)(byte)0x80, (double)(byte)0xff, (double)(byte)0x00, (double)(byte)0x7f },
-                    "java.lang.String",
-                                new Object[] { "" + (byte)0x80, "" + (byte)0xff, "" + (byte)0x00, "" + (byte)0x7f },
+                    "String",   new Object[] { "" + (byte)0x80, "" + (byte)0xff, "" + (byte)0x00, "" + (byte)0x7f },
                 }
             },
 
@@ -105,8 +108,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                     "float",    new Object[] { (float)'\u0000', (float)'\u0001', (float)'a', (float)'\u7fff', (float)'\uffff' },
                     "long",     new Object[] { (long)'\u0000', (long)'\u0001', (long)'a', (long)'\u7fff', (long)'\uffff' },
                     "double",   new Object[] { (double)'\u0000', (double)'\u0001', (double)'a', (double)'\u7fff', (double)'\uffff'},
-                    "java.lang.String",
-                                new Object[] { "" + '\u0000', "" + '\u0001', "" + 'a', "" + '\u7fff', "" + '\uffff' },
+                    "String",   new Object[] { "" + '\u0000', "" + '\u0001', "" + 'a', "" + '\u7fff', "" + '\uffff' },
                 }
             },
 
@@ -126,8 +128,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             (long)(short)0xffff, (long)(short)0x8000, (long)(short)0x7fff, (long)(short)0x0000, (long)(short)0x0001 },
                     "double",   new Object[] {
             (double)(short)0xffff, (double)(short)0x8000, (double)(short)0x7fff, (double)(short)0x0000, (double)(short)0x0001 },
-                    "java.lang.String",
-                                new Object[] {
+                    "String",   new Object[] {
             "" + (short)0xffff, "" + (short)0x8000, "" + (short)0x7fff, "" + (short)0x0000, "" + (short)0x0001 },
                 }
             },
@@ -148,8 +149,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             { (long)0x800000, (long)0x7fffff, (long)0xffffff, (long)0, (long)1, (long)0xffff1234 },
                     "double",   new Object[]
             { (double)0x800000, (double)0x7fffff, (double)0xffffff, (double)0, (double)1, (double)0xffff1234 },
-                    "java.lang.String",
-                                new Object[]
+                    "String",   new Object[]
             { "" + 0x800000, "" + 0x7fffff, "" + 0xffffff, "" + 0, "" + 1, "" + 0xffff1234 },
                 }
             },
@@ -185,7 +185,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                     (double)-Float.MIN_VALUE, (double)-0.0f, (double)0.0f, (double)Float.MIN_VALUE, (double)Float.MIN_NORMAL,
                     (double)1.0f, (double)Float.MAX_VALUE, (double)Float.POSITIVE_INFINITY,
                     (double)Float.intBitsToFloat(0xffffffff) },
-                    "java.lang.String", new Object[]
+                    "String",   new Object[]
                 { "" + Float.NEGATIVE_INFINITY, "" + -Float.MAX_VALUE, "" + -1.0f, "" + -Float.MIN_NORMAL,
                     "" + -Float.MIN_VALUE, "" + -0.0f, "" + 0.0f, "" + Float.MIN_VALUE, "" + Float.MIN_NORMAL,
                     "" + 1.0f, "" + Float.MAX_VALUE, "" + Float.POSITIVE_INFINITY, "" + Float.intBitsToFloat(0xffffffff) },
@@ -208,8 +208,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                 { (float)Long.MIN_VALUE, (float)-1L, (float)0L, (float)1L, (float)99L, (float)Long.MAX_VALUE },
                     "double",   new Object[]
                 { (double)Long.MIN_VALUE, (double)-1L, (double)0L, (double)1L, (double)99L, (double)Long.MAX_VALUE },
-                    "java.lang.String",
-                                new Object[]
+                    "String",   new Object[]
                 { "" + Long.MIN_VALUE, "" + -1L, "" + 0L, "" + 1L, "" + 99L, "" + Long.MAX_VALUE },
                 },
             },
@@ -250,7 +249,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                     (long)-Double.MIN_VALUE, (long)-0.0, (long)0.0, (long)Double.MIN_VALUE, (long)Double.MIN_NORMAL,
                     (long)1.0, (long)Double.MAX_VALUE, (long)Double.POSITIVE_INFINITY,
                     (long)Double.longBitsToDouble(0xffffffffffffffffL) },
-                    "java.lang.String", new Object[]
+                    "String",   new Object[]
                 { "" + Double.NEGATIVE_INFINITY, "" + -Double.MAX_VALUE, "" + -1.0, "" + -Double.MIN_NORMAL,
                     "" + -Double.MIN_VALUE, "" + -0.0, "" + 0.0, "" + Double.MIN_VALUE, "" + Double.MIN_NORMAL,
                     "" + 1.0, "" + Double.MAX_VALUE, "" + Double.POSITIVE_INFINITY,
@@ -260,7 +259,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
 
             // String to primitive types
             {
-                "java.lang.String",     new Object[] { "", "0", "1", "true", "a#ck4", "500", "3.4" },
+                "String",       new Object[] { "", "0", "1", "true", "a#ck4", "500", "3.4" },
                 new Object[] {
                     "boolean",  new Object[] { FAIL, FAIL, FAIL, true, FAIL, FAIL, FAIL },
                     "byte",     new Object[] { FAIL, (byte)0, (byte)1, FAIL, FAIL, FAIL, FAIL, },
@@ -277,11 +276,11 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             {
                 "char",                 new Object[] { 'a', 'b', '\u0000' },
                 new Object[] {
-                    "java.lang.String", new Object[] { "a", "b", "\u0000" },
+                    "String",           new Object[] { "a", "b", "\u0000" },
                 }
             },
             {
-                "java.lang.String",     new Object[] { "a", "b", "\u0000" },
+                "String",               new Object[] { "a", "b", "\u0000" },
                 new Object[] {
                     "char",             new Object[] { 'a', 'b', '\u0000' },
                 }
@@ -291,11 +290,11 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             {
                 "char[]",               new Object[] { new char[0], new char[] { 'a', 'b', 'c' }, new char[] { '\u0001' } },
                 new Object[] {
-                    "java.lang.String", new Object[] { "", "abc", "\u0001" },
+                    "String",           new Object[] { "", "abc", "\u0001" },
                 }
             },
             {
-                "java.lang.String",     new Object[] { "", "abc", "\u0001" },
+                "String",               new Object[] { "", "abc", "\u0001" },
                 new Object[] {
                     "char[]",           new Object[] { new char[0], new char[] { 'a', 'b', 'c' }, new char[] { '\u0001' } },
                 }
@@ -311,13 +310,13 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             {
                 "char[][]",             new Object[] { new char[][] { null, { 'a', 'b', 'c' } } },
                 new Object[] {
-                    "java.lang.String[]", new Object[] { new String[] { null, "abc" } },
+                    "String[]",         new Object[] { new String[] { null, "abc" } },
                 }
             },
 
             // Inet4Address
             {
-                "java.net.Inet4Address", new Object[] {
+                "Inet4Address",         new Object[] {
                                             InetAddresses.forString("0.0.0.0"),
                                             InetAddresses.forString("10.7.7.32"),
                                             InetAddresses.forString("192.168.0.1"),
@@ -325,7 +324,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                                             InetAddresses.forString("224.3.4.5"),
                                         },
                 new Object[] {
-                    "java.net.InetAddress", new Object[] {
+                    "InetAddress",      new Object[] {
                                             InetAddresses.forString("0.0.0.0"),
                                             InetAddresses.forString("10.7.7.32"),
                                             InetAddresses.forString("192.168.0.1"),
@@ -337,7 +336,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
 
             // Inet6Address
             {
-                "java.net.Inet6Address", new Object[] {
+                "Inet6Address",         new Object[] {
                                             InetAddresses.forString("::0"),
                                             InetAddresses.forString("::1"),
                                             InetAddresses.forString("::0a07:0730"),
@@ -349,7 +348,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
                                             InetAddresses.forString("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"),
                                         },
                 new Object[] {
-                    "java.net.InetAddress", new Object[] {
+                    "InetAddress",      new Object[] {
                                             InetAddresses.forString("::0"),
                                             InetAddresses.forString("::1"),
                                             InetAddresses.forString("::0a07:0730"),
@@ -365,4 +364,3 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
         };
     }
 }
-

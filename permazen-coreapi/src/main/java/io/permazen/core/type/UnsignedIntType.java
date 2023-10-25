@@ -6,8 +6,8 @@
 package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
-import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -20,13 +20,16 @@ import org.dellroad.stuff.java.Primitive;
  *
  * <p>
  * This type is internally for encoding various non-negative integer values.
+ *
+ * <p>
+ * Instances are {@linkplain FieldType#getEncodingId anonymous}.
  */
 public class UnsignedIntType extends NonNullFieldType<Integer> {
 
     private static final long serialVersionUID = 4653435311425384497L;
 
     public UnsignedIntType() {
-        super("uint", TypeToken.of(Integer.class), 0, 0);
+        super(null, Integer.class, 0);
     }
 
     @Override

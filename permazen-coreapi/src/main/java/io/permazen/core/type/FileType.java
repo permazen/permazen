@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.EncodingIds;
+
 import java.io.File;
 import java.io.Serializable;
 
@@ -18,7 +20,7 @@ public class FileType extends StringEncodedType<File> {
     private static final long serialVersionUID = -8784371602920299513L;
 
     public FileType() {
-        super(File.class, 0, new FileConverter());
+        super(EncodingIds.builtin("File"), File.class, new FileConverter());
     }
 
 // FileConverter

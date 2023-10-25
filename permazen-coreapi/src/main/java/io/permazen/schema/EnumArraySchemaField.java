@@ -5,7 +5,7 @@
 
 package io.permazen.schema;
 
-import io.permazen.core.type.ArrayType;
+import io.permazen.core.FieldType;
 import io.permazen.util.Diffs;
 
 import javax.xml.stream.XMLStreamException;
@@ -44,9 +44,9 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
     @Override
     void validate() {
         super.validate();
-        if (this.dimensions < 1 || this.dimensions > ArrayType.MAX_DIMENSIONS) {
+        if (this.dimensions < 1 || this.dimensions > FieldType.MAX_ARRAY_DIMENSIONS) {
             throw new IllegalArgumentException("invalid " + this + ": number of dimensions ("
-              + this.dimensions + ") must be in the range 1 to " + ArrayType.MAX_DIMENSIONS);
+              + this.dimensions + ") must be in the range 1 to " + FieldType.MAX_ARRAY_DIMENSIONS);
         }
     }
 
@@ -75,9 +75,9 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
         this.dimensions = this.getIntAttr(reader, XMLConstants.DIMENSIONS_ATTRIBUTE);
-        if (this.dimensions < 1 || this.dimensions > ArrayType.MAX_DIMENSIONS) {
+        if (this.dimensions < 1 || this.dimensions > FieldType.MAX_ARRAY_DIMENSIONS) {
             throw this.newInvalidAttributeException(reader, XMLConstants.DIMENSIONS_ATTRIBUTE,
-              "number of dimensions must be in the range 1 to " + ArrayType.MAX_DIMENSIONS);
+              "number of dimensions must be in the range 1 to " + FieldType.MAX_ARRAY_DIMENSIONS);
         }
     }
 

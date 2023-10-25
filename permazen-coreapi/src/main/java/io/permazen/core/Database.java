@@ -26,6 +26,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
+import javax.annotation.concurrent.GuardedBy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +77,10 @@ public class Database {
     public static final int MAX_INDEXED_FIELDS = 4;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
     private final KVDatabase kvdb;
+
+    @GuardedBy("this")
+    private FieldTypeRegistry fieldTypeRegistry;
 
     private volatile Schemas lastSchemas;
 
@@ -89,6 +93,20 @@ public class Database {
     public Database(KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
+        this.setFieldTypeRegistry(new PermazenFieldTypeRegistry());
+    }
+
+    /**
+     * Get the {@link FieldTypeRegistry} associated with this instance.
+     *
+     * <p>
+     * By default a {@link PermazenFieldTypeRegistry} is configured.
+     *
+     * @param fieldTypeRegistry field type registry to associate with this instance
+     * @throws IllegalArgumentException if {@code fieldTypeRegistry} is null
+     */
+    public synchronized void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
+        this.fieldTypeRegistry = fieldTypeRegistry;
     }
 
     /**
@@ -96,7 +114,7 @@ public class Database {
      *
      * @return field type registry associated with this instance
      */
-    public FieldTypeRegistry getFieldTypeRegistry() {
+    public synchronized FieldTypeRegistry getFieldTypeRegistry() {
         return this.fieldTypeRegistry;
     }
 
@@ -693,7 +711,7 @@ public class Database {
             }
             if (this.log.isTraceEnabled())
                 this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
-            versionMap.put(version, new Schema(version, bytes, schemaModel, this.fieldTypeRegistry));
+            versionMap.put(version, new Schema(version, bytes, schemaModel, this.getFieldTypeRegistry()));
         }
         return new Schemas(versionMap);
     }

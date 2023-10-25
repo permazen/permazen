@@ -156,8 +156,7 @@ public abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
     @SuppressWarnings("unchecked")
     protected T checkDecodeLength(int numBytes) {
         if (numBytes % this.size != 0)
-            throw new IllegalArgumentException(this.name + " input has length " + numBytes + " not a multiple of " + this.size);
+            throw new IllegalArgumentException("input has length " + numBytes + " which is not a multiple of " + this.size);
         return (T)Array.newInstance(this.elementType.getTypeToken().getRawType(), numBytes / this.size);
     }
 }
-

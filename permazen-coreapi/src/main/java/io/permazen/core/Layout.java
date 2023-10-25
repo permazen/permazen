@@ -160,7 +160,7 @@ public final class Layout {
     public static CoreIndex<Integer, ObjId> getVersionIndex(KVStore kv) {
         Preconditions.checkArgument(kv != null, "null kv");
         return new CoreIndex<>(kv,
-          new IndexView<>(VERSION_INDEX_PREFIX, false, FieldTypeRegistry.UNSIGNED_INT, FieldTypeRegistry.OBJ_ID));
+          new IndexView<>(VERSION_INDEX_PREFIX, false, Encodings.UNSIGNED_INT, Encodings.OBJ_ID));
     }
 
     /**

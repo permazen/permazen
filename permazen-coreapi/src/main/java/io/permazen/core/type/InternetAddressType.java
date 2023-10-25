@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Converter;
 
+import io.permazen.core.EncodingIds;
+
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 
@@ -28,7 +30,7 @@ public class InternetAddressType extends StringEncodedType<InternetAddress> {
     private static final long serialVersionUID = 289940859247032224L;
 
     public InternetAddressType() {
-        super(InternetAddress.class, 0, new InternetAddressConverter());
+        super(EncodingIds.builtin("InternetAddress"), InternetAddress.class, new InternetAddressConverter());
     }
 
 // EmailConverter
@@ -56,4 +58,3 @@ public class InternetAddressType extends StringEncodedType<InternetAddress> {
         }
     }
 }
-

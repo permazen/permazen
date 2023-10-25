@@ -29,7 +29,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"2\">\n"
-          + "      <SimpleField type=\"int\" storageId=\"3\" indexed=\"true\"/>\n"
+          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\" indexed=\"true\"/>\n"
           + "    </SetField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"

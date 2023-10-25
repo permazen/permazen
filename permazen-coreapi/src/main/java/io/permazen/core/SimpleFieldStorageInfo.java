@@ -22,7 +22,7 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
     }
 
     CoreIndex<T, ObjId> getIndex(Transaction tx) {
-        return new CoreIndex<>(tx.kvt, new IndexView<>(this.storageId, this.fieldType, FieldTypeRegistry.OBJ_ID));
+        return new CoreIndex<>(tx.kvt, new IndexView<>(this.storageId, this.fieldType, Encodings.OBJ_ID));
     }
 
     /**
