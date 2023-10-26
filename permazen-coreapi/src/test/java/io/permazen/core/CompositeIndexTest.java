@@ -26,7 +26,7 @@ public class CompositeIndexTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"11\"/>\n"
           + "    <ReferenceField name=\"r\" storageId=\"12\"/>\n"

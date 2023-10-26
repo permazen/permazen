@@ -40,7 +40,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "  </ObjectType>\n"
@@ -98,7 +98,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema1a = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"AAAA\" storageId=\"1\">\n"
           + "    <SimpleField name=\"BBB\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "  </ObjectType>\n"
@@ -112,7 +112,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean\" storageId=\"3\"/>\n"
@@ -179,7 +179,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int[]\" storageId=\"2\"/>\n"
           + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean[]\" storageId=\"3\"/>\n"
@@ -242,7 +242,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
@@ -351,7 +351,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
@@ -713,7 +713,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
@@ -867,7 +867,7 @@ public class BasicTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"

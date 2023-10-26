@@ -29,7 +29,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
 
         this.schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <ReferenceField name=\"ref1\" storageId=\"10\" allowDeleted=\"false\"/>\n"
           + "    <ReferenceField name=\"ref2\" storageId=\"11\" allowDeleted=\"true\"/>\n"

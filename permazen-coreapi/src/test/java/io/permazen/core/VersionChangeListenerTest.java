@@ -28,7 +28,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"101\"/>\n"
           + "  </ObjectType>\n"
@@ -37,7 +37,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"101\"/>\n"
           + "    <SimpleField name=\"s\" encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"102\"/>\n"
@@ -50,7 +50,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
 
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"s\" encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"102\"/>\n"
           + "  </ObjectType>\n"

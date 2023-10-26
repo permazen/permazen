@@ -22,7 +22,7 @@ public class SchemaTest extends CoreAPITestSupport {
 
     @Test(dataProvider = "cases")
     public void testSchema(boolean valid, String xml) throws Exception {
-        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml + "</Schema>\n";
+        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml + "</Schema>\n";
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
@@ -57,11 +57,11 @@ public class SchemaTest extends CoreAPITestSupport {
             final SimpleKVDatabase kvstore = new SimpleKVDatabase();
             final Database db = new Database(kvstore);
 
-            xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml1 + "</Schema>\n";
+            xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml1 + "</Schema>\n";
             final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
             db.createTransaction(schema1, 1, true).commit();
 
-            xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml2 + "</Schema>\n";
+            xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml2 + "</Schema>\n";
             final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
             try {
                 db.createTransaction(schema2, 2, true);
@@ -74,7 +74,7 @@ public class SchemaTest extends CoreAPITestSupport {
 
     @Test
     public void testValidateSchema() throws Exception {
-        final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n";
+        final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n";
         final String footer = "</Schema>\n";
 
         final String xml1 = header

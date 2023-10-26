@@ -31,7 +31,7 @@ public class UserMetaDataTest extends CoreAPITestSupport {
         // Create objects
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"float\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
           + "    <ReferenceField name=\"rref\" storageId=\"3\"/>\n"

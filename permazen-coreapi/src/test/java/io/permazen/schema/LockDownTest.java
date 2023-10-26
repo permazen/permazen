@@ -20,7 +20,7 @@ public class LockDownTest extends CoreAPITestSupport {
     @Test
     private void testLockDown() throws Exception {
         final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"3\">\n"
+          + "<Schema>\n"
           + "<ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"10\"/>\n"
           + "  <EnumField name=\"e\" storageId=\"12\">\n"

@@ -22,7 +22,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
           + "  </ObjectType>\n"
@@ -34,7 +34,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
           + "  </ObjectType>\n"

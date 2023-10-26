@@ -74,7 +74,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     private static final String XML_OUTPUT_FACTORY_PROPERTY = "javax.xml.stream.XMLOutputFactory";
     private static final String DEFAULT_XML_OUTPUT_FACTORY_IMPLEMENTATION = "com.sun.xml.internal.stream.XMLOutputFactoryImpl";
 
-    private static final int CURRENT_FORMAT_VERSION = 3;
+    // Current format version for schema XML
+    private static final int CURRENT_FORMAT_VERSION = 0;
 
     // Keys into this.lockedDownCache
     private static final int VALIDATION_RESULT_KEY = 1;
@@ -383,19 +384,13 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         final QName objectTypeTag;
         switch (formatVersion) {
         case 0:
-            objectTypeTag = new QName("Object");
-            break;
-        case 1:                                             // changed <Object> to <ObjectType>
-        case 2:                                             // added <CompositeIndex>
-        case CURRENT_FORMAT_VERSION:                        // added <EnumArrayField>
-            objectTypeTag = XMLConstants.OBJECT_TYPE_TAG;
             break;
         default:
-            throw new XMLStreamException("unrecognized schema format version " + formatAttr, reader.getLocation());
+            throw new XMLStreamException("unrecognized schema XML format version " + formatAttr, reader.getLocation());
         }
 
         // Read object type tags
-        while (this.expect(reader, true, objectTypeTag)) {
+        while (this.expect(reader, true, XMLConstants.OBJECT_TYPE_TAG)) {
             final SchemaObjectType schemaObjectType = new SchemaObjectType();
             schemaObjectType.readXML(reader, formatVersion);
             final int storageId = schemaObjectType.getStorageId();
@@ -411,19 +406,17 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
 
-        // To mimimize upgrade issues, use the older XML format if there are no EnumArraySchemaField's in the schema
-        assert CURRENT_FORMAT_VERSION == 3;
-        final boolean hasAnyEnumArraySchemaFields = this.schemaObjectTypes.values().stream()
-          .map(SchemaObjectType::getSchemaFields)
-          .flatMap(m -> m.values().stream())
-          .anyMatch(f -> f instanceof EnumArraySchemaField);
-        final int formatVersion = hasAnyEnumArraySchemaFields ? 3 : 2;
+        // Get format version
+        assert CURRENT_FORMAT_VERSION == 0;
+        final int formatVersion = CURRENT_FORMAT_VERSION;
 
         // Output XML
         writer.setDefaultNamespace(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI());
         writer.writeStartElement(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI(), XMLConstants.SCHEMA_MODEL_TAG.getLocalPart());
-        writer.writeAttribute(XMLConstants.FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
-          XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + formatVersion);
+        if (formatVersion != 0) {
+            writer.writeAttribute(XMLConstants.FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
+              XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + formatVersion);
+        }
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
         Collections.sort(typeList, Comparator.comparing(SchemaObjectType::getName));
         for (SchemaObjectType schemaObjectType : typeList)

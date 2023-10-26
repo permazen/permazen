@@ -27,7 +27,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
     private static final String XML_TEMPLATE =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<Schema formatVersion=\"1\">\n"
+      + "<Schema>\n"
       + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
       + "    <ReferenceField name=\"ref\" storageId=\"2\" onDelete=\"@ONDELETE@\"/>\n"
       + "    <SimpleField name=\"name\" storageId=\"3\" encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"

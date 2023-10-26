@@ -31,7 +31,7 @@ public class DeletedAccessTest extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"2\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <CounterField name=\"counter\" storageId=\"5\"/>\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"

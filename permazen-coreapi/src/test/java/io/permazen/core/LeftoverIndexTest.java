@@ -26,7 +26,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"2\">\n"
           + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\" indexed=\"true\"/>\n"
@@ -37,7 +37,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"

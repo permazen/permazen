@@ -63,15 +63,6 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
 // XML Reading
 
     @Override
-    void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        if (formatVersion < 3) {
-            throw new XMLStreamException("<" + XMLConstants.ENUM_ARRAY_FIELD_TAG.getLocalPart()
-              + "> element is not supported in schema XML formatVersion " + formatVersion + " < 3", reader.getLocation());
-        }
-        super.readXML(reader, formatVersion);
-    }
-
-    @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
         this.dimensions = this.getIntAttr(reader, XMLConstants.DIMENSIONS_ATTRIBUTE);

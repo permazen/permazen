@@ -24,7 +24,7 @@ public class DeleteCascadeTest extends CoreAPITestSupport {
 
         final String xml =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Person\" storageId=\"1\">\n"
           + "    <ReferenceField storageId=\"2\" name=\"Person\" cascadeDelete=\"true\" onDelete=\"EXCEPTION\"/>\n"
           + "  </ObjectType>\n"

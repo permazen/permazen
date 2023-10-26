@@ -54,7 +54,7 @@ public class IndexTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean\" storageId=\"10\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"b\" encoding=\"urn:fdc:permazen.io:2020:byte\" storageId=\"11\" indexed=\"true\"/>\n"
@@ -149,7 +149,7 @@ public class IndexTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean[]\" storageId=\"10\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"b\" encoding=\"urn:fdc:permazen.io:2020:byte[]\" storageId=\"11\" indexed=\"true\"/>\n"
@@ -248,7 +248,7 @@ public class IndexTest1 extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\" indexed=\"true\"/>\n"

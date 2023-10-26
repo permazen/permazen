@@ -32,7 +32,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean\" storageId=\"101\"/>\n"
           + "    <SimpleField name=\"b\" encoding=\"urn:fdc:permazen.io:2020:byte\" storageId=\"102\"/>\n"
@@ -417,7 +417,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"105\"/>\n"
           + "  </ObjectType>\n"

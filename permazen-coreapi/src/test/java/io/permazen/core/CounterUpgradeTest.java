@@ -21,13 +21,13 @@ public class CounterUpgradeTest extends CoreAPITestSupport {
 
         String xml1 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\"/>\n"
           + "</Schema>";
 
         String xml2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "    <CounterField name=\"counter\" storageId=\"20\"/>\n"
           + "  </ObjectType>\n"

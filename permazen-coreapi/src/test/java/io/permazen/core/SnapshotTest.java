@@ -36,7 +36,7 @@ public class SnapshotTest extends CoreAPITestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"float\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
           + "    <ReferenceField name=\"rref\" storageId=\"3\"/>\n"
@@ -157,7 +157,7 @@ public class SnapshotTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"7\" indexed=\"true\"/>\n"
           + "  </ObjectType>\n"
@@ -166,7 +166,7 @@ public class SnapshotTest extends CoreAPITestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"7\" indexed=\"false\"/>\n"
           + "  </ObjectType>\n"
@@ -205,7 +205,7 @@ public class SnapshotTest extends CoreAPITestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"7\" indexed=\"true\"/>\n"
           + "    <ReferenceField name=\"ref\" storageId=\"8\"/>\n"
