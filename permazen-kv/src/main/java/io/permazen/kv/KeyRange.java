@@ -316,4 +316,3 @@ public class KeyRange {
         return "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + ")";
     }
 }
-

@@ -30,4 +30,3 @@ public class Tuple4<V1, V2, V3, V4> extends AbstractHas4<V1, V2, V3, V4> {
         super(v1, v2, v3, v4);
     }
 }
-

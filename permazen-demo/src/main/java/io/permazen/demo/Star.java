@@ -25,4 +25,3 @@ public abstract class Star extends AbstractHasSatellites<Planet> {
     public abstract float getLuminosity();
     public abstract void setLuminosity(float luminosity);
 }
-

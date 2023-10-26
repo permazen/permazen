@@ -221,4 +221,3 @@ public abstract class ComplexField<T> extends Field<T> {
     abstract void unreferenceRemovedTypes(Transaction tx,
       ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds);
 }
-

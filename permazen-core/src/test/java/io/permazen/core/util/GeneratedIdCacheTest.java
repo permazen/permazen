@@ -92,4 +92,3 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

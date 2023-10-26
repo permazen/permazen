@@ -54,4 +54,3 @@ public class IntegerArrayType extends IntegralArrayType<int[], Integer> {
         return array;
     }
 }
-

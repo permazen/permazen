@@ -40,4 +40,3 @@ public class RaftRemoveCommand extends AbstractTransactionRaftCommand {
         };
     }
 }
-

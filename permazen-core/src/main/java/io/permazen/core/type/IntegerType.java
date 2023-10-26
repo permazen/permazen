@@ -37,4 +37,3 @@ public class IntegerType extends IntegralType<Integer> {
         return super.validate(obj);
     }
 }
-

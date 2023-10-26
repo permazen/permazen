@@ -38,4 +38,3 @@ public abstract class SchemaField extends AbstractSchemaItem {
         return (SchemaField)super.clone();
     }
 }
-

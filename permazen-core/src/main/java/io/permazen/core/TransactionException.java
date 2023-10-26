@@ -37,4 +37,3 @@ public class TransactionException extends DatabaseException {
         return this.tx;
     }
 }
-

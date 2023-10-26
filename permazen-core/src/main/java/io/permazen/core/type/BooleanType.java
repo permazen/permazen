@@ -62,4 +62,3 @@ public class BooleanType extends PrimitiveType<Boolean> {
         return value.doubleValue() != 0;
     }
 }
-

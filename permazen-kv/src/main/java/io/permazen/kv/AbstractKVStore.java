@@ -118,4 +118,3 @@ public abstract class AbstractKVStore implements KVStore {
         this.put(key, this.encodeCounter(oldValue + amount));
     }
 }
-

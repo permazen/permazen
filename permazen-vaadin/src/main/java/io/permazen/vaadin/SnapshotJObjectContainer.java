@@ -108,4 +108,3 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      */
     protected abstract Iterator<? extends JObject> iterateObjects();
 }
-

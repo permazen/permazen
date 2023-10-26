@@ -38,4 +38,3 @@ public class CockroachKVDatabaseTest extends KVDatabaseTest {
         return this.cockroachKV;
     }
 }
-

@@ -26,4 +26,3 @@ public class PermazenException extends RuntimeException {
         super(message, cause);
     }
 }
-

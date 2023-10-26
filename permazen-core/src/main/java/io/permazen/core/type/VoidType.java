@@ -44,4 +44,3 @@ public class VoidType extends PrimitiveType<Void> {
         throw new UnsupportedOperationException();
     }
 }
-

@@ -65,4 +65,3 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
         return super.hashCode() ^ this.fieldType.hashCode();
     }
 }
-

@@ -125,4 +125,3 @@ public interface Index4<V1, V2, V3, V4, T> {
      */
     Index4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds);
 }
-

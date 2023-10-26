@@ -46,4 +46,3 @@ public @interface OnDelete {
      */
     boolean snapshotTransactions() default false;
 }
-

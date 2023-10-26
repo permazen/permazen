@@ -130,4 +130,3 @@ public abstract class AbstractUI extends UI {
 
     protected abstract Component buildMainPanel();
 }
-

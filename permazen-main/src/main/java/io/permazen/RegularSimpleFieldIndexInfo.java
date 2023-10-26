@@ -15,4 +15,3 @@ class RegularSimpleFieldIndexInfo extends SimpleFieldIndexInfo {
         assert jfield.parent instanceof JClass;
     }
 }
-

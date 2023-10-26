@@ -145,4 +145,3 @@ public class EnumValueType extends NonNullFieldType<EnumValue> {
         return this.enumValueList.equals(that.enumValueList);
     }
 }
-

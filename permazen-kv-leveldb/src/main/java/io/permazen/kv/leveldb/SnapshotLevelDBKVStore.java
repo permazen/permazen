@@ -81,4 +81,3 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 }
-

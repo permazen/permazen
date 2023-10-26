@@ -56,4 +56,3 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
             .addCompletions(ParseUtil.complete(EnumUtil.getValues(this.type).stream().map(this.nameFunction), valueName)));
     }
 }
-

@@ -82,4 +82,3 @@ public class JObjectTable extends AbstractTable<JObjectContainer> {
         }
     }
 }
-

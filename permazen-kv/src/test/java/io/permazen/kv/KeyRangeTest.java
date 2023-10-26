@@ -64,4 +64,3 @@ public class KeyRangeTest extends KeyRangeTestSupport {
         Assert.assertFalse(kr4.isSingleKey());
     }
 }
-

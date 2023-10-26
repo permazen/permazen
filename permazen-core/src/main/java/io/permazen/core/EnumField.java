@@ -54,4 +54,3 @@ public class EnumField extends SimpleField<EnumValue> {
         return "enum field \"" + this.name + "\"";
     }
 }
-

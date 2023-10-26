@@ -89,4 +89,3 @@ public class CharacterArrayType extends ArrayType<char[], Character> {
         return super.convert(type, value);
     }
 }
-

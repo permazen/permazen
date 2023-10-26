@@ -61,4 +61,3 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
         return this.getClass().getSimpleName() + "[type=" + this.type + ",jtx=" + this.jtx + "]";
     }
 }
-

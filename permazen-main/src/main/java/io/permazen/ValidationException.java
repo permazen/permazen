@@ -76,4 +76,3 @@ public class ValidationException extends DatabaseException {
         return this.violations;
     }
 }
-

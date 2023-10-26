@@ -46,4 +46,3 @@ class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E,
         return "list element with " + this.fieldType;
     }
 }
-

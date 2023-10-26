@@ -116,4 +116,3 @@ public abstract class NonLeaderRole extends Role {
         this.failUnexpectedMessage(msg);
     }
 }
-

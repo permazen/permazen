@@ -79,4 +79,3 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
         return "SetFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",element=" + this.element + "]";
     }
 }
-

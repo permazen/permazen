@@ -108,4 +108,3 @@ public class DoubleArrayType extends Base64ArrayType<double[], Double> {
         return array;
     }
 }
-

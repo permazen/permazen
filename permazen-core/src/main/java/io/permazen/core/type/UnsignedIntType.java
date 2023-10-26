@@ -77,4 +77,3 @@ public class UnsignedIntType extends NonNullFieldType<Integer> {
         return false;
     }
 }
-

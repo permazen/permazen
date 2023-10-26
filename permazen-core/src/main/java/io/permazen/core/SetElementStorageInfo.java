@@ -25,4 +25,3 @@ class SetElementStorageInfo<E> extends CollectionElementStorageInfo<NavigableSet
         return "set element with " + this.fieldType;
     }
 }
-

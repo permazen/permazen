@@ -139,4 +139,3 @@ public class JCompositeIndex extends JSchemaObject {
         return rawTypes;
     }
 }
-

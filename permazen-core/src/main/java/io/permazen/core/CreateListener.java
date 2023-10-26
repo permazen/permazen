@@ -24,4 +24,3 @@ public interface CreateListener {
      */
     void onCreate(Transaction tx, ObjId id);
 }
-

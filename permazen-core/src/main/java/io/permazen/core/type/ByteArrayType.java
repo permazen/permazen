@@ -52,4 +52,3 @@ public class ByteArrayType extends IntegralArrayType<byte[], Byte> {
         return data;
     }
 }
-

@@ -52,4 +52,3 @@ class AbstractHas5<V1, V2, V3, V4, V5> extends AbstractHas4<V1, V2, V3, V4> impl
         return super.compareValues(that) && Objects.equals(this.v5, that.v5);
     }
 }
-

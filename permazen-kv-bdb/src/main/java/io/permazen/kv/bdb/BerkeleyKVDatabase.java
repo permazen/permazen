@@ -384,4 +384,3 @@ public class BerkeleyKVDatabase implements KVDatabase {
         }
     }
 }
-

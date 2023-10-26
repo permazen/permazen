@@ -54,4 +54,3 @@ public interface GUIConfig {
      */
     boolean isVerbose();
 }
-

@@ -94,4 +94,3 @@ public class CharacterType extends PrimitiveType<Character> {
         return (char)value.intValue();
     }
 }
-

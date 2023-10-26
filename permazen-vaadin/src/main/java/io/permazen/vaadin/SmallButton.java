@@ -25,4 +25,3 @@ public class SmallButton extends Button {
         this.setStyleName(Reindeer.BUTTON_SMALL);
     }
 }
-

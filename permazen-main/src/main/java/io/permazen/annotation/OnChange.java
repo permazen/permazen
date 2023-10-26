@@ -297,4 +297,3 @@ public @interface OnChange {
      */
     boolean snapshotTransactions() default false;
 }
-

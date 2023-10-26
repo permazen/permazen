@@ -44,4 +44,3 @@ public final class Version {
     private Version() {
     }
 }
-

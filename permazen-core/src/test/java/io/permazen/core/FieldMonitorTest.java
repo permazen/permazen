@@ -521,4 +521,3 @@ public class FieldMonitorTest extends CoreAPITestSupport {
         }
     }
 }
-

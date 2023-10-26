@@ -33,4 +33,3 @@ class ListElementIndexInfo extends ComplexSubFieldIndexInfo {
         return tx.readListField(id, this.getParentStorageId(), false);
     }
 }
-

@@ -20,4 +20,3 @@ public class PrimitiveWrapperType<T> extends NullSafeType<T> {
         super(EncodingIds.builtin(primitiveType.primitive.getLongName()), primitiveType);
     }
 }
-

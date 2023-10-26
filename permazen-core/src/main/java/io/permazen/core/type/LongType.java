@@ -37,4 +37,3 @@ public class LongType extends IntegralType<Long> {
         return super.validate(obj);
     }
 }
-

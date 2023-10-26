@@ -238,4 +238,3 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
           && this.valueField.isUpgradeCompatible(that.valueField);
     }
 }
-

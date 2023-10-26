@@ -54,4 +54,3 @@ public class CompositeIndexParser implements Parser<CompositeIndex> {
         return index;
     }
 }
-

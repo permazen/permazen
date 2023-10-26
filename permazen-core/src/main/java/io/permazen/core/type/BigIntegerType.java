@@ -109,4 +109,3 @@ public class BigIntegerType extends NonNullFieldType<BigInteger> {
         return value1.compareTo(value2);
     }
 }
-

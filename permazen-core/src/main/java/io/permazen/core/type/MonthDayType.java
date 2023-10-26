@@ -82,4 +82,3 @@ public class MonthDayType extends NonNullFieldType<MonthDay> {
         return false;
     }
 }
-

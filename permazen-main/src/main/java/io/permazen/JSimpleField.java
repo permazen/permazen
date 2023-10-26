@@ -478,4 +478,3 @@ public class JSimpleField extends JField {
         generator.emitInvoke(mv, ClassGenerator.TRANSACTION_WRITE_SIMPLE_FIELD_METHOD);
     }
 }
-

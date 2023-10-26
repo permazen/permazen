@@ -92,4 +92,3 @@ public abstract class JComplexField extends JField {
 
     abstract Method getFieldReaderMethod();
 }
-

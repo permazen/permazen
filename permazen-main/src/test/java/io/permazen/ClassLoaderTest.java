@@ -47,4 +47,3 @@ public class ClassLoaderTest extends TestSupport {
     public abstract static class Person implements JObject {
     }
 }
-

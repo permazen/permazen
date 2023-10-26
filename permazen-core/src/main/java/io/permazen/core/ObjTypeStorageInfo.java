@@ -18,4 +18,3 @@ class ObjTypeStorageInfo extends StorageInfo {
         return "object type";
     }
 }
-

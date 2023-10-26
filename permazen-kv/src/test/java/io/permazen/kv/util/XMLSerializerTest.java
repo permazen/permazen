@@ -78,4 +78,3 @@ public class XMLSerializerTest extends TestSupport {
         return new ConvertedNavigableMap<>(map, converter, converter);
     }
 }
-

@@ -45,4 +45,3 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
         return "MapFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
-

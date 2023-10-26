@@ -24,4 +24,3 @@ public class InvalidKey extends Issue {
         super(message, key, value, null);
     }
 }
-

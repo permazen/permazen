@@ -415,4 +415,3 @@ public class BasicTest extends TestSupport {
         public abstract List<Person> getEnemies();
     }
 }
-

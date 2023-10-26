@@ -314,4 +314,3 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         return true;
     }
 }
-

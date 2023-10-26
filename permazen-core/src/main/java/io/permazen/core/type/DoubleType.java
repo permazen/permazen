@@ -67,4 +67,3 @@ public class DoubleType extends NumberType<Double> {
         return value.doubleValue();
     }
 }
-

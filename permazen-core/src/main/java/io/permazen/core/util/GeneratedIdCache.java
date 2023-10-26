@@ -64,4 +64,3 @@ public class GeneratedIdCache {
         this.map.clear();
     }
 }
-

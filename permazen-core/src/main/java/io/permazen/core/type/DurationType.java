@@ -81,4 +81,3 @@ public class DurationType extends NonNullFieldType<Duration> {
         return false;
     }
 }
-

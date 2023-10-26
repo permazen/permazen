@@ -207,4 +207,3 @@ public class WritesTest extends TestSupport {
         return new ConvertedNavigableMap<>(byteMap, converter, Converter.<Long>identity());
     }
 }
-

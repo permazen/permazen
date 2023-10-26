@@ -71,4 +71,3 @@ public interface KeyFilter {
      */
     byte[] seekLower(byte[] key);
 }
-

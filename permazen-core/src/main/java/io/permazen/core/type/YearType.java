@@ -86,4 +86,3 @@ public class YearType extends NonNullFieldType<Year> {
         return false;
     }
 }
-

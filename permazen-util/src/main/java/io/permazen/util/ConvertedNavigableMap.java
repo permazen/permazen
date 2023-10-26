@@ -190,4 +190,3 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
         return new ConvertedNavigableMap<>(subMap, this.keyConverter, this.valueConverter, newBounds);
     }
 }
-

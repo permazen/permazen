@@ -59,4 +59,3 @@ public class ValidationInvalidTargetTypeTest extends TestSupport {
     public abstract static class Person2 extends Person implements HasFriend {
     }
 }
-

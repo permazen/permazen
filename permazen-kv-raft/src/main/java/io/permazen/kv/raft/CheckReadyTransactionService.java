@@ -20,4 +20,3 @@ class CheckReadyTransactionService extends AbstractTransactionService {
             this.role.checkReadyTransaction(this.tx);
     }
 }
-

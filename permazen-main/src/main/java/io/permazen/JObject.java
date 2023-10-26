@@ -510,4 +510,3 @@ public interface JObject {
      */
     Class<?> getModelClass();
 }
-

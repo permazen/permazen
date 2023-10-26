@@ -66,4 +66,3 @@ public class UpgradeConversionException extends DatabaseException {
         return this.storageId;
     }
 }
-

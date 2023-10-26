@@ -223,4 +223,3 @@ public class ReferencePathTest extends TestSupport {
         public abstract void setBar(JObject x);
     }
 }
-

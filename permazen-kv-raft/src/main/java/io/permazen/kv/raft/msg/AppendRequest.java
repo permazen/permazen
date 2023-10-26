@@ -230,4 +230,3 @@ public class AppendRequest extends Message {
           + "]";
     }
 }
-

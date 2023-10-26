@@ -100,4 +100,3 @@ public class CompositeIndexTest extends CoreAPITestSupport {
         tx.rollback();
     }
 }
-

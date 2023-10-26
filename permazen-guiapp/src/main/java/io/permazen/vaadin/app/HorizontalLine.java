@@ -20,4 +20,3 @@ public class HorizontalLine extends Panel {
         this.setHeight(height, Sizeable.Unit.PIXELS);
     }
 }
-

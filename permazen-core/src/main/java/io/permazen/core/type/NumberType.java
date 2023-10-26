@@ -18,4 +18,3 @@ public abstract class NumberType<T extends Number> extends PrimitiveType<T> {
        super(primitive);
     }
 }
-

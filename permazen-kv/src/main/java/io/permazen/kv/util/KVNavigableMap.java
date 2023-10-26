@@ -145,4 +145,3 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
         return new KVNavigableMap(this.kv, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 }
-

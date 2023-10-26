@@ -111,4 +111,3 @@ public class OnDeleteTest extends TestSupport {
         public abstract void setFriend(Person friend);
     }
 }
-

@@ -78,4 +78,3 @@ public abstract class FieldChange<T> extends Change<T> {
         return super.hashCode() ^ this.storageId ^ this.fieldName.hashCode();
     }
 }
-

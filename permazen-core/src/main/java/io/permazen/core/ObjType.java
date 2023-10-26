@@ -239,4 +239,3 @@ public class ObjType extends SchemaItem {
         return index;
     }
 }
-

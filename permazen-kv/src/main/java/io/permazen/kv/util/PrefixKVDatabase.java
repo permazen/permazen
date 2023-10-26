@@ -80,4 +80,3 @@ public class PrefixKVDatabase implements KVDatabase {
         return new PrefixKVTransaction(this);
     }
 }
-

@@ -310,4 +310,3 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
         return this.rafts != null ? this.rafts[0] : null;
     }
 }
-

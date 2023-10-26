@@ -25,4 +25,3 @@ public abstract class Planet extends AbstractHasSatellites<Moon> implements Sate
     public abstract boolean isRinged();
     public abstract void setRinged(boolean ringed);
 }
-

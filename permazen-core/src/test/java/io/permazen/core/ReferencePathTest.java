@@ -359,4 +359,3 @@ public class ReferencePathTest extends CoreAPITestSupport {
         checkSet(actual, expected);
     }
 }
-

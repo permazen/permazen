@@ -147,4 +147,3 @@ public @interface JCompositeIndex {
      */
     String[] uniqueExclude() default {};
 }
-

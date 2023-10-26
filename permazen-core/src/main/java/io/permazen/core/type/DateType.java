@@ -74,4 +74,3 @@ public class DateType extends NonNullFieldType<Date> {
         return false;
     }
 }
-

@@ -110,4 +110,3 @@ class ObjInfo {
           + "]";
     }
 }
-

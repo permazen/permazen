@@ -153,4 +153,3 @@ public class JCounterField extends JField {
         this.outputCachedNonSimpleValueGetterMethod(generator, cw, ClassGenerator.JTRANSACTION_READ_COUNTER_FIELD_METHOD);
     }
 }
-

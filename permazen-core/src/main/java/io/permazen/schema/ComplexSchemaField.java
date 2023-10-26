@@ -91,4 +91,3 @@ public abstract class ComplexSchemaField extends SchemaField {
         return (ComplexSchemaField)super.clone();
     }
 }
-

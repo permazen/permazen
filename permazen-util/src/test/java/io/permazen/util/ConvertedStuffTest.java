@@ -147,4 +147,3 @@ public class ConvertedStuffTest extends TestSupport {
           new ConvertedNavigableMap<String, Object, Integer, Object>(imap, this.s2i, identity), this.i2s, identity));
     }
 }
-

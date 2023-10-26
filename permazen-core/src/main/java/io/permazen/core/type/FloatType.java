@@ -70,4 +70,3 @@ public class FloatType extends NumberType<Float> {
         return value.floatValue();
     }
 }
-

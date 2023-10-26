@@ -164,4 +164,3 @@ public class LockDownTest extends CoreAPITestSupport {
         schema2.getSchemaObjectTypes().remove(100);
     }
 }
-

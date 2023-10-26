@@ -88,4 +88,3 @@ public interface AtomicKVStore extends KVStore {
      */
     void mutate(Mutations mutations, boolean sync);
 }
-

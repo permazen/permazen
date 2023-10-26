@@ -154,4 +154,3 @@ public class NameIndex {
         return Collections.unmodifiableNavigableSet(indexMap.navigableKeySet());
     }
 }
-

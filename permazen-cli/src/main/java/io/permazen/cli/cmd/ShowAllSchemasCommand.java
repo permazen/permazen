@@ -62,4 +62,3 @@ public class ShowAllSchemasCommand extends AbstractSchemaCommand {
         }
     }
 }
-

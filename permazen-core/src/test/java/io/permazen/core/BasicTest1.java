@@ -1284,4 +1284,3 @@ public class BasicTest1 extends CoreAPITestSupport {
         return map;
     }
 }
-

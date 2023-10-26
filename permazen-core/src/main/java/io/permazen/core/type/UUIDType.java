@@ -70,4 +70,3 @@ public class UUIDType extends NonNullFieldType<UUID> {
         return uuid1.compareTo(uuid2);
     }
 }
-

@@ -66,4 +66,3 @@ public class ValidationExceptionTest extends TestSupport {
         }
     }
 }
-

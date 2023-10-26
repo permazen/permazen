@@ -72,4 +72,3 @@ class ConvertedComparator<E, W> implements Comparator<E> {
         return this.getClass().getSimpleName() + "[converter=" + this.converter + ",comparator=" + this.comparator + "]";
     }
 }
-

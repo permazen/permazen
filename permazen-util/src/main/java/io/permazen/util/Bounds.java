@@ -369,4 +369,3 @@ public class Bounds<T> {
           ^ Objects.hashCode(this.upperBound);
     }
 }
-

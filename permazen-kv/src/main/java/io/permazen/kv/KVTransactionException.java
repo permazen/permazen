@@ -47,4 +47,3 @@ public class KVTransactionException extends KVDatabaseException {
         return (KVTransactionException)super.duplicate();
     }
 }
-

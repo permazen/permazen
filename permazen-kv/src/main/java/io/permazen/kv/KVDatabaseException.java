@@ -41,4 +41,3 @@ public class KVDatabaseException extends KVException {
         return this.store;
     }
 }
-

@@ -59,4 +59,3 @@ public abstract class IntegralType<T extends Number> extends NumberType<T> {
         return value.longValue();
     }
 }
-

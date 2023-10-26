@@ -154,4 +154,3 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
         KVStoreHttpMessageConverter.writeKVStore(jobj.getTransaction().getTransaction().getKVTransaction(), output);
     }
 }
-

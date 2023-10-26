@@ -101,4 +101,3 @@ public interface Index3<V1, V2, V3, T> {
      */
     Index3<V1, V2, V3, T> withTargetBounds(Bounds<T> bounds);
 }
-

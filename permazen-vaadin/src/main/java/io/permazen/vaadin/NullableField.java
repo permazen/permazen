@@ -46,4 +46,3 @@ public class NullableField<T> extends FieldLayout<T> {
         this.nullButton.setEnabled(this.field.getValue() != null && !this.field.isReadOnly());
     }
 }
-

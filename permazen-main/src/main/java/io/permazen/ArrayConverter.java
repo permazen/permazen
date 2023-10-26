@@ -73,4 +73,3 @@ class ArrayConverter<A, B> extends Converter<A[], B[]> {
         return this.getClass().getSimpleName() + "[" + this.aType.getName() + "[]->" + this.bType.getName() + "[]]";
     }
 }
-

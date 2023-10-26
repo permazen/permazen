@@ -64,4 +64,3 @@ public class CounterTest extends TestSupport {
         public abstract NavigableMap<Person, Float> getRatings();
     }
 }
-

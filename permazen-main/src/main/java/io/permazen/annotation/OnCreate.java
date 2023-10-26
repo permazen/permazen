@@ -95,4 +95,3 @@ public @interface OnCreate {
      */
     boolean snapshotTransactions() default false;
 }
-

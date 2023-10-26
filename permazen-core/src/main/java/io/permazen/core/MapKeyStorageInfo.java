@@ -34,4 +34,3 @@ class MapKeyStorageInfo<K> extends ComplexSubFieldStorageInfo<K, MapField<K, ?>>
         return "map key field with " + this.fieldType;
     }
 }
-

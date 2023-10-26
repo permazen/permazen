@@ -195,4 +195,3 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
         return new ConvertedNavigableSet<>(subSet, this.converter, newBounds);
     }
 }
-

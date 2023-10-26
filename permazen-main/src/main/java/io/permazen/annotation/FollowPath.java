@@ -166,4 +166,3 @@ public @interface FollowPath {
      */
     boolean firstOnly() default false;
 }
-

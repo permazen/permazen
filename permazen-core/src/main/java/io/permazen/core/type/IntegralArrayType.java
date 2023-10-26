@@ -81,4 +81,3 @@ public abstract class IntegralArrayType<T, E extends Number> extends Base64Array
         return this.integralType.hasPrefix0xff();
     }
 }
-

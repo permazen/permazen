@@ -170,4 +170,3 @@ public class SimpleField<T> extends Field<T> {
         return this.fieldType.equals(that.fieldType);
     }
 }
-

@@ -93,4 +93,3 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
         return this.fieldType.read(reader);
     }
 }
-

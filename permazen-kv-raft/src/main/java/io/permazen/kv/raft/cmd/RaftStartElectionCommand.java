@@ -50,4 +50,3 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
         };
     }
 }
-

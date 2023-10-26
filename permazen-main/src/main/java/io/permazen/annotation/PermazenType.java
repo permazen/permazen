@@ -193,4 +193,3 @@ public @interface PermazenType {
      */
     UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }
-

@@ -95,4 +95,3 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
         }
     }
 }
-

@@ -76,4 +76,3 @@ abstract class Concat2Type<T, S1, S2> extends NonNullFieldType<T> {
 
     protected abstract S2 split2(T value);
 }
-

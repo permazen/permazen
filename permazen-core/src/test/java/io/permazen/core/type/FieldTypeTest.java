@@ -740,4 +740,3 @@ public class FieldTypeTest extends CoreAPITestSupport {
         return this.random.nextInt(18 * 60 * 2 + 1) - 18 * 60;
     }
 }
-

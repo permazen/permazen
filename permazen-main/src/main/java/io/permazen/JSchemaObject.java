@@ -77,4 +77,3 @@ public abstract class JSchemaObject {
         return this.description;
     }
 }
-

@@ -49,4 +49,3 @@ public class PatternType extends StringEncodedType<Pattern> {
         }
     }
 }
-

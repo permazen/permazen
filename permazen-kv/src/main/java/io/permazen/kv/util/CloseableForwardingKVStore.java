@@ -111,4 +111,3 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
         }
     }
 }
-

@@ -177,4 +177,3 @@ class SnapshotTransmit implements Closeable {
           + "]";
     }
 }
-

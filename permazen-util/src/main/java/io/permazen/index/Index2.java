@@ -77,4 +77,3 @@ public interface Index2<V1, V2, T> {
      */
     Index2<V1, V2, T> withTargetBounds(Bounds<T> bounds);
 }
-

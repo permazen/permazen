@@ -1161,4 +1161,3 @@ public class LeaderRole extends Role {
         return follower;
     }
 }
-

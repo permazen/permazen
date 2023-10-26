@@ -39,4 +39,3 @@ final class Util {
         return jfields;
     }
 }
-

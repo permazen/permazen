@@ -278,4 +278,3 @@ public class JMapField extends JComplexField {
         return ClassGenerator.JTRANSACTION_READ_MAP_FIELD_METHOD;
     }
 }
-

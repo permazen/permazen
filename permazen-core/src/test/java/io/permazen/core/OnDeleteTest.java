@@ -453,4 +453,3 @@ public class OnDeleteTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

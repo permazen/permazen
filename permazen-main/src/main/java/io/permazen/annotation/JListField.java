@@ -68,4 +68,3 @@ public @interface JListField {
      */
     JField element() default @JField();
 }
-

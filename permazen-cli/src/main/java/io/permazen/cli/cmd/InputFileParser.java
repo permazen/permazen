@@ -22,4 +22,3 @@ class InputFileParser extends AbstractFileParser {
         return new ParseException(ctx, "can't read file \"" + file + "\"");
     }
 }
-

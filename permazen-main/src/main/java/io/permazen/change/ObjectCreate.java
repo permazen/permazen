@@ -49,4 +49,3 @@ public class ObjectCreate<T> extends Change<T> {
         return "ObjectCreate[object=" + this.getObject() + "]";
     }
 }
-

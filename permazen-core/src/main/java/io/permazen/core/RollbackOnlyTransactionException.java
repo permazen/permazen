@@ -21,4 +21,3 @@ public class RollbackOnlyTransactionException extends TransactionException {
         super(tx, "transaction has been marked rollback only");
     }
 }
-

@@ -200,4 +200,3 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
     }
 }
-

@@ -87,4 +87,3 @@ public class WordParser implements Parser<String> {
         return word;
     }
 }
-

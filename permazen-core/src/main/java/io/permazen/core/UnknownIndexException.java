@@ -33,4 +33,3 @@ public class UnknownIndexException extends DatabaseException {
         return this.storageId;
     }
 }
-

@@ -40,4 +40,3 @@ abstract class ComplexFieldIndex extends SimpleIndex {
          + " (" + this.type + ") of " + this.parentFieldName + " field #" + this.parentStorageId;
     }
 }
-

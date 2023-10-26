@@ -175,4 +175,3 @@ class IndexKeyFilter implements KeyFilter {
         return new FieldTypesFilter(suffixPrefix, this.fieldTypes, this.filters, this.prefixLen, this.fieldTypes.length);
     }
 }
-

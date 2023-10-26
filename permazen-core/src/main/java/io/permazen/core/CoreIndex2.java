@@ -124,4 +124,3 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
         return (CoreIndex2<V1, V2, T>)this.filter(2, this.getIndex2View().getTargetType(), bounds);
     }
 }
-

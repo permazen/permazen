@@ -492,4 +492,3 @@ public class IndexTest1 extends CoreAPITestSupport {
           buildSortedSet("valueA1", "valueA2", "valueA3", "valueB", "valueC1", "valueC2", "valueC3", "valueD"));
     }
 }
-

@@ -42,4 +42,3 @@ public class PingResponse extends AbstractPingMessage {
         handler.casePingResponse(this);
     }
 }
-

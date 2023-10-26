@@ -27,4 +27,3 @@ public class XMLKVTransaction extends SimpleKVTransaction {
         return this.generation;
     }
 }
-

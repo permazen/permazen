@@ -20,4 +20,3 @@ class CheckWaitingTransactionService extends AbstractTransactionService {
             this.role.checkWaitingTransaction(this.tx);
     }
 }
-

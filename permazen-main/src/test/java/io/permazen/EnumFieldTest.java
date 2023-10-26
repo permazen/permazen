@@ -365,4 +365,3 @@ public class EnumFieldTest extends TestSupport {
         public abstract void setEnumField(Enum2 value);
     }
 }
-

@@ -153,4 +153,3 @@ public class DeletedAccessTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

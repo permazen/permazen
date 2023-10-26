@@ -62,4 +62,3 @@ public abstract class AbstractBody implements Body {
         return new NullableField<byte[]>(new BlobField());
     }
 }
-

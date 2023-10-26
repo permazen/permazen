@@ -185,4 +185,3 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
         ((CloseableKVStore)this.getKVStore()).close();
     }
 }
-

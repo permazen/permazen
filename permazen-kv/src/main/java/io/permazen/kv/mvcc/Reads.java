@@ -230,4 +230,3 @@ public class Reads extends KeyRanges {
         return (Reads)super.immutableSnapshot();
     }
 }
-

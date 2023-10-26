@@ -57,4 +57,3 @@ public class ZonedDateTimeType extends Concat2Type<ZonedDateTime, OffsetDateTime
         return zonedDateTime.toString();
     }
 }
-

@@ -350,4 +350,3 @@ public class IndexQueryTest extends TestSupport {
     public abstract static class HasNameAndAge implements JObject, HasName, HasAge {
     }
 }
-

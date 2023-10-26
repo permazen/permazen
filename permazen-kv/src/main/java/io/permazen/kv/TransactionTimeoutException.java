@@ -29,4 +29,3 @@ public class TransactionTimeoutException extends StaleTransactionException {
         super(kvt, message, cause);
     }
 }
-

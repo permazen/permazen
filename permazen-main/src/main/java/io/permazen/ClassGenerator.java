@@ -649,4 +649,3 @@ class ClassGenerator<T> {
         return simpleFieldIndex;
     }
 }
-

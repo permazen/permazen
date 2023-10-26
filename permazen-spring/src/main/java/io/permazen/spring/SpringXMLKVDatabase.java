@@ -88,4 +88,3 @@ public class SpringXMLKVDatabase extends XMLKVDatabase {
         return this.initialContentResource != null ? this.initialContentResource.getInputStream() : null;
     }
 }
-

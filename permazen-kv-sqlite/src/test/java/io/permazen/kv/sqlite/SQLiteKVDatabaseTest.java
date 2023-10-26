@@ -49,4 +49,3 @@ public class SQLiteKVDatabaseTest extends KVDatabaseTest {
         return this.kvdb;
     }
 }
-

@@ -67,4 +67,3 @@ public class ArrayKVDatabase extends SnapshotKVDatabase {
         return e;
     }
 }
-

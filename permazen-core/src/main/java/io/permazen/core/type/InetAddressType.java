@@ -74,4 +74,3 @@ public class InetAddressType extends AbstractInetAddressType<InetAddress> {
         writer.write(bytes);
     }
 }
-

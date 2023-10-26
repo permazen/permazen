@@ -25,4 +25,3 @@ import io.permazen.annotation.JField;
  */
 public interface UniquenessConstraints {
 }
-

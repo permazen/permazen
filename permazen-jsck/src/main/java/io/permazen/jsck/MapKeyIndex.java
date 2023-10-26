@@ -35,4 +35,3 @@ class MapKeyIndex extends ComplexFieldIndex {
         }
     }
 }
-

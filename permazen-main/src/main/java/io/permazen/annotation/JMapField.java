@@ -73,4 +73,3 @@ public @interface JMapField {
      */
     JField value() default @JField();
 }
-

@@ -70,4 +70,3 @@ class CompositeIndex extends Index {
         return buf.toString();
     }
 }
-

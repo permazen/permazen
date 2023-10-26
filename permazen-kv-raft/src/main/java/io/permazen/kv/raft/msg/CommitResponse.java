@@ -228,4 +228,3 @@ public class CommitResponse extends Message {
           + "]";
     }
 }
-

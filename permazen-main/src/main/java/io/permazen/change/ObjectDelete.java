@@ -49,4 +49,3 @@ public class ObjectDelete<T> extends Change<T> {
         return "ObjectDelete[objId=" + ((JObject)this.getObject()).getObjId() + "]";
     }
 }
-

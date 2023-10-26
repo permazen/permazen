@@ -26,4 +26,3 @@ public class InvalidSchemaException extends DatabaseException {
         super(message, cause);
     }
 }
-

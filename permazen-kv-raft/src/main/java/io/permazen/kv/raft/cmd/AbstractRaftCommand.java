@@ -43,4 +43,3 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
         protected abstract void run(Session session, RaftKVDatabase db) throws Exception;
     }
 }
-

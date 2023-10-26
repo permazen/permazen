@@ -75,4 +75,3 @@ public class InfoCommand extends AbstractCommand implements Session.Action {
         return schemaModel;
     }
 }
-

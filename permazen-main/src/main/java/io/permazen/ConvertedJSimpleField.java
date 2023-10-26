@@ -115,4 +115,3 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
         mv.visitEnd();
     }
 }
-

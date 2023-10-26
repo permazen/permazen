@@ -33,4 +33,3 @@ class SimpleFieldIndex extends SimpleIndex {
         return "index on simple field #" + this.storageId + " having " + this.type;
     }
 }
-

@@ -54,4 +54,3 @@ abstract class SimpleIndex extends Index {
      */
     protected abstract void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexValue, ObjId id);
 }
-

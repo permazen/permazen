@@ -75,4 +75,3 @@ abstract class AbstractPingMessage extends Message {
           + "]";
     }
 }
-

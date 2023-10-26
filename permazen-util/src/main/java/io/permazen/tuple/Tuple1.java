@@ -24,4 +24,3 @@ public class Tuple1<V1> extends AbstractHas1<V1> {
         super(v1);
     }
 }
-

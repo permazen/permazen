@@ -67,4 +67,3 @@ public class KeyListEncoderTest extends TestSupport {
         return new ConvertedNavigableMap<>(byteMap, converter, converter);
     }
 }
-

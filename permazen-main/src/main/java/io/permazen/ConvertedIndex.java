@@ -73,4 +73,3 @@ class ConvertedIndex<V, T, WV, WT> implements Index<V, T> {
         return new Bounds<T2>(lowerBound, bounds.getLowerBoundType(), upperBound, bounds.getUpperBoundType());
     }
 }
-

@@ -46,4 +46,3 @@ public class DeleteCascadeTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

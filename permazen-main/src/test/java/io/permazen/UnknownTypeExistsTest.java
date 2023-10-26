@@ -88,4 +88,3 @@ public class UnknownTypeExistsTest extends TestSupport {
     public abstract static class Bar implements JObject {
     }
 }
-

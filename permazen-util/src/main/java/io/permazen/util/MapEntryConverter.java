@@ -41,4 +41,3 @@ class MapEntryConverter<K, V, WK, WV> extends Converter<Map.Entry<K, V>, Map.Ent
         return new ConvertedMapEntry<>(this.keyConverter, this.valueConverter, wentry);
     }
 }
-

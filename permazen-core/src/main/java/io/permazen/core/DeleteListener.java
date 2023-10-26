@@ -26,4 +26,3 @@ public interface DeleteListener {
      */
     void onDelete(Transaction tx, ObjId id);
 }
-

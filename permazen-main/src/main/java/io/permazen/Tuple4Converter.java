@@ -96,4 +96,3 @@ class Tuple4Converter<V1, V2, V3, V4, W1, W2, W3, W4> extends Converter<Tuple4<V
           + "]";
     }
 }
-

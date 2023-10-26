@@ -227,4 +227,3 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         }
     }
 }
-

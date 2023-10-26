@@ -147,4 +147,3 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
         return clone;
     }
 }
-

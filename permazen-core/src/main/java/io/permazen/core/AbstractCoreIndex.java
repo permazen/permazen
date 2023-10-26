@@ -72,4 +72,3 @@ abstract class AbstractCoreIndex {
         return !range.isFull() ? this.filter(index, new KeyRanges(range)) : this;
     }
 }
-

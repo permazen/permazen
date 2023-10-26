@@ -33,4 +33,3 @@ public class Inet4AddressType extends AbstractInetAddressType<Inet4Address> {
         return LENGTH;
     }
 }
-

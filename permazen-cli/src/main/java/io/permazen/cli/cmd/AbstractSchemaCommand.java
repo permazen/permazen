@@ -74,4 +74,3 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         R runWithoutSchema(Session session, Transaction tx);
     }
 }
-

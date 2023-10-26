@@ -43,4 +43,3 @@ public class SpaceParser {
         throw new ParseException(ctx).addCompletion(" ");
     }
 }
-

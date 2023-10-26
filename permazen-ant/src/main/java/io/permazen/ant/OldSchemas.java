@@ -19,4 +19,3 @@ public class OldSchemas extends FileSet {
         super(fileSet);
     }
 }
-

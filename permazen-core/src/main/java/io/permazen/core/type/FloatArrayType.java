@@ -108,4 +108,3 @@ public class FloatArrayType extends Base64ArrayType<float[], Float> {
         return array;
     }
 }
-

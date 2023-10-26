@@ -518,4 +518,3 @@ public class SpannerKVDatabase implements KVDatabase {
         return new ReadOnlySpannerView(this.tableName, this.client.readOnlyTransaction(consistency));
     }
 }
-

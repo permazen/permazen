@@ -142,4 +142,3 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
         return suffix;
     }
 }
-

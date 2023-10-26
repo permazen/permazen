@@ -171,4 +171,3 @@ public abstract class Issue {
           ^ Objects.hashCode(this.detail);
     }
 }
-

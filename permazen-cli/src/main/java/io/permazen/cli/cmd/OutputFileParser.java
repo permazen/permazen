@@ -22,4 +22,3 @@ class OutputFileParser extends AbstractFileParser {
         return new ParseException(ctx, "can't write to file \"" + file + "\"");
     }
 }
-

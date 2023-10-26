@@ -124,4 +124,3 @@ class ConvertedIndex3<V1, V2, V3, T, WV1, WV2, WV3, WT> implements Index3<V1, V2
            this.value1Converter, this.value2Converter, this.value3Converter, this.targetConverter);
     }
 }
-

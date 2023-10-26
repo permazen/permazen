@@ -168,4 +168,3 @@ class Lock extends KeyRange {
         return new Lock(DUMMY_OWNER, max, max, write);
     }
 }
-

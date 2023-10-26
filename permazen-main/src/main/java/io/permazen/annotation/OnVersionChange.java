@@ -139,4 +139,3 @@ public @interface OnVersionChange {
      */
     int newVersion() default 0;
 }
-

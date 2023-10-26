@@ -157,4 +157,3 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
         return (CoreIndex3<V1, V2, V3, T>)this.filter(3, this.getIndex3View().getTargetType(), bounds);
     }
 }
-

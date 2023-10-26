@@ -144,4 +144,3 @@ public class InvertReferencePathTest extends TestSupport {
     public abstract static class C implements JObject, HasA {
     }
 }
-

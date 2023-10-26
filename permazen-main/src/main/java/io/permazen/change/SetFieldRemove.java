@@ -77,4 +77,3 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
         return "SetFieldRemove[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",element=" + this.element + "]";
     }
 }
-

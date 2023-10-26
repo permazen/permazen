@@ -67,4 +67,3 @@ public @interface JSetField {
      */
     JField element() default @JField();
 }
-

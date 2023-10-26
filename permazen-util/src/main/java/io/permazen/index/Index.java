@@ -53,4 +53,3 @@ public interface Index<V, T> {
      */
     Index<V, T> withTargetBounds(Bounds<T> bounds);
 }
-

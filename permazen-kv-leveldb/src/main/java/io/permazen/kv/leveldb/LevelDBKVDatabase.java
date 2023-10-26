@@ -64,4 +64,3 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
         return e;
     }
 }
-

@@ -45,4 +45,3 @@ public class RawTypeTest extends TestSupport {
     public abstract static class Widget extends AbstractData<Widget> {
     }
 }
-

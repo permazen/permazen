@@ -250,4 +250,3 @@ public class GenericsFunTest extends TestSupport {
         public abstract void setPerson(HappyPerson person);
     }
 }
-

@@ -677,4 +677,3 @@ public final class LongEncoder {
         }
     }
 }
-

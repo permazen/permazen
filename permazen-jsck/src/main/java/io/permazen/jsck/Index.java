@@ -79,4 +79,3 @@ abstract class Index extends Storage {
         }
     }
 }
-

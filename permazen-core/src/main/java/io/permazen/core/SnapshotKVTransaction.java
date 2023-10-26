@@ -112,4 +112,3 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
         throw new UnsupportedOperationException("snapshot transaction");
     }
 }
-

@@ -73,4 +73,3 @@ public interface MessageSwitch {
      */
     void caseRequestVote(RequestVote msg);
 }
-

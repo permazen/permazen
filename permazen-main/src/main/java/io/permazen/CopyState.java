@@ -251,4 +251,3 @@ public class CopyState implements Cloneable {
         return clone;
     }
 }
-

@@ -39,4 +39,3 @@ public class SizedLabel extends Label {
         this.setSizeUndefined();
     }
 }
-

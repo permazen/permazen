@@ -67,4 +67,3 @@ class Put extends Mutation {
         return super.hashCode() ^ Arrays.hashCode(this.value);
     }
 }
-

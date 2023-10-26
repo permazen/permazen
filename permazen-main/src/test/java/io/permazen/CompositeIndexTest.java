@@ -595,4 +595,3 @@ public class CompositeIndexTest extends TestSupport {
     public abstract static class D implements Fields, Unique {
     }
 }
-

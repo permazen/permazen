@@ -785,4 +785,3 @@ public abstract class Role {
           + "]";
     }
 }
-

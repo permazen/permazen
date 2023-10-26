@@ -75,4 +75,3 @@ public class ValidateOnUpdateTest extends TestSupport {
         public abstract void setUUID(UUID uuid);
     }
 }
-

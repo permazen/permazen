@@ -24,4 +24,3 @@ class SetElementIndexInfo extends ComplexSubFieldIndexInfo {
         return tx.readSetField(id, this.getParentStorageId(), false);
     }
 }
-

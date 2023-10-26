@@ -45,4 +45,3 @@ public class RaftAddCommand extends AbstractTransactionRaftCommand {
         };
     }
 }
-

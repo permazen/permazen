@@ -42,4 +42,3 @@ public class PingRequest extends AbstractPingMessage {
         handler.casePingRequest(this);
     }
 }
-

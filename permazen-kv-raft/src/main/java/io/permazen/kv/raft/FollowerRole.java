@@ -1109,4 +1109,3 @@ public class FollowerRole extends NonLeaderRole {
         }
     }
 }
-

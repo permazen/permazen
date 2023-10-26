@@ -79,4 +79,3 @@ abstract class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefini
 
     abstract Class<?> getBeanClass();
 }
-

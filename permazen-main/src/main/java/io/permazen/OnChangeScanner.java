@@ -594,4 +594,3 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
     }
 }
-

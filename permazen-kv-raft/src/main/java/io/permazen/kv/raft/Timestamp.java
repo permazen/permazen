@@ -175,4 +175,3 @@ public class Timestamp implements Comparable<Timestamp> {
         return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     }
 }
-

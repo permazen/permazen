@@ -105,4 +105,3 @@ public class ListField<E> extends CollectionField<List<E>, E> {
         writer.write(reader);
     }
 }
-

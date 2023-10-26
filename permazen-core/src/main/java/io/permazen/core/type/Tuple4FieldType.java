@@ -32,4 +32,3 @@ public class Tuple4FieldType<V1, V2, V3, V4> extends TupleFieldType<Tuple4<V1, V
         return new Tuple4<>((V1)values[0], (V2)values[1], (V3)values[2], (V4)values[3]);
     }
 }
-

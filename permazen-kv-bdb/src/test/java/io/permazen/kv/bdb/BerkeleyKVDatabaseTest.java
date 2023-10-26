@@ -43,4 +43,3 @@ public class BerkeleyKVDatabaseTest extends KVDatabaseTest {
         return this.bdbKV;
     }
 }
-

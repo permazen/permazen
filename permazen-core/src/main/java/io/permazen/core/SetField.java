@@ -141,4 +141,3 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
         id.writeTo(writer);
     }
 }
-

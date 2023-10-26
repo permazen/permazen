@@ -71,4 +71,3 @@ public class ObjIdSetTest extends CoreAPITestSupport {
         }
     }
 }
-

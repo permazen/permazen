@@ -238,4 +238,3 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         }
     }
 }
-

@@ -82,4 +82,3 @@ public class DefaultStorageIdGenerator implements StorageIdGenerator {
         return (value % (MAX_STORAGE_ID - MIN_STORAGE_ID)) + MIN_STORAGE_ID;
     }
 }
-

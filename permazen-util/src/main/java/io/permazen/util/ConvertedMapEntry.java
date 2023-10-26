@@ -59,4 +59,3 @@ class ConvertedMapEntry<K, V, WK, WV> extends AbstractMap.SimpleEntry<K, V> {
         return prev != null ? this.valueConverter.reverse().convert(prev) : null;
     }
 }
-

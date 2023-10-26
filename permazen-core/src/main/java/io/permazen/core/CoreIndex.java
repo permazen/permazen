@@ -91,4 +91,3 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         return (CoreIndex<V, T>)this.filter(1, this.getIndexView().getTargetType(), bounds);
     }
 }
-

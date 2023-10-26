@@ -33,4 +33,3 @@ public class InconsistentDatabaseException extends DatabaseException {
         super(message, cause);
     }
 }
-

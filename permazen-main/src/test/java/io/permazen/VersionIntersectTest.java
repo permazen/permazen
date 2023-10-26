@@ -52,4 +52,3 @@ public class VersionIntersectTest extends TestSupport {
     public abstract static class Bar implements JObject {
     }
 }
-

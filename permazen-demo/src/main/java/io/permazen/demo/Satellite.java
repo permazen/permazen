@@ -23,4 +23,3 @@ public interface Satellite<P extends HasSatellites<?>> extends Body {
     P getParent();
     void setParent(P parent);
 }
-

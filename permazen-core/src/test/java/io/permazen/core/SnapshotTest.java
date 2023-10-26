@@ -228,4 +228,3 @@ public class SnapshotTest extends CoreAPITestSupport {
         Assert.assertEquals(tx1.readSimpleField(id2, 8, false), id2);
     }
 }
-

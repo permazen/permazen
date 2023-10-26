@@ -206,4 +206,3 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
           + " for type \"" + this.jclass.getName() + "\": ";
     }
 }
-

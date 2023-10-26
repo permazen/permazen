@@ -17,4 +17,3 @@ public interface Has1<V1> {
      */
     V1 getValue1();
 }
-

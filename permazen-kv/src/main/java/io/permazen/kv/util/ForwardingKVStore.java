@@ -79,4 +79,3 @@ public abstract class ForwardingKVStore implements KVStore {
         this.delegate().apply(mutations);
     }
 }
-

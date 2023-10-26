@@ -25,4 +25,3 @@ public class NullMergeStrategy implements MergeStrategy {
         return "Null";
     }
 }
-

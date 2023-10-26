@@ -80,4 +80,3 @@ public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
         return false;
     }
 }
-

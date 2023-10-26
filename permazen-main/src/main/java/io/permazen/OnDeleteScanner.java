@@ -26,4 +26,3 @@ class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
         return true;
     }
 }
-

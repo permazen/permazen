@@ -57,4 +57,3 @@ public class UnmodifiableKVStore extends ForwardingKVStore {
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 }
-

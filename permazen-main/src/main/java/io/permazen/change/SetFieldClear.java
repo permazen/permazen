@@ -45,4 +45,3 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
         return "SetFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
-

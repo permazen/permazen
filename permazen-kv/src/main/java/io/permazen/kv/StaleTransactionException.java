@@ -34,4 +34,3 @@ public class StaleTransactionException extends KVTransactionException {
         return (StaleTransactionException)super.duplicate();
     }
 }
-

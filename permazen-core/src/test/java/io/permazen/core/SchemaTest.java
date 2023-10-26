@@ -692,4 +692,3 @@ public class SchemaTest extends CoreAPITestSupport {
         };
     }
 }
-

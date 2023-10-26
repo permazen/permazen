@@ -117,4 +117,3 @@ public class EnumValue implements Serializable {
         return this.name.equals(that.name) && this.ordinal == that.ordinal;
     }
 }
-

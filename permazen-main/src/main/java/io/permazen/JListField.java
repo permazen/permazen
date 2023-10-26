@@ -114,4 +114,3 @@ public class JListField extends JCollectionField {
         return ClassGenerator.JTRANSACTION_READ_LIST_FIELD_METHOD;
     }
 }
-

@@ -72,4 +72,3 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
         }
     }
 }
-

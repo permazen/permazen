@@ -52,4 +52,3 @@ public class URIType extends StringEncodedType<URI> {
         }
     }
 }
-

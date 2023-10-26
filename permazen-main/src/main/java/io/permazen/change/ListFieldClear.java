@@ -45,4 +45,3 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
         return "ListFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
-

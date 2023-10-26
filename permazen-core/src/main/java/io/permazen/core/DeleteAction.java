@@ -40,4 +40,3 @@ public enum DeleteAction {
      */
     DELETE;
 }
-

@@ -34,4 +34,3 @@ public class StaleTransactionException extends TransactionException {
         super(tx, message);
     }
 }
-

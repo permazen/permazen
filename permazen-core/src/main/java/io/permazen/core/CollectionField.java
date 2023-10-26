@@ -97,4 +97,3 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
         return this.elementField.isUpgradeCompatible(that.elementField);
     }
 }
-

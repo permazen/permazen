@@ -17,4 +17,3 @@ public interface Has4<V1, V2, V3, V4> extends Has3<V1, V2, V3> {
      */
     V4 getValue4();
 }
-

@@ -257,4 +257,3 @@ public class JReferenceField extends JSimpleField {
         mv.visitEnd();
     }
 }
-

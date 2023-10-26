@@ -92,4 +92,3 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
           + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }
-

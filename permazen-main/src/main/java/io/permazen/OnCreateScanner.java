@@ -26,4 +26,3 @@ class OnCreateScanner<T> extends AnnotationScanner<T, OnCreate> {
         return true;
     }
 }
-

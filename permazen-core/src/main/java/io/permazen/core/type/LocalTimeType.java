@@ -79,4 +79,3 @@ public class LocalTimeType extends NonNullFieldType<LocalTime> {
         return false;
     }
 }
-

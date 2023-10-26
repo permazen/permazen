@@ -73,4 +73,3 @@ abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends 
         return super.hashCode() ^ this.parentRepresentative.storageId;
     }
 }
-

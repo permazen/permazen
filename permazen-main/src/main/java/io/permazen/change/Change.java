@@ -149,4 +149,3 @@ public abstract class Change<T> {
         return this.jobj.hashCode();
     }
 }
-

@@ -519,4 +519,3 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         return new KeyRange(newMinKey != null ? newMinKey : ByteUtil.EMPTY, newMaxKey);
     }
 }
-

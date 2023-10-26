@@ -475,4 +475,3 @@ public @interface JField {
      */
     UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }
-

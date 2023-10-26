@@ -24,4 +24,3 @@ abstract class CollectionElementStorageInfo<C extends Collection<E>, E, P extend
         }
     }
 }
-

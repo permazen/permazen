@@ -99,4 +99,3 @@ public class ImmutableStuffTest extends TestSupport {
           new AbstractMap.SimpleEntry<>(-1, objM1)));
     }
 }
-

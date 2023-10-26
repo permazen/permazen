@@ -44,4 +44,3 @@ class ListElementIndex extends CollectionElementIndex {
         }
     }
 }
-

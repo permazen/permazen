@@ -64,4 +64,3 @@ class IndexView<V, T> extends AbstractIndexView {
         return new IndexView<>(this);
     }
 }
-

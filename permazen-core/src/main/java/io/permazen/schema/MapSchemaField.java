@@ -134,4 +134,3 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
         return clone;
     }
 }
-

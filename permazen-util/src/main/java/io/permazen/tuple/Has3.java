@@ -17,4 +17,3 @@ public interface Has3<V1, V2, V3> extends Has2<V1, V2> {
      */
     V3 getValue3();
 }
-

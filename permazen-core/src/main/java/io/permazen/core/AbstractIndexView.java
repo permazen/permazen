@@ -88,4 +88,3 @@ abstract class AbstractIndexView {
           + "]";
     }
 }
-

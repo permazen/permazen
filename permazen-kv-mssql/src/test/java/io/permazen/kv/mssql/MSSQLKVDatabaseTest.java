@@ -73,4 +73,3 @@ public class MSSQLKVDatabaseTest extends KVDatabaseTest {
         return 50;
     }
 }
-

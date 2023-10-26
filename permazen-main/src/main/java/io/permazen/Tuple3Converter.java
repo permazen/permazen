@@ -85,4 +85,3 @@ class Tuple3Converter<V1, V2, V3, W1, W2, W3> extends Converter<Tuple3<V1, V2, V
           + "]";
     }
 }
-

@@ -30,4 +30,3 @@ public class Tuple2FieldType<V1, V2> extends TupleFieldType<Tuple2<V1, V2>> {
         return new Tuple2<>((V1)values[0], (V2)values[1]);
     }
 }
-

@@ -644,4 +644,3 @@ public final class Util {
         return (TypeToken<T>)TypeToken.of(type);
     }
 }
-

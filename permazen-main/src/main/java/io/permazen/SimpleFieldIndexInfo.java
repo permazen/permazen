@@ -109,4 +109,3 @@ abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvid
         return super.hashCode() ^ this.fieldType.hashCode() ^ Objects.hashCode(this.enumType);
     }
 }
-

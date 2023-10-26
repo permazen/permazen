@@ -81,4 +81,3 @@ public class InstantType extends NonNullFieldType<Instant> {
         return false;
     }
 }
-

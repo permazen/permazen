@@ -509,4 +509,3 @@ public class UniqueConstraintTest extends TestSupport {
         public abstract void setName(String name);
     }
 }
-

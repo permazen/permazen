@@ -107,4 +107,3 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
           + ",oldValue=" + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }
-

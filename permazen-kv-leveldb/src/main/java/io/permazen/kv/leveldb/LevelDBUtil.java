@@ -75,4 +75,3 @@ public final class LevelDBUtil {
         throw new RuntimeException("no " + DBFactory.class.getName() + " implementation found; tried: " + classNames);
     }
 }
-

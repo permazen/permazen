@@ -318,4 +318,3 @@ public class MainPanel extends VerticalLayout {
         }
     }
 }
-

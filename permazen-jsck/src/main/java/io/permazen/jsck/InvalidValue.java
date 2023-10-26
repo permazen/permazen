@@ -32,4 +32,3 @@ public class InvalidValue extends Issue {
         super(description, key, oldValue, newValue);
     }
 }
-

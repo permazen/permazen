@@ -80,4 +80,3 @@ public abstract class AbstractTable<C extends Container & Connectable> extends T
         super.detach();
     }
 }
-

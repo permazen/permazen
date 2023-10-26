@@ -297,4 +297,3 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         return clone;
     }
 }
-

@@ -78,4 +78,3 @@ class AbstractHas1<V1> implements Tuple, Has1<V1> {
         return Objects.equals(this.v1, that.v1);
     }
 }
-

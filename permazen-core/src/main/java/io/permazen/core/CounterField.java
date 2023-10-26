@@ -80,4 +80,3 @@ public class CounterField extends Field<Long> {
         return true;
     }
 }
-

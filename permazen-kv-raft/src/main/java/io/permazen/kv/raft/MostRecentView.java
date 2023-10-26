@@ -78,4 +78,3 @@ class MostRecentView {
         return this.view;
     }
 }
-

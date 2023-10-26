@@ -906,4 +906,3 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
     }
 }
-

@@ -316,4 +316,3 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
     public void close() {
     }
 }
-

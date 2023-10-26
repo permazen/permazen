@@ -243,4 +243,3 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         return b.toString();
     }
 }
-

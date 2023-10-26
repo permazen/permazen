@@ -126,4 +126,3 @@ public abstract class Field<T> extends SchemaItem {
      */
     abstract boolean isUpgradeCompatible(Field<?> field);
 }
-

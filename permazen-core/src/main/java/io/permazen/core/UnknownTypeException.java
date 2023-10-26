@@ -57,4 +57,3 @@ public class UnknownTypeException extends DatabaseException {
         return this.schemaVersion;
     }
 }
-

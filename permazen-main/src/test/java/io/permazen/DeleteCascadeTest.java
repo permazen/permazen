@@ -162,4 +162,3 @@ public class DeleteCascadeTest extends TestSupport {
         public abstract Map<Person, Person> getMap2();
     }
 }
-

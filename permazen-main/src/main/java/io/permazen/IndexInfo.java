@@ -42,4 +42,3 @@ abstract class IndexInfo {
         return this.storageId;
     }
 }
-

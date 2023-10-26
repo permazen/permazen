@@ -26,4 +26,3 @@ public abstract class ListFieldChange<T> extends FieldChange<T> {
         super(jobj, storageId, fieldName);
     }
 }
-

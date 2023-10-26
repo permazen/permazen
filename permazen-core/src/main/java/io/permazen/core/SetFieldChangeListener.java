@@ -73,4 +73,3 @@ public interface SetFieldChangeListener {
      */
     void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers);
 }
-

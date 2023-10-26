@@ -143,4 +143,3 @@ public class TypeSafetyTest3 extends TestSupport {
         }
     }
 }
-

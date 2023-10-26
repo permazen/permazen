@@ -98,4 +98,3 @@ public class SimpleSpringTest extends SpringTest {
         public abstract void setWeight(float weight);
     }
 }
-

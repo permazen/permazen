@@ -190,4 +190,3 @@ public class CandidateRole extends NonLeaderRole {
         return true;
     }
 }
-

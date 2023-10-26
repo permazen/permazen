@@ -70,4 +70,3 @@ public class ObjIdType extends NonNullFieldType<ObjId> {
         return false;                       // ObjId's may not have a storage ID of zero
     }
 }
-

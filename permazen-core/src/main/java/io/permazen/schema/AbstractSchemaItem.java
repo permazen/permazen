@@ -245,4 +245,3 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         return (AbstractSchemaItem)super.clone();
     }
 }
-

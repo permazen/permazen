@@ -102,4 +102,3 @@ public interface MapFieldChangeListener {
      */
     void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers);
 }
-

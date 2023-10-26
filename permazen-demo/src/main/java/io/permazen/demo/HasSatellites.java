@@ -21,4 +21,3 @@ public interface HasSatellites<S extends Satellite<?>> extends Body {
      */
     NavigableSet<S> getSatellites();
 }
-

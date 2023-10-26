@@ -74,4 +74,3 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
         return new ObjTypeSet(this.tx, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
     }
 }
-

@@ -13,4 +13,3 @@ import io.permazen.annotation.PermazenType;
 @PermazenType
 public abstract class Moon extends AbstractBody implements Satellite<Planet> {
 }
-

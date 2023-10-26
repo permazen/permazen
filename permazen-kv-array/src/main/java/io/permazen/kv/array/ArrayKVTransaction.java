@@ -27,4 +27,3 @@ public class ArrayKVTransaction extends SnapshotKVTransaction {
         return (ArrayKVDatabase)super.getKVDatabase();
     }
 }
-

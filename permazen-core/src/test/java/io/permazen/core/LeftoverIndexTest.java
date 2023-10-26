@@ -79,4 +79,3 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

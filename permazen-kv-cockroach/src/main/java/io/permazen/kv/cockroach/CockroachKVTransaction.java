@@ -20,4 +20,3 @@ class CockroachKVTransaction extends SQLKVTransaction {
         super(database, connection);
     }
 }
-

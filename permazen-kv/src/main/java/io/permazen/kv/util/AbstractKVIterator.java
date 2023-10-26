@@ -223,4 +223,3 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
         throw new UnsupportedOperationException();
     }
 }
-

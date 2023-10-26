@@ -25,4 +25,3 @@ public final class LockOwner {
     public LockOwner() {
     }
 }
-

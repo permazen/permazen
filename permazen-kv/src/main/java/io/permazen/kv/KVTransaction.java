@@ -233,4 +233,3 @@ public interface KVTransaction extends KVStore {
      */
     CloseableKVStore mutableSnapshot();
 }
-

@@ -57,4 +57,3 @@ public class TypeNotInSchemaVersionException extends DatabaseException {
         return this.version;
     }
 }
-

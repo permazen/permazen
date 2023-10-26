@@ -135,4 +135,3 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
         return false;
     }
 }
-

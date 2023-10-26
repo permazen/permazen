@@ -195,4 +195,3 @@ public class InterfaceTest extends TestSupport {
         public abstract Foo getFoo();
     }
 }
-

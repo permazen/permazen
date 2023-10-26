@@ -31,4 +31,3 @@ public enum IsolationLevel {
         return this.connectionIsolation;
     }
 }
-

@@ -64,4 +64,3 @@ public class TypeTable extends TreeTable {
         super.detach();
     }
 }
-

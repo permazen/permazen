@@ -99,4 +99,3 @@ public interface ListFieldChangeListener {
      */
     void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers);
 }
-

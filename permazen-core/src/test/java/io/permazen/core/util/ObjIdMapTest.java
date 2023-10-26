@@ -157,4 +157,3 @@ public class ObjIdMapTest extends CoreAPITestSupport {
         TestSupport.checkMap(map, hmap);
     }
 }
-

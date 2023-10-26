@@ -55,4 +55,3 @@ class IndexSet<E> extends FieldTypeSet<E> {
         return (IndexSet<E>)super.filterKeys(keyFilter);
     }
 }
-

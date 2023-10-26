@@ -53,4 +53,3 @@ public class DeletedObjectException extends DatabaseException {
         return this.id;
     }
 }
-

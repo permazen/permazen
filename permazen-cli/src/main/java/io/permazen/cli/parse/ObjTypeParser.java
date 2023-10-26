@@ -128,4 +128,3 @@ public class ObjTypeParser implements Parser<ObjType> {
         }
     }
 }
-

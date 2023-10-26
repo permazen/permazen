@@ -14,4 +14,3 @@ abstract class IndexStorageInfo extends StorageInfo {
         super(storageId);
     }
 }
-

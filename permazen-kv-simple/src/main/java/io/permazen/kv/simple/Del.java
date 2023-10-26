@@ -25,4 +25,3 @@ class Del extends Mutation {
         kv.removeRange(this.min, this.max);
     }
 }
-

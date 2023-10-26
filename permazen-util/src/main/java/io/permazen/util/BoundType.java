@@ -51,4 +51,3 @@ public enum BoundType {
         return this.booleanValue;
     }
 }
-

@@ -69,4 +69,3 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
           + ",valueConverter=" + this.valueConverter + "]";
     }
 }
-

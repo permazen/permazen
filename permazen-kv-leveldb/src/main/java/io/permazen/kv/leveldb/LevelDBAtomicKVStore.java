@@ -428,4 +428,3 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
           + "]";
     }
 }
-

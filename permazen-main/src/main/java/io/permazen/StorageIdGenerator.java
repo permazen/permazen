@@ -82,4 +82,3 @@ public interface StorageIdGenerator {
      */
     int generateMapValueStorageId(Method getter, String name);
 }
-

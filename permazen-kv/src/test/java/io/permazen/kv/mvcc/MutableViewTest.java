@@ -501,4 +501,3 @@ public class MutableViewTest extends TestSupport {
         };
     }
 }
-

@@ -43,4 +43,3 @@ public class XMLKVDatabaseTest extends KVDatabaseTest {
         return this.xmlKV;
     }
 }
-

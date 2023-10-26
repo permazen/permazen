@@ -85,4 +85,3 @@ public class MetaAnnotationsTest extends TestSupport {
         public abstract void setMommy(Mommy mommy);
     }
 }
-

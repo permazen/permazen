@@ -34,4 +34,3 @@ public class Tuple5FieldType<V1, V2, V3, V4, V5> extends TupleFieldType<Tuple5<V
         return new Tuple5<>((V1)values[0], (V2)values[1], (V3)values[2], (V4)values[3], (V5)values[4]);
     }
 }
-

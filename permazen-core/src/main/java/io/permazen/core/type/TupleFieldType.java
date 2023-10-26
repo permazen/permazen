@@ -135,4 +135,3 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
         return fieldType.compare(fieldType.validate(obj1), fieldType.validate(obj2));
     }
 }
-

@@ -2372,4 +2372,3 @@ public class JTransaction {
         }
     }
 }
-

@@ -125,4 +125,3 @@ public enum UpgradeConversionPolicy {
         return this.requireConversion;
     }
 }
-

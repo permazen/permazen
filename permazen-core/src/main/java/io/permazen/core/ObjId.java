@@ -264,4 +264,3 @@ public class ObjId implements Comparable<ObjId>, Serializable {
         return new ByteReader(buf);
     }
 }
-

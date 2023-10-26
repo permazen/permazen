@@ -74,4 +74,3 @@ public class CompositeIndex extends SchemaItem {
         return new CompositeIndexStorageInfo(this);
     }
 }
-

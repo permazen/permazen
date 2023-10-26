@@ -24,4 +24,3 @@ public interface CloseableKVStore extends KVStore, Closeable {
     @Override
     void close();
 }
-

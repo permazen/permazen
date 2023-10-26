@@ -84,4 +84,3 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
         return super.hashCode() ^ this.parentStorageId;
     }
 }
-

@@ -190,4 +190,3 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(4, this.getIndex4View().getTargetType(), bounds);
     }
 }
-

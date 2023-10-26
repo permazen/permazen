@@ -50,4 +50,3 @@ public class ListSchemaField extends CollectionSchemaField implements DiffGenera
         return (ListSchemaField)super.clone();
     }
 }
-

@@ -27,4 +27,3 @@ public class LevelDBKVTransaction extends SnapshotKVTransaction {
         return (LevelDBKVDatabase)super.getKVDatabase();
     }
 }
-

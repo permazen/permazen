@@ -13,4 +13,3 @@ import io.permazen.core.SimpleFieldChangeListener;
 interface AllChangesListener extends SimpleFieldChangeListener, SetFieldChangeListener,
   ListFieldChangeListener, MapFieldChangeListener {
 }
-

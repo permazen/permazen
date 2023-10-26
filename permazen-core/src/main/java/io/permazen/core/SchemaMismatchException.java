@@ -28,4 +28,3 @@ public class SchemaMismatchException extends InvalidSchemaException {
         super(message, cause);
     }
 }
-

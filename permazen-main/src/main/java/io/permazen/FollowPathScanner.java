@@ -148,4 +148,3 @@ class FollowPathScanner<T> extends AnnotationScanner<T, FollowPath> {
         }
     }
 }
-

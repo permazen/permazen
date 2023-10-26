@@ -35,4 +35,3 @@ public class ShortType extends IntegralType<Short> {
         return super.validate(obj);
     }
 }
-

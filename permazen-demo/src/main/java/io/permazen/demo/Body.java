@@ -48,4 +48,3 @@ public interface Body extends JObject {
     byte[] getImage();
     void setImage(byte[] image);
 }
-

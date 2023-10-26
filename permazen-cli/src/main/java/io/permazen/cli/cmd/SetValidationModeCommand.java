@@ -49,4 +49,3 @@ public class SetValidationModeCommand extends AbstractCommand {
         };
     }
 }
-

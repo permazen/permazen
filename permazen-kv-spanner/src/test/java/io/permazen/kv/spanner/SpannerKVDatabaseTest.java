@@ -60,4 +60,3 @@ public class SpannerKVDatabaseTest extends KVDatabaseTest {
         return false;
     }
 }
-

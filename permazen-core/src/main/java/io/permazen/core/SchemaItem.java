@@ -76,4 +76,3 @@ public abstract class SchemaItem {
     @Override
     public abstract String toString();
 }
-

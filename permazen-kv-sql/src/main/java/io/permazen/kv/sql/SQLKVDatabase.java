@@ -620,4 +620,3 @@ public class SQLKVDatabase implements KVDatabase {
         return new KVTransactionException(transaction, e);
     }
 }
-

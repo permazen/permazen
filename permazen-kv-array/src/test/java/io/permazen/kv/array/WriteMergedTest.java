@@ -58,4 +58,3 @@ public class WriteMergedTest extends TestSupport {
           Lists.newArrayList(kvstore.getRange(null, null, false)).toString());
     }
 }
-

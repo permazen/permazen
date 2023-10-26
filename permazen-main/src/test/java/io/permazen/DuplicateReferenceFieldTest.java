@@ -277,4 +277,3 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract List<Integer> getFieldY();
     }
 }
-

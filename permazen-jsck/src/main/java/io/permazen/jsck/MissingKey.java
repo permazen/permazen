@@ -18,4 +18,3 @@ public class MissingKey extends Issue {
         super(description, key, null, value);
     }
 }
-

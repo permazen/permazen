@@ -170,4 +170,3 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      */
     protected abstract Iterator<? extends JObject> queryForObjects();
 }
-

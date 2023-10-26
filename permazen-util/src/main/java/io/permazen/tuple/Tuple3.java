@@ -28,4 +28,3 @@ public class Tuple3<V1, V2, V3> extends AbstractHas3<V1, V2, V3> {
         super(v1, v2, v3);
     }
 }
-

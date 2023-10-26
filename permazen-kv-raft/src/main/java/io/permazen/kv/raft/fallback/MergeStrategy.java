@@ -34,4 +34,3 @@ public interface MergeStrategy {
      */
     void mergeAndCommit(KVTransaction src, KVTransaction dst, Date lastActiveTime);
 }
-

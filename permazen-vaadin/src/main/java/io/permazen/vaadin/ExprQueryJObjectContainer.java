@@ -99,4 +99,3 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
         return Iterators.transform(iterator, new CastFunction<JObject>(JObject.class).toGuava());
     }
 }
-

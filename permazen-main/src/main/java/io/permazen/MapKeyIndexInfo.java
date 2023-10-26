@@ -24,4 +24,3 @@ class MapKeyIndexInfo extends ComplexSubFieldIndexInfo {
         return tx.readMapField(id, this.getParentStorageId(), false).keySet();
     }
 }
-

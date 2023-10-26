@@ -52,4 +52,3 @@ public class ReferencedObjectException extends DatabaseException {
         return this.storageId;
     }
 }
-

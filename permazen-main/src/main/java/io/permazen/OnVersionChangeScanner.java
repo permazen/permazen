@@ -154,4 +154,3 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         }
     }
 }
-

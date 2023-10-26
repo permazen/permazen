@@ -41,4 +41,3 @@ public class LevelDBKVDatabaseTest extends KVDatabaseTest {
         return this.leveldbKV;
     }
 }
-

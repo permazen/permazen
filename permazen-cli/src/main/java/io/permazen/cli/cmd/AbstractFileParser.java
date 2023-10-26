@@ -37,4 +37,3 @@ abstract class AbstractFileParser implements Parser<File> {
 
     protected abstract ParseException createParseException(ParseContext ctx, File file);
 }
-

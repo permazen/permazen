@@ -36,4 +36,3 @@ public class MySQLKVDatabaseTest extends KVDatabaseTest {
         return this.mysqlKV;
     }
 }
-

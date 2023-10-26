@@ -34,4 +34,3 @@ class SetElementIndex extends CollectionElementIndex {
         }
     }
 }
-

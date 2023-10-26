@@ -116,4 +116,3 @@ public class BitSetType extends NonNullFieldType<BitSet> {
         return bytes;
     }
 }
-

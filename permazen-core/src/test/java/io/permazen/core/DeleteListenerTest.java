@@ -72,4 +72,3 @@ public class DeleteListenerTest extends CoreAPITestSupport {
         Assert.assertEquals(notify3[0], 1);
     }
 }
-

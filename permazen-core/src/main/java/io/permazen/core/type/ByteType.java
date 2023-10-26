@@ -28,4 +28,3 @@ public class ByteType extends IntegralType<Byte> {
         return (byte)value;
     }
 }
-

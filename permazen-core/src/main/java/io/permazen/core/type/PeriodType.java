@@ -92,4 +92,3 @@ public class PeriodType extends NonNullFieldType<Period> {
         return false;
     }
 }
-

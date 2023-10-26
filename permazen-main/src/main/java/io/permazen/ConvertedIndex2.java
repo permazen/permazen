@@ -93,4 +93,3 @@ class ConvertedIndex2<V1, V2, T, WV1, WV2, WT> implements Index2<V1, V2, T> {
            this.value1Converter, this.value2Converter, this.targetConverter);
     }
 }
-

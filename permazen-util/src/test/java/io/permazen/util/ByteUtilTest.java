@@ -51,4 +51,3 @@ public class ByteUtilTest extends TestSupport {
             Assert.assertTrue(diff2 == 0, "diff2 == " + diff2);
     }
 }
-

@@ -31,4 +31,3 @@ public interface VersionChangeListener {
      */
     void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues);
 }
-

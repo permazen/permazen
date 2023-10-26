@@ -13,4 +13,3 @@ abstract class CollectionElementIndex extends ComplexFieldIndex {
         super(info, schemaVersion, field, field.getElementField(), parentFieldName, "element");
     }
 }
-

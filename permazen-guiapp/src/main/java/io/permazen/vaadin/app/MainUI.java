@@ -39,4 +39,3 @@ public class MainUI extends AbstractUI {
         return new MainPanel(this.guiConfig);
     }
 }
-

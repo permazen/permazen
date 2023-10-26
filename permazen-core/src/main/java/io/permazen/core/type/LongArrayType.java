@@ -54,4 +54,3 @@ public class LongArrayType extends IntegralArrayType<long[], Long> {
         return array;
     }
 }
-

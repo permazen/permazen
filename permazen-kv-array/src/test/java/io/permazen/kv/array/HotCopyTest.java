@@ -101,4 +101,3 @@ public class HotCopyTest extends TestSupport {
         this.deleteDirectoryHierarchy(backupDir);
     }
 }
-

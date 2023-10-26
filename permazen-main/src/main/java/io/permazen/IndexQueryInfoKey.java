@@ -73,4 +73,3 @@ class IndexQueryInfoKey {
           ^ Arrays.hashCode(this.valueTypes);
     }
 }
-

@@ -54,4 +54,3 @@ public class ShortArrayType extends IntegralArrayType<short[], Short> {
         return array;
     }
 }
-

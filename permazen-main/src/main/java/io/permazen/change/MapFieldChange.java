@@ -26,4 +26,3 @@ public abstract class MapFieldChange<T> extends FieldChange<T> {
         super(jobj, storageId, fieldName);
     }
 }
-

@@ -143,4 +143,3 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
         return indexView;
     }
 }
-

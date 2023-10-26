@@ -197,4 +197,3 @@ public enum Consistency {
         return this.readOnly;
     }
 }
-

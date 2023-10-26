@@ -66,4 +66,3 @@ public class DroppedTypeTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

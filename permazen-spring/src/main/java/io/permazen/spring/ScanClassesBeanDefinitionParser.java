@@ -15,4 +15,3 @@ class ScanClassesBeanDefinitionParser extends ScanClassPathBeanDefinitionParser 
         return ScanClassesFactoryBean.class;
     }
 }
-

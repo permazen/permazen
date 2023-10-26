@@ -26,4 +26,3 @@ class OnValidateScanner<T> extends AnnotationScanner<T, OnValidate> {
         return true;
     }
 }
-

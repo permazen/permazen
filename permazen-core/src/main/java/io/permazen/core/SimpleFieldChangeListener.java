@@ -36,4 +36,3 @@ public interface SimpleFieldChangeListener {
     <V> void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField<V> field,
       int[] path, NavigableSet<ObjId> referrers, V oldValue, V newValue);
 }
-

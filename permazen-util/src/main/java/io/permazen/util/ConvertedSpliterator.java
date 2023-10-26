@@ -116,4 +116,3 @@ public class ConvertedSpliterator<E, W> implements Spliterator<E> {
         return this.inner.hashCode() ^ this.converter.hashCode();
     }
 }
-

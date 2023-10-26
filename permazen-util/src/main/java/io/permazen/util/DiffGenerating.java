@@ -22,4 +22,3 @@ public interface DiffGenerating<T> {
      */
     Diffs differencesFrom(T other);
 }
-

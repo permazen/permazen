@@ -470,4 +470,3 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         return clone;
     }
 }
-

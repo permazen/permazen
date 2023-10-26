@@ -58,4 +58,3 @@ public class InvalidReferenceException extends IllegalArgumentException {
         return this.objectTypes;
     }
 }
-

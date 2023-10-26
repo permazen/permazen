@@ -306,4 +306,3 @@ public class UpgradeConversionTest extends TestSupport {
         public abstract Counter getField21();
     }
 }
-

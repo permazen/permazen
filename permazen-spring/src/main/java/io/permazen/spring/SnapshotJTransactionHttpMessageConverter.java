@@ -145,4 +145,3 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
         return jtx;
     }
 }
-

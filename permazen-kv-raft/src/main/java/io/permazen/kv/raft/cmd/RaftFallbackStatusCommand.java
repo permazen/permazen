@@ -113,4 +113,3 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
           + "(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*@)", "$2");
     }
 }
-

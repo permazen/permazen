@@ -98,4 +98,3 @@ class NewLogEntry {
         return tempFile;
     }
 }
-

@@ -52,4 +52,3 @@ class AbstractHas2<V1, V2> extends AbstractHas1<V1> implements Has2<V1, V2> {
         return super.compareValues(that) && Objects.equals(this.v2, that.v2);
     }
 }
-

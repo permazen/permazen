@@ -51,4 +51,3 @@ public class CounterSchemaField extends SchemaField {
         return (CounterSchemaField)super.clone();
     }
 }
-

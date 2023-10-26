@@ -106,4 +106,3 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
         return super.hashCode() ^ this.storageIds.hashCode() ^ this.fieldTypes.hashCode();
     }
 }
-

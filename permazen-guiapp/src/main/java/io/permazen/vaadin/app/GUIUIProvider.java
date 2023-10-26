@@ -31,4 +31,3 @@ public class GUIUIProvider extends UIProvider {
         return MainUI.class;
     }
 }
-

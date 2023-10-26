@@ -160,4 +160,3 @@ public class ReferenceField extends SimpleField<ObjId> {
         return true;                        // we allow object type restrictions to differ
     }
 }
-

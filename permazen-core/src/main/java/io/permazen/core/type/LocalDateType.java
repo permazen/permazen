@@ -78,4 +78,3 @@ public class LocalDateType extends NonNullFieldType<LocalDate> {
         return false;
     }
 }
-

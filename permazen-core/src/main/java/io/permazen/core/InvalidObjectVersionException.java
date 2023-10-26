@@ -40,4 +40,3 @@ public class InvalidObjectVersionException extends InconsistentDatabaseException
         return this.version;
     }
 }
-

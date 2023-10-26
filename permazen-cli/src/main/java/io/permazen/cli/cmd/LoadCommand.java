@@ -74,4 +74,3 @@ public class LoadCommand extends AbstractCommand {
         }
     }
 }
-

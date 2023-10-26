@@ -51,4 +51,3 @@ public class OverwriteMergeStrategy implements MergeStrategy {
         return "Overwrite";
     }
 }
-

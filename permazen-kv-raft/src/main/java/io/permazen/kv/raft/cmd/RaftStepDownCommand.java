@@ -50,4 +50,3 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
         };
     }
 }
-

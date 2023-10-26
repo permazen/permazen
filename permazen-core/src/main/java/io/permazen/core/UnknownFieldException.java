@@ -57,4 +57,3 @@ public class UnknownFieldException extends DatabaseException {
         return this.storageId;
     }
 }
-

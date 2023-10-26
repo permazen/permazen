@@ -81,4 +81,3 @@ class Index2Converter<V1, V2, T, WV1, WV2, WT> extends Converter<Index2<V1, V2, 
           + "]";
     }
 }
-

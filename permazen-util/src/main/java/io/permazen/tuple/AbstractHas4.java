@@ -52,4 +52,3 @@ class AbstractHas4<V1, V2, V3, V4> extends AbstractHas3<V1, V2, V3> implements H
         return super.compareValues(that) && Objects.equals(this.v4, that.v4);
     }
 }
-

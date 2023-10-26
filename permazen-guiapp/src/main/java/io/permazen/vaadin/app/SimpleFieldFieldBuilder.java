@@ -110,4 +110,3 @@ public class SimpleFieldFieldBuilder {
         return new NullableField<>(field);
     }
 }
-

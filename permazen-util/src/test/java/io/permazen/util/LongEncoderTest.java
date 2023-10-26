@@ -241,4 +241,3 @@ public class LongEncoderTest extends TestSupport {
         };
     }
 }
-

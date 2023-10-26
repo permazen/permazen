@@ -71,4 +71,3 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
         return super.hashCode() ^ this.keyFieldType.hashCode();
     }
 }
-

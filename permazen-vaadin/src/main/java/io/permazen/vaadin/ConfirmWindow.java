@@ -111,4 +111,3 @@ public abstract class ConfirmWindow extends Window {
      */
     protected abstract boolean execute();
 }
-

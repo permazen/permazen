@@ -44,4 +44,3 @@ public class RetryTransactionException extends KVTransactionException {
         return (RetryTransactionException)super.duplicate();
     }
 }
-

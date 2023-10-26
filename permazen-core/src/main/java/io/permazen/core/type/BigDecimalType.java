@@ -197,4 +197,3 @@ public class BigDecimalType extends NonNullFieldType<BigDecimal> {
           Integer.compare(value2.scale(), value1.scale()) : Integer.compare(value1.scale(), value2.scale());
     }
 }
-

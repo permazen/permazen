@@ -85,4 +85,3 @@ public class UnionNavigableSetTest extends TestSupport {
         return unionSet;
     }
 }
-

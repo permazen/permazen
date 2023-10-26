@@ -148,4 +148,3 @@ public class UntypedJObjectTest extends TestSupport {
         // this class exists in schema versions 1 only
     }
 }
-

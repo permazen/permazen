@@ -50,4 +50,3 @@ public class OnChangeNestedGetterTest extends TestSupport {
         }
     }
 }
-

@@ -109,4 +109,3 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
           + ",oldValue=" + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }
-

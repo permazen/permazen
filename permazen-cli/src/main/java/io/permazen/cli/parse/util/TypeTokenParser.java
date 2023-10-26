@@ -138,4 +138,3 @@ public class TypeTokenParser {
             System.out.println(parser.parse(new ParseContext(arg)));
     }
 }
-

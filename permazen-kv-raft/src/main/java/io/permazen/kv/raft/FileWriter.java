@@ -100,4 +100,3 @@ class FileWriter extends FilterOutputStream {
         this.out.close();
     }
 }
-

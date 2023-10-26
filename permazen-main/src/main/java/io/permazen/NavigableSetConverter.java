@@ -63,4 +63,3 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
         return this.getClass().getSimpleName() + "[elementConverter=" + this.elementConverter + "]";
     }
 }
-

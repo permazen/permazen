@@ -253,4 +253,3 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         throw new UnsupportedOperationException();
     }
 }
-

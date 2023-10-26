@@ -56,4 +56,3 @@ public class ReferenceFieldConverter implements Converter<ObjId, JObject> {
         return this.jtx.get(id);
     }
 }
-

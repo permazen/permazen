@@ -185,4 +185,3 @@ public class CommitRequest extends Message {
           + "]";
     }
 }
-

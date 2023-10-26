@@ -155,4 +155,3 @@ public class StringType extends NonNullFieldType<String> {
         return super.convert(type, value);
     }
 }
-

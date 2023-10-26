@@ -448,4 +448,3 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         return this.snapshot;
     }
 }
-

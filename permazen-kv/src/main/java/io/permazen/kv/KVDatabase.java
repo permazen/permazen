@@ -58,4 +58,3 @@ public interface KVDatabase {
      */
     KVTransaction createTransaction(Map<String, ?> options);
 }
-

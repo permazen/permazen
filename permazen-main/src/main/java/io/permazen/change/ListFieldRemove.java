@@ -90,4 +90,3 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
           + this.index + ",element=" + this.element + "]";
     }
 }
-

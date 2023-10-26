@@ -133,4 +133,3 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
         return keyRange != null ? new Bounds<>(keyRange.getMin(), keyRange.getMax()) : new Bounds<>();
     }
 }
-

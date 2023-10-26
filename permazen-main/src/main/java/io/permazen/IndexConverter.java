@@ -67,4 +67,3 @@ class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>>
           + ",targetConverter=" + this.targetConverter + "]";
     }
 }
-

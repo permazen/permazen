@@ -278,4 +278,3 @@ class FieldTypesFilter implements KeyFilter {
         return true;
     }
 }
-

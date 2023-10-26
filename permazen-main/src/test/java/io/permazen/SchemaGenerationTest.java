@@ -117,4 +117,3 @@ public class SchemaGenerationTest extends TestSupport {
         }
     }
 }
-

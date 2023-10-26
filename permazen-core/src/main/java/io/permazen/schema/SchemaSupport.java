@@ -68,4 +68,3 @@ class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
         return clone;
     }
 }
-

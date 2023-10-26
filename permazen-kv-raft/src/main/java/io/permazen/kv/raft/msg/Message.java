@@ -488,4 +488,3 @@ public abstract class Message {
         return size + " bytes";
     }
 }
-

@@ -48,4 +48,3 @@ public class RecursiveLoadTest extends TestSupport {
         }
     }
 }
-

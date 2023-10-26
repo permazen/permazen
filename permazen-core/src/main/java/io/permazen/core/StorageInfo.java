@@ -53,4 +53,3 @@ abstract class StorageInfo {
         return this.storageId;
     }
 }
-

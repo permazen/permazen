@@ -106,4 +106,3 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
         tx.commit();
     }
 }
-

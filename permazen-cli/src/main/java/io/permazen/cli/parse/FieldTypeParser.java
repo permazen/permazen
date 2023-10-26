@@ -63,4 +63,3 @@ public class FieldTypeParser<T> implements Parser<T> {
         return new FieldTypeParser<>(null, typeName);
     }
 }
-

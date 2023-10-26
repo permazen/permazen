@@ -269,4 +269,3 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
         }
     }
 }
-

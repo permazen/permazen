@@ -101,4 +101,3 @@ public class EnumValueFieldType extends NullSafeType<EnumValue> {
           .collect(Collectors.toList());
     }
 }
-

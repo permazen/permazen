@@ -63,4 +63,3 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
         return this.getClass().getSimpleName() + "[elementConverter=" + this.elementConverter + "]";
     }
 }
-

@@ -148,4 +148,3 @@ public class AppendResponse extends Message {
           + "]";
     }
 }
-

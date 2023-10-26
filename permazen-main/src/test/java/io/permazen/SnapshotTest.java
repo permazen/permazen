@@ -402,4 +402,3 @@ public class SnapshotTest extends TestSupport {
         }
     }
 }
-

@@ -160,4 +160,3 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
         return buf.toString();
     }
 }
-

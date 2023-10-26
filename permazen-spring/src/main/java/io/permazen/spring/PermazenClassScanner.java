@@ -59,4 +59,3 @@ public class PermazenClassScanner extends AnnotatedClassScanner {
         return metadata.isIndependent();
     }
 }
-

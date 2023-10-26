@@ -60,4 +60,3 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
         return null;
     }
 }
-

@@ -50,4 +50,3 @@ abstract class AbstractTransactionService extends Service {
         return this.tx.hashCode();
     }
 }
-

@@ -44,4 +44,3 @@ class MethodKey {
           && Arrays.equals(this.parameterTypes, that.parameterTypes);
     }
 }
-

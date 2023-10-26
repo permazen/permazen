@@ -86,4 +86,3 @@ public class UnsignedIntEncoderTest extends TestSupport {
         return values.toArray(new String[values.size()][]);
     }
 }
-

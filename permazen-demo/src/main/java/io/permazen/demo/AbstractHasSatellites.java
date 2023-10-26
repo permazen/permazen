@@ -28,4 +28,3 @@ public abstract class AbstractHasSatellites<S extends Satellite<?>> extends Abst
         return satellites != null ? satellites : NavigableSets.<S>empty();
     }
 }
-

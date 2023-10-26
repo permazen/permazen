@@ -184,4 +184,3 @@ class JSSet<E> extends FieldTypeSet<E> {
         }
     }
 }
-

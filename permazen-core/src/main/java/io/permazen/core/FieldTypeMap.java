@@ -94,4 +94,3 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
         return this.keyFieldType.read(reader);
     }
 }
-

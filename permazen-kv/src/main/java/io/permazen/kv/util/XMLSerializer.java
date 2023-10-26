@@ -209,4 +209,3 @@ public class XMLSerializer extends AbstractXMLStreaming {
         this.writeElement(writer, element, ByteUtil.toString(value));
     }
 }
-

@@ -115,4 +115,3 @@ public class JSetField extends JCollectionField {
         return ClassGenerator.JTRANSACTION_READ_SET_FIELD_METHOD;
     }
 }
-

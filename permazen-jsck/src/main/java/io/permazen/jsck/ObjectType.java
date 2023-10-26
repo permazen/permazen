@@ -481,4 +481,3 @@ class ObjectType extends Storage {
         return this.objType.toString();
     }
 }
-

@@ -44,4 +44,3 @@ public interface Tuple {
     @Override
     int hashCode();
 }
-

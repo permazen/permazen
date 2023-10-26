@@ -96,4 +96,3 @@ public class RequestVote extends Message {
           + "]";
     }
 }
-

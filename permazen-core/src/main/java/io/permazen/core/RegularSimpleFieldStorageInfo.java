@@ -43,4 +43,3 @@ class RegularSimpleFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
         return "simple field with " + this.fieldType;
     }
 }
-

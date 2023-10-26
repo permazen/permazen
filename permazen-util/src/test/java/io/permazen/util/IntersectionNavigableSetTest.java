@@ -206,4 +206,3 @@ public class IntersectionNavigableSetTest extends TestSupport {
         return set;
     }
 }
-
