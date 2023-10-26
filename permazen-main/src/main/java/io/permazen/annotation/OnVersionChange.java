@@ -5,6 +5,11 @@
 
 package io.permazen.annotation;
 
+import io.permazen.UpgradeConversionPolicy;
+import io.permazen.UntypedJObject;
+import io.permazen.core.EnumValue;
+import io.permazen.core.FieldType;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,8 +27,8 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Simple changes that only modify a simple field's type can often be handled automatically; see
- * {@link io.permazen.UpgradeConversionPolicy}, {@link JField#upgradeConversion &#64;JField.upgradeConversion()},
- * and {@link io.permazen.core.FieldType#convert FieldType.convert()} for details.
+ * {@link UpgradeConversionPolicy}, {@link JField#upgradeConversion &#64;JField.upgradeConversion()},
+ * and {@link FieldType#convert FieldType.convert()} for details.
  *
  * <p><b>Method Parameters</b></p>
  *
@@ -82,8 +87,8 @@ import java.lang.annotation.Target;
  * <p>
  * Therefore, the following special rules apply to the values in the {@code oldValues} map:
  * <ul>
- * <li>For a reference field whose type no longer exists, the referenced object will be an {@link io.permazen.UntypedJObject}.
- * <li>For {@link Enum} fields, old values are always represented as {@link io.permazen.core.EnumValue} objects.
+ * <li>For a reference field whose type no longer exists, the referenced object will be an {@link UntypedJObject}.
+ * <li>For {@link Enum} fields, old values are always represented as {@link EnumValue} objects.
  *      For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  * </ul>
  *
@@ -94,7 +99,7 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see io.permazen.core.FieldType#convert FieldType.convert()
+ * @see FieldType#convert FieldType.convert()
  * @see JField#upgradeConversion &#64;JField.upgradeConversion()
  */
 @Retention(RetentionPolicy.RUNTIME)

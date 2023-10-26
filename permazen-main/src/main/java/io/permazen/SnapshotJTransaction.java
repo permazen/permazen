@@ -6,6 +6,8 @@
 package io.permazen;
 
 import io.permazen.core.SnapshotTransaction;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 
 import java.io.Closeable;
 
@@ -37,14 +39,13 @@ import java.io.Closeable;
  * see for example {@link io.permazen.spring.JObjectHttpMessageConverter}.
  *
  * <p>
- * For {@link io.permazen.kv.KVDatabase}'s that support it, using the key/value store snapshot returned by
- * {@link io.permazen.kv.KVTransaction#mutableSnapshot} allows an efficient "copy" of the entire database into a
- * {@link SnapshotJTransaction} using
- * {@link Permazen#createSnapshotTransaction(KVStore, boolean, ValidationMode) Permazen.createSnapshotTransaction()}.
+ * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by
+ * {@link KVTransaction#mutableSnapshot} allows an efficient "copy" of the entire database into a {@link SnapshotJTransaction}
+ * using {@link Permazen#createSnapshotTransaction(KVStore, boolean, ValidationMode) Permazen.createSnapshotTransaction()}.
  *
  * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
  * @see Permazen#createSnapshotTransaction Permazen.createSnapshotTransaction()
- * @see io.permazen.core.SnapshotTransaction
+ * @see SnapshotTransaction
  */
 public class SnapshotJTransaction extends JTransaction implements Closeable {
 

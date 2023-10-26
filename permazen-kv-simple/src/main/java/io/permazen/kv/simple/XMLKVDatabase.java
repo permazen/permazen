@@ -7,6 +7,7 @@ package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.util.XMLSerializer;
@@ -30,7 +31,7 @@ import org.dellroad.stuff.io.FileStreamRepository;
 import org.dellroad.stuff.io.StreamRepository;
 
 /**
- * Simple persistent {@link io.permazen.kv.KVDatabase} backed by an XML file stored in a {@link StreamRepository}.
+ * Simple persistent {@link KVDatabase} backed by an XML file stored in a {@link StreamRepository}.
  * The data is kept in memory, and the XML file is rewritten in its entirety after each successful commit.
  * In normal usage, the XML file is stored in a regular {@link File} using a {@link FileStreamRepository}, which
  * guarantees (via the use of {@link AtomicUpdateFileOutputStream}) that a partially written XML file can never exist.

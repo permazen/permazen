@@ -5,6 +5,10 @@
 
 package io.permazen.annotation;
 
+import io.permazen.JObject;
+import io.permazen.JTransaction;
+import io.permazen.SnapshotJTransaction;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,11 +20,11 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
- * (b) the instantiation of Java model objects that represent database objects (i.e., {@link io.permazen.JObject}s).
+ * (b) the instantiation of Java model objects that represent database objects (i.e., {@link JObject}s).
  * These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
  * represent the same database object in different transactions. In addition, it's even possible for a Java model
  * object to be instantiated when no corresponding database object exists in the database, e.g., via
- * {@link io.permazen.JTransaction#get(io.permazen.core.ObjId)}.
+ * {@link JTransaction#get(io.permazen.core.ObjId)}.
  *
  * <p>
  * Methods that are annotated with {@link OnCreate &#64;OnCreate} are invoked only for events of type (a).
@@ -83,11 +87,11 @@ public @interface OnCreate {
 
     /**
      * Determines whether this annotation should also be enabled for
-     * {@linkplain io.permazen.SnapshotJTransaction snapshot transaction} objects.
+     * {@linkplain SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
      * @return whether enabled for snapshot transactions
-     * @see io.permazen.SnapshotJTransaction
+     * @see SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;
 }

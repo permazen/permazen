@@ -12,12 +12,13 @@ import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.Transaction;
 import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVTransaction;
 
 import java.util.Iterator;
 
 /**
  * Specialized {@link JObjectContainer} for use with key/value stores that implement
- * {@link io.permazen.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
+ * {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
  *
  * <p>
  * This container is loaded by taking a key/value store snapshot and then iterating the desired backing objects
@@ -26,7 +27,7 @@ import java.util.Iterator;
  * <p>
  * Instances are (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link JTransaction}
  * and then creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore} returned by
- * {@link io.permazen.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
+ * {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
  * This {@link SnapshotJTransaction} is set as the current transaction while {@link #iterateObjects}
  * returns the {@link JObject}s to be actually included in the container. The {@link CloseableKVStore} will
  * remain open until the container is {@link #reload}'ed or {@link #disconnect}'ed.
@@ -63,7 +64,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      *
      * <p>
      * This method opens a {@link JTransaction}, creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore}
-     * returned by {@link io.permazen.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}, and loads
+     * returned by {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}, and loads
      * the container using the objects returned by {@link #iterateObjects}.
      */
     @Override

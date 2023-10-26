@@ -20,6 +20,7 @@ import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 
@@ -223,7 +224,7 @@ public @interface JField {
      * <p>
      * If set, this must equal the {@link EncodingId} of a {@link FieldType} registered in the {@link FieldTypeRegistry}
      * associated with the {@link Database} instance, and the annotated method's return type must match the
-     * {@link FieldType}'s {@linkplain io.permazen.core.FieldType#getTypeToken supported Java type}.
+     * {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
      *
      * <p>
      * If this is left unset (empty string), then the Java type is inferred from the return type of the getter method
@@ -247,8 +248,8 @@ public @interface JField {
      * </pre>
      *
      * @return URN identifying the field's encoding
-     * @see io.permazen.core.FieldType
-     * @see io.permazen.core.FieldTypeRegistry#getFieldType(EncodingId)
+     * @see FieldType
+     * @see FieldTypeRegistry#getFieldType(EncodingId)
      */
     String encoding() default "";
 
@@ -262,11 +263,11 @@ public @interface JField {
      * If zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value
      * unless {@link PermazenType#autogenFields} is false (in which case an error occurs).
      *
-     * @see io.permazen.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
-     * @see io.permazen.StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
-     * @see io.permazen.StorageIdGenerator#generateListElementStorageId StorageIdGenerator.generateListElementStorageId()
-     * @see io.permazen.StorageIdGenerator#generateMapKeyStorageId StorageIdGenerator.generateMapKeyStorageId()
-     * @see io.permazen.StorageIdGenerator#generateMapValueStorageId StorageIdGenerator.generateMapValueStorageId()
+     * @see StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
+     * @see StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
+     * @see StorageIdGenerator#generateListElementStorageId StorageIdGenerator.generateListElementStorageId()
+     * @see StorageIdGenerator#generateMapKeyStorageId StorageIdGenerator.generateMapKeyStorageId()
+     * @see StorageIdGenerator#generateMapValueStorageId StorageIdGenerator.generateMapValueStorageId()
      *
      * @return the field's storage ID
      */
@@ -323,7 +324,7 @@ public @interface JField {
 
     /**
      * For reference fields, configure the behavior when the referred-to object is
-     * {@linkplain io.permazen.JObject#delete deleted}.
+     * {@linkplain JObject#delete deleted}.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
@@ -336,7 +337,7 @@ public @interface JField {
 
     /**
      * For reference fields, configure cascading behavior when the referring object is
-     * {@linkplain io.permazen.JObject#delete deleted}. If set to true, the referred-to object
+     * {@linkplain JObject#delete deleted}. If set to true, the referred-to object
      * is automatically deleted as well.
      *
      * <p>
@@ -344,7 +345,7 @@ public @interface JField {
      *
      * @return whether deletion should cascade to the referred-to object
      * @see #onDelete
-     * @see io.permazen.JObject#delete
+     * @see JObject#delete
      */
     boolean cascadeDelete() default false;
 

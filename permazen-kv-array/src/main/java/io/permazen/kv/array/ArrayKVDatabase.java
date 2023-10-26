@@ -5,18 +5,20 @@
 
 package io.permazen.kv.array;
 
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.SnapshotKVDatabase;
 import io.permazen.kv.mvcc.SnapshotKVTransaction;
 
 /**
- * {@link io.permazen.kv.KVDatabase} implementation based on a {@link AtomicArrayKVStore}, providing concurrent transactions
+ * {@link KVDatabase} implementation based on a {@link AtomicArrayKVStore}, providing concurrent transactions
  * and linearizable ACID semantics.
  *
  * <p>
  * {@linkplain ArrayKVTransaction#watchKey Key watches},
- * {@linkplain io.permazen.kv.KVTransaction#mutableSnapshot mutable snapshots},
+ * {@linkplain KVTransaction#mutableSnapshot mutable snapshots},
  * and {@linkplain AtomicArrayKVStore#hotCopy hot backups} are supported.
  *
  * @see AtomicArrayKVStore

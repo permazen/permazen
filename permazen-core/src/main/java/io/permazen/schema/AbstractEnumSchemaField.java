@@ -10,6 +10,7 @@ import com.google.common.collect.PeekingIterator;
 
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.kv.KVDatabase;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;
@@ -26,8 +27,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * Superclass of {@link SimpleSchemaField} types involving {@link io.permazen.core.EnumValue}s
- * representing {@link Enum} types.
+ * Superclass of {@link SimpleSchemaField} types involving {@link EnumValue}s representing {@link Enum} types.
  */
 public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 

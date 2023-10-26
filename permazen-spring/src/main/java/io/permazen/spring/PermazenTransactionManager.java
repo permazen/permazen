@@ -12,6 +12,7 @@ import io.permazen.Permazen;
 import io.permazen.ValidationMode;
 import io.permazen.core.DatabaseException;
 import io.permazen.core.Transaction;
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 
@@ -47,7 +48,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * <p>
  * For some key/value stores, the value of
  * {@link org.springframework.transaction.annotation.Transactional#isolation &#64;Transactional.isolation()}
- * is significant; see the documentation for your specific {@link io.permazen.kv.KVDatabase} for details.
+ * is significant; see the documentation for your specific {@link KVDatabase} for details.
  *
  * @see io.permazen.spring
  */
@@ -57,7 +58,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     /**
      * The name of the transaction option passed to
-     * {@link io.permazen.kv.KVDatabase#createTransaction(Map) KVDatabase.createTransaction()}
+     * {@link KVDatabase#createTransaction(Map) KVDatabase.createTransaction()}
      * containing the {@linkplain TransactionDefinition#getIsolationLevel isolation level} from the
      * transaction definition. Some key/value databases may interpret this option.
      * The value of this option is an {@link Isolation} instance.
@@ -462,7 +463,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     /**
      * Adapter class that wraps a Spring {@link TransactionSynchronization} in the
-     * {@link io.permazen.core.Transaction.Callback} interface.
+     * {@link Transaction.Callback} interface.
      */
     public static class TransactionSynchronizationCallback implements Transaction.Callback {
 

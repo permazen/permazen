@@ -5,14 +5,17 @@
 
 package io.permazen;
 
+import io.permazen.annotation.OnChange;
+import io.permazen.annotation.OnValidate;
+
 import jakarta.validation.groups.Default;
 
 /**
  * Configures whether and how objects are enqueued for validation in a {@link JTransaction}.
  *
- * @see io.permazen.JTransaction#validate
- * @see io.permazen.JObject#revalidate
- * @see io.permazen.annotation.OnValidate
+ * @see JTransaction#validate
+ * @see JObject#revalidate
+ * @see OnValidate
  */
 public enum ValidationMode {
 
@@ -33,19 +36,18 @@ public enum ValidationMode {
      * In this mode, objects are enqueued for validation whenever {@link JObject#revalidate} is invoked; in addition,
      * objects are enqueued for validation automatically as if by {@link JObject#revalidate} when:
      * <ul>
-     *  <li>An instance is {@linkplain io.permazen.JTransaction#create created}, and the Java model type (or any super-type)
-     *      has a JSR 303 annotated public method or {@link io.permazen.annotation.OnValidate &#64;OnValidate} annoted method</li>
-     *  <li>An instance is {@linkplain io.permazen.JObject#upgrade upgraded}, and the Java model type (or any super-type)
-     *      has a JSR 303 annotated public method or {@link io.permazen.annotation.OnValidate &#64;OnValidate} annoted method</li>
+     *  <li>An instance is {@linkplain JTransaction#create created}, and the Java model type (or any super-type)
+     *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
+     *  <li>An instance is {@linkplain JObject#upgrade upgraded}, and the Java model type (or any super-type)
+     *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
      *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>
      *
      * <p>
-     * Note that the presence of a {@link io.permazen.annotation.OnValidate &#64;OnValidate} annotation on a method
+     * Note that the presence of a {@link OnValidate &#64;OnValidate} annotation on a method
      * does <b>not</b> in itself result in automatic validation when any field changes (it merely specifies an action
      * to take when validation occurs). To trigger revalidation after field changes, add
-     * {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated method(s) that invoke
-     * {@link io.permazen.JObject#revalidate this.revalidate()}.
+     * {@link OnChange &#64;OnChange}-annotated method(s) that invoke {@link JObject#revalidate this.revalidate()}.
      *
      * <p>
      * Note that {@link #AUTOMATIC} enqueues as if by {@link JObject#revalidate}, i.e., the

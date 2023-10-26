@@ -12,13 +12,11 @@ import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DefaultFieldTypeRegistry;
-import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
-import io.permazen.spring.PermazenFieldTypeScanner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -115,7 +113,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
      * The name of a Maven property to set to the auto-generated schema version number. This is the schema
      * version number that will be auto-generated when a schema version number of {@code -1} is configured.
      * This auto-generated version number is based on
-     * {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion hashing the generated schema}.
+     * {@linkplain SchemaModel#autogenerateVersion hashing the generated schema}.
      */
     @Parameter(defaultValue = "")
     protected String schemaVersionProperty;

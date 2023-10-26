@@ -809,14 +809,14 @@ public class Session {
     /**
      * Interface implemented by {@link TransactionalAction}'s that want to provide custom transaction options.
      *
-     * @see io.permazen.kv.KVDatabase#createTransaction(Map) KVDatabase#createTransaction()
+     * @see KVDatabase#createTransaction(Map) KVDatabase#createTransaction()
      */
     public interface HasTransactionOptions extends TransactionalAction {
 
         /**
          * Get the options, if any, to be used when creating a new transaction for this action to run in.
          *
-         * @return {@link io.permazen.kv.KVDatabase}-specific transaction options, or null for none
+         * @return {@link KVDatabase}-specific transaction options, or null for none
          */
         Map<String, ?> getTransactionOptions();
     }

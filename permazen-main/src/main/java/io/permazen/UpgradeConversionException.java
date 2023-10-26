@@ -5,16 +5,17 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
 import io.permazen.core.DatabaseException;
 import io.permazen.core.ObjId;
 
 /**
  * Exception thrown when an object is upgraded, some simple field's type changes, the field is
- * {@linkplain io.permazen.annotation.JField#upgradeConversion configured} with {@link UpgradeConversionPolicy#REQUIRE},
+ * {@linkplain JField#upgradeConversion configured} with {@link UpgradeConversionPolicy#REQUIRE},
  * and automated conversion of the field's value to the new type fails.
  *
  * @see UpgradeConversionPolicy
- * @see io.permazen.annotation.JField#upgradeConversion
+ * @see JField#upgradeConversion
  */
 @SuppressWarnings("serial")
 public class UpgradeConversionException extends DatabaseException {

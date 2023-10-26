@@ -5,6 +5,8 @@
 
 package io.permazen;
 
+import io.permazen.core.TypeNotInSchemaVersionException;
+
 /**
  * Represents a {@link JObject} for which no Java model type is defined in the instance's associated schema version.
  *
@@ -17,7 +19,7 @@ package io.permazen;
  * <p>
  * All object fields are still fully accessible, but they must be accessed via introspection using the
  * {@link JTransaction} field access methods, with the {@code upgradeVersion} parameter set to false
- * (to prevent a {@link io.permazen.core.TypeNotInSchemaVersionException}).
+ * (to prevent a {@link TypeNotInSchemaVersionException}).
  *
  * <p>
  * For example, suppose a schema update replaces a field referencing {@code Account} with a simple {@link String}

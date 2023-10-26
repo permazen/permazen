@@ -15,8 +15,7 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
 /**
- * A {@link io.permazen.kv.KVStore} view of all keys having a common {@code byte[]} prefix
- * in an outer, containing {@link io.permazen.kv.KVStore}.
+ * A {@link KVStore} view of all keys having a common {@code byte[]} prefix in an outer, containing {@link KVStore}.
  */
 public abstract class PrefixKVStore extends ForwardingKVStore {
 

@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
@@ -120,9 +121,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readSetField readSetField()} - Access a {@link SetField} in an object as a {@link NavigableSet}</li>
  *  <li>{@link #readListField readListField()} - Access a {@link ListField} in an object as a {@link List}</li>
  *  <li>{@link #readMapField readMapField()} - Access a {@link MapField} in an object as a {@link NavigableMap}</li>
- *  <li>{@link #getKey getKey(ObjId)} - Get the {@link io.permazen.kv.KVDatabase} key corresponding to an object</li>
- *  <li>{@link #getKey getKey(ObjId, int)} - Get the {@link io.permazen.kv.KVDatabase}
- *      key corresponding to a field in an object</li>
+ *  <li>{@link #getKey getKey(ObjId)} - Get the {@link KVDatabase} key corresponding to an object</li>
+ *  <li>{@link #getKey getKey(ObjId, int)} - Get the {@link KVDatabase} key corresponding to a field in an object</li>
  * </ul>
  *
  * <p>
@@ -2209,11 +2209,11 @@ public class Transaction {
      * <ul>
      *  <li>This method does not check whether {@code id} is valid or the object actually exists.</li>
      *  <li>Objects utilize multiple keys; the return value is the common prefix of all such keys.</li>
-     *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
+     *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param id object ID
-     * @return the {@link io.permazen.kv.KVDatabase} key corresponding to {@code id}
+     * @return the {@link KVDatabase} key corresponding to {@code id}
      * @throws IllegalArgumentException if {@code id} is null
      * @see io.permazen.JTransaction#getKey(io.permazen.JObject) JTransaction.getKey()
      */
@@ -2231,16 +2231,16 @@ public class Transaction {
      *  <li>This method does not check whether {@code id} is valid, the object exists,
      *      or the field actually exists in the object's current schema version.</li>
      *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
-     *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
+     *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param id object ID
      * @param storageId field storage ID
-     * @return the {@link io.permazen.kv.KVDatabase} key of the field in the specified object
+     * @return the {@link KVDatabase} key of the field in the specified object
      * @throws IllegalArgumentException if {@code storageId} is less than or equal to zero
      * @throws IllegalArgumentException if {@code id} is null
      * @see io.permazen.JTransaction#getKey(io.permazen.JObject, String) JTransaction.getKey()
-     * @see io.permazen.kv.KVTransaction#watchKey KVTransaction.watchKey()
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
     public byte[] getKey(ObjId id, int storageId) {
 

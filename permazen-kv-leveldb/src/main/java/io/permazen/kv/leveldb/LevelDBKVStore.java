@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
@@ -24,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Straightforward {@link io.permazen.kv.KVStore} view of a LevelDB database.
+ * Straightforward {@link KVStore} view of a LevelDB database.
  *
  * <p>
  * Instances must be {@link #close}'d when no longer needed to avoid leaking resources associated with iterators.

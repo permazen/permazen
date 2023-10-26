@@ -5,9 +5,11 @@
 
 package io.permazen.kv.mvcc;
 
+import io.permazen.kv.KVStore;
+
 /**
  * Represents an MVCC conflict in which a key that was read in one transaction was adjusted via
- * {@link io.permazen.kv.KVStore#adjustCounter KVStore.adjustCounter()} in another, simultaneous transaction.
+ * {@link KVStore#adjustCounter KVStore.adjustCounter()} in another, simultaneous transaction.
  *
  * <p>
  * Instances are immutable.

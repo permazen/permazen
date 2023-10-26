@@ -5,6 +5,15 @@
 
 package io.permazen.annotation;
 
+import io.permazen.Counter;
+import io.permazen.ReferencePath;
+import io.permazen.SnapshotJTransaction;
+import io.permazen.change.FieldChange;
+import io.permazen.change.SetFieldAdd;
+import io.permazen.change.SetFieldChange;
+import io.permazen.change.SimpleFieldChange;
+import io.permazen.core.Transaction;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,19 +24,19 @@ import java.lang.annotation.Target;
  * Annotation for methods that are to be invoked whenever a simple or complex target field in some target object changes
  * during a transaction, where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
- * See {@link io.permazen.ReferencePath} for more information about reference paths.
+ * See {@link ReferencePath} for more information about reference paths.
  *
  * <p><b>Overview</b></p>
  *
  * There several ways to control which changes are delivered to the annotated method:
  * <ul>
  *  <li>By specifying a path of object references, via {@link #value}, to the target object and field</li>
- *  <li>By widening or narrowing the type of the {@link io.permazen.change.FieldChange} method parameter
+ *  <li>By widening or narrowing the type of the {@link FieldChange} method parameter
  *      (or omitting it altogether)</li>
  *  <li>By declaring an instance method, to monitor changes from the perspective of the associated object,
  *      or a static method, to monitor changes from a global perspective</li>
  *  <li>By {@linkplain #snapshotTransactions allowing or disallowing} notifications that occur within
- *      {@linkplain io.permazen.SnapshotJTransaction snapshot transactions}.</li>
+ *      {@linkplain SnapshotJTransaction snapshot transactions}.</li>
  * </ul>
  * A class may have multiple {@link OnChange &#64;OnChange} methods, each with a specific purpose.
  *
@@ -126,15 +135,14 @@ import java.lang.annotation.Target;
  *
  * <p>
  * In all cases the annotated method must return void and take zero or one parameter; the parameter must be compatible
- * with at least one of the {@link io.permazen.change.FieldChange} sub-types appropriate for the field being watched.
+ * with at least one of the {@link FieldChange} sub-types appropriate for the field being watched.
  * The method parameter type can be used to restrict which notifications are delivered. For example, an annotated method
- * taking a {@link io.permazen.change.SetFieldChange} will receive notifications about all changes to a set field,
- * while a method taking a {@link io.permazen.change.SetFieldAdd} will receive notification only when an element
- * is added to the set.
+ * taking a {@link SetFieldChange} will receive notifications about all changes to a set field,
+ * while a method taking a {@link SetFieldAdd} will receive notification only when an element is added to the set.
  *
  * <p>
  * A method with zero parameters is delivered all possible notifications, which is equivalent to having an ignored
- * parameter of type {@link io.permazen.change.FieldChange FieldChange&lt;?&gt;}.
+ * parameter of type {@link FieldChange FieldChange&lt;?&gt;}.
  *
  * <p>
  * The method may have any level of access, including {@code private}, and multiple independent {@link OnChange &#64;OnChange}
@@ -142,14 +150,14 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
- * must emit {@link io.permazen.change.FieldChange}s compatible with the method's parameter type. Therefore, when
+ * must emit {@link FieldChange}s compatible with the method's parameter type. Therefore, when
  * multiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
  * parameters, or both).
  *
  * <p>
  * As a special case, if the last field is {@code "*"} (wildcard), then every field in the target object is matched.
  * However, only fields that emit changes compatible with the method's parameter type will be monitored.
- * So for example, a method taking a {@link io.permazen.change.SetFieldChange} would receive notifications about
+ * So for example, a method taking a {@link SetFieldChange} would receive notifications about
  * changes to all {@code Set} fields in the class, but not any other fields. Currently, due to type erasure, only
  * the parameter's raw type is taken into consideration.
  *
@@ -213,13 +221,13 @@ import java.lang.annotation.Target;
  * Here the path {@code "friends.element.name"} seems incorrect because {@code "friends.element"} has type {@code Person},
  * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still
  * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a field
- * named {@code "name"}. Note also in the example above the {@link io.permazen.change.SimpleFieldChange} parameter to the
+ * named {@code "name"}. Note also in the example above the {@link SimpleFieldChange} parameter to the
  * method {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
  *
  * <p>
- * {@link io.permazen.Counter} fields do not generate change notifications.
+ * {@link Counter} fields do not generate change notifications.
  *
  * <p>
  * No notifications are delivered for "changes" that do not actually change anything (e.g., setting a simple field to
@@ -231,7 +239,7 @@ import java.lang.annotation.Target;
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
- * See {@link io.permazen.core.Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
+ * See {@link Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
  * for further information on other special corner cases.
  *
  * <p><b>Meta-Annotations</b></p>
@@ -241,7 +249,7 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see io.permazen.ReferencePath
+ * @see ReferencePath
  * @see io.permazen.change
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -251,41 +259,41 @@ public @interface OnChange {
 
     /**
      * Specifies the path(s) to the target field(s) to watch for changes.
-     * See {@link io.permazen.ReferencePath} for information on the proper syntax.
+     * See {@link ReferencePath} for information on the proper syntax.
      *
      * <p>
      * Multiple paths may be specified; if so, each path is handled as a separate independent listener registration,
-     * and the method's parameter type must be compatible with at least one of the {@link io.permazen.change.FieldChange}
+     * and the method's parameter type must be compatible with at least one of the {@link FieldChange}
      * sub-types emitted by each field.
      *
      * <p>
      * If zero paths are specified (the default), every field in the class (including superclasses) that emits
-     * {@link io.permazen.change.FieldChange}s compatible with the method parameter will be monitored for changes.
+     * {@link FieldChange}s compatible with the method parameter will be monitored for changes.
      *
      * @return reference path leading to the changed field
-     * @see io.permazen.ReferencePath
+     * @see ReferencePath
      */
     String[] value() default { };
 
     /**
-     * Specifies the starting type for the {@link io.permazen.ReferencePath} specified by {@link #value}.
+     * Specifies the starting type for the {@link ReferencePath} specified by {@link #value}.
      *
      * <p>
      * This property must be left unset for instance methods. For static methods, if this property is left unset,
      * then then class containing the annotated method is assumed.
      *
      * @return Java type at which the reference path starts
-     * @see io.permazen.ReferencePath
+     * @see ReferencePath
      */
     Class<?> startType() default void.class;
 
     /**
      * Determines whether this annotation should also be enabled for
-     * {@linkplain io.permazen.SnapshotJTransaction snapshot transaction} objects.
+     * {@linkplain SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
      * @return whether enabled for snapshot transactions
-     * @see io.permazen.SnapshotJTransaction
+     * @see SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;
 }

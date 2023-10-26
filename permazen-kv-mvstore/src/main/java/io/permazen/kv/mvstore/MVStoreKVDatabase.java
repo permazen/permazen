@@ -5,11 +5,12 @@
 
 package io.permazen.kv.mvstore;
 
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.SnapshotKVDatabase;
 
 /**
- * {@link io.permazen.kv.KVDatabase} implementation based on a {@link MVStoreAtomicKVStore}, providing concurrent transactions
+ * {@link KVDatabase} implementation based on a {@link MVStoreAtomicKVStore}, providing concurrent transactions
  * and linearizable ACID semantics.
  *
  * <p>

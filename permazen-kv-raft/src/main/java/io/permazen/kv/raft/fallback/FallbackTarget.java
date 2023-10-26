@@ -8,6 +8,7 @@ package io.permazen.kv.raft.fallback;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVTransaction;
+import io.permazen.kv.raft.Consistency;
 import io.permazen.kv.raft.Follower;
 import io.permazen.kv.raft.LeaderRole;
 import io.permazen.kv.raft.RaftKVDatabase;
@@ -297,7 +298,7 @@ public class FallbackTarget implements Cloneable {
      *
      * <p>
      * The implementation in {@link FallbackTarget} determines availability by attempting to commit a read-only,
-     * {@link io.permazen.kv.raft.Consistency#LINEARIZABLE} transaction within the configured maximum timeout.
+     * {@link Consistency#LINEARIZABLE} transaction within the configured maximum timeout.
      *
      * @param fallbackDB parent fallback database
      * @return true if database is available, false otherwise

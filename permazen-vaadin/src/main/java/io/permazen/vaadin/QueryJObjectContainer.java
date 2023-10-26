@@ -13,6 +13,7 @@ import io.permazen.JTransaction;
 import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
+import io.permazen.core.UnknownFieldException;
 
 import java.util.Iterator;
 
@@ -50,7 +51,7 @@ import java.util.Iterator;
  * {@link #VERSION_PROPERTY} will return a different schema version from what's in the database. The automatic schema
  * upgrade can be avoided if desired by reading the field using the appropriate {@link JTransaction} field access method
  * (e.g., {@link JTransaction#readSimpleField JTransaction.readSimpleField()}) and being prepared to handle a
- * {@link io.permazen.core.UnknownFieldException} if/when the object has an older schema version that does not contain
+ * {@link UnknownFieldException} if/when the object has an older schema version that does not contain
  * the requested field.
  *
  * <p>

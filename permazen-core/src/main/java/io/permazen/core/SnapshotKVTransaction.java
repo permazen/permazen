@@ -14,11 +14,11 @@ import io.permazen.kv.util.ForwardingKVStore;
 import java.util.concurrent.Future;
 
 /**
- * A dummy {@link KVTransaction} implementation wrapping a provided {@link io.permazen.kv.KVStore}.
+ * A dummy {@link KVTransaction} implementation wrapping a provided {@link KVStore}.
  *
  * <p>
- * Instances serve simply to provide access to the underlying {@link io.permazen.kv.KVStore} via the
- * {@link KVTransaction} interface. They cannot be committed or rolled back: all {@link io.permazen.kv.KVStore}
+ * Instances serve simply to provide access to the underlying {@link KVStore} via the
+ * {@link KVTransaction} interface. They cannot be committed or rolled back: all {@link KVStore}
  * methods are supported, but all {@link KVTransaction} methods throw {@link UnsupportedOperationException}.
  */
 class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {

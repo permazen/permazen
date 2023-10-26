@@ -5,9 +5,10 @@
 
 package io.permazen.change;
 
+import io.permazen.annotation.OnChange;
+
 /**
- * Notification object that gets passed to {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated methods
- * when a set field changes.
+ * Notification object that gets passed to {@link OnChange &#64;OnChange}-annotated methods when a set field changes.
  *
  * @param <T> the type of the object containing the changed field
  */

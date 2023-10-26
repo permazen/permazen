@@ -14,6 +14,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
@@ -611,7 +612,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
      * <p>
      * {@link RaftKVTransaction}s do not block while the transaction is open; the configured value is used
      * as a timeout for the {@link #commit} operation only. If {@link #commit} takes longer than {@code timeout}
-     * milliseconds, a {@link io.permazen.kv.RetryTransactionException} is thrown.
+     * milliseconds, a {@link RetryTransactionException} is thrown.
      *
      * <p>
      * The default value for all transactions is configured by {@link RaftKVDatabase#setCommitTimeout}.

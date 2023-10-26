@@ -5,6 +5,9 @@
 
 package io.permazen.annotation;
 
+import io.permazen.Permazen;
+import io.permazen.StorageIdGenerator;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for the getter methods of Java bean properties reflecting {@link io.permazen.Permazen}
+ * Java annotation for the getter methods of Java bean properties reflecting {@link Permazen}
  * {@link java.util.Set} fields.
  *
  * <p>
@@ -50,10 +53,10 @@ public @interface JSetField {
 
     /**
      * Storage ID for this field. Value should be positive and unique within the contained class.
-     * If zero, the configured {@link io.permazen.StorageIdGenerator} will be consulted to auto-generate a value.
+     * If zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value.
      *
      * @return the set field storage ID
-     * @see io.permazen.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
+     * @see StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      */
     int storageId() default 0;
 

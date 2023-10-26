@@ -7,7 +7,9 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.EnumField;
 import io.permazen.core.EnumValue;
+import io.permazen.core.FieldType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,8 +19,7 @@ import java.util.stream.Collectors;
 import org.dellroad.stuff.java.EnumUtil;
 
 /**
- * The {@link io.permazen.core.FieldType} for {@link EnumValue}, which is the data type used by
- * {@link io.permazen.core.EnumField}.
+ * The {@link FieldType} for {@link EnumValue}, which is the data type used by {@link EnumField}.
  *
  * <p>
  * Each {@link EnumValueFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumValueFieldType}

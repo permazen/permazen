@@ -10,6 +10,7 @@ import com.google.common.collect.UnmodifiableIterator;
 
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -17,7 +18,7 @@ import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 
 /**
- * A simple read-only {@link io.permazen.kv.KVStore} based on a sorted array of key/value pairs.
+ * A simple read-only {@link KVStore} based on a sorted array of key/value pairs.
  *
  * <p>
  * Instances query three {@link ByteBuffer}s, one for the array index, one for the key data, and one for the value data.

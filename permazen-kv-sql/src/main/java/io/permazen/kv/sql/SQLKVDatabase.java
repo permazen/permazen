@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
+import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Support superclass for SQL {@link KVDatabase} implementations.
  *
  * <p>
- * {@linkplain io.permazen.kv.KVTransaction#watchKey Key watches} are not supported.
+ * {@linkplain KVTransaction#watchKey Key watches} are not supported.
  */
 public class SQLKVDatabase implements KVDatabase {
 

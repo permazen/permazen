@@ -7,12 +7,13 @@ package io.permazen.change;
 
 import io.permazen.JObject;
 import io.permazen.JTransaction;
+import io.permazen.annotation.OnChange;
 
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * Notification object that gets passed to {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated methods
+ * Notification object that gets passed to {@link OnChange &#64;OnChange}-annotated methods
  * when an element is added to a set field.
  *
  * @param <T> the type of the object containing the changed field

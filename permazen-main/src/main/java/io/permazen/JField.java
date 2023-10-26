@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.schema.SchemaField;
 
@@ -86,7 +87,7 @@ public abstract class JField extends JSchemaObject {
      * Get the {@link Annotation} that declared this field.
      *
      * <p>
-     * If this field was {@linkplain io.permazen.annotation.PermazenType#autogenFields auto-generated} from an abstract
+     * If this field was {@linkplain PermazenType#autogenFields auto-generated} from an abstract
      * method with no annotation, a non-null {@link Annotation} is still returned; it will have all default values.
      *
      * @return declaring annotation

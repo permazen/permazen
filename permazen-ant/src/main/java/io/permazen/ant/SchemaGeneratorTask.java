@@ -6,12 +6,12 @@
 package io.permazen.ant;
 
 import io.permazen.DefaultStorageIdGenerator;
+import io.permazen.Permazen;
 import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DefaultFieldTypeRegistry;
-import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -41,7 +41,7 @@ import org.apache.tools.ant.types.Resource;
  * Ant task for schema XML generation and/or verification.
  *
  * <p>
- * This task scans the configured classpath for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
+ * This task scans the configured classpath for classes with {@link PermazenType &#64;PermazenType}
  * annotations and either writes the generated schema to an XML file, or verifies the schema matches an existing XML file.
  *
  * <p>
@@ -93,7 +93,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Whether to verify not only {@link io.permazen.schema.SchemaModel#isCompatibleWith "same version"
+ *      Whether to verify not only {@link SchemaModel#isCompatibleWith "same version"
  *      schema compatibility} but also that the two schemas are actually identical, i.e.,
  *      the same names are used for object types, fields, and composite indexes, and non-structural
  *      attributes such as delete cascades have not changed.
@@ -148,7 +148,7 @@ import org.apache.tools.ant.types.Resource;
  *      The name of an ant property to set to the auto-generated schema version number. This is the schema
  *      version number that will be auto-generated when a schema version number of {@code -1} is configured.
  *      This auto-generated version number is based on
- *      {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion hashing the generated schema}.
+ *      {@linkplain SchemaModel#autogenerateVersion hashing the generated schema}.
  *      </p>
  *
  *      <p>
@@ -161,7 +161,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>Yes</td>
  *  <td>
  *      <p>
- *      Specifies the search path containing classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
+ *      Specifies the search path containing classes with {@link PermazenType &#64;PermazenType}
  *      annotations.
  *      </p>
  * </td>
@@ -172,7 +172,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
- *      for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations.
+ *      for classes with {@link PermazenType &#64;PermazenType} annotations.
  *
  *      <p>
  *      Use of this attribute requires Spring's classpath scanning classes ({@code spring-context.jar});
@@ -186,7 +186,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java class names (separated by commas and/or whitespace) of
- *      classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations.
+ *      classes with {@link PermazenType &#64;PermazenType} annotations.
  *      </p>
  * </td>
  * </tr>
@@ -261,8 +261,8 @@ import org.apache.tools.ant.types.Resource;
  *  &lt;/permazen:schema&gt;
  * </pre>
  *
- * @see io.permazen.Permazen
- * @see io.permazen.schema.SchemaModel
+ * @see Permazen
+ * @see SchemaModel
  */
 public class SchemaGeneratorTask extends Task {
 

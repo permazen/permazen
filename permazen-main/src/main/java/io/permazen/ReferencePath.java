@@ -9,6 +9,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.FollowPath;
+import io.permazen.annotation.OnChange;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
@@ -227,14 +229,13 @@ import org.slf4j.LoggerFactory;
  * or in the inverse direction via {@link JTransaction#invertReferencePath JTransaction.invertReferencePath()}.
  *
  * <p>
- * Reference paths are also used implicitly by {@link io.permazen.annotation.OnChange &#64;OnChange} annotations to
- * specify non-local objects for change monitoring, and by {@link io.permazen.annotation.FollowPath &#64;FollowPath}
- * annotations.
+ * Reference paths are also used implicitly by {@link OnChange &#64;OnChange} annotations to specify non-local objects
+ * for change monitoring, and by {@link FollowPath &#64;FollowPath} annotations.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see JTransaction#followReferencePath JTransaction.followReferencePath()
  * @see JTransaction#invertReferencePath JTransaction.invertReferencePath()
- * @see io.permazen.annotation.OnChange &#64;OnChange
+ * @see OnChange &#64;OnChange
  */
 public class ReferencePath {
 

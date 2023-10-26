@@ -7,6 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 
 import java.util.Collections;
@@ -22,7 +23,7 @@ import java.util.function.Function;
  * Plain objects (POJO's) can be imported into a {@link JTransaction} to the extent that the POJO class and
  * the corresponding Permazen model class share the same properties. The simplest example of this is when
  * the POJO class is also the Permazen model class (implying a non-abstract class; see also
- * {@link io.permazen.annotation.PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
+ * {@link PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
  * classes and model classes that implement common Java interfaces.
  *
  * <p>

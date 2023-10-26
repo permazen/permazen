@@ -7,9 +7,11 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaModel;
 
 import jakarta.validation.ValidatorFactory;
 
@@ -38,10 +40,10 @@ public class PermazenFactory {
      * Configure the Java model classes.
      *
      * <p>
-     * Note: {@link io.permazen.annotation.PermazenType &#64;PermazenType}-annotated super-types of any
-     * class in {@code modelClasses} will be included, even if the super-type is not explicitly specified in {@code modelClasses}.
+     * Note: {@link PermazenType &#64;PermazenType}-annotated super-types of any class in {@code modelClasses}
+     * will be included, even if the super-type is not explicitly specified in {@code modelClasses}.
      *
-     * @param modelClasses classes annotated with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations
+     * @param modelClasses classes annotated with {@link PermazenType &#64;PermazenType} annotations
      * @return this instance
      */
     public PermazenFactory setModelClasses(Collection<Class<?>> modelClasses) {
@@ -84,8 +86,8 @@ public class PermazenFactory {
      * A value of zero means to use whatever is the highest version already recorded in the database.
      *
      * <p>
-     * A value of -1 means to {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion auto-generate}
-     * a version number based on the {@linkplain io.permazen.schema.SchemaModel#compatibilityHash compatibility hash}
+     * A value of -1 means to {@linkplain SchemaModel#autogenerateVersion auto-generate}
+     * a version number based on the {@linkplain SchemaModel#compatibilityHash compatibility hash}
      * of the {@link io.permazen.schema.SchemaModel} generated from the {@linkplain #setModelClasses configured model classes}.
      *
      * <p>
@@ -93,7 +95,7 @@ public class PermazenFactory {
      *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
      *  zero to use the highest version already recorded in the database,
-     *  or -1 to use an {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion auto-generated} schema version
+     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
      * @return this instance
      */
     public PermazenFactory setSchemaVersion(int schemaVersion) {

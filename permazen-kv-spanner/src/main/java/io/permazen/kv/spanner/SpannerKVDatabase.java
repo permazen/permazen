@@ -18,6 +18,7 @@ import com.google.cloud.spanner.TimestampBound;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.util.MovingAverage;
 
 import jakarta.annotation.PostConstruct;
@@ -40,8 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link io.permazen.kv.KVDatabase} implementation based on
- * <a href="https://cloud.google.com/spanner/">Google Cloud Spanner</a>.
+ * {@link KVDatabase} implementation based on <a href="https://cloud.google.com/spanner/">Google Cloud Spanner</a>.
  *
  * <p><b>Configuration</b></p>
  *
@@ -111,7 +111,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Key Watches</b></p>
  *
  * <p>
- * {@linkplain io.permazen.kv.KVTransaction#watchKey Key watches} are not supported.
+ * {@linkplain KVTransaction#watchKey Key watches} are not supported.
  *
  * @see <a href="https://cloud.google.com/spanner/">Google Cloud Spanner</a>
  */

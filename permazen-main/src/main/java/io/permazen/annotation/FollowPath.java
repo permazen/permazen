@@ -5,6 +5,8 @@
 
 package io.permazen.annotation;
 
+import io.permazen.ReferencePath;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for declaring methods that should return objects found by traversing a {@link io.permazen.ReferencePath}.
+ * Java annotation for declaring methods that should return objects found by traversing a {@link ReferencePath}.
  *
  * <p>
  * This annotation can be used as a convenience to let Permazen auto-generate reference path traversal code.
@@ -20,9 +22,9 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Annotating an abstract method with {@code @FollowPath("some.path")} is just short-hand for providing an implementation
- * that creates and traverses the {@linkplain io.permazen.ReferencePath reference path} {@code "some.path"}.
- * See {@link io.permazen.ReferencePath} for details on reference paths. The specified reference path is assumed to not
- * have any {@linkplain io.permazen.ReferencePath#getTargetField target field}.
+ * that creates and traverses the {@linkplain ReferencePath reference path} {@code "some.path"}.
+ * See {@link ReferencePath} for details on reference paths. The specified reference path is assumed to not
+ * have any {@linkplain ReferencePath#getTargetField target field}.
  *
  * <p>
  * For example, the following declaration:

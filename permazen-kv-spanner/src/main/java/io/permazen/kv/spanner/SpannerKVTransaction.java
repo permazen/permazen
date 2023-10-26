@@ -24,6 +24,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.CloseableIterator;
 
@@ -345,7 +346,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      *
      * <p>
      * With Spanner, a transaction is not needed to create mutable snapshots; instead, see
-     * {@link SpannerKVDatabase#snapshot SpannerKVDatabase.snapshot()} and {@link io.permazen.kv.mvcc.MutableView}.
+     * {@link SpannerKVDatabase#snapshot SpannerKVDatabase.snapshot()} and {@link MutableView}.
      *
      * @throws UnsupportedOperationException always
      */

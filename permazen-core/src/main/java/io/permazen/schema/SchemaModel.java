@@ -7,6 +7,8 @@ package io.permazen.schema;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Database;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
@@ -44,7 +46,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 
 /**
- * Models one Permazen {@link io.permazen.core.Database} schema version.
+ * Models one Permazen {@link Database} schema version.
  */
 public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaModel> {
 
@@ -186,8 +188,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      *
      * <p>
      * This performs some basic structural validation. Full validation is not possible without a
-     * {@link io.permazen.core.Database} instance (for example, we don't know whether or not a custom
-     * {@link SimpleSchemaField} type name is registered with the associated {@link io.permazen.core.FieldTypeRegistry}).
+     * {@link Database} instance (for example, we don't know whether or not a custom
+     * {@link SimpleSchemaField} type name is registered with the associated {@link FieldTypeRegistry}).
      *
      * <p>
      * Note that after this instance has been {@linkplain #lockDown locked down}, repeated invocations of this
@@ -259,8 +261,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      *
      * <p>
      * Two instances are "same version" compatible if and only if they can be used to successfully
-     * {@linkplain io.permazen.core.Database#createTransaction(SchemaModel, int, boolean) open a transaction}
-     * against the same {@link io.permazen.core.Database} using the same schema version.
+     * {@linkplain Database#createTransaction(SchemaModel, int, boolean) open a transaction}
+     * against the same {@link Database} using the same schema version.
      *
      * <p>
      * Such compatibility implies the instances are mostly identical, with these notable exceptions:

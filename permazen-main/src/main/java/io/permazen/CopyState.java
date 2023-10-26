@@ -8,6 +8,8 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
+import io.permazen.annotation.OnChange;
+import io.permazen.annotation.OnCreate;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceField;
@@ -119,8 +121,8 @@ public class CopyState implements Cloneable {
     }
 
     /**
-     * Determine whether to suppress {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnChange &#64;OnChange} notifications in the destination transaction.
+     * Determine whether to suppress {@link OnCreate &#64;OnCreate} and
+     * {@link OnChange &#64;OnChange} notifications in the destination transaction.
      *
      * <p>
      * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
@@ -129,23 +131,23 @@ public class CopyState implements Cloneable {
      * <p>
      * Default is false.
      *
-     * @return true if {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     *  {@link io.permazen.annotation.OnChange &#64;OnChange} notifications should be suppressed, otherwise false
+     * @return true if {@link OnCreate &#64;OnCreate} and
+     *  {@link OnChange &#64;OnChange} notifications should be suppressed, otherwise false
      */
     public boolean isSuppressNotifications() {
         return this.suppressNotifications;
     }
 
     /**
-     * Configure whether to suppress {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnChange &#64;OnChange} notifications in the destination transaction.
+     * Configure whether to suppress {@link OnCreate &#64;OnCreate} and
+     * {@link OnChange &#64;OnChange} notifications in the destination transaction.
      *
      * <p>
      * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
      * also have {@code snapshotTransactions = true}, even if this property is set to false.
      *
-     * @param suppressNotifications true if {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     *  {@link io.permazen.annotation.OnChange &#64;OnChange} notifications should be suppressed, otherwise false
+     * @param suppressNotifications true if {@link OnCreate &#64;OnCreate} and
+     *  {@link OnChange &#64;OnChange} notifications should be suppressed, otherwise false
      */
     public void setSuppressNotifications(boolean suppressNotifications) {
         this.suppressNotifications = suppressNotifications;

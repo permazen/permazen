@@ -7,9 +7,10 @@ package io.permazen.change;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.OnChange;
+
 /**
- * Notification object that gets passed to {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated methods
- * when a field changes.
+ * Notification object that gets passed to {@link OnChange &#64;OnChange}-annotated methods when a field changes.
  *
  * <p>
  * Note that it's possible, using the core API, to change a field without first updating the containing object's schema version.

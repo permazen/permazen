@@ -13,6 +13,7 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.util.ByteUtil;
@@ -29,7 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Instances are thread safe.
  *
- * @see io.permazen.kv.KVTransaction#watchKey
+ * @see KVTransaction#watchKey
  */
 @ThreadSafe
 public class KeyWatchTracker implements Closeable {

@@ -14,6 +14,8 @@ import io.permazen.cli.parse.FieldTypeParser;
 import io.permazen.cli.parse.ObjIdParser;
 import io.permazen.cli.parse.ObjTypeParser;
 import io.permazen.cli.parse.Parser;
+import io.permazen.core.FieldType;
+import io.permazen.core.ObjId;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -159,11 +161,11 @@ public abstract class AbstractCommand implements Command {
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.
      *
      * <p>
-     * The implementation in {@link AbstractCommand} supports all {@link io.permazen.core.FieldType}s registered with the
+     * The implementation in {@link AbstractCommand} supports all {@link FieldType}s registered with the
      * database, plus:
      * <ul>
      *  <li>{@code type} for an object type name (returns {@link Integer})</li>
-     *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link io.permazen.core.ObjId})</li>
+     *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link ObjId})</li>
      * </ul>
      *
      * @param typeName parameter type name

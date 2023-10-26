@@ -10,6 +10,7 @@ import com.google.common.collect.Iterators;
 
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides a {@link io.permazen.kv.KVStore} view of an underlying
+ * Provides a {@link KVStore} view of an underlying
  * {@link ConcurrentSkipListMap NavigableMap&lt;byte[], byte[]&gt;} whose keys are sorted lexicographically as unsigned bytes.
  */
 @ThreadSafe
@@ -40,7 +41,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      * NavigableMapKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
      * </code></blockquote>
      *
-     * @see io.permazen.util.ByteUtil#COMPARATOR
+     * @see ByteUtil#COMPARATOR
      */
     public NavigableMapKVStore() {
         this(new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR));
@@ -55,7 +56,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      * @param map underlying map
      * @throws IllegalArgumentException if {@code map} is null
      * @throws IllegalArgumentException if an invalid comparator is detected (this check is not reliable)
-     * @see io.permazen.util.ByteUtil#COMPARATOR
+     * @see ByteUtil#COMPARATOR
      */
     public NavigableMapKVStore(ConcurrentSkipListMap<byte[], byte[]> map) {
         Preconditions.checkArgument(map != null, "null map");

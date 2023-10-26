@@ -5,11 +5,13 @@
 
 package io.permazen.kv.lmdb;
 
+import io.permazen.kv.KVStore;
+
 import org.lmdbjava.Dbi;
 import org.lmdbjava.Txn;
 
 /**
- * {@link io.permazen.kv.KVStore} view of a LMDB transaction using {@code byte[]} array buffers.
+ * {@link KVStore} view of a LMDB transaction using {@code byte[]} array buffers.
  *
  * <p>
  * Instances must be {@link #close}'d when no longer needed to avoid leaking resources.

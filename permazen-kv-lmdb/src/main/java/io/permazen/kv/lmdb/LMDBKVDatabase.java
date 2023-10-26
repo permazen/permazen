@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link io.permazen.kv.KVDatabase} view of an LMDB database.
+ * {@link KVDatabase} view of an LMDB database.
  *
  * <p>
  * A {@linkplain #setDirectory database directory} is the only required configuration property.

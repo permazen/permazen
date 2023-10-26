@@ -16,6 +16,7 @@ import io.permazen.core.type.ObjIdType;
 import io.permazen.core.type.ShortType;
 import io.permazen.core.type.UnsignedIntType;
 import io.permazen.core.type.VoidType;
+import io.permazen.util.UnsignedIntEncoder;
 
 /**
  * Some {@link FieldType}s that are used for various general encoding tasks.
@@ -79,7 +80,7 @@ public final class Encodings {
     public static final ObjIdType OBJ_ID = new ObjIdType();
 
     /**
-     * Encodes unsigned integers via {@link io.permazen.util.UnsignedIntEncoder}.
+     * Encodes unsigned integers via {@link UnsignedIntEncoder}.
      */
     public static final UnsignedIntType UNSIGNED_INT = new UnsignedIntType();
 

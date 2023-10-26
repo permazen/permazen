@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.EncodingId;
+import io.permazen.core.EnumValue;
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.schema.SimpleSchemaField;
@@ -102,11 +103,11 @@ public class JSimpleField extends JField {
     }
 
     /**
-     * Get the {@link io.permazen.core.FieldType} used by the core API to encode this field's values.
+     * Get the {@link FieldType} used by the core API to encode this field's values.
      *
      * <p>
      * Note that for {@link Enum} and reference fields, the core API uses a different type than the Java model
-     * classes ({@link io.permazen.core.EnumValue} and {@link io.permazen.core.ObjId}, respectively).
+     * classes ({@link EnumValue} and {@link ObjId}, respectively).
      * Values can always be properly converted using the {@link Converter} returned by {@link #getConverter getConverter()}.
      *
      * @return this field's core-layer type definition

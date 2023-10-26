@@ -24,8 +24,10 @@ import io.permazen.JObject;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
 import io.permazen.Permazen;
+import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.FieldType;
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.core.UnknownFieldException;
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * Automatically creates container properties for object ID, database type, schema version, and all fields, as well as any custom
  * properties defined by {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated methods in
  * Java model classes. The properties of each {@link com.vaadin.data.Item} in the container are derived from a corresponding
- * {@link JObject} which is usually stored in an in-memory {@link io.permazen.SnapshotJTransaction} (which may contain other
+ * {@link JObject} which is usually stored in an in-memory {@link SnapshotJTransaction} (which may contain other
  * related objects, allowing an {@link com.vaadin.data.Item}'s properties to be derived from those related objects as well).
  *
  * <p>
@@ -64,7 +66,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances are loaded by invoking {@link #load load()} with an iteration of backing {@link JObject}s.
- * Normally these {@link JObject}s are contained in a {@link io.permazen.SnapshotJTransaction}.
+ * Normally these {@link JObject}s are contained in a {@link SnapshotJTransaction}.
  *
  * <p>
  * Instances implement {@link org.dellroad.stuff.vaadin7.Connectable} and therefore must be {@link #connect connect()}'ed
@@ -94,7 +96,7 @@ import org.slf4j.LoggerFactory;
  *  <li>A property for every {@link Permazen} field that is common to all object types that sub-type
  *      this containers's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
- *          <li>For simple fields, their {@linkplain io.permazen.core.FieldType#toString(Object) string form}</li>
+ *          <li>For simple fields, their {@linkplain FieldType#toString(Object) string form}</li>
  *          <li>For reference fields, the {@link #REFERENCE_LABEL_PROPERTY} of the referred-to object, or "Null"
  *              if the reference is null</li>
  *          <li>For set, list, and map fields, the first few entries in the collection</li>

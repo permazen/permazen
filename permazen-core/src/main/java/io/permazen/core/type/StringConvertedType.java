@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.EncodingId;
+import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -17,7 +18,7 @@ import io.permazen.util.ParseContext;
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * {@link io.permazen.core.FieldType} for any Java type that can be encoded and ordered as a {@link String}.
+ * {@link FieldType} for any Java type that can be encoded and ordered as a {@link String}.
  * A {@link Converter} is used to convert between native and {@link String} forms.
  *
  * <p>
@@ -40,7 +41,7 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
     /**
      * Primary constructor.
      *
-     * @param encodingId the encoding ID for this {@link io.permazen.core.FieldType}
+     * @param encodingId the encoding ID for this {@link FieldType}
      * @param type represented Java type
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
@@ -56,7 +57,7 @@ public class StringConvertedType<T> extends NonNullFieldType<T> {
     /**
      * Convenience constructor taking {@link Class} instead of {@link TypeToken}.
      *
-     * @param encodingId the encoding ID for this {@link io.permazen.core.FieldType}
+     * @param encodingId the encoding ID for this {@link FieldType}
      * @param type represented Java type
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null

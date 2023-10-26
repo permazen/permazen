@@ -7,6 +7,8 @@ package io.permazen.kv.mvstore;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVStore;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -21,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Support superclass for {@link io.permazen.kv.KVStore} implementations based on an open {@link MVStore}.
+ * Support superclass for {@link KVStore} implementations based on an open {@link MVStore}.
  *
  * <p>
  * Subclass must implement {@link #getMVMap}.

@@ -7,6 +7,7 @@ package io.permazen.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Holds a set of reads from a {@link io.permazen.kv.KVStore}.
+ * Holds a set of reads from a {@link KVStore}.
  *
  * <p>
  * Only the (ranges of) keys read are retained, not the values.
@@ -108,7 +109,7 @@ public class Reads extends KeyRanges {
      *
      * <p>
      * If this method returns null, then if two transactions T1 and T2 are based on the same underlying
-     * {@link io.permazen.kv.KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,
+     * {@link KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,
      * then T2 can be ordered after T1 while still preserving linearizable semantics. That is, the given {@code mutations}
      * are invisible to this instance.
      *

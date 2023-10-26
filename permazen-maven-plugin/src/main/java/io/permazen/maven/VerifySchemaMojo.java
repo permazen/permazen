@@ -6,6 +6,10 @@
 package io.permazen.maven;
 
 import io.permazen.Permazen;
+import io.permazen.annotation.JField;
+import io.permazen.core.SchemaMismatchException;
+
+import io.permazen.schema.SchemaModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +32,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  *
  * <p>
  * This goal verifies that the Permazen schema can be successfully auto-generated from user-supplied model classes.
- * It also checks that the schema will not lead to any {@link io.permazen.core.SchemaMismatchException}s at runtime.
+ * It also checks that the schema will not lead to any {@link SchemaMismatchException}s at runtime.
  *
  * <p>
  * Such exceptions occur when either:
@@ -43,7 +47,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * The first case is detected by having an expected schema XML file.
  * This file should correspond to the project's current schema version, and is
  * is used to verify that the schema auto-generated from the project's model classes is still
- * {@linkplain io.permazen.schema.SchemaModel#isCompatibleWith "same version" compatible} with this schema version,
+ * {@linkplain SchemaModel#isCompatibleWith "same version" compatible} with this schema version,
  * ensuring no mismatch error will occur at runtime. In other words, the actual schema generated from the compiled classes
  * is verified to match what is expected, which is recorded in this file.
  * The current expected schema XML file location is configured by {@code <expectedSchemaFile>};
@@ -66,8 +70,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * <p>
  * If this goal fails due to an incompatibility of the second type, you must adjust your model classes to make
  * them compatible again. For example, manually reassign a conflicting field a different
- * {@link io.permazen.annotation.JField#name name()} or {@link io.permazen.annotation.JField#storageId storageId()}
- * using the {@link io.permazen.annotation.JField} annotation.
+ * {@link JField#name name()} or {@link JField#storageId storageId()} using the {@link JField &#64;JField} annotation.
  */
 @Mojo(name = "verify",
   defaultPhase = LifecyclePhase.PROCESS_CLASSES,

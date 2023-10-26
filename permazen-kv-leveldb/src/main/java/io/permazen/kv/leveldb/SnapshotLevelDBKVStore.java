@@ -6,6 +6,7 @@
 package io.permazen.kv.leveldb;
 
 import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVStore;
 
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.ReadOptions;
@@ -14,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Read-only {@link io.permazen.kv.KVStore} view of a LevelDB {@link Snapshot}.
+ * Read-only {@link KVStore} view of a LevelDB {@link Snapshot}.
  *
  * <p>
  * Instances must be {@link #close}'d when no longer needed to avoid leaking resources associated with iterators.

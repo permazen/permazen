@@ -7,6 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
@@ -341,8 +342,8 @@ public class Database {
      * and can be used indefinitely.
      *
      * <p>
-     * If {@code kvstore} is a {@link io.permazen.kv.CloseableKVStore}, then it will be
-     * {@link io.permazen.kv.CloseableKVStore#close close()}'d if/when the returned {@link SnapshotTransaction} is.
+     * If {@code kvstore} is a {@link CloseableKVStore}, then it will be
+     * {@link CloseableKVStore#close close()}'d if/when the returned {@link SnapshotTransaction} is.
      *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database

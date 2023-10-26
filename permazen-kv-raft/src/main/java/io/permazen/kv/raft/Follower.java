@@ -5,6 +5,8 @@
 
 package io.permazen.kv.raft;
 
+import io.permazen.kv.raft.msg.AppendResponse;
+
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.NavigableSet;
@@ -174,7 +176,7 @@ public class Follower {
      * Determine whether we believe this follower is "synchronized".
      *
      * <p>
-     * By "synchronized" we mean the most recently received {@link io.permazen.kv.raft.msg.AppendResponse}
+     * By "synchronized" we mean the most recently received {@link AppendResponse}
      * indicated a successful match of the previous log entry. We only send "probes" to unsynchronized followers.
      *
      * @return true if synchronized

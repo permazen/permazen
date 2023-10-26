@@ -5,13 +5,14 @@
 
 package io.permazen.kv.mvcc;
 
+import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 
 import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Represents a set of mutations that can be applied to a {@link io.permazen.kv.KVStore}.
+ * Represents a set of mutations that can be applied to a {@link KVStore}.
  *
  * <p>
  * Each mutation is either a key/value put, the removal of a key range (possibly containing only a single key),

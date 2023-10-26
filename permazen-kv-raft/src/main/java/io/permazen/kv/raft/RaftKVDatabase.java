@@ -16,7 +16,11 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.mvcc.Reads;
+import io.permazen.kv.mvcc.SnapshotKVDatabase;
 import io.permazen.kv.mvcc.Writes;
+import io.permazen.kv.raft.fallback.FallbackKVDatabase;
 import io.permazen.kv.raft.msg.AppendRequest;
 import io.permazen.kv.raft.msg.AppendResponse;
 import io.permazen.kv.raft.msg.CommitRequest;
@@ -80,7 +84,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A distributed {@link io.permazen.kv.KVDatabase} based on the Raft consensus algorithm.
+ * A distributed {@link KVDatabase} based on the Raft consensus algorithm.
  *
  * <p><b>Raft Algorithm</b>
  *
@@ -119,7 +123,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Optional support for falling back to a "standalone mode" based on the most recent copy of the database when a majority of
- * nodes can't be reached is provided by {@link io.permazen.kv.raft.fallback.FallbackKVDatabase}.
+ * nodes can't be reached is provided by {@link FallbackKVDatabase}.
  *
  * <p><b>Raft Implementation Details</b></p>
  *
@@ -127,23 +131,23 @@ import org.slf4j.LoggerFactory;
  *  <li>The Raft state machine is the key/value store data.</li>
  *  <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
  *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (similar to that used by
- *      {@link io.permazen.kv.mvcc.SnapshotKVDatabase}):
+ *      {@link SnapshotKVDatabase}):
  *      <ul>
- *      <li>Transactions execute locally until commit time, using a {@link io.permazen.kv.mvcc.MutableView} to collect mutations.
- *          The {@link io.permazen.kv.mvcc.MutableView} is based on the local node's last unapplied log entry,
+ *      <li>Transactions execute locally until commit time, using a {@link MutableView} to collect mutations.
+ *          The {@link MutableView} is based on the local node's last unapplied log entry,
  *          if any (whether committed or not), or else directly on the underlying key/value store; this defines
  *          the <i>base term and index</i> for the transaction.</li>
  *      <li>Since the transaction's view incorporates all unapplied log entries down to the underlying
  *          compacted key/value store, transaction performance degrades as the number of unapplied log
  *          entries grows. Log entries are always applied as soon as possible, but they are also kept around
  *          on disk (up to a point) after being applied in case needed by a leader.</li>
- *      <li>On commit, the transaction's {@link io.permazen.kv.mvcc.Reads}, {@link io.permazen.kv.mvcc.Writes},
- *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
+ *      <li>On commit, the transaction's {@link Reads}, {@link Writes}, base index and term, and any config change are
+ *          {@linkplain CommitRequest sent} to the leader.</li>
  *      <li>The leader confirms that the log entry corresponding to the transaction's base index and term matches its log.
  *          If this is not the case, then the transaction is rejected with a {@link RetryTransactionException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
- *          do not create {@linkplain io.permazen.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
- *          {@link io.permazen.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
+ *          do not create {@linkplain Reads#isConflict conflicts} when compared against the transaction's
+ *          {@link Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
  *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
  *          The associated term and index become the transaction's <i>commit term and index</i>; the leader then
  *          {@linkplain CommitResponse replies} to the follower with this information.</li>

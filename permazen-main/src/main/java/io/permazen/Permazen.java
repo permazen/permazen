@@ -23,6 +23,9 @@ import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.util.ObjIdSet;
+import io.permazen.kv.CloseableKVStore;
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
@@ -65,16 +68,16 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Permazen is a Java persistence solution built on three layers of abstraction:
  *  <ul>
- *  <li>At the bottom is a simple <b>Key/Value Layer</b> represented by {@link io.permazen.kv.KVDatabase}.
- *      Transactions are supported at this layer and are accessed via {@link io.permazen.kv.KVTransaction}.
- *      There are several available {@link io.permazen.kv.KVDatabase} implementations, including "wrappers"
+ *  <li>At the bottom is a simple <b>Key/Value Layer</b> represented by {@link KVDatabase}.
+ *      Transactions are supported at this layer and are accessed via {@link KVTransaction}.
+ *      There are several available {@link KVDatabase} implementations, including "wrappers"
  *      for several third party key/value stores.</li>
  *  <li>On top of that sits the <b>Core API Layer</b>, which provides a rigourous "object database" abstraction on top of
- *      a {@link io.permazen.kv.KVDatabase}. It supports simple fields of any Java type that can be (de)serialized to/from
+ *      a {@link KVDatabase}. It supports simple fields of any Java type that can be (de)serialized to/from
  *      a {@code byte[]} array, as well as list, set, and map complex fields, tightly controlled schema versioning,
  *      simple and composite indexes, and lifecycle and change notifications.
  *      It is not Java-specific or explicitly object-oriented: an "object" at this layer is just a structure with defined fields.
- *      The core API layer may be accessed through the {@link Database} and {@link io.permazen.core.Transaction} classes.</li>
+ *      The core API layer may be accessed through the {@link Database} and {@link Transaction} classes.</li>
  *  <li>The <b>Java Layer</b> is a Java-centric, object-oriented persistence layer for Java applications.
  *      It sits on top of the core API layer and provides a fully "Java" view of the underlying data
  *      where all data access is through user-supplied Java model classes. All schema definition and listeners are specified
@@ -88,7 +91,7 @@ import org.slf4j.LoggerFactory;
  * {@link Permazen} generates concrete subclasses of the user-provided abstract model classes at runtime.
  * These runtime classes implement the Java bean methods as well as the {@link JObject} interface.
  * Instances of these classes are always associated with a specific {@link JTransaction}, and all of their database
- * state derives from that the underlying key/value {@link io.permazen.kv.KVTransaction}.
+ * state derives from that the underlying key/value {@link KVTransaction}.
  *
  * <p>
  * All Java model class instances have a unique {@link ObjId} which represents database identity.
@@ -611,7 +614,7 @@ public class Permazen {
      *
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
-     * @param kvoptions optional {@link io.permazen.kv.KVDatabase}-specific transaction options; may be null
+     * @param kvoptions optional {@link KVDatabase}-specific transaction options; may be null
      * @return the newly created transaction
      * @throws io.permazen.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
@@ -694,8 +697,8 @@ public class Permazen {
      * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
      *
      * <p>
-     * If {@code kvstore} is a {@link io.permazen.kv.CloseableKVStore}, then it will be
-     * {@link io.permazen.kv.CloseableKVStore#close close()}'d if/when the returned {@link SnapshotJTransaction} is.
+     * If {@code kvstore} is a {@link CloseableKVStore}, then it will be {@link CloseableKVStore#close close()}'d
+     * if/when the returned {@link SnapshotJTransaction} is.
      *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Permazen}
      * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
@@ -985,8 +988,7 @@ public class Permazen {
      * Utility method to get all of the objects directly referenced by a given object via any field.
      *
      * <p>
-     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an
-     * {@link io.permazen.core.util.ObjIdSet} if necessary.
+     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an {@link ObjIdSet} if necessary.
      *
      * @param jobj starting object
      * @return all objects directly referenced by {@code jobj}

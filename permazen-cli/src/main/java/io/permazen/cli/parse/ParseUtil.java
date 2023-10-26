@@ -14,6 +14,7 @@ import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
 import io.permazen.core.UnknownTypeException;
+import io.permazen.cli.SessionMode;
 
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -68,7 +69,7 @@ public final class ParseUtil {
      * @throws IllegalArgumentException if object's type does not exist in schema
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code state} is not in {@link io.permazen.cli.SessionMode#PERMAZEN}
+     * @throws IllegalArgumentException if {@code state} is not in {@link SessionMode#PERMAZEN}
      */
     public static JField resolveJField(Session session, ObjId id, String name) {
 

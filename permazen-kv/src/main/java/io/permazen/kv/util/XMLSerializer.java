@@ -27,7 +27,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 
 /**
- * Utility methods for serializing and deserializing the contents of a {@link io.permazen.kv.KVStore} to/from XML.
+ * Utility methods for serializing and deserializing the contents of a {@link KVStore} to/from XML.
  *
  * <p>
  * The XML has a simple format; empty values may be omitted:

@@ -7,6 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdMap;
 
@@ -22,7 +23,7 @@ import java.util.function.Function;
  * Plain objects (POJO's) can be exported from a {@link JTransaction} to the extent that the Permazen model class and
  * the corresponding target POJO class share the same properties. The simplest example of this is when the Permazen model class
  * is also the POJO class (implying a non-abstract class; see also
- * {@link io.permazen.annotation.PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
+ * {@link PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
  * classes and model classes that implement common Java interfaces.
  *
  * <p>

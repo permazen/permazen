@@ -22,11 +22,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.maven</automatic.module.name>
-        <maven-artifact.version>3.9.5</maven-artifact.version>
-        <maven-project.version>3.0-alpha-2</maven-project.version>
-        <maven-plugin-plugin.version>3.10.1</maven-plugin-plugin.version>
-        <maven-plugin-tools.version>3.10.1</maven-plugin-tools.version>
-        <plugin-api.version>3.9.5</plugin-api.version>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
     <dependencies>
 

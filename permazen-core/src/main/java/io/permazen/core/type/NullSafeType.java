@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.AbstractFieldType;
 import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -71,7 +72,7 @@ public class NullSafeType<T> extends AbstractFieldType<T> {
      *
      * <p>
      * Takes encoding ID from {@code inner}; therefore, this instance and {@code inner}
-     * cannot be both registered in a {@link io.permazen.core.FieldTypeRegistry}.
+     * cannot be both registered in a {@link FieldTypeRegistry}.
      *
      * @param inner inner type that is not null safe
      */

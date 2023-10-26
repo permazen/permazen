@@ -7,10 +7,10 @@ package io.permazen.change;
 
 import io.permazen.JObject;
 import io.permazen.JTransaction;
+import io.permazen.annotation.OnChange;
 
 /**
- * Notification object that gets passed to {@link io.permazen.annotation.OnChange &#64;OnChange}-annotated methods
- * when a list field is cleared.
+ * Notification object that gets passed to {@link OnChange &#64;OnChange}-annotated methods when a list field is cleared.
  *
  * @param <T> the type of the object containing the changed field
  */

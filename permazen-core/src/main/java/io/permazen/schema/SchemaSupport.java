@@ -5,10 +5,11 @@
 
 package io.permazen.schema;
 
+import io.permazen.core.Database;
 import io.permazen.util.AbstractXMLStreaming;
 
 /**
- * Models one Permazen {@link io.permazen.core.Database} schema version.
+ * Models one Permazen {@link Database} schema version.
  */
 class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
 

@@ -5,6 +5,11 @@
 
 package io.permazen.annotation;
 
+import io.permazen.JObject;
+import io.permazen.StorageIdGenerator;
+import io.permazen.UniquenessConstraints;
+import io.permazen.core.FieldType;
+
 import jakarta.validation.groups.Default;
 
 import java.lang.annotation.Documented;
@@ -54,10 +59,10 @@ public @interface JCompositeIndex {
 
     /**
      * The storage ID for this composite index. Value should be positive; if zero, the configured
-     * {@link io.permazen.StorageIdGenerator} will be consulted to auto-generate a value.
+     * {@link StorageIdGenerator} will be consulted to auto-generate a value.
      *
      * @return the index storage ID
-     * @see io.permazen.StorageIdGenerator#generateCompositeIndexStorageId StorageIdGenerator.generateCompositeIndexStorageId()
+     * @see StorageIdGenerator#generateCompositeIndexStorageId StorageIdGenerator.generateCompositeIndexStorageId()
      */
     int storageId() default 0;
 
@@ -78,13 +83,13 @@ public @interface JCompositeIndex {
      * The constraint will be checked any time normal validation is performed on an object.
      * More precisely, a uniqueness constraint behaves like a JSR 303
      * validation constraint with {@code groups() = }<code>{ </code>{@link Default}{@code .class,
-     * }{@link io.permazen.UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
+     * }{@link UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
      * are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
-     * {@link io.permazen.JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
+     * {@link JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
      *
      * @return whether the composite index's field values should be unique
      * @see #uniqueExclude
-     * @see io.permazen.UniquenessConstraints
+     * @see UniquenessConstraints
      */
     boolean unique() default false;
 
@@ -96,7 +101,7 @@ public @interface JCompositeIndex {
      *
      * <p>
      * Unlike the field values used with {@link JField#uniqueExclude &#64;JField.uniqueExclude()}, the field values
-     * contained here are the {@linkplain io.permazen.core.FieldType#toParseableString self-delimiting string forms}.
+     * contained here are the {@linkplain FieldType#toParseableString self-delimiting string forms}.
      *
      * <p>
      * For some field types this makes a difference: e.g., {@link String} values must be surrounded by double quotes.
@@ -117,7 +122,7 @@ public @interface JCompositeIndex {
      * </pre>
      *
      * <p>
-     * To specify a null value in the list, specify the {@linkplain io.permazen.core.FieldType#toParseableString
+     * To specify a null value in the list, specify the {@linkplain FieldType#toParseableString
      * self-delimiting string form} of the null value (this is almost always the string {@code "null"}):
      *
      * <pre>

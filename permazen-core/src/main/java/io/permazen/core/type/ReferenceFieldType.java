@@ -9,6 +9,7 @@ import io.permazen.core.Encodings;
 import io.permazen.core.FieldType;
 import io.permazen.core.InvalidReferenceException;
 import io.permazen.core.ObjId;
+import io.permazen.core.ReferenceField;
 import io.permazen.util.ByteWriter;
 
 import java.util.Collections;
@@ -18,7 +19,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * The {@link FieldType} for {@link io.permazen.core.ReferenceField}s. Instances support object type restriction.
+ * The {@link FieldType} for {@link ReferenceField}s. Instances support object type restriction.
  *
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}, or {@code 0xff} to represent null.

@@ -5,6 +5,8 @@
 
 package io.permazen.annotation;
 
+import io.permazen.StorageIdGenerator;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,10 +54,10 @@ public @interface JListField {
 
     /**
      * Storage ID for this field. Value should be positive and unique within the contained class.
-     * If zero, the configured {@link io.permazen.StorageIdGenerator} will be consulted to auto-generate a value.
+     * If zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value.
      *
      * @return the list field storage ID
-     * @see io.permazen.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
+     * @see StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      */
     int storageId() default 0;
 

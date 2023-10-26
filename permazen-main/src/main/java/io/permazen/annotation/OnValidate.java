@@ -5,6 +5,11 @@
 
 package io.permazen.annotation;
 
+import io.permazen.JObject;
+import io.permazen.JTransaction;
+import io.permazen.ValidationException;
+import io.permazen.ValidationMode;
+
 import jakarta.validation.groups.Default;
 
 import java.lang.annotation.Documented;
@@ -32,7 +37,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
- * If validation fails, the method should throw a {@link io.permazen.ValidationException}.
+ * If validation fails, the method should throw a {@link ValidationException}.
  *
  * <p><b>Meta-Annotations</b></p>
  *
@@ -41,9 +46,9 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see io.permazen.JTransaction#validate
- * @see io.permazen.JObject#revalidate
- * @see io.permazen.ValidationMode
+ * @see JTransaction#validate
+ * @see JObject#revalidate
+ * @see ValidationMode
  */
 @Documented
 @Inherited

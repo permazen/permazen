@@ -7,6 +7,8 @@ package io.permazen.core;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.type.EnumValueFieldType;
+
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ import java.util.List;
  *
  * <p>
  * Note: {@link Enum} types are not directly handled in the core API layer; instead, the appropriate
- * {@link io.permazen.core.type.EnumValueFieldType} must be used to encode values as {@link EnumValue}s.
+ * {@link EnumValueFieldType} must be used to encode values as {@link EnumValue}s.
  *
  * <p>
  * Instances must be thread safe.

@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVStore;
 import io.permazen.util.ByteUtil;
 
 import org.h2.mvstore.MVMap;
@@ -16,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Straightforward {@link io.permazen.kv.KVStore} view of an {@link MVMap}.
+ * Straightforward {@link KVStore} view of an {@link MVMap}.
  */
 public class MVMapKVStore extends AbstractKVStore {
 

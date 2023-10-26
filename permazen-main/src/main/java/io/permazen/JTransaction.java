@@ -11,14 +11,19 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.CoreIndex;
+import io.permazen.annotation.OnChange;
+import io.permazen.annotation.OnCreate;
+import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
 import io.permazen.core.CoreIndex4;
+import io.permazen.core.CoreIndex;
 import io.permazen.core.CounterField;
 import io.permazen.core.CreateListener;
+import io.permazen.core.DeleteAction;
 import io.permazen.core.DeleteListener;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.EnumValue;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
 import io.permazen.core.FieldType;
@@ -42,6 +47,7 @@ import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRanges;
@@ -174,8 +180,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Lower Layer Access</b>
  * <ul>
- *  <li>{@link #getKey(JObject) getKey()} - Get the {@link io.permazen.kv.KVDatabase} key prefix for a specific object</li>
- *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link io.permazen.kv.KVDatabase}
+ *  <li>{@link #getKey(JObject) getKey()} - Get the {@link KVDatabase} key prefix for a specific object</li>
+ *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link KVDatabase}
  *      key for a specific field in a specific object</li>
  * </ul>
  *
@@ -406,14 +412,14 @@ public class JTransaction {
      * Notes:
      * <ul>
      *  <li>Objects utilize multiple keys; the return value is the common prefix of all such keys.</li>
-     *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
+     *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param jobj Java model object
-     * @return the {@link io.permazen.kv.KVDatabase} key corresponding to {@code jobj}
+     * @return the {@link KVDatabase} key corresponding to {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
-     * @see io.permazen.kv.KVTransaction#watchKey KVTransaction.watchKey()
-     * @see io.permazen.core.Transaction#getKey(ObjId) Transaction.getKey()
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     * @see Transaction#getKey(ObjId) Transaction.getKey()
      */
     public byte[] getKey(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
@@ -427,18 +433,18 @@ public class JTransaction {
      * Notes:
      * <ul>
      *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
-     *  <li>The {@link io.permazen.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
+     *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param jobj Java model object
      * @param fieldName the name of a field in {@code jobj}'s type
-     * @return the {@link io.permazen.kv.KVDatabase} key of the field in the specified object
+     * @return the {@link KVDatabase} key of the field in the specified object
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
      * @throws IllegalArgumentException if {@code jobj} does not contain the specified field
      * @throws IllegalArgumentException if {@code fieldName} is otherwise invalid
      * @throws IllegalArgumentException if either parameter is null
-     * @see io.permazen.kv.KVTransaction#watchKey KVTransaction.watchKey()
-     * @see io.permazen.core.Transaction#getKey(ObjId, int) Transaction.getKey()
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     * @see Transaction#getKey(ObjId, int) Transaction.getKey()
      */
     public byte[] getKey(JObject jobj, String fieldName) {
         Preconditions.checkArgument(jobj != null, "null jobj");
@@ -504,9 +510,9 @@ public class JTransaction {
      *
      * <p>
      * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
-     * object if necessary (with resulting {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange} notifications).
-     * If {@link CopyState#isSuppressNotifications()} returns false, {@link io.permazen.annotation.OnCreate &#64;OnCreate}
-     * and {@link io.permazen.annotation.OnChange &#64;OnChange} notifications will also be delivered; however,
+     * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
+     * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
+     * and {@link OnChange &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
@@ -623,9 +629,9 @@ public class JTransaction {
      *
      * <p>
      * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
-     * object if necessary (with resulting {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange} notifications).
-     * If {@link CopyState#isSuppressNotifications()} returns false, {@link io.permazen.annotation.OnCreate &#64;OnCreate}
-     * and {@link io.permazen.annotation.OnChange &#64;OnChange} notifications will also be delivered; however,
+     * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
+     * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
+     * and {@link OnChange &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
@@ -935,7 +941,7 @@ public class JTransaction {
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link io.permazen.core.DeletedObjectException}.
+     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
@@ -960,7 +966,7 @@ public class JTransaction {
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link io.permazen.core.DeletedObjectException}.
+     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
@@ -988,7 +994,7 @@ public class JTransaction {
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link io.permazen.core.DeletedObjectException}.
+     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
@@ -1043,7 +1049,7 @@ public class JTransaction {
      * @param jobj the object to delete
      * @return true if object was found and deleted, false if object was not found
      * @throws io.permazen.core.ReferencedObjectException if the object is referenced by some other object
-     *  through a reference field configured for {@link io.permazen.core.DeleteAction#EXCEPTION}
+     *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws NullPointerException if {@code jobj} is null
      */
@@ -1187,7 +1193,7 @@ public class JTransaction {
      * the schema version associated with this instance's {@link Permazen}.
      *
      * <p>
-     * If a version change occurs, matching {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}
+     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange}
      * methods will be invoked prior to this method returning.
      *
      * <p>
@@ -1655,7 +1661,7 @@ public class JTransaction {
      * the transaction open, invoke {@link #validate} prior to commit.
      *
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws io.permazen.kv.RetryTransactionException from {@link io.permazen.kv.KVTransaction#commit KVTransaction.commit()}
+     * @throws io.permazen.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if this method is invoked re-entrantly from within a validation check
      */
@@ -1715,7 +1721,7 @@ public class JTransaction {
      * <p>
      * <b>Note:</b> if the this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
      *
-     * @throws io.permazen.kv.RetryTransactionException from {@link io.permazen.kv.KVTransaction#commit KVTransaction.commit()}
+     * @throws io.permazen.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -2223,7 +2229,7 @@ public class JTransaction {
     /**
      * Builds a {@link Converter} for core API {@link Field} that converts, in the forward direction, core API values
      * into {@link Permazen} values, based only on the core API {@link Field}. That means we don't convert
-     * {@link io.permazen.core.EnumValue}s. In the case of reference fields, the original Java type may no
+     * {@link EnumValue}s. In the case of reference fields, the original Java type may no
      * longer be available; such values are converted to {@link UntypedJObject}.
      *
      * <p>

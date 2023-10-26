@@ -12,7 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * {@link io.permazen.cli.Session} command.
+ * {@link Session} command.
  *
  * @see AbstractCommand
  */

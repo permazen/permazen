@@ -20,7 +20,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Represents a counter field in a {@link JClass}.
  *
- * @see io.permazen.Counter
+ * @see Counter
  */
 public class JCounterField extends JField {
 

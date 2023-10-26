@@ -5,11 +5,13 @@
 
 package io.permazen.core;
 
+import io.permazen.schema.ReferenceSchemaField;
+
 /**
  * Describes what action to take when an object that is still referred to by some other object is deleted.
  *
- * @see io.permazen.core.Transaction#delete Transaction.delete()
- * @see io.permazen.schema.ReferenceSchemaField#getOnDelete
+ * @see Transaction#delete Transaction.delete()
+ * @see ReferenceSchemaField#getOnDelete
  */
 public enum DeleteAction {
 

@@ -5,6 +5,8 @@
 
 package io.permazen.annotation;
 
+import io.permazen.SnapshotJTransaction;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,11 +38,11 @@ public @interface OnDelete {
 
     /**
      * Determines whether this annotation should also be enabled for
-     * {@linkplain io.permazen.SnapshotJTransaction snapshot transaction} objects.
+     * {@linkplain SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
      * @return whether enabled for snapshot transactions
-     * @see io.permazen.SnapshotJTransaction
+     * @see SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;
 }

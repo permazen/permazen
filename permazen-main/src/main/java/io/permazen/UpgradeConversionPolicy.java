@@ -5,6 +5,12 @@
 
 package io.permazen;
 
+import io.permazen.Counter;
+import io.permazen.annotation.JField;
+import io.permazen.annotation.OnVersionChange;
+import io.permazen.core.DeleteAction;
+import io.permazen.core.FieldType;
+
 /**
  * Policies to apply when a simple or counter field's type changes during a schema update.
  *
@@ -22,11 +28,11 @@ package io.permazen;
  * converted into {@link String} field value {@code "1234"}.
  *
  * <p>
- * See {@link io.permazen.core.FieldType#convert} for details about conversions between simple field types. In addition,
- * {@link io.permazen.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
+ * See {@link FieldType#convert} for details about conversions between simple field types. In addition,
+ * {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
  *
  * <p>
- * This class is used to {@linkplain io.permazen.annotation.JField#upgradeConversion specify} whether such automatic
+ * This class is used to {@linkplain JField#upgradeConversion specify} whether such automatic
  * conversion should occur when a simple field's type changes, and if so, whether the conversion must always succeed.
  *
  * <p>
@@ -42,7 +48,7 @@ package io.permazen;
  *
  * <p>
  * Automatic conversion of reference fields works as long as the referenced object's type is assignable to the field's
- * new Java type; otherwise, the field is {@linkplain io.permazen.core.DeleteAction#UNREFERENCE unreferenced},
+ * new Java type; otherwise, the field is {@linkplain DeleteAction#UNREFERENCE unreferenced},
  * i.e., set to null (if a simple field) or removed (if an element in a complex field).
  *
  * <p>
@@ -57,11 +63,10 @@ package io.permazen;
  * {@link UpgradeConversionException}, while {@link #ATTEMPT} just reverts to the behavior of {@link #RESET}.
  *
  * <p>
- * Note that arbitrary conversion logic is always possible using
- * {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}.
+ * Note that arbitrary conversion logic is always possible using {@link OnVersionChange &#64;OnVersionChange}.
  *
- * @see io.permazen.annotation.JField#upgradeConversion
- * @see io.permazen.core.FieldType#convert FieldType.convert()
+ * @see JField#upgradeConversion
+ * @see FieldType#convert FieldType.convert()
  */
 public enum UpgradeConversionPolicy {
 

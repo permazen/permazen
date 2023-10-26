@@ -5,12 +5,14 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenType;
+
 import java.lang.reflect.Method;
 
 /**
  * Used to auto-generate storage ID's for Java model classes, fields, and composite indexes when not specified
- * explicitly in the corresponding {@link io.permazen.annotation.PermazenType &#64;PermazenType},
- * {@link io.permazen.annotation.JField &#64;JField}, etc., annotations.
+ * explicitly in the corresponding {@link PermazenType &#64;PermazenType}, {@link JField &#64;JField}, etc., annotations.
  *
  * @see PermazenFactory#setStorageIdGenerator PermazenFactory.setStorageIdGenerator()
  */

@@ -5,6 +5,7 @@
 
 package io.permazen.kv.cockroach;
 
+import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
@@ -15,7 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * {@link io.permazen.kv.KVDatabase} implementation based on CockroachDB.
+ * {@link KVDatabase} implementation based on CockroachDB.
  *
  * <p>
  * Automatically creates the key/value table on startup if it doesn't already exist.

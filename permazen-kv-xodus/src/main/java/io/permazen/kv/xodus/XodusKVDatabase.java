@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link io.permazen.kv.KVDatabase} view of an Xodus database.
+ * {@link KVDatabase} view of an Xodus database.
  *
  * <p>
  * A {@linkplain #setDirectory database directory} is the only required configuration property.

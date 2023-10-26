@@ -7,6 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.JField;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.OnCreate;
 import io.permazen.annotation.OnVersionChange;
@@ -54,7 +55,7 @@ import java.util.NavigableSet;
  * This interface provides methods for copying a graph of objects between transactions, for example, from an open
  * key/value database transaction into an in-memory snapshot transaction ("copy out"), or vice-versa ("copy in").
  * A graph of objects can be copied by specifying a starting object and either a list of reference paths, or
- * a cascade name (see {@link io.permazen.annotation.JField &#64;JField}). Object ID's can be remapped during
+ * a cascade name (see {@link JField &#64;JField}). Object ID's can be remapped during
  * the copy if necessary, e.g., to ensure existing objects are not overwritten (see {@link CopyState}).
  *
  * @see JTransaction
@@ -96,7 +97,7 @@ public interface JObject {
      *
      * <p>
      * See {@link Transaction#delete Transaction.delete()} for details on secondary deletions from
-     * {@link DeleteAction#DELETE} and {@link io.permazen.annotation.JField#cascadeDelete}.
+     * {@link DeleteAction#DELETE} and {@link JField#cascadeDelete}.
      *
      * @return true if instance was deleted, false if it did not exist
      * @throws StaleTransactionException
@@ -262,7 +263,7 @@ public interface JObject {
      * @return the snapshot {@link JObject} copy of this instance
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
      *  in snapshot transactions
      * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
@@ -290,7 +291,7 @@ public interface JObject {
      * @return the regular database copy of this instance
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
      * @throws SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
@@ -335,10 +336,10 @@ public interface JObject {
      *
      * <p>
      * This method finds and copies all objects reachable from this object based on
-     * {@link io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()} and
-     * {@link io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
+     * {@link JField#forwardCascades &#64;JField.forwardCascades()} and
+     * {@link JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
      * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
-     * specified in the corresponding annotation property. See {@link io.permazen.annotation.JField &#64;JField} for details.
+     * specified in the corresponding annotation property. See {@link JField &#64;JField} for details.
      *
      * <p>
      * The {@code recursionLimit} parameter can be used to limit the maximum distance of any copied object,
@@ -415,7 +416,7 @@ public interface JObject {
      * @throws DeletedObjectException if any object to be copied does not exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
      *  in snapshot transactions
      * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
@@ -448,7 +449,7 @@ public interface JObject {
      * @throws DeletedObjectException if any object to be copied does not exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
      * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @see #cascadeCopyOut cascadeCopyOut()
