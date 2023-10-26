@@ -56,8 +56,8 @@ import java.util.stream.Collectors;
  *
  * <p>
  * Instances contain Permazen's built-in {@link FieldType}s (see below). Instances also scan the class path
- * (via {@link ServiceLoader}) for any custom {@link FieldTypeRegistry} implementations, and delegate to those
- * as well.
+ * for custom {@link FieldTypeRegistry} implementations and delegate to those as well when needed; these are
+ * specified in {@code META-INF/services/io.permazen.core.FieldTypeRegistry} files (see {@link ServiceLoader}).
  *
  * <p><b>Built-in Types</b></p>
  *
