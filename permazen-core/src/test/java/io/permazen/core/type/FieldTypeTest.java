@@ -8,11 +8,11 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.core.PermazenFieldTypeRegistry;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
@@ -54,7 +54,7 @@ import org.testng.annotations.Test;
 
 public class FieldTypeTest extends CoreAPITestSupport {
 
-    private final FieldTypeRegistry registry = new PermazenFieldTypeRegistry();
+    private final FieldTypeRegistry registry = new DefaultFieldTypeRegistry();
 
     @Test(dataProvider = "cases")
     public void testFieldType(String typeName, Object[] values) throws Exception {

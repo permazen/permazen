@@ -19,11 +19,11 @@ import java.util.List;
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * A straightforward {@link FieldTypeRegistry} implementation.
+ * A straightforward {@link FieldTypeRegistry} implementation that creates array types on demand.
  *
  * <p>
- * The {@link #add add()} method only accepts non-array types and primitive array types. Other array types
- * are automatically created on demand via {@link #buildArrayType buildArrayType()}.
+ * The {@link #add add()} method only accepts non-array types and primitive array types. All other
+ * array types are automatically created on demand via {@link #buildArrayType buildArrayType()}.
  */
 public class SimpleFieldTypeRegistry implements FieldTypeRegistry {
 
@@ -68,11 +68,11 @@ public class SimpleFieldTypeRegistry implements FieldTypeRegistry {
     }
 
     /**
-     * Build an array field type based on the given element field type.
+     * Build an array field type for the given element field type.
      *
      * <p>
      * The element field type must represent a non-primitive type.
-     * This uses the generic array encoding provided by {@link ObjectArrayType} wrapped via {@link NullSafeType}.
+     * This method uses the generic array encoding provided by {@link ObjectArrayType}, wrapped via {@link NullSafeType}.
      *
      * @param elementType element field type
      * @throws IllegalArgumentException if {@code elementType} is null
@@ -141,8 +141,21 @@ public class SimpleFieldTypeRegistry implements FieldTypeRegistry {
 
 // Internal Methods
 
-    private void register(EncodingId encodingId, FieldType<?> fieldType) {
-        assert Thread.holdsLock(this);
+    /**
+     * Register a new {@link FieldType}.
+     *
+     * @param encodingId encoding ID under which to register the new field type
+     * @param fieldType the new field type to register
+     * @throws IllegalArgumentException if either parameter is null
+     * @throws IllegalArgumentException if there is already a field type registered under {@code encodingId}
+     * @throws IllegalArgumentException if {@code fieldType} is anonymous or has an encoding ID different from {@code encodingId}
+     */
+    protected synchronized void register(EncodingId encodingId, FieldType<?> fieldType) {
+        Preconditions.checkArgument(encodingId != null, "null encodingId");
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
+        Preconditions.checkArgument(fieldType.getEncodingId() != null, "fieldType is anonymous");
+        Preconditions.checkArgument(fieldType.getEncodingId().equals(encodingId), "encoding ID mismatch");
+        Preconditions.checkArgument(!this.typesById.containsKey(encodingId), "encoding ID is already registered");
         this.typesById.put(encodingId, fieldType);
         this.typesByType.computeIfAbsent(fieldType.getTypeToken(), typeToken -> new ArrayList<>(1)).add(fieldType);
     }

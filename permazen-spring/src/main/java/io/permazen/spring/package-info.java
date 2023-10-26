@@ -95,7 +95,7 @@
  *  <td>No</td>
  *  <td>To use a custom {@link io.permazen.core.FieldTypeRegistry}, specify the name of a Spring bean that
  *      implements the {@link io.permazen.core.FieldTypeRegistry} interface. By default, a
- *      {@link io.permazen.core.PermazenFieldTypeRegistry} is used.</td>
+ *      {@link io.permazen.core.DefaultFieldTypeRegistry} is used.</td>
  * </tr>
  * <tr>
  *  <td>{@code storage-id-generator}</td>

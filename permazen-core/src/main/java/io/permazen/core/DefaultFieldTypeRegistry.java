@@ -16,6 +16,7 @@ import io.permazen.core.type.CharacterArrayType;
 import io.permazen.core.type.DateType;
 import io.permazen.core.type.DoubleArrayType;
 import io.permazen.core.type.DurationType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.core.type.FileType;
 import io.permazen.core.type.FloatArrayType;
 import io.permazen.core.type.Inet4AddressType;
@@ -55,9 +56,25 @@ import java.util.stream.Collectors;
  * Permazen's default {@link FieldTypeRegistry}.
  *
  * <p>
- * Instances contain Permazen's built-in {@link FieldType}s (see below). Instances also scan the class path
- * for custom {@link FieldTypeRegistry} implementations and delegate to those as well when needed; these are
- * specified in {@code META-INF/services/io.permazen.core.FieldTypeRegistry} files (see {@link ServiceLoader}).
+ * Instances automatically register all of Permazen's built-in {@link FieldType}s (see below).
+ *
+ * <p><b>Array Types</b></p>
+ *
+ * <p>
+ * Because this class is a subclass of {@link SimpleFieldTypeRegistry}, array types are created
+ * on demand so they don't need to be explicitly registered.
+ *
+ * <p><b>Custom Types</b></p>
+ *
+ * <p>
+ * When constructed, instances scan the class path for custom {@link FieldTypeRegistry} implementations
+ * and will delegate to them when an encoding is not found. If multiple custom {@link FieldTypeRegistry}
+ * implementations advertise the same encoding, one will be chosen arbitrarily.
+ *
+ * <p>
+ * Custom {@link FieldTypeRegistry} implemenations are specified via
+ * {@code META-INF/services/io.permazen.core.FieldTypeRegistry} files or by module exports; see {@link ServiceLoader}.
+ * Custom implementations are only queried for non-array types.
  *
  * <p><b>Built-in Types</b></p>
  *
@@ -85,15 +102,15 @@ import java.util.stream.Collectors;
  *
  * <p>
  * {@link Enum} types are not directly handled in the core API layer; instead, the appropriate
- * {@link io.permazen.core.type.EnumValueFieldType} encodes the values as {@link EnumValue}s.
+ * {@link EnumValueFieldType} encodes enum values as {@link EnumValue}s.
  */
-public class PermazenFieldTypeRegistry extends SimpleFieldTypeRegistry {
+public class DefaultFieldTypeRegistry extends SimpleFieldTypeRegistry {
 
     protected final ArrayList<FieldTypeRegistry> customFieldTypeRegistries = new ArrayList<>();
 
 // Constructor
 
-    public PermazenFieldTypeRegistry() {
+    public DefaultFieldTypeRegistry() {
         this.addBuiltinFieldTypes();
         this.findCustomFieldTypeRegistries();
 //        System.out.println("TYPES BY ID:");
@@ -107,7 +124,7 @@ public class PermazenFieldTypeRegistry extends SimpleFieldTypeRegistry {
 // FieldTypeRegistry
 
     @Override
-    public FieldType<?> getFieldType(EncodingId encodingId) {
+    public synchronized FieldType<?> getFieldType(EncodingId encodingId) {
 
         // See if we have it
         FieldType<?> fieldType = super.getFieldType(encodingId);
@@ -115,10 +132,15 @@ public class PermazenFieldTypeRegistry extends SimpleFieldTypeRegistry {
             return fieldType;
 
         // Try custom registries
-        return customFieldTypeRegistries.stream()
+        fieldType = this.customFieldTypeRegistries.stream()
           .map(registry -> registry.getFieldType(encodingId))
           .findFirst()
           .orElse(null);
+        if (fieldType != null)
+            this.register(encodingId, fieldType);
+
+        // Done
+        return fieldType;
     }
 
     @Override
@@ -126,13 +148,14 @@ public class PermazenFieldTypeRegistry extends SimpleFieldTypeRegistry {
 
         // See if we have it
         List<FieldType<T>> fieldTypeList = super.getFieldTypes(typeToken);
-        if (fieldTypeList != null)
+        if (!fieldTypeList.isEmpty())
             return fieldTypeList;
 
         // Try custom registries
-        return customFieldTypeRegistries.stream()
+        return this.customFieldTypeRegistries.stream()
           .map(registry -> registry.getFieldTypes(typeToken))
           .flatMap(List::stream)
+          .peek(fieldType -> this.register(fieldType.getEncodingId(), fieldType))
           .collect(Collectors.toList());
     }
 

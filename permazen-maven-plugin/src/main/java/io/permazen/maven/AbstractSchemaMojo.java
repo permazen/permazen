@@ -11,10 +11,10 @@ import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.PermazenFieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
@@ -76,7 +76,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     /**
      * <p>
      * The {@link FieldTypeRegistry} to use for looking up field encodings.
-     * By default, a {@link PermazenFieldTypeRegistry} is used.
+     * By default, a {@link DefaultFieldTypeRegistry} is used.
      *
      * <p>
      * To configure a custom {@link FieldTypeRegistry}, specify its class name like this:

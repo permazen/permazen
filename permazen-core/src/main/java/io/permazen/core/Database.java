@@ -93,14 +93,14 @@ public class Database {
     public Database(KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
-        this.setFieldTypeRegistry(new PermazenFieldTypeRegistry());
+        this.setFieldTypeRegistry(new DefaultFieldTypeRegistry());
     }
 
     /**
      * Get the {@link FieldTypeRegistry} associated with this instance.
      *
      * <p>
-     * By default a {@link PermazenFieldTypeRegistry} is configured.
+     * By default a {@link DefaultFieldTypeRegistry} is configured.
      *
      * @param fieldTypeRegistry field type registry to associate with this instance
      * @throws IllegalArgumentException if {@code fieldTypeRegistry} is null

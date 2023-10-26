@@ -27,7 +27,7 @@ public class SchemaTest extends CoreAPITestSupport {
         final Database db = new Database(kvstore);
 
         // Register custom type
-        ((PermazenFieldTypeRegistry)db.getFieldTypeRegistry()).add(new BarType());
+        ((DefaultFieldTypeRegistry)db.getFieldTypeRegistry()).add(new BarType());
 
         // Validate XML
         final SchemaModel schema;
@@ -98,7 +98,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + footer;
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes(StandardCharsets.UTF_8)));
 
-        final PermazenFieldTypeRegistry fieldTypeRegistry = new PermazenFieldTypeRegistry();
+        final DefaultFieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
 
         this.validate(fieldTypeRegistry, true, schema1);
         this.validate(fieldTypeRegistry, true, schema1);

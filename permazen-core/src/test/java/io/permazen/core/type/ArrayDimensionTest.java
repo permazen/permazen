@@ -6,17 +6,17 @@
 package io.permazen.core.type;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
-import io.permazen.core.PermazenFieldTypeRegistry;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ArrayDimensionTest extends CoreAPITestSupport {
 
-    private final PermazenFieldTypeRegistry registry = new PermazenFieldTypeRegistry();
+    private final DefaultFieldTypeRegistry registry = new DefaultFieldTypeRegistry();
 
     @Test
     public void testArrayDimensions() throws Exception {

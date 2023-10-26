@@ -8,11 +8,11 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.core.PermazenFieldTypeRegistry;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -21,7 +21,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
 
     private static final Object FAIL = "<FAIL>";
 
-    private final FieldTypeRegistry registry = new PermazenFieldTypeRegistry();
+    private final FieldTypeRegistry registry = new DefaultFieldTypeRegistry();
 
     @Test(dataProvider = "convertCases")
     public void testConvertFieldType(String typeName, Object[] values, Object[] cases) throws Exception {

@@ -5,6 +5,8 @@
 
 package io.permazen.annotation;
 
+import com.google.common.reflect.TypeToken;
+
 import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
@@ -14,12 +16,12 @@ import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.ValidationMode;
 import io.permazen.core.Database;
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
-import io.permazen.core.PermazenFieldTypeRegistry;
 
 import jakarta.validation.groups.Default;
 
@@ -219,20 +221,18 @@ public @interface JField {
      * Specify the encoding for this field by {@link EncodingId} URN.
      *
      * <p>
-     * If set, this must equal the {@link EncodingId} of a type registered in the {@link FieldTypeRegistry}
+     * If set, this must equal the {@link EncodingId} of a {@link FieldType} registered in the {@link FieldTypeRegistry}
      * associated with the {@link Database} instance, and the annotated method's return type must match the
      * {@link FieldType}'s {@linkplain io.permazen.core.FieldType#getTypeToken supported Java type}.
      *
      * <p>
-     * For any of Permazen's built-in types, the Permazen URN prefix {@value EncodingIds#PERMAZEN_PREFIX} may be omitted.
-     * Otherwise, see {@link EncodingId} for the required format. Custom encodings are found automatically on the application
-     * class path when using a {@link PermazenFieldTypeRegistry} (the default).
+     * If this is left unset (empty string), then the Java type is inferred from the return type of the getter method
+     * and the {@link FieldType} is found via {@link FieldTypeRegistry#getFieldType(TypeToken)}.
      *
      * <p>
-     * If this is left unset (empty string), then the Java type is inferred from the return type of the getter method
-     * and the {@link FieldType} is found via
-     * {@link FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
-     * FieldTypeRegistry.getFieldType()}.
+     * For any of Permazen's built-in types, the Permazen URN prefix {@value EncodingIds#PERMAZEN_PREFIX} may be omitted.
+     * Otherwise, see {@link EncodingId} for the required format. Custom encodings can be found automatically on the
+     * application class path; see {@link DefaultFieldTypeRegistry} for details.
      *
      * <p>
      * For reference fields (i.e., methods with return value equal to a {@link PermazenType &#64;PermazenType}-annotated class),
