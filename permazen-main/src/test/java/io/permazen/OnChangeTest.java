@@ -447,7 +447,7 @@ public class OnChangeTest extends TestSupport {
 
         @JMapField(storageId = 201,
           key = @JField(storageId = 202),
-          value = @JField(storageId = 203, type = "float"))
+          value = @JField(storageId = 203, encoding = "float"))
         public abstract Map<NicePerson, Float> getEnemies();
 
     // enemies

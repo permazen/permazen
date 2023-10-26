@@ -83,12 +83,8 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return "";
         }
         @Override
-        public String type() {
+        public String encoding() {
             return "";
-        }
-        @Override
-        public long typeSignature() {
-            return 0;
         }
         @Override
         public int storageId() {
@@ -107,7 +103,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return new String[0];
         }
         @Override
-        public String[] cascades() {
+        public String[] forwardCascades() {
             return new String[0];
         }
         @Override

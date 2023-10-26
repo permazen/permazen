@@ -262,11 +262,11 @@ public class JFieldConflictTest extends TestSupport {
     }
 
     public interface ForwardCascadesConflict1 {
-        @JField(cascades = "foo")
+        @JField(forwardCascades = "foo")
         ForwardCascadesConflict getRef();
     }
     public interface ForwardCascadesConflict2 {
-        @JField(cascades = { })
+        @JField(forwardCascades = { })
         ForwardCascadesConflict getRef();
     }
     @PermazenType

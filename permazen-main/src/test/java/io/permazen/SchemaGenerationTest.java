@@ -60,22 +60,22 @@ public class SchemaGenerationTest extends TestSupport {
 
         // protected setter
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"2\">\n"
+          + "<Schema>\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class } },
 
         // non-abstract method with autogenNonAbstract() = true
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"2\">\n"
+          + "<Schema>\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "    <ObjectType storageId=\"3\" name=\"Foo3\">\n"
-          + "        <SimpleField storageId=\"7189\" name=\"concreteField\" encoding=\"urn:fdc:permazen.io:2020:enc:int\"/>\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:enc:long\"/>\n"
+          + "        <SimpleField storageId=\"7189\" name=\"concreteField\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class, Foo3.class } },

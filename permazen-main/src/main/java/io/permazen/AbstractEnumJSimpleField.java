@@ -37,10 +37,14 @@ abstract class AbstractEnumJSimpleField<A, B> extends ConvertedJSimpleField<A, B
     void initialize(Permazen jdb, SimpleSchemaField schemaField0) {
         super.initialize(jdb, schemaField0);
         final AbstractEnumSchemaField schemaField = (AbstractEnumSchemaField)schemaField0;
-        schemaField.setType(null);                                          // core API ignores "type" of Enum array fields
         schemaField.getIdentifiers().clear();
         for (Enum<?> value : EnumUtil.getValues(this.enumType))
             schemaField.getIdentifiers().add(value.name());
+    }
+
+    @Override
+    void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
+        // fixed encoding
     }
 
     @Override

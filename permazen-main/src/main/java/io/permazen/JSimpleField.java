@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.change.SimpleFieldChange;
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.schema.SimpleSchemaField;
@@ -42,12 +43,6 @@ public class JSimpleField extends JField {
     final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
-    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
-      io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
-        this(jdb, name, storageId, typeToken,
-          jdb.db.getFieldTypeRegistry().getFieldType(typeName), indexed, annotation, description, getter, setter);
-    }
-
     @SuppressWarnings("unchecked")
     JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
@@ -73,7 +68,8 @@ public class JSimpleField extends JField {
                     try {
                         this.uniqueExcludes.add(this.fieldType.fromString(string));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid uniqueExclude() value \"" + string + "\": " + e.getMessage(), e);
+                        throw new IllegalArgumentException(
+                          String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
                     }
                 }
             }
@@ -216,8 +212,14 @@ public class JSimpleField extends JField {
 
     void initialize(Permazen jdb, SimpleSchemaField schemaField) {
         super.initialize(jdb, schemaField);
-        schemaField.setType(this.fieldType.getName());
+        this.initializeSimpleSchemaFieldEncoding(schemaField);
         schemaField.setIndexed(this.indexed);
+    }
+
+    void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
+        final EncodingId encodingId = this.fieldType.getEncodingId();
+        Preconditions.checkArgument(encodingId != null, "internal error");
+        schemaField.setEncodingId(encodingId);
     }
 
     @Override

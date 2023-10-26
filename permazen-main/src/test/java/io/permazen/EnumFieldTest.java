@@ -37,7 +37,7 @@ public class EnumFieldTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <EnumField name=\"enumField\" storageId=\"2\">\n"
           + "       <Identifier>FOO</Identifier>\n"
@@ -224,7 +224,7 @@ public class EnumFieldTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <ListField name=\"enumList\" storageId=\"2\">\n"
           + "      <EnumField storageId=\"3\">\n"

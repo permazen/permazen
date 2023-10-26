@@ -218,4 +218,3 @@ public abstract class JField extends JSchemaObject {
         return this.getter.getReturnType();
     }
 }
-

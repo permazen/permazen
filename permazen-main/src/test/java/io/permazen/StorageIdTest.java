@@ -46,19 +46,19 @@ public class StorageIdTest extends TestSupport {
 
         final SchemaModel expected = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"2\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"" + fooId + "\">\n"
-          + "    <SimpleField name=\"string\" encoding=\"urn:fdc:permazen.io:2020:enc:String\" storageId=\"" + stringId + "\"/>\n"
+          + "    <SimpleField name=\"string\" encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"" + stringId + "\"/>\n"
           + "    <ReferenceField name=\"friend\" storageId=\"" + friendId + "\">\n"
           + "      <ObjectTypes>\n"
           + "        <ObjectType storageId=\"" + fooId + "\"/>\n"
           + "      </ObjectTypes>\n"
           + "    </ReferenceField>\n"
           + "    <SetField name=\"set\" storageId=\"" + setId + "\">\n"
-          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:enc:Integer\" storageId=\"" + setElementId + "\"/>\n"
+          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:Integer\" storageId=\"" + setElementId + "\"/>\n"
           + "    </SetField>"
           + "    <ListField name=\"list\" storageId=\"" + listId + "\">\n"
-          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:enc:Float\" storageId=\"" + listElementId + "\"/>\n"
+          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:Float\" storageId=\"" + listElementId + "\"/>\n"
           + "    </ListField>"
           + "    <MapField name=\"map\" storageId=\"" + mapId + "\">\n"
           + "      <ReferenceField storageId=\"" + mapKeyId + "\">\n"
@@ -66,7 +66,7 @@ public class StorageIdTest extends TestSupport {
           + "          <ObjectType storageId=\"" + fooId + "\"/>\n"
           + "        </ObjectTypes>\n"
           + "      </ReferenceField>\n"
-          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:enc:double\" storageId=\"" + mapValueId + "\"/>\n"
+          + "      <SimpleField encoding=\"urn:fdc:permazen.io:2020:double\" storageId=\"" + mapValueId + "\"/>\n"
           + "    </MapField>"
           + "    <CompositeIndex name=\"index\" storageId=\"" + indexId + "\">\n"
           + "      <IndexedField storageId=\"" + stringId + "\"/>\n"
@@ -100,7 +100,7 @@ public class StorageIdTest extends TestSupport {
 
         public abstract List<Float> getList();
 
-        @JMapField(value = @JField(type = "double"))
+        @JMapField(value = @JField(encoding = "double"))
         public abstract NavigableMap<Friendly, Double> getMap();
 
         // Not a bean getter method, should be ignored

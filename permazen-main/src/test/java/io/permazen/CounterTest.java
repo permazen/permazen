@@ -60,7 +60,7 @@ public class CounterTest extends TestSupport {
         @JField(storageId = 104)
         public abstract Counter getCounter();
 
-        @JMapField(storageId = 101, key = @JField(storageId = 102), value = @JField(storageId = 103, type = "float"))
+        @JMapField(storageId = 101, key = @JField(storageId = 102), value = @JField(storageId = 103, encoding = "float"))
         public abstract NavigableMap<Person, Float> getRatings();
     }
 }

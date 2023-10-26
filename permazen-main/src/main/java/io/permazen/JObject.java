@@ -7,7 +7,17 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.annotation.OnChange;
+import io.permazen.annotation.OnCreate;
+import io.permazen.annotation.OnVersionChange;
+import io.permazen.core.DeleteAction;
+import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
+import io.permazen.core.ReferencedObjectException;
+import io.permazen.core.SchemaMismatchException;
+import io.permazen.core.StaleTransactionException;
+import io.permazen.core.Transaction;
+import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.util.NavigableSets;
 
@@ -65,9 +75,9 @@ public interface JObject {
      * Get this instance's current schema version. Does not change this instance's schema version.
      *
      * @return the schema version of this instance
-     * @throws io.permazen.core.DeletedObjectException
+     * @throws DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     default int getSchemaVersion() {
@@ -85,14 +95,14 @@ public interface JObject {
      * Delete this instance, if it exists, in this instance's associated transaction.
      *
      * <p>
-     * See {@link io.permazen.core.Transaction#delete Transaction.delete()} for details on secondary deletions from
-     * {@link io.permazen.core.DeleteAction#DELETE} and {@link io.permazen.annotation.JField#cascadeDelete}.
+     * See {@link Transaction#delete Transaction.delete()} for details on secondary deletions from
+     * {@link DeleteAction#DELETE} and {@link io.permazen.annotation.JField#cascadeDelete}.
      *
      * @return true if instance was deleted, false if it did not exist
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
-     * @throws io.permazen.core.ReferencedObjectException if the object is referenced by some other object
-     *  through a reference field configured for {@link io.permazen.core.DeleteAction#EXCEPTION}
+     * @throws ReferencedObjectException if the object is referenced by some other object
+     *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      */
     default boolean delete() {
         return this.getTransaction().delete(this);
@@ -102,7 +112,7 @@ public interface JObject {
      * Determine whether this instance still exists in its associated transaction.
      *
      * @return true if instance exists, otherwise false
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     default boolean exists() {
@@ -127,7 +137,7 @@ public interface JObject {
      * The fields of a recreated object are set to their initial values. If the object already exists, nothing changes.
      *
      * @return true if instance was recreated, false if it already existed
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     default boolean recreate() {
@@ -146,10 +156,10 @@ public interface JObject {
      * If the associated transaction was opened with {@link ValidationMode#DISABLED}, no validation will be performed.
      *
      * @param groups validation group(s) to use for validation; if empty, {@link Default} is assumed
-     * @throws io.permazen.core.DeletedObjectException
+     * @throws DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      * @throws NullPointerException if {@code groups} is null
      */
@@ -162,13 +172,13 @@ public interface JObject {
      * of its associated transaction.
      *
      * <p>
-     * If a version change occurs, matching {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}
+     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange}
      * methods will be invoked prior to this method returning.
      *
      * @return true if the object's schema version was changed, false if it was already updated
-     * @throws io.permazen.core.DeletedObjectException
+     * @throws DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
-     * @throws io.permazen.core.StaleTransactionException
+     * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     default boolean upgrade() {
@@ -190,10 +200,10 @@ public interface JObject {
      * <p>
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
-     * and {@link io.permazen.annotation.OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
-     * however, for {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
+     * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
+     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
+     * however, for {@link OnCreate &#64;OnCreate} and
+     * {@link OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
      * if {@code dest} is a {@link SnapshotJTransaction}.
      *
      * <p>
@@ -214,13 +224,13 @@ public interface JObject {
      * @param copyState tracks which indirectly referenced objects have already been copied
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied version of this instance in {@code dest}
-     * @throws io.permazen.core.DeletedObjectException
+     * @throws DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      *  (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)
-     * @throws io.permazen.core.DeletedObjectException if any object to be copied does not actually exist
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any object to be copied does not actually exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema corresponding to any copied object is not identical in both the {@link JTransaction}
      *  associated with this instance and {@code dest}
      * @throws IllegalArgumentException if any parameter is null
@@ -250,7 +260,7 @@ public interface JObject {
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the snapshot {@link JObject} copy of this instance
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
      *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
      *  in snapshot transactions
@@ -278,10 +288,10 @@ public interface JObject {
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the regular database copy of this instance
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
      *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyOut copyOut()
@@ -304,10 +314,10 @@ public interface JObject {
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
      *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
      * @return the copied version of this instance in {@code dest}
-     * @throws io.permazen.core.DeletedObjectException if any object to be copied does not exist
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any object to be copied does not exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @throws IllegalArgumentException if {@code dest} is null
      * @see #cascadeCopyTo(JTransaction, String, int, boolean)
@@ -325,7 +335,7 @@ public interface JObject {
      *
      * <p>
      * This method finds and copies all objects reachable from this object based on
-     * {@link io.permazen.annotation.JField#cascades &#64;JField.cascades()} and
+     * {@link io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()} and
      * {@link io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
      * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link io.permazen.annotation.JField &#64;JField} for details.
@@ -337,10 +347,10 @@ public interface JObject {
      * <p>
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link io.permazen.annotation.OnVersionChange &#64;OnVersionChange}, {@link io.permazen.annotation.OnCreate &#64;OnCreate},
-     * and {@link io.permazen.annotation.OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
-     * however, for {@link io.permazen.annotation.OnCreate &#64;OnCreate} and
-     * {@link io.permazen.annotation.OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
+     * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
+     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
+     * however, for {@link OnCreate &#64;OnCreate} and
+     * {@link OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
      * if {@code dest} is a {@link SnapshotJTransaction}.
      *
      * <p>
@@ -363,10 +373,10 @@ public interface JObject {
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
      *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
      * @return the copied version of this instance in {@code dest}
-     * @throws io.permazen.core.DeletedObjectException if any object to be copied does not exist
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any object to be copied does not exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
      * @throws IllegalArgumentException if {@code dest} is null
@@ -402,12 +412,12 @@ public interface JObject {
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the snapshot transaction,
      *  or false to preserve the same object ID's, overwriting any existing objects
      * @return the snapshot {@link JObject} copy of this instance
-     * @throws io.permazen.core.DeletedObjectException if any object to be copied does not exist
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any object to be copied does not exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
      *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
      *  in snapshot transactions
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
      * @see #cascadeCopyIn cascadeCopyIn()
@@ -435,11 +445,11 @@ public interface JObject {
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the database transaction,
      *  or false to preserve the same object ID's, overwriting any existing objects
      * @return the regular database copy of this instance
-     * @throws io.permazen.core.DeletedObjectException if any object to be copied does not exist
-     * @throws io.permazen.core.DeletedObjectException if any copied object ends up with a reference to an object
+     * @throws DeletedObjectException if any object to be copied does not exist
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
      *  {@linkplain io.permazen.annotation.JField#allowDeletedSnapshot configured} to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
+     * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @see #cascadeCopyOut cascadeCopyOut()
      * @see #cascadeCopyTo cascadeCopyTo()
@@ -473,7 +483,7 @@ public interface JObject {
      * @param fieldName name of reference field
      * @param <R> type of referring objects
      * @return all objects of the specified type referring to this object through the named field
-     * @throws io.permazen.kv.StaleTransactionException if the transaction associated with this instance is no longer open
+     * @throws StaleTransactionException if the transaction associated with this instance is no longer open
      * @throws IllegalArgumentException if either parameter is null
      */
     default <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
@@ -485,7 +495,7 @@ public interface JObject {
      * Get the {@link JClass} of which this {@link JObject} is an instance.
      *
      * @return associated {@link JClass}
-     * @throws io.permazen.core.TypeNotInSchemaVersionException if this instance has a type that does not exist
+     * @throws TypeNotInSchemaVersionException if this instance has a type that does not exist
      *  in this instance's schema version, i.e., this instance is an {@link UntypedJObject}
      */
     default JClass<?> getJClass() {

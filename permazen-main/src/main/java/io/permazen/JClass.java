@@ -12,20 +12,21 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.core.EnumValue;
+import io.permazen.core.EncodingId;
+import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.SetField;
+import io.permazen.core.SimpleFieldTypeRegistry;
 import io.permazen.core.UnknownFieldException;
-import io.permazen.core.type.EnumFieldType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -152,13 +153,16 @@ public class JClass<T> extends JSchemaObject {
     public <T extends JField> T getJField(int storageId, Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
         final JField jfield = this.jfields.get(storageId);
-        if (jfield == null)
-            throw new UnknownFieldException(storageId, "object type \"" + this.name + "\" has no field with storage ID " + storageId);
+        if (jfield == null) {
+            throw new UnknownFieldException(storageId,
+              String.format("object type \"%s\" has no field with storage ID %d", this.name, storageId));
+        }
         try {
             return type.cast(jfield);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId, "object type \"" + this.name + "\" has no field with storage ID "
-              + storageId + " of type " + type.getName() + " (found " + jfield + " instead)");
+            throw new UnknownFieldException(storageId,
+              String.format("object type \"%s\" has no field with storage ID %d of type %s (found %s instead)",
+                this.name, storageId, type.getName(), jfield));
         }
     }
 
@@ -191,8 +195,8 @@ public class JClass<T> extends JSchemaObject {
             if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {
 
                 // Sanity check annotation
-                if (annotation.type().length() != 0)
-                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify a type");
+                if (annotation.encoding().length() != 0)
+                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify an encoding");
                 if (annotation.indexed())
                     throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
 
@@ -566,8 +570,27 @@ public class JClass<T> extends JSchemaObject {
     private JSimpleField createSimpleField(String description, TypeToken<?> fieldTypeToken, String fieldName,
       int storageId, io.permazen.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {
 
-        // Get explicit type name, if any
-        final String typeName = annotation.type().length() > 0 ? annotation.type() : null;
+        // Get explicit encoding, if any
+        final String encodingName = annotation.encoding().length() > 0 ? annotation.encoding() : null;
+        EncodingId encodingId = null;
+        if (encodingName != null) {
+            try {
+                encodingId = new EncodingId(encodingName);
+            } catch (IllegalArgumentException e) {
+                // failed
+            }
+            if (encodingId == null && encodingName.indexOf(':') == -1) {
+                try {
+                    encodingId = EncodingIds.builtin(encodingName);
+                } catch (IllegalArgumentException e) {
+                    // failed
+                }
+            }
+            if (encodingId == null) {
+                throw new IllegalArgumentException("invalid " + description
+                  + ": invalid encoding ID \"" + annotation.encoding() + "\"");
+            }
+        }
 
         // Include containing type for annotation description; with autogenProperties it can be more than one
         description += " in " + this.type;
@@ -598,18 +621,18 @@ public class JClass<T> extends JSchemaObject {
               + UntypedJObject.class.getName() + " are not allowed; use " + JObject.class.getName() + " instead");
         }
 
-        // See if field type is a simple type, known either by explicitly-given name or type
+        // See if field type is a simple type, known either by explicitly-given encoding or type
         FieldType<?> nonReferenceType = null;
-        if (typeName != null) {
+        if (encodingId != null) {
 
-            // Field type is explicitly specified by name
-            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)
-                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type \"" + typeName + "\"");
+            // Field encoding is explicitly specified
+            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(encodingId)) == null)
+                throw new IllegalArgumentException("invalid " + description + ": unknown encoding \"" + encodingName + "\"");
 
             // Verify field type matches what we expect
             final TypeToken<?> expectedType = isSubField ? nonReferenceType.getTypeToken().wrap() : nonReferenceType.getTypeToken();
             if (!expectedType.equals(fieldTypeToken)) {
-                throw new IllegalArgumentException("invalid " + description + ": field type \"" + typeName
+                throw new IllegalArgumentException("invalid " + description + ": encoding \"" + encodingName
                   + "\" supports values of type " + nonReferenceType.getTypeToken() + " but " + fieldTypeToken
                   + " is required (according to the getter method's return type)");
             }
@@ -626,7 +649,7 @@ public class JClass<T> extends JSchemaObject {
                 break;
             default:
                 if (!isReferenceType) {
-                    throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
+                    throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
                       + " because type " + fieldTypeToken + " is supported by multiple registered simple field types: "
                       + fieldTypes);
                 }
@@ -644,7 +667,7 @@ public class JClass<T> extends JSchemaObject {
             enumType = Enum.class.isAssignableFrom(fieldRawType) ?
               (Class<? extends Enum<?>>)fieldRawType.asSubclass(Enum.class) : null;
             if (enumType != null) {
-                nonReferenceType = new EnumFieldType(enumType);
+                nonReferenceType = new EnumValueFieldType(enumType);
                 enumArrayDimensions = 0;
             }
 
@@ -667,12 +690,9 @@ public class JClass<T> extends JSchemaObject {
                     enumType = (Class<? extends Enum<?>>)baseType.asSubclass(Enum.class);
 
                     // Get the corresponding EnumValue[][]... Java type and FieldType (based on the Enum's identifier list)
-                    Class<?> enumValueArrayType = EnumValue.class;
-                    nonReferenceType = new EnumFieldType(enumType);
-                    for (int i = 0; i < enumArrayDimensions; i++) {
-                        enumValueArrayType = Array.newInstance(enumValueArrayType, 0).getClass();
-                        nonReferenceType = this.jdb.db.getFieldTypeRegistry().getArrayType(nonReferenceType);
-                    }
+                    nonReferenceType = new EnumValueFieldType(enumType);
+                    for (int i = 0; i < enumArrayDimensions; i++)
+                        nonReferenceType = SimpleFieldTypeRegistry.buildArrayType(nonReferenceType);
 
                     // Save type info
                     enumType = (Class<? extends Enum<?>>)baseType.asSubclass(Enum.class);
@@ -681,20 +701,20 @@ public class JClass<T> extends JSchemaObject {
             }
         }
 
-        // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail
+        // If field's type neither refers to a JClass type, nor has a registered field type, nor is an enum type, fail
         if (!isReferenceType && nonReferenceType == null && enumType == null && enumArrayType == null) {
-            throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
-              + " because no known type supports values of type " + fieldTypeToken);
+            throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
+              + " because no registered field type encodes values of type " + fieldTypeToken);
         }
 
         // Handle ambiguity between reference vs. non-reference
         if (isReferenceType && nonReferenceType != null) {
 
-            // If an explicit type name was provided, assume they want the specified non-reference type
-            if (typeName != null)
+            // If an explicit encoding was provided, assume they want the specified non-reference type
+            if (encodingId != null)
                 isReferenceType = false;
             else {
-                throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
+                throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
                   + " because type " + fieldTypeToken + " is ambiguous, being both a @" + PermazenType.class.getSimpleName()
                   + " reference type and a simple Java type supported by type \"" + nonReferenceType + "\"");
             }
@@ -712,8 +732,8 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": uniqueExclude() = JField.NULL is incompatible"
               + " with fields having primitive type");
         }
-        if (!isReferenceType && annotation.cascades().length != 0)
-            throw new IllegalArgumentException("invalid " + description + ": cascades() only allowed on reference fields");
+        if (!isReferenceType && annotation.forwardCascades().length != 0)
+            throw new IllegalArgumentException("invalid " + description + ": forwardCascades() only allowed on reference fields");
         if (!isReferenceType && annotation.inverseCascades().length != 0)
             throw new IllegalArgumentException("invalid " + description + ": inverseCascades() only allowed on reference fields");
 

@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * <p>
  * Note that both primitive types and their corresponding wrapper types are supported as keys and/or values. A map whose
  * keys/values have primitive type will throw an exception on an attempt to add a null key/value.
- * To specify a primitive key or value type, specify the type name (e.g., {@code "int"}) as the {@link JField#type}
+ * To specify a primitive key or value type, specify the type name (e.g., {@code "int"}) as the {@link JField#encoding}
  * in the {@link #key} or the {@link #value}.
  *
  * <p><b>Meta-Annotations</b></p>

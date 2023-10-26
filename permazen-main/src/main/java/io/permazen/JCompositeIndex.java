@@ -67,7 +67,8 @@ public class JCompositeIndex extends JSchemaObject {
                     try {
                         values.add(jfield.fieldType.fromParseableString(ctx));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid uniqueExclude() value \"" + string + "\": " + e.getMessage(), e);
+                        throw new IllegalArgumentException(
+                          String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
                     }
                     if (values.size() < numFields) {
                         ctx.skipWhitespace();

@@ -33,9 +33,9 @@ public class ValidateOnUpdateTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "    <SimpleField name=\"uuid\" storageId=\"11\" encoding=\"urn:fdc:permazen.io:2020:enc:UUID\"/>\n"
+          + "    <SimpleField name=\"uuid\" storageId=\"11\" encoding=\"urn:fdc:permazen.io:2020:UUID\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));

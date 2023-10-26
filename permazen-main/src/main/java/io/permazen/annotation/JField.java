@@ -5,8 +5,21 @@
 
 package io.permazen.annotation;
 
+import io.permazen.Counter;
+import io.permazen.JObject;
+import io.permazen.JTransaction;
+import io.permazen.SnapshotJTransaction;
+import io.permazen.StorageIdGenerator;
+import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
+import io.permazen.ValidationMode;
+import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
+import io.permazen.core.DeletedObjectException;
+import io.permazen.core.EncodingId;
+import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.PermazenFieldTypeRegistry;
 
 import jakarta.validation.groups.Default;
 
@@ -18,12 +31,12 @@ import java.lang.annotation.Target;
 
 /**
  * Java annotation for defining simple fields, including reference fields that refer to other Java model object types,
- * and {@link io.permazen.Counter} fields.
+ * and {@link Counter} fields.
  *
  * <p>
  * This annotation is used in two scenarios:
  * <ul>
- *  <li>To describe a <b>simple</b> or <b>counter</b> database field by annotating the corresponding abstract Java bean
+ *  <li>To describe a <b>simple</b> or <b>counter</b> database field, by annotating the corresponding abstract Java bean
  *      property `getter' method</li>
  *  <li>To describe the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
  *      a collection {@code element} field, or a map {@code key} or {@code value} field. In this case this annotation
@@ -43,15 +56,14 @@ import java.lang.annotation.Target;
  *
  * <p>
  * If the field is not a reference field, the property type is inferred from the type of the annotated method or,
- * in the case of complex sub-fields, the generic type of the collection class. The name of the property type
- * must be registered in the {@link io.permazen.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}),
- * and the corresponding {@link io.permazen.core.FieldType} is then used to encode/decode field values.
- * See {@link io.permazen.core.FieldTypeRegistry} for a list of built-in (pre-defined) field types.
- * The type name may also be specified explicitly by {@link #name}.
+ * in the case of complex sub-fields, the generic type of the collection class. The property type must be registered
+ * in the {@link FieldTypeRegistry} and the corresponding {@link FieldType} is then used to encode/decode field values.
+ * See {@link FieldTypeRegistry} for a list of built-in (pre-defined) field types. Alternately, an encoding may be
+ * specified explicitly via {@link #encoding}.
  *
  * <p>
  * Simple fields may be {@link #indexed}; see {@link io.permazen.index} for information on querying indexes.
- * {@link io.permazen.Counter} fields may not be indexed.
+ * {@link Counter} fields may not be indexed.
  *
  * <p>
  * Two or more simple fields may be indexed together in a composite index; see {@link JCompositeIndex &#64;JCompositeIndex}.
@@ -73,21 +85,22 @@ import java.lang.annotation.Target;
  * The {@link #allowDeleted} and {@link #onDelete} properties, respectively, control whether (a) or (b) is permitted.
  *
  * <p>
- * By default, neither (a) nor (b) is allowed; if attempted, a {@link io.permazen.core.DeletedObjectException} is thrown.
+ * By default, neither (a) nor (b) is allowed; if attempted, a {@link DeletedObjectException} is thrown.
  * This ensures references are always valid.
  *
- * <p><b>Copy Cascades</b></p>
+ * <p><b>Cascades</b></p>
  *
  * <p>
- * The {@link io.permazen.JObject} methods {@link io.permazen.JObject#cascadeCopyIn cascadeCopyIn()},
- * {@link io.permazen.JObject#cascadeCopyOut cascadeCopyOut()}, and {@link io.permazen.JObject#cascadeCopyTo cascadeCopyTo()}
+ * The {@link JObject} methods {@link JObject#cascadeCopyIn cascadeCopyIn()},
+ * {@link JObject#cascadeCopyOut cascadeCopyOut()}, and {@link JObject#cascadeCopyTo cascadeCopyTo()}
  * copy a graph of related objects between transactions by first copying a starting object, then cascading through matching
  * reference fields and repeating recursively. This cascade operation is capable of traversing references in both the
- * forward and inverse directions.
+ * forward and inverse directions. There is also {@link JTransaction#cascadeFindAll} which performs a general purpose
+ * cascade exploration.
  *
  * <p>
- * Which reference fields are traversed in a particular copy operation is determined by the supplied <i>cascade name</i>.
- * Outgoing references are traversed if the cascade name is in the reference field's {@link #cascades} property,
+ * Which reference fields are traversed in a particular find or copy operation is determined by the supplied <i>cascade name</i>.
+ * Outgoing references are traversed if the cascade name is in the reference field's {@link #forwardCascades} property,
  * while incoming references from other objects are traversed (in the reverse direction) if the cascade name is in the
  * referring object's reference field's {@link #inverseCascades}.
  *
@@ -100,7 +113,7 @@ import java.lang.annotation.Target;
  *      /**
  *       * Get the parent of this node, or null if node is a root.
  *       *&#47;
- *      &#64;JField(<b>cascades = { "tree", "ancestors" }</b>, <b>inverseCascades = { "tree", "descendants" }</b>)
+ *      &#64;JField(<b>forwardCascades = { "tree", "ancestors" }</b>, <b>inverseCascades = { "tree", "descendants" }</b>)
  *      TreeNode getParent();
  *      void setParent(TreeNode parent);
  *
@@ -144,7 +157,7 @@ import java.lang.annotation.Target;
  * Fields that are not complex sub-fields may be marked as {@link #unique} to impose a uniqueness constraint on the value.
  * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the Permazen layer and function as
  * an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
- * and is affected by the transaction's configured {@link io.permazen.ValidationMode}.
+ * and is affected by the transaction's configured {@link ValidationMode}.
  *
  * <p>
  * Optionally, specific field values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
@@ -152,7 +165,7 @@ import java.lang.annotation.Target;
  * are not allowed in annotations, include {@link #NULL} to indicate that null values should be excluded.
  *
  * <p>
- * In {@link io.permazen.ValidationMode#AUTOMATIC}, any upgraded {@link io.permazen.JObject}s are automatically
+ * In {@link ValidationMode#AUTOMATIC}, any upgraded {@link JObject}s are automatically
  * added to the validation queue, so a uniqueness constraint added in a new schema version will be automatically verified
  * when any object is upgraded.
  *
@@ -185,7 +198,7 @@ public @interface JField {
      *
      * <p>
      * Note: this particular {@link String} will never conflict with any actual field values because it contains a character
-     * that is not allowed in the return value from {@link io.permazen.core.FieldType#toString(Object) FieldType.toString()}.
+     * that is not allowed in the return value from {@link FieldType#toString(Object) FieldType.toString()}.
      */
     String NULL = "\u0000";
 
@@ -203,17 +216,22 @@ public @interface JField {
     String name() default "";
 
     /**
-     * Optional override for the type of this field.
+     * Specify the encoding for this field by {@link EncodingId} URN.
      *
      * <p>
-     * If set, this must equal the name of a type registered in the {@link io.permazen.core.FieldTypeRegistry}
-     * associated with the {@link io.permazen.core.Database} instance, and the annotated method's return type must match the
-     * {@link io.permazen.core.FieldType}'s {@linkplain io.permazen.core.FieldType#getTypeToken supported Java type}.
+     * If set, this must equal the {@link EncodingId} of a type registered in the {@link FieldTypeRegistry}
+     * associated with the {@link Database} instance, and the annotated method's return type must match the
+     * {@link FieldType}'s {@linkplain io.permazen.core.FieldType#getTypeToken supported Java type}.
      *
      * <p>
-     * If equal to the empty string (default value), then the Java type is inferred from the return type of the getter method
-     * and the {@link io.permazen.core.FieldType} is found via
-     * {@link io.permazen.core.FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
+     * For any of Permazen's built-in types, the Permazen URN prefix {@value EncodingIds#PERMAZEN_PREFIX} may be omitted.
+     * Otherwise, see {@link EncodingId} for the required format. Custom encodings are found automatically on the application
+     * class path when using a {@link PermazenFieldTypeRegistry} (the default).
+     *
+     * <p>
+     * If this is left unset (empty string), then the Java type is inferred from the return type of the getter method
+     * and the {@link FieldType} is found via
+     * {@link FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
      * FieldTypeRegistry.getFieldType()}.
      *
      * <p>
@@ -228,21 +246,11 @@ public @interface JField {
      *  public abstract List&lt;<b>Float</b>&gt; getScores();
      * </pre>
      *
-     * @return the name of the field's type
+     * @return URN identifying the field's encoding
      * @see io.permazen.core.FieldType
-     * @see io.permazen.core.FieldTypeRegistry#getFieldType(String, long)
+     * @see io.permazen.core.FieldTypeRegistry#getFieldType(EncodingId)
      */
-    String type() default "";
-
-    /**
-     * Optional override for the {@linkplain io.permazen.core.FieldType#getEncodingSignature encoding signature}
-     * associated with this field's {@link io.permazen.core.FieldType} used to encode/decode field values.
-     *
-     * @return the encoding signature of the field's type
-     * @see io.permazen.core.FieldType
-     * @see io.permazen.core.FieldTypeRegistry#getFieldType(String, long)
-     */
-    long typeSignature() default 0;
+    String encoding() default "";
 
     /**
      * Storage ID for this field.
@@ -251,7 +259,7 @@ public @interface JField {
      * Value should be positive and unique within the contained class.
      *
      * <p>
-     * If zero, the configured {@link io.permazen.StorageIdGenerator} will be consulted to auto-generate a value
+     * If zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value
      * unless {@link PermazenType#autogenFields} is false (in which case an error occurs).
      *
      * @see io.permazen.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
@@ -280,38 +288,34 @@ public @interface JField {
     boolean indexed() default false;
 
     /**
-     * Define forward copy cascades for the annotated reference field.
+     * Define forward find/copy cascades for the annotated reference field.
      *
      * <p>
-     * When {@link io.permazen.JObject#cascadeCopyIn JObject.cascadeCopyIn()},
-     * {@link io.permazen.JObject#cascadeCopyOut JObject.cascadeCopyOut()}, or
-     * {@link io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()} is invoked, if the given cascade name is one
-     * of the names listed here, and an object with the annotated reference field is copied, then the reference field will
-     * will be traversed in the forward direction and the referred-to object will also be copied.
+     * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
+     * and an object with the annotated reference field is copied, then the reference field will
+     * will be traversed in the forward direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
      *
-     * @return whether the field is indexed
+     * @return forward cascade names for the annotated reference field
      * @see io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()
      * @see io.permazen.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
      */
-    String[] cascades() default {};
+    String[] forwardCascades() default {};
 
     /**
-     * Define inverse copy cascades for the annotated reference field.
+     * Define inverse find/copy cascades for the annotated reference field.
      *
      * <p>
-     * When {@link io.permazen.JObject#cascadeCopyIn JObject.cascadeCopyIn()},
-     * {@link io.permazen.JObject#cascadeCopyOut JObject.cascadeCopyOut()}, or
-     * {@link io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()} is invoked, if the given cascade name is one
-     * of the names listed here, and an object with the annotated reference field refers to an object that is copied, then the
-     * reference field will be traversed in the inverse direction and the referring object will also be copied.
+     * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
+     * and an object with the annotated reference field is copied, then the reference field will
+     * will be traversed in the inverse direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
      *
-     * @return whether the field is indexed
+     * @return inverse cascade names for the annotated reference field
      * @see io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()
      * @see io.permazen.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
      */
@@ -354,9 +358,9 @@ public @interface JField {
      * The constraint will be checked any time normal validation is performed on an object containing the field.
      * More precisely, a uniqueness constraint behaves like a JSR 303
      * validation constraint with {@code groups() = }<code>{ </code>{@link Default}{@code .class,
-     * }{@link io.permazen.UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
+     * }{@link UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
      * are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
-     * {@link io.permazen.JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
+     * {@link JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
      *
      * <p>
      * This property must be false for sub-fields of complex fields, and for any field that is not indexed.
@@ -372,7 +376,7 @@ public @interface JField {
      *
      * <p>
      * The specified values must be valid {@link String} encodings of the associated field (as returned by
-     * {@link io.permazen.core.FieldType#toString(Object) FieldType.toString(T)}), or the constant {@link #NULL}
+     * {@link FieldType#toString(Object) FieldType.toString(T)}), or the constant {@link #NULL}
      * to indicate a null value. For example:
      * <pre>
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
@@ -398,12 +402,12 @@ public @interface JField {
      *
      * <p>
      * Otherwise, if this property is set to false, the field is disallowed from ever referring to a non-existent object;
-     * instead, a {@link io.permazen.core.DeletedObjectException} will be thrown. When used together with
+     * instead, a {@link DeletedObjectException} will be thrown. When used together with
      * {@link DeleteAction#EXCEPTION} (see {@link #onDelete}), the field is guaranteed to never be a dangling reference.
      *
      * <p>
      * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
-     * separately controls validation for {@link io.permazen.SnapshotJTransaction}s.
+     * separately controls validation for {@link SnapshotJTransaction}s.
      *
      * <p>
      * For consistency, this property must be set to true when {@link #onDelete} is set to {@link DeleteAction#NOTHING}.
@@ -422,8 +426,8 @@ public @interface JField {
      * For non-reference fields, this property must be equal to its default value.
      *
      * <p>
-     * This property is equivalent to {@link #allowDeleted}, but applies to {@link io.permazen.SnapshotJTransaction}s
-     * instead of normal {@link io.permazen.JTransaction}s; see {@link #allowDeleted} for details.
+     * This property is equivalent to {@link #allowDeleted}, but applies to {@link SnapshotJTransaction}s
+     * instead of normal {@link JTransaction}s; see {@link #allowDeleted} for details.
      *
      * <p>
      * Snapshot transactions typically hold a copy of some small portion of the database. If this property is set to false,
@@ -448,8 +452,8 @@ public @interface JField {
      * to the {@link String} value {@code "1234"}).
      *
      * <p>
-     * See {@link io.permazen.core.FieldType#convert FieldType.convert()} for details about conversions between simple field types.
-     * In addition, {@link io.permazen.Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper)
+     * See {@link FieldType#convert FieldType.convert()} for details about conversions between simple field types.
+     * In addition, {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper)
      * type.
      *
      * <p>

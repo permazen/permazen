@@ -12,6 +12,7 @@ import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.schema.ReferenceSchemaField;
+import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class JReferenceField extends JSimpleField {
         this.cascadeDelete = annotation.cascadeDelete();
         this.allowDeleted = annotation.allowDeleted();
         this.allowDeletedSnapshot = annotation.allowDeletedSnapshot();
-        this.forwardCascades = annotation.cascades();
+        this.forwardCascades = annotation.forwardCascades();
         this.inverseCascades = annotation.inverseCascades();
     }
 
@@ -100,7 +101,7 @@ public class JReferenceField extends JSimpleField {
     }
 
     /**
-     * Get this field's forward copy cascades.
+     * Get this field's forward copy/find cascades.
      *
      * <p>
      * The returned array is a copy; modifications to it have no effect.
@@ -112,7 +113,7 @@ public class JReferenceField extends JSimpleField {
     }
 
     /**
-     * Get this field's inverse copy cascades.
+     * Get this field's inverse copy/find cascades.
      *
      * <p>
      * The returned array is a copy; modifications to it have no effect.
@@ -146,7 +147,14 @@ public class JReferenceField extends JSimpleField {
     @Override
     ReferenceSchemaField toSchemaItem(Permazen jdb) {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
-        super.initialize(jdb, schemaField);
+        this.initialize(jdb, schemaField);
+        return schemaField;
+    }
+
+    @Override
+    void initialize(Permazen jdb, SimpleSchemaField schemaField0) {
+        super.initialize(jdb, schemaField0);
+        final ReferenceSchemaField schemaField = (ReferenceSchemaField)schemaField0;
         schemaField.setOnDelete(this.onDelete);
         schemaField.setCascadeDelete(this.cascadeDelete);
         schemaField.setAllowDeleted(this.allowDeleted);
@@ -161,7 +169,11 @@ public class JReferenceField extends JSimpleField {
                .map(jclass -> jclass.storageId)
                .collect(Collectors.toCollection(TreeSet::new)));
         }
-        return schemaField;
+    }
+
+    @Override
+    void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
+        // fixed encoding
     }
 
 // POJO import/export

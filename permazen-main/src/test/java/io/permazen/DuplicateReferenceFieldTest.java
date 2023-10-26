@@ -237,7 +237,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract void setFieldR(JObject ref);
 
         // Field Y
-        @JListField(element = @JField(type = "int", indexed = true))
+        @JListField(element = @JField(encoding = "int", indexed = true))
         public abstract List<Integer> getFieldY();
 
         // Field Z
@@ -253,7 +253,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract void setFieldR(TopClass ref);
 
         // Field X
-        @JSetField(element = @JField(type = "float", indexed = true))
+        @JSetField(element = @JField(encoding = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field Z
@@ -269,11 +269,11 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         public abstract void setFieldR(ClassA ref);
 
         // Field X
-        @JSetField(element = @JField(type = "float", indexed = true))
+        @JSetField(element = @JField(encoding = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field C
-        @JListField(element = @JField(type = "int", indexed = true))
+        @JListField(element = @JField(encoding = "int", indexed = true))
         public abstract List<Integer> getFieldY();
     }
 }

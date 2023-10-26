@@ -189,7 +189,7 @@ public class CopyCascadeTest extends TestSupport {
          * Get the parent of this node, or null if node is the root.
          */
         @JField(storageId = 10, onDelete = DeleteAction.DELETE,
-          cascades = { "tree", "ancestors" }, inverseCascades = { "tree", "descendants" })
+          forwardCascades = { "tree", "ancestors" }, inverseCascades = { "tree", "descendants" })
         Node getParent();
         void setParent(Node x);
     }

@@ -42,9 +42,9 @@ public class TypeSafetyTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema formatVersion=\"1\">\n"
+          + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "    <SimpleField name=\"ival\" encoding=\"urn:fdc:permazen.io:2020:enc:int\" storageId=\"11\"/>\n"
+          + "    <SimpleField name=\"ival\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"11\"/>\n"
           + "    <ReferenceField name=\"bar\" storageId=\"12\">\n"
           + "      <ObjectTypes>\n"
           + "        <ObjectType storageId=\"20\"/>\n"
@@ -53,7 +53,7 @@ public class TypeSafetyTest extends TestSupport {
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"20\">\n"
           + "    <ReferenceField name=\"friend\" storageId=\"21\"/>\n"
-          + "    <SimpleField name=\"fix\" encoding=\"urn:fdc:permazen.io:2020:enc:boolean\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"fix\" encoding=\"urn:fdc:permazen.io:2020:boolean\" storageId=\"22\"/>\n"
           + "    <SetField name=\"set\" storageId=\"23\">\n"
           + "      <ReferenceField storageId=\"24\">\n"
           + "        <ObjectTypes>\n"

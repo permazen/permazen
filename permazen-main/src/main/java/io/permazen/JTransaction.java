@@ -777,7 +777,7 @@ public class JTransaction {
      *
      * <p>
      * This method finds all objects reachable from the starting object based on
-     * {@link io.permazen.annotation.JField#cascades &#64;JField.cascades()} and
+     * {@link io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()} and
      * {@link io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
      * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
      * specified in the corresponding annotation property. See {@link io.permazen.annotation.JField &#64;JField} for details.

@@ -394,7 +394,7 @@ public class BasicTest extends TestSupport {
         @JSetField(storageId = 120, element = @JField(storageId = 121, indexed = true))
         public abstract SortedSet<String> getNicknames();
 
-        @JListField(storageId = 130, element = @JField(storageId = 131, type = "int", indexed = true))
+        @JListField(storageId = 130, element = @JField(storageId = 131, encoding = "int", indexed = true))
         public abstract List<Integer> getScores();
 
         @JMapField(storageId = 140,
