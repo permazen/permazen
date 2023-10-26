@@ -124,13 +124,14 @@ public class SimpleFieldTypeRegistry implements FieldTypeRegistry {
         if (fieldTypeList != null)
             return fieldTypeList;
 
-        // If not found and is an array type, Auto-register using element type and try again
+        // If not found, and type is an array type, find element type and (if found) auto-register array type
         final TypeToken<?> elementTypeToken = typeToken.getComponentType();
+
         if (elementTypeToken != null) {
             this.getFieldTypes(elementTypeToken).stream()
               .map(FieldType::getEncodingId)
               .map(EncodingId::getArrayId)
-              .map(this::getFieldType);
+              .forEach(this::getFieldType);
             fieldTypeList = (List<FieldType<T>>)(Object)this.typesByType.get(typeToken);
         }
 
