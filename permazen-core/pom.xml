@@ -10,7 +10,7 @@
         <artifactId>permazen</artifactId>
         <version>5.0.0</version>
     </parent>
-    <artifactId>permazen-coreapi</artifactId>
+    <artifactId>permazen-core</artifactId>
     <name>Permazen Core API Classes</name>
     <description>Permazen core API classes which provide objects, fields, indexes, queries, and schema management on top of a key/value store.</description>
     <distributionManagement>

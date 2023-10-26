@@ -24,7 +24,7 @@
         <module>permazen-cli</module>
         <module>permazen-cliapp</module>
     -->
-        <module>permazen-coreapi</module>
+        <module>permazen-core</module>
     <!--
         <module>permazen-demo</module>
         <module>permazen-guiapp</module>
@@ -128,7 +128,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>permazen-coreapi</artifactId>
+                <artifactId>permazen-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

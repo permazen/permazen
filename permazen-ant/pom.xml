@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-coreapi</artifactId>
+            <artifactId>${project.parent.artifactId}-core</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
