@@ -8,9 +8,9 @@ package io.permazen.app;
 import com.google.common.base.Preconditions;
 
 import io.permazen.PermazenFactory;
-import io.permazen.annotation.JFieldType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
@@ -59,7 +59,7 @@ public abstract class AbstractMain {
     // Schema
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
-    protected HashSet<Class<? extends FieldType<?>>> fieldTypeClasses;
+    protected FieldTypeRegistry fieldTypeRegistry;
     protected boolean allowNewSchema;
 
     // Key/value database
@@ -137,7 +137,7 @@ public abstract class AbstractMain {
 
         // Parse options supported by this class
         final LinkedHashSet<String> modelPackages = new LinkedHashSet<>();
-        final LinkedHashSet<String> typePackages = new LinkedHashSet<>();
+        String fieldTypeRegistryClass = null;
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
             final String option = params.removeFirst();
             if (option.equals("-h") || option.equals("--help")) {
@@ -167,16 +167,15 @@ public abstract class AbstractMain {
                 if (params.isEmpty())
                     this.usageError();
                 modelPackages.add(params.removeFirst());
-            } else if (option.equals("--type-pkg")) {
+            } else if (option.equals("--encodings")) {
                 if (params.isEmpty())
                     this.usageError();
-                typePackages.add(params.removeFirst());
+                fieldTypeRegistryClass = params.removeFirst();
             } else if (option.equals("-p") || option.equals("--pkg")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String packageName = params.removeFirst();
                 modelPackages.add(packageName);
-                typePackages.add(packageName);
             } else if (option.equals("--new-schema"))
                 this.allowNewSchema = true;
             else if (option.equals("--"))
@@ -241,20 +240,21 @@ public abstract class AbstractMain {
         // Scan for model and type classes
         final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
         emptyPackages.addAll(modelPackages);
-        emptyPackages.addAll(typePackages);
         modelPackages.stream().filter(this::scanModelClasses).forEach(emptyPackages::remove);
-        typePackages.stream().filter(this::scanTypeClasses).forEach(emptyPackages::remove);
 
-        // Warn if we didn't find anything
-        for (String packageName : emptyPackages) {
-            final boolean isModel = modelPackages.contains(packageName);
-            final boolean isType = typePackages.contains(packageName);
-            if (isModel && isType)
-                this.log.warn("no Java model or custom FieldType classes found under package `{}'", packageName);
-            else if (isModel)
-                this.log.warn("no Java model classes found under package `{}'", packageName);
-            else
-                this.log.warn("no custom FieldType classes found under package `{}'", packageName);
+        // Warn about packages in which we didn't find any classes
+        for (String packageName : emptyPackages)
+            this.log.warn("no Java model classes found under package `{}'", packageName);
+
+        // Instantiate custom FieldTypeRegistry
+        if (fieldTypeRegistryClass != null) {
+            try {
+                this.fieldTypeRegistry = Class.forName(fieldTypeRegistryClass,
+                       false, Thread.currentThread().getContextClassLoader())
+                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("error instantiating class \"" + fieldTypeRegistryClass + "\"", e);
+            }
         }
 
         // Done
@@ -333,27 +333,6 @@ public abstract class AbstractMain {
         return foundAny[0];
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean scanTypeClasses(String pkgname) {
-        if (this.fieldTypeClasses == null)
-            this.fieldTypeClasses = new HashSet<>();
-        final boolean[] foundAny = new boolean[1];
-        new PermazenFieldTypeScanner(this.loader).scanForClasses(pkgname.split("[\\s,]")).stream()
-          .peek(name -> this.log.debug("loading custom FieldType class {}", name))
-          .map(this::loadClass)
-          .peek(cl -> foundAny[0] = true)
-          .map(cl -> {
-            try {
-                return (Class<? extends FieldType<?>>)cl.asSubclass(FieldType.class);
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName()
-                  + " annotation on " + cl + ": type is not a subclass of " + FieldType.class);
-            }
-          })
-          .forEach(this.fieldTypeClasses::add);
-        return foundAny[0];
-    }
-
     private boolean createDirectory(File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
             System.err.println(this.getName() + ": could not create directory \"" + dir + "\"");
@@ -404,7 +383,7 @@ public abstract class AbstractMain {
     }
 
     /**
-     * Start the {@link Database} based on the configured {@link KVDatabase} and {@link #fieldTypeClasses} and return it.
+     * Start the {@link Database} based on the configured {@link KVDatabase} and return it.
      *
      * @return initialized database
      */
@@ -426,9 +405,9 @@ public abstract class AbstractMain {
         // Construct core API Database
         final Database db = new Database(this.kvdb);
 
-        // Register custom field types
-        if (this.fieldTypeClasses != null)
-            this.fieldTypeClasses.forEach(db.getFieldTypeRegistry()::addClass);
+        // Register custom FieldTypeRegistry
+        if (this.fieldTypeRegistry != null)
+            db.setFieldTypeRegistry(this.fieldTypeRegistry);
 
         // Done
         return db;
@@ -460,7 +439,7 @@ public abstract class AbstractMain {
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--schema-version, -v num",       "Specify schema version (default highest recorded; `auto' to auto-generate)" },
             { "--model-pkg package",            "Scan for @PermazenType model classes under Java package (=> Permazen mode)" },
-            { "--type-pkg package",             "Scan for @JFieldType types under Java package to register custom types" },
+            { "--encodings classname",          "Specify a custom FieldTypeRegistry to provide field encodings" },
             { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },
             { "--help, -h",                     "Show this help message" },
             { "--verbose",                      "Show verbose error messages" },

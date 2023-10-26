@@ -19,7 +19,6 @@ import io.permazen.cli.SessionMode;
 import io.permazen.core.Database;
 import io.permazen.schema.SchemaModel;
 import io.permazen.PermazenFactory;
-import io.permazen.annotation.JFieldType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
 import io.permazen.kv.KVDatabase;

@@ -24,7 +24,6 @@
          <permazen:scan-classes base-package="io.permazen.spring">
              <permazen:exclude-filter type="regex" expression=".*Banana.*"/>
          </permazen:scan-classes>
-         <permazen:scan-field-types base-package="io.permazen.spring"/>
      </permazen:permazen>
 
      <bean id="transactionManager" class="io.permazen.spring.PermazenTransactionManager" p:permazen-ref="permazen"/>

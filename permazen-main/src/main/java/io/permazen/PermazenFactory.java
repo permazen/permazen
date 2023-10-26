@@ -8,6 +8,7 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 
 import jakarta.validation.ValidatorFactory;
@@ -28,6 +29,7 @@ public class PermazenFactory {
 
     private Database database;
     private int schemaVersion = -1;
+    private FieldTypeRegistry fieldTypeRegistry;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Collection<Class<?>> modelClasses;
     private ValidatorFactory validatorFactory;
@@ -100,6 +102,17 @@ public class PermazenFactory {
     }
 
     /**
+     * Configure a custom {@link FieldTypeRegistry}.
+     *
+     * @param fieldTypeRegistry custom {@link FieldTypeRegistry}, or null for the default
+     * @return this instance
+     */
+    public PermazenFactory setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
+        this.fieldTypeRegistry = fieldTypeRegistry;
+        return this;
+    }
+
+    /**
      * Configure the {@link StorageIdGenerator} for auto-generating storage ID's when not explicitly
      * specified in {@link io.permazen.annotation.PermazenType &#64;PermazenType},
      * {@link io.permazen.annotation.JField &#64;JField}, etc., annotations.
@@ -144,10 +157,11 @@ public class PermazenFactory {
         Database database1 = this.database;
         if (database1 == null)
             database1 = new Database(new SimpleKVDatabase());
+        if (this.fieldTypeRegistry != null)
+            database1.setFieldTypeRegistry(this.fieldTypeRegistry);
         final Permazen jdb = new Permazen(database1, this.schemaVersion, this.storageIdGenerator, this.modelClasses);
         if (this.validatorFactory != null)
             jdb.setValidatorFactory(this.validatorFactory);
         return jdb;
     }
 }
-

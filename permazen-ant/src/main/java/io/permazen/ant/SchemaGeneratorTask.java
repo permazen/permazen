@@ -8,14 +8,14 @@ package io.permazen.ant;
 import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
-import io.permazen.annotation.JFieldType;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.PermazenFieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
-import io.permazen.spring.PermazenFieldTypeScanner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -42,8 +42,7 @@ import org.apache.tools.ant.types.Resource;
  *
  * <p>
  * This task scans the configured classpath for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
- * and {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations and either writes the generated schema
- * to an XML file, or verifies the schema matches an existing XML file.
+ * annotations and either writes the generated schema to an XML file, or verifies the schema matches an existing XML file.
  *
  * <p>
  * Generation of schema XML files and the use of this task is not necessary. However, it does allow certain
@@ -163,7 +162,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies the search path containing classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
- *      and {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
+ *      annotations.
  *      </p>
  * </td>
  * </tr>
@@ -173,8 +172,7 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
- *      for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
- *      or {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
+ *      for classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations.
  *
  *      <p>
  *      Use of this attribute requires Spring's classpath scanning classes ({@code spring-context.jar});
@@ -188,8 +186,20 @@ import org.apache.tools.ant.types.Resource;
  *  <td>
  *      <p>
  *      Specifies one or more Java class names (separated by commas and/or whitespace) of
- *      classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType}
- *      or {@link io.permazen.annotation.JFieldType &#64;JFieldType} annotations.
+ *      classes with {@link io.permazen.annotation.PermazenType &#64;PermazenType} annotations.
+ *      </p>
+ * </td>
+ * </tr>
+ * <tr>
+ *  <td>{@code fieldTypeRegistry}</td>
+ *  <td>No</td>
+ *  <td>
+ *      <p>
+ *      Specifies the name of an optional custom {@link FieldTypeRegistry} class.
+ *      </p>
+ *
+ *      <p>
+ *      By default, a {@link PermazenFieldTypeRegistry} is used.
  *      </p>
  * </td>
  * </tr>
@@ -267,6 +277,7 @@ public class SchemaGeneratorTask extends Task {
     private String schemaVersionProperty;
     private File file;
     private Path classPath;
+    private String fieldTypeRegistryClassName;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
     private final ArrayList<FileSet> oldSchemasList = new ArrayList<>();
     private final LinkedHashSet<String> classes = new LinkedHashSet<>();
@@ -315,6 +326,10 @@ public class SchemaGeneratorTask extends Task {
 
     public void setClasspathRef(Reference ref) {
         this.classPath = (Path)ref.getReferencedObject(this.getProject());
+    }
+
+    public void setFieldTypeRegistryClass(String fieldTypeRegistryClassName) {
+        this.fieldTypeRegistryClassName = fieldTypeRegistryClassName;
     }
 
     public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
@@ -368,7 +383,6 @@ public class SchemaGeneratorTask extends Task {
 
             // Model and field type classes
             final HashSet<Class<?>> modelClasses = new HashSet<>();
-            final HashSet<Class<?>> fieldTypeClasses = new HashSet<>();
 
             // Do package scanning
             if (!this.packages.isEmpty()) {
@@ -392,17 +406,6 @@ public class SchemaGeneratorTask extends Task {
                         throw new BuildException("failed to load class \"" + className + "\"", e);
                     }
                 }
-
-                // Scan for @JFieldType classes
-                this.log("scanning for @JFieldType annotations in packages: " + packageNames);
-                for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
-                    this.log("adding Permazen field type class \"" + className + "\"");
-                    try {
-                        fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-                    } catch (Exception e) {
-                        throw new BuildException("failed to instantiate " + className, e);
-                    }
-                }
             }
 
             // Do specific class scanning
@@ -421,11 +424,17 @@ public class SchemaGeneratorTask extends Task {
                     this.log("adding Permazen model " + cl);
                     modelClasses.add(cl);
                 }
+            }
 
-                // Add field types
-                if (cl.isAnnotationPresent(JFieldType.class)) {
-                    this.log("adding Permazen field type " + cl);
-                    fieldTypeClasses.add(cl);
+            // Instantiate FieldTypeRegistry
+            FieldTypeRegistry fieldTypeRegistry = null;
+            if (this.fieldTypeRegistryClassName != null) {
+                try {
+                    fieldTypeRegistry = Class.forName(this.fieldTypeRegistryClassName,
+                       false, Thread.currentThread().getContextClassLoader())
+                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new BuildException("failed to instantiate class \"" + this.fieldTypeRegistryClassName + "\"", e);
                 }
             }
 
@@ -436,36 +445,17 @@ public class SchemaGeneratorTask extends Task {
                    false, Thread.currentThread().getContextClassLoader())
                   .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
             } catch (Exception e) {
-                throw new BuildException("failed to instantiate class \"" + storageIdGeneratorClassName + "\"", e);
+                throw new BuildException("failed to instantiate class \"" + this.storageIdGeneratorClassName + "\"", e);
             }
 
             // Set up database
             final Database db = new Database(new SimpleKVDatabase());
 
-            // Instantiate and configure field type classes
-            for (Class<?> cl : fieldTypeClasses) {
-
-                // Instantiate field types
-                this.log("instantiating " + cl + " as field type instance");
-                final FieldType<?> fieldType;
-                try {
-                    fieldType = this.asFieldTypeClass(cl).getConstructor().newInstance();
-                } catch (Exception e) {
-                    throw new BuildException("failed to instantiate " + cl.getName(), e);
-                }
-
-                // Add field type
-                try {
-                    db.getFieldTypeRegistry().add(fieldType);
-                } catch (Exception e) {
-                    throw new BuildException("failed to register custom field type " + cl.getName(), e);
-                }
-            }
-
             // Set up factory
             final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
+            factory.setFieldTypeRegistry(fieldTypeRegistry);
             factory.setStorageIdGenerator(storageIdGenerator);
             factory.setModelClasses(modelClasses);
 
@@ -555,15 +545,4 @@ public class SchemaGeneratorTask extends Task {
             loader.cleanup();
         }
     }
-
-    @SuppressWarnings("unchecked")
-    private Class<? extends FieldType<?>> asFieldTypeClass(Class<?> klass) {
-        try {
-            return (Class<? extends FieldType<?>>)klass.asSubclass(FieldType.class);
-        } catch (ClassCastException e) {
-            throw new BuildException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "
-              + klass + ": type is not a subclass of " + FieldType.class);
-        }
-    }
 }
-

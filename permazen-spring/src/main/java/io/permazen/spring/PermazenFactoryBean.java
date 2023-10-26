@@ -13,6 +13,7 @@ import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
 
@@ -27,9 +28,9 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
     private KVDatabase kvstore;
     private int schemaVersion = -1;
+    private FieldTypeRegistry fieldTypeRegistry;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Collection<Class<?>> modelClasses;
-    private Collection<Class<? extends FieldType<?>>> fieldTypeClasses;
 
 // Properties
 
@@ -41,16 +42,16 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         this.schemaVersion = schemaVersion;
     }
 
+    public void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
+        this.fieldTypeRegistry = fieldTypeRegistry;
+    }
+
     public void setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
         this.storageIdGenerator = storageIdGenerator;
     }
 
     public void setModelClasses(Collection<Class<?>> modelClasses) {
         this.modelClasses = modelClasses;
-    }
-
-    public void setFieldTypeClasses(Collection<Class<? extends FieldType<?>>> fieldTypeClasses) {
-        this.fieldTypeClasses = fieldTypeClasses;
     }
 
 // InitializingBean
@@ -78,14 +79,11 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
             kvstore1 = new SimpleKVDatabase();
         final Database db = new Database(kvstore1);
 
-        // Add custom field types
-        if (this.fieldTypeClasses != null)
-            this.fieldTypeClasses.forEach(db.getFieldTypeRegistry()::addClass);
-
         // Build Permazen
         return new PermazenFactory()
           .setDatabase(db)
           .setSchemaVersion(schemaVersion1)
+          .setFieldTypeRegistry(this.fieldTypeRegistry)
           .setStorageIdGenerator(this.storageIdGenerator)
           .setModelClasses(this.modelClasses)
           .newPermazen();

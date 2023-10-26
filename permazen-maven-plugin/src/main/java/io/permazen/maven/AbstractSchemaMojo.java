@@ -9,11 +9,12 @@ import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.Permazen;
 import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
-import io.permazen.annotation.JFieldType;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.FieldType;
+import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.InvalidSchemaException;
+import io.permazen.core.PermazenFieldTypeRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
@@ -53,7 +54,7 @@ import org.apache.maven.project.MavenProject;
 public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
-     * Specifies Java package names under which to search for classes with @{@code PermazenType} or @{@code JFieldType} annotations.
+     * Specifies Java package names under which to search for classes with @{@code PermazenType} annotations.
      *
      * <p>
      * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
@@ -63,7 +64,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected String[] packages;
 
     /**
-     * Specifies the names of specific Java classes to search for @{@code PermazenType} or @{@code JFieldType} annotations.
+     * Specifies the names of specific Java classes to search for @{@code PermazenType} annotations.
      *
      * <p>
      * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
@@ -71,6 +72,25 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
      */
     @Parameter
     protected String[] classes;
+
+    /**
+     * <p>
+     * The {@link FieldTypeRegistry} to use for looking up field encodings.
+     * By default, a {@link PermazenFieldTypeRegistry} is used.
+     *
+     * <p>
+     * To configure a custom {@link FieldTypeRegistry}, specify its class name like this:
+     * <blockquote><pre>
+     * &lt;configuration&gt;
+     *     &lt;fieldTypeRegistryClass&gt;com.example.MyFieldTypeRegistry&lt;/fieldTypeRegistryClass&gt;
+     *     ...
+     * &lt;/configuration&gt;
+     * </pre></blockquote>
+     * The specified class ({@code com.example.MyFieldTypeRegistry} in this example) must be available either
+     * as part of the project being built or in one of the project's dependencies.
+     */
+    @Parameter
+    protected String fieldTypeRegistryClass;
 
     /**
      * <p>
@@ -194,7 +214,6 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         Thread.currentThread().setContextClassLoader(loader);
         try {
             final HashSet<Class<?>> modelClasses = new HashSet<>();
-            final HashSet<Class<?>> fieldTypeClasses = new HashSet<>();
 
             // Do package scanning
             if (this.packages != null && this.packages.length > 0) {
@@ -218,17 +237,6 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                         throw new MojoExecutionException("failed to load model class \"" + className + "\"", e);
                     }
                 }
-
-                // Scan for @JFieldType classes
-                this.getLog().info("scanning for @JFieldType annotations in packages: " + packageNames);
-                for (String className : new PermazenFieldTypeScanner().scanForClasses(packageNames)) {
-                    this.getLog().info("adding Permazen field type class \"" + className + "\"");
-                    try {
-                        fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-                    } catch (Exception e) {
-                        throw new MojoExecutionException("failed to load field type class \"" + className + "\"", e);
-                    }
-                }
             }
 
             // Do specific class scanning
@@ -248,12 +256,19 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                         this.getLog().info("adding Permazen model " + cl);
                         modelClasses.add(cl);
                     }
+                }
+            }
 
-                    // Add field types
-                    if (cl.isAnnotationPresent(JFieldType.class)) {
-                        this.getLog().info("adding Permazen field type " + cl);
-                        fieldTypeClasses.add(cl);
-                    }
+            // Instantiate FieldTypeRegistry
+            FieldTypeRegistry fieldTypeRegistry = null;
+            if (fieldTypeRegistryClass != null) {
+                try {
+                    fieldTypeRegistry = Class.forName(this.fieldTypeRegistryClass, false,
+                       Thread.currentThread().getContextClassLoader())
+                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new MojoExecutionException("error instantiatiating the configured <fieldTypeRegistryClass> \""
+                      + fieldTypeRegistryClass + "\"", e);
                 }
             }
 
@@ -274,30 +289,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             // Set up database
             final Database db = new Database(new SimpleKVDatabase());
 
-            // Instantiate and configure field type classes
-            for (Class<?> cl : fieldTypeClasses) {
-
-                // Instantiate field types
-                this.getLog().info("instantiating " + cl + " as field type instance");
-                final FieldType<?> fieldType;
-                try {
-                    fieldType = this.asFieldTypeClass(cl).getConstructor().newInstance();
-                } catch (Exception e) {
-                    throw new MojoExecutionException("failed to instantiate class \"" + cl.getName() + "\"", e);
-                }
-
-                // Add field type
-                try {
-                    db.getFieldTypeRegistry().add(fieldType);
-                } catch (Exception e) {
-                    throw new MojoExecutionException("failed to register custom field type class \"" + cl.getName() + "\"", e);
-                }
-            }
-
             // Set up factory
             final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
+            factory.setFieldTypeRegistry(fieldTypeRegistry);
             factory.setStorageIdGenerator(storageIdGenerator);
             factory.setModelClasses(modelClasses);
 
@@ -420,15 +416,5 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             }
         }
         return success;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Class<? extends FieldType<?>> asFieldTypeClass(Class<?> klass) throws MojoExecutionException {
-        try {
-            return (Class<? extends FieldType<?>>)klass.asSubclass(FieldType.class);
-        } catch (ClassCastException e) {
-            throw new MojoExecutionException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "
-              + klass + ": type is not a subclass of " + FieldType.class);
-        }
     }
 }

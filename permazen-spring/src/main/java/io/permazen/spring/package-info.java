@@ -52,12 +52,6 @@
  *      Returns the classes found in a {@link java.util.List}.</td>
  * </tr>
  * <tr>
- *  <td>{@code <permazen:scan-field-types>}</td>
- *  <td>Works just like Spring's {@code <context:component-scan>} but finds
- *      {@link io.permazen.annotation.JFieldType &#64;JFieldType}-annotated custom {@link io.permazen.core.FieldType} classes.
- *      Returns the classes found in a {@link java.util.List}.</td>
- * </tr>
- * <tr>
  *  <td>{@code <permazen:permazen>}</td>
  *  <td>Simplifies defining and configuring a {@link io.permazen.Permazen} database.</td>
  * </tr>
@@ -66,8 +60,7 @@
  *
  * <p>
  * The {@code <permazen:permazen>} element requires a nested {@code <permazen:scan-classes>} element to configure
- * the Java model classes. A nested {@code <permazen:scan-field-types>} may also be included.
- * The {@code <permazen:permazen>} element supports the following attributes:
+ * the Java model classes. The {@code <permazen:permazen>} element supports the following attributes:
  *
  * <div style="margin-left: 20px;">
  * <table class="striped">
@@ -95,6 +88,14 @@
  *      means to {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion auto-generate} a version number
  *      based on the {@linkplain io.permazen.schema.SchemaModel#compatibilityHash compatibility hash} of the
  *      {@link io.permazen.schema.SchemaModel} generated from the Java model classes.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code field-type-registry}</td>
+ *  <td>Bean reference</td>
+ *  <td>No</td>
+ *  <td>To use a custom {@link io.permazen.core.FieldTypeRegistry}, specify the name of a Spring bean that
+ *      implements the {@link io.permazen.core.FieldTypeRegistry} interface. By default, a
+ *      {@link io.permazen.core.PermazenFieldTypeRegistry} is used.</td>
  * </tr>
  * <tr>
  *  <td>{@code storage-id-generator}</td>
@@ -140,9 +141,6 @@
  *         &lt;<b>permazen:scan-classes</b> base-package="com.example.myapp"&gt;
  *             &lt;<b>permazen:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
  *         &lt;/<b>permazen:scan-classes</b>&gt;
- *
- *         &lt;!-- We have some custom FieldType's here too --&gt;
- *         &lt;<b>permazen:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
  *     &lt;/<b>permazen:permazen</b>&gt;
  *
  *     &lt;!-- Create a Permazen transaction manager --&gt;

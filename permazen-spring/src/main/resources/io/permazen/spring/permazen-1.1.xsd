@@ -37,13 +37,6 @@
                                     ]]></xsd:documentation>
                             </xsd:annotation>
                         </xsd:element>
-                        <xsd:element name="scan-field-types" type="scanClassPathType" minOccurs="0" maxOccurs="1">
-                            <xsd:annotation>
-                                <xsd:documentation><![CDATA[
-            Defines the custom FieldType classes.
-                                    ]]></xsd:documentation>
-                            </xsd:annotation>
-                        </xsd:element>
                     </xsd:sequence>
                     <xsd:attributeGroup ref="beans:beanAttributes"/>
                     <xsd:attribute name="kvstore" type="xsd:string" use="optional">
@@ -59,6 +52,13 @@
                             <xsd:documentation><![CDATA[
             The database schema version corresponding to the Java model classes.
             Defaults to zero (i.e., unspecified).
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="field-type-registry" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            Bean name reference to a custom FieldTypeRegistry.
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
@@ -85,15 +85,6 @@
         <xsd:annotation>
             <xsd:documentation><![CDATA[
     Scans the classpath and builds a list of @PermazenType-annotated classes.
-    Works just like &lt;context:component-scan/&gt;.
-            ]]></xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="scan-field-types" type="scanClassPathType">
-        <xsd:annotation>
-            <xsd:documentation><![CDATA[
-    Scans the classpath and builds a list of @JFieldType-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
             ]]></xsd:documentation>
         </xsd:annotation>
