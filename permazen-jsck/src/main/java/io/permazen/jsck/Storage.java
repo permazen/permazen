@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
@@ -73,7 +73,7 @@ abstract class Storage {
      *
      * @return encoded field value
      */
-    protected <T> byte[] validateEncodedBytes(ByteReader reader, FieldType<T> type) {
+    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> type) {
 
         // Decode value and capture bytes
         final T value;
@@ -111,7 +111,7 @@ abstract class Storage {
      *
      * @return decoded field value
      */
-    protected <T> T validateEncodedValue(ByteReader reader, FieldType<T> type) {
+    protected <T> T validateEncodedValue(ByteReader reader, Encoding<T> type) {
         return type.read(new ByteReader(this.validateEncodedBytes(reader, type)));
     }
 

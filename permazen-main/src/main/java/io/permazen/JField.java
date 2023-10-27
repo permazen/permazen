@@ -175,7 +175,7 @@ public abstract class JField extends JSchemaObject {
 
     void outputCachedValueField(ClassGenerator<?> generator, ClassWriter cw) {
         final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE,
-          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()), null, null);
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueEncoding()), null, null);
         valueField.visitEnd();
     }
 
@@ -183,7 +183,7 @@ public abstract class JField extends JSchemaObject {
         final MethodVisitor mv = generator.startMethod(cw, this.getter);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
-          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueEncoding()));
         mv.visitInsn(Opcodes.DUP);
         final Label valueReady = new Label();
         mv.visitJumpInsn(Opcodes.IFNONNULL, valueReady);
@@ -198,14 +198,14 @@ public abstract class JField extends JSchemaObject {
         mv.visitInsn(Opcodes.ICONST_1);                                                             // i.e., true
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
           fieldReaderMethod.getName(), Type.getMethodDescriptor(fieldReaderMethod), false);
-        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getCachedValueFieldType()));
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getCachedValueEncoding()));
         mv.visitInsn(Opcodes.DUP);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitInsn(Opcodes.SWAP);
         mv.visitFieldInsn(Opcodes.PUTFIELD, generator.getClassName(),
-          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueEncoding()));
         mv.visitLabel(valueReady);
-        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(this.getCachedValueFieldType()) });
+        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(this.getCachedValueEncoding()) });
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -215,7 +215,7 @@ public abstract class JField extends JSchemaObject {
         return ClassGenerator.CACHED_VALUE_FIELD_PREFIX + this.name;
     }
 
-    Class<?> getCachedValueFieldType() {
+    Class<?> getCachedValueEncoding() {
         return this.getter.getReturnType();
     }
 }

@@ -15,7 +15,7 @@ import com.vaadin.ui.TextField;
 import io.permazen.JReferenceField;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.NullableField;
 import io.permazen.vaadin.SimpleFieldConverter;
@@ -82,8 +82,8 @@ public class SimpleFieldFieldBuilder {
             textField.setWidth("100%");
             textField.setNullRepresentation("");
             textField.setNullSettingAllowed(false);
-            final FieldType<?> fieldType = jfield.getFieldType();
-            textField.setConverter(this.buildSimpleFieldConverter(fieldType));
+            final Encoding<?> encoding = jfield.getEncoding();
+            textField.setConverter(this.buildSimpleFieldConverter(encoding));
             field = textField;
         }
 
@@ -101,8 +101,8 @@ public class SimpleFieldFieldBuilder {
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(FieldType<T> fieldType) {
-        return new SimpleFieldConverter<>(fieldType);
+    private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(Encoding<T> encoding) {
+        return new SimpleFieldConverter<>(encoding);
     }
 
     // This method exists solely to bind the generic type parameters

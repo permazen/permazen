@@ -17,13 +17,13 @@ import java.io.Serializable;
  * <ul>
  *  <li>The first two fields (the {@code "urn"} and the {@code NID}) must be lowercase.
  *  <li>The optional r-components, q-components, and f-components are disallowed.
- *  <li>There may be from 1 to 255 trailing {@code []} pairs, indicating an array type.
+ *  <li>The URN proper may be followed by up to 255 trailing {@code []} pairs, indicating an array type.
  * </ul>
  *
  * <p>
  * Valid encoding ID's must match {@link #PATTERN}, which encodes the above rules.
  *
- * @see FieldType
+ * @see Encoding
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc8141">RFC 8141</a>
  */
 public class EncodingId implements Comparable<EncodingId>, Serializable {
@@ -120,7 +120,7 @@ public class EncodingId implements Comparable<EncodingId>, Serializable {
      * @throws IllegalArgumentException if this instance already has the maximum number of array dimensions
      */
     public EncodingId getArrayId() {
-        Preconditions.checkArgument(this.getArrayDimensions() < FieldType.MAX_ARRAY_DIMENSIONS, "too many array dimensions");
+        Preconditions.checkArgument(this.getArrayDimensions() < Encoding.MAX_ARRAY_DIMENSIONS, "too many array dimensions");
         return new EncodingId(this.id + ARRAY_SUFFIX);
     }
 

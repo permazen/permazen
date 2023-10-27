@@ -10,7 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 
@@ -40,7 +40,7 @@ public class JReferenceField extends JSimpleField {
 
     JReferenceField(Permazen jdb, String name, int storageId, String description, TypeToken<?> typeToken,
       io.permazen.annotation.JField annotation, Method getter, Method setter) {
-        super(jdb, name, storageId, typeToken, new ReferenceFieldType(), true, annotation, description, getter, setter);
+        super(jdb, name, storageId, typeToken, new ReferenceEncoding(), true, annotation, description, getter, setter);
         this.onDelete = annotation.onDelete();
         this.cascadeDelete = annotation.cascadeDelete();
         this.allowDeleted = annotation.allowDeleted();

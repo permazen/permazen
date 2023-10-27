@@ -14,7 +14,7 @@ import java.util.List;
 class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     final List<Integer> storageIds;
-    final List<FieldType<?>> fieldTypes;
+    final List<Encoding<?>> encodings;
 
     CompositeIndexStorageInfo(CompositeIndex index) {
         super(index.storageId);
@@ -25,23 +25,23 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
           .map(SimpleField::getStorageId)
           .forEach(this.storageIds::add);
 
-        // Gather field types, genericized for indexing
-        this.fieldTypes = new ArrayList<>(index.fields.size());
+        // Gather encodings, genericized for indexing
+        this.encodings = new ArrayList<>(index.fields.size());
         index.fields.stream()
-          .map(SimpleField::getFieldType)
-          .map(FieldType::genericizeForIndex)
-          .forEach(this.fieldTypes::add);
+          .map(SimpleField::getEncoding)
+          .map(Encoding::genericizeForIndex)
+          .forEach(this.encodings::add);
     }
 
     Object getIndex(Transaction tx) {
         switch (this.storageIds.size()) {
         case 2:
-            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1));
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1));
         case 3:
-            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1), this.fieldTypes.get(2));
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1), this.encodings.get(2));
         case 4:
-            return this.buildIndex(tx, this.fieldTypes.get(0), this.fieldTypes.get(1), this.fieldTypes.get(2),
-              this.fieldTypes.get(3));
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1), this.encodings.get(2),
+              this.encodings.get(3));
         // COMPOSITE-INDEX
         default:
             throw new RuntimeException("internal error");
@@ -50,8 +50,8 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2> CoreIndex2<V1, V2, ObjId> buildIndex(Transaction tx,
-      FieldType<V1> value1Type,
-      FieldType<V2> value2Type) {
+      Encoding<V1> value1Type,
+      Encoding<V2> value2Type) {
         return new CoreIndex2<>(tx.kvt, new Index2View<>(this.storageId,
           value1Type,
           value2Type,
@@ -60,9 +60,9 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3> CoreIndex3<V1, V2, V3, ObjId> buildIndex(Transaction tx,
-      FieldType<V1> value1Type,
-      FieldType<V2> value2Type,
-      FieldType<V3> value3Type) {
+      Encoding<V1> value1Type,
+      Encoding<V2> value2Type,
+      Encoding<V3> value3Type) {
         return new CoreIndex3<>(tx.kvt, new Index3View<>(this.storageId,
           value1Type,
           value2Type,
@@ -72,10 +72,10 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3, V4> CoreIndex4<V1, V2, V3, V4, ObjId> buildIndex(Transaction tx,
-      FieldType<V1> value1Type,
-      FieldType<V2> value2Type,
-      FieldType<V3> value3Type,
-      FieldType<V4> value4Type) {
+      Encoding<V1> value1Type,
+      Encoding<V2> value2Type,
+      Encoding<V3> value3Type,
+      Encoding<V4> value4Type) {
         return new CoreIndex4<>(tx.kvt, new Index4View<>(this.storageId,
           value1Type,
           value2Type,
@@ -88,7 +88,7 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     @Override
     public String toString() {
-        return "composite index on fields " + this.fieldTypes;
+        return "composite index on fields " + this.encodings;
     }
 
     @Override
@@ -98,11 +98,11 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
         if (!super.equals(obj))
             return false;
         final CompositeIndexStorageInfo that = (CompositeIndexStorageInfo)obj;
-        return this.storageIds.equals(that.storageIds) && this.fieldTypes.equals(that.fieldTypes);
+        return this.storageIds.equals(that.storageIds) && this.encodings.equals(that.encodings);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.storageIds.hashCode() ^ this.fieldTypes.hashCode();
+        return super.hashCode() ^ this.storageIds.hashCode() ^ this.encodings.hashCode();
     }
 }

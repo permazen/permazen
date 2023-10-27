@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.util.ParseContext;
 
@@ -27,7 +27,7 @@ public class JCompositeIndex extends JSchemaObject {
     final Class<?> declaringType;
     final List<JSimpleField> jfields;
     final boolean unique;
-    final List<List<Object>> uniqueExcludes;    // note: these are core API values, sorted lexicographically by jfield.fieldType
+    final List<List<Object>> uniqueExcludes;    // note: these are core API values, sorted lexicographically by jfield.encoding
     final Comparator<List<Object>> uniqueComparator;
 
     /**
@@ -65,7 +65,7 @@ public class JCompositeIndex extends JSchemaObject {
                 final ArrayList<Object> values = new ArrayList<>(numFields);
                 for (JSimpleField jfield : this.jfields) {
                     try {
-                        values.add(jfield.fieldType.fromParseableString(ctx));
+                        values.add(jfield.encoding.fromParseableString(ctx));
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException(
                           String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
@@ -82,7 +82,7 @@ public class JCompositeIndex extends JSchemaObject {
             // Build value list comparator
             Comparator<List<Object>> comparator = null;
             for (int i = 0; i < this.jfields.size(); i++)
-                comparator = this.addFieldComparator(comparator, i, this.jfields.get(i).fieldType);
+                comparator = this.addFieldComparator(comparator, i, this.jfields.get(i).encoding);
             this.uniqueComparator = comparator;
 
             // Sort excluded values
@@ -94,11 +94,11 @@ public class JCompositeIndex extends JSchemaObject {
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> Comparator<List<Object>> addFieldComparator(Comparator<List<Object>> comparator, int i, FieldType<T> fieldType) {
+    private <T> Comparator<List<Object>> addFieldComparator(Comparator<List<Object>> comparator, int i, Encoding<T> encoding) {
         assert (comparator == null) == (i == 0);
-        final Function<List<Object>, T> valueExtractor = list -> fieldType.validate(list.get(i));
+        final Function<List<Object>, T> valueExtractor = list -> encoding.validate(list.get(i));
         return comparator != null ?
-          comparator.thenComparing(valueExtractor, fieldType) : Comparator.comparing(valueExtractor, fieldType);
+          comparator.thenComparing(valueExtractor, encoding) : Comparator.comparing(valueExtractor, encoding);
     }
 
 // Public API

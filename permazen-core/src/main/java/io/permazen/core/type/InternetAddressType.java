@@ -15,14 +15,14 @@ import jakarta.mail.internet.InternetAddress;
 import java.io.Serializable;
 
 /**
- * {@link InternetAddress} email address field type.
+ * {@link InternetAddress} email address encoding.
  *
  * <p>
  * Null values are supported by this class.
  *
  * <p>
  * <b>Note:</b> the method {@link InternetAddress#equals InternetAddress.equals()} performs a case-insensitive
- * comparison of email addresses, ignoring the personal name, whereas this field type distinguishes instances
+ * comparison of email addresses, ignoring the personal name, whereas this encoding distinguishes instances
  * that are not exactly equal.
  */
 public class InternetAddressType extends StringEncodedType<InternetAddress> {

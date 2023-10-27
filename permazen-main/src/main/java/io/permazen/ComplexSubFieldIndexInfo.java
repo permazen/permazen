@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 
 /**
  * Represents an index on a sub-field of a complex field.
@@ -46,7 +46,7 @@ abstract class ComplexSubFieldIndexInfo extends SimpleFieldIndexInfo {
      * @param fields fields to follow in the reference path
      */
     public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx, ObjId id, int fieldIndex, int[] fields) {
-        assert this.getFieldType() instanceof ReferenceFieldType;
+        assert this.getEncoding() instanceof ReferenceEncoding;
         for (Object obj : this.iterateReferences(srcTx.tx, id)) {
             if (obj != null)
                 srcTx.copyTo(copyState, dstTx, (ObjId)obj, false, fieldIndex, fields);

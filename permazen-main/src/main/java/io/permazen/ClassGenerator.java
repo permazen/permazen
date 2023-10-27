@@ -332,7 +332,7 @@ class ClassGenerator<T> {
                 if (fieldName.equals(lastFieldName))
                     continue;
                 final FieldVisitor flagsField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT,
-                  fieldName, Type.getDescriptor(this.getCachedFlagFieldType(i)), null, null);
+                  fieldName, Type.getDescriptor(this.getCachedFlagEncoding(i)), null, null);
                 flagsField.visitEnd();
                 lastFieldName = fieldName;
             }
@@ -439,7 +439,7 @@ class ClassGenerator<T> {
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
                 mv.visitInsn(Opcodes.ICONST_0);
                 mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(),
-                  fieldName, Type.getDescriptor(this.getCachedFlagFieldType(i)));
+                  fieldName, Type.getDescriptor(this.getCachedFlagEncoding(i)));
                 lastFieldName = fieldName;
             }
         }
@@ -624,11 +624,11 @@ class ClassGenerator<T> {
         return 1 << (this.getCachedFlagIndex(jfield) % 32);
     }
 
-    Class<?> getCachedFlagFieldType(JSimpleField jfield) {
-        return this.getCachedFlagFieldType(this.getCachedFlagIndex(jfield));
+    Class<?> getCachedFlagEncoding(JSimpleField jfield) {
+        return this.getCachedFlagEncoding(this.getCachedFlagIndex(jfield));
     }
 
-    private Class<?> getCachedFlagFieldType(int simpleFieldIndex) {
+    private Class<?> getCachedFlagEncoding(int simpleFieldIndex) {
         final int numSimpleFields = this.jclass.simpleFieldStorageIds.length;
         Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < numSimpleFields);
         if (simpleFieldIndex / 32 < numSimpleFields / 32)

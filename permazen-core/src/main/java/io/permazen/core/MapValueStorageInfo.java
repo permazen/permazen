@@ -13,16 +13,16 @@ import java.util.function.Predicate;
 
 class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K, V>> {
 
-    final FieldType<K> keyFieldType;
+    final Encoding<K> keyEncoding;
 
     MapValueStorageInfo(MapField<K, V> field) {
         super(field.valueField, field);
-        this.keyFieldType = field.keyField.fieldType.genericizeForIndex();
+        this.keyEncoding = field.keyField.encoding.genericizeForIndex();
     }
 
     CoreIndex2<V, ObjId, K> getValueIndex(Transaction tx) {
         return new CoreIndex2<>(tx.kvt,
-          new Index2View<>(this.storageId, this.fieldType, Encodings.OBJ_ID, this.keyFieldType));
+          new Index2View<>(this.storageId, this.encoding, Encodings.OBJ_ID, this.keyEncoding));
     }
 
     @Override
@@ -32,12 +32,12 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
 
     @Override
     void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        final FieldTypeMap<?, ?> fieldMap
-          = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.parentRepresentative.storageId, false);
+        final EncodingMap<?, ?> fieldMap
+          = (EncodingMap<?, ?>)tx.readMapField(referrer, this.parentRepresentative.storageId, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
             final ByteReader reader = new ByteReader(i.next().getKey());
             reader.skip(prefix.length);
-            fieldMap.remove(fieldMap.keyFieldType.read(reader));
+            fieldMap.remove(fieldMap.keyEncoding.read(reader));
         }
     }
 
@@ -53,7 +53,7 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
 
     @Override
     public String toString() {
-        return "map value field with " + this.fieldType;
+        return "map value field with " + this.encoding;
     }
 
     @Override
@@ -63,11 +63,11 @@ class MapValueStorageInfo<K, V> extends ComplexSubFieldStorageInfo<V, MapField<K
         if (!super.equals(obj))
             return false;
         final MapValueStorageInfo<?, ?> that = (MapValueStorageInfo<?, ?>)obj;
-        return this.keyFieldType.equals(that.keyFieldType);
+        return this.keyEncoding.equals(that.keyEncoding);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.keyFieldType.hashCode();
+        return super.hashCode() ^ this.keyEncoding.hashCode();
     }
 }

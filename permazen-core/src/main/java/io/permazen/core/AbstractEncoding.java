@@ -12,15 +12,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Support superclass for {@link FieldType} implementations.
+ * Support superclass for {@link Encoding} implementations.
  *
  * <p>
  * Instances are {@link Serializable} if their default values are (typically the default value is null, making this the case).
  *
  * @param <T> The associated Java type
- * @see FieldTypeRegistry
+ * @see EncodingRegistry
  */
-public abstract class AbstractFieldType<T> implements FieldType<T>, Serializable {
+public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     private static final long serialVersionUID = 917908384411157979L;
 
@@ -38,11 +38,11 @@ public abstract class AbstractFieldType<T> implements FieldType<T>, Serializable
      *
      * @param encodingId encoding ID, or null to be anonymous
      * @param typeToken Java type for the field's values
-     * @param defaultValue default value for this type
+     * @param defaultValue default value for this encoding
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      */
-    protected AbstractFieldType(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue) {
+    protected AbstractEncoding(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue) {
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.encodingId = encodingId;
         this.typeToken = typeToken;
@@ -75,7 +75,7 @@ public abstract class AbstractFieldType<T> implements FieldType<T>, Serializable
             description = "anonymous";
         else if ((description = this.encodingId.getId()).startsWith(EncodingIds.PERMAZEN_PREFIX))
             description = "\"" + description.substring(EncodingIds.PERMAZEN_PREFIX.length()) + "\"";
-        return "field type " + description + " <" + this.typeToken + ">";
+        return "encoding " + description + " <" + this.typeToken + ">";
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class AbstractFieldType<T> implements FieldType<T>, Serializable
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final AbstractFieldType<?> that = (AbstractFieldType<?>)obj;
+        final AbstractEncoding<?> that = (AbstractEncoding<?>)obj;
         return Objects.equals(this.encodingId, that.encodingId)
           && this.typeToken.equals(that.typeToken);
     }

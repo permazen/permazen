@@ -20,12 +20,12 @@ import io.permazen.core.Database;
 import io.permazen.schema.SchemaModel;
 import io.permazen.PermazenFactory;
 import io.permazen.core.Database;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.spring.PermazenClassScanner;
-import io.permazen.spring.PermazenFieldTypeScanner;
+import io.permazen.spring.PermazenEncodingScanner;
 import io.permazen.util.ApplicationClassLoader;
 
 import java.io.BufferedInputStream;

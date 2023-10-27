@@ -5,7 +5,7 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.type.UnsignedIntType;
 import io.permazen.util.ByteReader;
@@ -42,7 +42,7 @@ abstract class Index extends Storage {
      *
      * @throws IllegalArgumentException if field does not have the expected value
      */
-    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, FieldType<?> type, byte[] expectedValue) {
+    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, Encoding<?> type, byte[] expectedValue) {
 
         // If we are repairing, the key/value store will contain any corrections by this point, so it's safe to read the field
         if (info.getConfig().isRepair()) {
@@ -62,7 +62,7 @@ abstract class Index extends Storage {
     }
 
     @Override
-    protected <T> byte[] validateEncodedBytes(ByteReader reader, FieldType<T> type) {
+    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> type) {
         try {
             return super.validateEncodedBytes(reader, type);
         } catch (IllegalArgumentException e) {

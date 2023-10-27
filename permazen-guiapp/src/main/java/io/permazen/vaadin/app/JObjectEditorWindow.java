@@ -40,7 +40,7 @@ import io.permazen.JSetField;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
 import io.permazen.ValidationException;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.util.ObjIdMap;
@@ -263,7 +263,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
                 field.setWidth("100%");
                 field.setNullSettingAllowed(false);
                 field.setConverter(new SimpleFieldConverter<Long>(JObjectEditorWindow.this.jclass.getPermazen()
-                  .getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(long.class))));
+                  .getDatabase().getEncodingRegistry().getEncoding(TypeToken.of(long.class))));
                 return field;
             }
             @Override
@@ -318,8 +318,8 @@ public class JObjectEditorWindow extends ConfirmWindow {
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(FieldType<T> fieldType) {
-        return new SimpleFieldConverter<>(fieldType);
+    private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(Encoding<T> encoding) {
+        return new SimpleFieldConverter<>(encoding);
     }
 
     private String buildCaption(String fieldName, boolean includeColon) {

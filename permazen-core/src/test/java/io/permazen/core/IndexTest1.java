@@ -222,11 +222,11 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     @SuppressWarnings("unchecked")
     private <T extends Comparable<T>> void verifyValues(Transaction tx, int storageId, Class<?> type0, int max, Object[] values) {
-        final FieldType<T> fieldType = ((SimpleField<T>)tx.getSchema().getObjType(1).getField(storageId)).getFieldType();
+        final Encoding<T> encoding = ((SimpleField<T>)tx.getSchema().getObjType(1).getField(storageId)).getEncoding();
         final Class<T> type = (Class<T>)type0;
         final ArrayList<T> actual = new ArrayList<>((NavigableSet<T>)tx.queryIndex(storageId).asMap().navigableKeySet());
         final ArrayList<T> sorted = new ArrayList<>(actual);
-        Collections.sort(sorted, fieldType);
+        Collections.sort(sorted, encoding);
         Assert.assertEquals(actual, sorted, "actual = " + actual + ", sorted = " + sorted);
         final ArrayList<T> expected = new ArrayList<>();
         int count = 0;
@@ -235,7 +235,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                 break;
             expected.add(type.cast(value));
         }
-        Collections.sort(expected, fieldType);
+        Collections.sort(expected, encoding);
         Assert.assertEquals(actual, expected, "actual = " + actual + ", expected = " + expected);
     }
 

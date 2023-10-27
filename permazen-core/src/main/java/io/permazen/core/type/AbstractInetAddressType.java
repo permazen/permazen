@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
 /**
  * Support superclass for {@link InetAddress} types. Null values are not supported by this class.
  */
-abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullFieldType<T> {
+abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullEncoding<T> {
 
     private static final long serialVersionUID = -3778250973615531382L;
 
@@ -35,7 +35,7 @@ abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullFie
         this.pattern = pattern;
     }
 
-// FieldType
+// Encoding
 
     @Override
     public T read(ByteReader reader) {

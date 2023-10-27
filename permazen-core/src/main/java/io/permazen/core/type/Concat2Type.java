@@ -7,29 +7,29 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
-abstract class Concat2Type<T, S1, S2> extends NonNullFieldType<T> {
+abstract class Concat2Type<T, S1, S2> extends NonNullEncoding<T> {
 
     private static final long serialVersionUID = -7395218884659436172L;
 
-    protected final FieldType<S1> type1;
-    protected final FieldType<S2> type2;
+    protected final Encoding<S1> type1;
+    protected final Encoding<S2> type2;
 
-    protected Concat2Type(EncodingId encodingId, Class<T> type, T defaultValue, FieldType<S1> type1, FieldType<S2> type2) {
+    protected Concat2Type(EncodingId encodingId, Class<T> type, T defaultValue, Encoding<S1> type1, Encoding<S2> type2) {
        super(encodingId, type, defaultValue);
        this.type1 = type1;
        this.type2 = type2;
     }
 
-    protected Concat2Type(EncodingId encodingId, Class<T> type, FieldType<S1> type1, FieldType<S2> type2) {
+    protected Concat2Type(EncodingId encodingId, Class<T> type, Encoding<S1> type1, Encoding<S2> type2) {
        this(encodingId, type, null, type1, type2);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public T read(ByteReader reader) {

@@ -7,8 +7,8 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.DefaultFieldTypeRegistry;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.core.Layout;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaModel;
@@ -24,7 +24,7 @@ public class JsckConfig {
 
     private JsckLogger logger = JsckLogger.wrap(LoggerFactory.getLogger(this.getClass()));
     private KeyRanges keysToInspect;
-    private FieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
+    private EncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
     private boolean garbageCollectSchemas;
     private Map<Integer, SchemaModel> forceSchemaVersions;
     private int forceFormatVersion;
@@ -54,22 +54,22 @@ public class JsckConfig {
     }
 
     /**
-     * Get the {@link FieldTypeRegistry} used to interpret field type names in recorded schemas.
+     * Get the {@link EncodingRegistry} used to interpret encoding names in recorded schemas.
      *
      * <p>
-     * Any custom field types used to encode fields in the database must be included in a configured {@link FieldTypeRegistry}.
+     * Any custom encodings used to encode fields in the database must be included in a configured {@link EncodingRegistry}.
      *
      * <p>
-     * Default is {@code new FieldTypeRegistry()}.
+     * Default is {@code new EncodingRegistry()}.
      *
-     * @return registry of field types
+     * @return registry of encodings
      */
-    public FieldTypeRegistry getFieldTypeRegistry() {
-        return this.fieldTypeRegistry;
+    public EncodingRegistry getEncodingRegistry() {
+        return this.encodingRegistry;
     }
-    public void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
-        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
-        this.fieldTypeRegistry = fieldTypeRegistry;
+    public void setEncodingRegistry(EncodingRegistry encodingRegistry) {
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
+        this.encodingRegistry = encodingRegistry;
     }
 
     /**

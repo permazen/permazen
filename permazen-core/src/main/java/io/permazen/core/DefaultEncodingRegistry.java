@@ -17,7 +17,7 @@ import io.permazen.core.type.CharacterArrayType;
 import io.permazen.core.type.DateType;
 import io.permazen.core.type.DoubleArrayType;
 import io.permazen.core.type.DurationType;
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 import io.permazen.core.type.FileType;
 import io.permazen.core.type.FloatArrayType;
 import io.permazen.core.type.Inet4AddressType;
@@ -55,33 +55,43 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
- * Permazen's default {@link FieldTypeRegistry}.
+ * Permazen's default {@link EncodingRegistry}.
  *
  * <p>
- * Instances automatically register all of Permazen's built-in {@link FieldType}s (see below).
+ * Instances automatically register all of Permazen's built-in {@link Encoding}s (see below).
  *
  * <p><b>Array Types</b></p>
  *
  * <p>
- * Because this class is a subclass of {@link SimpleFieldTypeRegistry}, array types are created
- * on demand so they don't need to be explicitly registered.
+ * Because this class is a subclass of {@link SimpleEncodingRegistry}, encodings for array types
+ * are created on demand, so they don't need to be explicitly registered.
  *
- * <p><b>Custom Types</b></p>
- *
- * <p>
- * When constructed, instances scan the class path for custom {@link FieldTypeRegistry} implementations
- * and will delegate to them when an encoding is not found. If multiple custom {@link FieldTypeRegistry}
- * implementations advertise the same encoding, one will be chosen arbitrarily.
+ * <p><b>Enum Types</b></p>
  *
  * <p>
- * Custom {@link FieldTypeRegistry} implemenations are specified via
- * {@code META-INF/services/io.permazen.core.FieldTypeRegistry} files or by module exports; see {@link ServiceLoader}.
+ * Encodings for {@link Enum} types are not registered in an {@link EncodingRegistry}. Instead, {@link Enum}
+ * values are represented as {@link EnumValue} instances, and {@link Enum} fields are specially defined
+ * in the schema with an explicit identifier list. {@link EnumValue}'s are encoded by {@link EnumValueEncoding}.
+ *
+ * <p><b>Custom Encodings</b></p>
+ *
+ * <p>
+ * During construction, instances scan the class path for custom {@link EncodingRegistry} implementations
+ * and will delegate to them when an encoding is not found.
+ *
+ * <p>
+ * If multiple custom {@link EncodingRegistry} implementations advertise the same encoding, one will be
+ * chosen arbitrarily.
+ *
+ * <p>
+ * Custom {@link EncodingRegistry} implemenations are specified via
+ * {@code META-INF/services/io.permazen.core.EncodingRegistry} files or by module exports; see {@link ServiceLoader}.
  * Custom implementations are only queried for non-array types.
  *
- * <p><b>Built-in Types</b></p>
+ * <p><b>Built-in Encodings</b></p>
  *
  * <p>
- * Permazen's built-in {@link FieldType}s cover the following Java types:
+ * Permazen provides built-in {@link Encoding}s covering the following Java types:
  * <ul>
  *  <li>Primitive types ({@code boolean}, {@code int}, etc.)</li>
  *  <li>Primitive array types ({@link boolean[]}, {@link int[]}, etc.)</li>
@@ -101,34 +111,30 @@ import java.util.stream.Collectors;
  *  <li>{@link java.time java.time.*}</li>
  *  <li>{@link jakarta.mail.internet.InternetAddress} (if present on the classpath)</li>
  * </ul>
- *
- * <p>
- * {@link Enum} types are not directly handled in the core API layer; instead, the appropriate
- * {@link EnumValueFieldType} encodes enum values as {@link EnumValue}s.
  */
-public class DefaultFieldTypeRegistry extends SimpleFieldTypeRegistry {
+public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
 
-    protected final ArrayList<FieldTypeRegistry> customFieldTypeRegistries = new ArrayList<>();
+    protected final ArrayList<EncodingRegistry> customEncodingRegistries = new ArrayList<>();
 
 // Constructor
 
-    public DefaultFieldTypeRegistry() {
-        this.addBuiltinFieldTypes();
-        this.findCustomFieldTypeRegistries();
-//        System.out.println("TYPES BY ID:");
-//        new java.util.TreeMap<>(this.typesById).forEach((k, v) -> System.out.println(String.format("    %-40s -> %s", k, v)));
-//        System.out.println("TYPES BY TYPETOKEN:");
-//        this.typesByType.forEach((k, v) -> System.out.println(String.format("%50s -> %s", k, v)));
+    public DefaultEncodingRegistry() {
+        this.addBuiltinEncodings();
+        this.findCustomEncodingRegistries();
+//        System.out.println("ENCODINGS BY ID:");
+//        new java.util.TreeMap<>(this.byId).forEach((k, v) -> System.out.println(String.format("    %-40s -> %s", k, v)));
+//        System.out.println("ENCODINGS BY TYPETOKEN:");
+//        this.byType.forEach((k, v) -> System.out.println(String.format("%50s -> %s", k, v)));
 //        System.out.println("CUSTOM REGISTRIES:");
-//        this.customFieldTypeRegistries.forEach(r -> System.out.println("    " + r));
+//        this.customEncodingRegistries.forEach(r -> System.out.println("    " + r));
     }
 
-// FieldTypeRegistry
+// EncodingRegistry
 
     @Override
     public EncodingId idForAlias(String alias) {
         Preconditions.checkArgument(alias != null, "null alias");
-        if (alias.indexOf(':') == -1)                    // a very basic filter
+        if (EncodingIds.isValidBuiltinSuffix(alias))
             return EncodingIds.builtin(alias);
         return new EncodingId(alias);
     }
@@ -140,51 +146,52 @@ public class DefaultFieldTypeRegistry extends SimpleFieldTypeRegistry {
         return Optional.of(id)
           .filter(s -> s.startsWith(EncodingIds.PERMAZEN_PREFIX))
           .map(s -> s.substring(EncodingIds.PERMAZEN_PREFIX.length()))
+          .filter(EncodingIds::isValidBuiltinSuffix)
           .orElse(id);
     }
 
     @Override
-    public synchronized FieldType<?> getFieldType(EncodingId encodingId) {
+    public synchronized Encoding<?> getEncoding(EncodingId encodingId) {
 
         // See if we have it
-        FieldType<?> fieldType = super.getFieldType(encodingId);
-        if (fieldType != null)
-            return fieldType;
+        Encoding<?> encoding = super.getEncoding(encodingId);
+        if (encoding != null)
+            return encoding;
 
         // Try custom registries
-        fieldType = this.customFieldTypeRegistries.stream()
-          .map(registry -> registry.getFieldType(encodingId))
+        encoding = this.customEncodingRegistries.stream()
+          .map(registry -> registry.getEncoding(encodingId))
           .findFirst()
           .orElse(null);
-        if (fieldType != null)
-            this.register(encodingId, fieldType);
+        if (encoding != null)
+            this.register(encodingId, encoding);
 
         // Done
-        return fieldType;
+        return encoding;
     }
 
     @Override
-    public synchronized <T> List<FieldType<T>> getFieldTypes(TypeToken<T> typeToken) {
+    public synchronized <T> List<Encoding<T>> getEncodings(TypeToken<T> typeToken) {
 
         // See if we have it
-        List<FieldType<T>> fieldTypeList = super.getFieldTypes(typeToken);
-        if (!fieldTypeList.isEmpty())
-            return fieldTypeList;
+        List<Encoding<T>> encodingList = super.getEncodings(typeToken);
+        if (!encodingList.isEmpty())
+            return encodingList;
 
         // Try custom registries
-        return this.customFieldTypeRegistries.stream()
-          .map(registry -> registry.getFieldTypes(typeToken))
+        return this.customEncodingRegistries.stream()
+          .map(registry -> registry.getEncodings(typeToken))
           .flatMap(List::stream)
-          .peek(fieldType -> this.register(fieldType.getEncodingId(), fieldType))
+          .peek(encoding -> this.register(encoding.getEncodingId(), encoding))
           .collect(Collectors.toList());
     }
 
 // Internal Methods
 
     /**
-     * Register Permazen's built-in types.
+     * Register Permazen's built-in encodings.
      */
-    protected void addBuiltinFieldTypes() {
+    protected void addBuiltinEncodings() {
 
         // Primitive types
         this.add(Encodings.BOOLEAN);
@@ -267,10 +274,10 @@ public class DefaultFieldTypeRegistry extends SimpleFieldTypeRegistry {
 
     /**
      * Scan the class path (via {@link ServiceLoader} and the current thread's context class loader)
-     * for custom {@link FieldTypeRegistry} implementations
+     * for custom {@link EncodingRegistry} implementations
      */
-    protected void findCustomFieldTypeRegistries() {
-        for (Iterator<FieldTypeRegistry> i = ServiceLoader.load(FieldTypeRegistry.class).iterator(); i.hasNext(); )
-            this.customFieldTypeRegistries.add(i.next());
+    protected void findCustomEncodingRegistries() {
+        for (Iterator<EncodingRegistry> i = ServiceLoader.load(EncodingRegistry.class).iterator(); i.hasNext(); )
+            this.customEncodingRegistries.add(i.next());
     }
 }

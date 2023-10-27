@@ -5,11 +5,11 @@
 
 package io.permazen.cli;
 
-import io.permazen.cli.parse.FieldTypeParser;
+import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.Parser;
-import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
 import io.permazen.test.TestSupport;
 
 import java.util.List;
@@ -32,13 +32,13 @@ public class ParamParserTest extends TestSupport {
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
-                final DefaultFieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
-                final EncodingId encodingId = fieldTypeRegistry.idForAlias(typeName);
-                final FieldType<?> fieldType = new DefaultFieldTypeRegistry().getFieldType(encodingId);
-                return fieldType != null ? this.createFieldTypeParser(fieldType) : super.getParser(typeName);
+                final DefaultEncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
+                final EncodingId encodingId = encodingRegistry.idForAlias(typeName);
+                final Encoding<?> encoding = new DefaultEncodingRegistry().getEncoding(encodingId);
+                return encoding != null ? this.createEncodingParser(encoding) : super.getParser(typeName);
             }
-            private <T> FieldTypeParser<T> createFieldTypeParser(FieldType<T> fieldType) {
-                return new FieldTypeParser<>(fieldType);
+            private <T> EncodingParser<T> createEncodingParser(Encoding<T> encoding) {
+                return new EncodingParser<>(encoding);
             }
         };
         this.log.info("*** ParamParserTest: optionFlags={}", parser.getOptionFlags());

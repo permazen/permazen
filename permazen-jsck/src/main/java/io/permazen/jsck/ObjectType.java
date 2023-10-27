@@ -7,11 +7,11 @@ package io.permazen.jsck;
 
 import com.google.common.collect.PeekingIterator;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.EnumValueFieldType;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.kv.KVPair;
 import io.permazen.schema.CollectionSchemaField;
 import io.permazen.schema.ComplexSchemaField;
@@ -39,14 +39,14 @@ class ObjectType extends Storage {
     private final SchemaObjectType objType;
 
     // Derived info
-    private final HashMap<Integer, FieldType<?>> simpleFieldTypes = new HashMap<>();        // includes sub-fields
+    private final HashMap<Integer, Encoding<?>> simpleEncodings = new HashMap<>();        // includes sub-fields
     private final HashSet<SimpleSchemaField> indexedSimpleFields = new HashSet<>();         // does not include sub-fields
 
     ObjectType(final JsckInfo info, final SchemaObjectType objType) {
         super(info, objType.getStorageId());
         this.objType = objType;
 
-        // Get FieldType's for each simple field
+        // Get Encoding's for each simple field
         for (SchemaField field : objType.getSchemaFields().values()) {
             field.visit(new SchemaFieldSwitch<Void>() {
                 @Override
@@ -62,18 +62,18 @@ class ObjectType extends Storage {
                 }
                 @Override
                 public Void caseSimpleSchemaField(SimpleSchemaField field) {
-                    final FieldType<?> fieldType = info.getConfig().getFieldTypeRegistry().getFieldType(field.getEncodingId());
-                    ObjectType.this.simpleFieldTypes.put(field.getStorageId(), fieldType);
+                    final Encoding<?> encoding = info.getConfig().getEncodingRegistry().getEncoding(field.getEncodingId());
+                    ObjectType.this.simpleEncodings.put(field.getStorageId(), encoding);
                     return null;
                 }
                 @Override
                 public Void caseEnumSchemaField(EnumSchemaField field) {
-                    ObjectType.this.simpleFieldTypes.put(field.getStorageId(), new EnumValueFieldType(field.getIdentifiers()));
+                    ObjectType.this.simpleEncodings.put(field.getStorageId(), new EnumValueEncoding(field.getIdentifiers()));
                     return null;
                 }
                 @Override
                 public Void caseReferenceSchemaField(ReferenceSchemaField field) {
-                    ObjectType.this.simpleFieldTypes.put(field.getStorageId(), new ReferenceFieldType(field.getObjectTypes()));
+                    ObjectType.this.simpleEncodings.put(field.getStorageId(), new ReferenceEncoding(field.getObjectTypes()));
                     return null;
                 }
                 @Override
@@ -193,8 +193,8 @@ class ObjectType extends Storage {
 
         // Verify index entries for indexed simple fields that had default values (which we would not have encountered)
         for (SimpleSchemaField field : indexedSimpleFieldsWithDefaultValues) {
-            final FieldType<?> fieldType = this.simpleFieldTypes.get(field.getStorageId());
-            final byte[] defaultValue = fieldType.getDefaultValue();
+            final Encoding<?> encoding = this.simpleEncodings.get(field.getStorageId());
+            final byte[] defaultValue = encoding.getDefaultValue();
             this.verifySimpleIndexEntry(info, id, field, defaultValue);
         }
 
@@ -209,9 +209,9 @@ class ObjectType extends Storage {
     // Returns field's byte[] value if field has non-default value, otherwise null
     private byte[] checkSimpleField(JsckInfo info, ObjId id, SimpleSchemaField field, byte[] prefix, PeekingIterator<KVPair> i) {
 
-        // Get field type
-        final FieldType<?> fieldType = this.simpleFieldTypes.get(field.getStorageId());
-        assert fieldType != null;
+        // Get encoding
+        final Encoding<?> encoding = this.simpleEncodings.get(field.getStorageId());
+        assert encoding != null;
 
         // Get field key/value pair
         final KVPair pair = i.next();
@@ -232,14 +232,14 @@ class ObjectType extends Storage {
             value = null;
 
         // We should not see default values in simple fields that are not sub-fields of complex fields
-        if (value != null && ByteUtil.compare(value, fieldType.getDefaultValue()) == 0) {
+        if (value != null && ByteUtil.compare(value, encoding.getDefaultValue()) == 0) {
             info.handle(new InvalidValue(pair).setDetail("default value; should not be present"));
             value = null;
         }
 
         // Verify index entry
         if (field.isIndexed())
-            this.verifySimpleIndexEntry(info, id, field, value != null ? value : fieldType.getDefaultValue());
+            this.verifySimpleIndexEntry(info, id, field, value != null ? value : encoding.getDefaultValue());
 
         // Done
         return value;
@@ -377,12 +377,12 @@ class ObjectType extends Storage {
     private boolean validateSimpleFieldValue(JsckInfo info, ObjId id, SimpleSchemaField field, KVPair pair, ByteReader reader) {
 
         // Verify field encoding
-        final FieldType<?> fieldType = this.simpleFieldTypes.get(field.getStorageId());
-        assert fieldType != null;
+        final Encoding<?> encoding = this.simpleEncodings.get(field.getStorageId());
+        assert encoding != null;
         try {
 
             // Decode value
-            final Object value = fieldType.read(reader);
+            final Object value = encoding.read(reader);
             if (reader.remain() > 0)
                 throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
 
@@ -390,7 +390,7 @@ class ObjectType extends Storage {
             if (value != null && field instanceof ReferenceSchemaField) {
                 final ReferenceSchemaField referenceField = (ReferenceSchemaField)field;
                 if (!referenceField.isAllowDeleted()) {
-                    assert fieldType instanceof ReferenceFieldType;
+                    assert encoding instanceof ReferenceEncoding;
                     final ObjId target = (ObjId)value;
                     if (info.getKVStore().get(target.getBytes()) == null)
                         throw new IllegalArgumentException("invalid reference to deleted object " + target);
@@ -441,7 +441,7 @@ class ObjectType extends Storage {
             // Get the field's value
             byte[] value = simpleFieldValues.get(storageId);
             if (value == null)
-                value = this.simpleFieldTypes.get(storageId).getDefaultValue();
+                value = this.simpleEncodings.get(storageId).getDefaultValue();
 
             // Append to index entry
             writer.write(value);

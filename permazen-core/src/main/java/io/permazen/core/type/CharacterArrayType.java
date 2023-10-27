@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.Encodings;
-import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -79,7 +79,7 @@ public class CharacterArrayType extends ArrayType<char[], Character> {
 // Conversion
 
     @Override
-    public <S> char[] convert(FieldType<S> type, S value) {
+    public <S> char[] convert(Encoding<S> type, S value) {
 
         // Special case for String
         if (value instanceof String)

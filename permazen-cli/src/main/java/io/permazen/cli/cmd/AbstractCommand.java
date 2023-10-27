@@ -10,11 +10,11 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.ParamParser;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
-import io.permazen.cli.parse.FieldTypeParser;
+import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.ObjIdParser;
 import io.permazen.cli.parse.ObjTypeParser;
 import io.permazen.cli.parse.Parser;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 
 import java.util.EnumSet;
@@ -161,7 +161,7 @@ public abstract class AbstractCommand implements Command {
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.
      *
      * <p>
-     * The implementation in {@link AbstractCommand} supports all {@link FieldType}s registered with the
+     * The implementation in {@link AbstractCommand} supports all {@link Encoding}s registered with the
      * database, plus:
      * <ul>
      *  <li>{@code type} for an object type name (returns {@link Integer})</li>
@@ -177,6 +177,6 @@ public abstract class AbstractCommand implements Command {
             return new ObjTypeParser();
         if (typeName.equals("objid"))
             return new ObjIdParser();
-        return FieldTypeParser.getFieldTypeParser(typeName);
+        return EncodingParser.getEncodingParser(typeName);
     }
 }

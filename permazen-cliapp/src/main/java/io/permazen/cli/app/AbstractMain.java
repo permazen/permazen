@@ -9,13 +9,13 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.PermazenFactory;
 import io.permazen.core.Database;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.Encoding;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.spring.PermazenClassScanner;
-import io.permazen.spring.PermazenFieldTypeScanner;
+import io.permazen.spring.PermazenEncodingScanner;
 import io.permazen.util.ApplicationClassLoader;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public abstract class AbstractMain {
     // Schema
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
-    protected FieldTypeRegistry fieldTypeRegistry;
+    protected EncodingRegistry encodingRegistry;
     protected boolean allowNewSchema;
 
     // Key/value database
@@ -137,7 +137,7 @@ public abstract class AbstractMain {
 
         // Parse options supported by this class
         final LinkedHashSet<String> modelPackages = new LinkedHashSet<>();
-        String fieldTypeRegistryClass = null;
+        String encodingRegistryClass = null;
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
             final String option = params.removeFirst();
             if (option.equals("-h") || option.equals("--help")) {
@@ -170,7 +170,7 @@ public abstract class AbstractMain {
             } else if (option.equals("--encodings")) {
                 if (params.isEmpty())
                     this.usageError();
-                fieldTypeRegistryClass = params.removeFirst();
+                encodingRegistryClass = params.removeFirst();
             } else if (option.equals("-p") || option.equals("--pkg")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -246,14 +246,14 @@ public abstract class AbstractMain {
         for (String packageName : emptyPackages)
             this.log.warn("no Java model classes found under package `{}'", packageName);
 
-        // Instantiate custom FieldTypeRegistry
-        if (fieldTypeRegistryClass != null) {
+        // Instantiate custom EncodingRegistry
+        if (encodingRegistryClass != null) {
             try {
-                this.fieldTypeRegistry = Class.forName(fieldTypeRegistryClass,
+                this.encodingRegistry = Class.forName(encodingRegistryClass,
                        false, Thread.currentThread().getContextClassLoader())
-                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+                      .asSubclass(EncodingRegistry.class).getConstructor().newInstance();
             } catch (Exception e) {
-                throw new IllegalArgumentException("error instantiating class \"" + fieldTypeRegistryClass + "\"", e);
+                throw new IllegalArgumentException("error instantiating class \"" + encodingRegistryClass + "\"", e);
             }
         }
 
@@ -405,9 +405,9 @@ public abstract class AbstractMain {
         // Construct core API Database
         final Database db = new Database(this.kvdb);
 
-        // Register custom FieldTypeRegistry
-        if (this.fieldTypeRegistry != null)
-            db.setFieldTypeRegistry(this.fieldTypeRegistry);
+        // Register custom EncodingRegistry
+        if (this.encodingRegistry != null)
+            db.setEncodingRegistry(this.encodingRegistry);
 
         // Done
         return db;
@@ -439,7 +439,7 @@ public abstract class AbstractMain {
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--schema-version, -v num",       "Specify schema version (default highest recorded; `auto' to auto-generate)" },
             { "--model-pkg package",            "Scan for @PermazenType model classes under Java package (=> Permazen mode)" },
-            { "--encodings classname",          "Specify a custom FieldTypeRegistry to provide field encodings" },
+            { "--encodings classname",          "Specify a custom EncodingRegistry to provide field encodings" },
             { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },
             { "--help, -h",                     "Show this help message" },
             { "--verbose",                      "Show verbose error messages" },

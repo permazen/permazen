@@ -104,7 +104,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @Override
     public String toString() {
         return "map field \"" + this.name + "\" containing key "
-          + this.keyField.fieldType + " and value " + this.valueField.fieldType;
+          + this.keyField.encoding + " and value " + this.valueField.encoding;
     }
 
     @Override
@@ -145,7 +145,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
-        final FieldType<K> keyFieldType = this.keyField.fieldType;
+        final Encoding<K> keyEncoding = this.keyField.encoding;
         final NavigableMap<K, V> src = this.getValue(srcTx, srcId);
         final NavigableMap<K, V> dst = this.getValue(dstTx, dstId);
         try (CloseableIterator<Map.Entry<K, V>> si = CloseableIterator.wrap(src.entrySet().iterator());
@@ -167,7 +167,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
                 Map.Entry<K, V> s = si.next();
                 Map.Entry<K, V> d = di.next();
                 while (true) {
-                    final int diff = keyFieldType.compare(s.getKey(), d.getKey());
+                    final int diff = keyEncoding.compare(s.getKey(), d.getKey());
                     boolean sadvance = true;
                     boolean dadvance = true;
                     if (diff < 0) {

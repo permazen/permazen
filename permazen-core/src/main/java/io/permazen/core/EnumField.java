@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 
 import java.util.List;
 
@@ -31,17 +31,17 @@ public class EnumField extends SimpleField<EnumValue> {
      * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier
      */
     EnumField(String name, int storageId, Schema schema, boolean indexed, List<String> idents) {
-        super(name, storageId, schema, new EnumValueFieldType(idents), indexed);
+        super(name, storageId, schema, new EnumValueEncoding(idents), indexed);
     }
 
 // Public methods
 
     /**
-     * Get the {@link EnumValueFieldType} associated with this instance.
+     * Get the {@link EnumValueEncoding} associated with this instance.
      */
     @Override
-    public EnumValueFieldType getFieldType() {
-        return (EnumValueFieldType)super.getFieldType();
+    public EnumValueEncoding getEncoding() {
+        return (EnumValueEncoding)super.getEncoding();
     }
 
     @Override

@@ -47,7 +47,7 @@ public class OffsetTimeType extends Concat2Type<OffsetTime, Long, ZoneOffset> {
         return value.getOffset();
     }
 
-// FieldType
+// Encoding
 
     @Override
     public OffsetTime fromParseableString(ParseContext ctx) {

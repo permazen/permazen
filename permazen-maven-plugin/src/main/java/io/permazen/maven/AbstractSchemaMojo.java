@@ -11,8 +11,8 @@ import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.core.DefaultFieldTypeRegistry;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -73,22 +73,22 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
      * <p>
-     * The {@link FieldTypeRegistry} to use for looking up field encodings.
-     * By default, a {@link DefaultFieldTypeRegistry} is used.
+     * The {@link EncodingRegistry} to use for looking up field encodings.
+     * By default, a {@link DefaultEncodingRegistry} is used.
      *
      * <p>
-     * To configure a custom {@link FieldTypeRegistry}, specify its class name like this:
+     * To configure a custom {@link EncodingRegistry}, specify its class name like this:
      * <blockquote><pre>
      * &lt;configuration&gt;
-     *     &lt;fieldTypeRegistryClass&gt;com.example.MyFieldTypeRegistry&lt;/fieldTypeRegistryClass&gt;
+     *     &lt;encodingRegistryClass&gt;com.example.MyEncodingRegistry&lt;/encodingRegistryClass&gt;
      *     ...
      * &lt;/configuration&gt;
      * </pre></blockquote>
-     * The specified class ({@code com.example.MyFieldTypeRegistry} in this example) must be available either
+     * The specified class ({@code com.example.MyEncodingRegistry} in this example) must be available either
      * as part of the project being built or in one of the project's dependencies.
      */
     @Parameter
-    protected String fieldTypeRegistryClass;
+    protected String encodingRegistryClass;
 
     /**
      * <p>
@@ -204,7 +204,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
               + classNames.toString().replaceAll("(^\\[|, )", "\n  "));
         }
 
-        // Gather model and field type classes
+        // Gather model and encoding classes
         this.getLog().debug(this.getClass().getSimpleName() + " classloader setup: "
           + urls.toString().replaceAll("(^\\[|, )", "\n  "));
         final ClassLoader parentLoader = Thread.currentThread().getContextClassLoader();
@@ -257,16 +257,16 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 }
             }
 
-            // Instantiate FieldTypeRegistry
-            FieldTypeRegistry fieldTypeRegistry = null;
-            if (fieldTypeRegistryClass != null) {
+            // Instantiate EncodingRegistry
+            EncodingRegistry encodingRegistry = null;
+            if (encodingRegistryClass != null) {
                 try {
-                    fieldTypeRegistry = Class.forName(this.fieldTypeRegistryClass, false,
+                    encodingRegistry = Class.forName(this.encodingRegistryClass, false,
                        Thread.currentThread().getContextClassLoader())
-                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+                      .asSubclass(EncodingRegistry.class).getConstructor().newInstance();
                 } catch (Exception e) {
-                    throw new MojoExecutionException("error instantiatiating the configured <fieldTypeRegistryClass> \""
-                      + fieldTypeRegistryClass + "\"", e);
+                    throw new MojoExecutionException("error instantiatiating the configured <encodingRegistryClass> \""
+                      + encodingRegistryClass + "\"", e);
                 }
             }
 
@@ -291,7 +291,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
-            factory.setFieldTypeRegistry(fieldTypeRegistry);
+            factory.setEncodingRegistry(encodingRegistry);
             factory.setStorageIdGenerator(storageIdGenerator);
             factory.setModelClasses(modelClasses);
 

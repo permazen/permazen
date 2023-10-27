@@ -80,7 +80,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
-        final FieldType<E> fieldType = this.elementField.fieldType;
+        final Encoding<E> encoding = this.elementField.encoding;
         final NavigableSet<E> src = this.getValue(srcTx, srcId);
         final NavigableSet<E> dst = this.getValue(dstTx, dstId);
         try (CloseableIterator<E> si = CloseableIterator.wrap(src.iterator());
@@ -101,7 +101,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
                 E s = si.next();
                 E d = di.next();
                 while (true) {
-                    final int diff = fieldType.compare(s, d);
+                    final int diff = encoding.compare(s, d);
                     boolean sadvance = true;
                     boolean dadvance = true;
                     if (diff < 0) {

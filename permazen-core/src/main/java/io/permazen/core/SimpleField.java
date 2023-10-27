@@ -19,7 +19,7 @@ import java.util.Map;
  * <p>
  * {@link SimpleField}s have these requirements and properties:
  * <ul>
- *  <li>They have an associated {@link FieldType} representing the domain of possible values</li>
+ *  <li>They have an associated {@link Encoding} representing the domain of possible values</li>
  *  <li>Theys can serve as the element sub-field for {@link SetField}s and {@link ListField}s,
  *      and the key and value sub-fields for {@link MapField}s.</li>
  *  <li>They can be indexed.</li>
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class SimpleField<T> extends Field<T> {
 
-    final FieldType<T> fieldType;
+    final Encoding<T> encoding;
     final boolean indexed;
 
     ComplexField<?> parent;
@@ -41,27 +41,27 @@ public class SimpleField<T> extends Field<T> {
      * @param name the name of the field
      * @param storageId field storage ID
      * @param schema schema version
-     * @param fieldType field type
+     * @param encoding encoding
      * @param indexed whether this field is indexed
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is zero or less
      */
-    SimpleField(String name, int storageId, Schema schema, FieldType<T> fieldType, boolean indexed) {
-        super(name, storageId, schema, fieldType.getTypeToken());
-        this.fieldType = fieldType;
+    SimpleField(String name, int storageId, Schema schema, Encoding<T> encoding, boolean indexed) {
+        super(name, storageId, schema, encoding.getTypeToken());
+        this.encoding = encoding;
         this.indexed = indexed;
     }
 
 // Public methods
 
     /**
-     * Get the {@link FieldType} associated with this field.
+     * Get the {@link Encoding} associated with this field.
      *
      * @return this field's type
      */
-    public FieldType<T> getFieldType() {
-        return this.fieldType;
+    public Encoding<T> getEncoding() {
+        return this.encoding;
     }
 
     /**
@@ -113,7 +113,7 @@ public class SimpleField<T> extends Field<T> {
 
     @Override
     public String toString() {
-        return (this.indexed ? "indexed " : "") + "field \"" + this.name + "\" of type " + this.fieldType.getTypeToken();
+        return (this.indexed ? "indexed " : "") + "field \"" + this.name + "\" of type " + this.encoding.getTypeToken();
     }
 
 // Non-public methods
@@ -152,14 +152,14 @@ public class SimpleField<T> extends Field<T> {
     byte[] encode(Object obj) {
         T value;
         try {
-            value = this.fieldType.validate(obj);
+            value = this.encoding.validate(obj);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can't set " + this + " to value " + obj + ": " + e.getMessage(), e);
         }
         final ByteWriter writer = new ByteWriter();
-        this.fieldType.write(writer, value);
+        this.encoding.write(writer, value);
         final byte[] result = writer.getBytes();
-        return Arrays.equals(result, this.fieldType.getDefaultValue()) ? null : result;
+        return Arrays.equals(result, this.encoding.getDefaultValue()) ? null : result;
     }
 
     @Override
@@ -167,6 +167,6 @@ public class SimpleField<T> extends Field<T> {
         if (field.getClass() != this.getClass())
             return false;
         final SimpleField<?> that = (SimpleField<?>)field;
-        return this.fieldType.equals(that.fieldType);
+        return this.encoding.equals(that.encoding);
     }
 }

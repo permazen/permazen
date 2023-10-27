@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 
 import java.lang.reflect.Method;
 
@@ -26,10 +26,10 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
 
     final Converter<A, B> converter;           // converts Java value -> Core API value in the forward direction
 
-    ConvertedJSimpleField(Permazen jdb, String name, int storageId, TypeToken<A> typeToken, FieldType<B> fieldType,
+    ConvertedJSimpleField(Permazen jdb, String name, int storageId, TypeToken<A> typeToken, Encoding<B> encoding,
       boolean indexed, io.permazen.annotation.JField annotation, String description, Method getter, Method setter,
       Converter<A, B> converter) {
-        super(jdb, name, storageId, typeToken, fieldType, indexed, annotation, description, getter, setter);
+        super(jdb, name, storageId, typeToken, encoding, indexed, annotation, description, getter, setter);
         Preconditions.checkArgument(converter != null, "null converter");
         this.converter = converter;
     }

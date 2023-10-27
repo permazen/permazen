@@ -8,7 +8,7 @@ package io.permazen.schema;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
@@ -189,7 +189,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * <p>
      * This performs some basic structural validation. Full validation is not possible without a
      * {@link Database} instance (for example, we don't know whether or not a custom
-     * {@link SimpleSchemaField} type name is registered with the associated {@link FieldTypeRegistry}).
+     * {@link SimpleSchemaField} type name is registered with the associated {@link EncodingRegistry}).
      *
      * <p>
      * Note that after this instance has been {@linkplain #lockDown locked down}, repeated invocations of this

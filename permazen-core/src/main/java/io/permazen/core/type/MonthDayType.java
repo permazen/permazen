@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via an {@link UnsignedIntEncoder}-encoded value {@code 32} times the
  * {@linkplain MonthDay#getMonthValue month value}{@code - 1}, plus the {@linkplain MonthDay#getDayOfMonth day of the month}.
  */
-public class MonthDayType extends NonNullFieldType<MonthDay> {
+public class MonthDayType extends NonNullEncoding<MonthDay> {
 
     private static final Pattern PATTERN = Pattern.compile("--[0-9]{2}-[0-9]{2}");
 
@@ -33,7 +33,7 @@ public class MonthDayType extends NonNullFieldType<MonthDay> {
         super(EncodingIds.builtin("MonthDay"), MonthDay.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public MonthDay read(ByteReader reader) {

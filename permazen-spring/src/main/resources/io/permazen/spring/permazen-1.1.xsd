@@ -55,10 +55,10 @@
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="field-type-registry" type="xsd:string" use="optional">
+                    <xsd:attribute name="encoding-registry" type="xsd:string" use="optional">
                         <xsd:annotation>
                             <xsd:documentation><![CDATA[
-            Bean name reference to a custom FieldTypeRegistry.
+            Bean name reference to a custom EncodingRegistry.
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>

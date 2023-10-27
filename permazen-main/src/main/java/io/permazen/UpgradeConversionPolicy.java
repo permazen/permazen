@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.DeleteAction;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 
 /**
  * Policies to apply when a simple or counter field's type changes during a schema update.
@@ -27,7 +27,7 @@ import io.permazen.core.FieldType;
  * converted into {@link String} field value {@code "1234"}.
  *
  * <p>
- * See {@link FieldType#convert} for details about conversions between simple field types. In addition,
+ * See {@link Encoding#convert} for details about conversions between simple encodings. In addition,
  * {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
  *
  * <p>
@@ -65,7 +65,7 @@ import io.permazen.core.FieldType;
  * Note that arbitrary conversion logic is always possible using {@link OnVersionChange &#64;OnVersionChange}.
  *
  * @see JField#upgradeConversion
- * @see FieldType#convert FieldType.convert()
+ * @see Encoding#convert Encoding.convert()
  */
 public enum UpgradeConversionPolicy {
 

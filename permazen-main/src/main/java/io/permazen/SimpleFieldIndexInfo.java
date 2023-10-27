@@ -7,7 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvider {
 
-    private final FieldType<?> fieldType;
+    private final Encoding<?> encoding;
     private final Class<? extends Enum<?>> enumType;                            // see below
     private final ConverterProvider converterProvider;
 
@@ -37,18 +37,18 @@ abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvid
     SimpleFieldIndexInfo(JSimpleField jfield) {
         super(jfield.storageId);
         assert jfield.indexed;
-        this.fieldType = jfield.fieldType.genericizeForIndex();
+        this.encoding = jfield.encoding.genericizeForIndex();
         this.enumType = jfield.getEnumType();
         this.converterProvider = ConverterProvider.identityForNull(jfield::getConverter);
     }
 
     /**
-     * Get associated {@link FieldType}.
+     * Get associated {@link Encoding}.
      *
-     * @return indexed {@link FieldType}
+     * @return indexed {@link Encoding}
      */
-    public FieldType<?> getFieldType() {
-        return this.fieldType;
+    public Encoding<?> getEncoding() {
+        return this.encoding;
     }
 
     /**
@@ -89,7 +89,7 @@ abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvid
         if (!super.equals(obj))
             return false;
         final SimpleFieldIndexInfo that = (SimpleFieldIndexInfo)obj;
-        return this.fieldType.equals(that.fieldType) && Objects.equals(this.enumType, that.enumType);
+        return this.encoding.equals(that.encoding) && Objects.equals(this.enumType, that.enumType);
     }
 
     @Override
@@ -100,12 +100,12 @@ abstract class SimpleFieldIndexInfo extends IndexInfo implements ConverterProvid
     protected String toStringPrefix() {
         return this.getClass().getSimpleName()
           + "[storageId=" + this.getStorageId()
-          + ",fieldType=" + this.getFieldType()
+          + ",encoding=" + this.getEncoding()
           + (this.enumType != null ? ",enumType=" + this.enumType : "");
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fieldType.hashCode() ^ Objects.hashCode(this.enumType);
+        return super.hashCode() ^ this.encoding.hashCode() ^ Objects.hashCode(this.enumType);
     }
 }

@@ -4,7 +4,7 @@
  */
 
 /**
- * Permazen {@link io.permazen.core.FieldType}s.
+ * Permazen {@link io.permazen.core.Encoding}s.
  *
  * @see io.permazen.core
  */

@@ -8,15 +8,15 @@ package io.permazen.core.type;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.tuple.Tuple2;
 
-public class Tuple2FieldType<V1, V2> extends TupleFieldType<Tuple2<V1, V2>> {
+public class Tuple2Encoding<V1, V2> extends TupleEncoding<Tuple2<V1, V2>> {
 
     private static final long serialVersionUID = 8336238765491523439L;
 
     @SuppressWarnings("serial")
-    public Tuple2FieldType(FieldType<V1> value1Type, FieldType<V2> value2Type) {
+    public Tuple2Encoding(Encoding<V1> value1Type, Encoding<V2> value2Type) {
         super(new TypeToken<Tuple2<V1, V2>>() { }
            .where(new TypeParameter<V1>() { }, value1Type.getTypeToken().wrap())
            .where(new TypeParameter<V2>() { }, value2Type.getTypeToken().wrap()),

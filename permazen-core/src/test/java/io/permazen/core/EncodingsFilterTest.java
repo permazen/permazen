@@ -24,11 +24,11 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class FieldTypesFilterTest extends CoreAPITestSupport {
+public class EncodingsFilterTest extends CoreAPITestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testFieldTypesFilter() throws Exception {
+    public void testEncodingsFilter() throws Exception {
 
         final SimpleKVDatabase kvdb = new SimpleKVDatabase();
         final Database db = new Database(kvdb);
@@ -49,7 +49,7 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
 
         final UnsignedIntType uintType = new UnsignedIntType();
 
-        final FieldTypesFilter filter1 = new FieldTypesFilter(b("aaaa"), uintType, uintType);
+        final EncodingsFilter filter1 = new EncodingsFilter(b("aaaa"), uintType, uintType);
         final KVPairIterator i1 = new KVPairIterator(kvt, KeyRange.forPrefix(b("aaaa04")), filter1, false);
         Assert.assertEquals(Lists.newArrayList(i1), Arrays.asList(
             kv("aaaa0401"),
@@ -57,7 +57,7 @@ public class FieldTypesFilterTest extends CoreAPITestSupport {
             kv("aaaa0404")
         ));
 
-        final FieldTypesFilter filter2 = filter1.filter(1, new KeyRanges(b("02"), b("04")));
+        final EncodingsFilter filter2 = filter1.filter(1, new KeyRanges(b("02"), b("04")));
         final KVPairIterator i2 = new KVPairIterator(kvt, KeyRange.forPrefix(b("aaaa04")), filter2, false);
         Assert.assertEquals(Lists.newArrayList(i2), Arrays.asList(
             kv("aaaa0402")

@@ -13,12 +13,12 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 
 /**
- * Non-null field type for encoding {@link ObjId}s. Null values are not supported by this class.
+ * Non-null encoding for encoding {@link ObjId}s. Null values are not supported by this class.
  *
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}.
  */
-public class ObjIdType extends NonNullFieldType<ObjId> {
+public class ObjIdType extends NonNullEncoding<ObjId> {
 
     private static final long serialVersionUID = 6921359865864012847L;
 
@@ -26,7 +26,7 @@ public class ObjIdType extends NonNullFieldType<ObjId> {
         super(null, ObjId.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public ObjId read(ByteReader reader) {

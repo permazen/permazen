@@ -5,9 +5,9 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.FieldType;
-import io.permazen.core.type.EnumValueFieldType;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.Encoding;
+import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.kv.KVStore;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumSchemaField;
@@ -182,29 +182,29 @@ class JsckInfo implements JsckLogger {
             this.addStorage(schemaVersion, new CompositeIndex(this, schemaVersion, objectType, index));
     }
 
-    // Find FieldType for field
-    FieldType<?> findFieldType(final int schemaVersion, final SimpleSchemaField schemaField) {
-        return schemaField.visit(new SchemaFieldSwitch<FieldType<?>>() {
+    // Find Encoding for field
+    Encoding<?> findEncoding(final int schemaVersion, final SimpleSchemaField schemaField) {
+        return schemaField.visit(new SchemaFieldSwitch<Encoding<?>>() {
 
             @Override
-            public FieldType<?> caseEnumSchemaField(EnumSchemaField field) {
-                return new EnumValueFieldType(field.getIdentifiers());
+            public Encoding<?> caseEnumSchemaField(EnumSchemaField field) {
+                return new EnumValueEncoding(field.getIdentifiers());
             }
 
             @Override
-            public FieldType<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-                return new ReferenceFieldType(field.getObjectTypes());
+            public Encoding<?> caseReferenceSchemaField(ReferenceSchemaField field) {
+                return new ReferenceEncoding(field.getObjectTypes());
             }
 
             @Override
-            public FieldType<?> caseSimpleSchemaField(SimpleSchemaField field) {
-                final FieldType<?> fieldType = JsckInfo.this.config.getFieldTypeRegistry().getFieldType(field.getEncodingId());
-                if (fieldType == null) {
+            public Encoding<?> caseSimpleSchemaField(SimpleSchemaField field) {
+                final Encoding<?> encoding = JsckInfo.this.config.getEncodingRegistry().getEncoding(field.getEncodingId());
+                if (encoding == null) {
                     throw new IllegalArgumentException("no field encoding \"" + field.getEncodingId() + "\""
                       + " (used by " + field + " in schema version " + schemaVersion
-                      + ") was found in the configured FieldTypeRepository");
+                      + ") was found in the configured EncodingRepository");
                 }
-                return fieldType;
+                return encoding;
             }
         });
     }

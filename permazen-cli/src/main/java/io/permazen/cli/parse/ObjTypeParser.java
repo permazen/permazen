@@ -55,7 +55,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         final Database db = session.getDatabase();
         final int startIndex = ctx.getIndex();
         try {
-            final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
+            final int storageId = db.getEncodingRegistry().getEncoding(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
             return tx.getSchema().getObjType(storageId);
         } catch (IllegalArgumentException | UnknownTypeException e) {
             // ignore

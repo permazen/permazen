@@ -42,7 +42,7 @@ public class ZonedDateTimeType extends Concat2Type<ZonedDateTime, OffsetDateTime
         return value.getZone();
     }
 
-// FieldType
+// Encoding
 
     @Override
     public ZonedDateTime fromParseableString(ParseContext ctx) {

@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple2FieldType;
+import io.permazen.core.type.Tuple2Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.tuple.Tuple2;
 import io.permazen.util.UnsignedIntEncoder;
@@ -24,7 +24,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
      * @param targetType index target type
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    Index2View(int storageId, FieldType<V1> value1Type, FieldType<V2> value2Type, FieldType<T> targetType) {
+    Index2View(int storageId, Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<T> targetType) {
         this(UnsignedIntEncoder.encode(storageId), false, value1Type, value2Type, targetType);
     }
 
@@ -39,7 +39,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
     Index2View(byte[] prefix, boolean prefixMode,
-      FieldType<V1> value1Type, FieldType<V2> value2Type, FieldType<T> targetType) {
+      Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<T> targetType) {
         super(prefix, prefixMode, value1Type, value2Type, targetType);
     }
 
@@ -49,18 +49,18 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
     }
 
     @SuppressWarnings("unchecked")
-    public FieldType<V1> getValue1Type() {
-        return (FieldType<V1>)this.fieldTypes[0];
+    public Encoding<V1> getValue1Type() {
+        return (Encoding<V1>)this.encodings[0];
     }
 
     @SuppressWarnings("unchecked")
-    public FieldType<V2> getValue2Type() {
-        return (FieldType<V2>)this.fieldTypes[1];
+    public Encoding<V2> getValue2Type() {
+        return (Encoding<V2>)this.encodings[1];
     }
 
     @SuppressWarnings("unchecked")
-    public FieldType<T> getTargetType() {
-        return (FieldType<T>)this.fieldTypes[2];
+    public Encoding<T> getTargetType() {
+        return (Encoding<T>)this.encodings[2];
     }
 
     @Override
@@ -80,7 +80,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
         // Create new IndexView
         IndexView<Tuple2<V1, V2>, T> indexView = new IndexView<>(this.prefix, this.prefixMode,
-          new Tuple2FieldType<>(this.getValue1Type(), this.getValue2Type()), this.getTargetType());
+          new Tuple2Encoding<>(this.getValue1Type(), this.getValue2Type()), this.getTargetType());
 
         // Apply filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -89,7 +89,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
         // Apply filtering to tuple field
         if (value1Filter != null || value2Filter != null) {
-            FieldTypesFilter tupleFilter = new FieldTypesFilter(null, this.getValue1Type(), this.getValue2Type());
+            EncodingsFilter tupleFilter = new EncodingsFilter(null, this.getValue1Type(), this.getValue2Type());
             if (value1Filter != null)
                 tupleFilter = tupleFilter.filter(0, value1Filter);
             if (value2Filter != null)

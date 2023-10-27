@@ -31,20 +31,20 @@ abstract class AbstractCoreIndex {
         Preconditions.checkArgument(indexView != null, "null indexView");
         this.kv = kv;
         this.indexView = indexView;
-        if (this.indexView.fieldTypes.length != size)
+        if (this.indexView.encodings.length != size)
             throw new RuntimeException("internal error: indexView has the wrong size");
     }
 
 // Methods
 
     /**
-     * Get all of the {@link FieldType}s associated with this instance. The list includes an entry
+     * Get all of the {@link Encoding}s associated with this instance. The list includes an entry
      * for each indexed value type, followed by a final entry representing the index target type.
      *
-     * @return unmodifiable list of field types
+     * @return unmodifiable list of encodings
      */
-    public List<FieldType<?>> getFieldTypes() {
-        return Arrays.asList(this.indexView.fieldTypes.clone());
+    public List<Encoding<?>> getEncodings() {
+        return Arrays.asList(this.indexView.encodings.clone());
     }
 
     /**
@@ -66,9 +66,9 @@ abstract class AbstractCoreIndex {
      * @param bounds bounds to impose on value
      * @return filtered view of this instance
      */
-    <T> AbstractCoreIndex filter(int index, FieldType<T> fieldType, Bounds<T> bounds) {
-        assert fieldType == this.indexView.fieldTypes[index];
-        final KeyRange range = fieldType.getKeyRange(bounds);
+    <T> AbstractCoreIndex filter(int index, Encoding<T> encoding, Bounds<T> bounds) {
+        assert encoding == this.indexView.encodings[index];
+        final KeyRange range = encoding.getKeyRange(bounds);
         return !range.isFull() ? this.filter(index, new KeyRanges(range)) : this;
     }
 }

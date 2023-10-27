@@ -16,12 +16,12 @@ import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.ValidationMode;
 import io.permazen.core.Database;
-import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 
 import jakarta.validation.groups.Default;
 
@@ -59,8 +59,8 @@ import java.lang.annotation.Target;
  * <p>
  * If the field is not a reference field, the property type is inferred from the type of the annotated method or,
  * in the case of complex sub-fields, the generic type of the collection class. The property type must be registered
- * in the {@link FieldTypeRegistry} and the corresponding {@link FieldType} is then used to encode/decode field values.
- * See {@link FieldTypeRegistry} for a list of built-in (pre-defined) field types. Alternately, an encoding may be
+ * in the {@link EncodingRegistry} and the corresponding {@link Encoding} is then used to encode/decode field values.
+ * See {@link EncodingRegistry} for a list of built-in (pre-defined) encodings. Alternately, an encoding may be
  * specified explicitly via {@link #encoding}.
  *
  * <p>
@@ -200,7 +200,7 @@ public @interface JField {
      *
      * <p>
      * Note: this particular {@link String} will never conflict with any actual field values because it contains a character
-     * that is not allowed in the return value from {@link FieldType#toString(Object) FieldType.toString()}.
+     * that is not allowed in the return value from {@link Encoding#toString(Object) Encoding.toString()}.
      */
     String NULL = "\u0000";
 
@@ -221,25 +221,25 @@ public @interface JField {
      * Specify the encoding for this field by {@link EncodingId} URN.
      *
      * <p>
-     * If set, this must equal the {@link EncodingId} of a {@link FieldType} registered in the {@link FieldTypeRegistry}
+     * If set, this must equal the {@link EncodingId} of an {@link Encoding} registered in the {@link EncodingRegistry}
      * associated with the {@link Database} instance, and the annotated method's return type must match the
-     * {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
+     * {@link Encoding}'s {@linkplain Encoding#getTypeToken supported Java type}.
      *
      * <p>
      * If this is left unset (empty string), then the Java type is inferred from the return type of the getter method
-     * and the {@link FieldType} is found via {@link FieldTypeRegistry#getFieldType(TypeToken)}.
+     * and the {@link Encoding} is found via {@link EncodingRegistry#getEncoding(TypeToken)}.
      *
      * <p>
      * For any of Permazen's built-in types, the Permazen URN prefix {@value EncodingIds#PERMAZEN_PREFIX} may be omitted.
      * Otherwise, see {@link EncodingId} for the required format. Custom encodings can be found automatically on the
-     * application class path; see {@link DefaultFieldTypeRegistry} for details.
+     * application class path; see {@link DefaultEncodingRegistry} for details.
      *
      * <p>
      * For reference fields (i.e., methods with return value equal to a {@link PermazenType &#64;PermazenType}-annotated class),
      * this property must be left unset.
      *
      * <p>
-     * For sub-fields of complex fields, this property can be used to force a primitive sub-field type instead of a
+     * For sub-fields of complex fields, this property can be used to force a primitive type instead of a
      * primitive wrapper type. In that case, the complex field will disallow null values. For example:
      * <pre>
      *  &#64;JSetField(element = &#64;JField(<b>type = "float"</b>)) // nulls will be disallowed
@@ -247,8 +247,8 @@ public @interface JField {
      * </pre>
      *
      * @return URN identifying the field's encoding
-     * @see FieldType
-     * @see FieldTypeRegistry#getFieldType(EncodingId)
+     * @see Encoding
+     * @see EncodingRegistry#getEncoding(EncodingId)
      */
     String encoding() default "";
 
@@ -376,7 +376,7 @@ public @interface JField {
      *
      * <p>
      * The specified values must be valid {@link String} encodings of the associated field (as returned by
-     * {@link FieldType#toString(Object) FieldType.toString(T)}), or the constant {@link #NULL}
+     * {@link Encoding#toString(Object) Encoding.toString(T)}), or the constant {@link #NULL}
      * to indicate a null value. For example:
      * <pre>
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
@@ -452,7 +452,7 @@ public @interface JField {
      * to the {@link String} value {@code "1234"}).
      *
      * <p>
-     * See {@link FieldType#convert FieldType.convert()} for details about conversions between simple field types.
+     * See {@link Encoding#convert Encoding.convert()} for details about conversions between simple encodings.
      * In addition, {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper)
      * type.
      *
@@ -469,7 +469,7 @@ public @interface JField {
      *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
-     * @see io.permazen.core.FieldType#convert FieldType.convert()
+     * @see io.permazen.core.Encoding#convert Encoding.convert()
      * @see OnVersionChange
      */
     UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;

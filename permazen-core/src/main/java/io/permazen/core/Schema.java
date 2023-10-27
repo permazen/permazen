@@ -36,7 +36,7 @@ public class Schema {
      *
      * @throws IllegalArgumentException if a storage ID is used twice
      */
-    Schema(int versionNumber, byte[] encodedXML, SchemaModel schemaModel, FieldTypeRegistry fieldTypeRegistry) {
+    Schema(int versionNumber, byte[] encodedXML, SchemaModel schemaModel, EncodingRegistry encodingRegistry) {
 
         // Sanity check
         Preconditions.checkArgument(versionNumber > 0, "non-positive versionNumber");
@@ -54,7 +54,7 @@ public class Schema {
 
         // Build object types
         for (SchemaObjectType schemaObjectType : this.schemaModel.getSchemaObjectTypes().values()) {
-            final ObjType objType = new ObjType(schemaObjectType, this, fieldTypeRegistry);
+            final ObjType objType = new ObjType(schemaObjectType, this, encodingRegistry);
             final int storageId = objType.getStorageId();
             final ObjType otherObjType = this.objTypeMap.put(storageId, objType);
             if (otherObjType != null) {

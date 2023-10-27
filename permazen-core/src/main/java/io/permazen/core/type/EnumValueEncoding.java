@@ -7,9 +7,9 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EnumField;
 import io.permazen.core.EnumValue;
-import io.permazen.core.FieldType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 import org.dellroad.stuff.java.EnumUtil;
 
 /**
- * The {@link FieldType} for {@link EnumValue}, which is the data type used by {@link EnumField}.
+ * The {@link Encoding} for {@link EnumValue}, which is the data type used by {@link EnumField}.
  *
  * <p>
- * Each {@link EnumValueFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumValueFieldType}
+ * Each {@link EnumValueEncoding} instance has an ordered list of {@link String} identifiers; two {@link EnumValueEncoding}
  * instances are not compatible unless they have identical identifier lists. The identifiers must be valid Java identifiers.
  *
  * <p>
@@ -32,7 +32,7 @@ import org.dellroad.stuff.java.EnumUtil;
  * <p>
  * Null values are supported by this class.
  */
-public class EnumValueFieldType extends NullSafeType<EnumValue> {
+public class EnumValueEncoding extends NullSafeType<EnumValue> {
 
     public static final String IDENT_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
@@ -45,8 +45,8 @@ public class EnumValueFieldType extends NullSafeType<EnumValue> {
      * @param <T> enum type
      * @throws NullPointerException if {@code enumType} is null
      */
-    public <T extends Enum<?>> EnumValueFieldType(Class<T> enumType) {
-        this(EnumValueFieldType.getIdentifiers(enumType));
+    public <T extends Enum<?>> EnumValueEncoding(Class<T> enumType) {
+        this(EnumValueEncoding.getIdentifiers(enumType));
     }
 
     /**
@@ -56,7 +56,7 @@ public class EnumValueFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
-    public EnumValueFieldType(List<String> idents) {
+    public EnumValueEncoding(List<String> idents) {
         super(new EnumValueType(idents));
     }
 

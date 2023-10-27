@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 
 /**
  * Represents an index on the {@code key} sub-field of a {@link JMapField}.
@@ -20,7 +20,7 @@ class MapKeyIndexInfo extends ComplexSubFieldIndexInfo {
 
     @Override
     protected Iterable<?> iterateReferences(Transaction tx, ObjId id) {
-        assert this.getFieldType() instanceof ReferenceFieldType;
+        assert this.getEncoding() instanceof ReferenceEncoding;
         return tx.readMapField(id, this.getParentStorageId(), false).keySet();
     }
 }

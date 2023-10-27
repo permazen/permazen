@@ -23,10 +23,10 @@ import io.permazen.core.CreateListener;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeleteListener;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.Encoding;
 import io.permazen.core.EnumValue;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
-import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
@@ -40,7 +40,7 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.VersionChangeListener;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.index.Index;
@@ -748,7 +748,7 @@ public class JTransaction {
         // Recurse through the next reference field in the path
         final int storageId = fields[fieldIndex++];
         final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(storageId);
-        assert info == null || info.getFieldType() instanceof ReferenceFieldType;
+        assert info == null || info.getEncoding() instanceof ReferenceEncoding;
         if (info instanceof ComplexSubFieldIndexInfo) {
             final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
             subFieldInfo.copyRecurse(copyState, this, dest, srcId, fieldIndex, fields);
@@ -885,7 +885,7 @@ public class JTransaction {
             return;
         for (JReferenceField field : fieldList) {
             final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(field.storageId);
-            assert info.getFieldType() instanceof ReferenceFieldType;
+            assert info.getEncoding() instanceof ReferenceEncoding;
             if (info instanceof ComplexSubFieldIndexInfo) {
                 final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
                 this.gatherRefs(subFieldInfo.iterateReferences(this.tx, id).iterator(), visitedIds, toVisitIds);
@@ -1297,7 +1297,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code id} is null
      */
     public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
-        this.jdb.getJField(id, storageId, JCounterField.class);                 // validate field type
+        this.jdb.getJField(id, storageId, JCounterField.class);                 // validate encoding
         if (updateVersion)
             this.tx.updateSchemaVersion(id);
         return new Counter(this.tx, id, storageId, updateVersion);
@@ -1871,7 +1871,7 @@ public class JTransaction {
 
                     // Compare to excluded value list
                     if (jfield.uniqueExcludes != null
-                      && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.fieldType) >= 0)
+                      && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.encoding) >= 0)
                         continue;
 
                     // Query core API index to find other objects with the same value in the field, but restrict the search to
@@ -2090,8 +2090,8 @@ public class JTransaction {
                 // Handle conversion from numeric simple -> counter
                 if (oldField0 instanceof SimpleField) {
                     final SimpleField<?> oldField = (SimpleField)oldField0;
-                    final FieldType<?> oldFieldType = oldField.getFieldType();
-                    if (Number.class.isAssignableFrom(oldFieldType.getTypeToken().wrap().getRawType())) {
+                    final Encoding<?> oldEncoding = oldField.getEncoding();
+                    if (Number.class.isAssignableFrom(oldEncoding.getTypeToken().wrap().getRawType())) {
                         final Number value = (Number)oldValue;
                         if (value != null)
                             this.tx.writeCounterField(id, storageId, value.longValue(), false);
@@ -2116,7 +2116,7 @@ public class JTransaction {
             // Handle conversion from counter field to numeric simple field
             if (oldField0 instanceof CounterField) {
                 this.doConvertAndSetField(id, oldField0,
-                  this.tx.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(long.class)),
+                  this.tx.getDatabase().getEncodingRegistry().getEncoding(TypeToken.of(long.class)),
                   newField, oldValue, jfield.upgradeConversion);
                 continue;
             }
@@ -2162,34 +2162,34 @@ public class JTransaction {
       SimpleField<NT> newField, Object oldValue, UpgradeConversionPolicy policy) {
         assert policy.isConvertsValues();
 
-        // If the old and new field types are equal, there's nothing to do
-        final FieldType<OT> oldFieldType = oldField.getFieldType();
-        final FieldType<NT> newFieldType = newField.getFieldType();
-        if (newFieldType.equals(oldFieldType))
+        // If the old and new encodings are equal, there's nothing to do
+        final Encoding<OT> oldEncoding = oldField.getEncoding();
+        final Encoding<NT> newEncoding = newField.getEncoding();
+        if (newEncoding.equals(oldEncoding))
             return;
 
         // Perform conversion
-        this.doConvertAndSetField(id, oldField, oldFieldType, newField, oldValue, policy);
+        this.doConvertAndSetField(id, oldField, oldEncoding, newField, oldValue, policy);
     }
 
     private <OT, NT> void doConvertAndSetField(ObjId id, Field<?> oldField,
-      FieldType<OT> oldFieldType, SimpleField<NT> newField, Object oldValue0, UpgradeConversionPolicy policy) {
+      Encoding<OT> oldEncoding, SimpleField<NT> newField, Object oldValue0, UpgradeConversionPolicy policy) {
 
         // Validate old value
-        final OT oldValue = oldFieldType.validate(oldValue0);
+        final OT oldValue = oldEncoding.validate(oldValue0);
 
-        // Get the new field type
-        final FieldType<NT> newFieldType = newField.getFieldType();
+        // Get the new encoding
+        final Encoding<NT> newEncoding = newField.getEncoding();
 
         // Attempt conversion
         final NT newValue;
         try {
-            newValue = newFieldType.convert(oldFieldType, oldValue);
+            newValue = newEncoding.convert(oldEncoding, oldValue);
         } catch (IllegalArgumentException e) {
             if (policy.isRequireConversion()) {
-                throw new UpgradeConversionException(id, newField.getStorageId(), "the value " + oldFieldType.toString(oldValue)
-                  + " in the previous schema version's " + oldField + " could not be converted type to the new field type "
-                  + newFieldType + ", but the upgrade conversion policy is configured as " + policy, e);
+                throw new UpgradeConversionException(id, newField.getStorageId(), "the value " + oldEncoding.toString(oldValue)
+                  + " in the previous schema version's " + oldField + " could not be converted type to the new encoding "
+                  + newEncoding + ", but the upgrade conversion policy is configured as " + policy, e);
             }
             return;
         }

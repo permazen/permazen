@@ -22,7 +22,7 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
@@ -849,7 +849,7 @@ public class Permazen {
      *
      * @param id object ID
      * @param storageId field storage ID
-     * @param <T> expected field type
+     * @param <T> expected encoding
      * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
      * @throws TypeNotInSchemaVersionException if {@code id} has a type that does not exist in this instance's schema version
      * @throws UnknownFieldException if {@code storageId} does not correspond to any field in the object's type
@@ -1072,7 +1072,7 @@ public class Permazen {
      */
     boolean isReferenceField(int storageId) {
         final IndexInfo info = this.indexInfoMap.get(storageId);
-        return info instanceof SimpleFieldIndexInfo && ((SimpleFieldIndexInfo)info).getFieldType() instanceof ReferenceFieldType;
+        return info instanceof SimpleFieldIndexInfo && ((SimpleFieldIndexInfo)info).getEncoding() instanceof ReferenceEncoding;
     }
 
     /**

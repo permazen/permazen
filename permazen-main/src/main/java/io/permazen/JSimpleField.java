@@ -11,9 +11,9 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.change.SimpleFieldChange;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EnumValue;
-import io.permazen.core.FieldType;
 import io.permazen.core.ObjId;
 import io.permazen.schema.SimpleSchemaField;
 
@@ -37,21 +37,21 @@ import org.objectweb.asm.Type;
 public class JSimpleField extends JField {
 
     final TypeToken<?> typeToken;
-    final FieldType<?> fieldType;
+    final Encoding<?> encoding;
     final boolean indexed;
     final boolean unique;
-    final ArrayList<Object> uniqueExcludes;         // note: these are core API values, sorted by this.fieldType
+    final ArrayList<Object> uniqueExcludes;         // note: these are core API values, sorted by this.encoding
     final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
     @SuppressWarnings("unchecked")
-    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
+    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, Encoding<?> encoding, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, annotation, description, getter);
         Preconditions.checkArgument(typeToken != null, "null typeToken");
-        Preconditions.checkArgument(fieldType != null, "null fieldType");
+        Preconditions.checkArgument(encoding != null, "null encoding");
         this.typeToken = typeToken;
-        this.fieldType = fieldType;
+        this.encoding = encoding;
         this.indexed = indexed;
         this.unique = annotation.unique();
         this.setter = setter;
@@ -67,14 +67,14 @@ public class JSimpleField extends JField {
                     this.uniqueExcludes.add(null);
                 else {
                     try {
-                        this.uniqueExcludes.add(this.fieldType.fromString(string));
+                        this.uniqueExcludes.add(this.encoding.fromString(string));
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException(
                           String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
                     }
                 }
             }
-            Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.fieldType);
+            Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.encoding);
         } else
             this.uniqueExcludes = null;
     }
@@ -103,7 +103,7 @@ public class JSimpleField extends JField {
     }
 
     /**
-     * Get the {@link FieldType} used by the core API to encode this field's values.
+     * Get the {@link Encoding} used by the core API to encode this field's values.
      *
      * <p>
      * Note that for {@link Enum} and reference fields, the core API uses a different type than the Java model
@@ -112,8 +112,8 @@ public class JSimpleField extends JField {
      *
      * @return this field's core-layer type definition
      */
-    public FieldType<?> getFieldType() {
-        return this.fieldType;
+    public Encoding<?> getEncoding() {
+        return this.encoding;
     }
 
     /**
@@ -177,7 +177,7 @@ public class JSimpleField extends JField {
         final JSimpleField that = (JSimpleField)that0;
         if (!this.typeToken.equals(that.typeToken))
             return false;
-        if (!this.fieldType.equals(that.fieldType))
+        if (!this.encoding.equals(that.encoding))
             return false;
         if (this.indexed != that.indexed)
             return false;
@@ -218,7 +218,7 @@ public class JSimpleField extends JField {
     }
 
     void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
-        final EncodingId encodingId = this.fieldType.getEncodingId();
+        final EncodingId encodingId = this.encoding.getEncodingId();
         Preconditions.checkArgument(encodingId != null, "internal error");
         schemaField.setEncodingId(encodingId);
     }
@@ -235,10 +235,10 @@ public class JSimpleField extends JField {
 
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<V> fieldType) {
+    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<V> encoding) {
         types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<V>() { }, fieldType.wrap()));
+          .where(new TypeParameter<V>() { }, encoding.wrap()));
     }
 
     // Get the Enum class that this type represents, or null if not applicable; see note in SimpleFieldIndexInfo
@@ -291,7 +291,7 @@ public class JSimpleField extends JField {
     }
 
     Object importCoreValue(ImportContext context, Object value) {
-        return this.fieldType.validate(value);
+        return this.encoding.validate(value);
     }
 
     Object exportCoreValue(ExportContext context, Object value) {
@@ -310,7 +310,7 @@ public class JSimpleField extends JField {
     @Override
     void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
 
-        // Get field type
+        // Get encoding
         final String className = generator.getClassName();
         final Class<?> propertyType = this.typeToken.getRawType();
         final boolean wide = propertyType.isPrimitive() && (Primitive.get(propertyType).getSize() == 8);
@@ -392,7 +392,7 @@ public class JSimpleField extends JField {
         final String fieldName = generator.getCachedFlagFieldName(this);
         final int flagBit = generator.getCachedFlagBit(this);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagEncoding(this)));
         switch (flagBit) {
         case 1:
             mv.visitInsn(Opcodes.ICONST_1);
@@ -417,7 +417,7 @@ public class JSimpleField extends JField {
         final int flagBit = generator.getCachedFlagBit(this);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagEncoding(this)));
         if (set) {
             switch (flagBit) {
             case 1:
@@ -438,7 +438,7 @@ public class JSimpleField extends JField {
             mv.visitLdcInsn(~flagBit);
             mv.visitInsn(Opcodes.IAND);
         }
-        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, Type.getDescriptor(generator.getCachedFlagEncoding(this)));
     }
 
     void outputReadCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {

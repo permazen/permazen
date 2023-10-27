@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}
  * followed by {@linkplain Duration#getNano nanoseconds}.
  */
-public class DurationType extends NonNullFieldType<Duration> {
+public class DurationType extends NonNullEncoding<Duration> {
 
     private static final Pattern PATTERN = Pattern.compile("PT(-?[0-9]+H)?(-?[0-9]+M)?(-?[0-9]+(\\.[0-9]+)?S)?");
 
@@ -33,7 +33,7 @@ public class DurationType extends NonNullFieldType<Duration> {
         super(EncodingIds.builtin("Duration"), Duration.class, Duration.ZERO);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public Duration read(ByteReader reader) {

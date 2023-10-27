@@ -19,7 +19,7 @@ class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E,
 
     CoreIndex2<E, ObjId, Integer> getElementIndex(Transaction tx) {
         return new CoreIndex2<>(tx.kvt,
-          new Index2View<>(this.storageId, this.fieldType, Encodings.OBJ_ID, Encodings.UNSIGNED_INT));
+          new Index2View<>(this.storageId, this.encoding, Encodings.OBJ_ID, Encodings.UNSIGNED_INT));
     }
 
     @Override
@@ -43,6 +43,6 @@ class ListElementStorageInfo<E> extends CollectionElementStorageInfo<List<E>, E,
 
     @Override
     public String toString() {
-        return "list element with " + this.fieldType;
+        return "list element with " + this.encoding;
     }
 }

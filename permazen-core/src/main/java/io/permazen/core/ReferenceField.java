@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.util.ByteReader;
 
@@ -47,7 +47,7 @@ public class ReferenceField extends SimpleField<ObjId> {
      */
     ReferenceField(String name, int storageId, Schema schema, DeleteAction onDelete,
       boolean cascadeDelete, boolean allowDeleted, boolean allowDeletedSnapshot, Set<Integer> objectTypes) {
-        super(name, storageId, schema, new ReferenceFieldType(objectTypes), true);
+        super(name, storageId, schema, new ReferenceEncoding(objectTypes), true);
         Preconditions.checkArgument(onDelete != null, "null onDelete");
         this.onDelete = onDelete;
         this.cascadeDelete = cascadeDelete;
@@ -99,7 +99,7 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @return storage IDs of allowed object types, or null if there is no restriction
      */
     public SortedSet<Integer> getObjectTypes() {
-        return ((ReferenceFieldType)this.fieldType).getObjectTypes();
+        return ((ReferenceEncoding)this.encoding).getObjectTypes();
     }
 
     @Override
@@ -150,7 +150,7 @@ public class ReferenceField extends SimpleField<ObjId> {
         final byte[] value = srcTx.kvt.get(this.buildKey(id));
         if (value == null)
             return;
-        dstTx.checkDeletedAssignment(id, this, this.fieldType.read(new ByteReader(value)));
+        dstTx.checkDeletedAssignment(id, this, this.encoding.read(new ByteReader(value)));
     }
 
     @Override

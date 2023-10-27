@@ -8,8 +8,8 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EnumValue;
-import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -22,12 +22,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This is the inner, non-null supporting {@link FieldType} for {@link EnumValueFieldType}.
+ * This is the inner, non-null supporting {@link Encoding} for {@link EnumValueEncoding}.
  *
  * <p>
  * Binary encoding is via the {@link UnsignedIntEncoder}-encoded {@linkplain EnumValue#getOrdinal ordinal} value.
  */
-public class EnumValueType extends NonNullFieldType<EnumValue> {
+public class EnumValueType extends NonNullEncoding<EnumValue> {
 
     private static final long serialVersionUID = -5645700883023141035L;
 
@@ -36,7 +36,7 @@ public class EnumValueType extends NonNullFieldType<EnumValue> {
 
     public EnumValueType(List<String> idents) {
         super(null, EnumValue.class);
-        this.identifierMap = Collections.unmodifiableMap(EnumValueFieldType.validateIdentifiers(idents));
+        this.identifierMap = Collections.unmodifiableMap(EnumValueEncoding.validateIdentifiers(idents));
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));
     }
 
@@ -44,7 +44,7 @@ public class EnumValueType extends NonNullFieldType<EnumValue> {
         return Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.keySet()));
     }
 
-// FieldType
+// Encoding
 
     @Override
     public EnumValue read(ByteReader reader) {
@@ -90,7 +90,7 @@ public class EnumValueType extends NonNullFieldType<EnumValue> {
 
     @Override
     public EnumValue fromParseableString(ParseContext context) {
-        final Matcher matcher = context.tryPattern(Pattern.compile(EnumValueFieldType.IDENT_PATTERN));
+        final Matcher matcher = context.tryPattern(Pattern.compile(EnumValueEncoding.IDENT_PATTERN));
         if (matcher == null)
             throw context.buildException("expected enum identifier");
         final String ident = matcher.group();

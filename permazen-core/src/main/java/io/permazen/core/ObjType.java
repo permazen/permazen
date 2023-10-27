@@ -24,7 +24,7 @@ import java.util.TreeMap;
  */
 public class ObjType extends SchemaItem {
 
-    final FieldTypeRegistry fieldTypeRegistry;
+    final EncodingRegistry encodingRegistry;
     final TreeMap<Integer, Field<?>> fields = new TreeMap<>();                              // does not include sub-fields
     final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
     final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();                       // includes sub-fields
@@ -39,19 +39,19 @@ public class ObjType extends SchemaItem {
     /**
      * Constructor.
      */
-    ObjType(SchemaObjectType schemaObjectType, Schema schema, FieldTypeRegistry fieldTypeRegistry) {
+    ObjType(SchemaObjectType schemaObjectType, Schema schema, EncodingRegistry encodingRegistry) {
         super(schemaObjectType.getName(), schemaObjectType.getStorageId(), schema);
 
         // Sanity check
-        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
-        this.fieldTypeRegistry = fieldTypeRegistry;
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
+        this.encodingRegistry = encodingRegistry;
 
         // Build fields
-        final FieldBuilder fieldBuilder = new FieldBuilder(this.schema, this.fieldTypeRegistry);
+        final FieldBuilder fieldBuilder = new FieldBuilder(this.schema, this.encodingRegistry);
         for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
             this.addSchemaItem(fields, fieldsByName, schemaField.visit(fieldBuilder));
 
-        // Build mappings for various field types
+        // Build mappings for various encodings
         this.buildMap(this.simpleFields, SimpleField.class);
         this.buildMap(this.complexFields, ComplexField.class);
         this.buildMap(this.counterFields, CounterField.class);

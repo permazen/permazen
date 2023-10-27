@@ -5,7 +5,7 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.util.ByteReader;
@@ -15,11 +15,11 @@ import java.util.Arrays;
 
 class MapValueIndex extends ComplexFieldIndex {
 
-    protected final FieldType<?> keyType;
+    protected final Encoding<?> keyType;
 
     MapValueIndex(JsckInfo info, int schemaVersion, MapSchemaField field) {
         super(info, schemaVersion, field, field.getValueField(), "map", "value");
-        this.keyType = this.info.findFieldType(schemaVersion, field.getKeyField()).genericizeForIndex();
+        this.keyType = this.info.findEncoding(schemaVersion, field.getKeyField()).genericizeForIndex();
     }
 
     @Override

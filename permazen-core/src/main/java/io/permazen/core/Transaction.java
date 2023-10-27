@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.kv.KVDatabase;
@@ -1436,7 +1436,7 @@ public class Transaction {
                         final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.storageId, oldValue != null ?
-                          oldField.fieldType.read(new ByteReader(oldValue)) : oldField.fieldType.getDefaultValueObject());
+                          oldField.encoding.read(new ByteReader(oldValue)) : oldField.encoding.getDefaultValueObject());
                         return null;
                     }
 
@@ -1783,7 +1783,7 @@ public class Transaction {
         final byte[] value = this.kvt.get(key);
 
         // Decode value
-        return value != null ? field.fieldType.read(new ByteReader(value)) : field.fieldType.getDefaultValueObject();
+        return value != null ? field.encoding.read(new ByteReader(value)) : field.encoding.getDefaultValueObject();
     }
 
     /**
@@ -1876,7 +1876,7 @@ public class Transaction {
                         otherValue = oldValue;
                     } else
                         otherValue = this.kvt.get(otherField.buildKey(id));         // can be null (if field has default value)
-                    oldWriter.write(otherValue != null ? otherValue : otherField.fieldType.getDefaultValue());
+                    oldWriter.write(otherValue != null ? otherValue : otherField.encoding.getDefaultValue());
                     if (otherField == field)
                         fieldEnd = oldWriter.getLength();
                 }
@@ -1891,7 +1891,7 @@ public class Transaction {
                 // Patch in new field value to create new composite index entry
                 final ByteWriter newWriter = new ByteWriter(oldIndexEntry.length);
                 newWriter.write(oldIndexEntry, 0, fieldStart);
-                newWriter.write(newValue != null ? newValue : field.fieldType.getDefaultValue());
+                newWriter.write(newValue != null ? newValue : field.encoding.getDefaultValue());
                 newWriter.write(oldIndexEntry, fieldEnd, oldIndexEntry.length - fieldEnd);
 
                 // Add new composite index entry
@@ -1902,7 +1902,7 @@ public class Transaction {
         // Notify monitors
         if (!this.disableListenerNotifications) {
             final Object oldObj = oldValue != null ?
-              field.fieldType.read(new ByteReader(oldValue)) : field.fieldType.getDefaultValueObject();
+              field.encoding.read(new ByteReader(oldValue)) : field.encoding.getDefaultValueObject();
             this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
                 @Override
                 @SuppressWarnings("unchecked")
@@ -1960,7 +1960,7 @@ public class Transaction {
      */
     private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
         if (value == null)
-            value = field.fieldType.getDefaultValue();
+            value = field.encoding.getDefaultValue();
         final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(field.storageId) + value.length + ObjId.NUM_BYTES);
         UnsignedIntEncoder.write(writer, field.storageId);
         writer.write(value);
@@ -3052,7 +3052,7 @@ public class Transaction {
     @SuppressWarnings("unchecked")
     private SimpleFieldStorageInfo<ObjId> verifyReferenceFieldStorageInfo(int storageId) {
         final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        if (!(info.fieldType instanceof ReferenceFieldType))
+        if (!(info.encoding instanceof ReferenceEncoding))
             throw new IllegalArgumentException(info + " is not a reference field");
         return (SimpleFieldStorageInfo<ObjId>)info;
     }
@@ -3305,7 +3305,7 @@ public class Transaction {
         UnsignedIntEncoder.write(writer, index.storageId);
         for (SimpleField<?> field : index.fields) {
             final byte[] value = tx != null ? tx.kvt.get(field.buildKey(id)) : null;
-            writer.write(value != null ? value : field.fieldType.getDefaultValue());
+            writer.write(value != null ? value : field.encoding.getDefaultValue());
         }
         id.writeTo(writer);
         return writer.getBytes();

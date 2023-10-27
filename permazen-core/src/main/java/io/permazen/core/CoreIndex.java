@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple2FieldType;
+import io.permazen.core.type.Tuple2Encoding;
 import io.permazen.index.Index;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
@@ -52,11 +52,11 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         // Get index view
         final IndexView<V, T> iv = this.getIndexView();
 
-        // Create tuple field type
-        final Tuple2FieldType<V, T> tupleFieldType = new Tuple2FieldType<>(iv.getValueType(), iv.getTargetType());
+        // Create tuple encoding
+        final Tuple2Encoding<V, T> tupleEncoding = new Tuple2Encoding<>(iv.getValueType(), iv.getTargetType());
 
         // Build set and apply filtering
-        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.kv, tupleFieldType, iv.prefixMode, iv.prefix);
+        IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.kv, tupleEncoding, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
             indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, iv, 2));
 

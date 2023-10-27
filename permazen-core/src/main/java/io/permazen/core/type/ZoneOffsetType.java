@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * {@linkplain ZoneOffset#getTotalSeconds total seconds value}. The value is negated because higher offsets
  * {@linkplain ZoneOffset#compareTo sort} before lower ones.
  */
-public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
+public class ZoneOffsetType extends NonNullEncoding<ZoneOffset> {
 
     static final Pattern PATTERN = Pattern.compile("(Z|[-+][0-9]{2}:[0-9]{2}(:[0-9]{2})?)");
 
@@ -34,7 +34,7 @@ public class ZoneOffsetType extends NonNullFieldType<ZoneOffset> {
         super(EncodingIds.builtin("ZoneOffset"), ZoneOffset.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public ZoneOffset read(ByteReader reader) {

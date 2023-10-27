@@ -31,6 +31,6 @@ class MapKeyStorageInfo<K> extends ComplexSubFieldStorageInfo<K, MapField<K, ?>>
 
     @Override
     public String toString() {
-        return "map key field with " + this.fieldType;
+        return "map key field with " + this.encoding;
     }
 }

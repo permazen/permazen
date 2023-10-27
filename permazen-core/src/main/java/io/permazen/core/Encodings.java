@@ -19,7 +19,7 @@ import io.permazen.core.type.VoidType;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
- * Some {@link FieldType}s that are used for various general encoding tasks.
+ * Some {@link Encoding}s that are used for various general encoding tasks.
  *
  * <p>
  * All of the encodings defined in the class do <b>not</b> support null values.

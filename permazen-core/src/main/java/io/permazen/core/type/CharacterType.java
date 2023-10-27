@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -79,7 +79,7 @@ public class CharacterType extends PrimitiveType<Character> {
 // Conversion
 
     @Override
-    public <S> Character convert(FieldType<S> type, S value) {
+    public <S> Character convert(Encoding<S> type, S value) {
 
         // Special case for a string of length one
         if (value instanceof String && ((String)value).length() == 1)

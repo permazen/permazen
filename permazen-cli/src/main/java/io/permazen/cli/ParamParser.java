@@ -10,10 +10,10 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.parse.Parser;
 import io.permazen.cli.parse.WhateverParser;
 import io.permazen.cli.parse.WordParser;
-import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
 
@@ -37,7 +37,7 @@ public class ParamParser {
 
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
-    private final FieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
+    private final EncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
 
     public ParamParser(String spec) {
         if (spec.length() > 0) {
@@ -100,7 +100,7 @@ public class ParamParser {
      * Convert parameter spec type name into a {@link Parser}.
      *
      * <p>
-     * The implementation in {@link ParamParser} supports all of the pre-defined types of {@link FieldTypeRegistry}
+     * The implementation in {@link ParamParser} supports all of the pre-defined types of {@link EncodingRegistry}
      * (identified by their encoding ID's or aliases), plus {@code word} to parse a {@link String} containing
      * one or more non-whitespace characters. Subclasses should override as required to add additional supported types.
      *
@@ -112,12 +112,12 @@ public class ParamParser {
         Preconditions.checkArgument(typeName != null, "null typeName");
         if (typeName.equals("word"))
             return new WordParser("parameter");
-        final EncodingId encodingId = this.fieldTypeRegistry.idForAlias(typeName);
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(encodingId);
-        if (fieldType != null) {
+        final EncodingId encodingId = this.encodingRegistry.idForAlias(typeName);
+        final Encoding<?> encoding = this.encodingRegistry.getEncoding(encodingId);
+        if (encoding != null) {
             return (session, ctx, complete) -> {
                 try {
-                    return fieldType.fromParseableString(ctx);
+                    return encoding.fromParseableString(ctx);
                 } catch (IllegalArgumentException e) {
                     throw new ParseException(ctx, "invalid " + typeName + " value", e);
                 }

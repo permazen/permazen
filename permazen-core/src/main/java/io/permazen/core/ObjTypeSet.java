@@ -16,7 +16,7 @@ import java.util.NavigableSet;
  * Sets containing all objects of a given type, with the ability to {@link #remove remove()} elements,
  * which results in {@linkplain Transaction#delete object deletion}.
  */
-final class ObjTypeSet extends FieldTypeSet<ObjId> {
+final class ObjTypeSet extends EncodingSet<ObjId> {
 
     private final Transaction tx;
 

@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 
 import java.io.Serializable;
 
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * <p>
  * Instances are immutable.
  *
- * @see EnumValueFieldType
+ * @see EnumValueEncoding
  * @see io.permazen.EnumConverter
  */
 public class EnumValue implements Serializable {

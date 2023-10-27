@@ -249,7 +249,7 @@ public class ReferencePath {
     final Permazen jdb;
     final Class<?> startType;
     final ArrayList<Set<Class<?>>> pathTypes;
-    final Set<TypeToken<?>> targetFieldTypes;
+    final Set<TypeToken<?>> targetEncodings;
     final int targetFieldStorageId;
     final int targetSuperFieldStorageId;
     final int[] referenceFieldStorageIds;
@@ -445,19 +445,19 @@ public class ReferencePath {
                   + "\" is ambiguous: " + completedCursors.stream().map(Cursor::getField).collect(Collectors.toSet()));
             }
 
-            // Calculate all possible target field types, and whether any target field is indexed
-            final Set<TypeToken<?>> targetFieldTypesSet = completedCursors.stream()
+            // Calculate all possible target encodings, and whether any target field is indexed
+            final Set<TypeToken<?>> targetEncodingsSet = completedCursors.stream()
               .peek(cursor -> this.someTargetFieldIndexed |= cursor.isIndexedSimpleField())
               .map(Cursor::getField)
               .map(JField::getTypeToken)
               .collect(Collectors.toSet());
 
             // Initialize
-            this.targetFieldTypes = Collections.unmodifiableSet(targetFieldTypesSet);
+            this.targetEncodings = Collections.unmodifiableSet(targetEncodingsSet);
             this.targetFieldStorageId = targetFieldStorageIds.iterator().next();
             this.targetSuperFieldStorageId = targetSuperFieldStorageIds.iterator().next();
         } else {
-            this.targetFieldTypes = null;
+            this.targetEncodings = null;
             this.targetFieldStorageId = 0;
             this.targetSuperFieldStorageId = 0;
         }
@@ -482,9 +482,9 @@ public class ReferencePath {
 
         // Logging
         if (this.log.isTraceEnabled()) {
-            this.log.trace("RefPath: DONE: targetFieldStorageId={} targetSuperFieldStorageId={} targetFieldTypes={}"
+            this.log.trace("RefPath: DONE: targetFieldStorageId={} targetSuperFieldStorageId={} targetEncodings={}"
               + " references={} cursors={} pathTypes={}", this.targetFieldStorageId, this.targetSuperFieldStorageId,
-              this.targetFieldTypes, referenceFieldList, this.cursors, this.pathTypes);
+              this.targetEncodings, referenceFieldList, this.cursors, this.pathTypes);
         }
     }
 
@@ -597,8 +597,8 @@ public class ReferencePath {
      * @return the type of the field at which this reference path ends, or null if this reference path does
      *  not have a target field
      */
-    public Set<TypeToken<?>> getTargetFieldTypes() {
-        return this.targetFieldTypes;
+    public Set<TypeToken<?>> getTargetEncodings() {
+        return this.targetEncodings;
     }
 
     /**

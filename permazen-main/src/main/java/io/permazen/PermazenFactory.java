@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
@@ -31,7 +31,7 @@ public class PermazenFactory {
 
     private Database database;
     private int schemaVersion = -1;
-    private FieldTypeRegistry fieldTypeRegistry;
+    private EncodingRegistry encodingRegistry;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Collection<Class<?>> modelClasses;
     private ValidatorFactory validatorFactory;
@@ -104,13 +104,13 @@ public class PermazenFactory {
     }
 
     /**
-     * Configure a custom {@link FieldTypeRegistry}.
+     * Configure a custom {@link EncodingRegistry}.
      *
-     * @param fieldTypeRegistry custom {@link FieldTypeRegistry}, or null for the default
+     * @param encodingRegistry custom {@link EncodingRegistry}, or null for the default
      * @return this instance
      */
-    public PermazenFactory setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
-        this.fieldTypeRegistry = fieldTypeRegistry;
+    public PermazenFactory setEncodingRegistry(EncodingRegistry encodingRegistry) {
+        this.encodingRegistry = encodingRegistry;
         return this;
     }
 
@@ -159,8 +159,8 @@ public class PermazenFactory {
         Database database1 = this.database;
         if (database1 == null)
             database1 = new Database(new SimpleKVDatabase());
-        if (this.fieldTypeRegistry != null)
-            database1.setFieldTypeRegistry(this.fieldTypeRegistry);
+        if (this.encodingRegistry != null)
+            database1.setEncodingRegistry(this.encodingRegistry);
         final Permazen jdb = new Permazen(database1, this.schemaVersion, this.storageIdGenerator, this.modelClasses);
         if (this.validatorFactory != null)
             jdb.setValidatorFactory(this.validatorFactory);

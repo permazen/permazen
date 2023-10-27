@@ -7,10 +7,10 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 
 import java.util.Objects;
 
@@ -20,14 +20,14 @@ import java.util.Objects;
 class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
 
     private final int keyFieldStorageId;
-    private final FieldType<?> keyFieldType;
+    private final Encoding<?> keyEncoding;
     private final Class<? extends Enum<?>> keyEnumType;         // see "A Note About 'enumType'" in SimpleFieldIndexInfo.java
     private final ConverterProvider keyConverterProvider;
 
     MapValueIndexInfo(JMapField jfield) {
         super(jfield.valueField);
         this.keyFieldStorageId = jfield.keyField.storageId;
-        this.keyFieldType = jfield.keyField.fieldType.genericizeForIndex();
+        this.keyEncoding = jfield.keyField.encoding.genericizeForIndex();
         this.keyEnumType = jfield.keyField.getEnumType();
         this.keyConverterProvider = ConverterProvider.identityForNull(jfield.keyField::getConverter);
     }
@@ -42,12 +42,12 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
     }
 
     /**
-     * Get the associated key field {@link FieldType}.
+     * Get the associated key field {@link Encoding}.
      *
-     * @return key field {@link FieldType}
+     * @return key field {@link Encoding}
      */
-    public FieldType<?> getKeyFieldType() {
-        return this.keyFieldType;
+    public Encoding<?> getKeyEncoding() {
+        return this.keyEncoding;
     }
 
     /**
@@ -70,7 +70,7 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
 
     @Override
     protected Iterable<?> iterateReferences(Transaction tx, ObjId id) {
-        assert this.getFieldType() instanceof ReferenceFieldType;
+        assert this.getEncoding() instanceof ReferenceEncoding;
         return tx.readMapField(id, this.getParentStorageId(), false).values();
     }
 
@@ -80,7 +80,7 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
     protected String toStringPrefix() {
         return super.toStringPrefix()
           + ",keyFieldStorageId=" + this.keyFieldStorageId
-          + ",keyFieldType=" + this.keyFieldType
+          + ",keyEncoding=" + this.keyEncoding
           + (this.keyEnumType != null ? ",keyEnumType=" + this.keyEnumType : "");
     }
 
@@ -92,12 +92,12 @@ class MapValueIndexInfo extends ComplexSubFieldIndexInfo {
             return false;
         final MapValueIndexInfo that = (MapValueIndexInfo)obj;
         return this.keyFieldStorageId == that.keyFieldStorageId
-          && this.keyFieldType.equals(that.keyFieldType)
+          && this.keyEncoding.equals(that.keyEncoding)
           && Objects.equals(this.keyEnumType, that.keyEnumType);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.keyFieldStorageId ^ this.keyFieldType.hashCode() ^ Objects.hashCode(this.keyEnumType);
+        return super.hashCode() ^ this.keyFieldStorageId ^ this.keyEncoding.hashCode() ^ Objects.hashCode(this.keyEnumType);
     }
 }

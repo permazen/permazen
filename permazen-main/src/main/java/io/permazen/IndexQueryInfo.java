@@ -12,8 +12,8 @@ import io.permazen.core.CoreIndex;
 import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
 import io.permazen.core.CoreIndex4;
-import io.permazen.core.FieldType;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.Encoding;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 
@@ -71,7 +71,7 @@ class IndexQueryInfo {
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
         valueChecks.add(new ValueCheck("value type", valueType,
-          this.wrapRaw(path.getTargetFieldTypes()), fieldIndexInfo.getFieldType()));
+          this.wrapRaw(path.getTargetEncodings()), fieldIndexInfo.getEncoding()));
 
         // Verify target type
         valueChecks.add(new ValueCheck("target type", startType, path.getTargetTypes()));
@@ -81,7 +81,7 @@ class IndexQueryInfo {
             final MapValueIndexInfo mapValueIndexInfo = (MapValueIndexInfo)fieldIndexInfo;
             valueChecks.add(new ValueCheck("map key type", keyType, this.wrapRaw(this.getTypeTokens(
                jdb, this.startType, mapValueIndexInfo.getKeyFieldStorageId(), mapValueIndexInfo.getParentStorageId())),
-              mapValueIndexInfo.getKeyFieldType()));
+              mapValueIndexInfo.getKeyEncoding()));
         }
 
         // Check values
@@ -106,13 +106,13 @@ class IndexQueryInfo {
         CompositeIndexInfo compositeIndexInfo = IndexQueryInfo.findCompositeIndex(jdb, startType, indexName, valueTypes.length);
         this.indexInfo = compositeIndexInfo;
 
-        // Verify field types
+        // Verify encodings
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(valueTypes.length + 1);
         for (int i = 0; i < valueTypes.length; i++) {
             final Class<?> valueType = valueTypes[i];
             valueChecks.add(new ValueCheck("value type #" + (i + 1), valueType,
               this.wrapRaw(this.getTypeTokens(jdb, this.startType, compositeIndexInfo.getStorageIds().get(i))),
-              compositeIndexInfo.getFieldTypes().get(i)));
+              compositeIndexInfo.getEncodings().get(i)));
         }
 
         // Verify target type
@@ -129,7 +129,7 @@ class IndexQueryInfo {
     }
 
     private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, int storageId, int parentStorageId) {
-        final HashSet<TypeToken<?>> contextFieldTypes = new HashSet<>();
+        final HashSet<TypeToken<?>> contextEncodings = new HashSet<>();
         for (JClass<?> jclass : jdb.jclasses.values()) {
 
             // Check if jclass is under consideration
@@ -148,13 +148,13 @@ class IndexQueryInfo {
                 continue;
 
             // Add field's type in jclass
-            contextFieldTypes.add(simpleField.typeToken);
+            contextEncodings.add(simpleField.typeToken);
         }
-        if (contextFieldTypes.isEmpty()) {
+        if (contextEncodings.isEmpty()) {
             throw new IllegalArgumentException("no sub-type of " + context
               + " contains and indexed simple field with storage ID " + storageId);
         }
-        return Util.findLowestCommonAncestors(contextFieldTypes.stream());
+        return Util.findLowestCommonAncestors(contextEncodings.stream());
     }
 
     private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {
@@ -181,9 +181,9 @@ class IndexQueryInfo {
             throw new IllegalArgumentException("no composite index named \"" + indexName
               + "\" exists on any sub-type of " + startType.getName());
         }
-        if (numValues != indexInfo.getFieldTypes().size()) {
+        if (numValues != indexInfo.getEncodings().size()) {
             throw new IllegalArgumentException("composite index \"" + indexName
-              + "\" on " + startType.getName() + " has " + indexInfo.getFieldTypes().size() + " fields, not " + numValues);
+              + "\" on " + startType.getName() + " has " + indexInfo.getEncodings().size() + " fields, not " + numValues);
         }
         return indexInfo;
     }
@@ -256,8 +256,8 @@ class IndexQueryInfo {
         }
 
         // Constructor for indexed fields
-        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, FieldType<?> fieldType) {
-            this(description, actualType, expectedTypes, fieldType instanceof ReferenceFieldType, true);
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, Encoding<?> encoding) {
+            this(description, actualType, expectedTypes, encoding instanceof ReferenceEncoding, true);
         }
 
         // Constructor for target type (simple index)

@@ -22,20 +22,20 @@ import java.util.Comparator;
  * Defines the binary encoding, ordering, Java type, and range of possible values for a {@link SimpleField}.
  *
  * <p>
- * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
+ * An {@link Encoding} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
  * those instances used in the database. The {@code byte[]} encoding defines the database sort order (via unsigned
- * lexicographical ordering), and this ordering is also reflected via {@link #compare FieldType.compare()}.
+ * lexicographical ordering), and this ordering is also reflected via {@link #compare Encoding.compare()}.
  *
  * <p>
- * A {@link FieldType} also defines two mappings between Java instances and {@link String} values.
+ * An {@link Encoding} also defines two mappings between Java instances and {@link String} values.
  * There are two separate {@link String} forms, a regular form and a self-delimiting form.
  *
  * <p>
- * {@link FieldType}s have these requirements and properties:
+ * {@link Encoding}s have these requirements and properties:
  * <ul>
  *  <li>They have an associated Java type which can represent any of the field's values in Java (possibly including null).
- *  <li>They may have a {@link EncodingId}, which is a globally unique URN-style identifier that allows the field type
- *      to be looked up by name in a {@link FieldTypeRegistry}. Field types with no {@link EncodingId} are <i>anonymous</i>.
+ *  <li>They may have an {@link EncodingId}, which is a globally unique URN-style identifier that allows the encoding
+ *      to be looked up by name in an {@link EncodingRegistry}. Encodings with no {@link EncodingId} are <i>anonymous</i>.
  *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
  *      then the two orderings do not necessarily have to agree, but they should if possible.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
@@ -51,16 +51,16 @@ import java.util.Comparator;
  * </ul>
  *
  * <p>
- * Two {@link FieldType} instances should be equal according to {@link #equals equals()} if only if they behave identically
+ * Two {@link Encoding} instances should be equal according to {@link #equals equals()} if only if they behave identically
  * with respect to all of the above.
  *
  * <p>
- * A {@link FieldTypeRegistry} contains a registry of {@link FieldType}s indexed by {@linkplain #getEncodingId encoding ID}.
+ * An {@link EncodingRegistry} contains a registry of {@link Encoding}s indexed by {@linkplain #getEncodingId encoding ID}.
  *
  * @param <T> The associated Java type
- * @see FieldTypeRegistry
+ * @see EncodingRegistry
  */
-public interface FieldType<T> extends Comparator<T> {
+public interface Encoding<T> extends Comparator<T> {
 
     /**
      * The maximum number of supported array dimensions ({@value #MAX_ARRAY_DIMENSIONS}).
@@ -68,23 +68,23 @@ public interface FieldType<T> extends Comparator<T> {
     int MAX_ARRAY_DIMENSIONS = 255;
 
     /**
-     * Get the globally unique encoding ID that identifies this field type, if any.
+     * Get the globally unique encoding ID that identifies this encoding, if any.
      *
      * <p>
-     * Once associated with a specific encoding, an encoding ID must never be changed or reused. If a {@link FieldType}'s
+     * Once associated with a specific encoding, an encoding ID must never be changed or reused. If an {@link Encoding}'s
      * encoding changes in any way, then its encoding ID MUST also change. This applies only to the encoding itself,
-     * and not the {@linkplain #getTypeToken associated Java type}. For example, a {@link FieldType}'s associated Java type
+     * and not the {@linkplain #getTypeToken associated Java type}. For example, an {@link Encoding}'s associated Java type
      * can change over time, e.g., when {@code javax.mail.internet.InternetAddress} moved to
      * {@code jakarta.mail.internet.InternetAddress}) in Jakarta EE 9.
      *
-     * @return this type's unique encoding ID, or null if this field type is anonymous
+     * @return this encoding's unique ID, or null if this encoding is anonymous
      */
     EncodingId getEncodingId();
 
     /**
-     * Get the Java type corresponding to this type's values.
+     * Get the Java type corresponding to this encoding's values.
      *
-     * @return this type's Java type
+     * @return the Java type used to represent this encoding's values
      */
     TypeToken<T> getTypeToken();
 
@@ -104,13 +104,13 @@ public interface FieldType<T> extends Comparator<T> {
      *
      * @param writer byte output
      * @param value value to write (possibly null)
-     * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     * @throws IllegalArgumentException if {@code value} is null and this encoding does not support null
      * @throws IllegalArgumentException if {@code writer} is null
      */
     void write(ByteWriter writer, T value);
 
     /**
-     * Get the default value for this field type encoded as a {@code byte[]} array.
+     * Get the default value for this encoding encoded as a {@code byte[]} array.
      *
      * @return encoded default value
      */
@@ -125,7 +125,7 @@ public interface FieldType<T> extends Comparator<T> {
     }
 
     /**
-     * Get the default value for this field type.
+     * Get the default value for this encoding.
      *
      * @return default value
      */
@@ -149,7 +149,7 @@ public interface FieldType<T> extends Comparator<T> {
      * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
      *
      * <p>
-     * The implementation in {@link FieldType} checks that {@code value} is not null, then delegates to {@link #toParseableString}.
+     * The implementation in {@link Encoding} checks that {@code value} is not null, then delegates to {@link #toParseableString}.
      * Subclasses that override this method should also override {@link #fromString fromString()}.
      *
      * @param value actual value, never null
@@ -166,7 +166,7 @@ public interface FieldType<T> extends Comparator<T> {
      * Parse a non-null value previously encoded by {@link #toString(Object) toString(T)}.
      *
      * <p>
-     * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
+     * The implementation in {@link Encoding} creates a new {@link ParseContext} based on {@code string},
      * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
      * during the parse. Subclasses that override this method should also override {@link #toString(Object) toString(T)}.
      *
@@ -195,7 +195,7 @@ public interface FieldType<T> extends Comparator<T> {
      *
      * @param value actual value (possibly null)
      * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
-     * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     * @throws IllegalArgumentException if {@code value} is null and this encoding does not support null
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
     String toParseableString(T value);
@@ -211,20 +211,21 @@ public interface FieldType<T> extends Comparator<T> {
     T fromParseableString(ParseContext context);
 
     /**
-     * Attempt to convert a value from the given {@link FieldType} into a value of this {@link FieldType}.
+     * Attempt to convert a value from the given {@link Encoding} into a value of this {@link Encoding}.
      *
      * <p>
-     * For a non-null {@code value}, the implementation in {@link FieldType} first checks whether the {@code value} is already
-     * a valid value for this type; if so, the value is returned. Otherwise, it invokes {@code type.}{@link #toString(Object)
-     * toString(value)} to convert {@code value} into a {@link String}, and then attempts to parse that string via
-     * {@code this.}{@link #fromString fromString()}; if the parse fails, an {@link IllegalArgumentException} is thrown.
+     * For a non-null {@code value}, the implementation in {@link Encoding} first checks whether the {@code value} is already
+     * a valid value for this encoding; if so, the value is returned. Otherwise, it invokes
+     * {@code encoding.}{@link #toString(Object) toString(value)} to convert {@code value} into a {@link String}, and then
+     * attempts to parse that string via {@code this.}{@link #fromString fromString()}; if the parse fails,
+     * an {@link IllegalArgumentException} is thrown.
      *
      * <p>
-     * If {@code value} is null, the implementation in {@link FieldType} returns null, unless this type does not support null
-     * values, in which case an {@link IllegalArgumentException} is thrown.
+     * If {@code value} is null, the implementation in {@link Encoding} returns null, unless this encoding does not support
+     * null values, in which case an {@link IllegalArgumentException} is thrown.
      *
      * <p>
-     * Special handling also exists for certain conversions between Permazen's built-in types:
+     * Permazen's built-in encodings include the following conversions:
      * <ul>
      *  <li>Primitive types other than Boolean convert as if by the corresponding Java cast</li>
      *  <li>Non-Boolean primitive types convert to Boolean as if by {@code value != 0}</li>
@@ -234,25 +235,25 @@ public interface FieldType<T> extends Comparator<T> {
      *  <li>Arrays are converted by converting each array element individually (if possible)</li>
      * </ul>
      *
-     * @param type the {@link FieldType} of {@code value}
+     * @param encoding the {@link Encoding} of {@code value}
      * @param value the value to convert
-     * @param <S> source field type
+     * @param <S> source encoding
      * @return {@code value} converted to this instance's type
      * @throws IllegalArgumentException if the conversion fails
      */
-    default <S> T convert(FieldType<S> type, S value) {
-        Preconditions.checkArgument(type != null, "null type");
+    default <S> T convert(Encoding<S> encoding, S value) {
+        Preconditions.checkArgument(encoding != null, "null encoding");
         try {
             return this.validate(value);
         } catch (IllegalArgumentException e) {
             if (value == null)
                 throw e;
         }
-        return this.fromString(type.toString(value));
+        return this.fromString(encoding.toString(value));
     }
 
     /**
-     * Verify the given object is a valid instance of this {@link FieldType}'s Java type and cast it to that type.
+     * Verify the given object is a valid instance of this {@link Encoding}'s Java type and cast it to that type.
      *
      * <p>
      * Note that this method must throw {@link IllegalArgumentException}, not {@link ClassCastException}
@@ -263,14 +264,14 @@ public interface FieldType<T> extends Comparator<T> {
      * from {@link Integer} to {@link Long}.
      *
      * <p>
-     * The implementation in {@link FieldType} attempts to cast the value using this instance's raw Java type.
+     * The implementation in {@link Encoding} attempts to cast the value using this instance's raw Java type.
      * Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.
      *
      * @param obj object to validate
-     * @return {@code obj} cast to this field's type
+     * @return {@code obj} cast to this encoding's type
      * @throws IllegalArgumentException if {@code obj} in not of type T
-     * @throws IllegalArgumentException if {@code obj} is null and this type does not support null values
-     * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link FieldType}
+     * @throws IllegalArgumentException if {@code obj} is null and this encoding does not support null values
+     * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link Encoding}
      */
     @SuppressWarnings("unchecked")
     default T validate(Object obj) {
@@ -295,20 +296,20 @@ public interface FieldType<T> extends Comparator<T> {
      * <p>
      * Note: by convention, null values usually sort last.
      *
-     * @throws IllegalArgumentException if {@code value1} or {@code value2} is null and this type does not support null
+     * @throws IllegalArgumentException if {@code value1} or {@code value2} is null and this encoding does not support null
      */
     @Override
     int compare(T value1, T value2);
 
     /**
-     * Determine whether any of this field type's encoded values start with a {@code 0x00} byte.
+     * Determine whether any of this encoding's encoded values start with a {@code 0x00} byte.
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
      * Note: changing the return value of this method usually results in an incompatible encoding.
      *
      * <p>
-     * The implementation in {@link FieldType} returns {@code true}.
+     * The implementation in {@link Encoding} returns {@code true}.
      *
      * @return true if an encoded value starting with {@code 0x00} exists
      */
@@ -317,14 +318,14 @@ public interface FieldType<T> extends Comparator<T> {
     }
 
     /**
-     * Determine whether any of this field type's encoded values start with a {@code 0xff} byte.
+     * Determine whether any of this encoding's encoded values start with a {@code 0xff} byte.
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
      * Note: changing the return value of this method usually results in an incompatible encoding.
      *
      * <p>
-     * The implementation in {@link FieldType} returns {@code true}.
+     * The implementation in {@link Encoding} returns {@code true}.
      *
      * @return true if an encoded value starting with {@code 0xff} exists
      */
@@ -344,8 +345,8 @@ public interface FieldType<T> extends Comparator<T> {
      * @param writer byte output
      * @param obj object to validate
      * @throws IllegalArgumentException if {@code obj} in not of type T
-     * @throws IllegalArgumentException if {@code obj} is null and this type does not support null values
-     * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link FieldType}
+     * @throws IllegalArgumentException if {@code obj} is null and this encoding does not support null values
+     * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link Encoding}
      * @throws IllegalArgumentException if {@code writer} is null
      */
     default void validateAndWrite(ByteWriter writer, Object obj) {
@@ -359,11 +360,11 @@ public interface FieldType<T> extends Comparator<T> {
      * This operation should be applied before using this instance with index queries.
      *
      * <p>
-     * The implementation in {@link FieldType} just returns itself.
+     * The implementation in {@link Encoding} just returns itself.
      *
      * @return this instance with all non-index-relevant information elided
      */
-    default FieldType<T> genericizeForIndex() {
+    default Encoding<T> genericizeForIndex() {
         return this;
     }
 

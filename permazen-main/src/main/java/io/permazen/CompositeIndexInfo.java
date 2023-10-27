@@ -7,7 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,19 +21,19 @@ import java.util.List;
 class CompositeIndexInfo extends IndexInfo {
 
     private final List<Integer> storageIds;
-    private final List<FieldType<?>> fieldTypes;
+    private final List<Encoding<?>> encodings;
     private final List<Class<? extends Enum<?>>> enumTypes;     // see "A Note About 'enumType'" in SimpleFieldIndexInfo.java
     private final List<ConverterProvider> converterProviders;
 
     CompositeIndexInfo(JCompositeIndex index) {
         super(index.storageId);
         this.storageIds = new ArrayList<>(index.jfields.size());
-        this.fieldTypes = new ArrayList<>(index.jfields.size());
+        this.encodings = new ArrayList<>(index.jfields.size());
         this.enumTypes = new ArrayList<>(index.jfields.size());
         this.converterProviders = new ArrayList<>(index.jfields.size());
         for (JSimpleField jfield : index.jfields) {
             this.storageIds.add(jfield.storageId);
-            this.fieldTypes.add(jfield.fieldType);
+            this.encodings.add(jfield.encoding);
             this.enumTypes.add(jfield.getEnumType());
             this.converterProviders.add(ConverterProvider.identityForNull(jfield::getConverter));
         }
@@ -49,12 +49,12 @@ class CompositeIndexInfo extends IndexInfo {
     }
 
     /**
-     * Get the indexed field types.
+     * Get the indexed encodings.
      *
-     * @return indexed field types
+     * @return indexed encodings
      */
-    public List<FieldType<?>> getFieldTypes() {
-        return this.fieldTypes;
+    public List<Encoding<?>> getEncodings() {
+        return this.encodings;
     }
 
     /**
@@ -76,7 +76,7 @@ class CompositeIndexInfo extends IndexInfo {
         return this.getClass().getSimpleName()
           + "[storageId=" + this.getStorageId()
           + ",storageIds=" + this.getStorageIds()
-          + ",fieldTypes=" + this.fieldTypes
+          + ",encodings=" + this.encodings
           + ",enumTypes=" + this.enumTypes
           + "]";
     }
@@ -89,12 +89,12 @@ class CompositeIndexInfo extends IndexInfo {
             return false;
         final CompositeIndexInfo that = (CompositeIndexInfo)obj;
         return this.storageIds.equals(that.storageIds)
-          && this.fieldTypes.equals(that.fieldTypes)
+          && this.encodings.equals(that.encodings)
           && this.enumTypes.equals(that.enumTypes);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.storageIds.hashCode() ^ this.fieldTypes.hashCode() ^ this.enumTypes.hashCode();
+        return super.hashCode() ^ this.storageIds.hashCode() ^ this.encodings.hashCode() ^ this.enumTypes.hashCode();
     }
 }

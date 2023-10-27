@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -29,7 +29,7 @@ abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends 
     void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers) {
 
         // Sanity check
-        assert this.fieldType instanceof ReferenceFieldType;
+        assert this.encoding instanceof ReferenceEncoding;
 
         // Build the index entry prefix common to all referrers' index entries
         final ByteWriter writer = new ByteWriter(this.storageIdEncodedLength + ObjId.NUM_BYTES * 2);

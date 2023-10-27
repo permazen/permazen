@@ -33,7 +33,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     private final Transaction tx;
     private final ObjId id;
     private final ListField<E> field;
-    private final FieldType<E> elementType;
+    private final Encoding<E> elementType;
     private final byte[] contentPrefix;
 
 // Constructors
@@ -45,7 +45,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.tx = tx;
         this.field = field;
         this.id = id;
-        this.elementType = this.field.elementField.fieldType;
+        this.elementType = this.field.elementField.encoding;
         this.contentPrefix = field.buildKey(id);
     }
 

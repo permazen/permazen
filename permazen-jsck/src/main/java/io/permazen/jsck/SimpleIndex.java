@@ -5,7 +5,7 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.type.ObjIdType;
 import io.permazen.schema.SimpleSchemaField;
@@ -13,12 +13,12 @@ import io.permazen.util.ByteReader;
 
 abstract class SimpleIndex extends Index {
 
-    protected final FieldType<?> type;
+    protected final Encoding<?> type;
 
     SimpleIndex(JsckInfo info, int schemaVersion, SimpleSchemaField field) {
         super(info, field.getStorageId());
         assert field.isIndexed();
-        this.type = this.info.findFieldType(schemaVersion, field).genericizeForIndex();
+        this.type = this.info.findEncoding(schemaVersion, field).genericizeForIndex();
     }
 
     @Override

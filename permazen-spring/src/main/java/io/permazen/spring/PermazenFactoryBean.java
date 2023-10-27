@@ -12,7 +12,7 @@ import io.permazen.Permazen;
 import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.core.Database;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
 
@@ -27,7 +27,7 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
     private KVDatabase kvstore;
     private int schemaVersion = -1;
-    private FieldTypeRegistry fieldTypeRegistry;
+    private EncodingRegistry encodingRegistry;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Collection<Class<?>> modelClasses;
 
@@ -41,8 +41,8 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         this.schemaVersion = schemaVersion;
     }
 
-    public void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
-        this.fieldTypeRegistry = fieldTypeRegistry;
+    public void setEncodingRegistry(EncodingRegistry encodingRegistry) {
+        this.encodingRegistry = encodingRegistry;
     }
 
     public void setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
@@ -82,7 +82,7 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         return new PermazenFactory()
           .setDatabase(db)
           .setSchemaVersion(schemaVersion1)
-          .setFieldTypeRegistry(this.fieldTypeRegistry)
+          .setEncodingRegistry(this.encodingRegistry)
           .setStorageIdGenerator(this.storageIdGenerator)
           .setModelClasses(this.modelClasses)
           .newPermazen();

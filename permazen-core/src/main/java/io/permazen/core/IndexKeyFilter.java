@@ -25,11 +25,11 @@ class IndexKeyFilter implements KeyFilter {
 
     private final KVStore kv;
     private final byte[] prefix;                                // prefix to always skip over
-    private final FieldType<?>[] fieldTypes;                    // fields to decode after prefix
+    private final Encoding<?>[] encodings;                    // fields to decode after prefix
     private final KeyFilter[] filters;                          // filters to apply to fields
     private final int prefixLen;                                // how many fields are mandatory
 
-    private final FieldTypesFilter prefixFilter;
+    private final EncodingsFilter prefixFilter;
 
     /**
      * Constructor from an index view.
@@ -41,42 +41,42 @@ class IndexKeyFilter implements KeyFilter {
      * @throws IllegalArgumentException if {@code prefixLen} is zero or out of range
      */
     IndexKeyFilter(KVStore kv, AbstractIndexView indexView, int prefixLen) {
-        this(kv, indexView.prefix, indexView.fieldTypes, indexView.filters, prefixLen);
+        this(kv, indexView.prefix, indexView.encodings, indexView.filters, prefixLen);
     }
 
     /**
      * Primary constructor.
      *
      * @param kv key/value data
-     * @param prefix prefix before first field type
-     * @param fieldTypes one or more index field types
-     * @param filters filters corresponding to {@code fieldTypes}
-     * @param prefixLen the number of fields in {@code fieldTypes} that are considered mandatory
+     * @param prefix prefix before first encoding
+     * @param encodings one or more index encodings
+     * @param filters filters corresponding to {@code encodings}
+     * @param prefixLen the number of fields in {@code encodings} that are considered mandatory
      * @throws IllegalArgumentException if {@code kv} is null
-     * @throws IllegalArgumentException if {@code fieldTypes} is null or empty
+     * @throws IllegalArgumentException if {@code encodings} is null or empty
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      * @throws IllegalArgumentException if {@code prefixLen} is zero or out of range
-     * @throws IllegalArgumentException if {@code filters} is not the same length as {@code fieldTypes}
+     * @throws IllegalArgumentException if {@code filters} is not the same length as {@code encodings}
      */
-    IndexKeyFilter(KVStore kv, byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int prefixLen) {
+    IndexKeyFilter(KVStore kv, byte[] prefix, Encoding<?>[] encodings, KeyFilter[] filters, int prefixLen) {
         Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
-        Preconditions.checkArgument(fieldTypes != null && fieldTypes.length > 0, "null/empty fieldTypes");
-        Preconditions.checkArgument(filters != null && filters.length == fieldTypes.length, "bogus filters");
-        Preconditions.checkArgument(prefixLen >= 0 && prefixLen <= fieldTypes.length, "invalid prefixLen");
+        Preconditions.checkArgument(encodings != null && encodings.length > 0, "null/empty encodings");
+        Preconditions.checkArgument(filters != null && filters.length == encodings.length, "bogus filters");
+        Preconditions.checkArgument(prefixLen >= 0 && prefixLen <= encodings.length, "invalid prefixLen");
         this.kv = kv;
         this.prefix = prefix;
-        this.fieldTypes = fieldTypes;
+        this.encodings = encodings;
         this.filters = filters.clone();
         this.prefixLen = prefixLen;
-        this.prefixFilter = new FieldTypesFilter(this.prefix, this.fieldTypes, this.filters, 0, this.prefixLen);
+        this.prefixFilter = new EncodingsFilter(this.prefix, this.encodings, this.filters, 0, this.prefixLen);
     }
 
     @Override
     public String toString() {
         return "IndexKeyFilter"
           + "[prefix=" + ByteUtil.toString(this.prefix)
-          + ",fieldTypes=" + Arrays.asList(this.fieldTypes)
+          + ",encodings=" + Arrays.asList(this.encodings)
           + ",filters=" + Arrays.asList(this.filters)
           + ",prefixLen=" + this.prefixLen
           + "]";
@@ -94,17 +94,17 @@ class IndexKeyFilter implements KeyFilter {
             return false;
 
         // Do we have any suffix?
-        if (this.prefixLen == this.fieldTypes.length)
+        if (this.prefixLen == this.encodings.length)
             return true;
 
         // Determine what part of `key' constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
-        for (FieldType<?> fieldType : this.prefixFilter.getFieldTypes())
-            fieldType.skip(reader);
+        for (Encoding<?> encoding : this.prefixFilter.getEncodings())
+            encoding.skip(reader);
         final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
 
         // Search for any key with that prefix, using the suffix filter(s)
-        final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
+        final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
         try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
             return i.hasNext();
         }
@@ -120,17 +120,17 @@ class IndexKeyFilter implements KeyFilter {
             return next;
 
         // Do we have any suffix?
-        if (this.prefixLen == this.fieldTypes.length)
+        if (this.prefixLen == this.encodings.length)
             return next;
 
         // Determine what part of `key' constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
-        for (FieldType<?> fieldType : this.prefixFilter.getFieldTypes())
-            fieldType.skip(reader);
+        for (Encoding<?> encoding : this.prefixFilter.getEncodings())
+            encoding.skip(reader);
         final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
 
         // Search for any key with that prefix, using the suffix filter(s)
-        final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
+        final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
         try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, false)) {
             i.setNextTarget(key);
             return i.hasNext() ? i.next().getKey() : ByteUtil.getKeyAfterPrefix(suffixPrefix);
@@ -150,28 +150,28 @@ class IndexKeyFilter implements KeyFilter {
             return null;
 
         // Do we have any suffix?
-        if (this.prefixLen == this.fieldTypes.length)
+        if (this.prefixLen == this.encodings.length)
             return next;
 
         // Determine what part of `next' constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         try {
-            for (FieldType<?> fieldType : this.prefixFilter.getFieldTypes())
-                fieldType.skip(reader);
+            for (Encoding<?> encoding : this.prefixFilter.getEncodings())
+                encoding.skip(reader);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             return next;
         }
         final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
 
         // Check suffix fields
-        final FieldTypesFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
+        final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
         try (KVPairIterator i = new KVPairIterator(this.kv, KeyRange.forPrefix(suffixPrefix), suffixFilter, true)) {
             i.setNextTarget(next);
             return i.hasNext() ? ByteUtil.getNextKey(i.next().getKey()) : suffixPrefix;
         }
     }
 
-    private FieldTypesFilter buildSuffixFilter(byte[] suffixPrefix) {
-        return new FieldTypesFilter(suffixPrefix, this.fieldTypes, this.filters, this.prefixLen, this.fieldTypes.length);
+    private EncodingsFilter buildSuffixFilter(byte[] suffixPrefix) {
+        return new EncodingsFilter(suffixPrefix, this.encodings, this.filters, this.prefixLen, this.encodings.length);
     }
 }

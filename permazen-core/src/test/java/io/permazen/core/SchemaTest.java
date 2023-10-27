@@ -27,7 +27,7 @@ public class SchemaTest extends CoreAPITestSupport {
         final Database db = new Database(kvstore);
 
         // Register custom type
-        ((DefaultFieldTypeRegistry)db.getFieldTypeRegistry()).add(new BarType());
+        ((DefaultEncodingRegistry)db.getEncodingRegistry()).add(new BarType());
 
         // Validate XML
         final SchemaModel schema;
@@ -98,27 +98,27 @@ public class SchemaTest extends CoreAPITestSupport {
           + footer;
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes(StandardCharsets.UTF_8)));
 
-        final DefaultFieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
+        final DefaultEncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
 
-        this.validate(fieldTypeRegistry, true, schema1);
-        this.validate(fieldTypeRegistry, true, schema1);
-        this.validate(fieldTypeRegistry, false, schema3);                       // BarType not registered yet
+        this.validate(encodingRegistry, true, schema1);
+        this.validate(encodingRegistry, true, schema1);
+        this.validate(encodingRegistry, false, schema3);                       // BarType not registered yet
 
-        fieldTypeRegistry.add(new BarType());
-        this.validate(fieldTypeRegistry, true, schema1);
-        this.validate(fieldTypeRegistry, true, schema1);
-        this.validate(fieldTypeRegistry, true, schema3);                        // BarType is now registered
+        encodingRegistry.add(new BarType());
+        this.validate(encodingRegistry, true, schema1);
+        this.validate(encodingRegistry, true, schema1);
+        this.validate(encodingRegistry, true, schema3);                        // BarType is now registered
 
-        this.validate(fieldTypeRegistry, false, schema1, schema2);              // incompatible use of field #20
-        this.validate(fieldTypeRegistry, true, schema1, schema3);
-        this.validate(fieldTypeRegistry, true, schema2, schema3);
-        this.validate(fieldTypeRegistry, false, schema1, schema2, schema3);
+        this.validate(encodingRegistry, false, schema1, schema2);              // incompatible use of field #20
+        this.validate(encodingRegistry, true, schema1, schema3);
+        this.validate(encodingRegistry, true, schema2, schema3);
+        this.validate(encodingRegistry, false, schema1, schema2, schema3);
     }
 
-    private void validate(FieldTypeRegistry fieldTypeRegistry, boolean expectedValid, SchemaModel... schemas) {
+    private void validate(EncodingRegistry encodingRegistry, boolean expectedValid, SchemaModel... schemas) {
         if (schemas.length == 0) {
             try {
-                Database.validateSchema(fieldTypeRegistry, schemas[1]);
+                Database.validateSchema(encodingRegistry, schemas[1]);
                 if (!expectedValid)
                     throw new AssertionError("expected invalid schema but schema was valid");
             } catch (InvalidSchemaException e) {
@@ -127,7 +127,7 @@ public class SchemaTest extends CoreAPITestSupport {
             }
         }
         try {
-            Database.validateSchemas(fieldTypeRegistry, Arrays.asList(schemas));
+            Database.validateSchemas(encodingRegistry, Arrays.asList(schemas));
             if (!expectedValid)
                 throw new AssertionError("expected invalid schema combination but was valid");
         } catch (InvalidSchemaException e) {
@@ -651,7 +651,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n",
           },
 
-          // Change sub-field types - compatible indexing
+          // Change sub-field encodings - compatible indexing
           { true,
             "<!-- test 4a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -670,7 +670,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n",
           },
 
-          // Change sub-field types - incompatible indexing
+          // Change sub-field encodings - incompatible indexing
           { false,
             "<!-- test 5a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"

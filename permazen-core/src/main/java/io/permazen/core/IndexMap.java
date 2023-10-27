@@ -22,15 +22,15 @@ import java.util.NavigableSet;
 /**
  * Support superclass for the various {@link NavigableMap} views of indexes.
  */
-abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
+abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
     // Primary constructor
-    private IndexMap(KVStore kv, FieldType<K> keyType, byte[] prefix) {
+    private IndexMap(KVStore kv, Encoding<K> keyType, byte[] prefix) {
         super(kv, keyType, true, prefix);
     }
 
     // Internal constructor
-    private IndexMap(KVStore kv, FieldType<K> keyType, boolean reversed,
+    private IndexMap(KVStore kv, Encoding<K> keyType, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(kv, keyType, true, reversed, prefix, keyRange, keyFilter, bounds);
     }
@@ -38,7 +38,7 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
     public String getDescription() {
         return "IndexMap"
           + "[prefix=" + ByteUtil.toString(this.prefix)
-          + ",keyType=" + this.keyFieldType
+          + ",keyType=" + this.keyEncoding
           + (this.bounds != null ? ",bounds=" + this.bounds : "")
           + (this.keyRange != null ? ",keyRange=" + this.keyRange : "")
           + (this.keyFilter != null ? ",keyFilter=" + this.keyFilter : "")
@@ -58,7 +58,7 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         final ByteReader reader = new ByteReader(pair.getKey());
         assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
         reader.skip(this.prefix.length);
-        this.keyFieldType.skip(reader);
+        this.keyEncoding.skip(reader);
         return this.decodeValue(reader.getBytes(0, reader.getOffset()));
     }
 
@@ -107,7 +107,7 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
             final KeyFilter targetFilter = this.indexView.getFilter(1);
             if (targetFilter != null) {
                 indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, keyPrefix,
-                  new FieldType<?>[] { this.indexView.getTargetType() }, new KeyFilter[] { targetFilter }, 1));
+                  new Encoding<?>[] { this.indexView.getTargetType() }, new KeyFilter[] { targetFilter }, 1));
             }
             return indexSet;
         }

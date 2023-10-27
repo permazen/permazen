@@ -160,7 +160,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
         private final int storageId;
         private final String fieldName;
-        private final Class<?> fieldType;
+        private final Class<?> encoding;
         private final boolean isSubField;
 
         FieldSortKey(JSimpleField jfield) {
@@ -170,13 +170,13 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             this.storageId = jfield.getStorageId();
             this.isSubField = jfield.getParentField() != null;
             this.fieldName = (this.isSubField ? jfield.getParentField().getName() + "." : "") + jfield.getName();
-            this.fieldType = jfield.getTypeToken().wrap().getRawType();
+            this.encoding = jfield.getTypeToken().wrap().getRawType();
         }
 
         @Override
         public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
             String expr = "queryIndex(" + SortKeyContainer.this.getTypeExpression(session, true) + ", "
-              + StringEncoder.enquote(this.fieldName) + ", " + session.relativizeClassName(this.fieldType) + ".class).asMap()";
+              + StringEncoder.enquote(this.fieldName) + ", " + session.relativizeClassName(this.encoding) + ".class).asMap()";
             if (reverse)
                 expr += ".descendingMap()";
             expr += ".values()";

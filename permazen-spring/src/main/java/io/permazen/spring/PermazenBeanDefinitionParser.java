@@ -22,7 +22,7 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final String KVSTORE_ATTRIBUTE = "kvstore";
     private static final String SCHEMA_VERSION_ATTRIBUTE = "schema-version";
-    private static final String FIELD_TYPE_REGISTRY_ATTRIBUTE = "field-type-registry";
+    private static final String ENCODING_REGISTRY_ATTRIBUTE = "encoding-registry";
     private static final String STORAGE_ID_GENERATOR_ATTRIBUTE = "storage-id-generator";
     private static final String AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE = "auto-generate-storage-ids";
 
@@ -42,9 +42,9 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
         if (element.hasAttribute(SCHEMA_VERSION_ATTRIBUTE))
             builder.addPropertyValue("schemaVersion", element.getAttribute(SCHEMA_VERSION_ATTRIBUTE));
 
-        // Get FieldTypeRegistry (optional)
-        if (element.hasAttribute(FIELD_TYPE_REGISTRY_ATTRIBUTE))
-            builder.addPropertyValue("fieldTypeRegistry", element.getAttribute(FIELD_TYPE_REGISTRY_ATTRIBUTE));
+        // Get EncodingRegistry (optional)
+        if (element.hasAttribute(ENCODING_REGISTRY_ATTRIBUTE))
+            builder.addPropertyValue("encodingRegistry", element.getAttribute(ENCODING_REGISTRY_ATTRIBUTE));
 
         // Get storage ID generator bean name (optional)
         final boolean autogenStorageIds = !element.hasAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE)

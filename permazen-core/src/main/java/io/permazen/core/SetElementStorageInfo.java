@@ -22,6 +22,6 @@ class SetElementStorageInfo<E> extends CollectionElementStorageInfo<NavigableSet
 
     @Override
     public String toString() {
-        return "set element with " + this.fieldType;
+        return "set element with " + this.encoding;
     }
 }

@@ -5,8 +5,8 @@
 
 package io.permazen.core.type;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.Encodings;
-import io.permazen.core.FieldType;
 import io.permazen.core.InvalidReferenceException;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceField;
@@ -19,7 +19,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * The {@link FieldType} for {@link ReferenceField}s. Instances support object type restriction.
+ * The {@link Encoding} for {@link ReferenceField}s. Instances support object type restriction.
  *
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}, or {@code 0xff} to represent null.
@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * <p>
  * Null values are supported by this class.
  */
-public class ReferenceFieldType extends NullSafeType<ObjId> {
+public class ReferenceEncoding extends NullSafeType<ObjId> {
 
     private static final long serialVersionUID = -5980288575339951079L;
 
@@ -39,7 +39,7 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
      * <p>
      * No restrictions will be placed on encoded references.
      */
-    public ReferenceFieldType() {
+    public ReferenceEncoding() {
         this(null);
     }
 
@@ -48,13 +48,13 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
      *
      * @param objectTypes allowed object type storage IDs, or null for no restriction
      */
-    public ReferenceFieldType(Set<Integer> objectTypes) {
+    public ReferenceEncoding(Set<Integer> objectTypes) {
         super(null, Encodings.OBJ_ID);
         this.objectTypes = objectTypes != null ? new TreeSet<>(objectTypes) : null;
     }
 
     /**
-     * Get the object types this field type is allowed to reference, if so restricted.
+     * Get the object types this encoding is allowed to reference, if so restricted.
      *
      * @return storage IDs of allowed object types, or null if there is no restriction
      */
@@ -62,7 +62,7 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
         return objectTypes != null ? Collections.unmodifiableSortedSet(this.objectTypes) : null;
     }
 
-// FieldType
+// Encoding
 
     @Override
     public void write(ByteWriter writer, ObjId id) {
@@ -88,19 +88,19 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
     }
 
     /**
-     * Attempt to convert a value from the given {@link FieldType} into a value of this {@link FieldType}.
+     * Attempt to convert a value from the given {@link Encoding} into a value of this {@link Encoding}.
      *
      * <p>
-     * The only conversion supported by {@link ReferenceFieldType} is to/from {@link ObjId}.
+     * The only conversion supported by {@link ReferenceEncoding} is to/from {@link ObjId}.
      */
     @Override
-    public <S> ObjId convert(FieldType<S> type, S value) {
+    public <S> ObjId convert(Encoding<S> type, S value) {
         return this.validate(value);
     }
 
     @Override
-    public ReferenceFieldType genericizeForIndex() {
-        return this.objectTypes != null ? new ReferenceFieldType() : this;
+    public ReferenceEncoding genericizeForIndex() {
+        return this.objectTypes != null ? new ReferenceEncoding() : this;
     }
 
 // Object
@@ -119,7 +119,7 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
             return true;
         if (!super.equals(obj))
             return false;
-        final ReferenceFieldType that = (ReferenceFieldType)obj;
+        final ReferenceEncoding that = (ReferenceEncoding)obj;
         return Objects.equals(this.objectTypes, that.objectTypes);
     }
 

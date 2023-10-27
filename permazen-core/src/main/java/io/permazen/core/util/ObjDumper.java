@@ -9,9 +9,9 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.Encoding;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
-import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
@@ -150,9 +150,9 @@ public final class ObjDumper {
 
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {
-                    final FieldType<T> fieldType = field.getFieldType();
-                    writer.println(fieldType.toParseableString(
-                      fieldType.validate(tx.readSimpleField(id, field.getStorageId(), false))));
+                    final Encoding<T> encoding = field.getEncoding();
+                    writer.println(encoding.toParseableString(
+                      encoding.validate(tx.readSimpleField(id, field.getStorageId(), false))));
                     return null;
                 }
 
@@ -179,7 +179,7 @@ public final class ObjDumper {
                 }
 
                 private <E> void handleCollection(Collection<E> items, SimpleField<E> elementField, boolean showIndex) {
-                    final FieldType<E> fieldType = elementField.getFieldType();
+                    final Encoding<E> encoding = elementField.getEncoding();
                     writer.print("{");
                     int count = 0;
                     for (E item : items) {
@@ -193,7 +193,7 @@ public final class ObjDumper {
                         writer.print(eindent);
                         if (showIndex)
                             writer.print("[" + count + "] ");
-                        writer.println(fieldType.toParseableString(item));
+                        writer.println(encoding.toParseableString(item));
                         count++;
                     }
                     writer.println(count == 0 ? " }" : indent + "}");
@@ -202,8 +202,8 @@ public final class ObjDumper {
                 @Override
                 @SuppressWarnings("unchecked")
                 public <K, V> Void caseMapField(MapField<K, V> field) {
-                    final FieldType<K> keyFieldType = field.getKeyField().getFieldType();
-                    final FieldType<V> valueFieldType = field.getValueField().getFieldType();
+                    final Encoding<K> keyEncoding = field.getKeyField().getEncoding();
+                    final Encoding<V> valueEncoding = field.getValueField().getEncoding();
                     writer.print("{");
                     int count = 0;
                     final NavigableMap<K, V> map = (NavigableMap<K, V>)tx.readMapField(id, field.getStorageId(), false);
@@ -215,8 +215,8 @@ public final class ObjDumper {
                             count++;
                             break;
                         }
-                        writer.println(eindent + keyFieldType.toParseableString(entry.getKey())
-                          + " -> " + valueFieldType.toParseableString(entry.getValue()));
+                        writer.println(eindent + keyEncoding.toParseableString(entry.getKey())
+                          + " -> " + valueEncoding.toParseableString(entry.getValue()));
                         count++;
                     }
                     writer.println(count == 0 ? " }" : indent + "}");

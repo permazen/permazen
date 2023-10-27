@@ -22,7 +22,7 @@ import java.util.UUID;
  * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
  * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}.
  */
-public class UUIDType extends NonNullFieldType<UUID> {
+public class UUIDType extends NonNullEncoding<UUID> {
 
     private static final long serialVersionUID = -7426558458120883995L;
 
@@ -33,7 +33,7 @@ public class UUIDType extends NonNullFieldType<UUID> {
         super(EncodingIds.builtin("UUID"), UUID.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public UUID read(ByteReader reader) {

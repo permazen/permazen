@@ -8,7 +8,7 @@ package io.permazen.annotation;
 import io.permazen.JObject;
 import io.permazen.StorageIdGenerator;
 import io.permazen.UniquenessConstraints;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 
 import jakarta.validation.groups.Default;
 
@@ -101,10 +101,10 @@ public @interface JCompositeIndex {
      *
      * <p>
      * Unlike the field values used with {@link JField#uniqueExclude &#64;JField.uniqueExclude()}, the field values
-     * contained here are the {@linkplain FieldType#toParseableString self-delimiting string forms}.
+     * contained here are the {@linkplain Encoding#toParseableString self-delimiting string forms}.
      *
      * <p>
-     * For some field types this makes a difference: e.g., {@link String} values must be surrounded by double quotes.
+     * For some encodings this makes a difference: e.g., {@link String} values must be surrounded by double quotes.
      * For example:
      *
      * <pre>
@@ -122,7 +122,7 @@ public @interface JCompositeIndex {
      * </pre>
      *
      * <p>
-     * To specify a null value in the list, specify the {@linkplain FieldType#toParseableString
+     * To specify a null value in the list, specify the {@linkplain Encoding#toParseableString
      * self-delimiting string form} of the null value (this is almost always the string {@code "null"}):
      *
      * <pre>

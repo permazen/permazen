@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.EnumSchemaField;
@@ -24,13 +24,13 @@ import io.permazen.schema.SimpleSchemaField;
 class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     final Schema schema;
-    final FieldTypeRegistry fieldTypeRegistry;
+    final EncodingRegistry encodingRegistry;
 
-    FieldBuilder(Schema schema, FieldTypeRegistry fieldTypeRegistry) {
+    FieldBuilder(Schema schema, EncodingRegistry encodingRegistry) {
         Preconditions.checkArgument(schema != null, "null schema");
-        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
         this.schema = schema;
-        this.fieldTypeRegistry = fieldTypeRegistry;
+        this.encodingRegistry = encodingRegistry;
     }
 
 // SchemaFieldSwitch
@@ -54,12 +54,12 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
         final EncodingId encodingId = field.getEncodingId();
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(encodingId);
-        if (fieldType == null) {
+        final Encoding<?> encoding = this.encodingRegistry.getEncoding(encodingId);
+        if (encoding == null) {
             throw new IllegalArgumentException(
               String.format("unknown encoding \"%s\" for field \"%s\"", encodingId, field.getName()));
         }
-        return this.buildSimpleField(field, field.getName(), fieldType);
+        return this.buildSimpleField(field, field.getName(), encoding);
     }
 
     @Override
@@ -75,13 +75,13 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     @Override
     public EnumArrayField caseEnumArraySchemaField(EnumArraySchemaField field) {
-        Preconditions.checkArgument(field.getDimensions() >= 1 && field.getDimensions() <= FieldType.MAX_ARRAY_DIMENSIONS);
-        final EnumValueFieldType baseType = new EnumValueFieldType(field.getIdentifiers());
-        FieldType<?> fieldType = baseType;
+        Preconditions.checkArgument(field.getDimensions() >= 1 && field.getDimensions() <= Encoding.MAX_ARRAY_DIMENSIONS);
+        final EnumValueEncoding baseType = new EnumValueEncoding(field.getIdentifiers());
+        Encoding<?> encoding = baseType;
         for (int dims = 0; dims < field.getDimensions(); dims++)
-            fieldType = SimpleFieldTypeRegistry.buildArrayType(fieldType);
+            encoding = SimpleEncodingRegistry.buildArrayEncoding(encoding);
         return new EnumArrayField(field.getName(), field.getStorageId(),
-          this.schema, field.isIndexed(), baseType, fieldType, field.getDimensions());
+          this.schema, field.isIndexed(), baseType, encoding, field.getDimensions());
     }
 
     @Override
@@ -92,8 +92,8 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 // Internal methods
 
     // This method exists solely to bind the generic type parameters
-    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
-        return new SimpleField<>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
+    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, Encoding<T> encoding) {
+        return new SimpleField<>(fieldName, field.getStorageId(), this.schema, encoding, field.isIndexed());
     }
 
     // This method exists solely to bind the generic type parameters

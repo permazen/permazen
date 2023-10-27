@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 
 import java.util.NavigableSet;
 import java.util.Set;
@@ -23,7 +23,7 @@ class RegularSimpleFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
 
     @Override
     void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers) {
-        assert this.fieldType instanceof ReferenceFieldType;
+        assert this.encoding instanceof ReferenceEncoding;
         for (ObjId referrer : referrers)
             tx.writeSimpleField(referrer, this.storageId, null, false);
     }
@@ -40,6 +40,6 @@ class RegularSimpleFieldStorageInfo<T> extends SimpleFieldStorageInfo<T> {
 
     @Override
     public String toString() {
-        return "simple field with " + this.fieldType;
+        return "simple field with " + this.encoding;
     }
 }

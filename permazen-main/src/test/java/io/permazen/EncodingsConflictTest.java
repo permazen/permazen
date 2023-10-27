@@ -22,24 +22,24 @@ import org.testng.annotations.Test;
  * This test just proves that fields with the same name can have different types in different
  * classes as long as they are not both indexed.
  */
-public class FieldTypesConflictTest extends TestSupport {
+public class EncodingsConflictTest extends TestSupport {
 
     @Test
-    public void testFieldTypesNoConflict() {
+    public void testEncodingsNoConflict() {
 
-        final Permazen jdb = BasicTest.getPermazen(FieldTypes1.class, FieldTypes2.class, FieldTypes3.class);
+        final Permazen jdb = BasicTest.getPermazen(Encodings1.class, Encodings2.class, Encodings3.class);
 
-        FieldTypes1 ft1;
-        FieldTypes2 ft2;
-        FieldTypes3 ft3;
+        Encodings1 ft1;
+        Encodings2 ft2;
+        Encodings3 ft3;
 
         final JTransaction jtx1 = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx1);
         try {
 
-            ft1 = jtx1.create(FieldTypes1.class);
-            ft2 = jtx1.create(FieldTypes2.class);
-            ft3 = jtx1.create(FieldTypes3.class);
+            ft1 = jtx1.create(Encodings1.class);
+            ft2 = jtx1.create(Encodings2.class);
+            ft3 = jtx1.create(Encodings3.class);
 
             ft1.setField1(123);
             ft1.setField2(null);
@@ -87,7 +87,7 @@ public class FieldTypesConflictTest extends TestSupport {
     }
 
     @Test
-    public void testFieldTypesConflict() {
+    public void testEncodingsConflict() {
 
         try {
             BasicTest.getPermazen(Conflictor1.class, Conflictor2.class);
@@ -106,14 +106,14 @@ public class FieldTypesConflictTest extends TestSupport {
     }
 
     @Test
-    public void testFieldTypesNoConflict2() {
+    public void testEncodingsNoConflict2() {
         BasicTest.getPermazen(NonConflictor1.class, NonConflictor2.class);
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class FieldTypes1 implements JObject {
+    public abstract static class Encodings1 implements JObject {
 
         public abstract int getField1();
         public abstract void setField1(int x);
@@ -127,7 +127,7 @@ public class FieldTypesConflictTest extends TestSupport {
     }
 
     @PermazenType
-    public abstract static class FieldTypes2 implements JObject {
+    public abstract static class Encodings2 implements JObject {
 
         public abstract List<String> getField1();
 
@@ -141,7 +141,7 @@ public class FieldTypesConflictTest extends TestSupport {
     }
 
     @PermazenType
-    public abstract static class FieldTypes3 implements JObject {
+    public abstract static class Encodings3 implements JObject {
 
         public abstract JObject getField1();
         public abstract void setField1(JObject x);
@@ -151,7 +151,7 @@ public class FieldTypesConflictTest extends TestSupport {
         public abstract int getField3();
         public abstract void setField3(int x);
 
-        public abstract Set<FieldTypes3> getField4();
+        public abstract Set<Encodings3> getField4();
     }
 
 // Conflicting Model Classes

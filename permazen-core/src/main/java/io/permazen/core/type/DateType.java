@@ -20,7 +20,7 @@ import org.dellroad.stuff.string.DateEncoder;
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.
  */
-public class DateType extends NonNullFieldType<Date> {
+public class DateType extends NonNullEncoding<Date> {
 
     private static final long serialVersionUID = 825120832596893074L;
 
@@ -28,7 +28,7 @@ public class DateType extends NonNullFieldType<Date> {
         super(EncodingIds.builtin("Date"), Date.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public Date read(ByteReader reader) {

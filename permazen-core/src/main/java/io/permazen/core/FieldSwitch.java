@@ -65,7 +65,7 @@ public interface FieldSwitch<R> {
      * The implementation in {@link FieldSwitch} delegates to {@link #caseField caseField()}.
      *
      * @param field visiting field
-     * @param <T> field type
+     * @param <T> encoding
      * @return visitor return value
      */
     default <T> R caseSimpleField(SimpleField<T> field) {
@@ -131,7 +131,7 @@ public interface FieldSwitch<R> {
      * The implementation in {@link FieldSwitch} delegates to {@link #caseComplexField caseComplexField()}.
      *
      * @param field visiting field
-     * @param <C> visiting field type
+     * @param <C> visiting encoding
      * @param <E> collection element type
      * @return visitor return value
      */
@@ -146,7 +146,7 @@ public interface FieldSwitch<R> {
      * The implementation in {@link FieldSwitch} delegates to {@link #caseField caseField()}.
      *
      * @param field visiting field
-     * @param <T> visiting field type
+     * @param <T> visiting encoding
      * @return visitor return value
      */
     default <T> R caseComplexField(ComplexField<T> field) {
@@ -160,7 +160,7 @@ public interface FieldSwitch<R> {
      * The implementation in {@link FieldSwitch} always throws {@link UnsupportedOperationException}.
      *
      * @param field visiting field
-     * @param <T> visiting field type
+     * @param <T> visiting encoding
      * @return visitor return value
      */
     default <T> R caseField(Field<T> field) {

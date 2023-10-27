@@ -90,12 +90,12 @@
  *      {@link io.permazen.schema.SchemaModel} generated from the Java model classes.</td>
  * </tr>
  * <tr>
- *  <td>{@code field-type-registry}</td>
+ *  <td>{@code encoding-registry}</td>
  *  <td>Bean reference</td>
  *  <td>No</td>
- *  <td>To use a custom {@link io.permazen.core.FieldTypeRegistry}, specify the name of a Spring bean that
- *      implements the {@link io.permazen.core.FieldTypeRegistry} interface. By default, a
- *      {@link io.permazen.core.DefaultFieldTypeRegistry} is used.</td>
+ *  <td>To use a custom {@link io.permazen.core.EncodingRegistry}, specify the name of a Spring bean that
+ *      implements the {@link io.permazen.core.EncodingRegistry} interface. By default, a
+ *      {@link io.permazen.core.DefaultEncodingRegistry} is used.</td>
  * </tr>
  * <tr>
  *  <td>{@code storage-id-generator}</td>

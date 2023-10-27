@@ -8,38 +8,38 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EncodingIds;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FieldTypeConvertTest extends CoreAPITestSupport {
+public class EncodingConvertTest extends CoreAPITestSupport {
 
     private static final Object FAIL = "<FAIL>";
 
-    private final FieldTypeRegistry registry = new DefaultFieldTypeRegistry();
+    private final EncodingRegistry registry = new DefaultEncodingRegistry();
 
     @Test(dataProvider = "convertCases")
-    public void testConvertFieldType(String typeName, Object[] values, Object[] cases) throws Exception {
+    public void testConvertEncoding(String typeName, Object[] values, Object[] cases) throws Exception {
         final EncodingId encodingId = EncodingIds.builtin(typeName);
-        final FieldType<?> stype = this.registry.getFieldType(encodingId);
-        assert stype != null : "didn't find field type \"" + typeName + "\"";
+        final Encoding<?> stype = this.registry.getEncoding(encodingId);
+        assert stype != null : "didn't find encoding \"" + typeName + "\"";
         for (int i = 0; i < cases.length; i += 2) {
             final String targetTypeName = (String)cases[i];
             final EncodingId targetEncodingId = EncodingIds.builtin(targetTypeName);
             final Object[] targetValues = (Object[])cases[i + 1];
-            final FieldType<?> dtype = this.registry.getFieldType(targetEncodingId);
-            assert dtype != null : "didn't find target field type \"" + targetTypeName + "\"";
+            final Encoding<?> dtype = this.registry.getEncoding(targetEncodingId);
+            assert dtype != null : "didn't find target encoding \"" + targetTypeName + "\"";
             for (int j = 0; j < values.length; j++)
                 this.check(stype, dtype, values[j], targetValues[j]);
         }
     }
 
-    private <S, T> void check(FieldType<S> stype, FieldType<T> dtype, Object input, Object expected0) throws Exception {
+    private <S, T> void check(Encoding<S> stype, Encoding<T> dtype, Object input, Object expected0) throws Exception {
         final T actual;
         final T expected = expected0 != FAIL ? dtype.validate(expected0) : null;
         try {
@@ -59,7 +59,7 @@ public class FieldTypeConvertTest extends CoreAPITestSupport {
             }
             return;
         }
-        FieldTypeTest.assertEquals(dtype, actual, expected, "convert mismatch: " + stype + " -> " + dtype
+        EncodingTest.assertEquals(dtype, actual, expected, "convert mismatch: " + stype + " -> " + dtype
           + "; value " + stype.toParseableString(stype.validate(input))
           + "; expected " + dtype.toParseableString(expected)
           + " but got " + dtype.toParseableString(dtype.validate(actual)));

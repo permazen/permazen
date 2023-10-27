@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 
 /**
  * A field that contains an array (having one or more dimensions) of values chosen from
@@ -18,7 +18,7 @@ import io.permazen.core.type.EnumValueFieldType;
  */
 public class EnumArrayField extends SimpleField<Object> {
 
-    private final EnumValueFieldType baseType;
+    private final EnumValueEncoding baseType;
     private final int dimensions;
 
     /**
@@ -29,7 +29,7 @@ public class EnumArrayField extends SimpleField<Object> {
      * @param schema schema version
      * @param indexed whether this field is indexed
      * @param baseType base component type
-     * @param fieldType field type
+     * @param encoding encoding
      * @param dimensions number of dimensions
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
@@ -38,19 +38,19 @@ public class EnumArrayField extends SimpleField<Object> {
      */
     @SuppressWarnings("unchecked")
     EnumArrayField(String name, int storageId, Schema schema,
-      boolean indexed, EnumValueFieldType baseType, FieldType<?> fieldType, int dimensions) {
-        super(name, storageId, schema, (FieldType<Object>)fieldType, indexed);
-        Preconditions.checkArgument(dimensions >= 1 && dimensions <= FieldType.MAX_ARRAY_DIMENSIONS);
+      boolean indexed, EnumValueEncoding baseType, Encoding<?> encoding, int dimensions) {
+        super(name, storageId, schema, (Encoding<Object>)encoding, indexed);
+        Preconditions.checkArgument(dimensions >= 1 && dimensions <= Encoding.MAX_ARRAY_DIMENSIONS);
         this.baseType = baseType;
         this.dimensions = dimensions;
     }
 
     /**
-     * Get the base field type.
+     * Get the base encoding.
      *
-     * @return array base field type
+     * @return array base encoding
      */
-    public EnumValueFieldType getBaseType() {
+    public EnumValueEncoding getBaseType() {
         return this.baseType;
     }
 

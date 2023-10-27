@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple5FieldType;
+import io.permazen.core.type.Tuple5Encoding;
 import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
@@ -61,13 +61,13 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
         // Get index view
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
 
-        // Create field type for Tuple5<V1, V2, V3, V4, T>
-        final Tuple5FieldType<V1, V2, V3, V4, T> fieldType = new Tuple5FieldType<>(
+        // Create encoding for Tuple5<V1, V2, V3, V4, T>
+        final Tuple5Encoding<V1, V2, V3, V4, T> encoding = new Tuple5Encoding<>(
           iv.getValue1Type(), iv.getValue2Type(), iv.getValue3Type(), iv.getValue4Type(), iv.getTargetType());
 
         // Build set and apply filtering
         IndexSet<Tuple5<V1, V2, V3, V4, T>> indexSet = new IndexSet<>(this.kv,
-          fieldType, iv.prefixMode, iv.prefix);
+          encoding, iv.prefixMode, iv.prefix);
         if (iv.hasFilters())
             indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, iv, 5));
 

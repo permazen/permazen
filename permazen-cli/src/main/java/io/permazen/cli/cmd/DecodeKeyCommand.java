@@ -11,9 +11,9 @@ import io.permazen.cli.Session;
 import io.permazen.cli.parse.Parser;
 import io.permazen.core.ComplexField;
 import io.permazen.core.CompositeIndex;
+import io.permazen.core.Encoding;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
-import io.permazen.core.FieldType;
 import io.permazen.core.Layout;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
@@ -26,7 +26,7 @@ import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownFieldException;
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.UnsignedIntEncoder;
@@ -357,12 +357,12 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
         // Add a simple field value
         <T> void add(String label, SimpleField<T> field, ByteReader reader) {
-            final FieldType<T> fieldType = field.getFieldType();
-            final T value = fieldType.read(reader);
-            if (fieldType instanceof ReferenceFieldType)
+            final Encoding<T> encoding = field.getEncoding();
+            final T value = encoding.read(reader);
+            if (encoding instanceof ReferenceEncoding)
                 this.add(label, (ObjId)value);
             else
-                this.add(label + " " + fieldType.toParseableString(value));
+                this.add(label + " " + encoding.toParseableString(value));
         }
 
         void addRemainder(String description) {

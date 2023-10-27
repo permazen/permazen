@@ -7,8 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingIds;
-import io.permazen.core.FieldType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -25,7 +25,7 @@ import org.dellroad.stuff.string.StringEncoder;
  * are prefixed with a {@code 0x01} byte to avoid writing a {@code 0x00}. We rely on the fact that {@link UnsignedIntEncoder}
  * encodes {@code 0} and {@code 1} as {@code 0x00} and {@code 0x01}, respectively.
  */
-public class StringType extends NonNullFieldType<String> {
+public class StringType extends NonNullEncoding<String> {
 
     private static final long serialVersionUID = -7808183397158645337L;
 
@@ -133,7 +133,7 @@ public class StringType extends NonNullFieldType<String> {
 // Conversion
 
     @Override
-    public <S> String convert(FieldType<S> type, S value) {
+    public <S> String convert(Encoding<S> type, S value) {
 
         // Handle null
         if (value == null)

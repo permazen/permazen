@@ -56,9 +56,9 @@ public class JsckCommand extends AbstractCommand {
           + "   -kv\n"
           + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
           + "   -registry\n"
-          + "       Specify a custom field type registry. If this flag is not given, in Permazen and Core API modes,\n"
+          + "       Specify a custom encoding registry. If this flag is not given, in Permazen and Core API modes,\n"
           + "       the configured registry will be used; in key/value database CLI mode, a default instances is used.\n"
-          + "       The parameter must be a Java expression returning a FieldTypeRegistry.\n"
+          + "       The parameter must be a Java expression returning an EncodingRegistry.\n"
           + "   -force-schemas\n"
           + "       Forcibly override schema versions. The parameter must be a Java expression returning a\n"
           + "       Map<Integer, SchemaModel>. WARNING: only use this if you know what you are doing.\n"
@@ -139,10 +139,10 @@ public class JsckCommand extends AbstractCommand {
 
             // Evaluate registry, if any
             if (this.registryNode != null) {
-                this.config.setFieldTypeRegistry(
-                  JsckCommand.this.getExprParam(session, this.registryNode, "registry", FieldTypeRegistry.class));
+                this.config.setEncodingRegistry(
+                  JsckCommand.this.getExprParam(session, this.registryNode, "registry", EncodingRegistry.class));
             } else if (session.getDatabase() != null)
-                config.setFieldTypeRegistry(session.getDatabase().getFieldTypeRegistry());
+                config.setEncodingRegistry(session.getDatabase().getEncodingRegistry());
 
             // Evaluate forced schemas, if any
             if (this.schemasNode != null) {
@@ -166,7 +166,7 @@ public class JsckCommand extends AbstractCommand {
 */
             final KVStore kv = session.getKVTransaction();
             if (session.getDatabase() != null)
-                config.setFieldTypeRegistry(session.getDatabase().getFieldTypeRegistry());
+                config.setEncodingRegistry(session.getDatabase().getEncodingRegistry());
 
             // Configure logger to log to console
             final PrintStream out = session.getOutput();

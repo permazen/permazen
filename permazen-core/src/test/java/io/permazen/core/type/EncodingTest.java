@@ -8,11 +8,11 @@ package io.permazen.core.type;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
 import io.permazen.core.EncodingIds;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
@@ -52,45 +52,45 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FieldTypeTest extends CoreAPITestSupport {
+public class EncodingTest extends CoreAPITestSupport {
 
-    private final FieldTypeRegistry registry = new DefaultFieldTypeRegistry();
+    private final EncodingRegistry registry = new DefaultEncodingRegistry();
 
     @Test(dataProvider = "cases")
-    public void testFieldType(String typeName, Object[] values) throws Exception {
+    public void testEncoding(String typeName, Object[] values) throws Exception {
         final EncodingId encodingId = EncodingIds.builtin(typeName);
-        final FieldType<?> fieldType = registry.getFieldType(encodingId);
-        assert fieldType != null : "didn't find \"" + typeName + "\"";
-        this.testFieldType2(fieldType, values);
+        final Encoding<?> encoding = registry.getEncoding(encodingId);
+        assert encoding != null : "didn't find \"" + typeName + "\"";
+        this.testEncoding2(encoding, values);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void testFieldType2(FieldType<T> fieldType, Object[] values) throws Exception {
-        this.testFieldType3(fieldType, (T[])values);
+    private <T> void testEncoding2(Encoding<T> encoding, Object[] values) throws Exception {
+        this.testEncoding3(encoding, (T[])values);
     }
 
-    private <T> void testFieldType3(FieldType<T> fieldType, T[] values) throws Exception {
+    private <T> void testEncoding3(Encoding<T> encoding, T[] values) throws Exception {
         final byte[][] encodings = new byte[values.length][];
         for (int i = 0; i < values.length; i++) {
             final T value = values[i];
 
             // Binary encoding
             final ByteWriter writer = new ByteWriter();
-            fieldType.write(writer, value);
+            encoding.write(writer, value);
             encodings[i] = writer.getBytes();
-            final T value2 = fieldType.read(new ByteReader(encodings[i]));
-            this.assertEquals(fieldType, value2, value);
+            final T value2 = encoding.read(new ByteReader(encodings[i]));
+            this.assertEquals(encoding, value2, value);
 
             // String encoding
             if (value != null) {
-                Assert.assertEquals(fieldType.toString(value2), fieldType.toString(value));
-                final String s = fieldType.toString(value);
+                Assert.assertEquals(encoding.toString(value2), encoding.toString(value));
+                final String s = encoding.toString(value);
                 this.checkValidString(value, s);
-                final T value3 = fieldType.fromString(s);
-                this.assertEquals(fieldType, value3, value);
+                final T value3 = encoding.fromString(s);
+                this.assertEquals(encoding, value3, value);
             } else {
                 try {
-                    fieldType.toString(null);
+                    encoding.toString(null);
                     assert false;
                 } catch (IllegalArgumentException e) {
                     // expected
@@ -98,8 +98,8 @@ public class FieldTypeTest extends CoreAPITestSupport {
             }
 
             // "list" style string encoding for some primitive arrays
-            if (fieldType instanceof Base64ArrayType) {
-                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)fieldType;
+            if (encoding instanceof Base64ArrayType) {
+                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)encoding;
 
                 // String encoding
                 if (value != null) {
@@ -118,17 +118,17 @@ public class FieldTypeTest extends CoreAPITestSupport {
             }
 
             // Parseable string encoding
-            Assert.assertEquals(fieldType.toParseableString(value2), fieldType.toParseableString(value));
-            final String s2 = fieldType.toParseableString(value);
+            Assert.assertEquals(encoding.toParseableString(value2), encoding.toParseableString(value));
+            final String s2 = encoding.toParseableString(value);
             this.checkValidString(value, s2);
             final ParseContext ctx = new ParseContext(s2 + ",abcd");
-            final T value4 = fieldType.fromParseableString(ctx);
-            this.assertEquals(fieldType, value4, value);
+            final T value4 = encoding.fromParseableString(ctx);
+            this.assertEquals(encoding, value4, value);
             Assert.assertEquals(ctx.getInput(), ",abcd");
 
             // "list" style string encoding for some primitive arrays
-            if (fieldType instanceof Base64ArrayType) {
-                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)fieldType;
+            if (encoding instanceof Base64ArrayType) {
+                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)encoding;
 
                 // Parseable string encoding
                 Assert.assertEquals(arrayType.toParseableString(value2, false), arrayType.toParseableString(value, false));
@@ -145,19 +145,19 @@ public class FieldTypeTest extends CoreAPITestSupport {
                 final T previous = values[i - 1];
                 final boolean bytesEqual = ByteUtil.compare(encodings[i - 1], encodings[i]) == 0;
                 final boolean bytesLessThan = ByteUtil.compare(encodings[i - 1], encodings[i]) < 0;
-                final boolean fieldEqual = fieldType.compare(previous, value) == 0;
-                final boolean fieldLessThan = fieldType.compare(previous, value) < 0;
+                final boolean fieldEqual = encoding.compare(previous, value) == 0;
+                final boolean fieldLessThan = encoding.compare(previous, value) < 0;
 
                 Assert.assertTrue(bytesLessThan || bytesEqual, "Binary sort failure @ " + i + ": expected "
-                  + fieldType.toParseableString(previous) + " [" + ByteUtil.toString(encodings[i - 1]) + "] <= "
-                  + fieldType.toParseableString(value) + " [" + ByteUtil.toString(encodings[i]) + "]");
+                  + encoding.toParseableString(previous) + " [" + ByteUtil.toString(encodings[i - 1]) + "] <= "
+                  + encoding.toParseableString(value) + " [" + ByteUtil.toString(encodings[i]) + "]");
                 Assert.assertTrue(fieldLessThan || fieldEqual, "Java sort failure @ " + i + ": expected "
-                  + fieldType.toParseableString(previous) + " <= " + fieldType.toParseableString(value));
+                  + encoding.toParseableString(previous) + " <= " + encoding.toParseableString(value));
 
                 Assert.assertEquals(bytesEqual, fieldEqual, "equality mismatch @ " + i + ": "
-                  + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+                  + encoding.toParseableString(previous) + " and " + encoding.toParseableString(value));
                 Assert.assertEquals(bytesLessThan, fieldLessThan, "less-than mismatch @ " + i + ": "
-                  + fieldType.toParseableString(previous) + " and " + fieldType.toParseableString(value));
+                  + encoding.toParseableString(previous) + " and " + encoding.toParseableString(value));
             }
         }
     }
@@ -182,12 +182,12 @@ public class FieldTypeTest extends CoreAPITestSupport {
         }
     }
 
-    private <T> void assertEquals(FieldType<T> fieldType, T actual, T expected) {
-        FieldTypeTest.assertEquals(fieldType, actual, expected, "equals check failed: " + actual + " != " + expected);
+    private <T> void assertEquals(Encoding<T> encoding, T actual, T expected) {
+        EncodingTest.assertEquals(encoding, actual, expected, "equals check failed: " + actual + " != " + expected);
     }
 
-    public static <T> void assertEquals(FieldType<T> fieldType, T actual, T expected, String message) {
-        Assert.assertEquals(fieldType.compare(actual, expected), 0, message);
+    public static <T> void assertEquals(Encoding<T> encoding, T actual, T expected, String message) {
+        Assert.assertEquals(encoding.compare(actual, expected), 0, message);
         if (actual instanceof boolean[])
             Assert.assertEquals((boolean[])expected, (boolean[])actual, message);
         else if (actual instanceof byte[])

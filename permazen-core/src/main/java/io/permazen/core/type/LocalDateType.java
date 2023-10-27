@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
  */
-public class LocalDateType extends NonNullFieldType<LocalDate> {
+public class LocalDateType extends NonNullEncoding<LocalDate> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+");
 
@@ -32,7 +32,7 @@ public class LocalDateType extends NonNullFieldType<LocalDate> {
         super(EncodingIds.builtin("LocalDate"), LocalDate.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public LocalDate read(ByteReader reader) {

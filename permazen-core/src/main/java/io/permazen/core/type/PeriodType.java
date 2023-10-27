@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
  * the {@linkplain Period#getMonths months}, and the {@linkplain Period#getDays days}.
  */
-public class PeriodType extends NonNullFieldType<Period> {
+public class PeriodType extends NonNullEncoding<Period> {
 
     private static final Pattern PATTERN = Pattern.compile("P(-?[0-9]+Y)?(-?[0-9]+M)?(-?[0-9]+?D)?|P-?[0-9]+W");
 
@@ -33,7 +33,7 @@ public class PeriodType extends NonNullFieldType<Period> {
         super(EncodingIds.builtin("Period"), Period.class, Period.ZERO);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public Period read(ByteReader reader) {

@@ -7,16 +7,16 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.AbstractFieldType;
+import io.permazen.core.AbstractEncoding;
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 
 /**
- * A {@link FieldType} that wraps any other {@link FieldType} not supporting null values and adds support for null values.
+ * An {@link Encoding} that wraps any other {@link Encoding} not supporting null values and adds support for null values.
  *
  * <p>
  * This class pre-pends a {@code 0x01} to the binary encoding of non-null values, and uses a single {@code 0xff} byte to
@@ -29,11 +29,11 @@ import io.permazen.util.ParseContext;
  *
  * <p>
  * This class will automatically "inline" the {@code 0xff} for null values and omit the {@code 0x01} for non-null values
- * if the wrapped {@link FieldType}'s {@link FieldType#hasPrefix0xff} method returns false.
+ * if the wrapped {@link Encoding}'s {@link Encoding#hasPrefix0xff} method returns false.
  *
  * @param <T> The associated Java type
  */
-public class NullSafeType<T> extends AbstractFieldType<T> {
+public class NullSafeType<T> extends AbstractEncoding<T> {
 
     /**
      * Not null sentinel byte value. Used only when inlining is not in effect.
@@ -48,9 +48,9 @@ public class NullSafeType<T> extends AbstractFieldType<T> {
     private static final long serialVersionUID = -6420381330755516561L;
 
     /**
-     * The inner {@link FieldType} that this instance wraps.
+     * The inner {@link Encoding} that this instance wraps.
      */
-    protected final FieldType<T> inner;
+    protected final Encoding<T> inner;
 
     private final boolean inline;
 
@@ -60,7 +60,7 @@ public class NullSafeType<T> extends AbstractFieldType<T> {
      * @param encodingId encoding ID
      * @param inner inner type that is not null safe
      */
-    public NullSafeType(EncodingId encodingId, FieldType<T> inner) {
+    public NullSafeType(EncodingId encodingId, Encoding<T> inner) {
         super(encodingId, inner.getTypeToken().wrap(), null);
         Preconditions.checkArgument(!(inner instanceof NullSafeType), "inner type is already null-safe");
         this.inner = inner;
@@ -72,20 +72,20 @@ public class NullSafeType<T> extends AbstractFieldType<T> {
      *
      * <p>
      * Takes encoding ID from {@code inner}; therefore, this instance and {@code inner}
-     * cannot be both registered in a {@link FieldTypeRegistry}.
+     * cannot be both registered in an {@link EncodingRegistry}.
      *
      * @param inner inner type that is not null safe
      */
-    public NullSafeType(FieldType<T> inner) {
+    public NullSafeType(Encoding<T> inner) {
        this(inner.getEncodingId(), inner);
     }
 
     /**
-     * Get the inner {@link FieldType} that this instance wraps.
+     * Get the inner {@link Encoding} that this instance wraps.
      *
      * @return inner type that is not null safe
      */
-    public FieldType<T> getInnerType() {
+    public Encoding<T> getInnerType() {
         return this.inner;
     }
 
@@ -171,7 +171,7 @@ public class NullSafeType<T> extends AbstractFieldType<T> {
     }
 
     @Override
-    public <S> T convert(FieldType<S> type, S value) {
+    public <S> T convert(Encoding<S> type, S value) {
         Preconditions.checkArgument(type != null, "null type");
         return value == null ? null : this.inner.convert(type, value);
     }

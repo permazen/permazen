@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.SimpleSchemaField;
 
@@ -27,9 +27,9 @@ public class JEnumArrayField extends AbstractEnumJSimpleField<Object, Object> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     JEnumArrayField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType, Class<?> enumArrayType,
-      int dimensions, FieldType<?> fieldType, io.permazen.annotation.JField annotation, String description,
+      int dimensions, Encoding<?> encoding, io.permazen.annotation.JField annotation, String description,
       Method getter, Method setter) {
-        super(jdb, name, storageId, (TypeToken<Object>)TypeToken.of(enumArrayType), (FieldType<Object>)fieldType,
+        super(jdb, name, storageId, (TypeToken<Object>)TypeToken.of(enumArrayType), (Encoding<Object>)encoding,
           enumType, annotation.indexed(), annotation, description, getter, setter,
           (Converter<Object, Object>)EnumConverter.createEnumArrayConverter(enumType, dimensions));
         Preconditions.checkArgument(dimensions >= 1 && dimensions <= 255, "invalid dimensions");

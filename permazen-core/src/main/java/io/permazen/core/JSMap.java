@@ -23,7 +23,7 @@ import java.util.NavigableSet;
 /**
  * Implements the {@link NavigableMap} view of a {@link MapField}.
  */
-class JSMap<K, V> extends FieldTypeMap<K, V> {
+class JSMap<K, V> extends EncodingMap<K, V> {
 
     private final Transaction tx;
     private final ObjId id;
@@ -33,7 +33,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
      * Primary constructor.
      */
     JSMap(Transaction tx, MapField<K, V> field, ObjId id) {
-        super(tx.kvt, field.keyField.fieldType, false, field.buildKey(id));
+        super(tx.kvt, field.keyField.encoding, false, field.buildKey(id));
         this.tx = tx;
         this.id = id;
         this.field = field;
@@ -44,7 +44,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
      */
     private JSMap(Transaction tx, MapField<K, V> field, ObjId id,
       boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
-        super(tx.kvt, field.keyField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
+        super(tx.kvt, field.keyField.encoding, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
         Preconditions.checkArgument(keyRange != null, "null keyRange");
         this.tx = tx;
         this.id = id;
@@ -125,7 +125,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         final byte[] key = this.encodeVisibleKey(keyObj, false);
         if (key == null)
             return null;
-        final K canonicalKey = this.keyFieldType.validate(keyObj);
+        final K canonicalKey = this.keyEncoding.validate(keyObj);
         return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalKey, key));
     }
 
@@ -220,13 +220,13 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
 
     private byte[] encodeValue(Object obj) {
         final ByteWriter writer = new ByteWriter();
-        this.field.valueField.fieldType.validateAndWrite(writer, obj);
+        this.field.valueField.encoding.validateAndWrite(writer, obj);
         return writer.getBytes();
     }
 
     @Override
     protected V decodeValue(KVPair pair) {
-        return this.field.valueField.fieldType.read(new ByteReader(pair.getValue()));
+        return this.field.valueField.encoding.read(new ByteReader(pair.getValue()));
     }
 
 // MapFieldChangeNotifier

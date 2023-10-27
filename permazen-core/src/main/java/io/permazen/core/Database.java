@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Includes support for:
  * <ul>
  *  <li>Objects and fields defined by a {@link SchemaModel}, with positive schema verification</li>
- *  <li>Simple values fields containing any atomic type, reference or custom {@link FieldType}</li>
+ *  <li>Simple values fields containing any atomic type, reference or custom {@link Encoding}</li>
  *  <li>Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}</li>
  *  <li>Invertable reference fields with strong referential integrity and configurable delete cascading</li>
  *  <li>Configurable indexing of any simple field or complex sub-field</li>
@@ -81,7 +81,7 @@ public class Database {
     private final KVDatabase kvdb;
 
     @GuardedBy("this")
-    private FieldTypeRegistry fieldTypeRegistry;
+    private EncodingRegistry encodingRegistry;
 
     private volatile Schemas lastSchemas;
 
@@ -94,29 +94,29 @@ public class Database {
     public Database(KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
-        this.setFieldTypeRegistry(new DefaultFieldTypeRegistry());
+        this.setEncodingRegistry(new DefaultEncodingRegistry());
     }
 
     /**
-     * Get the {@link FieldTypeRegistry} associated with this instance.
+     * Get the {@link EncodingRegistry} associated with this instance.
      *
      * <p>
-     * By default a {@link DefaultFieldTypeRegistry} is configured.
+     * By default a {@link DefaultEncodingRegistry} is configured.
      *
-     * @param fieldTypeRegistry field type registry to associate with this instance
-     * @throws IllegalArgumentException if {@code fieldTypeRegistry} is null
+     * @param encodingRegistry encoding registry to associate with this instance
+     * @throws IllegalArgumentException if {@code encodingRegistry} is null
      */
-    public synchronized void setFieldTypeRegistry(FieldTypeRegistry fieldTypeRegistry) {
-        this.fieldTypeRegistry = fieldTypeRegistry;
+    public synchronized void setEncodingRegistry(EncodingRegistry encodingRegistry) {
+        this.encodingRegistry = encodingRegistry;
     }
 
     /**
-     * Get the {@link FieldTypeRegistry} associated with this instance.
+     * Get the {@link EncodingRegistry} associated with this instance.
      *
-     * @return field type registry associated with this instance
+     * @return encoding registry associated with this instance
      */
-    public synchronized FieldTypeRegistry getFieldTypeRegistry() {
-        return this.fieldTypeRegistry;
+    public synchronized EncodingRegistry getEncodingRegistry() {
+        return this.encodingRegistry;
     }
 
     /**
@@ -593,15 +593,15 @@ public class Database {
      * Validate a {@link SchemaModel} against this instance.
      *
      * <p>
-     * This is a convenience method, equivalent to: {@link #validateSchema(FieldTypeRegistry, SchemaModel)
-     * Database.validateSchema}{@code (this.getFieldTypeRegistry(), schemaModel)}.
+     * This is a convenience method, equivalent to: {@link #validateSchema(EncodingRegistry, SchemaModel)
+     * Database.validateSchema}{@code (this.getEncodingRegistry(), schemaModel)}.
      *
      * @param schemaModel schema to validate
      * @throws InvalidSchemaException if {@code schemaModel} is invalid
      * @throws IllegalArgumentException if {@code schemaModel} is null
      */
     public void validateSchema(SchemaModel schemaModel) {
-        Database.validateSchema(this.getFieldTypeRegistry(), schemaModel);
+        Database.validateSchema(this.getEncodingRegistry(), schemaModel);
     }
 
     /**
@@ -616,21 +616,21 @@ public class Database {
      * via {@link #createTransaction createTransaction()}. To validate that a collection of schemas
      * are mutually consistent independently from any database, use {@link #validateSchemas validateSchemas()}.
      *
-     * @param fieldTypeRegistry registry of simple field types
+     * @param encodingRegistry registry of simple encodings
      * @param schemaModel schema to validate
      * @throws InvalidSchemaException if {@code schemaModel} is invalid
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static void validateSchema(FieldTypeRegistry fieldTypeRegistry, SchemaModel schemaModel) {
+    public static void validateSchema(EncodingRegistry encodingRegistry, SchemaModel schemaModel) {
 
         // Sanity check
-        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
         Preconditions.checkArgument(schemaModel != null, "null schemaModel");
 
         // Validate
         schemaModel.validate();
         try {
-            new Schema(1, new byte[0], schemaModel, fieldTypeRegistry);
+            new Schema(1, new byte[0], schemaModel, encodingRegistry);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
         }
@@ -640,19 +640,19 @@ public class Database {
      * Check whether a collection of {@link SchemaModel}s are individually valid and mutually consistent.
      *
      * <p>
-     * This method verifies each schema via {@link #validateSchema(FieldTypeRegistry, SchemaModel) validateSchema()},
+     * This method verifies each schema via {@link #validateSchema(EncodingRegistry, SchemaModel) validateSchema()},
      * and also verifies that the schemas are mututally consistent, i.e., that they do not use storage ID's incompatibly.
      *
-     * @param fieldTypeRegistry registry of simple field types
+     * @param encodingRegistry registry of simple encodings
      * @param schemaModels schemas to validate (null elements are ignored)
      * @throws InvalidSchemaException if an element in {@code schemaModels} is invalid
      * @throws InvalidSchemaException if the {@code schemaModels} are not mutally consistent
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static void validateSchemas(FieldTypeRegistry fieldTypeRegistry, Collection<SchemaModel> schemaModels) {
+    public static void validateSchemas(EncodingRegistry encodingRegistry, Collection<SchemaModel> schemaModels) {
 
         // Sanity check
-        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
         Preconditions.checkArgument(schemaModels != null, "null schemaModels");
 
         // Validate schemas individually and build map
@@ -664,7 +664,7 @@ public class Database {
             schemaModel.validate();
             final int version = index + 1;
             try {
-                schemaMap.put(version, new Schema(version, new byte[0], schemaModel, fieldTypeRegistry));
+                schemaMap.put(version, new Schema(version, new byte[0], schemaModel, encodingRegistry));
             } catch (IllegalArgumentException e) {
                 throw new InvalidSchemaException("invalid schema at index " + index + ": " + e.getMessage(), e);
             }
@@ -712,7 +712,7 @@ public class Database {
             }
             if (this.log.isTraceEnabled())
                 this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
-            versionMap.put(version, new Schema(version, bytes, schemaModel, this.getFieldTypeRegistry()));
+            versionMap.put(version, new Schema(version, bytes, schemaModel, this.getEncodingRegistry()));
         }
         return new Schemas(versionMap);
     }

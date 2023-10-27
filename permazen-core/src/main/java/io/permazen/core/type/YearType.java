@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
  */
-public class YearType extends NonNullFieldType<Year> {
+public class YearType extends NonNullEncoding<Year> {
 
     private static final Pattern PATTERN = Pattern.compile("[-+]?[0-9]+");
 
@@ -32,7 +32,7 @@ public class YearType extends NonNullFieldType<Year> {
         super(EncodingIds.builtin("Year"), Year.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public Year read(ByteReader reader) {

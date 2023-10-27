@@ -18,7 +18,7 @@ import java.math.BigInteger;
 /**
  * {@link BigInteger} type. Null values are not supported by this class.
  */
-public class BigIntegerType extends NonNullFieldType<BigInteger> {
+public class BigIntegerType extends NonNullEncoding<BigInteger> {
 
     private static final long serialVersionUID = -2984648309356838144L;
     private static final int MAX_NUM_BYTES = (Integer.MAX_VALUE / Byte.SIZE) + 1;
@@ -27,7 +27,7 @@ public class BigIntegerType extends NonNullFieldType<BigInteger> {
         super(EncodingIds.builtin("BigInteger"), BigInteger.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public boolean hasPrefix0x00() {

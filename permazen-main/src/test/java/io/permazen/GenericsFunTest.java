@@ -87,8 +87,8 @@ public class GenericsFunTest extends TestSupport {
         final ReferencePath path1 = jdb.parseReferencePath(ListSub1.class, "list.element");
         final ReferencePath path2 = jdb.parseReferencePath(ListSub2.class, "list.element");
 
-        Assert.assertEquals(path1.getTargetFieldTypes(), Collections.singleton(TypeToken.of(ListSub2.class)));
-        Assert.assertEquals(path2.getTargetFieldTypes(), Collections.singleton(TypeToken.of(ListSub1.class)));
+        Assert.assertEquals(path1.getTargetEncodings(), Collections.singleton(TypeToken.of(ListSub2.class)));
+        Assert.assertEquals(path2.getTargetEncodings(), Collections.singleton(TypeToken.of(ListSub1.class)));
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);

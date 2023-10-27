@@ -7,7 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -16,15 +16,15 @@ import io.permazen.util.UnsignedIntEncoder;
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * Field type for encoding unsigned {@code int} values in the manner of {@link UnsignedIntEncoder}.
+ * Encoding for unsigned {@code int} values in the manner of {@link UnsignedIntEncoder}.
  *
  * <p>
  * This type is internally for encoding various non-negative integer values.
  *
  * <p>
- * Instances are {@linkplain FieldType#getEncodingId anonymous}.
+ * Instances are {@linkplain Encoding#getEncodingId anonymous}.
  */
-public class UnsignedIntType extends NonNullFieldType<Integer> {
+public class UnsignedIntType extends NonNullEncoding<Integer> {
 
     private static final long serialVersionUID = 4653435311425384497L;
 

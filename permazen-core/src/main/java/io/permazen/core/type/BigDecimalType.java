@@ -29,7 +29,7 @@ import java.util.Arrays;
  * As a result, this class' {@link #compare compare()} method is consistent with {@link BigDecimal#equals BigDecimal.equals()},
  * unlike {@link BigDecimal}'s own {@link BigDecimal#compareTo compareTo()} method, which is not.
  */
-public class BigDecimalType extends NonNullFieldType<BigDecimal> {
+public class BigDecimalType extends NonNullEncoding<BigDecimal> {
 
     private static final long serialVersionUID = -6401896548616656153L;
 
@@ -41,7 +41,7 @@ public class BigDecimalType extends NonNullFieldType<BigDecimal> {
         super(EncodingIds.builtin("BigDecimal"), BigDecimal.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public boolean hasPrefix0x00() {

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing
  * {@linkplain LocalTime#toNanoOfDay nanoseconds in the day}.
  */
-public class LocalTimeType extends NonNullFieldType<LocalTime> {
+public class LocalTimeType extends NonNullEncoding<LocalTime> {
 
     static final Pattern PATTERN = Pattern.compile("[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
@@ -33,7 +33,7 @@ public class LocalTimeType extends NonNullFieldType<LocalTime> {
         super(EncodingIds.builtin("LocalTime"), LocalTime.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public LocalTime read(ByteReader reader) {

@@ -19,16 +19,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link KeyFilter} that accepts any key that is the concatenation of some prefix plus valid {@link FieldType} encoded values,
+ * A {@link KeyFilter} that accepts any key that is the concatenation of some prefix plus valid {@link Encoding} encoded values,
  * where each encoded value must pass a corresponding {@link KeyFilter} that is applied to just that portion of the key.
  *
  * <p>
  * Instances are immutable.
  */
-class FieldTypesFilter implements KeyFilter {
+class EncodingsFilter implements KeyFilter {
 
     private final byte[] prefix;
-    private final FieldType<?>[] fieldTypes;
+    private final Encoding<?>[] encodings;
     private final KeyFilter[] filters;
 
 // Constructors
@@ -37,22 +37,22 @@ class FieldTypesFilter implements KeyFilter {
      * Construct an instance that has no per-field {@link KeyFilter}s applied yet.
      *
      * @param prefix mandatory prefix, or null for none
-     * @param fieldTypes field types
-     * @throws IllegalArgumentException if {@code fieldTypes} is null
+     * @param encodings encodings
+     * @throws IllegalArgumentException if {@code encodings} is null
      */
-    FieldTypesFilter(byte[] prefix, FieldType<?>... fieldTypes) {
-        Preconditions.checkArgument(fieldTypes != null, "null fieldTypes");
+    EncodingsFilter(byte[] prefix, Encoding<?>... encodings) {
+        Preconditions.checkArgument(encodings != null, "null encodings");
         this.prefix = prefix != null ? prefix.clone() : ByteUtil.EMPTY;
-        this.fieldTypes = fieldTypes;
-        for (FieldType<?> fieldType : this.fieldTypes)
-            Preconditions.checkArgument(fieldType != null, "null fieldType");
-        this.filters = new KeyFilter[this.fieldTypes.length];
+        this.encodings = encodings;
+        for (Encoding<?> encoding : this.encodings)
+            Preconditions.checkArgument(encoding != null, "null encoding");
+        this.filters = new KeyFilter[this.encodings.length];
     }
 
-    FieldTypesFilter(byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int start, int end) {
-        this(prefix, Arrays.copyOfRange(fieldTypes, start, end));
-        Preconditions.checkArgument(filters != null && filters.length == fieldTypes.length, "bogus filters");
-        for (int i = 0; i < this.fieldTypes.length; i++)
+    EncodingsFilter(byte[] prefix, Encoding<?>[] encodings, KeyFilter[] filters, int start, int end) {
+        this(prefix, Arrays.copyOfRange(encodings, start, end));
+        Preconditions.checkArgument(filters != null && filters.length == encodings.length, "bogus filters");
+        for (int i = 0; i < this.encodings.length; i++)
             this.filters[i] = filters[start + i];
     }
 
@@ -61,25 +61,25 @@ class FieldTypesFilter implements KeyFilter {
     /**
      * Copy constructor.
      */
-    private FieldTypesFilter(FieldTypesFilter original) {
+    private EncodingsFilter(EncodingsFilter original) {
         this.prefix = original.prefix;
-        this.fieldTypes = original.fieldTypes;
+        this.encodings = original.encodings;
         this.filters = original.filters.clone();
     }
 
 // Methods
 
     /**
-     * Get the {@link FieldType}s associated with this instance.
+     * Get the {@link Encoding}s associated with this instance.
      *
-     * @return unmodifiable list of {@link FieldType}s
+     * @return unmodifiable list of {@link Encoding}s
      */
-    public List<FieldType<?>> getFieldTypes() {
-        return Arrays.asList(this.fieldTypes.clone());
+    public List<Encoding<?>> getEncodings() {
+        return Arrays.asList(this.encodings.clone());
     }
 
     /**
-     * Get the key filter for the {@link FieldType} at the specified index, if any.
+     * Get the key filter for the {@link Encoding} at the specified index, if any.
      *
      * @return filter for the encoded field at index {@code index}, or null if no filter is applied
      * @throws IndexOutOfBoundsException if {@code index} is out of range
@@ -89,7 +89,7 @@ class FieldTypesFilter implements KeyFilter {
     }
 
     /**
-     * Determine whether any {@link FieldType}s in this instance have a filter applied.
+     * Determine whether any {@link Encoding}s in this instance have a filter applied.
      */
     public boolean hasFilters() {
         for (KeyFilter filter : this.filters) {
@@ -109,22 +109,22 @@ class FieldTypesFilter implements KeyFilter {
      * @throws IllegalArgumentException if {@code keyFilter} is null
      * @throws IndexOutOfBoundsException if {@code index} is out of range
      */
-    public FieldTypesFilter filter(int index, KeyFilter keyFilter) {
+    public EncodingsFilter filter(int index, KeyFilter keyFilter) {
         Preconditions.checkArgument(keyFilter != null, "null keyFilter");
         if (keyFilter instanceof KeyRanges && ((KeyRanges)keyFilter).isFull())
             return this;
         if (this.filters[index] != null)
             keyFilter = KeyFilterUtil.intersection(keyFilter, this.filters[index]);
-        final FieldTypesFilter copy = new FieldTypesFilter(this);
+        final EncodingsFilter copy = new EncodingsFilter(this);
         copy.filters[index] = keyFilter;
         return copy;
     }
 
     @Override
     public String toString() {
-        return "FieldTypesFilter"
+        return "EncodingsFilter"
           + "[prefix=" + ByteUtil.toString(this.prefix)
-          + ",fieldTypes=" + Arrays.asList(this.fieldTypes)
+          + ",encodings=" + Arrays.asList(this.encodings)
           + ",filters=" + Arrays.asList(this.filters)
           + "]";
     }
@@ -153,7 +153,7 @@ class FieldTypesFilter implements KeyFilter {
 
         // Check fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
-        for (int i = 0; i < this.fieldTypes.length; i++) {
+        for (int i = 0; i < this.encodings.length; i++) {
 
             // If zero bytes are left, we have to stop at the next key (zero bytes can never be a valid encoded field value)
             final int fieldStart = reader.getOffset();
@@ -161,7 +161,7 @@ class FieldTypesFilter implements KeyFilter {
                 return ByteUtil.getNextKey(reader.getBytes(0, fieldStart));
 
             // Attempt to decode next field value
-            if (!this.decodeValue(this.fieldTypes[i], reader))
+            if (!this.decodeValue(this.encodings[i], reader))
                 return ByteUtil.getNextKey(reader.getBytes(0, reader.getOffset()));
 
             // Check filter, if any
@@ -226,13 +226,13 @@ class FieldTypesFilter implements KeyFilter {
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         final ByteWriter writer = new ByteWriter(key.length);
         writer.write(key, 0, this.prefix.length);
-        for (int i = 0; i < this.fieldTypes.length; i++) {
-            final FieldType<?> fieldType = this.fieldTypes[i];
+        for (int i = 0; i < this.encodings.length; i++) {
+            final Encoding<?> encoding = this.encodings[i];
             final KeyFilter filter = this.filters[i];
 
             // Attempt to decode next field value
             final int fieldStart = reader.getOffset();
-            final boolean decodeOK = this.decodeValue(fieldType, reader);
+            final boolean decodeOK = this.decodeValue(encoding, reader);
             final int fieldStop = reader.getOffset();
 
             // Get (partially) decoded field value
@@ -269,9 +269,9 @@ class FieldTypesFilter implements KeyFilter {
 
 // Internal methods
 
-    private boolean decodeValue(FieldType<?> fieldType, ByteReader reader) {
+    private boolean decodeValue(Encoding<?> encoding, ByteReader reader) {
         try {
-            fieldType.read(reader);
+            encoding.read(reader);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             return false;
         }

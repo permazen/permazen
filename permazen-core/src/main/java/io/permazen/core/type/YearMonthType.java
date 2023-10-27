@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, the {@linkplain YearMonth#getYear year}
  * followed by the {@linkplain YearMonth#getMonthValue month value}.
  */
-public class YearMonthType extends NonNullFieldType<YearMonth> {
+public class YearMonthType extends NonNullEncoding<YearMonth> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+");
 
@@ -33,7 +33,7 @@ public class YearMonthType extends NonNullFieldType<YearMonth> {
         super(EncodingIds.builtin("YearMonth"), YearMonth.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public YearMonth read(ByteReader reader) {

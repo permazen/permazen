@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.EnumValue;
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 import io.permazen.schema.EnumSchemaField;
 
 import java.lang.reflect.Method;
@@ -26,7 +26,7 @@ public class JEnumField extends AbstractEnumJSimpleField<Enum<?>, EnumValue> {
     JEnumField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, (TypeToken<Enum<?>>)TypeToken.of(enumType.asSubclass(Enum.class)),
-          new EnumValueFieldType(enumType), enumType, annotation.indexed(), annotation, description, getter, setter,
+          new EnumValueEncoding(enumType), enumType, annotation.indexed(), annotation, description, getter, setter,
           (Converter<Enum<?>, EnumValue>)EnumConverter.createEnumConverter(enumType));
     }
 

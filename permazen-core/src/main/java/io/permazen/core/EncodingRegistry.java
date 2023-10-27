@@ -8,35 +8,35 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 
 import java.util.List;
 
 /**
- * A registry of {@link FieldType}s.
+ * A registry of {@link Encoding}s.
  *
  * <p>
- * {@link FieldType}s in a {@link FieldTypeRegistry} can be looked up by {@link EncodingId} or by Java type.
- * Multiple {@link FieldType}s may support the same Java type, so only the {@link EncodingId} lookup is
+ * {@link Encoding}s in an {@link EncodingRegistry} can be looked up by {@link EncodingId} or by Java type.
+ * Multiple {@link Encoding}s may support the same Java type, so only the {@link EncodingId} lookup is
  * guaranteed to be unique.
  *
  * <p>
  * Note: {@link Enum} types are not directly handled in the core API layer; instead, the appropriate
- * {@link EnumValueFieldType} must be used to encode values as {@link EnumValue}s.
+ * {@link EnumValueEncoding} must be used to encode values as {@link EnumValue}s.
  *
  * <p>
  * Instances must be thread safe.
  */
-public interface FieldTypeRegistry {
+public interface EncodingRegistry {
 
     /**
-     * Get the {@link FieldType} with the given encoding ID in this registry.
+     * Get the {@link Encoding} with the given encoding ID in this registry.
      *
      * @param encodingId encoding ID
-     * @return corresponding {@link FieldType}, if any, otherwise null
+     * @return corresponding {@link Encoding}, if any, otherwise null
      * @throws IllegalArgumentException if {@code encodingId} is null
      */
-    FieldType<?> getFieldType(EncodingId encodingId);
+    Encoding<?> getEncoding(EncodingId encodingId);
 
     /**
      * Get the encoding ID corresponding to the given alias (or "nickname"), if any.
@@ -56,7 +56,7 @@ public interface FieldTypeRegistry {
      * registered with this instance in order for the alias to be valid.
      *
      * <p>
-     * The implementation in {@link FieldTypeRegistry} just invokes {@code new EncodingId(alias)}.
+     * The implementation in {@link EncodingRegistry} just invokes {@code new EncodingId(alias)}.
      *
      * @param alias encoding ID alias
      * @return corresponding encoding ID, never null
@@ -71,17 +71,17 @@ public interface FieldTypeRegistry {
      * Get the alias (or "nickname") for the given encoding ID in this registry, if any.
      *
      * <p>
-     * A {@link FieldTypeRegistry} may support aliases for some of its encoding ID's.
+     * An {@link EncodingRegistry} may support aliases for some of its encoding ID's.
      * Aliases are simply more friendly names for encoding IDs, which are officially
      * expressed as Uniform Resource Names (URNs).
      *
      * <p>
      * Whereas {@link EncodingId}'s are globally unique, aliases are only meaningful
-     * to the particular {@link FieldTypeRegistry} instance being queried.
+     * to the particular {@link EncodingRegistry} instance being queried.
      * When a schema is recorded in a database, actual {@link EncodingId}'s are always used.
      *
      * <p>
-     * In Permazen's {@link DefaultFieldTypeRegistry}, the built-in types all have aliases;
+     * In Permazen's {@link DefaultEncodingRegistry}, the built-in encodings all have aliases;
      * for example, {@code "int"} is an alias for {@code "urn:fdc:permazen.io:2020:int"}.
      *
      * <p>
@@ -92,7 +92,7 @@ public interface FieldTypeRegistry {
      * in order for it to have an alias.
      *
      * <p>
-     * The implementation in {@link FieldTypeRegistry} always returns {@link EncodingId#getId}.
+     * The implementation in {@link EncodingRegistry} always returns {@link EncodingId#getId}.
      *
      * @param name encoding ID
      * @return corresponding alias, if any, otherwise {@link EncodingId#getId}
@@ -105,41 +105,41 @@ public interface FieldTypeRegistry {
     }
 
     /**
-     * Get all of the {@link FieldType}s in this registry that supports values of the given Java type.
+     * Get all of the {@link Encoding}s in this registry that supports values of the given Java type.
      *
      * <p>
-     * The Java type must exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
+     * The Java type must exactly match the {@link Encoding}'s {@linkplain Encoding#getTypeToken supported Java type}.
      *
      * @param typeToken field value type
      * @param <T> field value type
-     * @return unmodifiable list of {@link FieldType}s supporting Java values of type {@code typeToken}, possibly empty
+     * @return unmodifiable list of {@link Encoding}s supporting Java values of type {@code typeToken}, possibly empty
      * @throws IllegalArgumentException if {@code typeToken} is null
      */
-    <T> List<FieldType<T>> getFieldTypes(TypeToken<T> typeToken);
+    <T> List<Encoding<T>> getEncodings(TypeToken<T> typeToken);
 
     /**
-     * Get the unique {@link FieldType} in this registry that supports values of the given Java type.
+     * Get the unique {@link Encoding} in this registry that supports values of the given Java type.
      *
      * <p>
-     * The Java type must exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}
-     * and there must be exactly one such {@link FieldType}, otherwise an {@link IllegalArgumentException} is thrown.
+     * The Java type must exactly match the {@link Encoding}'s {@linkplain Encoding#getTypeToken supported Java type}
+     * and there must be exactly one such {@link Encoding}, otherwise an {@link IllegalArgumentException} is thrown.
      *
      * @param typeToken field value type
      * @param <T> field value type
-     * @return {@link FieldType} supporting Java values of type {@code typeToken}
+     * @return {@link Encoding} supporting Java values of type {@code typeToken}
      * @throws IllegalArgumentException if {@code typeToken} is null
-     * @throws IllegalArgumentException if no {@link FieldType}s supports {@code typeToken}
-     * @throws IllegalArgumentException if more than one {@link FieldType} supports {@code typeToken}
+     * @throws IllegalArgumentException if no {@link Encoding}s supports {@code typeToken}
+     * @throws IllegalArgumentException if more than one {@link Encoding} supports {@code typeToken}
      */
-    default <T> FieldType<T> getFieldType(TypeToken<T> typeToken) {
-        final List<FieldType<T>> fieldTypes = this.getFieldTypes(typeToken);
-        switch (fieldTypes.size()) {
+    default <T> Encoding<T> getEncoding(TypeToken<T> typeToken) {
+        final List<Encoding<T>> encodings = this.getEncodings(typeToken);
+        switch (encodings.size()) {
         case 0:
-            throw new IllegalArgumentException("no types support values of type " + typeToken);
+            throw new IllegalArgumentException("no encodings support values of type " + typeToken);
         case 1:
-            return fieldTypes.get(0);
+            return encodings.get(0);
         default:
-            throw new IllegalArgumentException("multiple types support values of type " + typeToken + ": " + fieldTypes);
+            throw new IllegalArgumentException("multiple encodings support values of type " + typeToken + ": " + encodings);
         }
     }
 }

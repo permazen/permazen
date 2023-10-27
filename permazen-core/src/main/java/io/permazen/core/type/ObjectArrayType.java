@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -36,7 +36,7 @@ public class ObjectArrayType<E> extends ArrayType<E[], E> {
     private final boolean inline;
 
     @SuppressWarnings("serial")
-    public ObjectArrayType(FieldType<E> elementType) {
+    public ObjectArrayType(Encoding<E> elementType) {
         super(elementType, new TypeToken<E[]>() { }.where(new TypeParameter<E>() { }, elementType.getTypeToken()));
         Preconditions.checkArgument(!elementType.getTypeToken().isPrimitive(), "illegal primitive element type");
         this.inline = !elementType.hasPrefix0x00();

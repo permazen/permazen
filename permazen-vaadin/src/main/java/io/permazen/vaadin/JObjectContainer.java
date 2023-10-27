@@ -27,8 +27,8 @@ import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.DeletedObjectException;
-import io.permazen.core.FieldType;
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
+import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.util.ObjIdSet;
@@ -96,7 +96,7 @@ import org.slf4j.LoggerFactory;
  *  <li>A property for every {@link Permazen} field that is common to all object types that sub-type
  *      this containers's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
- *          <li>For simple fields, their {@linkplain FieldType#toString(Object) string form}</li>
+ *          <li>For simple fields, their {@linkplain Encoding#toString(Object) string form}</li>
  *          <li>For reference fields, the {@link #REFERENCE_LABEL_PROPERTY} of the referred-to object, or "Null"
  *              if the reference is null</li>
  *          <li>For set, list, and map fields, the first few entries in the collection</li>
@@ -546,7 +546,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                 final JField jfield1 = this.getJField(jobj1);
                 final JField jfield2 = this.getJField(jobj2);
 
-                // Compare using core API field type
+                // Compare using core API encoding
                 return jfield1.visit(new JFieldSwitch<Integer>() {
 
                     @Override
@@ -554,9 +554,9 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                         if (!(jfield2 instanceof JSimpleField))
                             return 0;
                         final JSimpleField field2 = (JSimpleField)jfield2;
-                        final FieldType<?> fieldType1 = field1.getFieldType();
-                        final FieldType<?> fieldType2 = field2.getFieldType();
-                        if (!fieldType1.equals(fieldType2))
+                        final Encoding<?> encoding1 = field1.getEncoding();
+                        final Encoding<?> encoding2 = field2.getEncoding();
+                        if (!encoding1.equals(encoding2))
                             return 0;
                         Object value1 = field1.getValue(jobj1);
                         Object value2 = field2.getValue(jobj2);
@@ -566,7 +566,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                         final Converter<?, ?> converter2 = field2.getConverter(jobj2.getTransaction());
                         if (converter2 != null)
                             value2 = this.convert(converter2.reverse(), value2);
-                        return this.compare(fieldType1, value1, value2);
+                        return this.compare(encoding1, value1, value2);
                     }
 
                     @SuppressWarnings("unchecked")
@@ -574,8 +574,8 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                         return converter.convert((R)value);
                     }
 
-                    private <S> int compare(FieldType<S> fieldType, Object v1, Object v2) {
-                        return fieldType.compare(fieldType.validate(v1), fieldType.validate(v2));
+                    private <S> int compare(Encoding<S> encoding, Object v1, Object v2) {
+                        return encoding.compare(encoding.validate(v1), encoding.validate(v2));
                     }
 
                     @Override

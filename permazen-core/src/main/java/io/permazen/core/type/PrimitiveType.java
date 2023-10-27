@@ -5,8 +5,8 @@
 
 package io.permazen.core.type;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingIds;
-import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
 
 import org.dellroad.stuff.java.Primitive;
@@ -14,7 +14,7 @@ import org.dellroad.stuff.java.Primitive;
 /**
  * Support superclass for primitive types.
  */
-public abstract class PrimitiveType<T> extends NonNullFieldType<T> {
+public abstract class PrimitiveType<T> extends NonNullEncoding<T> {
 
     private static final long serialVersionUID = 5581526700382536487L;
 
@@ -61,7 +61,7 @@ public abstract class PrimitiveType<T> extends NonNullFieldType<T> {
 // Conversion
 
     @Override
-    public <S> T convert(FieldType<S> type, S value) {
+    public <S> T convert(Encoding<S> type, S value) {
 
         // Unwrap primitive wrapper types
         if (type instanceof PrimitiveWrapperType) {

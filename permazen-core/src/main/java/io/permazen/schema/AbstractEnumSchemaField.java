@@ -9,7 +9,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.type.EnumValueFieldType;
+import io.permazen.core.type.EnumValueEncoding;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;
@@ -55,7 +55,7 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
     void validate() {
         super.validate();
         try {
-            EnumValueFieldType.validateIdentifiers(this.idents);
+            EnumValueEncoding.validateIdentifiers(this.idents);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid " + this + ": " + e.getMessage(), e);
         }

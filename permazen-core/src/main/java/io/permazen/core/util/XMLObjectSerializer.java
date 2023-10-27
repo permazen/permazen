@@ -10,8 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.CollectionField;
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.Encoding;
 import io.permazen.core.Field;
-import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
@@ -721,8 +721,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
     private <T> void writeSimpleFieldText(XMLStreamWriter writer, SimpleField<T> field, Object value) throws XMLStreamException {
-        final FieldType<T> fieldType = field.getFieldType();
-        String text = fieldType.toString(fieldType.validate(value));
+        final Encoding<T> encoding = field.getEncoding();
+        String text = encoding.toString(encoding.validate(value));
         final int length = text.length();
         if (this.fieldTruncationLength == -1 || length <= this.fieldTruncationLength) {
             writer.writeCharacters(text);
@@ -734,8 +734,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
     private <T> T readSimpleField(XMLStreamReader reader, SimpleField<T> field) throws XMLStreamException {
 
-        // Get field type
-        final FieldType<T> fieldType = field.getFieldType();
+        // Get encoding
+        final Encoding<T> encoding = field.getEncoding();
 
         // Check for null
         final String nullAttr = this.getAttr(reader, NULL_ATTR, false);
@@ -772,13 +772,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             final Matcher matcher = GENERATED_ID_PATTERN.matcher(text);
             if (matcher.matches()) {
                 final int storageId = this.parseGeneratedType(reader, text, matcher.group(1));
-                return fieldType.validate(this.generatedIdCache.getGeneratedId(this.tx, storageId, matcher.group(2)));
+                return encoding.validate(this.generatedIdCache.getGeneratedId(this.tx, storageId, matcher.group(2)));
             }
         }
 
         // Parse field value
         try {
-            return fieldType.fromString(text);
+            return encoding.fromString(text);
         } catch (Exception e) {
             throw new XMLStreamException("invalid value \"" + text + "\" for field \"" + field.getName() + "\": " + e,
               reader.getLocation(), e);

@@ -214,7 +214,7 @@ public interface ChangeSwitch<R> {
      *
      * @param change visiting change
      * @param <T> changed object type
-     * @param <V> changed field type
+     * @param <V> changed encoding
      * @return visitor return value
      */
     default <T, V> R caseSimpleFieldChange(SimpleFieldChange<T, V> change) {

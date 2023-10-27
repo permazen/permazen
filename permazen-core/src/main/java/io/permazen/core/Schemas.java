@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.ReferenceFieldType;
+import io.permazen.core.type.ReferenceEncoding;
 import io.permazen.kv.KeyRanges;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public class Schemas {
             if (!(info instanceof SimpleFieldStorageInfo))
                 continue;
             final SimpleFieldStorageInfo<?> simpleInfo = (SimpleFieldStorageInfo<?>)info;
-            if (!(simpleInfo.fieldType instanceof ReferenceFieldType))
+            if (!(simpleInfo.encoding instanceof ReferenceEncoding))
                 continue;
             this.referenceFieldIndexStorageInfos.add(simpleInfo);
         }

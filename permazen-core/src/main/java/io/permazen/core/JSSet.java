@@ -18,7 +18,7 @@ import java.util.NavigableSet;
 /**
  * Implements the {@link NavigableSet} view of a {@link SetField}.
  */
-class JSSet<E> extends FieldTypeSet<E> {
+class JSSet<E> extends EncodingSet<E> {
 
     private final Transaction tx;
     private final ObjId id;
@@ -28,7 +28,7 @@ class JSSet<E> extends FieldTypeSet<E> {
      * Primary constructor.
      */
     JSSet(Transaction tx, SetField<E> field, ObjId id) {
-        super(tx.kvt, field.elementField.fieldType, false, field.buildKey(id));
+        super(tx.kvt, field.elementField.encoding, false, field.buildKey(id));
         this.tx = tx;
         this.id = id;
         this.field = field;
@@ -39,7 +39,7 @@ class JSSet<E> extends FieldTypeSet<E> {
      */
     private JSSet(Transaction tx, SetField<E> field, ObjId id,
       boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
-        super(tx.kvt, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
+        super(tx.kvt, field.elementField.encoding, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
         Preconditions.checkArgument(keyRange != null, "null keyRange");
         this.tx = tx;
         this.id = id;
@@ -141,7 +141,7 @@ class JSSet<E> extends FieldTypeSet<E> {
         final byte[] key = this.encodeVisible(obj, false);
         if (key == null)
             return false;
-        final E canonicalElement = this.fieldType.validate(obj);                    // should never throw exception
+        final E canonicalElement = this.encoding.validate(obj);                    // should never throw exception
         return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalElement, key));
     }
 

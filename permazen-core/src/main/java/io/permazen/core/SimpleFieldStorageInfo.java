@@ -14,15 +14,15 @@ import java.util.function.Predicate;
  */
 abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
 
-    final FieldType<T> fieldType;
+    final Encoding<T> encoding;
 
     SimpleFieldStorageInfo(SimpleField<T> field) {
         super(field.storageId);
-        this.fieldType = field.fieldType.genericizeForIndex();
+        this.encoding = field.encoding.genericizeForIndex();
     }
 
     CoreIndex<T, ObjId> getIndex(Transaction tx) {
-        return new CoreIndex<>(tx.kvt, new IndexView<>(this.storageId, this.fieldType, Encodings.OBJ_ID));
+        return new CoreIndex<>(tx.kvt, new IndexView<>(this.storageId, this.encoding, Encodings.OBJ_ID));
     }
 
     /**
@@ -30,7 +30,7 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
      * the reference field associated with this instance. Used to implement {@link DeleteAction#UNREFERENCE}.
      *
      * <p>
-     * This method may assume that this instance's {@link FieldType} is reference.
+     * This method may assume that this instance's {@link Encoding} is reference.
      *
      * @param tx transaction
      * @param target referenced object being deleted
@@ -57,11 +57,11 @@ abstract class SimpleFieldStorageInfo<T> extends IndexStorageInfo {
         if (!super.equals(obj))
             return false;
         final SimpleFieldStorageInfo<?> that = (SimpleFieldStorageInfo<?>)obj;
-        return this.fieldType.equals(that.fieldType);
+        return this.encoding.equals(that.encoding);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fieldType.hashCode();
+        return super.hashCode() ^ this.encoding.hashCode();
     }
 }

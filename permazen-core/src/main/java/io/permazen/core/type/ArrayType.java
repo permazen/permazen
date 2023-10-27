@@ -7,8 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
-import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
 
 import java.lang.reflect.Array;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Superclass for all array {@link FieldType}s.
+ * Superclass for all array {@link Encoding}s.
  *
  * <p>
  * The string form looks like {@code [ elem1, elem2, ..., elemN ]}.
@@ -32,11 +32,11 @@ import java.util.Optional;
  * @param <T> array type
  * @param <E> array element type
  */
-public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
+public abstract class ArrayType<T, E> extends NonNullEncoding<T> {
 
     private static final long serialVersionUID = 3776218636387986632L;
 
-    final FieldType<E> elementType;
+    final Encoding<E> elementType;
 
     /**
      * Constructor.
@@ -44,10 +44,10 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      * @param elementType array element type (possibly also an {@link ArrayType})
      * @param typeToken array type token
      * @throws IllegalArgumentException if {@code elementType} is an {@link ArrayType} with
-     *  {@link FieldType#MAX_ARRAY_DIMENSIONS} dimensions
+     *  {@link Encoding#MAX_ARRAY_DIMENSIONS} dimensions
      */
     @SuppressWarnings("unchecked")
-    protected ArrayType(FieldType<E> elementType, TypeToken<T> typeToken) {
+    protected ArrayType(Encoding<E> elementType, TypeToken<T> typeToken) {
         super(Optional.ofNullable(elementType.getEncodingId()).map(EncodingId::getArrayId).orElse(null),
           typeToken, (T)Array.newInstance(elementType.getTypeToken().getRawType(), 0));
         this.elementType = elementType;
@@ -58,7 +58,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      *
      * @return element type
      */
-    public FieldType<E> getElementType() {
+    public Encoding<E> getElementType() {
         return this.elementType;
     }
 
@@ -131,7 +131,7 @@ public abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 // Conversion
 
     @Override
-    public <S> T convert(FieldType<S> type, S value) {
+    public <S> T convert(Encoding<S> type, S value) {
 
         // Handle null
         if (value == null)

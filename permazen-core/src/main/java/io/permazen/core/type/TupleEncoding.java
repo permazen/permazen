@@ -8,7 +8,7 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.FieldType;
+import io.permazen.core.Encoding;
 import io.permazen.tuple.Tuple;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -18,25 +18,25 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Superclass for {@link FieldType}s created from the concatenation of other {@link FieldType}s.
+ * Superclass for {@link Encoding}s created from the concatenation of other {@link Encoding}s.
  *
  * <p>
  * Binary encoding is via the concatenation of the individual element encodings.
  *
  * <p>
- * Instances are {@linkplain FieldType#getEncodingId anonymous}.
+ * Instances are {@linkplain Encoding#getEncodingId anonymous}.
  */
-public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
+public abstract class TupleEncoding<T extends Tuple> extends NonNullEncoding<T> {
 
     private static final long serialVersionUID = 8691368371643936848L;
 
-    final List<FieldType<?>> fieldTypes;
+    final List<Encoding<?>> encodings;
     final int size;
 
-    protected TupleFieldType(TypeToken<T> typeToken, FieldType<?>... fieldTypes) {
+    protected TupleEncoding(TypeToken<T> typeToken, Encoding<?>... encodings) {
         super(null, typeToken);
-        this.fieldTypes = Arrays.<FieldType<?>>asList(fieldTypes);
-        this.size = this.fieldTypes.size();
+        this.encodings = Arrays.<Encoding<?>>asList(encodings);
+        this.size = this.encodings.size();
     }
 
     public int getSize() {
@@ -47,7 +47,7 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
     public T read(ByteReader reader) {
         final Object[] values = new Object[this.size];
         for (int i = 0; i < this.size; i++)
-            values[i] = this.fieldTypes.get(i).read(reader);
+            values[i] = this.encodings.get(i).read(reader);
         return this.createTuple(values);
     }
 
@@ -55,13 +55,13 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
     public void write(ByteWriter writer, T tuple) {
         final List<Object> values = this.asList(tuple);
         for (int i = 0; i < this.size; i++)
-            this.fieldTypes.get(i).validateAndWrite(writer, values.get(i));
+            this.encodings.get(i).validateAndWrite(writer, values.get(i));
     }
 
     @Override
     public void skip(ByteReader reader) {
-        for (FieldType<?> fieldType : this.fieldTypes)
-            fieldType.skip(reader);
+        for (Encoding<?> encoding : this.encodings)
+            encoding.skip(reader);
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
         for (int i = 0; i < this.size; i++) {
             if (i > 0)
                 buf.append(',');
-            buf.append(this.toParseableString(this.fieldTypes.get(i), values.get(i)));
+            buf.append(this.toParseableString(this.encodings.get(i), values.get(i)));
         }
         buf.append(']');
         return buf.toString();
@@ -85,7 +85,7 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
         for (int i = 0; i < this.size; i++) {
             if (i > 0)
                 context.expect(',');
-            values[i] = this.fieldTypes.get(i).fromParseableString(context);
+            values[i] = this.encodings.get(i).fromParseableString(context);
         }
         context.expect(']');
         return this.createTuple(values);
@@ -96,7 +96,7 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
         final List<Object> values1 = this.asList(tuple1);
         final List<Object> values2 = this.asList(tuple2);
         for (int i = 0; i < this.size; i++) {
-            final int diff = this.compare(this.fieldTypes.get(i), values1.get(i), values2.get(i));
+            final int diff = this.compare(this.encodings.get(i), values1.get(i), values2.get(i));
             if (diff != 0)
                 return diff;
         }
@@ -105,12 +105,12 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
 
     @Override
     public boolean hasPrefix0xff() {
-        return this.fieldTypes.get(0).hasPrefix0xff();
+        return this.encodings.get(0).hasPrefix0xff();
     }
 
     @Override
     public boolean hasPrefix0x00() {
-        return this.fieldTypes.get(0).hasPrefix0x00();
+        return this.encodings.get(0).hasPrefix0x00();
     }
 
 // Internal methods
@@ -126,12 +126,12 @@ public abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> String toParseableString(FieldType<T> fieldType, Object obj) {
-        return fieldType.toParseableString(fieldType.validate(obj));
+    private <T> String toParseableString(Encoding<T> encoding, Object obj) {
+        return encoding.toParseableString(encoding.validate(obj));
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> int compare(FieldType<T> fieldType, Object obj1, Object obj2) {
-        return fieldType.compare(fieldType.validate(obj1), fieldType.validate(obj2));
+    private <T> int compare(Encoding<T> encoding, Object obj1, Object obj2) {
+        return encoding.compare(encoding.validate(obj1), encoding.validate(obj2));
     }
 }

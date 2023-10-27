@@ -32,7 +32,7 @@ public class InetAddressType extends AbstractInetAddressType<InetAddress> {
           "(" + Inet4AddressType.PATTERN + "|" + Inet6AddressType.PATTERN + ")");
     }
 
-// FieldType
+// Encoding
 
     @Override
     public boolean hasPrefix0x00() {

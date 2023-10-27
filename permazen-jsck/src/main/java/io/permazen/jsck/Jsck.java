@@ -216,7 +216,7 @@ public class Jsck {
                 // Validate schema, and if not valid, bail out requiring user to correct
                 info.info("validating schema version " + version);
                 try {
-                    Database.validateSchema(this.config.getFieldTypeRegistry(), schema);
+                    Database.validateSchema(this.config.getEncodingRegistry(), schema);
                 } catch (InvalidSchemaException e) {
                     throw new IllegalArgumentException((schema == forceSchemaVersions.get(version) ? "forced " : "")
                       + "schema version " + version + " is invalid (forced schema override required): " + e.getMessage(), e);
@@ -234,7 +234,7 @@ public class Jsck {
             if (info.getSchemas().containsKey(version))
                 continue;
             try {
-                Database.validateSchema(this.config.getFieldTypeRegistry(), schema);
+                Database.validateSchema(this.config.getEncodingRegistry(), schema);
             } catch (InvalidSchemaException e) {
                 throw new IllegalArgumentException("forced schema version " + version + " is invalid: " + e.getMessage(), e);
             }
@@ -250,7 +250,7 @@ public class Jsck {
         // Validate schemas are mutually consistent; if not, bail out requiring user to correct
         info.info("validating schema compatibility among all versions " + info.getSchemas().keySet());
         try {
-            Database.validateSchemas(this.config.getFieldTypeRegistry(), info.getSchemas().values());
+            Database.validateSchemas(this.config.getEncodingRegistry(), info.getSchemas().values());
         } catch (InvalidSchemaException e) {
             throw new IllegalArgumentException("database schemas are mutually inconsistent (forced schema override(s) required): "
               + e.getMessage(), e);

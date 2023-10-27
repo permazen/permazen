@@ -7,8 +7,8 @@ package io.permazen.annotation;
 
 import io.permazen.UntypedJObject;
 import io.permazen.UpgradeConversionPolicy;
+import io.permazen.core.Encoding;
 import io.permazen.core.EnumValue;
-import io.permazen.core.FieldType;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * <p>
  * Simple changes that only modify a simple field's type can often be handled automatically; see
  * {@link UpgradeConversionPolicy}, {@link JField#upgradeConversion &#64;JField.upgradeConversion()},
- * and {@link FieldType#convert FieldType.convert()} for details.
+ * and {@link Encoding#convert Encoding.convert()} for details.
  *
  * <p><b>Method Parameters</b></p>
  *
@@ -99,7 +99,7 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see FieldType#convert FieldType.convert()
+ * @see Encoding#convert Encoding.convert()
  * @see JField#upgradeConversion &#64;JField.upgradeConversion()
  */
 @Retention(RetentionPolicy.RUNTIME)

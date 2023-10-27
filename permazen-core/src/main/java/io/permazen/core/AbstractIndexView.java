@@ -21,25 +21,25 @@ abstract class AbstractIndexView {
 
     final byte[] prefix;                            // prefix that is always expected and skipped over
     final boolean prefixMode;                       // whether this instance requires prefix mode (i.e., entire key not consumed)
-    final FieldType<?>[] fieldTypes;
+    final Encoding<?>[] encodings;
     final KeyFilter[] filters;
 
     /**
      * Constructor.
      *
      * @param prefix key prefix
-     * @param prefixMode true if prefix mode required because {@code fieldTypes} does not extend through the final value
-     * @param fieldTypes field types
+     * @param prefixMode true if prefix mode required because {@code encodings} does not extend through the final value
+     * @param encodings encodings
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      * @throws IllegalArgumentException if {@code filter} is null or empty
      */
-    protected AbstractIndexView(byte[] prefix, boolean prefixMode, FieldType<?>... fieldTypes) {
+    protected AbstractIndexView(byte[] prefix, boolean prefixMode, Encoding<?>... encodings) {
         Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
-        Preconditions.checkArgument(fieldTypes != null, "null fieldTypes");
+        Preconditions.checkArgument(encodings != null, "null encodings");
         this.prefix = prefix;
         this.prefixMode = prefixMode;
-        this.fieldTypes = fieldTypes;
-        this.filters = new KeyFilter[this.fieldTypes.length];
+        this.encodings = encodings;
+        this.filters = new KeyFilter[this.encodings.length];
     }
 
     /**
@@ -48,7 +48,7 @@ abstract class AbstractIndexView {
     protected AbstractIndexView(AbstractIndexView original) {
         this.prefix = original.prefix;
         this.prefixMode = original.prefixMode;
-        this.fieldTypes = original.fieldTypes;
+        this.encodings = original.encodings;
         this.filters = original.filters.clone();
     }
 
@@ -83,7 +83,7 @@ abstract class AbstractIndexView {
         return this.getClass().getSimpleName()
           + "[prefix=" + ByteUtil.toString(this.prefix)
           + ",prefixMode=" + prefixMode
-          + ",fieldTypes=" + Arrays.asList(this.fieldTypes)
+          + ",encodings=" + Arrays.asList(this.encodings)
           + (this.hasFilters() ? ",filters=" + Arrays.asList(this.filters) : "")
           + "]";
     }

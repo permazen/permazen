@@ -11,8 +11,8 @@ import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.core.DefaultFieldTypeRegistry;
-import io.permazen.core.FieldTypeRegistry;
+import io.permazen.core.DefaultEncodingRegistry;
+import io.permazen.core.EncodingRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
@@ -191,15 +191,15 @@ import org.apache.tools.ant.types.Resource;
  * </td>
  * </tr>
  * <tr>
- *  <td>{@code fieldTypeRegistry}</td>
+ *  <td>{@code encodingRegistry}</td>
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Specifies the name of an optional custom {@link FieldTypeRegistry} class.
+ *      Specifies the name of an optional custom {@link EncodingRegistry} class.
  *      </p>
  *
  *      <p>
- *      By default, a {@link DefaultFieldTypeRegistry} is used.
+ *      By default, a {@link DefaultEncodingRegistry} is used.
  *      </p>
  * </td>
  * </tr>
@@ -277,7 +277,7 @@ public class SchemaGeneratorTask extends Task {
     private String schemaVersionProperty;
     private File file;
     private Path classPath;
-    private String fieldTypeRegistryClassName;
+    private String encodingRegistryClassName;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
     private final ArrayList<FileSet> oldSchemasList = new ArrayList<>();
     private final LinkedHashSet<String> classes = new LinkedHashSet<>();
@@ -328,8 +328,8 @@ public class SchemaGeneratorTask extends Task {
         this.classPath = (Path)ref.getReferencedObject(this.getProject());
     }
 
-    public void setFieldTypeRegistryClass(String fieldTypeRegistryClassName) {
-        this.fieldTypeRegistryClassName = fieldTypeRegistryClassName;
+    public void setEncodingRegistryClass(String encodingRegistryClassName) {
+        this.encodingRegistryClassName = encodingRegistryClassName;
     }
 
     public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
@@ -381,7 +381,7 @@ public class SchemaGeneratorTask extends Task {
         loader.setThreadContextLoader();
         try {
 
-            // Model and field type classes
+            // Model classes
             final HashSet<Class<?>> modelClasses = new HashSet<>();
 
             // Do package scanning
@@ -426,15 +426,15 @@ public class SchemaGeneratorTask extends Task {
                 }
             }
 
-            // Instantiate FieldTypeRegistry
-            FieldTypeRegistry fieldTypeRegistry = null;
-            if (this.fieldTypeRegistryClassName != null) {
+            // Instantiate EncodingRegistry
+            EncodingRegistry encodingRegistry = null;
+            if (this.encodingRegistryClassName != null) {
                 try {
-                    fieldTypeRegistry = Class.forName(this.fieldTypeRegistryClassName,
+                    encodingRegistry = Class.forName(this.encodingRegistryClassName,
                        false, Thread.currentThread().getContextClassLoader())
-                      .asSubclass(FieldTypeRegistry.class).getConstructor().newInstance();
+                      .asSubclass(EncodingRegistry.class).getConstructor().newInstance();
                 } catch (Exception e) {
-                    throw new BuildException("failed to instantiate class \"" + this.fieldTypeRegistryClassName + "\"", e);
+                    throw new BuildException("failed to instantiate class \"" + this.encodingRegistryClassName + "\"", e);
                 }
             }
 
@@ -455,7 +455,7 @@ public class SchemaGeneratorTask extends Task {
             final PermazenFactory factory = new PermazenFactory();
             factory.setDatabase(db);
             factory.setSchemaVersion(1);
-            factory.setFieldTypeRegistry(fieldTypeRegistry);
+            factory.setEncodingRegistry(encodingRegistry);
             factory.setStorageIdGenerator(storageIdGenerator);
             factory.setModelClasses(modelClasses);
 

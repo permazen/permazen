@@ -41,7 +41,7 @@ public class OffsetDateTimeType extends Concat2Type<OffsetDateTime, Instant, Zon
         return value.getOffset();
     }
 
-// FieldType
+// Encoding
 
     @Override
     public OffsetDateTime fromParseableString(ParseContext ctx) {

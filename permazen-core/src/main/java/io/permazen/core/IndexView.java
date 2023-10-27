@@ -21,7 +21,7 @@ class IndexView<V, T> extends AbstractIndexView {
      * @param targetType index target type
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(int storageId, FieldType<V> valueType, FieldType<T> targetType) {
+    IndexView(int storageId, Encoding<V> valueType, Encoding<T> targetType) {
         this(UnsignedIntEncoder.encode(storageId), false, valueType, targetType);
     }
 
@@ -34,7 +34,7 @@ class IndexView<V, T> extends AbstractIndexView {
      * @param targetType index target type
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(byte[] prefix, boolean prefixMode, FieldType<V> valueType, FieldType<T> targetType) {
+    IndexView(byte[] prefix, boolean prefixMode, Encoding<V> valueType, Encoding<T> targetType) {
         super(prefix, prefixMode, valueType, targetType);
     }
 
@@ -44,13 +44,13 @@ class IndexView<V, T> extends AbstractIndexView {
     }
 
     @SuppressWarnings("unchecked")
-    public FieldType<V> getValueType() {
-        return (FieldType<V>)this.fieldTypes[0];
+    public Encoding<V> getValueType() {
+        return (Encoding<V>)this.encodings[0];
     }
 
     @SuppressWarnings("unchecked")
-    public FieldType<T> getTargetType() {
-        return (FieldType<T>)this.fieldTypes[1];
+    public Encoding<T> getTargetType() {
+        return (Encoding<T>)this.encodings[1];
     }
 
     @Override

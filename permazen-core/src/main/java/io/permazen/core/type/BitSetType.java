@@ -22,7 +22,7 @@ import java.util.BitSet;
  * <p>
  * Instances are ordered like boolean numbers, i.e., lexicographically, with higher index bits being more significant.
  */
-public class BitSetType extends NonNullFieldType<BitSet> {
+public class BitSetType extends NonNullEncoding<BitSet> {
 
     private static final long serialVersionUID = -1133774834687234873L;
 
@@ -30,7 +30,7 @@ public class BitSetType extends NonNullFieldType<BitSet> {
         super(EncodingIds.builtin("BitSet"), BitSet.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public boolean hasPrefix0xff() {

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
  * followed by {@linkplain Instant#getNano nanoseconds}.
  */
-public class InstantType extends NonNullFieldType<Instant> {
+public class InstantType extends NonNullEncoding<Instant> {
 
     private static final Pattern PATTERN = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z");
 
@@ -33,7 +33,7 @@ public class InstantType extends NonNullFieldType<Instant> {
         super(EncodingIds.builtin("Instant"), Instant.class);
     }
 
-// FieldType
+// Encoding
 
     @Override
     public Instant read(ByteReader reader) {
