@@ -77,7 +77,7 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
         return field.visit(new FieldSwitch<Result>() {
 
             @Override
-            protected <T> Result caseComplexField(ComplexField<T> field) {
+            public <T> Result caseComplexField(ComplexField<T> field) {
 
                 // Get sub-field name
                 ctx.skipWhitespace();
@@ -109,7 +109,7 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
             }
 
             @Override
-            protected <T> Result caseField(Field<T> field) {
+            public <T> Result caseField(Field<T> field) {
                 return new Result(fieldName, this.verifyIndexedSimple(field));
             }
 

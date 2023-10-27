@@ -7,8 +7,9 @@ package io.permazen.cli;
 
 import io.permazen.cli.parse.FieldTypeParser;
 import io.permazen.cli.parse.Parser;
+import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
 import io.permazen.test.TestSupport;
 
 import java.util.List;
@@ -31,7 +32,9 @@ public class ParamParserTest extends TestSupport {
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
-                final FieldType<?> fieldType = new FieldTypeRegistry().getFieldType(typeName);
+                final DefaultFieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
+                final EncodingId encodingId = fieldTypeRegistry.idForAlias(typeName);
+                final FieldType<?> fieldType = new DefaultFieldTypeRegistry().getFieldType(encodingId);
                 return fieldType != null ? this.createFieldTypeParser(fieldType) : super.getParser(typeName);
             }
             private <T> FieldTypeParser<T> createFieldTypeParser(FieldType<T> fieldType) {
@@ -134,7 +137,7 @@ public class ParamParserTest extends TestSupport {
         },
 
         {
-            "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double?",
+            "-v:version:int -d:debug --foo:foo p1:String p2:double?",
             " --foo -v 123 -d -- \"\\\"hello there\\\"\"",
             buildMap("foo", true, "version", 123, "debug", true, "p1", "hello there")
         },
@@ -146,19 +149,19 @@ public class ParamParserTest extends TestSupport {
         },
 
         {
-            "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double+",
+            "-v:version:int -d:debug --foo:foo p1:String p2:double+",
             " --foo -v 123 -d -- \"\\\"frobbely wobbely\\\"\"",
             null
         },
 
         {
-            "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double+",
+            "-v:version:int -d:debug --foo:foo p1:String p2:double+",
             " --foo -v 123 -d -- \"\\\"goodbye there\\\"\" -342.574e17",
             buildMap("foo", true, "version", 123, "debug", true, "p1", "goodbye there", "p2", buildList(-342.574e17))
         },
 
         {
-            "-v:version:int -d:debug --foo:foo p1:java.lang.String p2:double*",
+            "-v:version:int -d:debug --foo:foo p1:String p2:double*",
             " \\\"\\\" -Infinity -0.0 +0.0 123.45",
             buildMap("p1", "", "p2", buildList(Double.NEGATIVE_INFINITY, -0.0, +0.0, 123.45))
         },

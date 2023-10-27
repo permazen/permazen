@@ -115,7 +115,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                         }
 
                         @Override
-                        protected <T> Void caseField(Field<T> field) {
+                        public <T> Void caseField(Field<T> field) {
                             return null;
                         }
                     });
@@ -223,7 +223,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                             }
 
                             @Override
-                            protected <T> Void caseField(Field<T> field) {
+                            public <T> Void caseField(Field<T> field) {
                                 return null;
                             }
                         });
@@ -252,27 +252,27 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
                     @Override
                     public <E> Void caseListField(ListField<E> field) {
-                        super.caseListField(field);
+                        FieldSwitch.super.caseListField(field);
                         decodes.add("List index " + UnsignedIntEncoder.read(reader));
                         return null;
                     }
 
                     @Override
                     public <E> Void caseSetField(SetField<E> field) {
-                        super.caseSetField(field);
+                        FieldSwitch.super.caseSetField(field);
                         decodes.add("Set element", field.getElementField(), reader);
                         return null;
                     }
 
                     @Override
                     public <K, V> Void caseMapField(MapField<K, V> field) {
-                        super.caseMapField(field);
+                        FieldSwitch.super.caseMapField(field);
                         decodes.add("Map key ", field.getKeyField(), reader);
                         return null;
                     }
 
                     @Override
-                    protected <T> Void caseField(Field<T> field) {
+                    public <T> Void caseField(Field<T> field) {
                         decodes.add("[#" + fieldStorageId + "] " + field);
                         return null;
                     }

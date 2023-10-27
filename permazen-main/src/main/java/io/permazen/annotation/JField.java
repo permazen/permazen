@@ -20,7 +20,6 @@ import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EncodingId;
-import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 

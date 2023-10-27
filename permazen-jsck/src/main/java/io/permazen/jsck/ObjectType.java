@@ -10,7 +10,7 @@ import com.google.common.collect.PeekingIterator;
 import io.permazen.core.FieldType;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.EnumFieldType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.kv.KVPair;
 import io.permazen.schema.CollectionSchemaField;
@@ -62,13 +62,13 @@ class ObjectType extends Storage {
                 }
                 @Override
                 public Void caseSimpleSchemaField(SimpleSchemaField field) {
-                    final FieldType<?> fieldType = info.getConfig().getFieldTypeRegistry().getFieldType(field.getType());
+                    final FieldType<?> fieldType = info.getConfig().getFieldTypeRegistry().getFieldType(field.getEncodingId());
                     ObjectType.this.simpleFieldTypes.put(field.getStorageId(), fieldType);
                     return null;
                 }
                 @Override
                 public Void caseEnumSchemaField(EnumSchemaField field) {
-                    ObjectType.this.simpleFieldTypes.put(field.getStorageId(), new EnumFieldType(field.getIdentifiers()));
+                    ObjectType.this.simpleFieldTypes.put(field.getStorageId(), new EnumValueFieldType(field.getIdentifiers()));
                     return null;
                 }
                 @Override

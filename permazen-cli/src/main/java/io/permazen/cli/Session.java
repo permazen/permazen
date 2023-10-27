@@ -22,8 +22,6 @@ import io.permazen.util.ParseException;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.dellroad.jct.core.ConsoleSession;
 import org.slf4j.Logger;

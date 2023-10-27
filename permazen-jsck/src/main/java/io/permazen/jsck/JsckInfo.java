@@ -6,7 +6,7 @@
 package io.permazen.jsck;
 
 import io.permazen.core.FieldType;
-import io.permazen.core.type.EnumFieldType;
+import io.permazen.core.type.EnumValueFieldType;
 import io.permazen.core.type.ReferenceFieldType;
 import io.permazen.kv.KVStore;
 import io.permazen.schema.CounterSchemaField;
@@ -188,7 +188,7 @@ class JsckInfo implements JsckLogger {
 
             @Override
             public FieldType<?> caseEnumSchemaField(EnumSchemaField field) {
-                return new EnumFieldType(field.getIdentifiers());
+                return new EnumValueFieldType(field.getIdentifiers());
             }
 
             @Override
@@ -198,15 +198,12 @@ class JsckInfo implements JsckLogger {
 
             @Override
             public FieldType<?> caseSimpleSchemaField(SimpleSchemaField field) {
-                final FieldType<?> fieldType = JsckInfo.this.config.getFieldTypeRegistry().getFieldType(
-                  field.getType(), field.getEncodingSignature());
+                final FieldType<?> fieldType = JsckInfo.this.config.getFieldTypeRegistry().getFieldType(field.getEncodingId());
                 if (fieldType == null) {
-                    throw new IllegalArgumentException("no FieldType named \"" + field.getType() + "\""
-                      + (field.getEncodingSignature() != 0 ? " with signature " + field.getEncodingSignature() : "")
+                    throw new IllegalArgumentException("no field encoding \"" + field.getEncodingId() + "\""
                       + " (used by " + field + " in schema version " + schemaVersion
                       + ") was found in the configured FieldTypeRepository");
                 }
-                assert fieldType.getEncodingSignature() == field.getEncodingSignature();
                 return fieldType;
             }
         });

@@ -5,6 +5,7 @@
 
 package io.permazen.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.type.EnumValueFieldType;
@@ -36,6 +37,72 @@ public interface FieldTypeRegistry {
      * @throws IllegalArgumentException if {@code encodingId} is null
      */
     FieldType<?> getFieldType(EncodingId encodingId);
+
+    /**
+     * Get the encoding ID corresponding to the given alias (or "nickname"), if any.
+     *
+     * <p>
+     * See {@link #aliasForId aliasForId()} for details on aliases.
+     *
+     * <p>
+     * If {@code alias} is a valid alias, this method should return the corresponding
+     * {@link EncodingId}. If {@code alias} is not a valid alias, but is a valid encoding
+     * ID in string form, this method should return the corresponding {@link EncodingId}
+     * as if by {@code new EncodingId(alias)}. Otherwise, this method should throw
+     * {@link IllegalArgumentException}.
+     *
+     * <p>
+     * Note: the {@link EncodingId} corresponding to an alias does not need to be actually
+     * registered with this instance in order for the alias to be valid.
+     *
+     * <p>
+     * The implementation in {@link FieldTypeRegistry} just invokes {@code new EncodingId(alias)}.
+     *
+     * @param alias encoding ID alias
+     * @return corresponding encoding ID, never null
+     * @throws IllegalArgumentException if {@code alias} is not a valid alias
+     */
+    default EncodingId idForAlias(String alias) {
+        Preconditions.checkArgument(alias != null, "null alias");
+        return new EncodingId(alias);
+    }
+
+    /**
+     * Get the alias (or "nickname") for the given encoding ID in this registry, if any.
+     *
+     * <p>
+     * A {@link FieldTypeRegistry} may support aliases for some of its encoding ID's.
+     * Aliases are simply more friendly names for encoding IDs, which are officially
+     * expressed as Uniform Resource Names (URNs).
+     *
+     * <p>
+     * Whereas {@link EncodingId}'s are globally unique, aliases are only meaningful
+     * to the particular {@link FieldTypeRegistry} instance being queried.
+     * When a schema is recorded in a database, actual {@link EncodingId}'s are always used.
+     *
+     * <p>
+     * In Permazen's {@link DefaultFieldTypeRegistry}, the built-in types all have aliases;
+     * for example, {@code "int"} is an alias for {@code "urn:fdc:permazen.io:2020:int"}.
+     *
+     * <p>
+     * If no alias is known for {@code encodingId}, this method should return {@link EncodingId#getId}.
+     *
+     * <p>
+     * Note: an {@link EncodingId} does not need to be actually registered with this instance
+     * in order for it to have an alias.
+     *
+     * <p>
+     * The implementation in {@link FieldTypeRegistry} always returns {@link EncodingId#getId}.
+     *
+     * @param name encoding ID
+     * @return corresponding alias, if any, otherwise {@link EncodingId#getId}
+     * @throws IllegalArgumentException if {@code alias} is null
+     * @see idForAlias
+     */
+    default String aliasForId(EncodingId encodingId) {
+        Preconditions.checkArgument(encodingId != null, "null encodingId");
+        return encodingId.getId();
+    }
 
     /**
      * Get all of the {@link FieldType}s in this registry that supports values of the given Java type.

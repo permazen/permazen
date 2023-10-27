@@ -7,6 +7,7 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.DefaultFieldTypeRegistry;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.Layout;
 import io.permazen.kv.KeyRanges;
@@ -23,7 +24,7 @@ public class JsckConfig {
 
     private JsckLogger logger = JsckLogger.wrap(LoggerFactory.getLogger(this.getClass()));
     private KeyRanges keysToInspect;
-    private FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
+    private FieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
     private boolean garbageCollectSchemas;
     private Map<Integer, SchemaModel> forceSchemaVersions;
     private int forceFormatVersion;

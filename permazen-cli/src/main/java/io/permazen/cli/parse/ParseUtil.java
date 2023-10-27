@@ -10,11 +10,11 @@ import com.google.common.base.Preconditions;
 import io.permazen.JClass;
 import io.permazen.JField;
 import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.cli.SessionMode;
 
 import java.util.Collection;
 import java.util.stream.Stream;

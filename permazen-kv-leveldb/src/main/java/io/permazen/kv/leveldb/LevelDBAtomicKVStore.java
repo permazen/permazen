@@ -361,9 +361,15 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                     if (min != null && max != null && ByteUtil.isConsecutive(min, max))
                         batch.delete(min);
                     else {
-                        try (LevelDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {
+                        final LevelDBKVStore.Iterator i;
+                        synchronized (this) {
+                            i = this.kv.createIterator(iteratorOptions, min, max, false);
+                        }
+                        try {
                             while (i.hasNext())
                                 batch.delete(i.next().getKey());
+                        } finally {
+                            i.close();
                         }
                     }
                 });

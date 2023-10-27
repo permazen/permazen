@@ -168,7 +168,7 @@ public abstract class AbstractCommand implements Command {
      *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link ObjId})</li>
      * </ul>
      *
-     * @param typeName parameter type name
+     * @param typeName parameter encoding ID or encoding ID alias
      * @return parser for parameters of the specified type
      */
     protected Parser<?> getParser(String typeName) {

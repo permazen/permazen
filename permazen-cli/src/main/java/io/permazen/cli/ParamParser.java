@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.parse.Parser;
 import io.permazen.cli.parse.WhateverParser;
 import io.permazen.cli.parse.WordParser;
+import io.permazen.core.DefaultFieldTypeRegistry;
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.core.FieldTypeRegistry;
 import io.permazen.util.ParseContext;
@@ -35,7 +37,7 @@ public class ParamParser {
 
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
-    private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
+    private final FieldTypeRegistry fieldTypeRegistry = new DefaultFieldTypeRegistry();
 
     public ParamParser(String spec) {
         if (spec.length() > 0) {
@@ -99,8 +101,8 @@ public class ParamParser {
      *
      * <p>
      * The implementation in {@link ParamParser} supports all of the pre-defined types of {@link FieldTypeRegistry}
-     * (identified by their names), plus {@code word} to parse a {@link String} containing one or more non-whitespace characters.
-     * Subclasses should override as required to add additional supported types.
+     * (identified by their encoding ID's or aliases), plus {@code word} to parse a {@link String} containing
+     * one or more non-whitespace characters. Subclasses should override as required to add additional supported types.
      *
      * @param typeName name of type
      * @return parser for parameters of the specified type
@@ -110,13 +112,14 @@ public class ParamParser {
         Preconditions.checkArgument(typeName != null, "null typeName");
         if (typeName.equals("word"))
             return new WordParser("parameter");
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(typeName);
+        final EncodingId encodingId = this.fieldTypeRegistry.idForAlias(typeName);
+        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(encodingId);
         if (fieldType != null) {
             return (session, ctx, complete) -> {
                 try {
                     return fieldType.fromParseableString(ctx);
                 } catch (IllegalArgumentException e) {
-                    throw new ParseException(ctx, "invalid " + fieldType.getName() + " value", e);
+                    throw new ParseException(ctx, "invalid " + typeName + " value", e);
                 }
             };
         }

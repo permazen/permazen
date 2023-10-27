@@ -13,7 +13,6 @@ import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.EncodingId;
-import io.permazen.core.EncodingIds;
 import io.permazen.core.FieldType;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
@@ -571,24 +570,14 @@ public class JClass<T> extends JSchemaObject {
       int storageId, io.permazen.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {
 
         // Get explicit encoding, if any
-        final String encodingName = annotation.encoding().length() > 0 ? annotation.encoding() : null;
         EncodingId encodingId = null;
+        final String encodingName = annotation.encoding().length() > 0 ? annotation.encoding() : null;
         if (encodingName != null) {
             try {
-                encodingId = new EncodingId(encodingName);
+                encodingId = this.jdb.db.getFieldTypeRegistry().idForAlias(encodingName);
             } catch (IllegalArgumentException e) {
-                // failed
-            }
-            if (encodingId == null && encodingName.indexOf(':') == -1) {
-                try {
-                    encodingId = EncodingIds.builtin(encodingName);
-                } catch (IllegalArgumentException e) {
-                    // failed
-                }
-            }
-            if (encodingId == null) {
                 throw new IllegalArgumentException("invalid " + description
-                  + ": invalid encoding ID \"" + annotation.encoding() + "\"");
+                  + ": invalid encoding \"" + encodingName + "\"");
             }
         }
 

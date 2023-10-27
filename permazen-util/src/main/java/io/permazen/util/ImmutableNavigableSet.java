@@ -14,6 +14,8 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * An immutable {@link NavigableSet} implementation optimized for read efficiency.
@@ -179,6 +181,11 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     public Spliterator<E> spliterator() {
         return Spliterators.spliterator(this.elems, this.minIndex, this.maxIndex,
           Spliterator.CONCURRENT | Spliterator.IMMUTABLE | Spliterator.ORDERED | Spliterator.SORTED);
+    }
+
+    @Override
+    public Stream<E> stream() {
+        return StreamSupport.stream(this.spliterator(), false);
     }
 
     @Override

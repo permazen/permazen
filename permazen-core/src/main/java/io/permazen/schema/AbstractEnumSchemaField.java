@@ -10,7 +10,6 @@ import com.google.common.collect.PeekingIterator;
 
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.type.EnumValueFieldType;
-import io.permazen.kv.KVDatabase;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;

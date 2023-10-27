@@ -6,8 +6,8 @@
 package io.permazen.jsck;
 
 import io.permazen.core.FieldType;
-import io.permazen.core.FieldTypeRegistry;
 import io.permazen.core.ObjId;
+import io.permazen.core.type.ObjIdType;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SimpleSchemaField;
@@ -48,7 +48,7 @@ class CompositeIndex extends Index {
         final byte[][] values = new byte[this.fieldTypes.length][];
         for (int i = 0; i < values.length; i++)
             values[i] = this.validateEncodedBytes(reader, this.fieldTypes[i]);
-        final ObjId id = this.validateEncodedValue(reader, FieldTypeRegistry.OBJ_ID);
+        final ObjId id = this.validateEncodedValue(reader, new ObjIdType());
         this.validateEOF(reader);
 
         // Validate field values in object

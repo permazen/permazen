@@ -20,8 +20,8 @@
 
     <modules>
         <module>permazen-ant</module>
-    <!-- XXXXXXXXXXXX TEMPORARY XXXXXXXXXXXXXX
         <module>permazen-cli</module>
+    <!-- XXXXXXXXXXXX TEMPORARY XXXXXXXXXXXXXX
         <module>permazen-cliapp</module>
     -->
         <module>permazen-core</module>

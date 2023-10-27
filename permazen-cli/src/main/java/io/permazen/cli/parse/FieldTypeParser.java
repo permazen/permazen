@@ -8,6 +8,7 @@ package io.permazen.cli.parse;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
+import io.permazen.core.EncodingId;
 import io.permazen.core.FieldType;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
@@ -39,15 +40,19 @@ public class FieldTypeParser<T> implements Parser<T> {
     @SuppressWarnings("unchecked")
     public T parse(Session session, ParseContext ctx, boolean complete) {
 
-        // Get FieldType
-        final FieldType<?> actualFieldType = this.fieldType != null ?
-          this.fieldType : session.getDatabase().getFieldTypeRegistry().getFieldType(this.typeName);
-        if (actualFieldType == null)
-            throw new ParseException(ctx, "no known field type \"" + this.typeName + "\" registered with database");
+        // Get FieldType, if we don't already have it
+        FieldType<?> actualFieldType = this.fieldType;
+        if (actualFieldType == null) {
+            final EncodingId encodingId = session.getDatabase().getFieldTypeRegistry().idForAlias(this.typeName);
+            if ((actualFieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(encodingId)) == null)
+                throw new ParseException(ctx, "no known field type \"" + this.typeName + "\" registered with database");
+        }
+
+        // Parse value
         try {
             return (T)actualFieldType.fromParseableString(ctx);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid " + actualFieldType.getName() + " parameter");
+            throw new ParseException(ctx, "invalid parameter (" + actualFieldType + ")");
         }
     }
 

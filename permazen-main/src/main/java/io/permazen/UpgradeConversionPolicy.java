@@ -5,7 +5,6 @@
 
 package io.permazen;
 
-import io.permazen.Counter;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.DeleteAction;

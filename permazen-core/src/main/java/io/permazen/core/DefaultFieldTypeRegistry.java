@@ -5,6 +5,7 @@
 
 package io.permazen.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.type.BigDecimalType;
@@ -49,6 +50,7 @@ import io.permazen.core.type.ZonedDateTimeType;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
@@ -122,6 +124,24 @@ public class DefaultFieldTypeRegistry extends SimpleFieldTypeRegistry {
     }
 
 // FieldTypeRegistry
+
+    @Override
+    public EncodingId idForAlias(String alias) {
+        Preconditions.checkArgument(alias != null, "null alias");
+        if (alias.indexOf(':') == -1)                    // a very basic filter
+            return EncodingIds.builtin(alias);
+        return new EncodingId(alias);
+    }
+
+    @Override
+    public String aliasForId(EncodingId encodingId) {
+        Preconditions.checkArgument(encodingId != null, "null encodingId");
+        final String id = encodingId.getId();
+        return Optional.of(id)
+          .filter(s -> s.startsWith(EncodingIds.PERMAZEN_PREFIX))
+          .map(s -> s.substring(EncodingIds.PERMAZEN_PREFIX.length()))
+          .orElse(id);
+    }
 
     @Override
     public synchronized FieldType<?> getFieldType(EncodingId encodingId) {
