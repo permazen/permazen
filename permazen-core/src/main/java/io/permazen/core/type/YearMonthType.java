@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -23,14 +22,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, the {@linkplain YearMonth#getYear year}
  * followed by the {@linkplain YearMonth#getMonthValue month value}.
  */
-public class YearMonthType extends NonNullEncoding<YearMonth> {
+public class YearMonthType extends BuiltinEncoding<YearMonth> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+");
 
     private static final long serialVersionUID = 2773124141026846109L;
 
     public YearMonthType() {
-        super(EncodingIds.builtin("YearMonth"), YearMonth.class);
+        super(YearMonth.class);
     }
 
 // Encoding

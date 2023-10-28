@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -22,12 +21,12 @@ import java.util.BitSet;
  * <p>
  * Instances are ordered like boolean numbers, i.e., lexicographically, with higher index bits being more significant.
  */
-public class BitSetType extends NonNullEncoding<BitSet> {
+public class BitSetType extends BuiltinEncoding<BitSet> {
 
     private static final long serialVersionUID = -1133774834687234873L;
 
     public BitSetType() {
-        super(EncodingIds.builtin("BitSet"), BitSet.class);
+        super(BitSet.class);
     }
 
 // Encoding

@@ -49,6 +49,22 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
         this.defaultValueObject = defaultValue;
     }
 
+    /**
+     * Constructor.
+     *
+     * @param encodingId encoding ID, or null to be anonymous
+     * @param typeToken Java type for the field's values
+     * @param defaultValue default value for this encoding
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code name} is invalid
+     */
+    protected AbstractEncoding(EncodingId encodingId, Class<T> type, T defaultValue) {
+        Preconditions.checkArgument(type != null, "null type");
+        this.encodingId = encodingId;
+        this.typeToken = TypeToken.of(type);
+        this.defaultValueObject = defaultValue;
+    }
+
 // Public methods
 
     @Override

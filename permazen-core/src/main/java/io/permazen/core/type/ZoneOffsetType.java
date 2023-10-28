@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -24,14 +23,14 @@ import java.util.regex.Pattern;
  * {@linkplain ZoneOffset#getTotalSeconds total seconds value}. The value is negated because higher offsets
  * {@linkplain ZoneOffset#compareTo sort} before lower ones.
  */
-public class ZoneOffsetType extends NonNullEncoding<ZoneOffset> {
+public class ZoneOffsetType extends BuiltinEncoding<ZoneOffset> {
 
     static final Pattern PATTERN = Pattern.compile("(Z|[-+][0-9]{2}:[0-9]{2}(:[0-9]{2})?)");
 
     private static final long serialVersionUID = 4606196393878370203L;
 
     public ZoneOffsetType() {
-        super(EncodingIds.builtin("ZoneOffset"), ZoneOffset.class);
+        super(ZoneOffset.class);
     }
 
 // Encoding

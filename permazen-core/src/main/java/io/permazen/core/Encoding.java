@@ -47,7 +47,8 @@ import java.util.Comparator;
  *      (these two forms may be the same).</li>
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare compare()} (typically
  *      null values sort last) and have binary and string encodings just like any other value.</li>
- *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.</li>
+ *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.
+ *      Database field values that are equal to their field's encoding's default value are not actually stored.</li>
  * </ul>
  *
  * <p>
@@ -264,8 +265,9 @@ public interface Encoding<T> extends Comparator<T> {
      * from {@link Integer} to {@link Long}.
      *
      * <p>
-     * The implementation in {@link Encoding} attempts to cast the value using this instance's raw Java type.
-     * Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.
+     * The implementation in {@link Encoding} first verifies the value is not null if this instance
+     * {@linkplain #allowsNull does not allow null values}, and then attempts to cast the value using
+     * this instance's raw Java type. Subclasses should override this method to implement any other restrictions.
      *
      * @param obj object to validate
      * @return {@code obj} cast to this encoding's type
@@ -275,6 +277,7 @@ public interface Encoding<T> extends Comparator<T> {
      */
     @SuppressWarnings("unchecked")
     default T validate(Object obj) {
+        Preconditions.checkArgument(obj != null || this.allowsNull(), "invalid null value");
         try {
             return (T)this.getTypeToken().getRawType().cast(obj);
         } catch (ClassCastException e) {

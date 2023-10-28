@@ -5,7 +5,6 @@
 
 package io.permazen.core.type;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ParseContext;
 
 import java.time.OffsetDateTime;
@@ -24,7 +23,7 @@ public class ZonedDateTimeType extends Concat2Type<ZonedDateTime, OffsetDateTime
     private static final long serialVersionUID = 2484375470437659420L;
 
     public ZonedDateTimeType() {
-        super(EncodingIds.builtin("ZonedDateTime"), ZonedDateTime.class, new OffsetDateTimeType(), new ZoneIdType());
+        super(ZonedDateTime.class, new OffsetDateTimeType(), new ZoneIdType());
     }
 
     @Override

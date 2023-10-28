@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -28,8 +27,7 @@ public class InetAddressType extends AbstractInetAddressType<InetAddress> {
     private static final byte PREFIX_IPV6 = 6;
 
     public InetAddressType() {
-        super(EncodingIds.builtin("InetAddress"), InetAddress.class,
-          "(" + Inet4AddressType.PATTERN + "|" + Inet6AddressType.PATTERN + ")");
+        super(InetAddress.class, "(" + Inet4AddressType.PATTERN + "|" + Inet6AddressType.PATTERN + ")");
     }
 
 // Encoding

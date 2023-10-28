@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -22,14 +21,14 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
  */
-public class YearType extends NonNullEncoding<Year> {
+public class YearType extends BuiltinEncoding<Year> {
 
     private static final Pattern PATTERN = Pattern.compile("[-+]?[0-9]+");
 
     private static final long serialVersionUID = 6800527893478605289L;
 
     public YearType() {
-        super(EncodingIds.builtin("Year"), Year.class);
+        super(Year.class);
     }
 
 // Encoding

@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.AbstractEncoding;
 import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
 import io.permazen.util.ByteReader;
@@ -31,12 +32,14 @@ import org.dellroad.stuff.string.StringEncoder;
  *
  * @param <T> The associated Java type
  */
-public class StringConvertedType<T> extends NonNullEncoding<T> {
+public class StringConvertedType<T> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = -2432755812735736593L;
 
     private final StringType stringType = new StringType();
     private final Converter<T, String> converter;
+
+// Constructors
 
     /**
      * Primary constructor.
@@ -46,8 +49,8 @@ public class StringConvertedType<T> extends NonNullEncoding<T> {
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected StringConvertedType(EncodingId encodingId, TypeToken<T> type, Converter<T, String> converter) {
-        super(encodingId, type);
+    public StringConvertedType(EncodingId encodingId, TypeToken<T> type, Converter<T, String> converter) {
+        super(encodingId, type, null);
         Preconditions.checkArgument(converter != null, "null converter");
         Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
           "invalid converter: does not convert null <-> null");
@@ -62,9 +65,11 @@ public class StringConvertedType<T> extends NonNullEncoding<T> {
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected StringConvertedType(EncodingId encodingId, Class<T> type, Converter<T, String> converter) {
+    public StringConvertedType(EncodingId encodingId, Class<T> type, Converter<T, String> converter) {
         this(encodingId, TypeToken.of(type), converter);
     }
+
+// Encoding
 
     @Override
     public T read(ByteReader reader) {

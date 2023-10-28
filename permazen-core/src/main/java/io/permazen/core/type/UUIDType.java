@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -22,7 +21,7 @@ import java.util.UUID;
  * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
  * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}.
  */
-public class UUIDType extends NonNullEncoding<UUID> {
+public class UUIDType extends BuiltinEncoding<UUID> {
 
     private static final long serialVersionUID = -7426558458120883995L;
 
@@ -30,7 +29,7 @@ public class UUIDType extends NonNullEncoding<UUID> {
     private static final String PATTERN = "\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}";
 
     public UUIDType() {
-        super(EncodingIds.builtin("UUID"), UUID.class);
+        super(UUID.class);
     }
 
 // Encoding

@@ -7,7 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.Encoding;
+import io.permazen.core.AbstractEncoding;
+import io.permazen.core.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -20,17 +21,30 @@ import org.dellroad.stuff.java.Primitive;
  *
  * <p>
  * This type is internally for encoding various non-negative integer values.
- *
- * <p>
- * Instances are {@linkplain Encoding#getEncodingId anonymous}.
  */
-public class UnsignedIntType extends NonNullEncoding<Integer> {
+public class UnsignedIntType extends AbstractEncoding<Integer> {
 
     private static final long serialVersionUID = 4653435311425384497L;
 
+// Constructors
+
+    /**
+     * Create an anonymous instance.
+     */
     public UnsignedIntType() {
-        super(null, Integer.class, 0);
+        this(null);
     }
+
+    /**
+     * Constructor.
+     *
+     * @param encodingId encoding ID, or null for an anonymous instance
+     */
+    public UnsignedIntType(EncodingId encodingId) {
+        super(encodingId, Integer.class, 0);
+    }
+
+// Encoding
 
     @Override
     public Integer read(ByteReader reader) {

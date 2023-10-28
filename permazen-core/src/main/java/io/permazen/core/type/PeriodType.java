@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -23,14 +22,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
  * the {@linkplain Period#getMonths months}, and the {@linkplain Period#getDays days}.
  */
-public class PeriodType extends NonNullEncoding<Period> {
+public class PeriodType extends BuiltinEncoding<Period> {
 
     private static final Pattern PATTERN = Pattern.compile("P(-?[0-9]+Y)?(-?[0-9]+M)?(-?[0-9]+?D)?|P-?[0-9]+W");
 
     private static final long serialVersionUID = -5481674489895732054L;
 
     public PeriodType() {
-        super(EncodingIds.builtin("Period"), Period.class, Period.ZERO);
+        super(Period.class, Period.ZERO);
     }
 
 // Encoding

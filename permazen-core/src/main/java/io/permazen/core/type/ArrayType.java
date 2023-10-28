@@ -7,6 +7,7 @@ package io.permazen.core.type;
 
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.AbstractEncoding;
 import io.permazen.core.Encoding;
 import io.permazen.core.EncodingId;
 import io.permazen.util.ParseContext;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Superclass for all array {@link Encoding}s.
+ * Support superclass for builtin array {@link Encoding}s.
  *
  * <p>
  * The string form looks like {@code [ elem1, elem2, ..., elemN ]}.
@@ -32,7 +33,7 @@ import java.util.Optional;
  * @param <T> array type
  * @param <E> array element type
  */
-public abstract class ArrayType<T, E> extends NonNullEncoding<T> {
+public abstract class ArrayType<T, E> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = 3776218636387986632L;
 

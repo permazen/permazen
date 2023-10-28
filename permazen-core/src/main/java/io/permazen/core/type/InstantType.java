@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -23,14 +22,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
  * followed by {@linkplain Instant#getNano nanoseconds}.
  */
-public class InstantType extends NonNullEncoding<Instant> {
+public class InstantType extends BuiltinEncoding<Instant> {
 
     private static final Pattern PATTERN = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z");
 
     private static final long serialVersionUID = -3907615112193058091L;
 
     public InstantType() {
-        super(EncodingIds.builtin("Instant"), Instant.class);
+        super(Instant.class);
     }
 
 // Encoding

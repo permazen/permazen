@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -20,12 +19,12 @@ import org.dellroad.stuff.string.DateEncoder;
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.
  */
-public class DateType extends NonNullEncoding<Date> {
+public class DateType extends BuiltinEncoding<Date> {
 
     private static final long serialVersionUID = 825120832596893074L;
 
     public DateType() {
-        super(EncodingIds.builtin("Date"), Date.class);
+        super(Date.class);
     }
 
 // Encoding

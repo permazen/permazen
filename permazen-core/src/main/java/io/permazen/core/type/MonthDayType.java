@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -23,14 +22,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via an {@link UnsignedIntEncoder}-encoded value {@code 32} times the
  * {@linkplain MonthDay#getMonthValue month value}{@code - 1}, plus the {@linkplain MonthDay#getDayOfMonth day of the month}.
  */
-public class MonthDayType extends NonNullEncoding<MonthDay> {
+public class MonthDayType extends BuiltinEncoding<MonthDay> {
 
     private static final Pattern PATTERN = Pattern.compile("--[0-9]{2}-[0-9]{2}");
 
     private static final long serialVersionUID = -8813919603844250786L;
 
     public MonthDayType() {
-        super(EncodingIds.builtin("MonthDay"), MonthDay.class);
+        super(MonthDay.class);
     }
 
 // Encoding

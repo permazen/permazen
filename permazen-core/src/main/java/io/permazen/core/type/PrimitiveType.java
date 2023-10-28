@@ -5,6 +5,7 @@
 
 package io.permazen.core.type;
 
+import io.permazen.core.AbstractEncoding;
 import io.permazen.core.Encoding;
 import io.permazen.core.EncodingIds;
 import io.permazen.util.ParseContext;
@@ -14,7 +15,7 @@ import org.dellroad.stuff.java.Primitive;
 /**
  * Support superclass for primitive types.
  */
-public abstract class PrimitiveType<T> extends NonNullEncoding<T> {
+abstract class PrimitiveType<T> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = 5581526700382536487L;
 

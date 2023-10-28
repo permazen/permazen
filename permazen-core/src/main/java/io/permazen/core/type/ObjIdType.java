@@ -7,6 +7,8 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.AbstractEncoding;
+import io.permazen.core.EncodingId;
 import io.permazen.core.ObjId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -18,12 +20,26 @@ import io.permazen.util.ParseContext;
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}.
  */
-public class ObjIdType extends NonNullEncoding<ObjId> {
+public class ObjIdType extends AbstractEncoding<ObjId> {
 
     private static final long serialVersionUID = 6921359865864012847L;
 
+// Constructors
+
+    /**
+     * Create an anonymous instance.
+     */
     public ObjIdType() {
-        super(null, ObjId.class);
+        this(null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param encodingId encoding ID, or null for an anonymous instance
+     */
+    public ObjIdType(EncodingId encodingId) {
+        super(encodingId, ObjId.class, null);
     }
 
 // Encoding

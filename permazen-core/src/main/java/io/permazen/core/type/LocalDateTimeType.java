@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -25,14 +24,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
  * followed by {@linkplain Instant#getNano nanoseconds} of the date/time in {@link ZoneOffset#UTC UTC}.
  */
-public class LocalDateTimeType extends NonNullEncoding<LocalDateTime> {
+public class LocalDateTimeType extends BuiltinEncoding<LocalDateTime> {
 
     static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+T[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
     private static final long serialVersionUID = -3302238853808401737L;
 
     public LocalDateTimeType() {
-        super(EncodingIds.builtin("LocalDateTime"), LocalDateTime.class);
+        super(LocalDateTime.class);
     }
 
 // Encoding

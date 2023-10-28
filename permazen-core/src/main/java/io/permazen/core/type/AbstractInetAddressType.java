@@ -8,7 +8,6 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 
-import io.permazen.core.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -20,16 +19,15 @@ import java.net.UnknownHostException;
 /**
  * Support superclass for {@link InetAddress} types. Null values are not supported by this class.
  */
-abstract class AbstractInetAddressType<T extends InetAddress> extends NonNullEncoding<T> {
+abstract class AbstractInetAddressType<T extends InetAddress> extends BuiltinEncoding<T> {
 
     private static final long serialVersionUID = -3778250973615531382L;
 
     private final Class<T> addrType;
     private final String pattern;
 
-    protected AbstractInetAddressType(EncodingId encodingId, Class<T> addrType, String pattern) {
-        super(encodingId, addrType);
-        Preconditions.checkArgument(addrType != null);
+    protected AbstractInetAddressType(Class<T> addrType, String pattern) {
+        super(addrType);
         Preconditions.checkArgument(pattern != null);
         this.addrType = addrType;
         this.pattern = pattern;

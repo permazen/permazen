@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -18,13 +17,13 @@ import java.math.BigInteger;
 /**
  * {@link BigInteger} type. Null values are not supported by this class.
  */
-public class BigIntegerType extends NonNullEncoding<BigInteger> {
+public class BigIntegerType extends BuiltinEncoding<BigInteger> {
 
     private static final long serialVersionUID = -2984648309356838144L;
     private static final int MAX_NUM_BYTES = (Integer.MAX_VALUE / Byte.SIZE) + 1;
 
     public BigIntegerType() {
-        super(EncodingIds.builtin("BigInteger"), BigInteger.class);
+        super(BigInteger.class);
     }
 
 // Encoding

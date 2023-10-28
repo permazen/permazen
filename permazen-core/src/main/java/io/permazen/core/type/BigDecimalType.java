@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -29,7 +28,7 @@ import java.util.Arrays;
  * As a result, this class' {@link #compare compare()} method is consistent with {@link BigDecimal#equals BigDecimal.equals()},
  * unlike {@link BigDecimal}'s own {@link BigDecimal#compareTo compareTo()} method, which is not.
  */
-public class BigDecimalType extends NonNullEncoding<BigDecimal> {
+public class BigDecimalType extends BuiltinEncoding<BigDecimal> {
 
     private static final long serialVersionUID = -6401896548616656153L;
 
@@ -38,7 +37,7 @@ public class BigDecimalType extends NonNullEncoding<BigDecimal> {
     private static final int FLAG_POSITIVE = 0x03;
 
     public BigDecimalType() {
-        super(EncodingIds.builtin("BigDecimal"), BigDecimal.class);
+        super(BigDecimal.class);
     }
 
 // Encoding

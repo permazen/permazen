@@ -8,7 +8,9 @@ package io.permazen.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.AbstractEncoding;
 import io.permazen.core.Encoding;
+import io.permazen.core.EncodingId;
 import io.permazen.tuple.Tuple;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -19,29 +21,54 @@ import java.util.List;
 
 /**
  * Superclass for {@link Encoding}s created from the concatenation of other {@link Encoding}s.
- *
- * <p>
- * Binary encoding is via the concatenation of the individual element encodings.
- *
- * <p>
- * Instances are {@linkplain Encoding#getEncodingId anonymous}.
  */
-public abstract class TupleEncoding<T extends Tuple> extends NonNullEncoding<T> {
+public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = 8691368371643936848L;
 
     final List<Encoding<?>> encodings;
     final int size;
 
+// Constructors
+
+    /**
+     * Create an anonymous instance.
+     *
+     * @param typeToken this encoding's composite value type
+     * @param encodings encodings to concatenate
+     * @throws IllegalArgumentException if {@code typeToken} or {@link encodings} is null
+     */
     protected TupleEncoding(TypeToken<T> typeToken, Encoding<?>... encodings) {
-        super(null, typeToken);
+        this(null, typeToken, encodings);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param encodingId encoding ID, or null for an anonymous instance
+     * @param typeToken this encoding's composite value type
+     * @param encodings encodings to concatenate
+     * @throws IllegalArgumentException if {@code typeToken} or {@link encodings} is null
+     */
+    protected TupleEncoding(EncodingId encodingId, TypeToken<T> typeToken, Encoding<?>... encodings) {
+        super(encodingId, typeToken, null);
+        Preconditions.checkArgument(encodings != null, "null encodings");
         this.encodings = Arrays.<Encoding<?>>asList(encodings);
         this.size = this.encodings.size();
     }
 
+// Public Methods
+
+    /**
+     * Get the number of component encodings in this encoding.
+     *
+     * @return number of component encodings
+     */
     public int getSize() {
         return this.size;
     }
+
+// Encoding
 
     @Override
     public T read(ByteReader reader) {

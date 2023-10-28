@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -22,14 +21,14 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
  */
-public class LocalDateType extends NonNullEncoding<LocalDate> {
+public class LocalDateType extends BuiltinEncoding<LocalDate> {
 
     private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+");
 
     private static final long serialVersionUID = -1245720029314097665L;
 
     public LocalDateType() {
-        super(EncodingIds.builtin("LocalDate"), LocalDate.class);
+        super(LocalDate.class);
     }
 
 // Encoding

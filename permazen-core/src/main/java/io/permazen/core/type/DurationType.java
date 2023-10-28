@@ -7,7 +7,6 @@ package io.permazen.core.type;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.EncodingIds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
@@ -23,14 +22,14 @@ import java.util.regex.Pattern;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}
  * followed by {@linkplain Duration#getNano nanoseconds}.
  */
-public class DurationType extends NonNullEncoding<Duration> {
+public class DurationType extends BuiltinEncoding<Duration> {
 
     private static final Pattern PATTERN = Pattern.compile("PT(-?[0-9]+H)?(-?[0-9]+M)?(-?[0-9]+(\\.[0-9]+)?S)?");
 
     private static final long serialVersionUID = 969067179729229705L;
 
     public DurationType() {
-        super(EncodingIds.builtin("Duration"), Duration.class, Duration.ZERO);
+        super(Duration.class, Duration.ZERO);
     }
 
 // Encoding
