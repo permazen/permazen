@@ -302,11 +302,24 @@ public interface Encoding<T> extends Comparator<T> {
     int compare(T value1, T value2);
 
     /**
+     * Determine whether this encoding supports null values.
+     *
+     * <p>
+     * The implementation in {@link Encoding} returns {@code false}.
+     *
+     * @return true if null is a valid value, otherwise false
+     */
+    default boolean allowsNull() {
+        return false;
+    }
+
+    /**
      * Determine whether any of this encoding's encoded values start with a {@code 0x00} byte.
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
-     * Note: changing the return value of this method usually results in an incompatible encoding.
+     * Note: changing the result of this method may result in an incompatible encoding if this encoding
+     * is wrapped in another class.
      *
      * <p>
      * The implementation in {@link Encoding} returns {@code true}.
@@ -322,7 +335,8 @@ public interface Encoding<T> extends Comparator<T> {
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
-     * Note: changing the return value of this method usually results in an incompatible encoding.
+     * Note: changing the result of this method may result in an incompatible encoding if this encoding
+     * is wrapped in another class.
      *
      * <p>
      * The implementation in {@link Encoding} returns {@code true}.

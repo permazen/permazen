@@ -215,61 +215,73 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.add(new PrimitiveWrapperType<>(Encodings.VOID));
 
         // Primitive array types
-        this.add(new NullSafeType<>(new BooleanArrayType()));
-        this.add(new NullSafeType<>(new ByteArrayType()));
-        this.add(new NullSafeType<>(new CharacterArrayType()));
-        this.add(new NullSafeType<>(new DoubleArrayType()));
-        this.add(new NullSafeType<>(new FloatArrayType()));
-        this.add(new NullSafeType<>(new IntegerArrayType()));
-        this.add(new NullSafeType<>(new LongArrayType()));
-        this.add(new NullSafeType<>(new ShortArrayType()));
+        this.addNullSafe((new BooleanArrayType()));
+        this.addNullSafe((new ByteArrayType()));
+        this.addNullSafe((new CharacterArrayType()));
+        this.addNullSafe((new DoubleArrayType()));
+        this.addNullSafe((new FloatArrayType()));
+        this.addNullSafe((new IntegerArrayType()));
+        this.addNullSafe((new LongArrayType()));
+        this.addNullSafe((new ShortArrayType()));
 
         // Types in java.lang
-        this.add(new NullSafeType<>(new StringType()));
+        this.addNullSafe((new StringType()));
 
         // Types in java.math
-        this.add(new NullSafeType<>(new BigDecimalType()));
-        this.add(new NullSafeType<>(new BigIntegerType()));
+        this.addNullSafe((new BigDecimalType()));
+        this.addNullSafe((new BigIntegerType()));
 
         // Types in java.io
-        this.add(new FileType());
+        this.addNullSafe(new FileType());
 
         // Types in java.util
-        this.add(new NullSafeType<>(new BitSetType()));
-        this.add(new NullSafeType<>(new DateType()));
-        this.add(new NullSafeType<>(new UUIDType()));
+        this.addNullSafe((new BitSetType()));
+        this.addNullSafe((new DateType()));
+        this.addNullSafe((new UUIDType()));
 
         // Types in java.util.regex
-        this.add(new PatternType());
+        this.addNullSafe(new PatternType());
 
         // Types in java.net
-        this.add(new NullSafeType<>(new Inet4AddressType()));
-        this.add(new NullSafeType<>(new Inet6AddressType()));
-        this.add(new NullSafeType<>(new InetAddressType()));
-        this.add(new URIType());
+        this.addNullSafe((new Inet4AddressType()));
+        this.addNullSafe((new Inet6AddressType()));
+        this.addNullSafe((new InetAddressType()));
+        this.addNullSafe((new URIType()));
 
         // Types in java.time
-        this.add(new NullSafeType<>(new DurationType()));
-        this.add(new NullSafeType<>(new InstantType()));
-        this.add(new NullSafeType<>(new LocalDateTimeType()));
-        this.add(new NullSafeType<>(new LocalDateType()));
-        this.add(new NullSafeType<>(new LocalTimeType()));
-        this.add(new NullSafeType<>(new MonthDayType()));
-        this.add(new NullSafeType<>(new OffsetDateTimeType()));
-        this.add(new NullSafeType<>(new OffsetTimeType()));
-        this.add(new NullSafeType<>(new PeriodType()));
-        this.add(new NullSafeType<>(new YearMonthType()));
-        this.add(new NullSafeType<>(new YearType()));
-        this.add(new NullSafeType<>(new ZoneOffsetType()));
-        this.add(new NullSafeType<>(new ZonedDateTimeType()));
-        this.add(new ZoneIdType());
+        this.addNullSafe((new DurationType()));
+        this.addNullSafe((new InstantType()));
+        this.addNullSafe((new LocalDateTimeType()));
+        this.addNullSafe((new LocalDateType()));
+        this.addNullSafe((new LocalTimeType()));
+        this.addNullSafe((new MonthDayType()));
+        this.addNullSafe((new OffsetDateTimeType()));
+        this.addNullSafe((new OffsetTimeType()));
+        this.addNullSafe((new PeriodType()));
+        this.addNullSafe((new YearMonthType()));
+        this.addNullSafe((new YearType()));
+        this.addNullSafe((new ZoneOffsetType()));
+        this.addNullSafe((new ZonedDateTimeType()));
+        this.addNullSafe((new ZoneIdType()));
 
         // Types that require optional classpath components
         try {
-            this.add(new InternetAddressType());
+            this.addNullSafe((new InternetAddressType()));
         } catch (NoClassDefFoundError e) {
             // ignore
         }
+    }
+
+    /**
+     * Add a null-safe version of a type which is not null-safe.
+     *
+     * @param encoding non-null encoding
+     * @throws IllegalArgumentException if {@code encoding} is an instance of {@link NullSafeType}
+     */
+    protected <T> void addNullSafe(Encoding<T> encoding) {
+        Preconditions.checkArgument(encoding != null, "null encoding");
+        Preconditions.checkArgument(!(encoding instanceof NullSafeType), "null safe encoding");
+        this.add(new NullSafeType<>(encoding));
     }
 
     /**

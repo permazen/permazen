@@ -82,7 +82,10 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     public int hashCode() {
         return this.getClass().hashCode()
           ^ Objects.hashCode(this.encodingId)
-          ^ this.typeToken.hashCode();
+          ^ this.typeToken.hashCode()
+          ^ (Boolean.hashCode(this.allowsNull()) << 1)
+          ^ (Boolean.hashCode(this.hasPrefix0x00()) << 2)
+          ^ (Boolean.hashCode(this.hasPrefix0xff()) << 3);
     }
 
     @Override
@@ -93,6 +96,9 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
             return false;
         final AbstractEncoding<?> that = (AbstractEncoding<?>)obj;
         return Objects.equals(this.encodingId, that.encodingId)
-          && this.typeToken.equals(that.typeToken);
+          && this.typeToken.equals(that.typeToken)
+          && this.allowsNull() == that.allowsNull()
+          && this.hasPrefix0x00() == that.hasPrefix0x00()
+          && this.hasPrefix0xff() == that.hasPrefix0xff();
     }
 }

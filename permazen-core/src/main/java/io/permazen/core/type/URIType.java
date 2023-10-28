@@ -14,12 +14,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * {@link URI} type. Null values are supported by this class.
+ * Non-null {@link URI} type. Null values are not supported by this class.
  *
  * <p>
  * <b>Note:</b> sort order is not consistent with {@link URI#compareTo URI.compareTo()}.
  */
-public class URIType extends StringEncodedType<URI> {
+public class URIType extends StringConvertedType<URI> {
 
     private static final long serialVersionUID = -7746505152033541526L;
 

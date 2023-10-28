@@ -13,9 +13,9 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * {@link File} type. Null values are supported by this class.
+ * Non-null {@link File} type. Null values are not supported by this class.
  */
-public class FileType extends StringEncodedType<File> {
+public class FileType extends StringConvertedType<File> {
 
     private static final long serialVersionUID = -8784371602920299513L;
 

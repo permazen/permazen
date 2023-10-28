@@ -15,7 +15,7 @@ import java.time.ZoneId;
 /**
  * Non-null {@link ZoneId} type. Null values are not supported by this class.
  */
-public class ZoneIdType extends StringEncodedType<ZoneId> {
+public class ZoneIdType extends StringConvertedType<ZoneId> {
 
     private static final long serialVersionUID = -4059733969700779261L;
 

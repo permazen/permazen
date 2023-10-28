@@ -62,7 +62,7 @@ public class NullSafeType<T> extends AbstractEncoding<T> {
      */
     public NullSafeType(EncodingId encodingId, Encoding<T> inner) {
         super(encodingId, inner.getTypeToken().wrap(), null);
-        Preconditions.checkArgument(!(inner instanceof NullSafeType), "inner type is already null-safe");
+        Preconditions.checkArgument(!inner.allowsNull(), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();
     }
@@ -183,6 +183,11 @@ public class NullSafeType<T> extends AbstractEncoding<T> {
         if (value2 == null)
             return -1;
         return this.inner.compare(value1, value2);
+    }
+
+    @Override
+    public boolean allowsNull() {
+        return true;
     }
 
     @Override

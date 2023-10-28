@@ -13,14 +13,14 @@ import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
- * {@link Pattern} type. Null values are supported by this class.
+ * Non-null {@link Pattern} type. Null values are not supported by this class.
  *
  * <p>
  * <b>Note:</b> equality is defined by equal pattern strings, which is not consistent with
  * the method {@link Pattern#equals Pattern.equals()}, which is not implemented and therefore
  * defaults to object identity for comparision.
  */
-public class PatternType extends StringEncodedType<Pattern> {
+public class PatternType extends StringConvertedType<Pattern> {
 
     private static final long serialVersionUID = -6406385779194286899L;
 
