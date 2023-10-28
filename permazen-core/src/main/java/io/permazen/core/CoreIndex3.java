@@ -60,7 +60,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
 
         // Create encoding for Tuple4<V1, V2, V3, T>
         final Tuple4Encoding<V1, V2, V3, T> encoding = new Tuple4Encoding<>(
-          iv.getValue1Type(), iv.getValue2Type(), iv.getValue3Type(), iv.getTargetType());
+          iv.getValue1Encoding(), iv.getValue2Encoding(), iv.getValue3Encoding(), iv.getTargetEncoding());
 
         // Build set and apply filtering
         IndexSet<Tuple4<V1, V2, V3, T>> indexSet = new IndexSet<>(this.kv,
@@ -136,24 +136,24 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex3<V1, V2, V3, T> withValue1Bounds(Bounds<V1> bounds) {
-        return (CoreIndex3<V1, V2, V3, T>)this.filter(0, this.getIndex3View().getValue1Type(), bounds);
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(0, this.getIndex3View().getValue1Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex3<V1, V2, V3, T> withValue2Bounds(Bounds<V2> bounds) {
-        return (CoreIndex3<V1, V2, V3, T>)this.filter(1, this.getIndex3View().getValue2Type(), bounds);
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(1, this.getIndex3View().getValue2Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex3<V1, V2, V3, T> withValue3Bounds(Bounds<V3> bounds) {
-        return (CoreIndex3<V1, V2, V3, T>)this.filter(2, this.getIndex3View().getValue3Type(), bounds);
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(2, this.getIndex3View().getValue3Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex3<V1, V2, V3, T> withTargetBounds(Bounds<T> bounds) {
-        return (CoreIndex3<V1, V2, V3, T>)this.filter(3, this.getIndex3View().getTargetType(), bounds);
+        return (CoreIndex3<V1, V2, V3, T>)this.filter(3, this.getIndex3View().getTargetEncoding(), bounds);
     }
 }

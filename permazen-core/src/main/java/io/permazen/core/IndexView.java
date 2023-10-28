@@ -17,25 +17,25 @@ class IndexView<V, T> extends AbstractIndexView {
      * Normal constructor.
      *
      * @param storageId field storage ID
-     * @param valueType index value type
-     * @param targetType index target type
+     * @param valueEncoding index value encoding
+     * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(int storageId, Encoding<V> valueType, Encoding<T> targetType) {
-        this(UnsignedIntEncoder.encode(storageId), false, valueType, targetType);
+    IndexView(int storageId, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
+        this(UnsignedIntEncoder.encode(storageId), false, valueEncoding, targetEncoding);
     }
 
     /**
      * Constructor for views formed from larger composite indexes.
      *
      * @param prefix key prefix
-     * @param prefixMode true if {@code targetType} is not the final field in the index
-     * @param valueType index value type
-     * @param targetType index target type
+     * @param prefixMode true if {@code targetEncoding} is not the final field in the index
+     * @param valueEncoding index value encoding
+     * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(byte[] prefix, boolean prefixMode, Encoding<V> valueType, Encoding<T> targetType) {
-        super(prefix, prefixMode, valueType, targetType);
+    IndexView(byte[] prefix, boolean prefixMode, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
+        super(prefix, prefixMode, valueEncoding, targetEncoding);
     }
 
     // Internal copy constructor
@@ -44,12 +44,12 @@ class IndexView<V, T> extends AbstractIndexView {
     }
 
     @SuppressWarnings("unchecked")
-    public Encoding<V> getValueType() {
+    public Encoding<V> getValueEncoding() {
         return (Encoding<V>)this.encodings[0];
     }
 
     @SuppressWarnings("unchecked")
-    public Encoding<T> getTargetType() {
+    public Encoding<T> getTargetEncoding() {
         return (Encoding<T>)this.encodings[1];
     }
 

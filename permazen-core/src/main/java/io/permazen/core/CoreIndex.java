@@ -53,7 +53,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
         final IndexView<V, T> iv = this.getIndexView();
 
         // Create tuple encoding
-        final Tuple2Encoding<V, T> tupleEncoding = new Tuple2Encoding<>(iv.getValueType(), iv.getTargetType());
+        final Tuple2Encoding<V, T> tupleEncoding = new Tuple2Encoding<>(iv.getValueEncoding(), iv.getTargetEncoding());
 
         // Build set and apply filtering
         IndexSet<Tuple2<V, T>> indexSet = new IndexSet<>(this.kv, tupleEncoding, iv.prefixMode, iv.prefix);
@@ -82,12 +82,12 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex<V, T> withValueBounds(Bounds<V> bounds) {
-        return (CoreIndex<V, T>)this.filter(0, this.getIndexView().getValueType(), bounds);
+        return (CoreIndex<V, T>)this.filter(0, this.getIndexView().getValueEncoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex<V, T> withTargetBounds(Bounds<T> bounds) {
-        return (CoreIndex<V, T>)this.filter(1, this.getIndexView().getTargetType(), bounds);
+        return (CoreIndex<V, T>)this.filter(1, this.getIndexView().getTargetEncoding(), bounds);
     }
 }

@@ -57,7 +57,7 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
 
         // Create encoding for Tuple3<V1, V2, T>
         final Tuple3Encoding<V1, V2, T> encoding = new Tuple3Encoding<>(
-          iv.getValue1Type(), iv.getValue2Type(), iv.getTargetType());
+          iv.getValue1Encoding(), iv.getValue2Encoding(), iv.getTargetEncoding());
 
         // Build set and apply filtering
         IndexSet<Tuple3<V1, V2, T>> indexSet = new IndexSet<>(this.kv, encoding, iv.prefixMode, iv.prefix);
@@ -109,18 +109,18 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex2<V1, V2, T> withValue1Bounds(Bounds<V1> bounds) {
-        return (CoreIndex2<V1, V2, T>)this.filter(0, this.getIndex2View().getValue1Type(), bounds);
+        return (CoreIndex2<V1, V2, T>)this.filter(0, this.getIndex2View().getValue1Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex2<V1, V2, T> withValue2Bounds(Bounds<V2> bounds) {
-        return (CoreIndex2<V1, V2, T>)this.filter(1, this.getIndex2View().getValue2Type(), bounds);
+        return (CoreIndex2<V1, V2, T>)this.filter(1, this.getIndex2View().getValue2Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex2<V1, V2, T> withTargetBounds(Bounds<T> bounds) {
-        return (CoreIndex2<V1, V2, T>)this.filter(2, this.getIndex2View().getTargetType(), bounds);
+        return (CoreIndex2<V1, V2, T>)this.filter(2, this.getIndex2View().getTargetEncoding(), bounds);
     }
 }

@@ -80,14 +80,14 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
         // Primary constructor
         OfValues(KVStore kv, IndexView<V, E> indexView) {
-            super(kv, indexView.getValueType(), indexView.prefix);
+            super(kv, indexView.getValueEncoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
         private OfValues(KVStore kv, IndexView<V, E> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V> bounds) {
-            super(kv, indexView.getValueType(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValueEncoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -103,11 +103,12 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
         @Override
         protected NavigableSet<E> decodeValue(byte[] keyPrefix) {
-            IndexSet<E> indexSet = new IndexSet<>(this.kv, this.indexView.getTargetType(), this.indexView.prefixMode, keyPrefix);
+            IndexSet<E> indexSet = new IndexSet<>(this.kv,
+              this.indexView.getTargetEncoding(), this.indexView.prefixMode, keyPrefix);
             final KeyFilter targetFilter = this.indexView.getFilter(1);
             if (targetFilter != null) {
                 indexSet = indexSet.filterKeys(new IndexKeyFilter(this.kv, keyPrefix,
-                  new Encoding<?>[] { this.indexView.getTargetType() }, new KeyFilter[] { targetFilter }, 1));
+                  new Encoding<?>[] { this.indexView.getTargetEncoding() }, new KeyFilter[] { targetFilter }, 1));
             }
             return indexSet;
         }
@@ -124,14 +125,14 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
         // Primary constructor
         OfIndex(KVStore kv, Index2View<V1, V2, T> indexView) {
-            super(kv, indexView.getValue1Type(), indexView.prefix);
+            super(kv, indexView.getValue1Encoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
         private OfIndex(KVStore kv, Index2View<V1, V2, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Encoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -162,14 +163,14 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
         // Primary constructor
         OfIndex2(KVStore kv, Index3View<V1, V2, V3, T> indexView) {
-            super(kv, indexView.getValue1Type(), indexView.prefix);
+            super(kv, indexView.getValue1Encoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
         private OfIndex2(KVStore kv, Index3View<V1, V2, V3, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Encoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 
@@ -200,14 +201,14 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
         // Primary constructor
         OfIndex3(KVStore kv, Index4View<V1, V2, V3, V4, T> indexView) {
-            super(kv, indexView.getValue1Type(), indexView.prefix);
+            super(kv, indexView.getValue1Encoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
         private OfIndex3(KVStore kv, Index4View<V1, V2, V3, V4, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
-            super(kv, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            super(kv, indexView.getValue1Encoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
         }
 

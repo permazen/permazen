@@ -22,36 +22,37 @@ public class Tuple4Encoding<V1, V2, V3, V4> extends TupleEncoding<Tuple4<V1, V2,
     /**
      * Create an anonymous instance.
      *
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @param value4Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @param value4Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple4Encoding(Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<V3> value3Type, Encoding<V4> value4Type) {
-        this(null, value1Type, value2Type, value3Type, value4Type);
+    public Tuple4Encoding(Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding, Encoding<V3> value3Encoding, Encoding<V4> value4Encoding) {
+        this(null, value1Encoding, value2Encoding, value3Encoding, value4Encoding);
     }
 
     /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @param value4Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @param value4Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple4Encoding(EncodingId encodingId, Encoding<V1> value1Type,
-      Encoding<V2> value2Type, Encoding<V3> value3Type, Encoding<V4> value4Type) {
+    public Tuple4Encoding(EncodingId encodingId, Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding, Encoding<V3> value3Encoding, Encoding<V4> value4Encoding) {
         super(encodingId, new TypeToken<Tuple4<V1, V2, V3, V4>>() { }
-           .where(new TypeParameter<V1>() { }, value1Type.getTypeToken().wrap())
-           .where(new TypeParameter<V2>() { }, value2Type.getTypeToken().wrap())
-           .where(new TypeParameter<V3>() { }, value3Type.getTypeToken().wrap())
-           .where(new TypeParameter<V4>() { }, value4Type.getTypeToken().wrap()),
-          value1Type, value2Type, value3Type, value4Type);
+           .where(new TypeParameter<V1>() { }, value1Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V2>() { }, value2Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V3>() { }, value3Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V4>() { }, value4Encoding.getTypeToken().wrap()),
+          value1Encoding, value2Encoding, value3Encoding, value4Encoding);
     }
 
     @Override

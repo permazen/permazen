@@ -50,37 +50,37 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2> CoreIndex2<V1, V2, ObjId> buildIndex(Transaction tx,
-      Encoding<V1> value1Type,
-      Encoding<V2> value2Type) {
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding) {
         return new CoreIndex2<>(tx.kvt, new Index2View<>(this.storageId,
-          value1Type,
-          value2Type,
+          value1Encoding,
+          value2Encoding,
           Encodings.OBJ_ID));
     }
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3> CoreIndex3<V1, V2, V3, ObjId> buildIndex(Transaction tx,
-      Encoding<V1> value1Type,
-      Encoding<V2> value2Type,
-      Encoding<V3> value3Type) {
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding,
+      Encoding<V3> value3Encoding) {
         return new CoreIndex3<>(tx.kvt, new Index3View<>(this.storageId,
-          value1Type,
-          value2Type,
-          value3Type,
+          value1Encoding,
+          value2Encoding,
+          value3Encoding,
           Encodings.OBJ_ID));
     }
 
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3, V4> CoreIndex4<V1, V2, V3, V4, ObjId> buildIndex(Transaction tx,
-      Encoding<V1> value1Type,
-      Encoding<V2> value2Type,
-      Encoding<V3> value3Type,
-      Encoding<V4> value4Type) {
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding,
+      Encoding<V3> value3Encoding,
+      Encoding<V4> value4Encoding) {
         return new CoreIndex4<>(tx.kvt, new Index4View<>(this.storageId,
-          value1Type,
-          value2Type,
-          value3Type,
-          value4Type,
+          value1Encoding,
+          value2Encoding,
+          value3Encoding,
+          value4Encoding,
           Encodings.OBJ_ID));
     }
 

@@ -22,29 +22,29 @@ public class Tuple2Encoding<V1, V2> extends TupleEncoding<Tuple2<V1, V2>> {
     /**
      * Create an anonymous instance.
      *
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple2Encoding(Encoding<V1> value1Type, Encoding<V2> value2Type) {
-        this(null, value1Type, value2Type);
+    public Tuple2Encoding(Encoding<V1> value1Encoding, Encoding<V2> value2Encoding) {
+        this(null, value1Encoding, value2Encoding);
     }
 
     /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple2Encoding(EncodingId encodingId, Encoding<V1> value1Type, Encoding<V2> value2Type) {
+    public Tuple2Encoding(EncodingId encodingId, Encoding<V1> value1Encoding, Encoding<V2> value2Encoding) {
         super(encodingId, new TypeToken<Tuple2<V1, V2>>() { }
-           .where(new TypeParameter<V1>() { }, value1Type.getTypeToken().wrap())
-           .where(new TypeParameter<V2>() { }, value2Type.getTypeToken().wrap()),
-          value1Type, value2Type);
+           .where(new TypeParameter<V1>() { }, value1Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V2>() { }, value2Encoding.getTypeToken().wrap()),
+          value1Encoding, value2Encoding);
     }
 
     @Override

@@ -22,32 +22,33 @@ public class Tuple3Encoding<V1, V2, V3> extends TupleEncoding<Tuple3<V1, V2, V3>
     /**
      * Create an anonymous instance.
      *
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple3Encoding(Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<V3> value3Type) {
-        this(null, value1Type, value2Type, value3Type);
+    public Tuple3Encoding(Encoding<V1> value1Encoding, Encoding<V2> value2Encoding, Encoding<V3> value3Encoding) {
+        this(null, value1Encoding, value2Encoding, value3Encoding);
     }
 
     /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple3Encoding(EncodingId encodingId, Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<V3> value3Type) {
+    public Tuple3Encoding(EncodingId encodingId, Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding, Encoding<V3> value3Encoding) {
         super(encodingId, new TypeToken<Tuple3<V1, V2, V3>>() { }
-           .where(new TypeParameter<V1>() { }, value1Type.getTypeToken().wrap())
-           .where(new TypeParameter<V2>() { }, value2Type.getTypeToken().wrap())
-           .where(new TypeParameter<V3>() { }, value3Type.getTypeToken().wrap()),
-          value1Type, value2Type, value3Type);
+           .where(new TypeParameter<V1>() { }, value1Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V2>() { }, value2Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V3>() { }, value3Encoding.getTypeToken().wrap()),
+          value1Encoding, value2Encoding, value3Encoding);
     }
 
     @Override

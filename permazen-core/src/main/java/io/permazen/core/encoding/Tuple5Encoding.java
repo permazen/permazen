@@ -22,40 +22,40 @@ public class Tuple5Encoding<V1, V2, V3, V4, V5> extends TupleEncoding<Tuple5<V1,
     /**
      * Create an anonymous instance.
      *
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @param value4Type component value encoding
-     * @param value5Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @param value4Encoding component value encoding
+     * @param value5Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple5Encoding(Encoding<V1> value1Type, Encoding<V2> value2Type,
-      Encoding<V3> value3Type, Encoding<V4> value4Type, Encoding<V5> value5Type) {
-        this(null, value1Type, value2Type, value3Type, value4Type, value5Type);
+    public Tuple5Encoding(Encoding<V1> value1Encoding, Encoding<V2> value2Encoding,
+      Encoding<V3> value3Encoding, Encoding<V4> value4Encoding, Encoding<V5> value5Encoding) {
+        this(null, value1Encoding, value2Encoding, value3Encoding, value4Encoding, value5Encoding);
     }
 
     /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
-     * @param value1Type component value encoding
-     * @param value2Type component value encoding
-     * @param value3Type component value encoding
-     * @param value4Type component value encoding
-     * @param value5Type component value encoding
-     * @throws IllegalArgumentException if any component value type is null
+     * @param value1Encoding component value encoding
+     * @param value2Encoding component value encoding
+     * @param value3Encoding component value encoding
+     * @param value4Encoding component value encoding
+     * @param value5Encoding component value encoding
+     * @throws IllegalArgumentException if any component value encoding is null
      */
     @SuppressWarnings("serial")
-    public Tuple5Encoding(EncodingId encodingId, Encoding<V1> value1Type,
-      Encoding<V2> value2Type, Encoding<V3> value3Type, Encoding<V4> value4Type, Encoding<V5> value5Type) {
+    public Tuple5Encoding(EncodingId encodingId, Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding, Encoding<V3> value3Encoding, Encoding<V4> value4Encoding, Encoding<V5> value5Encoding) {
         super(encodingId, new TypeToken<Tuple5<V1, V2, V3, V4, V5>>() { }
-           .where(new TypeParameter<V1>() { }, value1Type.getTypeToken().wrap())
-           .where(new TypeParameter<V2>() { }, value2Type.getTypeToken().wrap())
-           .where(new TypeParameter<V3>() { }, value3Type.getTypeToken().wrap())
-           .where(new TypeParameter<V4>() { }, value4Type.getTypeToken().wrap())
-           .where(new TypeParameter<V5>() { }, value5Type.getTypeToken().wrap()),
-          value1Type, value2Type, value3Type, value4Type, value5Type);
+           .where(new TypeParameter<V1>() { }, value1Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V2>() { }, value2Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V3>() { }, value3Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V4>() { }, value4Encoding.getTypeToken().wrap())
+           .where(new TypeParameter<V5>() { }, value5Encoding.getTypeToken().wrap()),
+          value1Encoding, value2Encoding, value3Encoding, value4Encoding, value5Encoding);
     }
 
     @Override

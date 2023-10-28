@@ -19,28 +19,28 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
      * Normal constructor.
      *
      * @param storageId field storage ID
-     * @param value1Type first value type
-     * @param value2Type second value type
-     * @param targetType index target type
+     * @param value1Encoding first value encoding
+     * @param value2Encoding second value encoding
+     * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    Index2View(int storageId, Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<T> targetType) {
-        this(UnsignedIntEncoder.encode(storageId), false, value1Type, value2Type, targetType);
+    Index2View(int storageId, Encoding<V1> value1Encoding, Encoding<V2> value2Encoding, Encoding<T> targetEncoding) {
+        this(UnsignedIntEncoder.encode(storageId), false, value1Encoding, value2Encoding, targetEncoding);
     }
 
     /**
      * Constructor for views formed from larger composite indexes.
      *
      * @param prefix key prefix
-     * @param prefixMode true if {@code targetType} is not the final field in the index
-     * @param value1Type first value type
-     * @param value2Type second value type
-     * @param targetType index target type
+     * @param prefixMode true if {@code targetEncoding} is not the final field in the index
+     * @param value1Encoding first value encoding
+     * @param value2Encoding second value encoding
+     * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
     Index2View(byte[] prefix, boolean prefixMode,
-      Encoding<V1> value1Type, Encoding<V2> value2Type, Encoding<T> targetType) {
-        super(prefix, prefixMode, value1Type, value2Type, targetType);
+      Encoding<V1> value1Encoding, Encoding<V2> value2Encoding, Encoding<T> targetEncoding) {
+        super(prefix, prefixMode, value1Encoding, value2Encoding, targetEncoding);
     }
 
     // Internal copy constructor
@@ -49,17 +49,17 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
     }
 
     @SuppressWarnings("unchecked")
-    public Encoding<V1> getValue1Type() {
+    public Encoding<V1> getValue1Encoding() {
         return (Encoding<V1>)this.encodings[0];
     }
 
     @SuppressWarnings("unchecked")
-    public Encoding<V2> getValue2Type() {
+    public Encoding<V2> getValue2Encoding() {
         return (Encoding<V2>)this.encodings[1];
     }
 
     @SuppressWarnings("unchecked")
-    public Encoding<T> getTargetType() {
+    public Encoding<T> getTargetEncoding() {
         return (Encoding<T>)this.encodings[2];
     }
 
@@ -80,7 +80,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
         // Create new IndexView
         IndexView<Tuple2<V1, V2>, T> indexView = new IndexView<>(this.prefix, this.prefixMode,
-          new Tuple2Encoding<>(this.getValue1Type(), this.getValue2Type()), this.getTargetType());
+          new Tuple2Encoding<>(this.getValue1Encoding(), this.getValue2Encoding()), this.getTargetEncoding());
 
         // Apply filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -89,7 +89,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
         // Apply filtering to tuple field
         if (value1Filter != null || value2Filter != null) {
-            EncodingsFilter tupleFilter = new EncodingsFilter(null, this.getValue1Type(), this.getValue2Type());
+            EncodingsFilter tupleFilter = new EncodingsFilter(null, this.getValue1Encoding(), this.getValue2Encoding());
             if (value1Filter != null)
                 tupleFilter = tupleFilter.filter(0, value1Filter);
             if (value2Filter != null)
@@ -110,7 +110,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
     public IndexView<V1, V2> asIndexView() {
 
         // Create IndexView
-        IndexView<V1, V2> indexView = new IndexView<>(this.prefix, true, this.getValue1Type(), this.getValue2Type());
+        IndexView<V1, V2> indexView = new IndexView<>(this.prefix, true, this.getValue1Encoding(), this.getValue2Encoding());
 
         // Apply filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -129,7 +129,8 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
     public IndexView<V2, T> asIndexView(byte[] keyPrefix) {
 
         // Create IndexView
-        IndexView<V2, T> indexView = new IndexView<>(keyPrefix, this.prefixMode, this.getValue2Type(), this.getTargetType());
+        IndexView<V2, T> indexView = new IndexView<>(keyPrefix,
+          this.prefixMode, this.getValue2Encoding(), this.getTargetEncoding());
 
         // Apply filters
         final KeyFilter value2Filter = this.getFilter(1);

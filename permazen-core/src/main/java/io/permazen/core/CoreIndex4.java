@@ -63,7 +63,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
 
         // Create encoding for Tuple5<V1, V2, V3, V4, T>
         final Tuple5Encoding<V1, V2, V3, V4, T> encoding = new Tuple5Encoding<>(
-          iv.getValue1Type(), iv.getValue2Type(), iv.getValue3Type(), iv.getValue4Type(), iv.getTargetType());
+          iv.getValue1Encoding(), iv.getValue2Encoding(), iv.getValue3Encoding(), iv.getValue4Encoding(), iv.getTargetEncoding());
 
         // Build set and apply filtering
         IndexSet<Tuple5<V1, V2, V3, V4, T>> indexSet = new IndexSet<>(this.kv,
@@ -163,30 +163,30 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex4<V1, V2, V3, V4, T> withValue1Bounds(Bounds<V1> bounds) {
-        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(0, this.getIndex4View().getValue1Type(), bounds);
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(0, this.getIndex4View().getValue1Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex4<V1, V2, V3, V4, T> withValue2Bounds(Bounds<V2> bounds) {
-        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(1, this.getIndex4View().getValue2Type(), bounds);
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(1, this.getIndex4View().getValue2Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex4<V1, V2, V3, V4, T> withValue3Bounds(Bounds<V3> bounds) {
-        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(2, this.getIndex4View().getValue3Type(), bounds);
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(2, this.getIndex4View().getValue3Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex4<V1, V2, V3, V4, T> withValue4Bounds(Bounds<V4> bounds) {
-        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(3, this.getIndex4View().getValue4Type(), bounds);
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(3, this.getIndex4View().getValue4Encoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public CoreIndex4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds) {
-        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(4, this.getIndex4View().getTargetType(), bounds);
+        return (CoreIndex4<V1, V2, V3, V4, T>)this.filter(4, this.getIndex4View().getTargetEncoding(), bounds);
     }
 }
