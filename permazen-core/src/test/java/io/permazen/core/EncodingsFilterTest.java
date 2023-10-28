@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.collect.Lists;
 
-import io.permazen.core.type.UnsignedIntType;
+import io.permazen.core.type.UnsignedIntEncoding;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
@@ -47,7 +47,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
         kvt.put(b("aaaa0503"), b(""));
         kvt.put(b("aaaa0504"), b(""));
 
-        final UnsignedIntType uintType = new UnsignedIntType();
+        final UnsignedIntEncoding uintType = new UnsignedIntEncoding();
 
         final EncodingsFilter filter1 = new EncodingsFilter(b("aaaa"), uintType, uintType);
         final KVPairIterator i1 = new KVPairIterator(kvt, KeyRange.forPrefix(b("aaaa04")), filter1, false);

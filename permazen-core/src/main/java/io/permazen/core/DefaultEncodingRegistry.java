@@ -8,44 +8,44 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.type.BigDecimalType;
-import io.permazen.core.type.BigIntegerType;
-import io.permazen.core.type.BitSetType;
-import io.permazen.core.type.BooleanArrayType;
-import io.permazen.core.type.ByteArrayType;
-import io.permazen.core.type.CharacterArrayType;
-import io.permazen.core.type.DateType;
-import io.permazen.core.type.DoubleArrayType;
-import io.permazen.core.type.DurationType;
+import io.permazen.core.type.BigDecimalEncoding;
+import io.permazen.core.type.BigIntegerEncoding;
+import io.permazen.core.type.BitSetEncoding;
+import io.permazen.core.type.BooleanArrayEncoding;
+import io.permazen.core.type.ByteArrayEncoding;
+import io.permazen.core.type.CharacterArrayEncoding;
+import io.permazen.core.type.DateEncoding;
+import io.permazen.core.type.DoubleArrayEncoding;
+import io.permazen.core.type.DurationEncoding;
 import io.permazen.core.type.EnumValueEncoding;
-import io.permazen.core.type.FileType;
-import io.permazen.core.type.FloatArrayType;
-import io.permazen.core.type.Inet4AddressType;
-import io.permazen.core.type.Inet6AddressType;
-import io.permazen.core.type.InetAddressType;
-import io.permazen.core.type.InstantType;
-import io.permazen.core.type.IntegerArrayType;
-import io.permazen.core.type.InternetAddressType;
-import io.permazen.core.type.LocalDateTimeType;
-import io.permazen.core.type.LocalDateType;
-import io.permazen.core.type.LocalTimeType;
-import io.permazen.core.type.LongArrayType;
-import io.permazen.core.type.MonthDayType;
-import io.permazen.core.type.NullSafeType;
-import io.permazen.core.type.OffsetDateTimeType;
-import io.permazen.core.type.OffsetTimeType;
-import io.permazen.core.type.PatternType;
-import io.permazen.core.type.PeriodType;
-import io.permazen.core.type.PrimitiveWrapperType;
-import io.permazen.core.type.ShortArrayType;
-import io.permazen.core.type.StringType;
-import io.permazen.core.type.URIType;
-import io.permazen.core.type.UUIDType;
-import io.permazen.core.type.YearMonthType;
-import io.permazen.core.type.YearType;
-import io.permazen.core.type.ZoneIdType;
-import io.permazen.core.type.ZoneOffsetType;
-import io.permazen.core.type.ZonedDateTimeType;
+import io.permazen.core.type.FileEncoding;
+import io.permazen.core.type.FloatArrayEncoding;
+import io.permazen.core.type.Inet4AddressEncoding;
+import io.permazen.core.type.Inet6AddressEncoding;
+import io.permazen.core.type.InetAddressEncoding;
+import io.permazen.core.type.InstantEncoding;
+import io.permazen.core.type.IntegerArrayEncoding;
+import io.permazen.core.type.InternetAddressEncoding;
+import io.permazen.core.type.LocalDateEncoding;
+import io.permazen.core.type.LocalDateTimeEncoding;
+import io.permazen.core.type.LocalTimeEncoding;
+import io.permazen.core.type.LongArrayEncoding;
+import io.permazen.core.type.MonthDayEncoding;
+import io.permazen.core.type.NullSafeEncoding;
+import io.permazen.core.type.OffsetDateTimeEncoding;
+import io.permazen.core.type.OffsetTimeEncoding;
+import io.permazen.core.type.PatternEncoding;
+import io.permazen.core.type.PeriodEncoding;
+import io.permazen.core.type.PrimitiveWrapperEncoding;
+import io.permazen.core.type.ShortArrayEncoding;
+import io.permazen.core.type.StringEncoding;
+import io.permazen.core.type.URIEncoding;
+import io.permazen.core.type.UUIDEncoding;
+import io.permazen.core.type.YearEncoding;
+import io.permazen.core.type.YearMonthEncoding;
+import io.permazen.core.type.ZoneIdEncoding;
+import io.permazen.core.type.ZoneOffsetEncoding;
+import io.permazen.core.type.ZonedDateTimeEncoding;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -204,69 +204,69 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.add(Encodings.SHORT);
 
         // Primitive wrapper types
-        this.add(new PrimitiveWrapperType<>(Encodings.BOOLEAN));
-        this.add(new PrimitiveWrapperType<>(Encodings.BYTE));
-        this.add(new PrimitiveWrapperType<>(Encodings.CHARACTER));
-        this.add(new PrimitiveWrapperType<>(Encodings.DOUBLE));
-        this.add(new PrimitiveWrapperType<>(Encodings.FLOAT));
-        this.add(new PrimitiveWrapperType<>(Encodings.INTEGER));
-        this.add(new PrimitiveWrapperType<>(Encodings.LONG));
-        this.add(new PrimitiveWrapperType<>(Encodings.SHORT));
-        this.add(new PrimitiveWrapperType<>(Encodings.VOID));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.BOOLEAN));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.BYTE));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.CHARACTER));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.DOUBLE));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.FLOAT));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.INTEGER));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.LONG));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.SHORT));
+        this.add(new PrimitiveWrapperEncoding<>(Encodings.VOID));
 
         // Primitive array types
-        this.addNullSafe((new BooleanArrayType()));
-        this.addNullSafe((new ByteArrayType()));
-        this.addNullSafe((new CharacterArrayType()));
-        this.addNullSafe((new DoubleArrayType()));
-        this.addNullSafe((new FloatArrayType()));
-        this.addNullSafe((new IntegerArrayType()));
-        this.addNullSafe((new LongArrayType()));
-        this.addNullSafe((new ShortArrayType()));
+        this.addNullSafe((new BooleanArrayEncoding()));
+        this.addNullSafe((new ByteArrayEncoding()));
+        this.addNullSafe((new CharacterArrayEncoding()));
+        this.addNullSafe((new DoubleArrayEncoding()));
+        this.addNullSafe((new FloatArrayEncoding()));
+        this.addNullSafe((new IntegerArrayEncoding()));
+        this.addNullSafe((new LongArrayEncoding()));
+        this.addNullSafe((new ShortArrayEncoding()));
 
         // Types in java.lang
-        this.addNullSafe((new StringType()));
+        this.addNullSafe((new StringEncoding()));
 
         // Types in java.math
-        this.addNullSafe((new BigDecimalType()));
-        this.addNullSafe((new BigIntegerType()));
+        this.addNullSafe((new BigDecimalEncoding()));
+        this.addNullSafe((new BigIntegerEncoding()));
 
         // Types in java.io
-        this.addNullSafe(new FileType());
+        this.addNullSafe(new FileEncoding());
 
         // Types in java.util
-        this.addNullSafe((new BitSetType()));
-        this.addNullSafe((new DateType()));
-        this.addNullSafe((new UUIDType()));
+        this.addNullSafe((new BitSetEncoding()));
+        this.addNullSafe((new DateEncoding()));
+        this.addNullSafe((new UUIDEncoding()));
 
         // Types in java.util.regex
-        this.addNullSafe(new PatternType());
+        this.addNullSafe(new PatternEncoding());
 
         // Types in java.net
-        this.addNullSafe((new Inet4AddressType()));
-        this.addNullSafe((new Inet6AddressType()));
-        this.addNullSafe((new InetAddressType()));
-        this.addNullSafe((new URIType()));
+        this.addNullSafe((new Inet4AddressEncoding()));
+        this.addNullSafe((new Inet6AddressEncoding()));
+        this.addNullSafe((new InetAddressEncoding()));
+        this.addNullSafe((new URIEncoding()));
 
         // Types in java.time
-        this.addNullSafe((new DurationType()));
-        this.addNullSafe((new InstantType()));
-        this.addNullSafe((new LocalDateTimeType()));
-        this.addNullSafe((new LocalDateType()));
-        this.addNullSafe((new LocalTimeType()));
-        this.addNullSafe((new MonthDayType()));
-        this.addNullSafe((new OffsetDateTimeType()));
-        this.addNullSafe((new OffsetTimeType()));
-        this.addNullSafe((new PeriodType()));
-        this.addNullSafe((new YearMonthType()));
-        this.addNullSafe((new YearType()));
-        this.addNullSafe((new ZoneOffsetType()));
-        this.addNullSafe((new ZonedDateTimeType()));
-        this.addNullSafe((new ZoneIdType()));
+        this.addNullSafe((new DurationEncoding()));
+        this.addNullSafe((new InstantEncoding()));
+        this.addNullSafe((new LocalDateTimeEncoding()));
+        this.addNullSafe((new LocalDateEncoding()));
+        this.addNullSafe((new LocalTimeEncoding()));
+        this.addNullSafe((new MonthDayEncoding()));
+        this.addNullSafe((new OffsetDateTimeEncoding()));
+        this.addNullSafe((new OffsetTimeEncoding()));
+        this.addNullSafe((new PeriodEncoding()));
+        this.addNullSafe((new YearMonthEncoding()));
+        this.addNullSafe((new YearEncoding()));
+        this.addNullSafe((new ZoneOffsetEncoding()));
+        this.addNullSafe((new ZonedDateTimeEncoding()));
+        this.addNullSafe((new ZoneIdEncoding()));
 
         // Types that require optional classpath components
         try {
-            this.addNullSafe((new InternetAddressType()));
+            this.addNullSafe((new InternetAddressEncoding()));
         } catch (NoClassDefFoundError e) {
             // ignore
         }
@@ -276,12 +276,12 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
      * Add a null-safe version of a type which is not null-safe.
      *
      * @param encoding non-null encoding
-     * @throws IllegalArgumentException if {@code encoding} is an instance of {@link NullSafeType}
+     * @throws IllegalArgumentException if {@code encoding} is an instance of {@link NullSafeEncoding}
      */
     protected <T> void addNullSafe(Encoding<T> encoding) {
         Preconditions.checkArgument(encoding != null, "null encoding");
-        Preconditions.checkArgument(!(encoding instanceof NullSafeType), "null safe encoding");
-        this.add(new NullSafeType<>(encoding));
+        Preconditions.checkArgument(!(encoding instanceof NullSafeEncoding), "null safe encoding");
+        this.add(new NullSafeEncoding<>(encoding));
     }
 
     /**

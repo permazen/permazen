@@ -32,7 +32,7 @@ import org.dellroad.stuff.java.EnumUtil;
  * <p>
  * Null values are supported by this class.
  */
-public class EnumValueEncoding extends NullSafeType<EnumValue> {
+public class EnumValueEncoding extends NullSafeEncoding<EnumValue> {
 
     public static final String IDENT_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
@@ -57,7 +57,7 @@ public class EnumValueEncoding extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
     public EnumValueEncoding(List<String> idents) {
-        super(new EnumValueType(idents));
+        super(new EnumValueBaseEncoding(idents));
     }
 
     /**
@@ -66,7 +66,7 @@ public class EnumValueEncoding extends NullSafeType<EnumValue> {
      * @return unmodifiable, ordinally ordered list of identifiers
      */
     public List<String> getIdentifiers() {
-        return ((EnumValueType)this.inner).getIdentifiers();
+        return ((EnumValueBaseEncoding)this.inner).getIdentifiers();
     }
 
     /**

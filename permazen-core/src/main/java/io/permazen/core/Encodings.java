@@ -5,17 +5,17 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.BooleanType;
-import io.permazen.core.type.ByteType;
-import io.permazen.core.type.CharacterType;
-import io.permazen.core.type.DoubleType;
-import io.permazen.core.type.FloatType;
-import io.permazen.core.type.IntegerType;
-import io.permazen.core.type.LongType;
-import io.permazen.core.type.ObjIdType;
-import io.permazen.core.type.ShortType;
-import io.permazen.core.type.UnsignedIntType;
-import io.permazen.core.type.VoidType;
+import io.permazen.core.type.BooleanEncoding;
+import io.permazen.core.type.ByteEncoding;
+import io.permazen.core.type.CharacterEncoding;
+import io.permazen.core.type.DoubleEncoding;
+import io.permazen.core.type.FloatEncoding;
+import io.permazen.core.type.IntegerEncoding;
+import io.permazen.core.type.LongEncoding;
+import io.permazen.core.type.ObjIdEncoding;
+import io.permazen.core.type.ShortEncoding;
+import io.permazen.core.type.UnsignedIntEncoding;
+import io.permazen.core.type.VoidEncoding;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
@@ -32,57 +32,57 @@ public final class Encodings {
      * <p>
      * Completely useless, except perhaps as an invalid sentinel value.
      */
-    public static final VoidType VOID = new VoidType();
+    public static final VoidEncoding VOID = new VoidEncoding();
 
     /**
      * Encodes the {@code boolean} primitive type.
      */
-    public static final BooleanType BOOLEAN = new BooleanType();
+    public static final BooleanEncoding BOOLEAN = new BooleanEncoding();
 
     /**
      * Encodes the {@code byte} primitive type.
      */
-    public static final ByteType BYTE = new ByteType();
+    public static final ByteEncoding BYTE = new ByteEncoding();
 
     /**
      * Encodes the {@code char} primitive type.
      */
-    public static final CharacterType CHARACTER = new CharacterType();
+    public static final CharacterEncoding CHARACTER = new CharacterEncoding();
 
     /**
      * Encodes the {@code short} primitive type.
      */
-    public static final ShortType SHORT = new ShortType();
+    public static final ShortEncoding SHORT = new ShortEncoding();
 
     /**
      * Encodes the {@code int} primitive type.
      */
-    public static final IntegerType INTEGER = new IntegerType();
+    public static final IntegerEncoding INTEGER = new IntegerEncoding();
 
     /**
      * Encodes the {@code float} primitive type.
      */
-    public static final FloatType FLOAT = new FloatType();
+    public static final FloatEncoding FLOAT = new FloatEncoding();
 
     /**
      * Encodes the {@code long} primitive type.
      */
-    public static final LongType LONG = new LongType();
+    public static final LongEncoding LONG = new LongEncoding();
 
     /**
      * Encodes the {@code double} primitive type.
      */
-    public static final DoubleType DOUBLE = new DoubleType();
+    public static final DoubleEncoding DOUBLE = new DoubleEncoding();
 
     /**
      * Encodes {@link ObjId}s.
      */
-    public static final ObjIdType OBJ_ID = new ObjIdType();
+    public static final ObjIdEncoding OBJ_ID = new ObjIdEncoding();
 
     /**
      * Encodes unsigned integers via {@link UnsignedIntEncoder}.
      */
-    public static final UnsignedIntType UNSIGNED_INT = new UnsignedIntType();
+    public static final UnsignedIntEncoding UNSIGNED_INT = new UnsignedIntEncoding();
 
     private Encodings() {
     }

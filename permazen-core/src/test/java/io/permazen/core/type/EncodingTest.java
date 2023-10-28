@@ -98,8 +98,8 @@ public class EncodingTest extends CoreAPITestSupport {
             }
 
             // "list" style string encoding for some primitive arrays
-            if (encoding instanceof Base64ArrayType) {
-                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)encoding;
+            if (encoding instanceof Base64ArrayEncoding) {
+                final Base64ArrayEncoding<T, ?> arrayType = (Base64ArrayEncoding<T, ?>)encoding;
 
                 // String encoding
                 if (value != null) {
@@ -127,8 +127,8 @@ public class EncodingTest extends CoreAPITestSupport {
             Assert.assertEquals(ctx.getInput(), ",abcd");
 
             // "list" style string encoding for some primitive arrays
-            if (encoding instanceof Base64ArrayType) {
-                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)encoding;
+            if (encoding instanceof Base64ArrayEncoding) {
+                final Base64ArrayEncoding<T, ?> arrayType = (Base64ArrayEncoding<T, ?>)encoding;
 
                 // Parseable string encoding
                 Assert.assertEquals(arrayType.toParseableString(value2, false), arrayType.toParseableString(value, false));

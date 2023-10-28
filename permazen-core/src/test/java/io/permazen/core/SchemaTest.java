@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.type.StringEncodedType;
+import io.permazen.core.type.StringEncodedEncoding;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
@@ -163,7 +163,7 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     @SuppressWarnings("serial")
-    public static class BarType extends StringEncodedType<Bar> {
+    public static class BarType extends StringEncodedEncoding<Bar> {
         public BarType() {
             super(new EncodingId("urn:foo:bar"), Bar.class, new BarConverter());
         }

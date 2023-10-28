@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.ObjIdType;
+import io.permazen.core.type.ObjIdEncoding;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 
@@ -37,7 +37,7 @@ abstract class SimpleIndex extends Index {
         final byte[] value = this.validateEncodedBytes(reader, this.type);
 
         // Decode object ID
-        final ObjId id = this.validateEncodedValue(reader, new ObjIdType());
+        final ObjId id = this.validateEncodedValue(reader, new ObjIdEncoding());
 
         // Validate object exists
         this.validateObjectExists(info, reader, id);

@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.UnsignedIntType;
+import io.permazen.core.type.UnsignedIntEncoding;
 import io.permazen.util.ByteReader;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ abstract class Index extends Storage {
      * @throws IllegalArgumentException if entry is invalid
      */
     public final void validateIndexEntry(JsckInfo info, ByteReader reader) {
-        final int entryStorageId = this.validateEncodedValue(reader, new UnsignedIntType());
+        final int entryStorageId = this.validateEncodedValue(reader, new UnsignedIntEncoding());
         assert entryStorageId == this.storageId;
         this.validateIndexEntryContent(info, reader);
     }

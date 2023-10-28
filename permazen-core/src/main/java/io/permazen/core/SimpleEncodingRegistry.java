@@ -8,8 +8,8 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.type.NullSafeType;
-import io.permazen.core.type.ObjectArrayType;
+import io.permazen.core.type.NullSafeEncoding;
+import io.permazen.core.type.ObjectArrayEncoding;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
      *
      * <p>
      * The element encoding must represent a non-primitive type.
-     * This method uses the generic array encoding provided by {@link ObjectArrayType}, wrapped via {@link NullSafeType}.
+     * This method uses the generic array encoding provided by {@link ObjectArrayEncoding}, wrapped via {@link NullSafeEncoding}.
      *
      * @param elementEncoding element encoding
      * @throws IllegalArgumentException if {@code elementEncoding} is null
@@ -83,7 +83,7 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
     public static <E> Encoding<E[]> buildArrayEncoding(final Encoding<E> elementEncoding) {
         Preconditions.checkArgument(elementEncoding != null, "null elementEncoding");
         Preconditions.checkArgument(Primitive.get(elementEncoding.getTypeToken().getRawType()) == null, "primitive element type");
-        return new NullSafeType<>(new ObjectArrayType<>(elementEncoding));
+        return new NullSafeEncoding<>(new ObjectArrayEncoding<>(elementEncoding));
     }
 
 // EncodingRegistry

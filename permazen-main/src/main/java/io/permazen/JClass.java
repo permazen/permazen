@@ -648,7 +648,7 @@ public class JClass<T> extends JSchemaObject {
 
         // Handle enum and enum array types
         Class<? extends Enum<?>> enumType = null;
-        Class<?> enumArrayType = null;
+        Class<?> enumArrayEncoding = null;
         int enumArrayDimensions = -1;
         if (nonReferenceType == null) {
 
@@ -681,17 +681,17 @@ public class JClass<T> extends JSchemaObject {
                     // Get the corresponding EnumValue[][]... Java type and Encoding (based on the Enum's identifier list)
                     nonReferenceType = new EnumValueEncoding(enumType);
                     for (int i = 0; i < enumArrayDimensions; i++)
-                        nonReferenceType = SimpleEncodingRegistry.buildArrayType(nonReferenceType);
+                        nonReferenceType = SimpleEncodingRegistry.buildArrayEncoding(nonReferenceType);
 
                     // Save type info
                     enumType = (Class<? extends Enum<?>>)baseType.asSubclass(Enum.class);
-                    enumArrayType = fieldRawType;
+                    enumArrayEncoding = fieldRawType;
                 }
             }
         }
 
         // If field's type neither refers to a JClass type, nor has a registered encoding, nor is an enum type, fail
-        if (!isReferenceType && nonReferenceType == null && enumType == null && enumArrayType == null) {
+        if (!isReferenceType && nonReferenceType == null && enumType == null && enumArrayEncoding == null) {
             throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
               + " because no registered encoding encodes values of type " + encodingToken);
         }
@@ -731,9 +731,9 @@ public class JClass<T> extends JSchemaObject {
             return
               isReferenceType ?
                 new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, encodingToken, annotation, getter, setter) :
-              enumArrayType != null ?
+              enumArrayEncoding != null ?
                 new JEnumArrayField(this.jdb, fieldName, storageId, enumType,
-                 enumArrayType, enumArrayDimensions, nonReferenceType, annotation, fieldDescription, getter, setter) :
+                 enumArrayEncoding, enumArrayDimensions, nonReferenceType, annotation, fieldDescription, getter, setter) :
               enumType != null ?
                 new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :
                 new JSimpleField(this.jdb, fieldName, storageId, encodingToken,

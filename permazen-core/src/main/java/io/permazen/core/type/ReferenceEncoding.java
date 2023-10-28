@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * <p>
  * Null values are supported by this class.
  */
-public class ReferenceEncoding extends NullSafeType<ObjId> {
+public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
 
     private static final long serialVersionUID = -5980288575339951079L;
 

@@ -26,10 +26,10 @@ public class JEnumArrayField extends AbstractEnumJSimpleField<Object, Object> {
     private final int dimensions;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    JEnumArrayField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType, Class<?> enumArrayType,
+    JEnumArrayField(Permazen jdb, String name, int storageId, Class<? extends Enum<?>> enumType, Class<?> enumArrayEncoding,
       int dimensions, Encoding<?> encoding, io.permazen.annotation.JField annotation, String description,
       Method getter, Method setter) {
-        super(jdb, name, storageId, (TypeToken<Object>)TypeToken.of(enumArrayType), (Encoding<Object>)encoding,
+        super(jdb, name, storageId, (TypeToken<Object>)TypeToken.of(enumArrayEncoding), (Encoding<Object>)encoding,
           enumType, annotation.indexed(), annotation, description, getter, setter,
           (Converter<Object, Object>)EnumConverter.createEnumArrayConverter(enumType, dimensions));
         Preconditions.checkArgument(dimensions >= 1 && dimensions <= 255, "invalid dimensions");

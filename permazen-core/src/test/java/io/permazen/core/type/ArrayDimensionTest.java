@@ -28,10 +28,10 @@ public class ArrayDimensionTest extends CoreAPITestSupport {
                 Assert.assertEquals(encodingId.getArrayDimensions(), dims);
                 final Encoding<?> encoding = registry.getEncoding(encodingId);
                 assert encoding != null : "didn't find \"" + encodingId + "\"";
-                assert encoding instanceof NullSafeType;
-                final NullSafeType<?> nullSafeType = (NullSafeType<?>)encoding;
-                assert nullSafeType.getInnerType() instanceof ArrayType;
-                final ArrayType<?, ?> arrayType = (ArrayType<?, ?>)nullSafeType.getInnerType();
+                assert encoding instanceof NullSafeEncoding;
+                final NullSafeEncoding<?> nullSafeType = (NullSafeEncoding<?>)encoding;
+                assert nullSafeType.getInnerType() instanceof ArrayEncoding;
+                final ArrayEncoding<?, ?> arrayType = (ArrayEncoding<?, ?>)nullSafeType.getInnerType();
                 assert arrayType.getElementType() == previous;
                 previous = encoding;
             }

@@ -6,7 +6,7 @@
 package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
-import io.permazen.core.type.UnsignedIntType;
+import io.permazen.core.type.UnsignedIntEncoding;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
@@ -24,7 +24,7 @@ class ListElementIndex extends CollectionElementIndex {
     protected void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexValue, ObjId id) {
 
         // Decode list index
-        final int listIndex = this.validateEncodedValue(reader, new UnsignedIntType());
+        final int listIndex = this.validateEncodedValue(reader, new UnsignedIntEncoding());
         this.validateEOF(reader);
 
         // Validate element exists in list at specified index
