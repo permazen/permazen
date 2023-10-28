@@ -5,17 +5,17 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.BooleanEncoding;
-import io.permazen.core.type.ByteEncoding;
-import io.permazen.core.type.CharacterEncoding;
-import io.permazen.core.type.DoubleEncoding;
-import io.permazen.core.type.FloatEncoding;
-import io.permazen.core.type.IntegerEncoding;
-import io.permazen.core.type.LongEncoding;
-import io.permazen.core.type.ObjIdEncoding;
-import io.permazen.core.type.ShortEncoding;
-import io.permazen.core.type.UnsignedIntEncoding;
-import io.permazen.core.type.VoidEncoding;
+import io.permazen.core.encoding.BooleanEncoding;
+import io.permazen.core.encoding.ByteEncoding;
+import io.permazen.core.encoding.CharacterEncoding;
+import io.permazen.core.encoding.DoubleEncoding;
+import io.permazen.core.encoding.FloatEncoding;
+import io.permazen.core.encoding.IntegerEncoding;
+import io.permazen.core.encoding.LongEncoding;
+import io.permazen.core.encoding.ObjIdEncoding;
+import io.permazen.core.encoding.ShortEncoding;
+import io.permazen.core.encoding.UnsignedIntEncoding;
+import io.permazen.core.encoding.VoidEncoding;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**

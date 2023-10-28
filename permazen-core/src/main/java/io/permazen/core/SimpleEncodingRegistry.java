@@ -8,8 +8,8 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.type.NullSafeEncoding;
-import io.permazen.core.type.ObjectArrayEncoding;
+import io.permazen.core.encoding.NullSafeEncoding;
+import io.permazen.core.encoding.ObjectArrayEncoding;
 
 import java.util.ArrayList;
 import java.util.Collections;

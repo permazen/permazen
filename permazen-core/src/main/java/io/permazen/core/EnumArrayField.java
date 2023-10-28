@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 
 /**
  * A field that contains an array (having one or more dimensions) of values chosen from

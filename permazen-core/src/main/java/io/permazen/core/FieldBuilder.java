@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.EnumSchemaField;

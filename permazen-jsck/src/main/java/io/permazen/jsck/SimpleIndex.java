@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
-import io.permazen.core.type.ObjIdEncoding;
+import io.permazen.core.encoding.ObjIdEncoding;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 

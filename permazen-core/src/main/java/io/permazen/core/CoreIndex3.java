@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple4Encoding;
+import io.permazen.core.encoding.Tuple4Encoding;
 import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;

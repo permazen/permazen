@@ -5,8 +5,8 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple2Encoding;
-import io.permazen.core.type.Tuple3Encoding;
+import io.permazen.core.encoding.Tuple2Encoding;
+import io.permazen.core.encoding.Tuple3Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;

@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.EnumValue;
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 import io.permazen.schema.EnumSchemaField;
 
 import java.lang.reflect.Method;

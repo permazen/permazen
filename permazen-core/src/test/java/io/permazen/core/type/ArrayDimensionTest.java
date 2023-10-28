@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core.type;
+package io.permazen.core.encoding;
 
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.DefaultEncodingRegistry;

@@ -53,7 +53,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      * Constructor.
      *
      * @param encodingId encoding ID, or null to be anonymous
-     * @param typeToken Java type for the field's values
+     * @param type Java type for the field's values
      * @param defaultValue default value for this encoding
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid

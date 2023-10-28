@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.Tuple2Encoding;
+import io.permazen.core.encoding.Tuple2Encoding;
 import io.permazen.index.Index;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;

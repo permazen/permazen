@@ -6,7 +6,7 @@
 package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
-import io.permazen.core.type.UnsignedIntEncoding;
+import io.permazen.core.encoding.UnsignedIntEncoding;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;

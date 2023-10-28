@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 
 import java.util.NavigableSet;
 import java.util.Set;

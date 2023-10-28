@@ -22,7 +22,7 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;

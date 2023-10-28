@@ -10,7 +10,7 @@ import com.google.common.base.Converter;
 import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 
 import java.util.Objects;
 

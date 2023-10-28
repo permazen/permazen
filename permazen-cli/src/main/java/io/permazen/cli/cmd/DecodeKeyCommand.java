@@ -26,7 +26,7 @@ import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownFieldException;
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.UnsignedIntEncoder;

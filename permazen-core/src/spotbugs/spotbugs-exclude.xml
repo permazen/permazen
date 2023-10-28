@@ -10,34 +10,24 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.FileType$FileConverter"/>
+        <Class name="io.permazen.core.encoding.FileEncoding$FileConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.PatternType$PatternConverter"/>
+        <Class name="io.permazen.core.encoding.PatternEncoding$PatternConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.URIType$URIConverter"/>
+        <Class name="io.permazen.core.encoding.URIEncoding$URIConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.InternetAddressType$InternetAddressConverter"/>
+        <Class name="io.permazen.core.encoding.InternetAddressEncoding$InternetAddressConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.ZoneIdType$ZoneIdConverter"/>
+        <Class name="io.permazen.core.encoding.ZoneIdEncoding$ZoneIdConverter"/>
         <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.type.EnumType"/>
-        <Field name="enumValueList"/>
-        <Bug pattern="SE_BAD_FIELD"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.type.EnumType"/>
-        <Field name="identifierMap"/>
-        <Bug pattern="SE_BAD_FIELD"/>
     </Match>
     <Match>
         <Class name="io.permazen.core.util.ObjIdMap$Entry"/>
@@ -72,7 +62,7 @@
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.type.StringConvertedType"/>
+        <Class name="io.permazen.core.encoding.StringConvertedEncoding"/>
         <Method name="write"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>

@@ -8,8 +8,9 @@ package io.permazen.schema;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
+import io.permazen.core.EnumValue;
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;

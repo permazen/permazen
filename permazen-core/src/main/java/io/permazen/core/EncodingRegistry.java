@@ -8,7 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 
 import java.util.List;
 
@@ -94,7 +94,7 @@ public interface EncodingRegistry {
      * <p>
      * The implementation in {@link EncodingRegistry} always returns {@link EncodingId#getId}.
      *
-     * @param name encoding ID
+     * @param encodingId encoding ID
      * @return corresponding alias, if any, otherwise {@link EncodingId#getId}
      * @throws IllegalArgumentException if {@code alias} is null
      * @see idForAlias

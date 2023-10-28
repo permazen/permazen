@@ -19,7 +19,7 @@ import io.permazen.core.MapField;
 import io.permazen.core.SetField;
 import io.permazen.core.SimpleEncodingRegistry;
 import io.permazen.core.UnknownFieldException;
-import io.permazen.core.type.EnumValueEncoding;
+import io.permazen.core.encoding.EnumValueEncoding;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;

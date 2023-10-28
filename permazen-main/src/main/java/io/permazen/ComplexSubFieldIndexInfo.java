@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 
 /**
  * Represents an index on a sub-field of a complex field.

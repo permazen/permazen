@@ -40,7 +40,7 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.VersionChangeListener;
-import io.permazen.core.type.ReferenceEncoding;
+import io.permazen.core.encoding.ReferenceEncoding;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.index.Index;

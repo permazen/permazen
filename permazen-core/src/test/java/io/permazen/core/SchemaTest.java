@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.type.StringEncodedEncoding;
+import io.permazen.core.encoding.StringEncodedEncoding;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 
