@@ -8,7 +8,7 @@ package io.permazen.vaadin;
 import com.google.common.base.Preconditions;
 import com.vaadin.data.util.converter.Converter;
 
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 
 import java.util.Locale;
 

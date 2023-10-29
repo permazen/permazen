@@ -7,8 +7,8 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.NullSafeEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.NullSafeEncoding;
 
 import java.util.LinkedHashMap;
 import java.util.List;

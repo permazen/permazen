@@ -13,7 +13,7 @@ import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
 import io.permazen.core.CoreIndex4;
 import io.permazen.core.ReferenceEncoding;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 

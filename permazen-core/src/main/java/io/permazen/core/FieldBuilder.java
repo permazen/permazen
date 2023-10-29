@@ -7,10 +7,10 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.EncodingId;
-import io.permazen.core.encoding.EncodingRegistry;
-import io.permazen.core.encoding.SimpleEncodingRegistry;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.EncodingId;
+import io.permazen.encoding.EncodingRegistry;
+import io.permazen.encoding.SimpleEncodingRegistry;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.EnumSchemaField;

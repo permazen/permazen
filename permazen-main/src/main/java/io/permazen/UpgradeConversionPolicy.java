@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnVersionChange;
 import io.permazen.core.DeleteAction;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 
 /**
  * Policies to apply when a simple or counter field's type changes during a schema update.

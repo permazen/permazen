@@ -5,6 +5,7 @@
 
 package io.permazen.core;
 
+import io.permazen.encoding.Encoding;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;

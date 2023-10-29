@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.core.encoding.EncodingRegistry;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 

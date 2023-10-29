@@ -11,7 +11,7 @@ import io.permazen.core.EnumValueEncoding;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceEncoding;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVPair;
 import io.permazen.schema.CollectionSchemaField;
 import io.permazen.schema.ComplexSchemaField;

@@ -12,7 +12,7 @@ import io.permazen.Permazen;
 import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.core.Database;
-import io.permazen.core.encoding.EncodingRegistry;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
 

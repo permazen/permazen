@@ -8,7 +8,7 @@ package io.permazen.annotation;
 import io.permazen.UntypedJObject;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.core.EnumValue;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

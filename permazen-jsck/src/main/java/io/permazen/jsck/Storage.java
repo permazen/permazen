@@ -8,7 +8,7 @@ package io.permazen.jsck;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.ObjId;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;

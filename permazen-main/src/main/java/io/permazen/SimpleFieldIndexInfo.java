@@ -7,7 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 
 import java.util.Objects;
 

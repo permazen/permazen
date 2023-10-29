@@ -40,7 +40,7 @@ import io.permazen.JSetField;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
 import io.permazen.ValidationException;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.util.ObjIdMap;

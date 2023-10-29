@@ -21,7 +21,7 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

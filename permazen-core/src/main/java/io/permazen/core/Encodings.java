@@ -5,9 +5,9 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.BooleanEncoding;
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.UnsignedIntEncoding;
+import io.permazen.encoding.BooleanEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**

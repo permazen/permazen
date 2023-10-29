@@ -10,10 +10,10 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.parse.Parser;
 import io.permazen.cli.parse.WhateverParser;
 import io.permazen.cli.parse.WordParser;
-import io.permazen.core.encoding.DefaultEncodingRegistry;
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.EncodingId;
-import io.permazen.core.encoding.EncodingRegistry;
+import io.permazen.encoding.DefaultEncodingRegistry;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.EncodingId;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
 

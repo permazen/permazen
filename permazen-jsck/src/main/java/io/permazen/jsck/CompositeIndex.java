@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjIdEncoding;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.schema.SimpleSchemaField;

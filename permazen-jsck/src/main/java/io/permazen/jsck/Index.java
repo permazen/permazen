@@ -6,8 +6,8 @@
 package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.UnsignedIntEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.util.ByteReader;
 
 import java.util.Arrays;

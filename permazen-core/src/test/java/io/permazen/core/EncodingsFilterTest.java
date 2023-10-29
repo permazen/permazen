@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.collect.Lists;
 
-import io.permazen.core.encoding.UnsignedIntEncoding;
+import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;

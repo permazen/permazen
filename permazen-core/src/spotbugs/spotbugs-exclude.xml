@@ -10,26 +10,6 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH"/>
     </Match>
     <Match>
-        <Class name="io.permazen.core.encoding.FileEncoding$FileConverter"/>
-        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.encoding.PatternEncoding$PatternConverter"/>
-        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.encoding.URIEncoding$URIConverter"/>
-        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.encoding.InternetAddressEncoding$InternetAddressConverter"/>
-        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.encoding.ZoneIdEncoding$ZoneIdConverter"/>
-        <Bug pattern="HE_INHERITS_EQUALS_USE_HASHCODE"/>
-    </Match>
-    <Match>
         <Class name="io.permazen.core.util.ObjIdMap$Entry"/>
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
     </Match>
@@ -60,10 +40,5 @@
         <!-- <Method name="doCopyFields, changeVersion"/> -->
         <Field name="versionChangeListeners"/>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>
-    </Match>
-    <Match>
-        <Class name="io.permazen.core.encoding.StringConvertedEncoding"/>
-        <Method name="write"/>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
 </FindBugsFilter>

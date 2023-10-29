@@ -25,6 +25,7 @@
         <module>permazen-cliapp</module>
     -->
         <module>permazen-core</module>
+        <module>permazen-encoding</module>
     <!--
         <module>permazen-demo</module>
         <module>permazen-guiapp</module>
@@ -129,6 +130,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>permazen-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>permazen-encoding</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

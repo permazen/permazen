@@ -8,9 +8,9 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import io.permazen.core.encoding.AbstractEncoding;
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.EncodingId;
+import io.permazen.encoding.AbstractEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;

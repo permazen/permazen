@@ -20,7 +20,7 @@
         </site>
     </distributionManagement>
     <properties>
-        <automatic.module.name>io.permazen.coreapi</automatic.module.name>
+        <automatic.module.name>io.permazen.core</automatic.module.name>
     </properties>
     <dependencies>
         <dependency>
@@ -28,21 +28,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.dellroad</groupId>
             <artifactId>dellroad-stuff-main</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.mail</groupId>
-            <artifactId>jakarta.mail-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -50,6 +37,10 @@
         </dependency>
 
         <!-- Siblings -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-encoding</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv</artifactId>

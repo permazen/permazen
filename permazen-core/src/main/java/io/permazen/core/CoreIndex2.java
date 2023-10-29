@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.Tuple3Encoding;
+import io.permazen.encoding.Tuple3Encoding;
 import io.permazen.index.Index;
 import io.permazen.index.Index2;
 import io.permazen.kv.KVStore;

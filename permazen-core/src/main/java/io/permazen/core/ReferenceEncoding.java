@@ -5,8 +5,8 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.NullSafeEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.NullSafeEncoding;
 import io.permazen.util.ByteWriter;
 
 import java.util.Collections;

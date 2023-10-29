@@ -6,8 +6,8 @@
 package io.permazen.schema;
 
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.encoding.EncodingId;
-import io.permazen.core.encoding.EncodingIds;
+import io.permazen.encoding.EncodingId;
+import io.permazen.encoding.EncodingIds;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 

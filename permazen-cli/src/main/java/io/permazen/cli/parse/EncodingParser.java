@@ -8,8 +8,8 @@ package io.permazen.cli.parse;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
-import io.permazen.core.encoding.Encoding;
-import io.permazen.core.encoding.EncodingId;
+import io.permazen.encoding.Encoding;
+import io.permazen.encoding.EncodingId;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
 

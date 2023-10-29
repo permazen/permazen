@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.util.ByteReader;
 

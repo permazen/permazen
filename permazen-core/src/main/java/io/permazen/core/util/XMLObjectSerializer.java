@@ -22,7 +22,7 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.SnapshotTransaction;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.core.encoding.Encoding;
+import io.permazen.encoding.Encoding;
 import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaModel;

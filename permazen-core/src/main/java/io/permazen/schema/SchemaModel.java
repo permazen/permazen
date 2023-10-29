@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.encoding.EncodingRegistry;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 import io.permazen.util.NavigableSets;

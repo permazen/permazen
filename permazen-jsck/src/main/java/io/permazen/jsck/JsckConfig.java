@@ -8,8 +8,8 @@ package io.permazen.jsck;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.Layout;
-import io.permazen.core.encoding.DefaultEncodingRegistry;
-import io.permazen.core.encoding.EncodingRegistry;
+import io.permazen.encoding.DefaultEncodingRegistry;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaModel;
 
