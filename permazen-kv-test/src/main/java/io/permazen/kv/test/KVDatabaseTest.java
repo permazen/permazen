@@ -796,10 +796,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         final TreeMap<byte[], byte[]> actual = task.readDatabase();
 
         // Verify equal
-        Assert.assertEquals(stringView(actual), stringView(expected), "apply() failed:" /*
+        Assert.assertEquals(stringView(actual), stringView(expected), "apply() failed:"
           + "\n  mutations=" + mutations
           + "\n  expected=" + stringView(expected)
-          + "\n  actual=" + stringView(actual) */);
+          + "\n  actual=" + stringView(actual));
         this.log.info("finished testApplyMutations() on {}", store);
     }
 
