@@ -7,10 +7,10 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
+import io.permazen.core.ReferenceEncoding;
 import io.permazen.core.Transaction;
-import io.permazen.core.encoding.ReferenceEncoding;
+import io.permazen.core.encoding.Encoding;
 
 import java.util.Objects;
 

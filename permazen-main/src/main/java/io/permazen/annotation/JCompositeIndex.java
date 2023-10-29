@@ -8,7 +8,7 @@ package io.permazen.annotation;
 import io.permazen.JObject;
 import io.permazen.StorageIdGenerator;
 import io.permazen.UniquenessConstraints;
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 
 import jakarta.validation.groups.Default;
 

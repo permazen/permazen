@@ -8,11 +8,6 @@ package io.permazen.core.encoding;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.DefaultEncodingRegistry;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
-import io.permazen.core.EncodingIds;
-import io.permazen.core.EncodingRegistry;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;

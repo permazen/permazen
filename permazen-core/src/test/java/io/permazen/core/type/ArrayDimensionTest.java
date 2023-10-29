@@ -6,10 +6,6 @@
 package io.permazen.core.encoding;
 
 import io.permazen.core.CoreAPITestSupport;
-import io.permazen.core.DefaultEncodingRegistry;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
-import io.permazen.core.EncodingIds;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

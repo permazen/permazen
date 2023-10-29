@@ -3,13 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core.encoding;
+package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.EnumField;
-import io.permazen.core.EnumValue;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.NullSafeEncoding;
 
 import java.util.LinkedHashMap;
 import java.util.List;

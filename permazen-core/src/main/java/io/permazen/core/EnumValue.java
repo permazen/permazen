@@ -7,8 +7,6 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.encoding.EnumValueEncoding;
-
 import java.io.Serializable;
 
 /**

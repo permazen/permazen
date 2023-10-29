@@ -9,8 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -30,7 +28,7 @@ public class CharacterArrayEncoding extends ArrayEncoding<char[], Character> {
 
     @SuppressWarnings("serial")
     public CharacterArrayEncoding() {
-        super(Encodings.CHARACTER, new TypeToken<char[]>() { });
+        super(new CharacterEncoding(), new TypeToken<char[]>() { });
     }
 
     @Override

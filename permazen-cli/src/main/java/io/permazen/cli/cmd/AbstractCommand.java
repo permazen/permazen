@@ -14,8 +14,8 @@ import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.ObjIdParser;
 import io.permazen.cli.parse.ObjTypeParser;
 import io.permazen.cli.parse.Parser;
-import io.permazen.core.Encoding;
 import io.permazen.core.ObjId;
+import io.permazen.core.encoding.Encoding;
 
 import java.util.EnumSet;
 import java.util.List;

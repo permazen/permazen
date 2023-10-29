@@ -8,8 +8,6 @@ package io.permazen.core.encoding;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
 import io.permazen.tuple.Tuple5;
 
 /**

@@ -8,9 +8,6 @@ package io.permazen.core.encoding;
 import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
-
 /**
  * An {@link Encoding} implementation for any Java type that can be encoded uniquely as a {@link String}.
  * A {@link Converter} is used to convert between native and {@link String} forms.

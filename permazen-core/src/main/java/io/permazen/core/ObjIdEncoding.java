@@ -3,13 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core.encoding;
+package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.AbstractEncoding;
-import io.permazen.core.EncodingId;
-import io.permazen.core.ObjId;
+import io.permazen.core.encoding.AbstractEncoding;
+import io.permazen.core.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;

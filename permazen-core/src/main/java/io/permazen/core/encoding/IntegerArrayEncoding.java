@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.primitives.Ints;
 
-import io.permazen.core.Encodings;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,7 +20,7 @@ public class IntegerArrayEncoding extends IntegralArrayEncoding<int[], Integer> 
     private static final long serialVersionUID = 2097437088172327725L;
 
     public IntegerArrayEncoding() {
-       super(Encodings.INTEGER, int[].class);
+       super(new IntegerEncoding(), int[].class);
     }
 
     @Override

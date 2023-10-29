@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.primitives.Bytes;
 
-import io.permazen.core.Encodings;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,7 +20,7 @@ public class ByteArrayEncoding extends IntegralArrayEncoding<byte[], Byte> {
     private static final long serialVersionUID = -5978203098536001843L;
 
     public ByteArrayEncoding() {
-       super(Encodings.BYTE, byte[].class);
+       super(new ByteEncoding(), byte[].class);
     }
 
     @Override

@@ -5,6 +5,7 @@
 
 package io.permazen.core;
 
+import io.permazen.core.encoding.Encoding;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;

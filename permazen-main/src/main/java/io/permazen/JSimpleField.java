@@ -11,10 +11,10 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingId;
 import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;

@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.EncodingIds;
-
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;

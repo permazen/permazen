@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -33,7 +32,7 @@ public class BooleanArrayEncoding extends ArrayEncoding<boolean[], Boolean> {
 
     @SuppressWarnings("serial")
     public BooleanArrayEncoding() {
-        super(Encodings.BOOLEAN, new TypeToken<boolean[]>() { });
+        super(new BooleanEncoding(), new TypeToken<boolean[]>() { });
     }
 
     @Override

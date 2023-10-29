@@ -7,7 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.Encoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 

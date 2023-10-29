@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -38,7 +37,7 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
 
     @SuppressWarnings("serial")
     public DoubleArrayEncoding() {
-        super(Encodings.DOUBLE, new TypeToken<double[]>() { });
+        super(new DoubleEncoding(), new TypeToken<double[]>() { });
     }
 
     @Override

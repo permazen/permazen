@@ -7,7 +7,6 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.encoding.ReferenceEncoding;
 import io.permazen.kv.KeyRanges;
 
 import java.util.ArrayList;

@@ -5,8 +5,6 @@
 
 package io.permazen.core.encoding;
 
-import io.permazen.core.EncodingIds;
-
 /**
  * Primitive wrapper type.
  *

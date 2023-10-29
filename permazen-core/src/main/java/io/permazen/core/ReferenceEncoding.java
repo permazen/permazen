@@ -3,13 +3,10 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core.encoding;
+package io.permazen.core;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.Encodings;
-import io.permazen.core.InvalidReferenceException;
-import io.permazen.core.ObjId;
-import io.permazen.core.ReferenceField;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.NullSafeEncoding;
 import io.permazen.util.ByteWriter;
 
 import java.util.Collections;

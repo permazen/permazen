@@ -5,8 +5,6 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.EnumValueEncoding;
-
 import java.util.List;
 
 /**

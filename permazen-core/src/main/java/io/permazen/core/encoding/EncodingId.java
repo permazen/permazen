@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core;
+package io.permazen.core.encoding;
 
 import com.google.common.base.Preconditions;
 

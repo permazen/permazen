@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.encoding.Encoding;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;

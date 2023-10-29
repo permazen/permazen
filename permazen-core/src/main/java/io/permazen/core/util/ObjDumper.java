@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
-import io.permazen.core.Encoding;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
 import io.permazen.core.ListField;
@@ -22,6 +21,7 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
+import io.permazen.core.encoding.Encoding;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

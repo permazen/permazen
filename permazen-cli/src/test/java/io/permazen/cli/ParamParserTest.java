@@ -7,9 +7,9 @@ package io.permazen.cli;
 
 import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.Parser;
-import io.permazen.core.DefaultEncodingRegistry;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
+import io.permazen.core.encoding.DefaultEncodingRegistry;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingId;
 import io.permazen.test.TestSupport;
 
 import java.util.List;

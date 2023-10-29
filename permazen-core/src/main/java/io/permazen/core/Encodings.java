@@ -6,20 +6,12 @@
 package io.permazen.core;
 
 import io.permazen.core.encoding.BooleanEncoding;
-import io.permazen.core.encoding.ByteEncoding;
-import io.permazen.core.encoding.CharacterEncoding;
-import io.permazen.core.encoding.DoubleEncoding;
-import io.permazen.core.encoding.FloatEncoding;
-import io.permazen.core.encoding.IntegerEncoding;
-import io.permazen.core.encoding.LongEncoding;
-import io.permazen.core.encoding.ObjIdEncoding;
-import io.permazen.core.encoding.ShortEncoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.core.encoding.UnsignedIntEncoding;
-import io.permazen.core.encoding.VoidEncoding;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
- * Some {@link Encoding}s that are used for various general encoding tasks.
+ * A few {@link Encoding}s that are used for various general encoding tasks.
  *
  * <p>
  * All of the encodings defined in the class do <b>not</b> support null values.
@@ -27,52 +19,9 @@ import io.permazen.util.UnsignedIntEncoder;
 public final class Encodings {
 
     /**
-     * Encodes the {@code void} primitive type, using zero bits.
-     *
-     * <p>
-     * Completely useless, except perhaps as an invalid sentinel value.
-     */
-    public static final VoidEncoding VOID = new VoidEncoding();
-
-    /**
-     * Encodes the {@code boolean} primitive type.
+     * Encodes the "delete notified" flag in object meta-data.
      */
     public static final BooleanEncoding BOOLEAN = new BooleanEncoding();
-
-    /**
-     * Encodes the {@code byte} primitive type.
-     */
-    public static final ByteEncoding BYTE = new ByteEncoding();
-
-    /**
-     * Encodes the {@code char} primitive type.
-     */
-    public static final CharacterEncoding CHARACTER = new CharacterEncoding();
-
-    /**
-     * Encodes the {@code short} primitive type.
-     */
-    public static final ShortEncoding SHORT = new ShortEncoding();
-
-    /**
-     * Encodes the {@code int} primitive type.
-     */
-    public static final IntegerEncoding INTEGER = new IntegerEncoding();
-
-    /**
-     * Encodes the {@code float} primitive type.
-     */
-    public static final FloatEncoding FLOAT = new FloatEncoding();
-
-    /**
-     * Encodes the {@code long} primitive type.
-     */
-    public static final LongEncoding LONG = new LongEncoding();
-
-    /**
-     * Encodes the {@code double} primitive type.
-     */
-    public static final DoubleEncoding DOUBLE = new DoubleEncoding();
 
     /**
      * Encodes {@link ObjId}s.
@@ -81,6 +30,9 @@ public final class Encodings {
 
     /**
      * Encodes unsigned integers via {@link UnsignedIntEncoder}.
+     *
+     * <p>
+     * Used (for example) for encoding list indexes.
      */
     public static final UnsignedIntEncoding UNSIGNED_INT = new UnsignedIntEncoding();
 

@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.PermazenFactory;
 import io.permazen.core.Database;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingRegistry;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;

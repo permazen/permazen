@@ -7,6 +7,9 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.encoding.DefaultEncodingRegistry;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingRegistry;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;

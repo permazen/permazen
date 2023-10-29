@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.util.ParseContext;
 

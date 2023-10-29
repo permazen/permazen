@@ -5,7 +5,7 @@
 
 package io.permazen.schema;
 
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.util.Diffs;
 
 import javax.xml.stream.XMLStreamException;

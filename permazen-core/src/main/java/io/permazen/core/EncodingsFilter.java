@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
+import io.permazen.core.encoding.Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRanges;

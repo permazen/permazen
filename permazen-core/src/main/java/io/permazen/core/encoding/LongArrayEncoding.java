@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.primitives.Longs;
 
-import io.permazen.core.Encodings;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,7 +20,7 @@ public class LongArrayEncoding extends IntegralArrayEncoding<long[], Long> {
     private static final long serialVersionUID = 7577070533837522681L;
 
     public LongArrayEncoding() {
-       super(Encodings.LONG, long[].class);
+       super(new LongEncoding(), long[].class);
     }
 
     @Override

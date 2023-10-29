@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.schema.EnumArraySchemaField;
 import io.permazen.schema.SimpleSchemaField;
 

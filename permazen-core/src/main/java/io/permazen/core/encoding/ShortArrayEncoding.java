@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.primitives.Shorts;
 
-import io.permazen.core.Encodings;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,7 +20,7 @@ public class ShortArrayEncoding extends IntegralArrayEncoding<short[], Short> {
     private static final long serialVersionUID = 2001467018347663363L;
 
     public ShortArrayEncoding() {
-       super(Encodings.SHORT, short[].class);
+       super(new ShortEncoding(), short[].class);
     }
 
     @Override

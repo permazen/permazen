@@ -20,7 +20,7 @@ import io.permazen.core.Database;
 import io.permazen.schema.SchemaModel;
 import io.permazen.PermazenFactory;
 import io.permazen.core.Database;
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;

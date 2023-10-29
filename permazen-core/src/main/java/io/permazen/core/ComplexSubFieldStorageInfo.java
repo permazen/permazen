@@ -5,7 +5,6 @@
 
 package io.permazen.core;
 
-import io.permazen.core.encoding.ReferenceEncoding;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 

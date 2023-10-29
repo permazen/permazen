@@ -15,7 +15,7 @@ import com.vaadin.ui.TextField;
 import io.permazen.JReferenceField;
 import io.permazen.JSimpleField;
 import io.permazen.JTransaction;
-import io.permazen.core.Encoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.NullableField;
 import io.permazen.vaadin.SimpleFieldConverter;

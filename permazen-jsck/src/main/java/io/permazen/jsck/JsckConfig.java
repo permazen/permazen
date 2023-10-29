@@ -7,9 +7,9 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.DefaultEncodingRegistry;
-import io.permazen.core.EncodingRegistry;
 import io.permazen.core.Layout;
+import io.permazen.core.encoding.DefaultEncodingRegistry;
+import io.permazen.core.encoding.EncodingRegistry;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaModel;
 

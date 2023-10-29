@@ -7,9 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.AbstractEncoding;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
 import io.permazen.util.ParseContext;
 
 import java.lang.reflect.Array;

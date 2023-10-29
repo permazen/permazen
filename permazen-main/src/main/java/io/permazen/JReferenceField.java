@@ -10,7 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
-import io.permazen.core.encoding.ReferenceEncoding;
+import io.permazen.core.ReferenceEncoding;
 import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 

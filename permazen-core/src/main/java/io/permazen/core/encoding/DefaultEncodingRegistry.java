@@ -3,49 +3,10 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core;
+package io.permazen.core.encoding;
 
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
-
-import io.permazen.core.encoding.BigDecimalEncoding;
-import io.permazen.core.encoding.BigIntegerEncoding;
-import io.permazen.core.encoding.BitSetEncoding;
-import io.permazen.core.encoding.BooleanArrayEncoding;
-import io.permazen.core.encoding.ByteArrayEncoding;
-import io.permazen.core.encoding.CharacterArrayEncoding;
-import io.permazen.core.encoding.DateEncoding;
-import io.permazen.core.encoding.DoubleArrayEncoding;
-import io.permazen.core.encoding.DurationEncoding;
-import io.permazen.core.encoding.EnumValueEncoding;
-import io.permazen.core.encoding.FileEncoding;
-import io.permazen.core.encoding.FloatArrayEncoding;
-import io.permazen.core.encoding.Inet4AddressEncoding;
-import io.permazen.core.encoding.Inet6AddressEncoding;
-import io.permazen.core.encoding.InetAddressEncoding;
-import io.permazen.core.encoding.InstantEncoding;
-import io.permazen.core.encoding.IntegerArrayEncoding;
-import io.permazen.core.encoding.InternetAddressEncoding;
-import io.permazen.core.encoding.LocalDateEncoding;
-import io.permazen.core.encoding.LocalDateTimeEncoding;
-import io.permazen.core.encoding.LocalTimeEncoding;
-import io.permazen.core.encoding.LongArrayEncoding;
-import io.permazen.core.encoding.MonthDayEncoding;
-import io.permazen.core.encoding.NullSafeEncoding;
-import io.permazen.core.encoding.OffsetDateTimeEncoding;
-import io.permazen.core.encoding.OffsetTimeEncoding;
-import io.permazen.core.encoding.PatternEncoding;
-import io.permazen.core.encoding.PeriodEncoding;
-import io.permazen.core.encoding.PrimitiveWrapperEncoding;
-import io.permazen.core.encoding.ShortArrayEncoding;
-import io.permazen.core.encoding.StringEncoding;
-import io.permazen.core.encoding.URIEncoding;
-import io.permazen.core.encoding.UUIDEncoding;
-import io.permazen.core.encoding.YearEncoding;
-import io.permazen.core.encoding.YearMonthEncoding;
-import io.permazen.core.encoding.ZoneIdEncoding;
-import io.permazen.core.encoding.ZoneOffsetEncoding;
-import io.permazen.core.encoding.ZonedDateTimeEncoding;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -85,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * <p>
  * Custom {@link EncodingRegistry} implemenations are specified via
- * {@code META-INF/services/io.permazen.core.EncodingRegistry} files or by module exports; see {@link ServiceLoader}.
+ * {@code META-INF/services/io.permazen.core.encoding.EncodingRegistry} files or by module exports; see {@link ServiceLoader}.
  * Custom implementations are only queried for non-array types.
  *
  * <p><b>Built-in Encodings</b></p>
@@ -194,25 +155,25 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
     protected void addBuiltinEncodings() {
 
         // Primitive types
-        this.add(Encodings.BOOLEAN);
-        this.add(Encodings.BYTE);
-        this.add(Encodings.CHARACTER);
-        this.add(Encodings.DOUBLE);
-        this.add(Encodings.FLOAT);
-        this.add(Encodings.INTEGER);
-        this.add(Encodings.LONG);
-        this.add(Encodings.SHORT);
+        this.add(new BooleanEncoding());
+        this.add(new ByteEncoding());
+        this.add(new CharacterEncoding());
+        this.add(new DoubleEncoding());
+        this.add(new FloatEncoding());
+        this.add(new IntegerEncoding());
+        this.add(new LongEncoding());
+        this.add(new ShortEncoding());
 
         // Primitive wrapper types
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.BOOLEAN));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.BYTE));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.CHARACTER));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.DOUBLE));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.FLOAT));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.INTEGER));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.LONG));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.SHORT));
-        this.add(new PrimitiveWrapperEncoding<>(Encodings.VOID));
+        this.add(new PrimitiveWrapperEncoding<>(new BooleanEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new ByteEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new CharacterEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new DoubleEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new FloatEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new IntegerEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new LongEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new ShortEncoding()));
+        this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding()));
 
         // Primitive array types
         this.addNullSafe((new BooleanArrayEncoding()));

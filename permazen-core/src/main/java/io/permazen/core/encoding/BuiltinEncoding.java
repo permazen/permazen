@@ -7,10 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.AbstractEncoding;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingIds;
-
 /**
  * Support superclass for {@link Encoding}'s that don't support null values.
  *

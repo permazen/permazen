@@ -16,12 +16,12 @@ import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.ValidationMode;
 import io.permazen.core.Database;
-import io.permazen.core.DefaultEncodingRegistry;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
-import io.permazen.core.EncodingRegistry;
+import io.permazen.core.encoding.DefaultEncodingRegistry;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingId;
+import io.permazen.core.encoding.EncodingRegistry;
 
 import jakarta.validation.groups.Default;
 
@@ -469,7 +469,7 @@ public @interface JField {
      *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
-     * @see io.permazen.core.Encoding#convert Encoding.convert()
+     * @see io.permazen.core.encoding.Encoding#convert Encoding.convert()
      * @see OnVersionChange
      */
     UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;

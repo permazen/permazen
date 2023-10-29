@@ -3,15 +3,14 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package io.permazen.core.encoding;
+package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import io.permazen.core.AbstractEncoding;
-import io.permazen.core.Encoding;
-import io.permazen.core.EncodingId;
-import io.permazen.core.EnumValue;
+import io.permazen.core.encoding.AbstractEncoding;
+import io.permazen.core.encoding.Encoding;
+import io.permazen.core.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
@@ -29,7 +28,7 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is via the {@link UnsignedIntEncoder}-encoded {@linkplain EnumValue#getOrdinal ordinal} value.
  */
-public class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
+class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
 
     private static final long serialVersionUID = -5645700883023141035L;
 
@@ -43,7 +42,7 @@ public class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
      *
      * @throws IllegalArgumentException if {@code idents} is null or invalid
      */
-    public EnumValueBaseEncoding(List<String> idents) {
+    EnumValueBaseEncoding(List<String> idents) {
         this(null, idents);
     }
 
@@ -53,7 +52,7 @@ public class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
      * @param encodingId encoding ID, or null for an anonymous instance
      * @throws IllegalArgumentException if {@code idents} is null or invalid
      */
-    public EnumValueBaseEncoding(EncodingId encodingId, List<String> idents) {
+    EnumValueBaseEncoding(EncodingId encodingId, List<String> idents) {
         super(encodingId, EnumValue.class, null);
         this.identifierMap = Collections.unmodifiableMap(EnumValueEncoding.validateIdentifiers(idents));
         this.enumValueList = Collections.unmodifiableList(Lists.newArrayList(this.identifierMap.values()));

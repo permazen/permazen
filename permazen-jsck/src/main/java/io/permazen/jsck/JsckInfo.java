@@ -5,9 +5,9 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.Encoding;
-import io.permazen.core.encoding.EnumValueEncoding;
-import io.permazen.core.encoding.ReferenceEncoding;
+import io.permazen.core.EnumValueEncoding;
+import io.permazen.core.ReferenceEncoding;
+import io.permazen.core.encoding.Encoding;
 import io.permazen.kv.KVStore;
 import io.permazen.schema.CounterSchemaField;
 import io.permazen.schema.EnumSchemaField;

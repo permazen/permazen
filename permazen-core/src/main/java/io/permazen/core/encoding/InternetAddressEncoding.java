@@ -7,8 +7,6 @@ package io.permazen.core.encoding;
 
 import com.google.common.base.Converter;
 
-import io.permazen.core.EncodingIds;
-
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 

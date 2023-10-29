@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Floats;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.core.Encodings;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -38,7 +37,7 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
 
     @SuppressWarnings("serial")
     public FloatArrayEncoding() {
-        super(Encodings.FLOAT, new TypeToken<float[]>() { });
+        super(new FloatEncoding(), new TypeToken<float[]>() { });
     }
 
     @Override
