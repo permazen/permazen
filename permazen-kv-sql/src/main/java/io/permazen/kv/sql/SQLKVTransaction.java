@@ -200,7 +200,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 assert min != null;
                 if (min.length == 0 && max == null) {
                     removeAll = true;
-                    return;
+                    break;
                 }
                 if (min.length == 0)
                     removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_MOST, listInit).add(this.encodeKey(max));
