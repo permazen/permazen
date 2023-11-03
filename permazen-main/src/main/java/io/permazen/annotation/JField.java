@@ -21,7 +21,6 @@ import io.permazen.core.DeletedObjectException;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
-import io.permazen.encoding.EncodingIds;
 import io.permazen.encoding.EncodingRegistry;
 
 import jakarta.validation.groups.Default;
@@ -231,9 +230,9 @@ public @interface JField {
      * and the {@link Encoding} is found via {@link EncodingRegistry#getEncoding(TypeToken)}.
      *
      * <p>
-     * For any of Permazen's built-in types, the Permazen URN prefix {@value EncodingIds#PERMAZEN_PREFIX} may be omitted.
-     * Otherwise, see {@link EncodingId} for the required format. Custom encodings can be found automatically on the
-     * application class path; see {@link DefaultEncodingRegistry} for details.
+     * For any of Permazen's built-in types, the Permazen URN prefix {@value io.permazen.encoding.EncodingIds#PERMAZEN_PREFIX}
+     * may be omitted. Otherwise, see {@link EncodingId} for the required format. Custom encodings can be found automatically
+     * on the application class path; see {@link DefaultEncodingRegistry} for details.
      *
      * <p>
      * For reference fields (i.e., methods with return value equal to a {@link PermazenType &#64;PermazenType}-annotated class),
