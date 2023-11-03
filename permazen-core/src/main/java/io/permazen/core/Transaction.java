@@ -808,7 +808,7 @@ public class Transaction {
      *
      * <p>
      * Deleting an object can trigger additional secondary deletions. Specifically,
-     * (a) if the object contains reference fields with {@linkplain ReferenceField#cascadeDelete delete cascade} enabled,
+     * (a) if the object contains reference fields with {@linkplain ReferenceField#ForwardDelete forward delete cascade} enabled,
      * any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
      * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
      *
@@ -889,9 +889,9 @@ public class Transaction {
             }
         }
 
-        // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
+        // Find all objects referred to by a reference field with forwardDelete = true and add them to deletables
         for (ReferenceField field : info.getObjType().referenceFieldsAndSubFields.values()) {
-            if (!field.cascadeDelete)
+            if (!field.forwardDelete)
                 continue;
             final Iterable<ObjId> refs = field.parent != null ?
               field.parent.iterateSubField(this, id, field) : Collections.singleton(field.getValue(this, id));
@@ -3213,12 +3213,12 @@ public class Transaction {
      * same field, we have to iterate through each schema version separately.
      *
      * @param target referred-to object
-     * @param onDelete {@link DeleteAction} to match
+     * @param inverseDelete {@link DeleteAction} to match
      * @return mapping from reference field storage ID to set of objects referring to {@code target} through a field whose
-     *  {@link DeleteAction} matches {@code onDelete}
+     *  {@link DeleteAction} matches {@code inverseDelete}
      */
     @SuppressWarnings("unchecked")
-    private TreeMap<Integer, NavigableSet<ObjId>> findReferrers(ObjId target, DeleteAction onDelete) {
+    private TreeMap<Integer, NavigableSet<ObjId>> findReferrers(ObjId target, DeleteAction inverseDelete) {
         assert Thread.holdsLock(this);
 
         // Get target object type storage ID
@@ -3242,7 +3242,7 @@ public class Transaction {
 
             // Iterate over reference fields in this schema version that have the configured DeleteAction in some object type
             for (Map.Entry<ReferenceField, KeyRanges> fieldRangeEntry :
-              schemaVersion.deleteActionKeyRanges.get(onDelete.ordinal()).entrySet()) {
+              schemaVersion.deleteActionKeyRanges.get(inverseDelete.ordinal()).entrySet()) {
                 final ReferenceField field = fieldRangeEntry.getKey();
                 final KeyRanges keyRanges = fieldRangeEntry.getValue();
 

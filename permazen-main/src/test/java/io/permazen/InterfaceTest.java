@@ -93,7 +93,7 @@ public class InterfaceTest extends TestSupport {
         final NameIndex lookup = new NameIndex(schema);
         final ReferenceSchemaField fooField = (ReferenceSchemaField)lookup.getSchemaField(lookup.getSchemaObjectType("Bar"), "foo");
 
-        Assert.assertEquals(fooField.getOnDelete(), DeleteAction.DELETE);
+        Assert.assertEquals(fooField.getInverseDelete(), DeleteAction.DELETE);
     }
 
 // Model Classes #1
@@ -178,7 +178,7 @@ public class InterfaceTest extends TestSupport {
     }
 
     public interface HasOptionalFoo {
-        @JField(onDelete = DeleteAction.DELETE)
+        @JField(inverseDelete = DeleteAction.DELETE)
         Foo getFoo();
         void setFoo(Foo x);
     }

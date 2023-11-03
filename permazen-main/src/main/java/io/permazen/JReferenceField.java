@@ -31,8 +31,8 @@ import org.objectweb.asm.Type;
  */
 public class JReferenceField extends JSimpleField {
 
-    final DeleteAction onDelete;
-    final boolean cascadeDelete;
+    final DeleteAction inverseDelete;
+    final boolean forwardDelete;
     final boolean allowDeleted;
     final boolean allowDeletedSnapshot;
     final String[] forwardCascades;
@@ -41,8 +41,8 @@ public class JReferenceField extends JSimpleField {
     JReferenceField(Permazen jdb, String name, int storageId, String description, TypeToken<?> typeToken,
       io.permazen.annotation.JField annotation, Method getter, Method setter) {
         super(jdb, name, storageId, typeToken, new ReferenceEncoding(), true, annotation, description, getter, setter);
-        this.onDelete = annotation.onDelete();
-        this.cascadeDelete = annotation.cascadeDelete();
+        this.inverseDelete = annotation.inverseDelete();
+        this.forwardDelete = annotation.forwardDelete();
         this.allowDeleted = annotation.allowDeleted();
         this.allowDeletedSnapshot = annotation.allowDeletedSnapshot();
         this.forwardCascades = annotation.forwardCascades();
@@ -65,12 +65,12 @@ public class JReferenceField extends JSimpleField {
     }
 
     /**
-     * Get the {@link DeleteAction} configured for this field.
+     * Get the inverse {@link DeleteAction} configured for this field.
      *
      * @return this field's {@link DeleteAction}
      */
-    public DeleteAction getOnDelete() {
-        return this.onDelete;
+    public DeleteAction getInverseDelete() {
+        return this.inverseDelete;
     }
 
     /**
@@ -78,8 +78,8 @@ public class JReferenceField extends JSimpleField {
      *
      * @return this field's delete cascade setting
      */
-    public boolean isCascadeDelete() {
-        return this.cascadeDelete;
+    public boolean isForwardDelete() {
+        return this.forwardDelete;
     }
 
     /**
@@ -129,9 +129,9 @@ public class JReferenceField extends JSimpleField {
         if (!super.isSameAs(that0))
             return false;
         final JReferenceField that = (JReferenceField)that0;
-        if (!this.onDelete.equals(that.onDelete))
+        if (!this.inverseDelete.equals(that.inverseDelete))
             return false;
-        if (this.cascadeDelete != that.cascadeDelete)
+        if (this.forwardDelete != that.forwardDelete)
             return false;
         if (this.allowDeleted != that.allowDeleted)
             return false;
@@ -155,8 +155,8 @@ public class JReferenceField extends JSimpleField {
     void initialize(Permazen jdb, SimpleSchemaField schemaField0) {
         super.initialize(jdb, schemaField0);
         final ReferenceSchemaField schemaField = (ReferenceSchemaField)schemaField0;
-        schemaField.setOnDelete(this.onDelete);
-        schemaField.setCascadeDelete(this.cascadeDelete);
+        schemaField.setInverseDelete(this.inverseDelete);
+        schemaField.setForwardDelete(this.forwardDelete);
         schemaField.setAllowDeleted(this.allowDeleted);
         schemaField.setAllowDeletedSnapshot(this.allowDeletedSnapshot);
         final Class<?> rawType = this.typeToken.getRawType();

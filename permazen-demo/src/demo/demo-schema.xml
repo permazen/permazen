@@ -17,7 +17,7 @@
         <SimpleField storageId="40763" name="image" type="byte[]"/>
         <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
         <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
-        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
+        <ReferenceField storageId="54749" name="parent" inverseDelete="EXCEPTION">
             <ObjectTypes>
                 <ObjectType storageId="8890"/>
             </ObjectTypes>
@@ -27,7 +27,7 @@
         <SimpleField storageId="40763" name="image" type="byte[]"/>
         <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
         <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
-        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
+        <ReferenceField storageId="54749" name="parent" inverseDelete="EXCEPTION">
             <ObjectTypes>
                 <ObjectType storageId="935"/>
             </ObjectTypes>

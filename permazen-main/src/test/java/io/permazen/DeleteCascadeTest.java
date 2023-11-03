@@ -141,24 +141,24 @@ public class DeleteCascadeTest extends TestSupport {
     @PermazenType
     public abstract static class Person implements JObject {
 
-        @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true)
+        @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true)
         public abstract Person getRef();
         public abstract void setRef(Person ref);
 
-        @JSetField(element = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true))
+        @JSetField(element = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
         public abstract Set<Person> getSet();
 
-        @JListField(element = @JField(onDelete = DeleteAction.UNREFERENCE, cascadeDelete = true))
+        @JListField(element = @JField(inverseDelete = DeleteAction.UNREFERENCE, forwardDelete = true))
         public abstract List<Person> getList();
 
         @JMapField(
-          key = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true),
-          value = @JField(onDelete = DeleteAction.NOTHING, allowDeleted = true))
+          key = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true),
+          value = @JField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true))
         public abstract Map<Person, Person> getMap1();
 
         @JMapField(
-          key = @JField(onDelete = DeleteAction.NOTHING, allowDeleted = true),
-          value = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true))
+          key = @JField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true),
+          value = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
         public abstract Map<Person, Person> getMap2();
     }
 }

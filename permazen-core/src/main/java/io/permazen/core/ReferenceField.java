@@ -24,8 +24,8 @@ import java.util.SortedSet;
  */
 public class ReferenceField extends SimpleField<ObjId> {
 
-    final DeleteAction onDelete;
-    final boolean cascadeDelete;
+    final DeleteAction inverseDelete;
+    final boolean forwardDelete;
     final boolean allowDeleted;
     final boolean allowDeletedSnapshot;
 
@@ -35,8 +35,8 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @param name the name of the field
      * @param storageId field storage ID
      * @param schema schema version
-     * @param onDelete deletion behavior
-     * @param cascadeDelete whether to cascade deletes
+     * @param inverseDelete inverse deletion behavior
+     * @param forwardDelete whether to cascade deletes
      * @param allowDeleted whether to allow assignment to deleted obects in normal transactions
      * @param allowDeletedSnapshot whether to allow assignment to deleted obects in snapshot transactions
      * @param objectTypes allowed object type storage IDs, or null for no restriction
@@ -44,12 +44,12 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
-    ReferenceField(String name, int storageId, Schema schema, DeleteAction onDelete,
-      boolean cascadeDelete, boolean allowDeleted, boolean allowDeletedSnapshot, Set<Integer> objectTypes) {
+    ReferenceField(String name, int storageId, Schema schema, DeleteAction inverseDelete,
+      boolean forwardDelete, boolean allowDeleted, boolean allowDeletedSnapshot, Set<Integer> objectTypes) {
         super(name, storageId, schema, new ReferenceEncoding(objectTypes), true);
-        Preconditions.checkArgument(onDelete != null, "null onDelete");
-        this.onDelete = onDelete;
-        this.cascadeDelete = cascadeDelete;
+        Preconditions.checkArgument(inverseDelete != null, "null inverseDelete");
+        this.inverseDelete = inverseDelete;
+        this.forwardDelete = forwardDelete;
         this.allowDeleted = allowDeleted;
         this.allowDeletedSnapshot = allowDeletedSnapshot;
     }
@@ -61,8 +61,8 @@ public class ReferenceField extends SimpleField<ObjId> {
      *
      * @return desired behavior when a referenced object is deleted
      */
-    public DeleteAction getOnDelete() {
-        return this.onDelete;
+    public DeleteAction getInverseDelete() {
+        return this.inverseDelete;
     }
 
     /**
@@ -70,8 +70,8 @@ public class ReferenceField extends SimpleField<ObjId> {
      *
      * @return whether deletion should cascade to the referred-to object
      */
-    public boolean isCascadeDelete() {
-        return this.cascadeDelete;
+    public boolean isForwardDelete() {
+        return this.forwardDelete;
     }
 
     /**

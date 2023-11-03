@@ -487,11 +487,11 @@ public class CompositeIndexTest extends TestSupport {
     @PermazenType(storageId = 99)
     public abstract static class Top implements JObject {
 
-        @JField(storageId = 1, onDelete = DeleteAction.UNREFERENCE)
+        @JField(storageId = 1, inverseDelete = DeleteAction.UNREFERENCE)
         public abstract Top getRef1();
         public abstract void setRef1(Top ref1);
 
-        @JField(storageId = 2, onDelete = DeleteAction.UNREFERENCE)
+        @JField(storageId = 2, inverseDelete = DeleteAction.UNREFERENCE)
         public abstract Top getRef2();
         public abstract void setRef2(Top ref2);
 

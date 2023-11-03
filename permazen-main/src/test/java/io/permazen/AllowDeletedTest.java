@@ -110,7 +110,7 @@ public class AllowDeletedTest extends TestSupport {
     @PermazenType
     public abstract static class Person implements JObject {
 
-        @JField(onDelete = DeleteAction.UNREFERENCE)
+        @JField(inverseDelete = DeleteAction.UNREFERENCE)
         public abstract Person getDefinitelyExistsFriend();
         public abstract void setDefinitelyExistsFriend(Person friend);
 

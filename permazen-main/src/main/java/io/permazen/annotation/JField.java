@@ -84,7 +84,7 @@ import java.lang.annotation.Target;
  * <p>
  * In general, reference fields may reference objects that don't actually exist. This can happen in one of two ways:
  * (a) a field is set to an invalid reference, or (b) a field references a valid object that is subsequently deleted.
- * The {@link #allowDeleted} and {@link #onDelete} properties, respectively, control whether (a) or (b) is permitted.
+ * The {@link #allowDeleted} and {@link #inverseDelete} properties, respectively, control whether (a) or (b) is permitted.
  *
  * <p>
  * By default, neither (a) nor (b) is allowed; if attempted, a {@link DeletedObjectException} is thrown.
@@ -151,7 +151,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Reference fields have configurable behavior when the referring object or the referred-to object is deleted;
- * see {@link #onDelete} and {@link #cascadeDelete}.
+ * see {@link #inverseDelete} and {@link #forwardDelete}.
  *
  * <p><b>Uniqueness Constraints</b></p>
  *
@@ -329,10 +329,10 @@ public @interface JField {
      * For non-reference fields this property must be equal to its default value.
      *
      * @return desired behavior when a referenced object is deleted
-     * @see #cascadeDelete
+     * @see #forwardDelete
      * @see io.permazen.JObject#delete
      */
-    DeleteAction onDelete() default DeleteAction.EXCEPTION;
+    DeleteAction inverseDelete() default DeleteAction.EXCEPTION;
 
     /**
      * For reference fields, configure cascading behavior when the referring object is
@@ -343,10 +343,10 @@ public @interface JField {
      * For non-reference fields this property must be equal to its default value.
      *
      * @return whether deletion should cascade to the referred-to object
-     * @see #onDelete
+     * @see #inverseDelete
      * @see JObject#delete
      */
-    boolean cascadeDelete() default false;
+    boolean forwardDelete() default false;
 
     /**
      * Require this field's value to be unique among all database objects.
@@ -403,17 +403,17 @@ public @interface JField {
      * <p>
      * Otherwise, if this property is set to false, the field is disallowed from ever referring to a non-existent object;
      * instead, a {@link DeletedObjectException} will be thrown. When used together with
-     * {@link DeleteAction#EXCEPTION} (see {@link #onDelete}), the field is guaranteed to never be a dangling reference.
+     * {@link DeleteAction#EXCEPTION} (see {@link #inverseDelete}), the field is guaranteed to never be a dangling reference.
      *
      * <p>
      * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
      * separately controls validation for {@link SnapshotJTransaction}s.
      *
      * <p>
-     * For consistency, this property must be set to true when {@link #onDelete} is set to {@link DeleteAction#NOTHING}.
+     * For consistency, this property must be set to true when {@link #inverseDelete} is set to {@link DeleteAction#IGNORE}.
      *
      * @return whether the reference field should allow assignment to deleted objects in normal transactions
-     * @see #onDelete
+     * @see #inverseDelete
      * @see #allowDeletedSnapshot
      * @see PermazenType#autogenAllowDeleted
      */
@@ -434,10 +434,10 @@ public @interface JField {
      * then it effectively creates a requirement that this "small portion" be transitively closed under object references.
      *
      * <p>
-     * For consistency, this property must be set to true when {@link #onDelete} is set to {@link DeleteAction#NOTHING}.
+     * For consistency, this property must be set to true when {@link #inverseDelete} is set to {@link DeleteAction#IGNORE}.
      *
      * @return whether the reference field should allow assignment to deleted objects in snapshot transactions
-     * @see #onDelete
+     * @see #inverseDelete
      * @see #allowDeleted
      * @see PermazenType#autogenAllowDeletedSnapshot
      */

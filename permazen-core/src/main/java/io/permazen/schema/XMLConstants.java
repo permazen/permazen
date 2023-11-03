@@ -31,13 +31,13 @@ public final class XMLConstants {
     // Attributes
     public static final QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
     public static final QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
-    public static final QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");
     public static final QName DIMENSIONS_ATTRIBUTE = new QName("dimensions");
     public static final QName ENCODING_ATTRIBUTE = new QName("encoding");
     public static final QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
+    public static final QName FORWARD_DELETE_ATTRIBUTE = new QName("forwardDelete");
     public static final QName INDEXED_ATTRIBUTE = new QName("indexed");
+    public static final QName INVERSE_DELETE_ATTRIBUTE = new QName("inverseDelete");
     public static final QName NAME_ATTRIBUTE = new QName("name");
-    public static final QName ON_DELETE_ATTRIBUTE = new QName("onDelete");
     public static final QName STORAGE_ID_ATTRIBUTE = new QName("storageId");
 
     private XMLConstants() {

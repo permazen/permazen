@@ -67,8 +67,8 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-        return new ReferenceField(field.getName(), field.getStorageId(), this.schema, field.getOnDelete(),
-          field.isCascadeDelete(), field.isAllowDeleted(), field.isAllowDeletedSnapshot(), field.getObjectTypes());
+        return new ReferenceField(field.getName(), field.getStorageId(), this.schema, field.getInverseDelete(),
+          field.isForwardDelete(), field.isAllowDeleted(), field.isAllowDeletedSnapshot(), field.getObjectTypes());
     }
 
     @Override

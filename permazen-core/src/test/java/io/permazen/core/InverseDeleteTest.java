@@ -23,40 +23,40 @@ import java.util.NavigableSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnDeleteTest extends CoreAPITestSupport {
+public class InverseDeleteTest extends CoreAPITestSupport {
 
     private static final String XML_TEMPLATE =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<Schema>\n"
       + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-      + "    <ReferenceField name=\"ref\" storageId=\"2\" onDelete=\"@ONDELETE@\"/>\n"
+      + "    <ReferenceField name=\"ref\" storageId=\"2\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
       + "    <SimpleField name=\"name\" storageId=\"3\" encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"
       + "    <SetField name=\"set\" storageId=\"10\">\n"
-      + "        <ReferenceField storageId=\"20\" onDelete=\"@ONDELETE@\"/>\n"
+      + "        <ReferenceField storageId=\"20\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
       + "    </SetField>"
       + "    <ListField name=\"list\" storageId=\"11\">\n"
-      + "        <ReferenceField storageId=\"21\" onDelete=\"@ONDELETE@\"/>\n"
+      + "        <ReferenceField storageId=\"21\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
       + "    </ListField>"
       + "    <MapField name=\"map1\" storageId=\"12\">\n"
-      + "        <ReferenceField storageId=\"22\" onDelete=\"@ONDELETE@\"/>\n"
+      + "        <ReferenceField storageId=\"22\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
       + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"23\"/>\n"
       + "    </MapField>"
       + "    <MapField name=\"map2\" storageId=\"13\">\n"
       + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"24\"/>\n"
-      + "        <ReferenceField storageId=\"25\" onDelete=\"@ONDELETE@\"/>\n"
+      + "        <ReferenceField storageId=\"25\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
       + "    </MapField>"
       + "  </ObjectType>\n"
       + "</Schema>\n";
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testOnDelete() throws Exception {
+    public void testInverseDelete() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        for (DeleteAction onDelete : DeleteAction.values()) {
-            final String xml = XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name());
+        for (DeleteAction inverseDelete : DeleteAction.values()) {
+            final String xml = XML_TEMPLATE.replaceAll("@INVERSE_DELETE@", inverseDelete.name());
             final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
             ObjId id1;
@@ -81,12 +81,12 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
             try {
                 tx.delete(id2);
-                Assert.assertNotEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertNotEquals(inverseDelete, DeleteAction.EXCEPTION);
             } catch (ReferencedObjectException e) {
-                Assert.assertEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertEquals(inverseDelete, DeleteAction.EXCEPTION);
             }
-            switch (onDelete) {
-            case NOTHING:
+            switch (inverseDelete) {
+            case IGNORE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -136,12 +136,12 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
             try {
                 tx.delete(id2);
-                Assert.assertNotEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertNotEquals(inverseDelete, DeleteAction.EXCEPTION);
             } catch (ReferencedObjectException e) {
-                Assert.assertEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertEquals(inverseDelete, DeleteAction.EXCEPTION);
             }
-            switch (onDelete) {
-            case NOTHING:
+            switch (inverseDelete) {
+            case IGNORE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -187,12 +187,12 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
             try {
                 tx.delete(id2);
-                Assert.assertNotEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertNotEquals(inverseDelete, DeleteAction.EXCEPTION);
             } catch (ReferencedObjectException e) {
-                Assert.assertEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertEquals(inverseDelete, DeleteAction.EXCEPTION);
             }
-            switch (onDelete) {
-            case NOTHING:
+            switch (inverseDelete) {
+            case IGNORE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -240,12 +240,12 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
             try {
                 tx.delete(id2);
-                Assert.assertNotEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertNotEquals(inverseDelete, DeleteAction.EXCEPTION);
             } catch (ReferencedObjectException e) {
-                Assert.assertEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertEquals(inverseDelete, DeleteAction.EXCEPTION);
             }
-            switch (onDelete) {
-            case NOTHING:
+            switch (inverseDelete) {
+            case IGNORE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -298,12 +298,12 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
             try {
                 tx.delete(id2);
-                Assert.assertNotEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertNotEquals(inverseDelete, DeleteAction.EXCEPTION);
             } catch (ReferencedObjectException e) {
-                Assert.assertEquals(onDelete, DeleteAction.EXCEPTION);
+                Assert.assertEquals(inverseDelete, DeleteAction.EXCEPTION);
             }
-            switch (onDelete) {
-            case NOTHING:
+            switch (inverseDelete) {
+            case IGNORE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -340,23 +340,24 @@ public class OnDeleteTest extends CoreAPITestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testOnDeleteUpdate() throws Exception {
+    public void testInverseDeleteUpdate() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        assert DeleteAction.NOTHING.ordinal() == 0;
+        assert DeleteAction.IGNORE.ordinal() == 0;
         assert DeleteAction.EXCEPTION.ordinal() == 1;
         assert DeleteAction.UNREFERENCE.ordinal() == 2;
         assert DeleteAction.DELETE.ordinal() == 3;
 
         final SchemaModel[] schemas = new SchemaModel[4];
-        for (DeleteAction onDelete : DeleteAction.values()) {
-            schemas[onDelete.ordinal()] = SchemaModel.fromXML(
-              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name()).getBytes(StandardCharsets.UTF_8)));
+        for (DeleteAction inverseDelete : DeleteAction.values()) {
+            schemas[inverseDelete.ordinal()] = SchemaModel.fromXML(
+              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@INVERSE_DELETE@",
+                inverseDelete.name()).getBytes(StandardCharsets.UTF_8)));
         }
 
-        // Create target object and friends, with all references set to onDelete=NOTHING
+        // Create target object and friends, with all references set to inverseDelete=IGNORE
         //  - other1 and other2 have various references to target and each other
         //  - target has only references to itself
         ObjId target;
@@ -390,8 +391,8 @@ public class OnDeleteTest extends CoreAPITestSupport {
         // Create referring objects and schema versions
         //  - Each referring objects refers to target in every field
         ObjId[] referrers = new ObjId[4];
-        for (DeleteAction onDelete : DeleteAction.values()) {
-            final int i = onDelete.ordinal();
+        for (DeleteAction inverseDelete : DeleteAction.values()) {
+            final int i = inverseDelete.ordinal();
             tx = db.createTransaction(schemas[i], i + 1, true);
             referrers[i] = tx.create(1);
             tx.writeSimpleField(referrers[i], 3, "referrers[" + i + "]", false);
@@ -407,7 +408,7 @@ public class OnDeleteTest extends CoreAPITestSupport {
             tx.commit();
         }
 
-        // Try to delete target - should fail due to referrers[1] onDelete=EXCEPTION
+        // Try to delete target - should fail due to referrers[1] inverseDelete=EXCEPTION
         tx = db.createTransaction(schemas[0], 1, false);
         try {
             tx.delete(target);

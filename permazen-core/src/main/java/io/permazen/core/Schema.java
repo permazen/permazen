@@ -101,7 +101,7 @@ public class Schema {
             for (ObjType objType : this.objTypeMap.values()) {
                 final KeyRange objTypeKeyRange = ObjId.getKeyRange(objType.storageId);
                 for (ReferenceField field : objType.referenceFieldsAndSubFields.values()) {
-                    if (field.onDelete.equals(deleteAction))
+                    if (field.inverseDelete.equals(deleteAction))
                         fieldKeyRanges.computeIfAbsent(field, i -> KeyRanges.empty()).add(objTypeKeyRange);
                 }
             }

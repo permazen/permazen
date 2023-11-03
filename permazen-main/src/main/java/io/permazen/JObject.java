@@ -97,7 +97,7 @@ public interface JObject {
      *
      * <p>
      * See {@link Transaction#delete Transaction.delete()} for details on secondary deletions from
-     * {@link DeleteAction#DELETE} and {@link JField#cascadeDelete}.
+     * {@link DeleteAction#DELETE} and {@link JField#forwardDelete}.
      *
      * @return true if instance was deleted, false if it did not exist
      * @throws StaleTransactionException

@@ -62,7 +62,7 @@ public class MetaAnnotationsTest extends TestSupport {
     public @interface ModelClass {
     }
 
-    @JField(onDelete = DeleteAction.DELETE, forwardCascades = "load")
+    @JField(inverseDelete = DeleteAction.DELETE, forwardCascades = "load")
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
     public @interface Parent {

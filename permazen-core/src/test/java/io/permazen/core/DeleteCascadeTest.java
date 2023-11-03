@@ -26,7 +26,7 @@ public class DeleteCascadeTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "  <ObjectType name=\"Person\" storageId=\"1\">\n"
-          + "    <ReferenceField storageId=\"2\" name=\"Person\" cascadeDelete=\"true\" onDelete=\"EXCEPTION\"/>\n"
+          + "    <ReferenceField storageId=\"2\" name=\"Person\" forwardDelete=\"true\" inverseDelete=\"EXCEPTION\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));

@@ -106,7 +106,7 @@ public class OnDeleteTest extends TestSupport {
                 target.delete();
         }
 
-        @JField(storageId = 101, onDelete = DeleteAction.DELETE)
+        @JField(storageId = 101, inverseDelete = DeleteAction.DELETE)
         public abstract Person getFriend();
         public abstract void setFriend(Person friend);
     }

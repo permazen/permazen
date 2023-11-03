@@ -370,7 +370,7 @@ public class SnapshotTest extends TestSupport {
     @PermazenType(storageId = 200)
     public abstract static class Foo implements JObject {
 
-        @JField(storageId = 201, onDelete = DeleteAction.NOTHING, allowDeleted = true)
+        @JField(storageId = 201, inverseDelete = DeleteAction.IGNORE, allowDeleted = true)
         public abstract Foo getRef();
         public abstract void setRef(Foo ref);
 

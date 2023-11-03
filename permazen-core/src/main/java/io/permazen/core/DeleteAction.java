@@ -11,7 +11,7 @@ import io.permazen.schema.ReferenceSchemaField;
  * Describes what action to take when an object that is still referred to by some other object is deleted.
  *
  * @see Transaction#delete Transaction.delete()
- * @see ReferenceSchemaField#getOnDelete
+ * @see ReferenceSchemaField#getInverseDelete
  */
 public enum DeleteAction {
 
@@ -19,7 +19,7 @@ public enum DeleteAction {
      * Do nothing. The reference will still exist, but subsequent attempts to access the fields of the deleted object
      * will result in {@link DeletedObjectException}.
      */
-    NOTHING,
+    IGNORE,
 
     /**
      * Disallow deleting the object, instead throwing {@link ReferencedObjectException}. This is the default if not specified.
@@ -31,7 +31,7 @@ public enum DeleteAction {
 
     /**
      * Remove the reference, either by setting it to null (in the case of a {@link SimpleField} in an object),
-     * or by removing the corresponding collection element or key/value pair (in the case of a {@link ComplexField} sub-field).
+     * or by removing the corresponding collection element or map entry (in the case of a {@link ComplexField} sub-field).
      */
     UNREFERENCE,
 

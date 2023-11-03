@@ -188,7 +188,7 @@ public class CopyCascadeTest extends TestSupport {
         /**
          * Get the parent of this node, or null if node is the root.
          */
-        @JField(storageId = 10, onDelete = DeleteAction.DELETE,
+        @JField(storageId = 10, inverseDelete = DeleteAction.DELETE,
           forwardCascades = { "tree", "ancestors" }, inverseCascades = { "tree", "descendants" })
         Node getParent();
         void setParent(Node x);
@@ -197,7 +197,7 @@ public class CopyCascadeTest extends TestSupport {
     @PermazenType
     public interface Other extends JObject {
 
-        @JField(storageId = 10, onDelete = DeleteAction.DELETE)
+        @JField(storageId = 10, inverseDelete = DeleteAction.DELETE)
         Node getNodeRef();
         void setNodeRef(Node x);
     }

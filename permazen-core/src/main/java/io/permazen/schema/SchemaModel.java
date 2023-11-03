@@ -269,7 +269,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * <ul>
      *  <li>Object and field names (the core API identifies types and fields using only storage ID's)</li>
      *  <li>Attributes affecting behavior but not structure, such as
-     *      {@linkplain ReferenceSchemaField#isCascadeDelete delete cascades}</li>
+     *      {@linkplain ReferenceSchemaField#isForwardDelete forward delete cascades}</li>
      * </ul>
      *
      * <p>

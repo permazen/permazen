@@ -109,13 +109,13 @@ public class LockDownTest extends CoreAPITestSupport {
             this.log.debug("got expected {}", e.toString());
         }
         try {
-            ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setOnDelete(null);
+            ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setInverseDelete(null);
             assert false;
         } catch (UnsupportedOperationException e) {
             this.log.debug("got expected {}", e.toString());
         }
         try {
-            ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setCascadeDelete(true);
+            ((ReferenceSchemaField)schema.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setForwardDelete(true);
             assert false;
         } catch (UnsupportedOperationException e) {
             this.log.debug("got expected {}", e.toString());
@@ -156,8 +156,8 @@ public class LockDownTest extends CoreAPITestSupport {
         ((EnumSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(12)).getIdentifiers().clear();
         ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).getIdentifiers().clear();
         ((EnumArraySchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(20)).setDimensions(123);
-        ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setOnDelete(null);
-        ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setCascadeDelete(true);
+        ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setInverseDelete(null);
+        ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setForwardDelete(true);
         ((ReferenceSchemaField)schema2.getSchemaObjectTypes().get(100).getSchemaFields().get(13)).setAllowDeleted(false);
         schema2.getSchemaObjectTypes().get(100).getSchemaCompositeIndexes().remove(110);
         schema2.getSchemaObjectTypes().get(100).getSchemaFields().remove(12);

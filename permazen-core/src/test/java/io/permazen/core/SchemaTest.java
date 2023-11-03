@@ -352,10 +352,10 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 19 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"i\" storageId=\"2\"/>\n"  // default onDelete is EXCEPTION
+          + "  <ReferenceField name=\"i\" storageId=\"2\"/>\n"  // default inverseDelete is EXCEPTION
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <ReferenceField name=\"i\" storageId=\"2\" onDelete=\"NOTHING\"/>\n"
+          + "  <ReferenceField name=\"i\" storageId=\"2\" inverseDelete=\"IGNORE\"/>\n"
           + "</ObjectType>\n"
           },
 
@@ -624,16 +624,16 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n",
           },
 
-          // Change reference field onDelete
+          // Change reference field inverseDelete
           { true,
             "<!-- test 2a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\" onDelete=\"EXCEPTION\"/>\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" inverseDelete=\"EXCEPTION\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 2b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\" onDelete=\"UNREFERENCE\"/>\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" inverseDelete=\"UNREFERENCE\"/>\n"
           + "</ObjectType>\n",
           },
 

@@ -43,12 +43,12 @@ public class JFieldConflictTest extends TestSupport {
         void setRef(float x);
     }
 
-// OnDelete conflict
+// InverseDelete conflict
 
     @Test
-    public void testOnDeleteConflict() {
+    public void testInverseDeleteConflict() {
         try {
-            BasicTest.getPermazen(OnDeleteConflict.class);
+            BasicTest.getPermazen(InverseDeleteConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -56,25 +56,25 @@ public class JFieldConflictTest extends TestSupport {
         }
     }
 
-    public interface OnDeleteConflict1 {
-        @JField(onDelete = DeleteAction.UNREFERENCE)
-        OnDeleteConflict getRef();
+    public interface InverseDeleteConflict1 {
+        @JField(inverseDelete = DeleteAction.UNREFERENCE)
+        InverseDeleteConflict getRef();
     }
-    public interface OnDeleteConflict2 {
-        @JField(onDelete = DeleteAction.EXCEPTION)
-        OnDeleteConflict getRef();
+    public interface InverseDeleteConflict2 {
+        @JField(inverseDelete = DeleteAction.EXCEPTION)
+        InverseDeleteConflict getRef();
     }
     @PermazenType
-    public interface OnDeleteConflict extends OnDeleteConflict1, OnDeleteConflict2 {
-        void setRef(OnDeleteConflict x);
+    public interface InverseDeleteConflict extends InverseDeleteConflict1, InverseDeleteConflict2 {
+        void setRef(InverseDeleteConflict x);
     }
 
-// CascadeDelete conflict
+// ForwardDelete conflict
 
     @Test
-    public void testCascadeDeleteConflict() {
+    public void testForwardDeleteConflict() {
         try {
-            BasicTest.getPermazen(CascadeDeleteConflict.class);
+            BasicTest.getPermazen(ForwardDeleteConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -82,17 +82,17 @@ public class JFieldConflictTest extends TestSupport {
         }
     }
 
-    public interface CascadeDeleteConflict1 {
-        @JField(cascadeDelete = true)
-        CascadeDeleteConflict getRef();
+    public interface ForwardDeleteConflict1 {
+        @JField(forwardDelete = true)
+        ForwardDeleteConflict getRef();
     }
-    public interface CascadeDeleteConflict2 {
-        @JField(cascadeDelete = false)
-        CascadeDeleteConflict getRef();
+    public interface ForwardDeleteConflict2 {
+        @JField(forwardDelete = false)
+        ForwardDeleteConflict getRef();
     }
     @PermazenType
-    public interface CascadeDeleteConflict extends CascadeDeleteConflict1, CascadeDeleteConflict2 {
-        void setRef(CascadeDeleteConflict x);
+    public interface ForwardDeleteConflict extends ForwardDeleteConflict1, ForwardDeleteConflict2 {
+        void setRef(ForwardDeleteConflict x);
     }
 
 // Unique conflict

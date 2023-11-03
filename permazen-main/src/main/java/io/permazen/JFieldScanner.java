@@ -111,11 +111,11 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return new String[0];
         }
         @Override
-        public DeleteAction onDelete() {
+        public DeleteAction inverseDelete() {
             return DeleteAction.EXCEPTION;
         }
         @Override
-        public boolean cascadeDelete() {
+        public boolean forwardDelete() {
             return false;
         }
         @Override

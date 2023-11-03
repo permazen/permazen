@@ -710,10 +710,10 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Sanity check annotation some more
-        if (!isReferenceType && annotation.onDelete() != DeleteAction.EXCEPTION)
-            throw new IllegalArgumentException("invalid " + description + ": onDelete() only allowed on reference fields");
-        if (!isReferenceType && annotation.cascadeDelete())
-            throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");
+        if (!isReferenceType && annotation.inverseDelete() != DeleteAction.EXCEPTION)
+            throw new IllegalArgumentException("invalid " + description + ": inverseDelete() only allowed on reference fields");
+        if (!isReferenceType && annotation.forwardDelete())
+            throw new IllegalArgumentException("invalid " + description + ": forwardDelete() only allowed on reference fields");
         if (!isReferenceType && annotation.unique() && !annotation.indexed())
             throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");
         if (nonReferenceType != null && nonReferenceType.getTypeToken().isPrimitive()
