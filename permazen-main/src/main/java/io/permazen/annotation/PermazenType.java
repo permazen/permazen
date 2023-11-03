@@ -20,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for Java classes that are {@link permazen.Permazen} object model types.
+ * Java annotation for Java classes that represent Permazen database object types.
  *
  * <p>
  * Model classes may be POJO's, {@code abstract} classes, or interfaces, and the Java bean getter methods therein define database

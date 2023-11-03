@@ -21,6 +21,7 @@ import io.permazen.core.DeletedObjectException;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
+import io.permazen.encoding.EncodingIds;
 import io.permazen.encoding.EncodingRegistry;
 
 import jakarta.validation.groups.Default;

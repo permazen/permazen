@@ -165,7 +165,7 @@ public interface KVTransaction extends KVStore {
      * @throws UnsupportedOperationException if this instance does not support key watches
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
      * @throws IllegalArgumentException if {@code key} is null
-     * @see io.permazen.io.permazen.JTransaction#getKey(io.permazen.JObject, String) JTransaction.getKey()
+     * @see io.permazen.JTransaction#getKey(io.permazen.JObject, String) JTransaction.getKey()
      */
     Future<Void> watchKey(byte[] key);
 

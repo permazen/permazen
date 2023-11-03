@@ -51,7 +51,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
 // Accessors
 
     /**
-     * Configure the {@link MVStore.Builder} that will be used to construct the {@link MVStore} when {@link #start} is invoked.
+     * Configure the {@link MVStore.Builder} that will be used to construct the {@link MVStore} when {@code start()} is invoked.
      *
      * @param builder builder for the {@link MVStore}, or null to use a default builder
      * @throws IllegalStateException if this instance is already {@link #start}ed
@@ -62,7 +62,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
     }
 
     /**
-     * Configure the {@link MVStore.Builder} that will be used to construct the {@link MVStore} when {@link #start} is invoked
+     * Configure the {@link MVStore.Builder} that will be used to construct the {@link MVStore} when {@code start()} is invoked
      * using the specified configuration string.
      *
      * @param builderConfig {@link MVStore.Builder} configuration string, or null to use a default builder
