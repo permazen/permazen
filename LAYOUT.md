@@ -1,20 +1,23 @@
 # Permazen Key/Value Database Structure
 
-This file describes how objects, indexes, and meta-data are mapped into the key/value store.
+Permazen builds a database for persisting Java objects on top of a transactional `byte[]` array key/value store, where the keys are sorted lexicographically. Permazen encodes meta-data (including schema information), object state, and indexes into key/value pairs as described in this document.
+
+Note: The `jsck` CLI command performs a consistency check of a Permazen key/value database to verify it is consistent with this document.
 
 ## Storage ID's
 
-Storage ID's are unsigned 32-bit values. They are encoded into `byte[]` arrays by the class
-[`UnsignedIntEncoder`](http://permazen.github.io/permazen/site/apidocs/io/permazen/util/UnsignedIntEncoder.html), which means they can have variable length from 1 to 5 bytes (but typically 3).
+Storage ID's are unsigned 32-bit values that identify a range of related keys. Encoded storage ID's are used as prefixes for keys corresponding to specific object types, indexes, meta-data, etc.
 
-Encoded storage ID's are used as prefixes for keys corresponding to specific object types, indexes, etc.
+To generate a `byte[]` array key prefix from a storage ID, the ID is encoded by [`UnsignedIntEncoder`](http://permazen.github.io/permazen/site/apidocs/io/permazen/util/UnsignedIntEncoder.html). Depending on the ID's value, the resulting `byte[]` array will be from 1 to 5 bytes. Typically, i.e., when using the [`DefaultStorageIdGenerator`](http://permazen.github.io/permazen/site/apidocs/io/permazen/DefaultStorageIdGenerator.html), it will be 3 bytes.
+
+Storage ID's must be greater than zero.
 
 ## Object ID's
 
 Objects are uniquely identified by their Object ID. An object ID is a 64-bit value consisting of the concatenation of:
 
 * The storage ID corresponding to the object's type
-* The object's unique instance ID
+* The object's unique random instance ID
 
 An object's instance ID is a randomly chosen value.
 
@@ -22,37 +25,44 @@ An object's instance ID is a randomly chosen value.
     ┃ Storage ID ┃         Instance ID         ┃
     ┗━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-## Database Layout
+To create a new object, Permazen generates a new random instance ID and verifies that no matching object already exits, which almost always be the case unless the database is starting to get full for that object type.
 
-The key/value pairs in a Permazen database are categorized below.
+The storage ID determines the maximum number of instances of an object type that may exist in the database. This will range from 2<sup>56</sup> (for storage ID's in the range zero to 250) down to 2<sup>40</sup> when using [`DefaultStorageIdGenerator`](http://permazen.github.io/permazen/site/apidocs/io/permazen/DefaultStorageIdGenerator.html).
+
+Therefore, applications that expect to create a billion or more objects should configure custom single-byte storage ID's (see [`@PermazenType.storageId()`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html#storageId()), [`@JField.storageId()`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/JField.html#storageId()), and [`@JCompositeIndex.storageId()`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/JCompositeIndex.html#storageId())) instead of relying on [`DefaultStorageIdGenerator`](http://permazen.github.io/permazen/site/apidocs/io/permazen/DefaultStorageIdGenerator.html).
+
+## Database Key Ranges
+
+The key/value pairs in a Permazen database are categorized (by prefix) below.
 
 Unless specified otherwise, integral values are encoded into `byte[]`'s via [`UnsignedIntEncoder`](http://permazen.github.io/permazen/site/apidocs/io/permazen/util/UnsignedIntEncoder.html)
 
-The `jsck` CLI command consistency-checks a key/value database against the layout described here.
+### The Meta-Data Range
 
-### Meta-Data
+The meta-data area spans all keys with first byte `0x00`.
 
-* The meta-data area spans all keys with first byte `0x00`
 * Keys with first byte `0x00` and second byte `0x00` through `0xfe` (inclusive) are reserved by Permazen and must not be modified.
 * Keys with first byte `0x00` and second byte `0xff` are ignored by Permazen and may be used for custom user applications.
 
+The meta-data contains the following information:
+
 **Magic Cookie and Database Format Version**
 
-    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━┓
-    ┃ 0x00 ┃ 0x00 ┃ 'Permazen' ┃ -> ┃   Format Version   ┃
-    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━┛
+    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ 0x00 ┃ 0x00 ┃ 'Permazen' ┃ -> ┃  Database Format Version  ┃
+    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 **Recorded Schemas**
 
-    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃ 0x00 ┃ 0x01 ┃  Version Number  ┃ -> ┃   Compressed Schema   ┃
-    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━┛
+    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ 0x00 ┃ 0x01 ┃  Schema Version  ┃ -> ┃  Compressed Schema XML  ┃
+    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 **Object Version Index**
 
-    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓    ┏━━━━━━━━━┓
-    ┃ 0x00 ┃ 0x80 ┃  Version Number  ┃   Object ID   ┃ -> ┃ (Empty) ┃
-    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━┛
+    ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓    ┏━━━━━━━━━┓
+    ┃ 0x00 ┃ 0x80 ┃  Schema Version  ┃  Object ID  ┃ -> ┃ (Empty) ┃
+    ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━┛    ┗━━━━━━━━━┛
 
 **User meta-data area**
 
@@ -60,29 +70,29 @@ The `jsck` CLI command consistency-checks a key/value database against the layou
     ┃ 0x00 ┃ 0xff ┃ ...
     ┗━━━━━━┻━━━━━━┻━━━━-
 
-### Objects
+### Object Ranges
 
-The keys associated with a specific object are all prefixed with the Object ID.
+The keys associated with a specific object are prefixed with that object's Object ID.
 
 Under the Object ID itself is meta-data related to the object:
 
-    ┏━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━┳━━━━━━━┓
-    ┃  Object ID ┃ -> ┃ Object Version ┃ Flags ┃
-    ┗━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━┻━━━━━━━┛
+    ┏━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+    ┃  Object ID  ┃ -> ┃  Object's Schema Version  ┃ Flags ┃
+    ┗━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━┛
 
 The 'Flags' field is a single byte. The only flag currently defined is the "Delete Notified" flag (`0x01`) which is used to track [`DeleteListener`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/DeleteListener.html) notifications.
 
-### Simple and Counter Fields
+#### Simple and Counter Fields
 
 The value of a simple field is stored under the concatenation of the object ID and the field's storage ID:
 
-    ┏━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━┓
-    ┃  Object ID ┃    Field ID   ┃ -> ┃     Value     ┃  (non-default only)
-    ┗━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━┛
+    ┏━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━┓
+    ┃  Object ID ┃   Field ID   ┃ -> ┃  Field Value  ┃  (non-default only)
+    ┗━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━┛
 
-Note that default values of simple fields are _not_ stored explicitly.
+Default values for simple fields (false, null, zero, etc.) are not stored.
 
-### Complex Fields
+#### Complex Fields
 
 **Set Field Element**
 
@@ -102,7 +112,13 @@ Note that default values of simple fields are _not_ stored explicitly.
     ┃  Object ID ┃    Field ID   ┃    Map Key    ┃ -> ┃   Map Value   ┃
     ┗━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━┛
 
-### Simple Indexes
+### Index Ranges
+
+When a field is indexed, a secondary range of keys is created that maps the field's values back to the containing objects. These index ranges are described below.
+
+#### Simple Indexes
+
+Simple indexes map a single field's value back to the objects containing that value in that field.
 
 **Simple Field Index**
 
@@ -134,7 +150,9 @@ Note that default values of simple fields are _not_ stored explicitly.
     ┃  Field ID  ┃   Map Value   ┃   Object ID   ┃    Map Key   ┃ -> ┃ (Empty) ┃
     ┗━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛    ┗━━━━━━━━━┛
 
-### Composite Indexes
+#### Composite Indexes
+
+Composite indexes map a multiple field values back to the objects containing those values in those fields.
 
     ┏━━━━━━━━━━━━┳━━━━━━━━━━━━-┳...┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓    ┏━━━━━━━━━┓
     ┃  Index ID  ┃   Value 1   ┃...┃   Value N   ┃   Object ID  ┃ -> ┃ (Empty) ┃
