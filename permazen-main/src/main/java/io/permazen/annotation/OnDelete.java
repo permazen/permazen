@@ -6,6 +6,7 @@
 package io.permazen.annotation;
 
 import io.permazen.SnapshotJTransaction;
+import io.permazen.core.Transaction;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,6 +24,10 @@ import java.lang.annotation.Target;
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * It may have any level of access, including {@code private}.
+ *
+ * <p>
+ * Actions that have effects visible to the outside world should be made contingent on successful transaction commit,
+ * for example, via {@link Transaction#addCallback Transaction.addCallback()}.
  *
  * <p><b>Meta-Annotations</b></p>
  *

@@ -239,6 +239,10 @@ import java.lang.annotation.Target;
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
+ * Actions that have effects visible to the outside world should be made contingent on successful transaction commit,
+ * for example, via {@link Transaction#addCallback Transaction.addCallback()}.
+ *
+ * <p>
  * See {@link Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
  * for further information on other special corner cases.
  *
