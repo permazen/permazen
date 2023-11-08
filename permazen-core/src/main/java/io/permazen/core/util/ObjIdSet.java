@@ -127,6 +127,10 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
           .toArray(ObjId[]::new);
     }
 
+    public long[] toLongArray() {
+        return this.set.toLongArray();
+    }
+
     /**
      * Create a sorted, immutable snapshot of this instance.
      *
