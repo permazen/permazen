@@ -1,21 +1,3 @@
-
-REVAMPS
-=======
-
-- Update to the new generation
-- More regulated identifier system for FieldType's
-- permazen-coreapi -> permazen-core
-- "SnapshotFoo" -> "MemoryFoo"
-- See VAADIN-23-TODO.txt
-- Remove Adapter classes (see "revamps" branch)
-- stash@{0}: On revamps: Revamps WIP
-- Remove parse module (fold into cli)
-- Fold app, cliapp, guiapp modules into demo
-- Full meta-annotation support
-- Switch from Iterators to Streams for everything, and CLOSE THEM
-
-? Replace all byte[] with com.google.protobuf.ByteString ?
-
 SHORT TERM
 ==========
 
