@@ -16,7 +16,6 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
 import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.LockManager;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.kv.util.NavigableMapKVStore;

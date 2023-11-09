@@ -15,7 +15,6 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
-import io.permazen.kv.mvcc.LockOwner;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.NavigableMapKVStore;
