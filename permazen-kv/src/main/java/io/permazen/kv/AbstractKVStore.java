@@ -33,7 +33,10 @@ import java.util.Arrays;
  * </ul>
  *
  * <p>
- * Therefore, a read-only {@link KVStore} implementation is possible simply by implementing {@link #getRange}.
+ * A read-only {@link KVStore} implementation is possible by implementing only
+ * {@link #getRange(byte[], byte[], boolean) getRange()}, and a read-write implementation by also
+ * implementing {@link #put put()}. However, subclasses typically provide more efficient implementations
+ * of the methods listed above.
  *
  * @see KVPairIterator
  */
