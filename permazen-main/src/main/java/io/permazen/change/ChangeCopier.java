@@ -63,9 +63,9 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      *
      * <p>
      * This is a convenience constructor, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
@@ -80,9 +80,9 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      *
      * <p>
      * This is a convenience constructor, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName, recursionLimit)
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param cascadeName cascade to use when copying objects, or null to not cascade
      * @param recursionLimit the maximum number of cascaded references to traverse, or -1 for infinity

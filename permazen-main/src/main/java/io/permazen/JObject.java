@@ -255,9 +255,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.copyTo(this.getTransaction().getSnapshotTransaction(), new CopyState(), refPaths);
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the snapshot {@link JObject} copy of this instance
@@ -283,9 +283,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths)
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the regular database copy of this instance
@@ -306,9 +306,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.cascadeCopyTo(dest, cascadeName, -1, clone);
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param dest destination transaction for copies
      * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
@@ -405,9 +405,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.cascadeCopyTo(this.getTransaction().getSnapshotTransaction(), cascadeName, clone);
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the snapshot transaction,
@@ -438,9 +438,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.cascadeCopyTo(JTransaction.getCurrent(), cascadeName, clone);
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
      * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the database transaction,

@@ -37,9 +37,9 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      *
      * <p>
      * Equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * NavigableMapKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @see ByteUtil#COMPARATOR
      */

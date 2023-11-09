@@ -218,9 +218,9 @@ public class Bounds<T> {
      *
      * <p>
      * Equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * isWithinLowerBound(comparator, value) &amp;&amp; isWithinUpperBound(comparator, value)
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param comparator comparator used to compare values, or null for natural ordering
      * @param value value to check

@@ -48,9 +48,9 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * (JObject)getObject()
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @return the changed object as a {@link JObject}
      */
@@ -87,9 +87,9 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * apply(jtx, this.getJObject());
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param jtx transaction in which to apply this change
      * @throws IllegalArgumentException if {@code jtx} is null
@@ -104,9 +104,9 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * apply(JTransaction.getCurrent())
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
      */
@@ -119,9 +119,9 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * apply(obj.getTransaction(), jobj);
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param jobj object to which to apply this change
      * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj}

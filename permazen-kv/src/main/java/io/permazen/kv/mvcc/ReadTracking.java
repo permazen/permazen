@@ -31,14 +31,14 @@ public interface ReadTracking extends KVStore {
      *
      * <p>
      * For re-entrance safety, this should be done as follows:
-     *  <blockquote><code>
+     *  <blockquote><pre>
      *  final boolean previous = kv.getReadTrackingControl().getAndSet(false);
      *  try {
      *      // do something without tracking reads...
      *  } finally {
      *      kv.getReadTrackingControl().set(previous);
      *  }
-     *  </code></blockquote>
+     *  </pre></blockquote>
      *
      * @return control that enables/disables read tracking
      */

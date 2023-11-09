@@ -355,9 +355,9 @@ public interface Encoding<T> extends Comparator<T> {
      *
      * <p>
      * Equivalent to:
-     * <blockquote><code>
+     * <blockquote><pre>
      * this.write(writer, this.validate(obj))
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * @param writer byte output
      * @param obj object to validate

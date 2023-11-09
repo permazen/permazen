@@ -59,9 +59,9 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
 
     /**
      * Convenience constructor for forward iteration over a specified range. Equivalent to:
-     *  <blockquote><code>
+     *  <blockquote><pre>
      *  KVPairIterator(kv, keyRange, null, false)
-     *  </code></blockquote>
+     *  </pre></blockquote>
      *
      * @param kv underlying {@link KVStore}
      * @param keyRange range restriction on visible keys, or null for none
@@ -73,9 +73,9 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
 
     /**
      * Convenience constructor for forward iteration over all keys having a given prefix. Equivalent to:
-     *  <blockquote><code>
+     *  <blockquote><pre>
      *  KVPairIterator(kv, prefix, false)
-     *  </code></blockquote>
+     *  </pre></blockquote>
      *
      * @param kv underlying {@link KVStore}
      * @param prefix range prefix
@@ -87,9 +87,9 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
 
     /**
      * Convenience constructor for iteration over all keys having a given prefix. Equivalent to:
-     *  <blockquote><code>
+     *  <blockquote><pre>
      *  KVPairIterator(kv, KeyRange.forPrefix(prefix), null, reverse)
-     *  </code></blockquote>
+     *  </pre></blockquote>
      *
      * @param kv underlying {@link KVStore}
      * @param prefix range prefix
