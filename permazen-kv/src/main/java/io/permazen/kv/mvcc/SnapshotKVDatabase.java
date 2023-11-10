@@ -15,6 +15,7 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.KeyWatchTracker;
+import io.permazen.util.CloseableRefs;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -78,7 +79,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     @GuardedBy("this")
     private final HashSet<SnapshotKVTransaction> transactions = new HashSet<>();
     @GuardedBy("this")
-    private SnapshotRefs snapshot;                                          // created on-demand for each new version
+    private CloseableRefs<CloseableKVStore> snapshot;                   // created on-demand for each new version
 
     @GuardedBy("this")
     private AtomicKVStore kvstore;
@@ -207,7 +208,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         Preconditions.checkState(!this.stopping, "stopping");
 
         // Create new transaction
-        final MutableView view = new MutableView(this.getCurrentSnapshot().getKVStore());
+        final MutableView view = new MutableView(this.getCurrentSnapshot().getTarget());
         final SnapshotKVTransaction tx = this.createSnapshotKVTransaction(view, this.currentVersion);
         assert !this.transactions.contains(tx);
         this.transactions.add(tx);
@@ -325,9 +326,9 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 // SnapshotKVTransaction Methods
 
     synchronized CloseableKVStore createMutableSnapshot(Writes writes) {
-        final SnapshotRefs snapshotRefs = this.getCurrentSnapshot();
+        final CloseableRefs<CloseableKVStore> snapshotRefs = this.getCurrentSnapshot();
         snapshotRefs.ref();
-        final MutableView view = new MutableView(snapshotRefs.getKVStore(), null, writes);
+        final MutableView view = new MutableView(snapshotRefs.getTarget(), null, writes);
         return new CloseableForwardingKVStore(view, snapshotRefs.getUnrefCloseable());
     }
 
@@ -376,7 +377,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         this.kvstore.mutate(txWrites, true);
 
         // Discard the obsolete snapshot and advance the database version
-        final SnapshotRefs oldSnapshot = this.snapshot;
+        final CloseableRefs<CloseableKVStore> oldSnapshot = this.snapshot;
         this.snapshot = null;
         tx.setCommitVersion(++this.currentVersion);
 
@@ -413,7 +414,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                 }
 
                 // There was no conflict, so we can safely "rebase" this transaction on the new snapshot
-                victim.view.setKVStore(this.getCurrentSnapshot().getKVStore());
+                victim.view.setKVStore(this.getCurrentSnapshot().getTarget());
             }
         }
 
@@ -438,10 +439,10 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     }
 
     // Get current k/v snapshot, creating on demand if necessary
-    private SnapshotRefs getCurrentSnapshot() {
+    private CloseableRefs<CloseableKVStore> getCurrentSnapshot() {
         assert Thread.holdsLock(this);
         if (this.snapshot == null) {
-            this.snapshot = new SnapshotRefs(this.kvstore.snapshot());
+            this.snapshot = new CloseableRefs<>(this.kvstore.snapshot());
             if (this.log.isTraceEnabled())
                 this.log.trace("created new snapshot for version {}", this.currentVersion);
         }

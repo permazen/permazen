@@ -19,10 +19,10 @@ import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.ReadTracking;
-import io.permazen.kv.mvcc.SnapshotRefs;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.CloseableRefs;
 
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -172,7 +172,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
     @GuardedBy("raft")
     private KVTransactionException failure;                     // exception to throw on next access, if any; state CLOSED only
     @GuardedBy("raft")
-    private SnapshotRefs snapshotRefs;                          // snapshot of the committed key/value store
+    private CloseableRefs<CloseableKVStore> snapshotRefs;       // snapshot of the committed key/value store
 
     // commit() status
     private final SettableFuture<Void> commitFuture = SettableFuture.create();  // the result for the thread invoking commit()
@@ -204,7 +204,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
         this.consistency = consistency;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
-        this.snapshotRefs = new SnapshotRefs(snapshot);
+        this.snapshotRefs = new CloseableRefs<>(snapshot);
         this.view = view;
         this.rebasable = consistency.isGuaranteesUpToDateReads();                   // i.e., LINEARIZABLE
         if (!this.rebasable)
@@ -691,7 +691,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
             this.verifyExecuting();
             assert this.snapshotRefs != null;
             this.snapshotRefs.ref();
-            final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
+            final MutableView snapshotView = new MutableView(this.snapshotRefs.getTarget(), null, writes);
             return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
         }
     }
@@ -754,7 +754,7 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
         this.rebase(baseTerm, baseIndex);
         this.view.setKVStore(kvstore);
         this.snapshotRefs.unref();
-        this.snapshotRefs = new SnapshotRefs(snapshot);
+        this.snapshotRefs = new CloseableRefs<>(snapshot);
     }
 
     void rebase(long baseTerm, long baseIndex) {
