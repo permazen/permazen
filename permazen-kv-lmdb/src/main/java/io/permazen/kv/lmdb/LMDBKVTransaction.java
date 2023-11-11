@@ -145,7 +145,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
             assert this.delegate == null;
             this.tx = this.readOnly ? this.env.txnRead() : this.env.txnWrite();
             this.kv = this.createKVStore(this.db, this.tx);
-            this.delegate = this.readOnly ? new MutableView(this.kv, null, new Writes()) : this.kv;
+            this.delegate = this.readOnly ? new MutableView(this.kv, false) : this.kv;
         }
         return this.kv;
     }

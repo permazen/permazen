@@ -95,7 +95,7 @@ public class XodusKVTransaction extends ForwardingKVStore implements KVTransacti
         if (this.closed)
             throw new StaleTransactionException(this, "transaction closed");
         final XodusKVStore snapshot = this.buildKV().readOnlySnapshot();
-        return new CloseableForwardingKVStore(new MutableView(snapshot, null, new Writes()), snapshot);
+        return new CloseableForwardingKVStore(new MutableView(snapshot, false), snapshot);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class XodusKVTransaction extends ForwardingKVStore implements KVTransacti
         if (this.kv == null) {
             assert this.delegate == null;
             this.kv = new XodusKVStore(this.kvdb.getEnvironment(), this.kvdb.getStoreName(), this.transactionType);
-            this.delegate = this.transactionType.isReadOnly() ? new MutableView(this.kv, null, new Writes()) : this.kv;
+            this.delegate = this.transactionType.isReadOnly() ? new MutableView(this.kv, false) : this.kv;
         }
         return this.kv;
     }

@@ -328,7 +328,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     synchronized CloseableKVStore createMutableSnapshot(Writes writes) {
         final CloseableRefs<CloseableKVStore> snapshotRefs = this.getCurrentSnapshot();
         snapshotRefs.ref();
-        final MutableView view = new MutableView(snapshotRefs.getTarget(), null, writes);
+        final MutableView view = new MutableView(snapshotRefs.getTarget(), writes);
         return new CloseableForwardingKVStore(view, snapshotRefs.getUnrefCloseable());
     }
 

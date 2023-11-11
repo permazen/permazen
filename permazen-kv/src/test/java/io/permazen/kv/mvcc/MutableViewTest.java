@@ -184,7 +184,7 @@ public class MutableViewTest extends TestSupport {
         final MutableView view = new MutableView(new NavigableMapKVStore());
         view.getWrites().getRemoves().add(KeyRanges.forPrefix(b("3311")));
 
-        final MutableView view2 = new MutableView(view.getKVStore(), null, view.getWrites().immutableSnapshot());
+        final MutableView view2 = new MutableView(view.getKVStore(), view.getWrites().immutableSnapshot());
         try {
             view2.getWrites().getRemoves().add(KeyRanges.forPrefix(b("4455")));
             assert false;

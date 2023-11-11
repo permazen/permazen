@@ -54,8 +54,7 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
         this.inner = inner;
         this.cachingKV = new CachingKVStore(inner, executor, rttEstimate);
         this.kvdb.copyCachingConfigTo(this.cachingKV);
-        this.view = new MutableView(this.cachingKV);
-        this.view.disableReadTracking();
+        this.view = new MutableView(this.cachingKV, false);
     }
 
     /**

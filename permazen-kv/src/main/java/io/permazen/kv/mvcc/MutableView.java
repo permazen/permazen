@@ -82,7 +82,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
     }
 
     /**
-     * Constructor.
+     * Constructor with optional read tracking.
      *
      * @param kv underlying {@link KVStore}
      * @param trackReads true to enable read tracking, or false for none
@@ -90,6 +90,18 @@ public class MutableView extends AbstractKVStore implements Cloneable {
      */
     public MutableView(KVStore kv, boolean trackReads) {
         this(kv, trackReads ? new Reads() : null, new Writes());
+    }
+
+    /**
+     * Constructor with no read tracking and caller-provided {@link Writes}.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param writes recorded writes
+     * @throws IllegalArgumentException if {@code kv} is null
+     * @throws IllegalArgumentException if {@code writes} is null
+     */
+    public MutableView(KVStore kv, Writes writes) {
+        this(kv, null, writes);
     }
 
     /**

@@ -146,8 +146,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
         } else if (this.kvdb.kv instanceof AtomicKVStore) {
             final AtomicKVStore kv = (AtomicKVStore)this.kvdb.kv;
             final CloseableKVStore snapshot = kv.snapshot();
-            final MutableView view = new MutableView(snapshot);
-            view.disableReadTracking();
+            final MutableView view = new MutableView(snapshot, false);
             kvstore = new CloseableForwardingKVStore(view, snapshot);
         } else {
             throw new UnsupportedOperationException("underlying KVStore "

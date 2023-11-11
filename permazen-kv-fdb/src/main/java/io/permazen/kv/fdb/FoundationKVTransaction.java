@@ -261,7 +261,7 @@ public class FoundationKVTransaction implements KVTransaction {
         if (this.closed)
             throw new StaleTransactionException(this);
         if (this.view == null)
-            this.view = this.readOnly ? new MutableView(this.kvstore, null, new Writes()) : this.kvstore;
+            this.view = this.readOnly ? new MutableView(this.kvstore, false) : this.kvstore;
         return this.view;
     }
 }
