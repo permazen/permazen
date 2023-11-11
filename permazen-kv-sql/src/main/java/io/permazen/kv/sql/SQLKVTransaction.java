@@ -20,6 +20,7 @@ import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.Streams;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -194,7 +196,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         final Function<StmtType, ArrayList<byte[]>> listInit = st -> new ArrayList<>();
         boolean removeAll = false;
         try (Stream<KeyRange> ranges = mutations.getRemoveRanges()) {
-            for (KeyRange remove : (Iterable<KeyRange>)ranges::iterator) {
+            for (Iterator<KeyRange> i = ranges.iterator(); i.hasNext(); ) {
+                final KeyRange remove = i.next();
                 final byte[] min = remove.getMin();
                 final byte[] max = remove.getMax();
                 assert min != null;
@@ -225,7 +228,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         // Do puts
         final ArrayList<byte[]> putBatch = new ArrayList<byte[]>();
         try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-            puts.forEach(entry -> {
+            Streams.iterate(puts, entry -> {
                 putBatch.add(this.encodeKey(entry.getKey()));
                 putBatch.add(entry.getValue());
                 putBatch.add(entry.getValue());
@@ -235,7 +238,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         // Do adjusts
         try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-            adjusts.forEach(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+            Streams.iterate(adjusts, entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }
     }
 

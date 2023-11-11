@@ -14,6 +14,7 @@ import io.permazen.kv.KeyRanges;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -177,7 +178,8 @@ public class Reads extends KeyRanges {
 
         // Check for read/remove conflicts
         try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-            for (KeyRange remove : (Iterable<KeyRange>)removes::iterator) {
+            for (Iterator<KeyRange> i = removes.iterator(); i.hasNext(); ) {
+                final KeyRange remove = i.next();
                 if (this.intersects(remove)) {
                     final KeyRanges intersection = new KeyRanges(remove);
                     intersection.intersect(this);
@@ -192,7 +194,8 @@ public class Reads extends KeyRanges {
 
         // Check for read/write conflicts
         try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-            for (Map.Entry<byte[], byte[]> entry : (Iterable<Map.Entry<byte[], byte[]>>)puts::iterator) {
+            for (Iterator<Map.Entry<byte[], byte[]>> i = puts.iterator(); i.hasNext(); ) {
+                final Map.Entry<byte[], byte[]> entry = i.next();
                 final byte[] key = entry.getKey();
                 if (this.contains(key)) {
                     conflictList.add(new ReadWriteConflict(key));
@@ -204,7 +207,8 @@ public class Reads extends KeyRanges {
 
         // Check for read/adjust conflicts
         try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-            for (Map.Entry<byte[], Long> entry : (Iterable<Map.Entry<byte[], Long>>)adjusts::iterator) {
+            for (Iterator<Map.Entry<byte[], Long>> i = adjusts.iterator(); i.hasNext(); ) {
+                final Map.Entry<byte[], Long> entry = i.next();
                 final byte[] key = entry.getKey();
                 if (this.contains(key)) {
                     conflictList.add(new ReadAdjustConflict(key));

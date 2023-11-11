@@ -16,6 +16,7 @@ import io.permazen.core.ReferenceEncoding;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,9 +86,9 @@ class IndexQueryInfo {
         }
 
         // Check values
-        valueChecks.stream()
-          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field \"" + fieldName + "\""))
-          .forEach(this.filters::add);
+        Streams.iterate(valueChecks.stream()
+            .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field \"" + fieldName + "\"")),
+          this.filters::add);
     }
 
     // Constructor for composite index queries

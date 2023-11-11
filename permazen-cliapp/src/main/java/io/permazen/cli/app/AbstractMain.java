@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.common.cli.CommandLine;
 import org.apache.common.cli.CommandLineParser;
@@ -240,7 +241,7 @@ public abstract class AbstractMain {
         // Scan for model and type classes
         final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
         emptyPackages.addAll(modelPackages);
-        modelPackages.stream().filter(this::scanModelClasses).forEach(emptyPackages::remove);
+        emptyPackages.removeIf(this::scanModelClasses);
 
         // Warn about packages in which we didn't find any classes
         for (String packageName : emptyPackages)
@@ -324,13 +325,14 @@ public abstract class AbstractMain {
     private boolean scanModelClasses(String pkgname) {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
-        final boolean[] foundAny = new boolean[1];
-        new PermazenClassScanner(this.loader).scanForClasses(pkgname.split("[\\s,]")).stream()
-          .peek(name -> this.log.debug("loading Java model class {}", name))
-          .map(this::loadClass)
-          .peek(cl -> foundAny[0] = true)
-          .forEach(this.schemaClasses::add);
-        return foundAny[0];
+        boolean foundAny = false;
+        for (String className : new PermazenClassScanner(this.loader).scanForClasses(pkgname.split("[\\s,]"))) {
+            this.log.debug("loading Java model class {}", className);
+            final Class<?> cl = this.loadClass(className);
+            this.schemaClasses.add(cl);
+            foundAny = true;
+        }
+        return foundAny;
     }
 
     private boolean createDirectory(File dir) {

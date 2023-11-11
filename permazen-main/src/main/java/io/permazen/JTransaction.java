@@ -59,6 +59,7 @@ import io.permazen.tuple.Tuple4;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
+import io.permazen.util.Streams;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -683,7 +684,7 @@ public class JTransaction {
         copyState.deletedAssignments.clear();
 
         // Copy objects
-        ids.forEachOrdered(id -> this.copyTo(copyState, dest, id, true, 0, new int[0]));
+        Streams.iterate(ids, id -> this.copyTo(copyState, dest, id, true, 0, new int[0]));
 
         // Check for any remaining deleted assignments
         copyState.checkDeletedAssignments(this);

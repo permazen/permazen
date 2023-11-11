@@ -391,9 +391,10 @@ class ClassGenerator<T> {
             if (needClassInitializer) {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
                 mv.visitCode();
-                this.jclass.jfields.values().stream()
-                  .filter(JField::hasClassInitializerBytecode)
-                  .forEach(jfield -> jfield.outputClassInitializerBytecode(this, mv));
+                for (JField jfield : this.jclass.jfields.values()) {
+                    if (jfield.hasClassInitializerBytecode())
+                        jfield.outputClassInitializerBytecode(this, mv);
+                }
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(0, 0);
                 mv.visitEnd();

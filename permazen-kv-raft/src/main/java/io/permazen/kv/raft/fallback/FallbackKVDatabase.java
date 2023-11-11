@@ -19,6 +19,7 @@ import io.permazen.kv.raft.Consistency;
 import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.RaftKVTransaction;
 import io.permazen.kv.raft.Timestamp;
+import io.permazen.util.Streams;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -477,9 +478,8 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         // Stop periodic checks
-        this.targets.stream()
-          .filter(target -> target.future != null)
-          .forEach(target -> {
+        Streams.iterate(this.targets.stream().filter(target -> target.future != null),
+          target -> {
             target.future.cancel(true);
             target.future = null;
         });

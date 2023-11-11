@@ -19,6 +19,7 @@ import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.Streams;
 
 import java.io.Closeable;
 import java.io.PrintWriter;
@@ -769,7 +770,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Apply them using remove(), removeRange(), put(), and adjustCounter()
         this.tryNtimes(store, tx -> {
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-                removes.forEach(remove -> {
+                Streams.iterate(removes, remove -> {
                     final byte[] min = remove.getMin();
                     final byte[] max = remove.getMax();
                     assert min != null;
@@ -780,10 +781,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 });
             }
             try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                puts.forEach(entry -> tx.put(entry.getKey(), entry.getValue()));
+                Streams.iterate(puts, entry -> tx.put(entry.getKey(), entry.getValue()));
             }
             try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-                adjusts.forEach(entry -> tx.adjustCounter(entry.getKey(), entry.getValue()));
+                Streams.iterate(adjusts, entry -> tx.adjustCounter(entry.getKey(), entry.getValue()));
             }
         });
         final TreeMap<byte[], byte[]> expected = task.readDatabase();

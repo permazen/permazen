@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.Streams;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -301,7 +302,7 @@ public interface KVStore {
     default void apply(Mutations mutations) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-            removes.forEach(remove -> {
+            Streams.iterate(removes, remove -> {
                 final byte[] min = remove.getMin();
                 final byte[] max = remove.getMax();
                 assert min != null;
@@ -312,10 +313,10 @@ public interface KVStore {
             });
         }
         try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-            puts.forEach(entry -> this.put(entry.getKey(), entry.getValue()));
+            Streams.iterate(puts, entry -> this.put(entry.getKey(), entry.getValue()));
         }
         try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-            adjusts.forEach(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+            Streams.iterate(adjusts, entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }
     }
 }

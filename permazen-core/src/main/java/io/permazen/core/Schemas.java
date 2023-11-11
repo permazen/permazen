@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,9 +83,9 @@ public class Schemas {
 
         // Gather all object type storage IDs
         for (Schema version : this.versions.values()) {
-            version.objTypeMap.values().stream()
-              .map(objType -> objType.storageId)
-              .forEach(objTypeStorageIds::add);
+            Streams.iterate(version.objTypeMap.values().stream()
+                .map(objType -> objType.storageId),
+              objTypeStorageIds::add);
         }
 
         // Gather all reference field storage infos

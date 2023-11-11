@@ -17,6 +17,7 @@ import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.ApplicationClassLoader;
 import io.permazen.util.ParseContext;
+import io.permazen.util.Streams;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -323,9 +324,8 @@ public class ReferencePath {
 
         // Initialize cursors
         final HashSet<Cursor> remainingCursors = new HashSet<>();
-        startJClasses.stream()
-          .map(jclass -> new Cursor(jclass, jclass.getType(), fieldNames))
-          .forEach(remainingCursors::add);
+        Streams.iterate(startJClasses.stream().map(jclass -> new Cursor(jclass, jclass.getType(), fieldNames)),
+          remainingCursors::add);
         if (this.startType.isAssignableFrom(UntypedJObject.class))
           remainingCursors.add(new Cursor(null, UntypedJObject.class, fieldNames));
 

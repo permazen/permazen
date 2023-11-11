@@ -66,7 +66,7 @@ public class ParseException extends IllegalArgumentException {
     }
 
     public ParseException addCompletions(Stream<String> completions) {
-        completions.forEach(this.completions::add);
+        Streams.iterate(completions, this.completions::add);
         return this;
     }
 }

@@ -6,6 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +24,14 @@ class CompositeIndexStorageInfo extends IndexStorageInfo {
 
         // Gather field storage ID's
         this.storageIds = new ArrayList<>(index.fields.size());
-        index.fields.stream()
-          .map(SimpleField::getStorageId)
-          .forEach(this.storageIds::add);
+        Streams.iterate(index.fields.stream().map(SimpleField::getStorageId), this.storageIds::add);
 
         // Gather encodings, genericized for indexing
         this.encodings = new ArrayList<>(index.fields.size());
-        index.fields.stream()
-          .map(SimpleField::getEncoding)
-          .map(Encoding::genericizeForIndex)
-          .forEach(this.encodings::add);
+        Streams.iterate(index.fields.stream()
+            .map(SimpleField::getEncoding)
+            .map(Encoding::genericizeForIndex),
+          this.encodings::add);
     }
 
     Object getIndex(Transaction tx) {

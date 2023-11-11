@@ -12,6 +12,7 @@ import io.permazen.encoding.EncodingRegistry;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
+import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,9 +69,9 @@ public class ObjType extends SchemaItem {
             this.fieldsAndSubFields.addAll(field.getSubFields());
 
         // Build mappings for reference fields
-        this.fieldsAndSubFields.stream()
-          .filter(field -> field instanceof ReferenceField)
-          .forEach(field -> this.referenceFieldsAndSubFields.put(field.storageId, (ReferenceField)field));
+        Streams.iterate(this.fieldsAndSubFields.stream()
+            .filter(field -> field instanceof ReferenceField),
+          field -> this.referenceFieldsAndSubFields.put(field.storageId, (ReferenceField)field));
 
         // Build composite indexes
         for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
@@ -194,9 +195,9 @@ public class ObjType extends SchemaItem {
 
     @SuppressWarnings("unchecked")
     private <T extends Field<?>> void buildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
-        this.fields.values().stream()
-          .filter(field -> type.isInstance(field))
-          .forEach(field -> map.put(field.storageId, (T)type.cast(field)));
+        Streams.iterate(this.fields.values().stream()
+            .filter(field -> type.isInstance(field)),
+          field -> map.put(field.storageId, (T)type.cast(field)));
     }
 
     private <T extends SchemaItem> void addSchemaItem(Map<Integer, T> byStorageId, Map<String, T> byName, T item) {

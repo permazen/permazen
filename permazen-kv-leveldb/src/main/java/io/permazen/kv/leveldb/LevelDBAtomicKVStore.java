@@ -12,12 +12,14 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
+import io.permazen.util.Streams;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -355,7 +357,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             // Apply removes
             final ReadOptions iteratorOptions = new ReadOptions().verifyChecksums(this.options.verifyChecksums()).fillCache(false);
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-                removes.forEach(range -> {
+                Streams.iterate(removes, range -> {
                     final byte[] min = range.getMin();
                     final byte[] max = range.getMax();
                     if (min != null && max != null && ByteUtil.isConsecutive(min, max))
@@ -377,12 +379,13 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 
             // Apply puts
             try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                puts.forEach(entry -> batch.put(entry.getKey(), entry.getValue()));
+                Streams.iterate(puts, entry -> batch.put(entry.getKey(), entry.getValue()));
             }
 
             // Convert counter adjustments into puts and apply them
             try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-                for (Map.Entry<byte[], Long> adjust : (Iterable<Map.Entry<byte[], Long>>)adjusts::iterator) {
+                for (Iterator<Map.Entry<byte[], Long>> i = adjusts.iterator(); i.hasNext(); ) {
+                    final Map.Entry<byte[], Long> adjust = i.next();
 
                     // Decode old value
                     final byte[] key = adjust.getKey();

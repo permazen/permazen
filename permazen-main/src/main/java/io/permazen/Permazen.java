@@ -36,6 +36,7 @@ import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.ApplicationClassLoader;
+import io.permazen.util.Streams;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -888,9 +889,7 @@ public class Permazen {
             type = null;
             invert = true;
         }
-        this.getJClasses(type).stream()
-          .map(jclass -> ObjId.getKeyRange(jclass.storageId))
-          .forEach(list::add);
+        Streams.iterate(this.getJClasses(type).stream().map(jclass -> ObjId.getKeyRange(jclass.storageId)), list::add);
         final KeyRanges keyRanges = new KeyRanges(list);
         return invert ? keyRanges.inverse() : keyRanges;
     }

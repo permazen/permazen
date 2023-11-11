@@ -14,6 +14,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.Streams;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.List;
@@ -179,9 +180,9 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param id object id
      */
     void removeIndexEntries(Transaction tx, ObjId id) {
-        this.getSubFields().stream()
-          .filter(subField -> subField.indexed)
-          .forEach(subField -> this.removeIndexEntries(tx, id, subField));
+        Streams.iterate(this.getSubFields().stream()
+            .filter(subField -> subField.indexed),
+          subField -> this.removeIndexEntries(tx, id, subField));
     }
 
     /**

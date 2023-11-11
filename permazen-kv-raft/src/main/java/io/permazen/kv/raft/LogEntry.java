@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
+import io.permazen.util.Streams;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -23,7 +24,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 
@@ -269,9 +269,9 @@ public class LogEntry {
                 writes = Writes.deserialize(input, true);                               // load writes
             else {
                 final Mutations mutations = Writes.deserializeOnline(input);            // skip over writes
-                LogEntry.exhaust(mutations.getRemoveRanges());
-                LogEntry.exhaust(mutations.getPutPairs());
-                LogEntry.exhaust(mutations.getAdjustPairs());
+                Streams.exhaust(mutations.getRemoveRanges());
+                Streams.exhaust(mutations.getPutPairs());
+                Streams.exhaust(mutations.getAdjustPairs());
                 writes = null;
             }
         } catch (IllegalArgumentException e) {
@@ -322,11 +322,6 @@ public class LogEntry {
                 dataOutput.writeUTF(configChange[1]);
         }
         dataOutput.flush();
-    }
-
-    private static void exhaust(Stream<?> stream) {
-        stream.forEach(i -> { });
-        stream.close();
     }
 
 // Object

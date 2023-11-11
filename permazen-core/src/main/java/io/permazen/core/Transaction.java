@@ -21,6 +21,7 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.NavigableSets;
+import io.permazen.util.Streams;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.ArrayList;
@@ -1205,9 +1206,9 @@ public class Transaction {
 
             // Create object's complex field index entries
             for (ComplexField<?> field : dstType.complexFields.values()) {
-                field.getSubFields().stream()
-                  .filter(subField -> subField.indexed)
-                  .forEach(subField -> field.addIndexEntries(dstTx, dstId, subField));
+                Streams.iterate(field.getSubFields().stream()
+                    .filter(subField -> subField.indexed),
+                  subField -> field.addIndexEntries(dstTx, dstId, subField));
             }
         }
 
@@ -1391,9 +1392,9 @@ public class Transaction {
     //////// Remove the index entries corresponding to removed composite indexes
 
         // Remove index entries for composite indexes that are going away
-        oldType.compositeIndexes.values().stream()
-          .filter(index -> !newType.compositeIndexes.containsKey(index.storageId))
-          .forEach(index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
+        Streams.iterate(oldType.compositeIndexes.values().stream()
+            .filter(index -> !newType.compositeIndexes.containsKey(index.storageId)),
+          index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
 
     //////// Determine Field Compatibility
 
@@ -1593,9 +1594,9 @@ public class Transaction {
     //////// Add composite index entries for newly added composite indexes
 
         // Add index entries for composite indexes that are newly added
-        newType.compositeIndexes.values().stream()
-          .filter(index -> !oldType.compositeIndexes.containsKey(index.storageId))
-          .forEach(index -> this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY));
+        Streams.iterate(newType.compositeIndexes.values().stream()
+            .filter(index -> !oldType.compositeIndexes.containsKey(index.storageId)),
+          index -> this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY));
 
     //////// Update object version and corresponding index entry
 
@@ -2928,7 +2929,7 @@ public class Transaction {
         final KeyRanges firstFilter = filters != null ? filters[0] : null;
         if (firstFilter != null)
             startObjects = startObjects.filter(id -> firstFilter.contains(id.getBytes()));
-        startObjects.forEach(startIds::add);
+        Streams.iterate(startObjects, startIds::add);
         if (path.length == 0)
             return startIds.sortedSnapshot();
 
