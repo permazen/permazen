@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
@@ -79,12 +80,31 @@ public class MutableViewTest extends TestSupport {
     public void testReadTracking() throws Exception {
         final KVStore kvstore = new NavigableMapKVStore();
         final MutableView mv = new MutableView(kvstore);
-        final KeyRanges expectedReads = KeyRanges.empty();
-        final byte[] min = ByteUtil.parse("0123");
-        final byte[] max = ByteUtil.parse("4567");
-        final Iterator<KVPair> i = mv.getRange(min, max, false);
-        i.hasNext();
-        Assert.assertEquals(mv.getReads(), new Reads(new KeyRanges(min, max)));
+
+        // Define three key ranges
+        final KeyRange read1 = new KeyRange(ByteUtil.parse("0101"), ByteUtil.parse("0202"));
+        final KeyRange read2 = new KeyRange(ByteUtil.parse("0303"), ByteUtil.parse("0404"));
+        final KeyRange read3 = new KeyRange(ByteUtil.parse("0505"), ByteUtil.parse("0606"));
+
+        // Do 1st read with tracking enabled and verify reads
+        mv.getRange(read1.getMin(), read1.getMax(), false).hasNext();
+        Assert.assertEquals(mv.getReads(), new Reads(new KeyRanges(read1)));
+
+        // Do 2nd read with tracking disabled and verify reads
+        mv.withoutReadTracking(false, () -> mv.getRange(read2.getMin(), read2.getMax(), false).hasNext());
+        Assert.assertEquals(mv.getReads(), new Reads(new KeyRanges(read1)));
+
+        // Do 3rd read with tracking enabled and verify reads
+        mv.getRange(read3.getMin(), read3.getMax(), false).hasNext();
+        Assert.assertEquals(mv.getReads(), new Reads(new KeyRanges(read1, read3)));
+
+        // Verify writes are disallowed
+        try {
+            mv.withoutReadTracking(false, () -> mv.put(read1.getMin(), read1.getMax()));
+            assert false : "expected exception but didn't get one";
+        } catch (IllegalStateException e) {
+            this.log.debug("got expected {}", e.toString());
+        }
     }
 
     @Test

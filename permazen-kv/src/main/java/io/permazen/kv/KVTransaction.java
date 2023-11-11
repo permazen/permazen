@@ -5,6 +5,8 @@
 
 package io.permazen.kv;
 
+import com.google.common.base.Preconditions;
+
 import java.util.concurrent.Future;
 
 /**
@@ -202,6 +204,33 @@ public interface KVTransaction extends KVStore {
      * In particular, this method should <b>not</b> throw {@link StaleTransactionException}.
      */
     void rollback();
+
+    /**
+     * Apply weaker transaction consistency while performing the given action, if supported.
+     *
+     * <p>
+     * Some implementations support reads with weaker consistency guarantees. These reads generate fewer transaction
+     * conflicts but return possibly out-of-date information. Depending on the implementation, when operating in this
+     * mode writes may not be supported and may generate an {@link IllegalStateException} or just be ignored.
+     *
+     * <p>
+     * The weaker consistency is only applied for the current thread, and it ends when this method returns.
+     *
+     * <p>
+     * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database.
+     * You should not make any changes to the database after this method returns based on any information
+     * read by the {@code action}.
+     *
+     * <p>
+     * The implementation in {@link KVTransaction} just performs {@code action} normally.
+     *
+     * @param action the action to perform
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    default void withWeakConsistency(Runnable action) {
+        Preconditions.checkArgument(action != null, "null action");
+        action.run();
+    }
 
     /**
      * Create a mutable copy of the database content represented by this transaction.

@@ -619,6 +619,29 @@ public class Transaction {
         return false;
     }
 
+    /**
+     * Apply weaker transaction consistency while performing the given action, if supported.
+     *
+     * <p>
+     * Some key/value implementations support reads with weaker consistency guarantees. These reads generate fewer
+     * transaction conflicts but return possibly out-of-date information. Depending on the implementation, when operating
+     * in this mode writes may not be supported and may generate a {@link IllegalStateException} or just be ignored.
+     *
+     * <p>
+     * The weaker consistency is only applied for the current thread, and it ends when this method returns.
+     *
+     * <p>
+     * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database.
+     * You should not make any changes to the database after this method returns based on any information
+     * read by the {@code action}.
+     *
+     * @param action the action to perform
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public void withWeakConsistency(Runnable action) {
+        this.kvt.withWeakConsistency(action);
+    }
+
 // Object Lifecycle
 
     /**

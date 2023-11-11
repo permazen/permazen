@@ -18,7 +18,6 @@ import io.permazen.util.CloseableIterator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -45,16 +44,18 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>
  * During construction, instances may be configured to record all keys read into a {@link Reads} object (this is typically
- * used for MVCC conflict detection). When reads are being tracked, tracking may temporarily be paused and resumed via
- * {@link #getReadTrackingControl}. Read tracking may be permanently disabled (and any recorded reads discarded) via
- * {@link #disableReadTracking}.
+ * used for MVCC conflict detection). When reads are being tracked, tracking may be temporarily suspended in the current
+ * thread only via {@link #withoutReadTracking withoutReadTracking()}. Read tracking may be permanently disabled (and any
+ * recorded reads discarded) via {@link #disableReadTracking}.
  *
  * <p>
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
  * without first locking the containing instance.
  */
 @ThreadSafe
-public class MutableView extends AbstractKVStore implements ReadTracking, Cloneable {
+public class MutableView extends AbstractKVStore implements Cloneable {
+
+    private static final ThreadLocal<Boolean> WITHOUT_READ_TRACKING = new ThreadLocal<>();  // boolean value is "allowWrites"
 
     @GuardedBy("this")
     private KVStore kv;
@@ -64,7 +65,6 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
     private Reads reads;
     @GuardedBy("this")
     private boolean readOnly;
-    private final AtomicBoolean readTrackingControl;
 
 // Constructors
 
@@ -82,6 +82,17 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
     }
 
     /**
+     * Constructor.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param trackReads true to enable read tracking, or false for none
+     * @throws IllegalArgumentException if {@code kv} is null
+     */
+    public MutableView(KVStore kv, boolean trackReads) {
+        this(kv, trackReads ? new Reads() : null, new Writes());
+    }
+
+    /**
      * Constructor using caller-provided {@link Reads} (optional) and {@link Writes}.
      *
      * @param kv underlying {@link KVStore}
@@ -95,7 +106,6 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
         Preconditions.checkArgument(writes != null, "null writes");
         this.kv = kv;
         this.reads = reads;
-        this.readTrackingControl = new AtomicBoolean(this.reads != null);
         this.writes = writes;
     }
 
@@ -164,12 +174,32 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
      */
     public synchronized void disableReadTracking() {
         this.reads = null;
-        this.readTrackingControl.set(false);
     }
 
-    @Override
-    public AtomicBoolean getReadTrackingControl() {
-        return this.readTrackingControl;
+    /**
+     * Temporarily disable read tracking in the current thread only while performing the given action.
+     *
+     * <p>
+     * If {@code allowWrites} is false, then write attempts will generate an {@link IllegalStateException}.
+     *
+     * @param allowWrites whether to allow writes
+     * @param action the action to perform
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public void withoutReadTracking(boolean allowWrites, Runnable action) {
+        Preconditions.checkArgument(action != null, "null action");
+        final Boolean prevAllowWrites = WITHOUT_READ_TRACKING.get();
+        WITHOUT_READ_TRACKING.set(allowWrites);
+        try {
+            action.run();
+        } finally {
+            WITHOUT_READ_TRACKING.set(prevAllowWrites);
+        }
+    }
+
+    private static boolean isAllowWrites() {
+        final Boolean allowWrites = WITHOUT_READ_TRACKING.get();
+        return allowWrites == null || allowWrites;
     }
 
     /**
@@ -223,6 +253,7 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
         Preconditions.checkState(!this.readOnly, "instance is read-only");
+        Preconditions.checkState(MutableView.isAllowWrites(), "writes disallowed while read tracking is disabled");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -237,6 +268,7 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkState(!this.readOnly, "instance is read-only");
+        Preconditions.checkState(MutableView.isAllowWrites(), "writes disallowed while read tracking is disabled");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -253,6 +285,7 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
 
         // Sanity check
         Preconditions.checkState(!this.readOnly, "instance is read-only");
+        Preconditions.checkState(MutableView.isAllowWrites(), "writes disallowed while read tracking is disabled");
 
         // Realize minKey
         if (minKey == null)
@@ -294,6 +327,7 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
 
         // Sanity check
         Preconditions.checkState(!this.readOnly, "instance is read-only");
+        Preconditions.checkState(MutableView.isAllowWrites(), "writes disallowed while read tracking is disabled");
 
         // Check puts
         final byte[] putValue = this.writes.getPuts().get(key);
@@ -362,7 +396,6 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
         return this.getClass().getSimpleName()
           + "[writes=" + this.writes
           + (this.reads != null ? ",reads=" + this.reads : "")
-          + (this.reads != null && !this.readTrackingControl.get() ? ",!readTracking" : "")
           + (this.readOnly ? ",r/o" : "")
           + "]";
     }
@@ -402,7 +435,7 @@ public class MutableView extends AbstractKVStore implements ReadTracking, Clonea
         assert maxKey == null || ByteUtil.compare(minKey, maxKey) < 0;
 
         // Not tracking reads?
-        if (this.reads == null || !this.readTrackingControl.get())
+        if (this.reads == null || WITHOUT_READ_TRACKING.get() != null)
             return;
 
         // Define the range

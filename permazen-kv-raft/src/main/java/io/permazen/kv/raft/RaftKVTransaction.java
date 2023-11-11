@@ -18,14 +18,12 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
-import io.permazen.kv.mvcc.ReadTracking;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableRefs;
 
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * {@link RaftKVDatabase} transaction.
  */
 @ThreadSafe
-public class RaftKVTransaction implements KVTransaction, ReadTracking {
+public class RaftKVTransaction implements KVTransaction {
 
 /*
 
@@ -592,13 +590,6 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
         }
     }
 
-// ReadTracking
-
-    @Override
-    public AtomicBoolean getReadTrackingControl() {
-        return this.view.getReadTrackingControl();
-    }
-
 // KVTransaction
 
     @Override
@@ -668,6 +659,11 @@ public class RaftKVTransaction implements KVTransaction, ReadTracking {
     @Override
     public void rollback() {
         this.raft.rollback(this);
+    }
+
+    @Override
+    public void withWeakConsistency(Runnable action) {
+        this.view.withoutReadTracking(false, action);
     }
 
     /**

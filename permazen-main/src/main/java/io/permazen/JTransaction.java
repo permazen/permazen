@@ -51,7 +51,6 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.mvcc.ReadTracking;
 import io.permazen.kv.util.AbstractKVNavigableSet;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
@@ -79,7 +78,6 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -184,6 +182,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getKey(JObject) getKey()} - Get the {@link KVDatabase} key prefix for a specific object</li>
  *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link KVDatabase}
  *      key for a specific field in a specific object</li>
+ *  <li>{@link #withWeakConsistency withWeakConsistency()} - Perform an operation with weaker transaction consistency</li>
  * </ul>
  *
  * <p>
@@ -1765,40 +1764,26 @@ public class JTransaction {
     }
 
     /**
-     * Apply weaker transaction consistency while invoking the given {@link Runnable}, if applicable.
+     * Apply weaker transaction consistency while performing the given action, if supported.
      *
      * <p>
-     * If the the underlying {@link KVTransaction} does not implement {@link ReadTracking}, then this method
-     * simply invokes {@code action}. Otherwise, it disables tracking of reads while performing {@code action},
-     * which means some reads could return stale data.
+     * Some key/value implementations support reads with weaker consistency guarantees. These reads generate fewer
+     * transaction conflicts but return possibly out-of-date information. Depending on the implementation, when operating
+     * in this mode writes may not be supported and may generate a {@link IllegalStateException} or just be ignored.
      *
      * <p>
-     * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database. In particular,
-     * you should not perform any writes based on information read with weak consistency. Note that this includes
-     * the writes associated with implicit schema migration; therefore, you must ensure any objects accessed
-     * do not need to be upgraded.
+     * The weaker consistency is only applied for the current thread, and it ends when this method returns.
      *
      * <p>
-     * There must be a {@linkplain #getCurrent current transaction} associated with the current thread.
+     * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database.
+     * You should not make any changes to the database after this method returns based on any information
+     * read by the {@code action}.
      *
-     * @param action action to perform
-     * @throws IllegalStateException if there is no {@linkplain #getCurrent current transaction}
+     * @param action the action to perform
      * @throws IllegalArgumentException if {@code action} is null
-     * @see ReadTracking
      */
-    public static void weakConsistency(Runnable action) {
-        Preconditions.checkArgument(action != null, "null action");
-        final KVTransaction kvt = JTransaction.getCurrent().getTransaction().getKVTransaction();
-        if (kvt instanceof ReadTracking) {
-            final AtomicBoolean readTrackingControl = ((ReadTracking)kvt).getReadTrackingControl();
-            final boolean previous = readTrackingControl.getAndSet(false);
-            try {
-                action.run();
-            } finally {
-                readTrackingControl.set(previous);
-            }
-        } else
-            action.run();
+    public void withWeakConsistency(Runnable action) {
+        this.tx.withWeakConsistency(action);
     }
 
 // Internal methods

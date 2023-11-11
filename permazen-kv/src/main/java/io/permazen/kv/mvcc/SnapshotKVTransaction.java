@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * {@link SnapshotKVDatabase} transaction.
  */
 @ThreadSafe
-public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction, ReadTracking, Closeable {
+public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction, Closeable {
 
 // Note: locking order: (1) SnapshotKVTransaction, (2) SnapshotKVDatabase, (3) MutableView
 
@@ -108,13 +108,6 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         return this.view;
     }
 
-// ReadTracking
-
-    @Override
-    public AtomicBoolean getReadTrackingControl() {
-        return this.view.getReadTrackingControl();
-    }
-
 // ForwardingKVStore
 
     /**
@@ -190,6 +183,11 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         if (!this.closed.compareAndSet(false, true))
             return;
         this.kvdb.rollback(this);
+    }
+
+    @Override
+    public void withWeakConsistency(Runnable action) {
+        this.view.withoutReadTracking(false, action);
     }
 
     @Override
