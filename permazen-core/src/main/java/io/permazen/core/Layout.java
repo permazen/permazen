@@ -31,7 +31,7 @@ import java.util.zip.Inflater;
  * well as simple and composite index data. The meta-data area contains a recognizable signature, encoding format version,
  * each recorded schema version, the object version index data, and a range reserved for user applications.
  *
- * @see <a href="https://github.com/permazen/permazen/blob/master/LAYOUT.txt">LAYOUT.txt</a>
+ * @see <a href="https://github.com/permazen/permazen/blob/master/LAYOUT.md">LAYOUT.md</a>
  */
 public final class Layout {
 
