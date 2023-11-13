@@ -87,4 +87,17 @@ public interface AtomicKVStore extends KVStore {
      * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     void mutate(Mutations mutations, boolean sync);
+
+    /**
+     * Apply all the given {@link Mutations} to this instance.
+     *
+     * <p>
+     * Equivalent to: {@link #mutate(Mutations, boolean) mutate}{@code (mutations, false)}.
+     *
+     * @param mutations mutations to apply
+     */
+    @Override
+    default void apply(Mutations mutations) {
+        this.mutate(mutations, false);
+    }
 }
