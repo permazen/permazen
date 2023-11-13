@@ -18,7 +18,6 @@ import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
 import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.mvcc.Writes;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 

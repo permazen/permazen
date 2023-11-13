@@ -163,7 +163,7 @@ public abstract class KVImplementation<C> {
      *
      * <p>
      * The implementation in {@link KVImplementation} invokes {@link #createKVDatabase createKVDatabase()} and constructs
-     * a {@link AtomicKVDatabase} from the result. Implementations that natively support the {@link AtomicKVDatabase}
+     * an {@link AtomicKVDatabase} from the result. Implementations that natively support the {@link AtomicKVDatabase}
      * interface should override this method.
      *
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}

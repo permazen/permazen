@@ -23,7 +23,7 @@ public final class Streams {
      * Iterate over the items in the given stream, in order (if the stream is ordered),
      * one-at-a-time, in the current thread.
      *
-     * @param other instance to copy
+     * @param stream stream to iterate
      * @see <a href="https://github.com/google/guava/issues/6831">Guava issue #6831</a>
      * @throws IllegalArgumentException if either parameter is null
      */

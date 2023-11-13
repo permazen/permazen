@@ -833,7 +833,7 @@ public class Transaction {
      *
      * <p>
      * Deleting an object can trigger additional secondary deletions. Specifically,
-     * (a) if the object contains reference fields with {@linkplain ReferenceField#ForwardDelete forward delete cascade} enabled,
+     * (a) if the object contains reference fields with {@linkplain ReferenceField#forwardDelete forward delete cascade} enabled,
      * any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
      * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
      *

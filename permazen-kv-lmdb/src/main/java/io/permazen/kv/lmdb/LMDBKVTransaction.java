@@ -12,7 +12,6 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.ForwardingKVStore;
 
 import java.util.concurrent.Future;
