@@ -90,13 +90,7 @@ class JSSet<E> extends EncodingSet<E> {
     public void clear() {
         if (this.keyFilter != null)
             throw new UnsupportedOperationException("clear() not supported when KeyFilter configured");
-        this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                JSSet.this.doClear();
-                return null;
-            }
-        });
+        this.tx.mutateAndNotify(this.id, this::doClear);
     }
 
     private void doClear() {

@@ -200,13 +200,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
     @Override
     public void clear() {
-        this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                JSList.this.doClear();
-                return null;
-            }
-        });
+        this.tx.mutateAndNotify(this.id, this::doClear);
     }
 
     private void doClear() {
@@ -242,13 +236,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
     @Override
     protected void removeRange(final int min, final int max) {
-        this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                JSList.this.doRemoveRange(min, max);
-                return null;
-            }
-        });
+        this.tx.mutateAndNotify(this.id, () -> this.doRemoveRange(min, max));
     }
 
     private void doRemoveRange(int min, int max) {

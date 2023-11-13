@@ -39,6 +39,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -1369,13 +1370,7 @@ public class Transaction {
             return false;
 
         // Update schema version
-        this.mutateAndNotify(new Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                Transaction.this.changeVersion(info, Transaction.this.schema);
-                return null;
-            }
-        });
+        this.mutateAndNotify(() -> this.changeVersion(info, this.schema));
 
         // Done
         return true;
@@ -1831,10 +1826,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public void writeSimpleField(final ObjId id, final int storageId, final Object value, final boolean updateVersion) {
-        this.mutateAndNotify(id, () -> {
-            this.doWriteSimpleField(id, storageId, value, updateVersion);
-            return null;
-        });
+        this.mutateAndNotify(id, () -> this.doWriteSimpleField(id, storageId, value, updateVersion));
     }
 
     private synchronized void doWriteSimpleField(ObjId id, int storageId, final Object newObj, boolean updateVersion) {
@@ -2361,13 +2353,7 @@ public class Transaction {
 
         // Update schema version
         final ObjInfo info2 = info;
-        this.mutateAndNotify(new Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                Transaction.this.changeVersion(info2, Transaction.this.schema);
-                return null;
-            }
-        });
+        this.mutateAndNotify(() -> this.changeVersion(info2, this.schema));
 
         // Load (updated) object info into cache
         return this.loadIntoCache(id);
@@ -2795,14 +2781,15 @@ public class Transaction {
     }
 
     /**
-     * Verify the given object exists before proceeding with the given mutation via {@link #mutateAndNotify(Mutation)}.
+     * Verify the given object exists before proceeding with the given mutation via {@link #mutateAndNotify(Supplier)}.
      *
      * @param id object containing the mutated field; will be validated
      * @param mutation change to apply
+     * @return result of mutation
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
-    synchronized <V> V mutateAndNotify(ObjId id, Mutation<V> mutation) {
+    synchronized <V> V mutateAndNotify(ObjId id, Supplier<V> mutation) {
 
         // Verify object exists
         Preconditions.checkArgument(id != null, "null id");
@@ -2815,6 +2802,13 @@ public class Transaction {
         return this.mutateAndNotify(mutation);
     }
 
+    synchronized void mutateAndNotify(ObjId id, Runnable mutation) {
+        this.mutateAndNotify(id, () -> {
+            mutation.run();
+            return null;
+        });
+    }
+
     /**
      * Perform some action and, when entirely done (including re-entrant invocation), issue pending notifications to monitors.
      *
@@ -2822,7 +2816,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws NullPointerException if {@code mutation} is null
      */
-    private synchronized <V> V mutateAndNotify(Mutation<V> mutation) {
+    private synchronized <V> V mutateAndNotify(Supplier<V> mutation) {
 
         // Validate transaction
         if (this.stale)
@@ -2830,12 +2824,12 @@ public class Transaction {
 
         // If re-entrant invocation, we're already set up
         if (this.pendingNotifications.get() != null)
-            return mutation.mutate();
+            return mutation.get();
 
         // Set up pending report list, perform mutation, and then issue reports
         this.pendingNotifications.set(new TreeMap<>());
         try {
-            return mutation.mutate();
+            return mutation.get();
         } finally {
             try {
                 final TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>> pendingNotificationMap = this.pendingNotifications.get();
@@ -2858,6 +2852,13 @@ public class Transaction {
                 this.pendingNotifications.remove();
             }
         }
+    }
+
+    private synchronized void mutateAndNotify(Runnable mutation) {
+        this.mutateAndNotify(() -> {
+            mutation.run();
+            return null;
+        });
     }
 
     // Recursively back-track references along monitor paths and notify monitors when we reach the end (i.e., beginning)
@@ -3409,12 +3410,6 @@ public class Transaction {
      */
     public synchronized Object getUserObject() {
         return this.userObject;
-    }
-
-// Mutation
-
-    interface Mutation<V> {
-        V mutate();
     }
 
 // SimpleFieldChangeNotifier
