@@ -363,10 +363,10 @@ public class Writes implements Cloneable, Mutations {
      *
      * @return immutable snapshot
      */
-    public Writes immutableSnapshot() {
+    public Writes readOnlySnapshot() {
         if (this.immutable)
             return this;
-        return new Writes(this.removes.immutableSnapshot(),
+        return new Writes(this.removes.readOnlySnapshot(),
           new ImmutableNavigableMap<>(this.puts), new ImmutableNavigableMap<>(this.adjusts), true);
     }
 

@@ -18,7 +18,7 @@ import io.permazen.kv.mvcc.SnapshotKVTransaction;
  *
  * <p>
  * {@linkplain ArrayKVTransaction#watchKey Key watches},
- * {@linkplain KVTransaction#mutableSnapshot mutable snapshots},
+ * {@linkplain KVTransaction#readOnlySnapshot snapshots},
  * and {@linkplain AtomicArrayKVStore#hotCopy hot backups} are supported.
  *
  * @see AtomicArrayKVStore

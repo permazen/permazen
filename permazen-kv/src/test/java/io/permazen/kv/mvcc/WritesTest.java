@@ -163,7 +163,7 @@ public class WritesTest extends TestSupport {
         final Writes writes = new Writes();
         writes.getRemoves().add(KeyRanges.forPrefix(b("3311")));
 
-        final Writes writes2 = writes.immutableSnapshot();
+        final Writes writes2 = writes.readOnlySnapshot();
         try {
             writes2.getRemoves().add(KeyRanges.forPrefix(b("4455")));
             assert false;

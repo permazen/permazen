@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Instances may be stopped and (re)started multiple times.
  *
  * <p>
- * Transactions implement {@link XodusKVTransaction#mutableSnapshot}.
+ * Transactions implement {@link XodusKVTransaction#readOnlySnapshot}.
  */
 @ThreadSafe
 public class XodusKVDatabase implements KVDatabase {

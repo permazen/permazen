@@ -233,17 +233,16 @@ public interface KVTransaction extends KVStore {
     }
 
     /**
-     * Create a mutable copy of the database content represented by this transaction.
+     * Create a read-only snapshot of the database content represented by this transaction.
      *
      * <p>
-     * The returned {@link CloseableKVStore} should be mutable, but all changes should remain private until
-     * {@link CloseableKVStore#close close()} is invoked, at which time they should be discarded.
-     * That is, the {@link CloseableKVStore} it is completely independent from this transaction
-     * (subsequent changes to either one do not affect the other).
+     * The returned {@link CloseableKVStore} should be treated as read-only. It may not actually be read-only,
+     * but if it's not, then any changes should have no effect on this instance. The returned {@link CloseableKVStore}
+     * must be completely independent from this transaction (subsequent changes to either one do not affect the other).
      *
      * <p>
-     * Note that as with any other information extracted from a {@link KVTransaction}, the returned content
-     * should not be considered valid until this transaction has been successfully committed.
+     * Note: as with any other information extracted from a {@link KVTransaction}, the returned content should not be
+     * considered valid until this transaction has been successfully committed.
      *
      * <p>
      * The returned {@link CloseableKVStore} should be promply {@link CloseableKVStore#close close()}'d when no longer
@@ -255,10 +254,10 @@ public interface KVTransaction extends KVStore {
      * This is an optional method; only some underlying key/value store technologies can efficiently support it.
      * Implementations should throw {@link UnsupportedOperationException} if not supported.
      *
-     * @return independent, mutable copy of this transaction's entire database content
+     * @return independent, read-only copy of this transaction's entire database content
      * @throws UnsupportedOperationException if this method is not supported
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws RetryTransactionException if this transaction must be retried and is no longer usable
      */
-    CloseableKVStore mutableSnapshot();
+    CloseableKVStore readOnlySnapshot();
 }

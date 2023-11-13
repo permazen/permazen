@@ -34,7 +34,7 @@ class MostRecentView {
         assert maxIndex >= 0;
 
         // Grab a snapshot of the key/value store
-        this.snapshot = raft.kv.snapshot();
+        this.snapshot = raft.kv.readOnlySnapshot();
 
         // Create a view of just the state machine keys and values and successively layer unapplied log entries up to maxIndex
         KVStore kview = PrefixKVStore.create(snapshot, raft.getStateMachinePrefix());

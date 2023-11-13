@@ -110,8 +110,8 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
-        final CloseableKVStore kvstore = this.tx.mutableSnapshot();
+    public CloseableKVStore readOnlySnapshot() {
+        final CloseableKVStore kvstore = this.tx.readOnlySnapshot();
         return new CloseableForwardingKVStore(PrefixKVStore.create(kvstore, this.getKeyPrefix()), kvstore);
     }
 }

@@ -341,13 +341,13 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 // AtomicKVStore
 
     @Override
-    public synchronized SnapshotLevelDBKVStore snapshot() {
+    public synchronized SnapshotLevelDBKVStore readOnlySnapshot() {
         Preconditions.checkState(this.db != null, "closed");
         return new SnapshotLevelDBKVStore(this.db, this.options.verifyChecksums());
     }
 
     @Override
-    public synchronized void mutate(Mutations mutations, boolean sync) {
+    public synchronized void apply(Mutations mutations, boolean sync) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         Preconditions.checkState(this.db != null, "closed");
 

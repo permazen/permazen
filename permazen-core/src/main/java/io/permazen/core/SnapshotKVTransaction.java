@@ -108,7 +108,7 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException("snapshot transaction");
     }
 }

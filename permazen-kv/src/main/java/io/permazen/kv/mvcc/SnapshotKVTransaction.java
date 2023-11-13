@@ -191,7 +191,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         final Writes writes;
         synchronized (this) {
             this.checkAlive();
@@ -199,7 +199,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
                 writes = this.view.getWrites().clone();
             }
         }
-        return this.kvdb.createMutableSnapshot(writes);
+        return this.kvdb.createReadOnlySnapshot(writes);
     }
 
 // Closeable

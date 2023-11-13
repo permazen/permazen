@@ -100,7 +100,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
             // Do puts atomically
             writes = this.getPuts(count, map);
-            kv.mutate(writes, true);
+            kv.apply(writes, true);
             this.compare(this.read(count, kv), map);
             Thread.sleep(5);
 
@@ -118,7 +118,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
             // Do removes atomically
             writes = this.getRemoves(count, map);
-            kv.mutate(writes, true);
+            kv.apply(writes, true);
             this.compare(this.read(count, kv), map);
             Thread.sleep(5);
         }
@@ -138,14 +138,14 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         final Writes mods = new Writes();
         mods.getPuts().put(KEY1, VAL1);
-        kvstore.mutate(mods, true);
+        kvstore.apply(mods, true);
         this.log.debug("step1: kvstore={}", stringView(this.asMap(kvstore)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
           s(KEY1), s(VAL1)));
 
         // Create and verify snapshot
 
-        final CloseableKVStore snapshot = kvstore.snapshot();
+        final CloseableKVStore snapshot = kvstore.readOnlySnapshot();
         final MutableView view = new MutableView(snapshot);
         this.log.debug("step2: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(view)), buildMap(
@@ -155,7 +155,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         mods.clear();
         mods.getPuts().put(KEY2, VAL2);
-        kvstore.mutate(mods, true);
+        kvstore.apply(mods, true);
 
         this.log.debug("step3: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
@@ -177,7 +177,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
 
         mods.clear();
         mods.getRemoves().add(new KeyRange(KEY2, null));
-        kvstore.mutate(mods, true);
+        kvstore.apply(mods, true);
 
         this.log.debug("step5: kvstore={} view={}", stringView(this.asMap(kvstore)), stringView(this.asMap(view)));
         Assert.assertEquals(stringView(this.asMap(kvstore)), buildMap(
@@ -260,7 +260,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         final KVStore kv;
         final CloseableKVStore snapshot;
         if (this.random.nextBoolean()) {
-            snapshot = lkv.snapshot();
+            snapshot = lkv.readOnlySnapshot();
             kv = snapshot;
         } else {
             snapshot = null;

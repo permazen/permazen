@@ -84,7 +84,7 @@ class SnapshotReceive {
 
         // Read and apply key/value pairs in a single operation
         final PutMutations mutations = new PutMutations(buf, this.prefix, this.previousKey);
-        this.kv.mutate(mutations, false);
+        this.kv.apply(mutations, false);
         assert mutations.getEndKey() != null || (this.pairIndex == 0 && mutations.getNumPuts() == 0);
 
         // Advance our installation frontier

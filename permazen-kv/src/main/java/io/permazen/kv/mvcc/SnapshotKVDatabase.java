@@ -32,14 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link KVDatabase} implementation based on an underlying {@link AtomicKVStore} that uses
- * {@linkplain AtomicKVStore#snapshot snapshot} views and optimistic locking to provide concurrent
+ * {@link KVDatabase} implementation based on an underlying {@link AtomicKVStore} using
+ * {@linkplain AtomicKVStore#readOnlySnapshot snapshot} views and optimistic locking to provide concurrent
  * transactions and linearizable ACID consistency.
  *
  * <p>
- * Instances implement a simple optimistic locking scheme for MVCC using {@link AtomicKVStore#snapshot}. Concurrent transactions
- * do not contend for any locks until commit time. During each transaction, reads are noted and derive from the snapshot,
- * while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
+ * Instances implement a simple optimistic locking scheme for MVCC using {@link AtomicKVStore#readOnlySnapshot}. Concurrent
+ * transactions do not contend for any locks until commit time. During each transaction, reads are noted and derive from the
+ * snapshot, while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
  * snapshot was created, and any of those writes {@linkplain Reads#isConflict conflict} with any of the committing
  * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
  * writes are applied.
@@ -67,8 +67,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
    own MutableView of this.snapshot.
 
    this.snapshot has one reference for being non-null; this reference is shared by all open transactions (if any).
-   It also has one reference for each mutableSnapshot() based on it (see createMutableSnapshot()); these references are
-   the responsibility of whoever called mutableSnapshot().
+   It also has one reference for each readOnlySnapshot() based on it (see createReadOnlySnapshot()); these references
+   are the responsibility of whoever called readOnlySnapshot().
 
    When a transaction is committed, the mutations are applied to the key/value store and this.snapshot is discarded
    and replaced with a new snapshot of the key/value store, and the MutableView's associated with all other open
@@ -208,7 +208,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         Preconditions.checkState(!this.stopping, "stopping");
 
         // Create new transaction
-        final MutableView view = new MutableView(this.getCurrentSnapshot().getTarget());
+        final MutableView view = new MutableView(this.getCurrentReadOnlySnapshotRefs().getTarget());
         final SnapshotKVTransaction tx = this.createSnapshotKVTransaction(view, this.currentVersion);
         assert !this.transactions.contains(tx);
         this.transactions.add(tx);
@@ -325,8 +325,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
 // SnapshotKVTransaction Methods
 
-    synchronized CloseableKVStore createMutableSnapshot(Writes writes) {
-        final CloseableRefs<CloseableKVStore> snapshotRefs = this.getCurrentSnapshot();
+    synchronized CloseableKVStore createReadOnlySnapshot(Writes writes) {
+        final CloseableRefs<CloseableKVStore> snapshotRefs = this.getCurrentReadOnlySnapshotRefs();
         snapshotRefs.ref();
         final MutableView view = new MutableView(snapshotRefs.getTarget(), writes);
         return new CloseableForwardingKVStore(view, snapshotRefs.getUnrefCloseable());
@@ -374,7 +374,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             this.log.trace("applying {} mutations and advancing version from {} -> {}",
               tx, this.currentVersion, this.currentVersion + 1);
         }
-        this.kvstore.mutate(txWrites, true);
+        this.kvstore.apply(txWrites, true);
 
         // Discard the obsolete snapshot and advance the database version
         final CloseableRefs<CloseableKVStore> oldSnapshot = this.snapshot;
@@ -414,7 +414,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                 }
 
                 // There was no conflict, so we can safely "rebase" this transaction on the new snapshot
-                victim.view.setKVStore(this.getCurrentSnapshot().getTarget());
+                victim.view.setKVStore(this.getCurrentReadOnlySnapshotRefs().getTarget());
             }
         }
 
@@ -438,11 +438,11 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             this.log.trace("removed transaction {} (new total {})", tx, this.transactions.size());
     }
 
-    // Get current k/v snapshot, creating on demand if necessary
-    private CloseableRefs<CloseableKVStore> getCurrentSnapshot() {
+    // Get current k/v read-only snapshot, creating on demand as needed
+    private CloseableRefs<CloseableKVStore> getCurrentReadOnlySnapshotRefs() {
         assert Thread.holdsLock(this);
         if (this.snapshot == null) {
-            this.snapshot = new CloseableRefs<>(this.kvstore.snapshot());
+            this.snapshot = new CloseableRefs<>(this.kvstore.readOnlySnapshot());
             if (this.log.isTraceEnabled())
                 this.log.trace("created new snapshot for version {}", this.currentVersion);
         }

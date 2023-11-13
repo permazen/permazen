@@ -13,12 +13,14 @@ import io.permazen.ValidationMode;
 import io.permazen.core.Transaction;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVTransaction;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.util.CloseableForwardingKVStore;
 
 import java.util.Iterator;
 
 /**
  * Specialized {@link JObjectContainer} for use with key/value stores that implement
- * {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
+ * {@link KVTransaction#readOnlySnapshot KVTransaction.readOnlySnapshot()}.
  *
  * <p>
  * This container is loaded by taking a key/value store snapshot and then iterating the desired backing objects
@@ -27,7 +29,7 @@ import java.util.Iterator;
  * <p>
  * Instances are (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link JTransaction}
  * and then creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore} returned by
- * {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
+ * {@link KVTransaction#readOnlySnapshot KVTransaction.readOnlySnapshot()}.
  * This {@link SnapshotJTransaction} is set as the current transaction while {@link #iterateObjects}
  * returns the {@link JObject}s to be actually included in the container. The {@link CloseableKVStore} will
  * remain open until the container is {@link #reload}'ed or {@link #disconnect}'ed.
@@ -64,7 +66,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      *
      * <p>
      * This method opens a {@link JTransaction}, creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore}
-     * returned by {@link KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}, and loads
+     * returned by {@link KVTransaction#readOnlySnapshot KVTransaction.readOnlySnapshot()}, and loads
      * the container using the objects returned by {@link #iterateObjects}.
      */
     @Override
@@ -74,7 +76,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
         final CloseableKVStore[] snapshotHolder = new CloseableKVStore[1];
         this.doInTransaction(() -> {
             final JTransaction jtx = JTransaction.getCurrent();
-            final CloseableKVStore snapshot = jtx.getTransaction().getKVTransaction().mutableSnapshot();
+            final CloseableKVStore snapshot = jtx.getTransaction().getKVTransaction().readOnlySnapshot();
             jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
                 @Override
                 public void afterCompletion(boolean committed) {
@@ -84,13 +86,14 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
             });
             snapshotHolder[0] = snapshot;
         });
+        final CloseableKVStore snapshot = snapshotHolder[0];
 
         // Replace previous KVStore snapshot (if any)
         if (this.kvstore != null) {
             this.kvstore.close();
             this.kvstore = null;
         }
-        this.kvstore = snapshotHolder[0];
+        this.kvstore = new CloseableForwardingKVStore(new MutableView(snapshot), snapshot);
 
         // Create snapshot transaction based on the key/value store snapshot and load container
         final SnapshotJTransaction snapshotTx = this.jdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);

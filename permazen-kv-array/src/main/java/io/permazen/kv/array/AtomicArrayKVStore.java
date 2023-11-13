@@ -707,28 +707,28 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     public void put(byte[] key, byte[] value) {
         final Writes writes = new Writes();
         writes.getPuts().put(key, value);
-        this.mutate(writes, false);
+        this.apply(writes, false);
     }
 
     @Override
     public void remove(byte[] key) {
         final Writes writes = new Writes();
         writes.getRemoves().add(new KeyRange(key));
-        this.mutate(writes, false);
+        this.apply(writes, false);
     }
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         final Writes writes = new Writes();
         writes.getRemoves().add(new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey));
-        this.mutate(writes, false);
+        this.apply(writes, false);
     }
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
         final Writes writes = new Writes();
         writes.getAdjusts().put(key, amount);
-        this.mutate(writes, false);
+        this.apply(writes, false);
     }
 
     @Override
@@ -755,13 +755,13 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     @Override
     public void apply(Mutations mutations) {
-        this.mutate(mutations, false);
+        this.apply(mutations, false);
     }
 
 // AtomicKVStore
 
     @Override
-    public CloseableKVStore snapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -774,7 +774,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 assert compactingMods.getKVStore() == this.kvstore;
                 synchronized (compactingMods) {
                     if (!compactingMods.getWrites().isEmpty())
-                        compactingWrites = compactingMods.getWrites().immutableSnapshot();
+                        compactingWrites = compactingMods.getWrites().readOnlySnapshot();
                 }
             }
 
@@ -782,7 +782,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             if (this.modsWritesSnapshot == null) {
                 synchronized (this.mods) {
                     if (!this.mods.getWrites().isEmpty())
-                        this.modsWritesSnapshot = this.mods.getWrites().immutableSnapshot();
+                        this.modsWritesSnapshot = this.mods.getWrites().readOnlySnapshot();
                 }
             }
             final Writes outstandingWrites = this.modsWritesSnapshot;
@@ -802,7 +802,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public void mutate(Mutations mutations, final boolean sync) {
+    public void apply(Mutations mutations, final boolean sync) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         this.writeLock.lock();
         try {
@@ -1074,8 +1074,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 // Compaction
 
     /**
-     * Calculate the maximum amount of time that a thread attempting to {@link #mutate mutate()} must wait
-     * for a background compaction to complete as we start nearing the high water mark.
+     * Calculate the maximum amount of time that a thread attempting to {@link #apply(Mutations, boolean) apply()}
+     * mutations must wait for a background compaction to complete as we start nearing the high water mark.
      *
      * <p>
      * The implementation in {@link AtomicArrayKVStore} returns {@code -1} for all values below 50%,

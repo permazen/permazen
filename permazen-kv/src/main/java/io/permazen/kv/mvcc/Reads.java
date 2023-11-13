@@ -230,7 +230,7 @@ public class Reads extends KeyRanges {
     }
 
     @Override
-    public Reads immutableSnapshot() {
-        return (Reads)super.immutableSnapshot();
+    public Reads readOnlySnapshot() {
+        return (Reads)super.readOnlySnapshot();
     }
 }

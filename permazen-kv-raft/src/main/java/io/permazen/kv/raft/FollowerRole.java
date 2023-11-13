@@ -995,7 +995,7 @@ public class FollowerRole extends NonLeaderRole {
         final Writes writes = new Writes();
         writes.getPuts().put(RaftKVDatabase.VOTED_FOR_KEY, this.raft.encodeString(recipient));
         try {
-            this.raft.kv.mutate(writes, true);
+            this.raft.kv.apply(writes, true);
         } catch (Exception e) {
             this.error("error persisting vote for \"{}\"", recipient, e);
             return false;

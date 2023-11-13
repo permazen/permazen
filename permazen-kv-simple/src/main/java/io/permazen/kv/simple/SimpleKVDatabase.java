@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
  * applied to the underlying {@link KVStore} all at once, and this operation is bracketed by calls to
  * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}. If the underlying {@link KVStore}
- * is a {@link AtomicKVStore}, then {@link AtomicKVStore#mutate AtomicKVStore.mutate()} is used.
+ * is an {@link AtomicKVStore}, then {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()} is used.
  *
  * <p>
  * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
@@ -262,7 +262,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      */
     void applyMutations(final Collection<Mutation> mutations) {
         if (this.kv instanceof AtomicKVStore) {
-            ((AtomicKVStore)this.kv).mutate(new Mutations() {
+            ((AtomicKVStore)this.kv).apply(new Mutations() {
                 @Override
                 public Stream<KeyRange> getRemoveRanges() {
                     return mutations.stream()

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Warning: this class is only appropriate for use with {@link KVDatabase}s that implement some form of MVCC;
- * {@link KVDatabase}s that use locking will likely generate conflicts if {@link #snapshot} is used concurrently
+ * {@link KVDatabase}s that use locking will likely generate conflicts if {@link #readOnlySnapshot} is used concurrently
  * with other methods.
  *
  * @see SnapshotKVDatabase
@@ -121,7 +121,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
     }
 
     @Override
-    public CloseableKVStore snapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         final KVTransaction kvtx = this.kvdb.createTransaction();
         boolean success = false;
         try {
@@ -140,7 +140,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
     }
 
     @Override
-    public void mutate(final Mutations mutations, boolean sync) {
+    public void apply(final Mutations mutations, boolean sync) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         this.doInTransaction(kv -> kv.apply(mutations));
     }

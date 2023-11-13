@@ -132,7 +132,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException();
     }
 

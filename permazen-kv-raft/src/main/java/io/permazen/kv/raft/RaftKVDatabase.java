@@ -283,7 +283,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Mutable Snapshots</b></p>
  *
  * <p>
- * {@linkplain RaftKVTransaction#mutableSnapshot Mutable snapshots} are supported.
+ * {@linkplain RaftKVTransaction#readOnlySnapshot Snapshots} are supported.
  *
  * <p><b>Spring Isolation Levels</b></p>
  *
@@ -1894,7 +1894,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Update persistent store
         try {
-            this.kv.mutate(writes, true);
+            this.kv.apply(writes, true);
         } catch (Exception e) {
             this.error("flip-flop error updating key/value store term/index to {}t{}", index, term, e);
             return false;
@@ -1937,7 +1937,7 @@ public class RaftKVDatabase implements KVDatabase {
         writes.getPuts().put(CURRENT_TERM_KEY, LongEncoder.encode(newTerm));
         writes.getRemoves().add(new KeyRange(VOTED_FOR_KEY));
         try {
-            this.kv.mutate(writes, true);
+            this.kv.apply(writes, true);
         } catch (Exception e) {
             this.error("error persisting new term {}", newTerm, e);
             return false;
@@ -1969,7 +1969,7 @@ public class RaftKVDatabase implements KVDatabase {
         final Writes writes = new Writes();
         writes.getPuts().put(CLUSTER_ID_KEY, LongEncoder.encode(newClusterId));
         try {
-            this.kv.mutate(writes, true);
+            this.kv.apply(writes, true);
         } catch (Exception e) {
             this.error("error updating key/value store with new cluster ID", e);
             return false;

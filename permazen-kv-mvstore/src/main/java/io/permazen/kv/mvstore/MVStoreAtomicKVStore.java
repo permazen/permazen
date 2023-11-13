@@ -91,13 +91,13 @@ public class MVStoreAtomicKVStore extends AbstractMVStoreKVStore implements Atom
 // AtomicKVStore
 
     @Override
-    public synchronized MVMapSnapshot snapshot() {
+    public synchronized MVMapSnapshot readOnlySnapshot() {
         Preconditions.checkState(this.mvstore != null, "closed");
         return new MVMapSnapshot(this.mvmap);
     }
 
     @Override
-    public synchronized void mutate(Mutations mutations, boolean sync) {
+    public synchronized void apply(Mutations mutations, boolean sync) {
         Preconditions.checkState(this.mvstore != null, "closed");
         this.apply(mutations);
         this.commitOrRollback();

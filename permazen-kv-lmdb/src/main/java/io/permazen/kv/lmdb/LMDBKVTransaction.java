@@ -108,7 +108,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
     }
 
     @Override
-    public synchronized CloseableKVStore mutableSnapshot() {
+    public synchronized CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException();
     }
 

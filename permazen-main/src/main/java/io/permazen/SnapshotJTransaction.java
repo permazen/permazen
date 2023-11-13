@@ -40,7 +40,7 @@ import java.io.Closeable;
  *
  * <p>
  * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by
- * {@link KVTransaction#mutableSnapshot} allows an efficient "copy" of the entire database into a {@link SnapshotJTransaction}
+ * {@link KVTransaction#readOnlySnapshot} allows an efficient "copy" of the entire database into a {@link SnapshotJTransaction}
  * using {@link Permazen#createSnapshotTransaction(KVStore, boolean, ValidationMode) Permazen.createSnapshotTransaction()}.
  *
  * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()

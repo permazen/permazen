@@ -133,7 +133,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
 
         // Build copy
         CloseableKVStore kvstore;
@@ -145,7 +145,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
             kvstore = new CloseableForwardingKVStore(kv.clone());
         } else if (this.kvdb.kv instanceof AtomicKVStore) {
             final AtomicKVStore kv = (AtomicKVStore)this.kvdb.kv;
-            final CloseableKVStore snapshot = kv.snapshot();
+            final CloseableKVStore snapshot = kv.readOnlySnapshot();
             final MutableView view = new MutableView(snapshot, false);
             kvstore = new CloseableForwardingKVStore(view, snapshot);
         } else {

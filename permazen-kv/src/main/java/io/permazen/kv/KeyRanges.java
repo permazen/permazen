@@ -822,7 +822,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @return immutable snapshot
      */
-    public KeyRanges immutableSnapshot() {
+    public KeyRanges readOnlySnapshot() {
         if (this.ranges instanceof ImmutableNavigableSet)
             return this;
         final KeyRanges clone;

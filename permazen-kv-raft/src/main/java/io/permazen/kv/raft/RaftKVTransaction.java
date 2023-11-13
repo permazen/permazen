@@ -670,7 +670,7 @@ public class RaftKVTransaction implements KVTransaction {
      * {@inheritDoc}
      *
      * <p>
-     * Mutable snapshots are supported by {@link RaftKVTransaction}.
+     * Read-only snapshots are supported by {@link RaftKVTransaction}.
      *
      * @return {@inheritDoc}
      * @throws UnsupportedOperationException {@inheritDoc}
@@ -678,7 +678,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws io.permazen.kv.RetryTransactionException {@inheritDoc}
      */
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         final Writes writes;
         synchronized (this.view) {
             writes = this.view.getWrites().clone();
@@ -688,6 +688,7 @@ public class RaftKVTransaction implements KVTransaction {
             assert this.snapshotRefs != null;
             this.snapshotRefs.ref();
             final MutableView snapshotView = new MutableView(this.snapshotRefs.getTarget(), writes);
+            snapshotView.setReadOnly();
             return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
         }
     }

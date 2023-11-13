@@ -351,7 +351,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      * @throws UnsupportedOperationException always
      */
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException();
     }
 

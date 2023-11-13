@@ -23,37 +23,10 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides a mutable view of an underlying, read-only {@link KVStore}.
- *
- * <p>
- * Instances intercept all operations to the underlying {@link KVStore}, recording mutations in a {@link Writes} instance
- * instead of applying them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those
- * mutations. Mutations that overwrite previous mutations are consolidated.
- *
- * <p>
- * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.
- *
- * <p>
- * In all cases, the underlying {@link KVStore} is never modified.
- *
- * <p>
- * Instances ensure that counter adjustment mutations never overlap put or remove mutations.
- *
- * <p>
- * <b>Read Tracking</b>
- *
- * <p>
- * During construction, instances may be configured to record all keys read into a {@link Reads} object (this is typically
- * used for MVCC conflict detection). When reads are being tracked, tracking may be temporarily suspended in the current
- * thread only via {@link #withoutReadTracking withoutReadTracking()}. Read tracking may be permanently disabled (and any
- * recorded reads discarded) via {@link #disableReadTracking}.
- *
- * <p>
- * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
- * without first locking the containing instance.
+ * Straightforward implementation of the {@link DeltaKVStore} interface.
  */
 @ThreadSafe
-public class MutableView extends AbstractKVStore implements Cloneable {
+public class MutableView extends AbstractKVStore implements DeltaKVStore, Cloneable {
 
     private static final ThreadLocal<Boolean> WITHOUT_READ_TRACKING = new ThreadLocal<>();  // boolean value is "allowWrites"
 
@@ -121,13 +94,9 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         this.writes = writes;
     }
 
-// Public methods
+// DeltaKVStore
 
-    /**
-     * Get the underlying {@link KVStore} associated with this instance.
-     *
-     * @return underlying {@link KVStore}
-     */
+    @Override
     public synchronized KVStore getKVStore() {
         return this.kv;
     }
@@ -147,57 +116,22 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         this.kv = kv;
     }
 
-    /**
-     * Get the {@link Reads} associated with this instance.
-     *
-     * <p>
-     * This includes all keys explicitly or implicitly read by calls to
-     * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
-     *
-     * <p>
-     * The returned object is "live" and should only be accessed while synchronized on this instance.
-     *
-     * @return reads recorded, or null if this instance is not configured to record reads or read tracking has
-     *  been permanently disabled via {@link #disableReadTracking}
-     */
+    @Override
     public synchronized Reads getReads() {
         return this.reads;
     }
 
-    /**
-     * Get the {@link Writes} associated with this instance.
-     *
-     * <p>
-     * The returned object should only be accessed while synchronized on this instance.
-     *
-     * @return writes recorded
-     */
+    @Override
     public synchronized Writes getWrites() {
         return this.writes;
     }
 
-// ReadTracking
-
-    /**
-     * Permanently disable read tracking and discard the {@link Reads} associated with this instance.
-     *
-     * <p>
-     * Can be used to save some memory when read tracking information is no longer needed.
-     */
+    @Override
     public synchronized void disableReadTracking() {
         this.reads = null;
     }
 
-    /**
-     * Temporarily disable read tracking in the current thread only while performing the given action.
-     *
-     * <p>
-     * If {@code allowWrites} is false, then write attempts will generate an {@link IllegalStateException}.
-     *
-     * @param allowWrites whether to allow writes
-     * @param action the action to perform
-     * @throws IllegalArgumentException if {@code action} is null
-     */
+    @Override
     public void withoutReadTracking(boolean allowWrites, Runnable action) {
         Preconditions.checkArgument(action != null, "null action");
         final Boolean prevAllowWrites = WITHOUT_READ_TRACKING.get();
@@ -214,13 +148,7 @@ public class MutableView extends AbstractKVStore implements Cloneable {
         return allowWrites == null || allowWrites;
     }
 
-    /**
-     * Configure this instance as read-only.
-     *
-     * <p>
-     * Any subsequent invocations of {@link #put put()}, {@link #remove remove()}, {@link #removeRange removeRange()},
-     * or {@link #adjustCounter adjustCounter()} will result in an {@link IllegalStateException}.
-     */
+    @Override
     public synchronized void setReadOnly() {
         this.readOnly = true;
     }

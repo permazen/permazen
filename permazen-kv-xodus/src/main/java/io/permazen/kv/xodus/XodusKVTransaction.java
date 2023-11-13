@@ -13,8 +13,6 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.mvcc.Writes;
-import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.ForwardingKVStore;
 
 import java.util.concurrent.Future;
@@ -91,11 +89,10 @@ public class XodusKVTransaction extends ForwardingKVStore implements KVTransacti
     }
 
     @Override
-    public synchronized CloseableKVStore mutableSnapshot() {
+    public synchronized CloseableKVStore readOnlySnapshot() {
         if (this.closed)
             throw new StaleTransactionException(this, "transaction closed");
-        final XodusKVStore snapshot = this.buildKV().readOnlySnapshot();
-        return new CloseableForwardingKVStore(new MutableView(snapshot, false), snapshot);
+        return this.buildKV().readOnlySnapshot();
     }
 
     @Override

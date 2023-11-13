@@ -198,8 +198,8 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
-        return this.inner.mutableSnapshot();
+    public CloseableKVStore readOnlySnapshot() {
+        return this.inner.readOnlySnapshot();
     }
 
 // Other methods

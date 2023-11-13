@@ -218,7 +218,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException();
     }
 

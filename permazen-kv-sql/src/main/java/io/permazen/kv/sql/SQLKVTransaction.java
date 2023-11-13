@@ -279,7 +279,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
+    public CloseableKVStore readOnlySnapshot() {
         throw new UnsupportedOperationException();
     }
 

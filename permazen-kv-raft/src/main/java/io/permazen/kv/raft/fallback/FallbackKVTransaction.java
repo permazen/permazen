@@ -98,8 +98,8 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public CloseableKVStore mutableSnapshot() {
-        return this.kvt.mutableSnapshot();
+    public CloseableKVStore readOnlySnapshot() {
+        return this.kvt.readOnlySnapshot();
     }
 
     @Override
