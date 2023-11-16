@@ -67,7 +67,8 @@ class IndexQueryInfoKey {
 
     @Override
     public int hashCode() {
-        return this.name.hashCode()
+        return this.getClass().hashCode()
+          ^ this.name.hashCode()
           ^ (this.composite ? ~0 : 0)
           ^ this.targetType.hashCode()
           ^ Arrays.hashCode(this.valueTypes);

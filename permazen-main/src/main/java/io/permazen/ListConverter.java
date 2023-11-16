@@ -55,7 +55,7 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
 
     @Override
     public int hashCode() {
-        return this.elementConverter.hashCode();
+        return this.getClass().hashCode() ^ this.elementConverter.hashCode();
     }
 
     @Override

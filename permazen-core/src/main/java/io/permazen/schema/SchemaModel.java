@@ -452,7 +452,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
     @Override
     public int hashCode() {
-        return this.schemaObjectTypes.hashCode();
+        return this.getClass().hashCode()
+          ^ this.schemaObjectTypes.hashCode();
     }
 
 // Cloneable

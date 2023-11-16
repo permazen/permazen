@@ -113,6 +113,8 @@ public class ConvertedSpliterator<E, W> implements Spliterator<E> {
 
     @Override
     public int hashCode() {
-        return this.inner.hashCode() ^ this.converter.hashCode();
+        return this.getClass().hashCode()
+          ^ this.inner.hashCode()
+          ^ this.converter.hashCode();
     }
 }

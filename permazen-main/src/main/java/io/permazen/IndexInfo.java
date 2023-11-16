@@ -39,6 +39,6 @@ abstract class IndexInfo {
 
     @Override
     public int hashCode() {
-        return this.storageId;
+        return this.getClass().hashCode() ^ this.storageId;
     }
 }

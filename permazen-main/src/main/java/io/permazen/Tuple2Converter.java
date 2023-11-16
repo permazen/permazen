@@ -63,7 +63,9 @@ class Tuple2Converter<V1, V2, W1, W2> extends Converter<Tuple2<V1, V2>, Tuple2<W
 
     @Override
     public int hashCode() {
-        return this.value1Converter.hashCode() ^ this.value2Converter.hashCode();
+        return this.getClass().hashCode()
+          ^ this.value1Converter.hashCode()
+          ^ this.value2Converter.hashCode();
     }
 
     @Override

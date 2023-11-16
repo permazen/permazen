@@ -50,6 +50,6 @@ abstract class StorageInfo {
 
     @Override
     public int hashCode() {
-        return this.storageId;
+        return this.getClass().hashCode() ^ this.storageId;
     }
 }

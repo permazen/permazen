@@ -53,7 +53,7 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
 
     @Override
     public int hashCode() {
-        return this.jtx.hashCode();
+        return this.getClass().hashCode() ^ this.jtx.hashCode();
     }
 
     @Override

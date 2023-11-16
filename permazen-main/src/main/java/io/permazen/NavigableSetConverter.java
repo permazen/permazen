@@ -55,7 +55,7 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
 
     @Override
     public int hashCode() {
-        return this.elementConverter.hashCode();
+        return this.getClass().hashCode() ^ this.elementConverter.hashCode();
     }
 
     @Override

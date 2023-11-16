@@ -513,7 +513,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
         @Override
         public int hashCode() {
-            return this.synchronization.hashCode();
+            return this.getClass().hashCode() ^ this.synchronization.hashCode();
         }
     }
 }

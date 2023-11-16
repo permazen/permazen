@@ -335,7 +335,9 @@ public class ParseContext implements Cloneable {
 
     @Override
     public int hashCode() {
-        return this.input.hashCode() ^ this.index;
+        return this.getClass().hashCode()
+          ^ this.input.hashCode()
+          ^ this.index;
     }
 
     @Override

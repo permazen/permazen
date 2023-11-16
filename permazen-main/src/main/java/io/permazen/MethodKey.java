@@ -25,7 +25,8 @@ class MethodKey {
 
     @Override
     public int hashCode() {
-        int hash = this.name.hashCode();
+        int hash = this.getClass().hashCode();
+        hash ^= this.name.hashCode();
         for (Class<?> parameterType : this.parameterTypes)
             hash = (hash * 31) + parameterType.hashCode();
         hash ^= this.returnType.hashCode();

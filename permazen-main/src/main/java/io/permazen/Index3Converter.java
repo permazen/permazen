@@ -75,7 +75,8 @@ class Index3Converter<V1, V2, V3, T, WV1, WV2, WV3, WT> extends Converter<Index3
 
     @Override
     public int hashCode() {
-        return this.value1Converter.hashCode()
+        return this.getClass().hashCode()
+          ^ this.value1Converter.hashCode()
           ^ this.value2Converter.hashCode()
           ^ this.value3Converter.hashCode()
           ^ this.targetConverter.hashCode();

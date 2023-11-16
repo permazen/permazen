@@ -304,7 +304,9 @@ public class KeyRange {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.min) ^ (this.max != null ? Arrays.hashCode(this.max) : 0);
+        return this.getClass().hashCode()
+          ^ Arrays.hashCode(this.min)
+          ^ (this.max != null ? Arrays.hashCode(this.max) : 0);
     }
 
     @Override

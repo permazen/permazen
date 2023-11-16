@@ -147,7 +147,7 @@ public class Timestamp implements Comparable<Timestamp> {
 
     @Override
     public int hashCode() {
-        return this.millis;
+        return this.getClass().hashCode() ^ this.millis;
     }
 
     @Override

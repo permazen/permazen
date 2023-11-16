@@ -58,7 +58,9 @@ class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>>
 
     @Override
     public int hashCode() {
-        return this.valueConverter.hashCode() ^ this.targetConverter.hashCode();
+        return this.getClass().hashCode()
+          ^ this.valueConverter.hashCode()
+          ^ this.targetConverter.hashCode();
     }
 
     @Override

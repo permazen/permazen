@@ -71,7 +71,8 @@ class Tuple3Converter<V1, V2, V3, W1, W2, W3> extends Converter<Tuple3<V1, V2, V
 
     @Override
     public int hashCode() {
-        return this.value1Converter.hashCode()
+        return this.getClass().hashCode()
+          ^ this.value1Converter.hashCode()
           ^ this.value2Converter.hashCode()
           ^ this.value3Converter.hashCode();
     }

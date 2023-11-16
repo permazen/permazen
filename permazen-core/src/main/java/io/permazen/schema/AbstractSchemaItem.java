@@ -235,7 +235,9 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.name) ^ this.storageId;
+        return this.getClass().hashCode()
+          ^ Objects.hashCode(this.name)
+          ^ this.storageId;
     }
 
 // Cloneable

@@ -48,7 +48,7 @@ public class ReadRemoveConflict extends Conflict {
 
     @Override
     public int hashCode() {
-        return this.range.hashCode();
+        return this.getClass().hashCode() ^ this.range.hashCode();
     }
 
     @Override

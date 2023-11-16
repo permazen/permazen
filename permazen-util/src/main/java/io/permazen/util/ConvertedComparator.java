@@ -64,7 +64,9 @@ class ConvertedComparator<E, W> implements Comparator<E> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.comparator) ^ this.converter.hashCode();
+        return this.getClass().hashCode()
+          ^ Objects.hashCode(this.comparator)
+          ^ this.converter.hashCode();
     }
 
     @Override

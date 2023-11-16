@@ -106,7 +106,8 @@ class ReferencePathCache {
 
         @Override
         public int hashCode() {
-            return this.startType.hashCode()
+            return this.getClass().hashCode()
+              ^ this.startType.hashCode()
               ^ this.path.hashCode()
               ^ (withTargetField ? 1 : 0)
               ^ Objects.hashCode(this.lastIsSubField);

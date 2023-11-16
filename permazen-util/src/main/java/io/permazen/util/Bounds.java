@@ -363,7 +363,8 @@ public class Bounds<T> {
 
     @Override
     public int hashCode() {
-        return this.lowerBoundType.hashCode()
+        return this.getClass().hashCode()
+          ^ this.lowerBoundType.hashCode()
           ^ this.upperBoundType.hashCode()
           ^ Objects.hashCode(this.lowerBound)
           ^ Objects.hashCode(this.upperBound);

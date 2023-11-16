@@ -146,6 +146,6 @@ public abstract class Change<T> {
 
     @Override
     public int hashCode() {
-        return this.jobj.hashCode();
+        return this.getClass().hashCode() ^ this.jobj.hashCode();
     }
 }

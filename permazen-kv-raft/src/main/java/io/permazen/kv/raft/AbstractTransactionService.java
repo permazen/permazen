@@ -47,6 +47,7 @@ abstract class AbstractTransactionService extends Service {
 
     @Override
     public int hashCode() {
-        return this.tx.hashCode();
+        return this.getClass().hashCode()
+          ^ this.tx.hashCode();
     }
 }

@@ -164,7 +164,8 @@ public abstract class Issue {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.key)
+        return this.getClass().hashCode()
+          ^ Arrays.hashCode(this.key)
           ^ Arrays.hashCode(this.oldValue)
           ^ Arrays.hashCode(this.newValue)
           ^ Objects.hashCode(this.description)

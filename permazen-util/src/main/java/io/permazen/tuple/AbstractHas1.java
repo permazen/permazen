@@ -55,7 +55,8 @@ class AbstractHas1<V1> implements Tuple, Has1<V1> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.v1);
+        return this.getClass().hashCode()
+           ^ Objects.hashCode(this.v1);
     }
 
     /**

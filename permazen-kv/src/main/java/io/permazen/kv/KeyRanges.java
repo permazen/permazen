@@ -850,7 +850,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 
     @Override
     public int hashCode() {
-        return this.ranges.hashCode();
+        return this.getClass().hashCode() ^ this.ranges.hashCode();
     }
 
     @Override

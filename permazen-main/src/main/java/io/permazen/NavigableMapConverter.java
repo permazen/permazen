@@ -60,7 +60,9 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
 
     @Override
     public int hashCode() {
-        return this.keyConverter.hashCode() ^ this.valueConverter.hashCode();
+        return this.getClass().hashCode()
+          ^ this.keyConverter.hashCode()
+          ^ this.valueConverter.hashCode();
     }
 
     @Override

@@ -1184,7 +1184,7 @@ public class Permazen {
 
         @Override
         public int hashCode() {
-            return this.jtx.hashCode();
+            return this.getClass().hashCode() ^ this.jtx.hashCode();
         }
 
         @Override

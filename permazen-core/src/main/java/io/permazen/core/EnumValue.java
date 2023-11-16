@@ -102,7 +102,9 @@ public class EnumValue implements Serializable {
 
     @Override
     public int hashCode() {
-        return this.name.hashCode() ^ this.ordinal;
+        return this.getClass().hashCode()
+          ^ this.name.hashCode()
+          ^ this.ordinal;
     }
 
     @Override

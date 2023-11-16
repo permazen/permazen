@@ -63,7 +63,8 @@ class ArrayConverter<A, B> extends Converter<A[], B[]> {
 
     @Override
     public int hashCode() {
-        return this.aType.hashCode()
+        return this.getClass().hashCode()
+          ^ this.aType.hashCode()
           ^ this.bType.hashCode()
           ^ this.converter.hashCode();
     }

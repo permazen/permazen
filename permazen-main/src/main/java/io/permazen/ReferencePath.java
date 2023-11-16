@@ -1052,7 +1052,8 @@ public class ReferencePath {
 
         @Override
         public int hashCode() {
-            return this.referenceFields.hashCode()
+            return this.getClass().hashCode()
+              ^ this.referenceFields.hashCode()
               ^ this.pathTypes.hashCode()
               ^ Objects.hashCode(this.jclass)
               ^ Objects.hashCode(this.jfield)

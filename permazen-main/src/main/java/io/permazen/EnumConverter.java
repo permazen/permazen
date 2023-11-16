@@ -113,7 +113,7 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
 
     @Override
     public int hashCode() {
-        return this.enumType.hashCode();
+        return this.getClass().hashCode() ^ this.enumType.hashCode();
     }
 
     @Override
