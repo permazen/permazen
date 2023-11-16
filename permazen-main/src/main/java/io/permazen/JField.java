@@ -143,10 +143,14 @@ public abstract class JField extends JSchemaObject {
      * @param types place to add valid parameter types to
      * @param targetType the type of the class containing the changed field
      * @throws IllegalArgumentException if {@code targetType} does not contain this field
+     * @throws UnsupportedOperationException if this field doesn't
+     *  {@linkplain #supportsChangeNotifications support change notifications}
      */
     abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType);
 
-    abstract boolean supportsChangeNotifications();
+    boolean supportsChangeNotifications() {
+        return true;
+    }
 
     JClass<?> getJClass() {
         return this.parent instanceof JClass ? ((JClass<?>)this.parent) : (JClass<?>)((JComplexField)this.parent).parent;

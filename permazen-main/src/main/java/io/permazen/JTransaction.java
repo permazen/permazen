@@ -26,6 +26,7 @@ import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EnumValue;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
+import io.permazen.core.Layout;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
@@ -445,6 +446,7 @@ public class JTransaction {
      * @throws IllegalArgumentException if either parameter is null
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      * @see Transaction#getKey(ObjId, int) Transaction.getKey()
+     * @see Layout
      */
     public byte[] getKey(JObject jobj, String fieldName) {
         Preconditions.checkArgument(jobj != null, "null jobj");

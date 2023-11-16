@@ -73,11 +73,6 @@ public abstract class JComplexField extends JField {
         return (JClass<?>)this.parent;
     }
 
-    @Override
-    boolean supportsChangeNotifications() {
-        return true;
-    }
-
 // Bytecode generation
 
     @Override

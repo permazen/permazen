@@ -224,11 +224,6 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    boolean supportsChangeNotifications() {
-        return true;
-    }
-
-    @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         this.addChangeParameterTypes(types, targetType, this.typeToken);
     }
