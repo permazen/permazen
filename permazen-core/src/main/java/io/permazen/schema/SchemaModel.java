@@ -218,8 +218,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
             schemaObjectType.validate();
             final String schemaObjectTypeName = schemaObjectType.getName();
-            final SchemaObjectType otherSchemaObjectType = schemaObjectTypesByName.put(schemaObjectTypeName, schemaObjectType);
-            if (otherSchemaObjectType != null)
+            if (schemaObjectTypesByName.put(schemaObjectTypeName, schemaObjectType) != null)
                 throw new InvalidSchemaException("duplicate object name \"" + schemaObjectTypeName + "\"");
         }
 
