@@ -35,10 +35,14 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
     protected boolean includeMethod(Method method, OnVersionChange annotation) {
 
         // Sanity check annotation
-        if (annotation.oldVersion() < 0)
-            throw new IllegalArgumentException("@" + this.annotationType.getSimpleName() + " has illegal negative oldVersion");
-        if (annotation.newVersion() < 0)
-            throw new IllegalArgumentException("@" + this.annotationType.getSimpleName() + " has illegal negative newVersion");
+        if (annotation.oldVersion() < 0) {
+            throw new IllegalArgumentException(String.format(
+              "@%s has illegal negative oldVersion", this.annotationType.getSimpleName()));
+        }
+        if (annotation.newVersion() < 0) {
+            throw new IllegalArgumentException(String.format(
+              "@%s has illegal negative newVersion", this.annotationType.getSimpleName()));
+        }
 
         // Check method types
         this.checkNotStatic(method);

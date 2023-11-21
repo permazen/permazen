@@ -316,8 +316,8 @@ public class JTransaction {
     public static JTransaction getCurrent() {
         final JTransaction jtx = CURRENT.get();
         if (jtx == null) {
-            throw new IllegalStateException("there is no " + JTransaction.class.getSimpleName()
-              + " associated with the current thread");
+            throw new IllegalStateException(String.format(
+              "there is no %s associated with the current thread", JTransaction.class.getSimpleName()));
         }
         return jtx;
     }
@@ -1459,7 +1459,7 @@ public class JTransaction {
     public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
         final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
         if (!(info.indexInfo instanceof ListElementIndexInfo))
-            throw new IllegalArgumentException("field \"" + fieldName + "\" is not a list element sub-field");
+            throw new IllegalArgumentException(String.format("field \"%s\" is not a list element sub-field", fieldName));
         final ListElementIndexInfo indexInfo = (ListElementIndexInfo)info.indexInfo;
         final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(indexInfo.storageId));
         final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
@@ -1488,7 +1488,7 @@ public class JTransaction {
         final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
           new IndexQueryInfoKey(fieldName, false, targetType, valueType, keyType));
         if (!(info.indexInfo instanceof MapValueIndexInfo))
-            throw new IllegalArgumentException("field \"" + fieldName + "\" is not a map value sub-field");
+            throw new IllegalArgumentException(String.format("field \"%s\" is not a map value sub-field", fieldName));
         final MapValueIndexInfo indexInfo = (MapValueIndexInfo)info.indexInfo;
         final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(indexInfo.storageId));
         final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
@@ -1608,8 +1608,10 @@ public class JTransaction {
 
         // Find index
         final IndexInfo indexInfo = this.jdb.indexInfoMap.get(storageId);
-        if (indexInfo == null)
-            throw new IllegalArgumentException("no composite index or simple indexed field exists with storage ID " + storageId);
+        if (indexInfo == null) {
+            throw new IllegalArgumentException(String.format(
+              "no composite index or simple indexed field exists with storage ID %d", storageId));
+        }
 
         // Handle a composite index
         if (indexInfo instanceof CompositeIndexInfo) {

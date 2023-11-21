@@ -138,7 +138,7 @@ public abstract class JCollectionField extends JComplexField {
         try {
             objCollection = (Collection<Object>)objGetter.invoke(obj);
         } catch (Exception e) {
-            throw new RuntimeException("failed to invoke getter method " + objGetter + " for POJO export", e);
+            throw new RuntimeException(String.format("failed to invoke getter method %s for POJO export", objGetter), e);
         }
 
         // If null, try to create one and identify setter to set it with
@@ -165,7 +165,7 @@ public abstract class JCollectionField extends JComplexField {
             try {
                 objSetter.invoke(obj, objCollection);
             } catch (Exception e) {
-                throw new RuntimeException("failed to invoke setter method " + objSetter + " for POJO export", e);
+                throw new RuntimeException(String.format("failed to invoke setter method %s for POJO export", objSetter), e);
             }
         }
     }

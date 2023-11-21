@@ -111,7 +111,8 @@ class JObjectCache {
                         final JObject jobj = threadInstantiations.get(id);
                         if (jobj != null)
                             return jobj;
-                        throw new RuntimeException("illegal reentrant query for object " + id + " during object construction");
+                        throw new RuntimeException(String.format(
+                          "illegal reentrant query for object %s during object construction", id));
                     }
 
                     // Some other thread is instantiating the object, so wait for it to finish doing so
@@ -182,7 +183,7 @@ class JObjectCache {
         final JObject previous = threadInstantiations.put(id, jobj);
         if (previous != null && previous != jobj) {
             threadInstantiations.put(id, previous);
-            throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + previous);
+            throw new IllegalArgumentException(String.format("conflicting JObject registration: %s != %s", jobj, previous));
         }
     }
 
@@ -217,7 +218,7 @@ class JObjectCache {
             if (cause instanceof InvocationTargetException)
                 cause = ((InvocationTargetException)cause).getTargetException();
             Throwables.throwIfUnchecked(cause);
-            throw new PermazenException("can't instantiate object for ID " + id, cause);
+            throw new PermazenException(String.format("can't instantiate object for ID %s", id), cause);
         } finally {
 
             // Get object registered in the meantime, if any
@@ -230,7 +231,7 @@ class JObjectCache {
 
         // Sanity check we didn't register the wrong object
         if (registered != null && registered != jobj)
-            throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + registered);
+            throw new IllegalArgumentException(String.format("conflicting JObject registration: %s != %s", jobj, registered));
 
         // Done
         assert jobj != null;

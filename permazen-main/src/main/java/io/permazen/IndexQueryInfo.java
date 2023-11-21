@@ -16,7 +16,6 @@ import io.permazen.core.ReferenceEncoding;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,9 +85,8 @@ class IndexQueryInfo {
         }
 
         // Check values
-        Streams.iterate(valueChecks.stream()
-            .map(check -> check.checkAndGetKeyRanges(jdb, startType, "index query on field \"" + fieldName + "\"")),
-          this.filters::add);
+        for (ValueCheck check : valueChecks)
+            this.filters.add(check.checkAndGetKeyRanges(jdb, startType, "index query on field \"%s\"", fieldName));
     }
 
     // Constructor for composite index queries
@@ -120,9 +118,8 @@ class IndexQueryInfo {
         valueChecks.add(new ValueCheck("target type", startType, startType));
 
         // Check values
-        valueChecks.stream()
-          .map(check -> check.checkAndGetKeyRanges(jdb, startType, "query on composite index \"" + indexName + "\""))
-          .forEach(this.filters::add);
+        for (ValueCheck check : valueChecks)
+            this.filters.add(check.checkAndGetKeyRanges(jdb, this.startType, "query on composite index \"%s\"", indexName));
     }
 
     private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, int storageId) {
@@ -152,8 +149,8 @@ class IndexQueryInfo {
             contextEncodings.add(simpleField.typeToken);
         }
         if (contextEncodings.isEmpty()) {
-            throw new IllegalArgumentException("no sub-type of " + context
-              + " contains and indexed simple field with storage ID " + storageId);
+            throw new IllegalArgumentException(String.format(
+              "no sub-type of %s contains and indexed simple field with storage ID %d", context, storageId));
         }
         return Util.findLowestCommonAncestors(contextEncodings.stream());
     }
@@ -172,19 +169,20 @@ class IndexQueryInfo {
             if (index != null) {
                 final CompositeIndexInfo candidate = jdb.getIndexInfo(index.storageId, CompositeIndexInfo.class);
                 if (indexInfo != null && !candidate.equals(indexInfo)) {
-                    throw new IllegalArgumentException("ambiguous composite index name \"" + indexName
-                      + "\": multiple incompatible composite indexes with that name exist on sub-types of " + startType.getName());
+                    throw new IllegalArgumentException(String.format("ambiguous composite index name \"%s\":"
+                      + " multiple incompatible composite indexes with that name exist on sub-types of %s",
+                      indexName, startType.getName()));
                 }
                 indexInfo = candidate;
             }
         }
         if (indexInfo == null) {
-            throw new IllegalArgumentException("no composite index named \"" + indexName
-              + "\" exists on any sub-type of " + startType.getName());
+            throw new IllegalArgumentException(String.format(
+              "no composite index named \"%s\" exists on any sub-type of %s", indexName, startType.getName()));
         }
         if (numValues != indexInfo.getEncodings().size()) {
-            throw new IllegalArgumentException("composite index \"" + indexName
-              + "\" on " + startType.getName() + " has " + indexInfo.getEncodings().size() + " fields, not " + numValues);
+            throw new IllegalArgumentException(String.format("composite index \"%s\" on %s has %d fields, not %d",
+              indexName, startType.getName(), indexInfo.getEncodings().size(), numValues));
         }
         return indexInfo;
     }
@@ -271,7 +269,7 @@ class IndexQueryInfo {
             this(description, actualType, Collections.<Class<?>>singleton(expectedType));
         }
 
-        public KeyRanges checkAndGetKeyRanges(Permazen jdb, Class<?> startType, String queryDescription) {
+        public KeyRanges checkAndGetKeyRanges(Permazen jdb, Class<?> startType, String format, Object... args) {
 
             // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
             // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).
@@ -296,9 +294,9 @@ class IndexQueryInfo {
                         expectedTypesDescription.append(expectedType.getName());
                     }
                 }
-                throw new IllegalArgumentException("invalid " + this.description + " " + actualType.getName()
-                  + " for " + queryDescription + " in " + startType + ": should be a super-type"
-                  + (this.reference ? " or sub-type" : "") + " of " + expectedTypesDescription);
+                throw new IllegalArgumentException(String.format("invalid %s %s for %s in %s: should be a super-type%s of %s",
+                  this.description, actualType.getName(), String.format(format, args), startType,
+                  this.reference ? " or sub-type" : "", expectedTypesDescription));
             }
 
             // For non reference fields, we don't have any restrictions on 'type'

@@ -34,7 +34,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         this.checkNotStatic(method);
         this.checkParameterTypes(method);
         if (method.getReturnType().equals(Void.TYPE))
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method returns void");
+            throw new IllegalArgumentException(String.format("%s: method returns void", this.getErrorPrefix(method)));
         return true;
     }
 

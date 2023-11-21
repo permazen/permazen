@@ -217,8 +217,8 @@ class ClassGenerator<T> {
                 try {
                     this.superclassConstructor = this.modelClass.getDeclaredConstructor();
                 } catch (NoSuchMethodException e2) {
-                    String message = "no suitable constructor found in model class " + this.modelClass.getName()
-                      + "; model classes must have a public or protected constructor taking either () or (JTransaction, ObjId)";
+                    String message = String.format("no suitable constructor found in model class %s; model classes must have"
+                      + " a public or protected constructor taking either () or (JTransaction, ObjId)", this.modelClass.getName());
                     if (this.modelClass.isMemberClass() && !Modifier.isStatic(this.modelClass.getModifiers()))
                         message += "; did you mean to declare this class `static'?";
                     throw new IllegalArgumentException(message);
@@ -228,8 +228,9 @@ class ClassGenerator<T> {
 
         // Verify superclass constructor is accessible
         if ((this.superclassConstructor.getModifiers() & (Modifier.PUBLIC | Modifier.PROTECTED)) == 0) {
-            throw new IllegalArgumentException("model class " + this.modelClass.getName() + " constructor "
-              + this.superclassConstructor + " is inaccessible; must be either public or protected");
+            throw new IllegalArgumentException(String.format(
+              "model class %s constructor %s is inaccessible; must be either public or protected",
+              this.modelClass.getName(), this.superclassConstructor));
         }
     }
 

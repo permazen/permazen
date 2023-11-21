@@ -78,8 +78,10 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
      * @throws IllegalArgumentException if method is static
      */
     protected void checkNotStatic(Method method) {
-        if ((method.getModifiers() & Modifier.STATIC) != 0)
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "annotation is not supported on static methods");
+        if ((method.getModifiers() & Modifier.STATIC) != 0) {
+            throw new IllegalArgumentException(String.format(
+              "%s: annotation is not supported on static methods", this.getErrorPrefix(method)));
+        }
     }
 
     /**
@@ -95,8 +97,8 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
             if (actual.equals(expected))
                 return;
         }
-        throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to return "
-          + (expecteds.size() != 1 ? "one of " + expecteds : expecteds.get(0)) + " but instead returns " + actual);
+        throw new IllegalArgumentException(String.format("%s: method is required to return %s but instead returns %s",
+          this.getErrorPrefix(method), expecteds.size() != 1 ? "one of " + expecteds : expecteds.get(0), actual));
     }
 
     /**
@@ -112,8 +114,8 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
             if (actual.equals(expected))
                 return;
         }
-        throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to return "
-          + (expecteds.length != 1 ? "one of " + Arrays.asList(expecteds) : expecteds[0]) + " but instead returns " + actual);
+        throw new IllegalArgumentException(String.format("%s: method is required to return %s but instead returns %s",
+          this.getErrorPrefix(method), expecteds.length != 1 ? "one of " + Arrays.asList(expecteds) : expecteds[0], actual));
     }
 
     /**
@@ -126,8 +128,9 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     protected void checkParameterTypes(Method method, List<TypeToken<?>> expected) {
         final List<TypeToken<?>> actual = this.getParameterTypeTokens(method);
         if (!actual.equals(expected)) {
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to take "
-              + (expected.isEmpty() ? "zero parameters" : expected.size() + " parameter(s) of type " + expected));
+            throw new IllegalArgumentException(String.format("%s: method is required to take %s",
+              this.getErrorPrefix(method),
+              expected.isEmpty() ? "zero parameters" : expected.size() + " parameter(s) of type " + expected));
         }
     }
 
@@ -153,8 +156,8 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     protected void checkParameterType(Method method, int index, List<TypeToken<?>> choices) {
         final List<TypeToken<?>> actuals = this.getParameterTypeTokens(method);
         if (actuals.size() <= index || !choices.contains(actuals.get(index))) {
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method parameter #" + (index + 1)
-              + " is required to have type " + (choices.size() != 1 ? "one of " + choices : choices.get(0)));
+            throw new IllegalArgumentException(String.format("%s: method parameter #%d is required to have type %s",
+              this.getErrorPrefix(method), index + 1, choices.size() != 1 ? "one of " + choices : choices.get(0)));
         }
     }
 
@@ -180,8 +183,8 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     protected void checkSingleParameterType(Method method, List<TypeToken<?>> choices) {
         final List<TypeToken<?>> actuals = this.getParameterTypeTokens(method);
         if (actuals.size() != 1 || !choices.contains(actuals.get(0))) {
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to take a single parameter"
-              + " with type " + (choices.size() != 1 ? "one of " + choices : choices.get(0)));
+            throw new IllegalArgumentException(String.format("%s: method is required to take a single parameter with type %s",
+              this.getErrorPrefix(method), choices.size() != 1 ? "one of " + choices : choices.get(0)));
         }
     }
 
@@ -202,7 +205,7 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
      * @return error message prefix
      */
     protected String getErrorPrefix(Method method) {
-        return "invalid " + this.getAnnotationDescription() + " annotation on method " + method
-          + " for type \"" + this.jclass.getName() + "\": ";
+        return String.format("invalid %s annotation on method %s for type \"%s\"",
+          this.getAnnotationDescription(), method, this.jclass.getName());
     }
 }

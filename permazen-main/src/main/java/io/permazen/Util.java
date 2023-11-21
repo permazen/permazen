@@ -337,8 +337,8 @@ public final class Util {
                     continue;
                 if ((method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
                   || (method.getModifiers() & Modifier.PRIVATE) != 0) {
-                    throw new IllegalArgumentException("invalid getter method "
-                      + getter.getName() + "(): method must be public or protected");
+                    throw new IllegalArgumentException(String.format(
+                      "invalid getter method %s(): %s", getter.getName(), "method must be public or protected"));
                 }
                 return method;
             }
@@ -357,8 +357,9 @@ public final class Util {
     static <T> Method findJFieldSetterMethod(Class<T> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("can't infer setter method name from getter method "
-              + getter.getName() + "() because name does not follow Java bean naming conventions");
+            throw new IllegalArgumentException(String.format(
+              "can't infer setter method name from getter method %s() because name does not follow Java bean naming conventions",
+              getter.getName()));
         }
         final String setterName = "set" + matcher.group(2);
         final TypeToken<T> typeType = TypeToken.of(type);
@@ -374,15 +375,16 @@ public final class Util {
                     continue;
                 if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
                   || (setter.getModifiers() & Modifier.PRIVATE) != 0) {
-                    throw new IllegalArgumentException("invalid setter method " + setterName
-                      + "() corresponding to getter method " + getter.getName() + "(): method must be public or protected");
+                    throw new IllegalArgumentException(String.format(
+                      "invalid setter method %s() corresponding to getter method %s(): method must be public or protected",
+                      setterName, getter.getName()));
                 }
                 return setter;
             }
         }
-        throw new IllegalArgumentException("can't find any setter method " + setterName
-          + "() corresponding to getter method " + getter.getName() + "() taking " + getter.getReturnType()
-          + " and returning void");
+        throw new IllegalArgumentException(String.format(
+          "can't find any setter method %s() corresponding to getter method %s() taking %s and returning void",
+          setterName, getter.getName(), getter.getReturnType()));
     }
 
     /**
@@ -609,10 +611,10 @@ public final class Util {
             return method.invoke(target, params);
         } catch (InvocationTargetException e) {
             Throwables.throwIfUnchecked(e.getCause());
-            throw new PermazenException("unexpected error invoking method " + method + " on " + target, e);
+            throw new PermazenException(String.format("unexpected error invoking method %s on %s", method, target), e);
         } catch (Exception e) {
             Throwables.throwIfUnchecked(e);
-            throw new PermazenException("unexpected error invoking method " + method + " on " + target, e);
+            throw new PermazenException(String.format("unexpected error invoking method %s on %s", method, target), e);
         }
     }
 

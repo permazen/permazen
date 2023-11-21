@@ -238,8 +238,9 @@ public class Permazen {
 
                 // Sanity check type
                 if (type.isPrimitive() || type.isArray()) {
-                    throw new IllegalArgumentException("illegal type " + type + " for @"
-                      + PermazenType.class.getSimpleName() + " annotation: not a normal class or interface");
+                    throw new IllegalArgumentException(String.format(
+                      "illegal type %s for @%s annotation: not a normal class or interface",
+                      type, PermazenType.class.getSimpleName()));
                 }
 
                 // Add class
@@ -254,7 +255,7 @@ public class Permazen {
             final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
             final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
-                this.log.trace("found @{} annotation on {} defining object type `{}'",
+                this.log.trace("found @{} annotation on {} defining object type \"{}\"",
                   PermazenType.class.getSimpleName(), type, name);
             }
 
@@ -268,13 +269,13 @@ public class Permazen {
             try {
                 jclass = this.createJClass(name, storageId, type);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid @" + PermazenType.class.getSimpleName()
-                  + " annotation on " + type + ": " + e, e);
+                throw new IllegalArgumentException(String.format(
+                  "invalid @%s annotation on %s: %s", PermazenType.class.getSimpleName(), type, e), e);
             }
 
             // Add jclass
             this.addJClass(jclass);
-            this.log.debug("added Java model class `{}' with storage ID {}", jclass.name, jclass.storageId);
+            this.log.debug("added Java model class \"{}\" with storage ID {}", jclass.name, jclass.storageId);
         }
 
         // Inventory class generators
@@ -304,8 +305,9 @@ public class Permazen {
                 }
                 for (io.permazen.annotation.JCompositeIndex annotation : annotations) {
                     if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
-                        throw new IllegalArgumentException("invalid @JCompositeIndex annotation on "
-                          + supertype + ": use of uniqueExclude() requires unique = true");
+                        throw new IllegalArgumentException(String.format(
+                          "invalid @%s annotation on %s: use of uniqueExclude() requires unique = true",
+                          io.permazen.annotation.JCompositeIndex.class.getSimpleName(), supertype));
                     }
                     jclass.addCompositeIndex(this, supertype, annotation);
                 }
@@ -462,9 +464,9 @@ public class Permazen {
 
     StorageIdGenerator getStorageIdGenerator(Annotation annotation, AnnotatedElement target) {
         if (this.storageIdGenerator == null) {
-            throw new IllegalArgumentException("invalid @" + annotation.annotationType().getSimpleName()
-              + " annotation on " + target + ": no storage ID is given, but storage ID auto-generation is disabled"
-              + " because no " + StorageIdGenerator.class.getSimpleName() + " is configured");
+            throw new IllegalArgumentException(String.format("invalid @%s annotation on %s:"
+              + " no storage ID is given, but storage ID auto-generation is disabled because no %s is configured",
+              annotation.annotationType().getSimpleName(), target, StorageIdGenerator.class.getSimpleName()));
         }
         return this.storageIdGenerator;
     }
@@ -971,9 +973,9 @@ public class Permazen {
                   .messageInterpolator(new ParameterMessageInterpolator())
                   .buildValidatorFactory();
             } catch (Exception e2) {
-                throw new PermazenException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
-                  + " but creation of default ValidatorFactory failed; is there a JSR 303 validation implementation"
-                  + " on the classpath?", e2);
+                throw new PermazenException(String.format(
+                  "JSR 303 validation constraint found on %s but creation of default ValidatorFactory failed;"
+                  + " is there a JSR 303 validation implementation on the classpath?", this.elementRequiringJSR303Validation), e2);
             }
         }
 
@@ -1086,15 +1088,15 @@ public class Permazen {
         Preconditions.checkArgument(type != null, "null type");
         final IndexInfo indexInfo = this.indexInfoMap.get(storageId);
         if (indexInfo == null) {
-            throw new IllegalArgumentException("no " + this.describe(type) + " with storage ID "
-              + storageId + " exists in schema version " + this.actualVersion);
+            throw new IllegalArgumentException(String.format("no %s with storage ID %d exists in schema version %d",
+              this.describe(type), storageId, this.actualVersion));
         }
         try {
             return type.cast(indexInfo);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("no " + this.describe(type) + " with storage ID "
-              + storageId + " exists in schema version " + this.actualVersion + " (found field "
-              + this.describe(type) + " instead)");
+            throw new IllegalArgumentException(String.format(
+              "no %s with storage ID %d exists in schema version %d (found field %s instead)",
+              this.describe(type), storageId, this.actualVersion, this.describe(type)));
         }
     }
 
@@ -1104,8 +1106,8 @@ public class Permazen {
         // Check for storage ID conflict
         final JClass<?> other = this.jclasses.get(jclass.storageId);
         if (other != null) {
-            throw new IllegalArgumentException("illegal duplicate use of storage ID "
-              + jclass.storageId + " for both " + other + " and " + jclass);
+            throw new IllegalArgumentException(String.format(
+              "illegal duplicate use of storage ID %d for both %s and %s", jclass.storageId, other, jclass));
         }
         this.jclasses.put(jclass.storageId, jclass);
         assert !this.jclassesByType.containsKey(jclass.type);                   // this should never conflict, no need to check
@@ -1121,8 +1123,9 @@ public class Permazen {
             this.indexInfoMap.put(storageId, info);
             descriptionMap.put(storageId, item.description);
         } else if (!info.equals(existing)) {
-            throw new IllegalArgumentException("incompatible duplicate use of storage ID " + item.storageId
-              + " for " + descriptionMap.get(storageId) + " and " + item.description);
+            throw new IllegalArgumentException(String.format(
+              "incompatible duplicate use of storage ID %d for %s and %s",
+              item.storageId, descriptionMap.get(storageId), item.description));
         }
     }
 

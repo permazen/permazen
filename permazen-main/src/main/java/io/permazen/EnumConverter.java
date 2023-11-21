@@ -42,7 +42,7 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
             return null;
         final EnumValue enumValue = this.valueMap.get(value);
         if (enumValue == null)
-            throw new IllegalArgumentException("invalid enum value " + value + " not an instance of " + this.enumType);
+            throw new IllegalArgumentException(String.format("invalid enum value %s not an instance of %s", value, this.enumType));
         return enumValue;
     }
 
@@ -52,7 +52,7 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
             return null;
         final T value = this.valueMap.inverse().get(enumValue);
         if (value == null)
-            throw new IllegalArgumentException("invalid value " + enumValue + " not found in " + this.enumType);
+            throw new IllegalArgumentException(String.format("invalid value %s not found in %s", enumValue, this.enumType));
         return value;
     }
 

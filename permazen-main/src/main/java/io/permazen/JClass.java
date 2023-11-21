@@ -88,10 +88,12 @@ public class JClass<T> extends JSchemaObject {
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     JClass(Permazen jdb, String name, int storageId, Class<T> type) {
-        super(jdb, name, storageId, "object type \"" + name + "\" (" + type + ")");
+        super(jdb, name, storageId, String.format("object type \"%s\" (%s)", name, type));
         Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(!UntypedJObject.class.isAssignableFrom(type),
-          "invalid model type " + type.getName() + ": model types may not subclass " + UntypedJObject.class.getName());
+        if (UntypedJObject.class.isAssignableFrom(type)) {
+            throw new IllegalArgumentException(String.format(
+              "invalid model type %s: model types may not subclass %s", type.getName(), UntypedJObject.class.getName()));
+        }
         this.type = type;
         this.classGenerator = new ClassGenerator<>(this);
     }
@@ -179,7 +181,8 @@ public class JClass<T> extends JSchemaObject {
             // Get info
             final io.permazen.annotation.JField annotation = info.getAnnotation();
             final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
-            final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
+            final String description = String.format(
+               "%s annotation on method %s", simpleFieldScanner.getAnnotationDescription(), getter);
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             final TypeToken<?> encodingToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());
             if (this.log.isTraceEnabled())
@@ -194,14 +197,18 @@ public class JClass<T> extends JSchemaObject {
             if (encodingToken.equals(TypeToken.of(Counter.class))) {
 
                 // Sanity check annotation
-                if (annotation.encoding().length() != 0)
-                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify an encoding");
-                if (annotation.indexed())
-                    throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
+                if (annotation.encoding().length() != 0) {
+                    throw new IllegalArgumentException(String.format(
+                      "invalid %s: counter fields must not specify an encoding", description));
+                }
+                if (annotation.indexed()) {
+                    throw new IllegalArgumentException(String.format(
+                      "invalid %s: counter fields cannot be indexed", description));
+                }
 
                 // Create counter field
                 final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId, annotation,
-                  "counter field \"" + fieldName + "\" of object type \"" + this.name + "\"", getter);
+                  String.format("counter field \"%s\" of object type \"%s\"", fieldName, this.name), getter);
 
                 // Remember upgrade conversion fields
                 if (annotation.upgradeConversion().isConvertsValues())
@@ -217,12 +224,12 @@ public class JClass<T> extends JSchemaObject {
             try {
                 setter = Util.findJFieldSetterMethod(this.type, getter);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());
+                throw new IllegalArgumentException(String.format("invalid %s: %s", description, e.getMessage()));
             }
 
             // Create simple field
-            final JSimpleField jfield = this.createSimpleField(description, encodingToken,
-              fieldName, storageId, annotation, getter, setter, "field \"" + fieldName + "\" of object type \"" + this.name + "\"");
+            final JSimpleField jfield = this.createSimpleField(description, encodingToken, fieldName, storageId,
+              annotation, getter, setter, String.format("field \"%s\" of object type \"%s\"", fieldName, this.name));
 
             // Add field
             this.addField(jfield);
@@ -244,7 +251,8 @@ public class JClass<T> extends JSchemaObject {
             final io.permazen.annotation.JSetField annotation = info.getAnnotation();
             final io.permazen.annotation.JField elementAnnotation = annotation.element();
             final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
-            final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
+            final String description = String.format(
+               "%s annotation on method %s", setFieldScanner.getAnnotationDescription(), getter);
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
@@ -269,7 +277,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create set field
             final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, annotation, elementField,
-              "set field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
+              String.format("%s field \"%s\" in object type \"%s\"", "set", fieldName, this.name), getter);
             elementField.parent = jfield;
 
             // Add field
@@ -284,7 +292,8 @@ public class JClass<T> extends JSchemaObject {
             final io.permazen.annotation.JListField annotation = info.getAnnotation();
             final io.permazen.annotation.JField elementAnnotation = annotation.element();
             final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
-            final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
+            final String description = String.format(
+               "%s annotation on method %s", listFieldScanner.getAnnotationDescription(), getter);
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
@@ -309,7 +318,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create list field
             final JListField jfield = new JListField(this.jdb, fieldName, storageId, annotation, elementField,
-              "list field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
+              String.format("%s field \"%s\" in object type \"%s\"", "list", fieldName, this.name), getter);
             elementField.parent = jfield;
 
             // Add field
@@ -325,7 +334,8 @@ public class JClass<T> extends JSchemaObject {
             final io.permazen.annotation.JField keyAnnotation = annotation.key();
             final io.permazen.annotation.JField valueAnnotation = annotation.value();
             final Method getter = Util.findJFieldGetterMethod(this.type, info.getMethod());
-            final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
+            final String description = String.format(
+               "%s annotation on method %s", mapFieldScanner.getAnnotationDescription(), getter);
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
@@ -355,7 +365,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create map field
             final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, annotation, keyField, valueField,
-              "map field \"" + fieldName + "\" in object type \"" + this.name + "\"", getter);
+              String.format("%s field \"%s\" in object type \"%s\"", "map", fieldName, this.name), getter);
             keyField.parent = jfield;
             valueField.parent = jfield;
 
@@ -377,9 +387,10 @@ public class JClass<T> extends JSchemaObject {
                 i.remove();
         }
         if (!abstractMethods.isEmpty()) {
-            throw new IllegalArgumentException("the @PermazenType-annotated type " + this.type.getName() + " is invalid because"
-              + " " + abstractMethods.size() + " abstract method(s) remain unimplemented: "
-              + abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1"));
+            throw new IllegalArgumentException(String.format(
+              "the @%s-annotated type %s is invalid because %d abstract method(s) remain unimplemented: %s",
+              PermazenType.class.getSimpleName(), this.type.getName(), abstractMethods.size(),
+              abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1")));
         }
 
         // Calculate which fields require default validation
@@ -406,12 +417,12 @@ public class JClass<T> extends JSchemaObject {
         for (int i = 0; i < fieldNames.length; i++) {
             final String fieldName = fieldNames[i];
             if (!seenFieldNames.add(fieldName))
-                throw this.invalidIndex(annotation, "field \"" + fieldName + "\" appears more than once");
+                throw this.invalidIndex(annotation, "field \"%s\" appears more than once", fieldName);
             final JField jfield = this.jfieldsByName.get(fieldName);
-            if (!(jfield instanceof JSimpleField)) {
-                throw this.invalidIndex(annotation, "field \"" + fieldName + "\" "
-                  + (jfield != null ? "is not a simple field" : "not found"));
-            }
+            if (jfield == null)
+                throw this.invalidIndex(annotation, "field \"%s\" not found", fieldName);
+            else if (!(jfield instanceof JSimpleField))
+                throw this.invalidIndex(annotation, "field \"%s\" is not a simple field", fieldName);
             indexFields[i] = (JSimpleField)jfield;
             indexFieldStorageIds[i] = jfield.storageId;
         }
@@ -426,9 +437,9 @@ public class JClass<T> extends JSchemaObject {
         // Create and add index
         final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, declaringType, annotation, indexFields);
         if (this.jcompositeIndexes.put(index.storageId, index) != null)
-            throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
+            throw this.invalidIndex(annotation, "duplicate use of storage ID %d", index.storageId);
         if (this.jcompositeIndexesByName.put(index.name, index) != null)
-            throw this.invalidIndex(annotation, "duplicate use of composite index name \"" + index.name + "\"");
+            throw this.invalidIndex(annotation, "duplicate use of composite index name \"%s\"", index.name);
 
         // Remember unique constraint composite indexes and trigger validation when any indexed field changes
         if (index.unique) {
@@ -502,9 +513,11 @@ public class JClass<T> extends JSchemaObject {
         return schemaObjectType;
     }
 
-    private IllegalArgumentException invalidIndex(io.permazen.annotation.JCompositeIndex annotation, String message) {
-        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index \""
-          + annotation.name() + "\" on " + this.type + ": " + message);
+    private IllegalArgumentException invalidIndex(
+      io.permazen.annotation.JCompositeIndex annotation, String format, Object... args) {
+        return new IllegalArgumentException(String.format(
+          "invalid @%s annotation for index \"%s\" on %s: %s", io.permazen.annotation.JCompositeIndex.class.getSimpleName(),
+          annotation.name(), this.type, String.format(format, args)));
     }
 
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts
@@ -518,14 +531,14 @@ public class JClass<T> extends JSchemaObject {
 
             // If the descriptions differ, no need to give any more details
             if (!other.toString().equals(jfield.toString())) {
-                throw new IllegalArgumentException("illegal duplicate use of storage ID "
-                  + jfield.storageId + " for both " + other + " and " + jfield);
+                throw new IllegalArgumentException(String.format(
+                  "illegal duplicate use of storage ID %d for both %s and %s", jfield.storageId, other, jfield));
             }
 
             // Check whether the fields are exactly the same; if not, there is a conflict
             if (!other.isSameAs(jfield)) {
-                throw new IllegalArgumentException("two or more methods defining " + jfield + " conflict: "
-                  + other.getter + " and " + jfield.getter);
+                throw new IllegalArgumentException(String.format(
+                  "two or more methods defining %s conflict: %s and %s", jfield, other.getter, jfield.getter));
             }
 
             // OK - they are the same thing
@@ -534,14 +547,16 @@ public class JClass<T> extends JSchemaObject {
         this.jfields.put(jfield.storageId, jfield);
 
         // Check for name conflict
-        if ((other = this.jfieldsByName.get(jfield.name)) != null)
-            throw new IllegalArgumentException("illegal duplicate use of field name \"" + jfield.name + "\" in " + this);
+        if ((other = this.jfieldsByName.get(jfield.name)) != null) {
+            throw new IllegalArgumentException(String.format(
+              "illegal duplicate use of field name \"%s\" in %s", jfield.name, this));
+        }
         this.jfieldsByName.put(jfield.name, jfield);
         jfield.parent = this;
 
         // Logging
         if (this.log.isTraceEnabled())
-            this.log.trace("added {} to object type `{}'", jfield, this.name);
+            this.log.trace("added {} to object type \"{}\"", jfield, this.name);
     }
 
     // Get field name, deriving it from the getter property name if necessary
@@ -551,7 +566,8 @@ public class JClass<T> extends JSchemaObject {
         try {
             return info.getMethodPropertyName();
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid " + description + ": can't infer field name: " + e, e);
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: can't infer field name: %s", description, e.getMessage()), e);
         }
     }
 
@@ -560,7 +576,8 @@ public class JClass<T> extends JSchemaObject {
         try {
             return Util.getTypeParameter(method.getGenericReturnType(), index);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid " + description + ": invalid method return type: " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: invalid method return type: %s", description, e.getMessage()), e);
         }
     }
 
@@ -576,8 +593,7 @@ public class JClass<T> extends JSchemaObject {
             try {
                 encodingId = this.jdb.db.getEncodingRegistry().idForAlias(encodingName);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid " + description
-                  + ": invalid encoding \"" + encodingName + "\"");
+                throw new IllegalArgumentException(String.format("invalid %s: invalid encoding \"%s\"", description, encodingName));
             }
         }
 
@@ -588,10 +604,14 @@ public class JClass<T> extends JSchemaObject {
         final boolean isSubField = setter == null;
 
         // Sanity check annotation
-        if (isSubField && annotation.unique())
-            throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");
-        if (annotation.uniqueExclude().length > 0 && !annotation.unique())
-            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");
+        if (isSubField && annotation.unique()) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: unique() constraint not allowed on complex sub-field", description));
+        }
+        if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: use of uniqueExclude() requires unique = true", description));
+        }
 
         // See if encoding encompasses one or more JClass types and is therefore a reference type
         final Class<?> fieldRawType = encodingToken.getRawType();
@@ -605,9 +625,10 @@ public class JClass<T> extends JSchemaObject {
 
         // Check for reference to UntypedJObject - not currently allowed
         if (UntypedJObject.class.isAssignableFrom(fieldRawType)) {
-            throw new IllegalArgumentException("invalid " + description + ": references to "
-              + (!UntypedJObject.class.equals(fieldRawType) ? "sub-types of " : "")
-              + UntypedJObject.class.getName() + " are not allowed; use " + JObject.class.getName() + " instead");
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: references to %s%s are not allowed; use %s instead", description,
+              !UntypedJObject.class.equals(fieldRawType) ? "sub-types of " : "", UntypedJObject.class.getName(),
+              JObject.class.getName()));
         }
 
         // See if encoding is a simple type, known either by explicitly-given encoding or type
@@ -616,14 +637,14 @@ public class JClass<T> extends JSchemaObject {
 
             // Field encoding is explicitly specified
             if ((nonReferenceType = this.jdb.db.getEncodingRegistry().getEncoding(encodingId)) == null)
-                throw new IllegalArgumentException("invalid " + description + ": unknown encoding \"" + encodingName + "\"");
+                throw new IllegalArgumentException(String.format("invalid %s: unknown encoding \"%s\"", description, encodingName));
 
             // Verify encoding matches what we expect
             final TypeToken<?> expectedType = isSubField ? nonReferenceType.getTypeToken().wrap() : nonReferenceType.getTypeToken();
             if (!expectedType.equals(encodingToken)) {
-                throw new IllegalArgumentException("invalid " + description + ": encoding \"" + encodingName
-                  + "\" supports values of type " + nonReferenceType.getTypeToken() + " but " + encodingToken
-                  + " is required (according to the getter method's return type)");
+                throw new IllegalArgumentException(String.format("invalid %s: encoding \"%s\" supports values"
+                  + " of type %s but %s is required (according to the getter method's return type)",
+                  description, encodingName, nonReferenceType.getTypeToken(), encodingToken));
             }
         } else {
 
@@ -638,9 +659,9 @@ public class JClass<T> extends JSchemaObject {
                 break;
             default:
                 if (!isReferenceType) {
-                    throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
-                      + " because type " + encodingToken + " is supported by multiple registered simple encodings: "
-                      + encodings);
+                    throw new IllegalArgumentException(String.format("invalid %s: an explicit encoding() must be"
+                      + " specified because type %s is supported by multiple registered simple encodings: %s",
+                      description, encodingToken, encodings));
                 }
                 break;
             }
@@ -692,8 +713,8 @@ public class JClass<T> extends JSchemaObject {
 
         // If field's type neither refers to a JClass type, nor has a registered encoding, nor is an enum type, fail
         if (!isReferenceType && nonReferenceType == null && enumType == null && enumArrayEncoding == null) {
-            throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
-              + " because no registered encoding encodes values of type " + encodingToken);
+            throw new IllegalArgumentException(String.format("invalid %s: an explicit encoding() must be specified"
+              + " because no registered encoding encodes values of type %s", description, encodingToken));
         }
 
         // Handle ambiguity between reference vs. non-reference
@@ -703,28 +724,39 @@ public class JClass<T> extends JSchemaObject {
             if (encodingId != null)
                 isReferenceType = false;
             else {
-                throw new IllegalArgumentException("invalid " + description + ": an explicit encoding() must be specified"
-                  + " because type " + encodingToken + " is ambiguous, being both a @" + PermazenType.class.getSimpleName()
-                  + " reference type and a simple Java type supported by type \"" + nonReferenceType + "\"");
+                throw new IllegalArgumentException(String.format("invalid %s: an explicit encoding() must be specified because"
+                  + " type %s is ambiguous, being both a @%s reference type and a simple Java type supported by type \"%s\"",
+                  description, encodingToken, PermazenType.class.getSimpleName(), nonReferenceType));
             }
         }
 
         // Sanity check annotation some more
-        if (!isReferenceType && annotation.inverseDelete() != DeleteAction.EXCEPTION)
-            throw new IllegalArgumentException("invalid " + description + ": inverseDelete() only allowed on reference fields");
-        if (!isReferenceType && annotation.forwardDelete())
-            throw new IllegalArgumentException("invalid " + description + ": forwardDelete() only allowed on reference fields");
-        if (!isReferenceType && annotation.unique() && !annotation.indexed())
-            throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");
-        if (nonReferenceType != null && nonReferenceType.getTypeToken().isPrimitive()
-          && Arrays.asList(annotation.uniqueExclude()).contains(io.permazen.annotation.JField.NULL)) {
-            throw new IllegalArgumentException("invalid " + description + ": uniqueExclude() = JField.NULL is incompatible"
-              + " with fields having primitive type");
+        if (!isReferenceType && annotation.inverseDelete() != DeleteAction.EXCEPTION) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: inverseDelete() only allowed on reference fields", description));
         }
-        if (!isReferenceType && annotation.forwardCascades().length != 0)
-            throw new IllegalArgumentException("invalid " + description + ": forwardCascades() only allowed on reference fields");
-        if (!isReferenceType && annotation.inverseCascades().length != 0)
-            throw new IllegalArgumentException("invalid " + description + ": inverseCascades() only allowed on reference fields");
+        if (!isReferenceType && annotation.forwardDelete()) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: forwardDelete() only allowed on reference fields", description));
+        }
+        if (!isReferenceType && annotation.unique() && !annotation.indexed()) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: unique() constraint requires field to be indexed", description));
+        }
+        if (nonReferenceType != null
+          && nonReferenceType.getTypeToken().isPrimitive()
+          && Arrays.asList(annotation.uniqueExclude()).contains(io.permazen.annotation.JField.NULL)) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: uniqueExclude() = JField.NULL is incompatible with fields having primitive type", description));
+        }
+        if (!isReferenceType && annotation.forwardCascades().length != 0) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: forwardCascades() only allowed on reference fields", description));
+        }
+        if (!isReferenceType && annotation.inverseCascades().length != 0) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: inverseCascades() only allowed on reference fields", description));
+        }
 
         // Create simple, enum, enum array, or reference field
         try {
@@ -739,7 +771,7 @@ public class JClass<T> extends JSchemaObject {
                 new JSimpleField(this.jdb, fieldName, storageId, encodingToken,
                   nonReferenceType, annotation.indexed(), annotation, fieldDescription, getter, setter);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format("invalid %s: %s", description, e.getMessage()), e);
         }
     }
 }

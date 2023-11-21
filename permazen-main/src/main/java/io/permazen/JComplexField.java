@@ -55,7 +55,7 @@ public abstract class JComplexField extends JField {
             if (subField.storageId == storageId)
                 return subField;
         }
-        throw new IllegalArgumentException("storage ID " + storageId + " not found");
+        throw new IllegalArgumentException(String.format("storage ID %d not found", storageId));
     }
 
     /**
