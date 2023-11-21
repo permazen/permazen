@@ -533,8 +533,10 @@ class ClassGenerator<T> {
             mv.visitLabel(catchLabel);
             this.emitInvoke(mv, ClassGenerator.OPTIONAL_EMPTY_METHOD);
             mv.visitInsn(Opcodes.ARETURN);
-        } else
-            mv.visitInsn(Opcodes.ARETURN);
+        }
+
+        // Return result
+        mv.visitInsn(Opcodes.ARETURN);
 
         // Done
         mv.visitMaxs(0, 0);
