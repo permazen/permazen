@@ -85,16 +85,6 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    public JSimpleField getSubField(String name) {
-        if (MapField.KEY_FIELD_NAME.equals(name))
-            return this.keyField;
-        if (MapField.VALUE_FIELD_NAME.equals(name))
-            return this.valueField;
-        throw new IllegalArgumentException("unknown sub-field \"" + name
-          + "\" (did you mean \"" + MapField.KEY_FIELD_NAME + "\" or \"" + MapField.VALUE_FIELD_NAME + "\" instead?)");
-    }
-
-    @Override
     boolean isSameAs(JField that0) {
         if (!super.isSameAs(that0))
             return false;

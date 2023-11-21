@@ -12,6 +12,7 @@ import io.permazen.schema.ComplexSchemaField;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassWriter;
 
@@ -42,7 +43,24 @@ public abstract class JComplexField extends JField {
      * @return the sub-field with the specified name
      * @throws IllegalArgumentException if {@code name} is invalid
      */
-    public abstract JSimpleField getSubField(String name);
+    public final JSimpleField getSubField(String name) {
+
+        // Sanity check
+        Preconditions.checkArgument(name != null, "null name");
+
+        // Check sub-fields, with or without explicit storage ID
+        for (JSimpleField subField : this.getSubFields()) {
+            if (name.equals(subField.name) || name.equals(String.format("%s#%d", subField.name, subField.storageId)))
+                return subField;
+        }
+
+        // Build helpful error message
+        final String hints = this.getSubFields().stream()
+          .map(JSimpleField::getName)
+          .map(fieldName -> '"' + fieldName + '"')
+          .collect(Collectors.joining(" or "));
+        throw new IllegalArgumentException(String.format("unknown sub-field \"%s\" (did you mean %s instead?)", name, hints));
+    }
 
     /**
      * Get the sub-field with the given storage ID.
