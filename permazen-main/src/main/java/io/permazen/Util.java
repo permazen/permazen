@@ -23,6 +23,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -308,6 +309,190 @@ public final class Util {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Identify the named field in the given {@link JClass}.
+     *
+     * <p>
+     * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
+     *
+     * <p>
+     * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
+     *
+     * <p>
+     * This method is equivalent to {@code findField(jclass, fieldName, null)}.
+     *
+     * @param jclass containing object type
+     * @param fieldName field name
+     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
+     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     */
+    public static JField findField(JClass<?> jclass, String fieldName) {
+        return Util.findField(jclass, fieldName, null);
+    }
+
+    /**
+     * Identify the named simple field in the given {@link JClass}.
+     *
+     * <p>
+     * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
+     *
+     * <p>
+     * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
+     *
+     * <p>
+     * This method is equivalent to {@code findField(jclass, fieldName, true)}.
+     *
+     * @param jclass containing object type
+     * @param fieldName field name
+     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
+     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     */
+    public static JSimpleField findSimpleField(JClass<?> jclass, String fieldName) {
+        return (JSimpleField)Util.findField(jclass, fieldName, true);
+    }
+
+    /**
+     * Identify the named field in the given {@link JClass}.
+     *
+     * <p>
+     * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
+     *
+     * <p>
+     * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
+     *
+     * <p>
+     * The {@code expectSubField} parameter controls what happens when a complex field is matched. If true, then
+     * either a sub-field must be specified, or else the complex field must have only one sub-field and then that
+     * sub-field is assumed. If false, it is an error to specify a sub-field of a complex field. If null, either is OK.
+     *
+     * @param jclass containing object type
+     * @param fieldName field name
+     * @param expectSubField true if the field should be a complex sub-field instead of a complex field,
+     *  false if field should not be complex field instead of a complex sub-field, or null for don't care
+     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
+     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     */
+    public static JField findField(JClass<?> jclass, final String fieldName, Boolean expectSubField) {
+
+        // Sanity check
+        Preconditions.checkArgument(jclass != null, "null jclass");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
+
+        // Logging
+        final Logger log = LoggerFactory.getLogger(Util.class);
+        if (log.isTraceEnabled())
+            log.trace("Util.findField(): jclass={} fieldName={} expectSubField={}", jclass, fieldName, expectSubField);
+
+        // Split field name into components
+        final ArrayDeque<String> components = new ArrayDeque<>(Arrays.asList(fieldName.split("\\.", -1)));
+        if (components.isEmpty() || components.size() > 2)
+            throw new IllegalArgumentException(String.format("invalid field name \"%s\"", fieldName));
+
+        // Get first field name component
+        String component = components.removeFirst();
+
+        // Parse explicit storage ID, if any
+        final int hash = component.indexOf('#');
+        int explicitStorageId = 0;
+        final String searchName;
+        if (hash != -1) {
+            try {
+                if ((explicitStorageId = Integer.parseInt(component.substring(hash + 1))) <= 0)
+                    throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(String.format("invalid field name \"%s\"", fieldName));
+            }
+            searchName = component.substring(0, hash);
+        } else
+            searchName = component;
+
+        // Find the JField matching 'component' in jclass
+        JField matchingField = jclass.jfieldsByName.get(searchName);
+        if (matchingField == null || (explicitStorageId != 0 && matchingField.storageId != explicitStorageId))
+            return null;
+
+        // Logging
+        if (log.isTraceEnabled())
+            log.trace("Util.findField(): found field {} in {}", matchingField, jclass.getType());
+
+        // Get sub-field requirements
+        final boolean requireSimpleField = Boolean.TRUE.equals(expectSubField);
+        final boolean disallowSubField = Boolean.FALSE.equals(expectSubField);
+
+        // Handle complex fields
+        if (matchingField instanceof JComplexField) {
+
+            // Get complex field
+            final JComplexField complexField = (JComplexField)matchingField;
+            String description = "field \"" + component + "\" in " + jclass;
+
+            // Logging
+            if (log.isTraceEnabled())
+                log.trace("Util.findField(): field is a complex field");
+
+            // If no sub-field is given, field has only one sub-field, and a simple field is required, then default to that
+            if (requireSimpleField && components.isEmpty() && complexField.getSubFields().size() == 1)
+                components.add(complexField.getSubFields().get(0).name);
+
+            // Is there a sub-field component?
+            if (!components.isEmpty()) {
+
+                // Find the specified sub-field
+                final String subFieldName = components.removeFirst();
+                description = "sub-field \"" + subFieldName + "\" of " + description;
+                try {
+                    matchingField = complexField.getSubField(subFieldName);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(String.format("invalid %s: %s", description, e.getMessage()), e);
+                }
+
+                // Verify it's OK to specify a complex sub-field
+                if (disallowSubField) {
+                    throw new IllegalArgumentException(String.format(
+                      "invalid %s: %s", description, "instead, specify the complex field itself"));
+                }
+
+                // Logging
+                if (log.isTraceEnabled()) {
+                    log.trace("Util.findField(): also stepping through sub-field [{}.{}] to reach {}",
+                      searchName, subFieldName, matchingField);
+                }
+            } else {
+
+                // Verify it's OK to end on a complex field
+                if (requireSimpleField) {
+                    final String hints = complexField.getSubFields().stream()
+                      .map(subField -> String.format("\"%s.%s\"", searchName, subField.name))
+                      .collect(Collectors.joining(" or "));
+                    throw new IllegalArgumentException(String.format(
+                      "for complex %s a sub-field must be specified (i.e., %s)", description, hints));
+                }
+
+                // Done
+                if (log.isTraceEnabled())
+                    log.trace("Util.findField(): ended on complex field; result={}", matchingField);
+            }
+        } else if (log.isTraceEnabled()) {
+            if (matchingField instanceof JSimpleField) {
+                final JSimpleField simpleField = (JSimpleField)matchingField;
+                log.trace("Util.findField(): field is a simple field of type {}", simpleField.getTypeToken());
+            } else
+                log.trace("Util.findField(): field is {}", matchingField);
+        }
+
+        // Check for extra garbage
+        if (!components.isEmpty())
+            throw new IllegalArgumentException(String.format("invalid field name \"%s\"", fieldName));
+
+        // Done
+        if (log.isTraceEnabled())
+            log.trace("Util.findField(): result={}", matchingField);
+        return matchingField;
     }
 
     /**
