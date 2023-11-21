@@ -314,6 +314,9 @@ public class Permazen {
             }
         }
 
+        // Build schema
+        this.getSchemaModel();
+
         // Find all fields that require default validation
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
