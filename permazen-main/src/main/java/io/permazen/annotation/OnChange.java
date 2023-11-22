@@ -21,23 +21,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever a simple or complex target field in some target object changes
- * during a transaction, where the target object containing the changed field is found at the end of a path of references
- * starting from the object to be notified.
- * See {@link ReferencePath} for more information about reference paths.
+ * Annotates methods to be invoked whenever some target field in some target object changes during a transaction.
  *
  * <p><b>Overview</b></p>
  *
- * There several ways to control which changes are delivered to the annotated method:
- * <ul>
- *  <li>By specifying a path of object references, via {@link #value}, to the target object and field</li>
- *  <li>By widening or narrowing the type of the {@link FieldChange} method parameter
- *      (or omitting it altogether)</li>
- *  <li>By declaring an instance method, to monitor changes from the perspective of the associated object,
- *      or a static method, to monitor changes from a global perspective</li>
- *  <li>By {@linkplain #snapshotTransactions allowing or disallowing} notifications that occur within
- *      {@linkplain SnapshotJTransaction snapshot transactions}.</li>
- * </ul>
+ * <p>
+ * When the value of a matching field in a matching object changes, a change event is created and the annotated
+ * method is invoked. The change event's type will be some sub-type of {@link FieldChange} appropriate for the
+ * type of field and the change that occurred. Only change events whose types are compatible with the method's
+ * parameter are delivered.
+ *
+ * <p>
+ * A "matching object" is one that is found at the end of the {@linkplain ReferencePath reference path} specified
+ * by {@link #path}, starting from the object to be notified; see {@link ReferencePath} for more information about
+ * reference paths.
+ *
+ * <p>
+ * By default, the reference path is empty, which means changes in the target object itself are monitored.
+ *
+ * <p>
+ * A "matching field" is one named in {@link #value}, or every event-generating field if {@link #value} is empty.
+ *
+ * <p>
  * A class may have multiple {@link OnChange &#64;OnChange} methods, each with a specific purpose.
  *
  * <p><b>Examples</b></p>
@@ -59,18 +64,13 @@ import java.lang.annotation.Target;
  *
  *   // &#64;OnChange methods
  *
- *       &#64;OnChange      // equivalent to &#64;OnChange("*")
- *       private void handleAnyChange1() {
+ *       &#64;OnChange
+ *       private void handleAnyChange1(FieldChange&lt;Account&gt; change) {
  *           // Sees any change to ANY field of THIS account
  *       }
  *
- *       &#64;OnChange("*")
- *       private void handleAnyChange2(FieldChange&lt;Account&gt; change) {
- *           // Sees any change to ANY field of THIS account
- *       }
- *
- *       &#64;OnChange("*")
- *       private static void handleAnyChange3(FieldChange&lt;Account&gt; change) {
+ *       &#64;OnChange
+ *       private static void handleAnyChange2(FieldChange&lt;Account&gt; change) {
  *           // Sees any change to ANY field of ANY account (note static method)
  *       }
  *
@@ -81,12 +81,7 @@ import java.lang.annotation.Target;
  *
  *       &#64;OnChange
  *       private void handleSimpleChange(SimpleFieldChange&lt;Account, ?&gt; change) {
- *           // Sees any change to any SIMPLE field of THIS account (e.g., enabled, name)
- *       }
- *
- *       &#64;OnChange(startType = User.class, value = "account")
- *       private static void handleMembershipChange(SimpleFieldChange&lt;User, Account&gt; change) {
- *           // Sees any change to which users are associated with ANY account
+ *           // Sees any change to any SIMPLE field of THIS account (i.e., "enabled", "name")
  *       }
  *   }
  *
@@ -113,20 +108,25 @@ import java.lang.annotation.Target;
  *           // Sees any change to THIS user's username
  *       }
  *
- *       &#64;OnChange("account.enabled")
+ *       &#64;OnChange(path = "account", value = "enabled")
  *       private void handleUsernameChange(SimpleFieldChange&lt;Account, Boolean&gt; change) {
  *           // Sees any change to THIS user's account's enabled status
  *       }
  *
- *       &#64;OnChange("friends.element.friends.element.account.*")
+ *       &#64;OnChange(path = "-&gt;friends-&gt;friends-&gt;account")
  *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, ?&gt; change) {
- *           // Sees any change to any simple field in any friend-of-a-friend's Account
+ *           // Sees any change to ANY simple field in ANY friend-of-a-friend's Account
  *       }
  *
- *       &#64;OnChange("account.^User:account^.username")
+ *       &#64;OnChange(path = "-&gt;account&lt;-User.account", value = "username")
  *       private void handleSameAccountUserUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
- *           // Sees changes to the username of any User with the same Account as this instance
- *           // Note the use of the inverse step "^User:account^" from Account back to User
+ *           // Sees changes to the username of any User having the same Account as this User.
+ *           // Note the use of the inverse step "&lt;-User.account" from Account back to User
+ *       }
+ *
+ *       &#64;OnChange("account")
+ *       private static void handleMembershipChange(SimpleFieldChange&lt;User, Account&gt; change) {
+ *           // Sees any change to ANY user's account
  *       }
  *   }
  * </pre>
@@ -134,48 +134,45 @@ import java.lang.annotation.Target;
  * <p><b>Method Parameter Types</b></p>
  *
  * <p>
- * In all cases the annotated method must return void and take zero or one parameter; the parameter must be compatible
- * with at least one of the {@link FieldChange} sub-types appropriate for the field being watched.
- * The method parameter type can be used to restrict which notifications are delivered. For example, an annotated method
- * taking a {@link SetFieldChange} will receive notifications about all changes to a set field,
- * while a method taking a {@link SetFieldAdd} will receive notification only when an element is added to the set.
- *
- * <p>
- * A method with zero parameters is delivered all possible notifications, which is equivalent to having an ignored
- * parameter of type {@link FieldChange FieldChange&lt;?&gt;}.
+ * In all cases the annotated method must return void and take one parameter whose type must be compatible
+ * with at least one of the {@link FieldChange} sub-types appropriate for the/a field being monitored. The
+ * parameter type can be narrowed to restrict which notifications are delivered. For example, a method with a
+ * {@link SetFieldChange} parameter will receive notifications about all changes to a set field, but a method
+ * with a {@link SetFieldAdd} parameter will receive notification only when an element is added to the set.
  *
  * <p>
  * The method may have any level of access, including {@code private}, and multiple independent {@link OnChange &#64;OnChange}
  * methods are allowed.
  *
  * <p>
- * Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
- * must emit {@link FieldChange}s compatible with the method's parameter type. Therefore, when
- * multiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
- * parameters, or both).
+ * Multiple fields in the target object may be specified; if so, all of the fields are monitored together, and they all
+ * must emit {@link FieldChange}s compatible with the method's parameter type. Therefore, when multiple fields are monitored
+ * by the same method, the method's parameter type may need to be widened to accomodate them all.
  *
  * <p>
- * As a special case, if the last field is {@code "*"} (wildcard), then every field in the target object is matched.
- * However, only fields that emit changes compatible with the method's parameter type will be monitored.
- * So for example, a method taking a {@link SetFieldChange} would receive notifications about
- * changes to all {@code Set} fields in the class, but not any other fields. Currently, due to type erasure, only
- * the parameter's raw type is taken into consideration.
+ * If {@link #value} is empty (the default), then every field in the target object is monitored,
+ * though again only changes compatible with the method's parameter type will be delivered. So for example, a method
+ * taking a {@link SetFieldChange} would receive notifications about changes to all {@code Set} fields in the class,
+ * but not any other fields.
+ *
+ * <p>
+ * Currently, due to type erasure, only the parameter's raw type is taken into consideration and an error is generated
+ * if the parameter's generic type and its raw type don't match the same events.
  *
  * <p><b>Instance vs. Static Methods</b></p>
  *
  * <p>
- * If the method is an instance method, then {@link #startType} must be left unset; if the instance is a static
- * method, then {@link #startType} may be explicitly set, or if left unset it defaults to the class containing
- * the annotated method.
+ * For an instance method, the method will be invoked on each object for which the changed field is
+ * found at the end of the specified reference path starting from that object. So if there are three
+ * {@code Child} objects, and the {@code Child} class has an instance method annotated with
+ * {@link OnChange &#64;OnChange}{@code (path = "parent", value = "name")}, then all three {@code Child} objects
+ * will be notified when the parent's name changes.
  *
  * <p>
- * For an instance method, the method will be invoked on <i>each object</i> for which the changed field is
- * found at the end of the specified reference path <i>starting from that object</i>.
- *
- * <p>
- * If the annotated method is a static method, the method is invoked <i>once</i> if any instance exists for which the
- * changed field is found at the end of the specified reference path, no matter how many such instances there are.
- * Otherwise the behavior is the same.
+ * If the instance is a static method, then the method is invoked once when any instance of the class containing
+ * the method exists for which the changed field is found at the end of the specified reference path, no matter how many
+ * such instances there are. So in the previous example, making the method static would cause it to be invoked once
+ * when the parent's name changes.
  *
  * <p><b>Notification Delivery</b></p>
  *
@@ -183,13 +180,14 @@ import java.lang.annotation.Target;
  * Notifications are delivered synchronously within the thread the made the change, after the change is made and just
  * prior to returning to the original caller.
  * Additional changes made within an {@link OnChange &#64;OnChange} handler that themselves result in notifications
- * are also handled prior to returning to the original caller. Therefore, infinite loops are possible if an
- * {@link OnChange &#64;OnChange} handler method modifies the field it's monitoring (directly, or indirectly via
+ * are also handled prior to returning to the original caller. Put another way, the queue of outstanding notifications
+ * triggered by invoking a method that changes any field is emptied before that method returns. Therefore, infinite loops
+ * are possible if an {@link OnChange &#64;OnChange} handler method modifies the field it's monitoring (directly, or indirectly via
  * other {@link OnChange &#64;OnChange} handler methods).
  *
  * <p>
  * {@link OnChange &#64;OnChange} functions within a single transaction; it does not notify about changes that
- * may have occurred in a different transaction.
+ * occur in other transactions.
  *
  * <p><b>Fields of Sub-Types</b>
  *
@@ -200,29 +198,32 @@ import java.lang.annotation.Target;
  *
  * <pre>
  * &#64;PermazenType
- * public class Person {
+ * public abstract class <b>Person</b> {
  *
  *     public abstract Set&lt;Person&gt; <b>getFriends</b>();
  *
- *     &#64;OnChange("friends.element.<b>name</b>")
+ *     &#64;OnChange(path = "friends", field="<b>name</b>")
  *     private void friendNameChanged(SimpleFieldChange&lt;NamedPerson, String&gt; change) {
  *         // ... do whatever
  *     }
  * }
  *
  * &#64;PermazenType
- * public class NamedPerson extends Person {
+ * public abstract class <b>NamedPerson</b> extends Person {
  *
  *     public abstract String <b>getName</b>();
  *     public abstract void setName(String name);
  * }
  * </pre>
  *
- * Here the path {@code "friends.element.name"} seems incorrect because {@code "friends.element"} has type {@code Person},
+ * Here the path {@code "friends.name"} seems incorrect because {@code "friends"} has type {@code Person},
  * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still
- * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a field
- * named {@code "name"}. Note also in the example above the {@link SimpleFieldChange} parameter to the
- * method {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
+ * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a
+ * different field named {@code "name"}.
+ *
+ * <p>
+ * Note also in the example above the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
+ * necessarily has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
  *
@@ -235,12 +236,12 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
- * is seen through the path in multiple ways (e.g., via reference path {@code "mylist.element.myfield"} where the changed object
+ * is seen through the path in multiple ways (e.g., via reference path {@code "mylist.myfield"} where the changed object
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
- * Actions that have effects visible to the outside world should be made contingent on successful transaction commit,
- * for example, via {@link Transaction#addCallback Transaction.addCallback()}.
+ * When handing change events, any action that has effects visible to the outside world should be made contingent on
+ * successful transaction commit, for example, by wrapping it in {@link Transaction#addCallback Transaction.addCallback()}.
  *
  * <p>
  * See {@link Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
@@ -262,34 +263,37 @@ import java.lang.annotation.Target;
 public @interface OnChange {
 
     /**
-     * Specifies the path(s) to the target field(s) to watch for changes.
-     * See {@link ReferencePath} for information on the proper syntax.
+     * Specify the reference path to the target object(s) that should be monitored for changes.
+     * See {@link ReferencePath} for information on reference paths and their proper syntax.
      *
      * <p>
-     * Multiple paths may be specified; if so, each path is handled as a separate independent listener registration,
-     * and the method's parameter type must be compatible with at least one of the {@link FieldChange}
-     * sub-types emitted by each field.
+     * The default empty path means the monitored object and the notified object are the same.
      *
      * <p>
-     * If zero paths are specified (the default), every field in the class (including superclasses) that emits
-     * {@link FieldChange}s compatible with the method parameter will be monitored for changes.
+     * In the case of static methods, a non-empty path restricts notification from being delivered
+     * unless there exists at least one object for whom the monitored object is found at the other
+     * end of the path.
      *
-     * @return reference path leading to the changed field
+     * @return reference path leading to monitored objects
      * @see ReferencePath
      */
-    String[] value() default { };
+    String path() default "";
 
     /**
-     * Specifies the starting type for the {@link ReferencePath} specified by {@link #value}.
+     * Specify the fields in the target object(s) that should be monitored for changes.
      *
      * <p>
-     * This property must be left unset for instance methods. For static methods, if this property is left unset,
-     * then then class containing the annotated method is assumed.
+     * Multiple fields may be specified; if so, each field is handled as a separate independent listener registration,
+     * and for each field, the method's parameter type must be compatible with at least one of the {@link FieldChange}
+     * event sub-types emitted by that field.
      *
-     * @return Java type at which the reference path starts
-     * @see ReferencePath
+     * <p>
+     * If zero paths are specified (the default), every field in the target object(s) that emits
+     * {@link FieldChange}s compatible with the method's parameter type will be monitored for changes.
+     *
+     * @return the names of the fields to monitored in the target objects
      */
-    Class<?> startType() default void.class;
+    String[] value() default { };
 
     /**
      * Determines whether this annotation should also be enabled for

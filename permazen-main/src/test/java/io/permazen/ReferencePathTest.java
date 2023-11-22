@@ -23,16 +23,29 @@ import org.testng.annotations.Test;
 
 public class ReferencePathTest extends TestSupport {
 
-    private Permazen jdb;
+    private Permazen jdb1;
+    private Permazen jdb2;
 
     @BeforeClass
     public void setup() {
-        this.jdb = BasicTest.getPermazen(Person.class, MeanPerson.class);
+        this.jdb1 = BasicTest.getPermazen(Person.class, MeanPerson.class, Dog.class);
+        this.jdb2 = BasicTest.getPermazen(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
     }
 
-    @Test(dataProvider = "paths")
-    public void testReferencePath(Class<?> startType, Class<?> targetType, int targetField,
-      int targetSuperField, int[] refs, boolean withTargetField, Boolean lastIsSubField, String pathString) throws Exception {
+    @Test(dataProvider = "paths1")
+    public void testReferencePath1(Class<?> startType, Class<?> targetType, boolean singular, int[] refs, String pathString)
+      throws Exception {
+        this.testReferencePath(this.jdb1, startType, targetType, singular, refs, pathString);
+    }
+
+    @Test(dataProvider = "paths2")
+    public void testReferencePath2(Class<?> startType, Class<?> targetType, boolean singular, int[] refs, String pathString)
+      throws Exception {
+        this.testReferencePath(this.jdb2, startType, targetType, singular, refs, pathString);
+    }
+
+    public void testReferencePath(Permazen jdb, Class<?> startType,
+      Class<?> targetType, boolean singular, int[] refs, String pathString) throws Exception {
 
         // Prepare args
         final boolean valid = targetType != null;
@@ -42,126 +55,91 @@ public class ReferencePathTest extends TestSupport {
         // Parse path
         final ReferencePath path;
         try {
-            path = new ReferencePath(this.jdb, startType, pathString, withTargetField, lastIsSubField);
-            assert valid : "path was supposed to be invalid";
+            path = jdb.parseReferencePath(startType, pathString);
+            assert valid : "path was supposed to be invalid:"
+              + "\n  startType=" + startType
+              + "\n  targetType=" + targetType
+              + "\n  pathString=" + pathString;
         } catch (IllegalArgumentException e) {
             if (valid)
-                throw new RuntimeException("path was supposed to be valid but parse failed", e);
+                throw new AssertionError("path was supposed to be valid but parse failed", e);
+            this.log.info("got expected " + e);
             return;
         }
 
         // Verify parse
-        Assert.assertEquals(path.startType, startType);
-        Assert.assertTrue(path.getTargetTypes().contains(targetType), path.getTargetTypes() + " does not contain " + targetType);
-        Assert.assertEquals(path.targetFieldStorageId, targetField, "wrong target field");
-        Assert.assertEquals(path.targetSuperFieldStorageId, targetSuperField, "wrong target superfield");
+        Assert.assertEquals(path.isSingular(), singular, "wrong singular");
+        Assert.assertEquals(path.getTargetType(), targetType, path.getTargetType()
+          + " (=> " + path.getTargetTypes() + ") != " + targetType);
         Assert.assertEquals(Ints.asList(path.getReferenceFields()), Ints.asList(refs), "wrong reference fields");
-        Assert.assertEquals(path.path, pathString, "wrong path");
         Assert.assertEquals(path.toString(), pathString, "wrong path.toString()");
     }
 
-    @DataProvider(name = "paths")
-    public Object[][] genPaths() {
+    @DataProvider(name = "paths1")
+    public Object[][] genPaths1() {
         return new Object[][] {
 
-        //  startType                 targetSuperField          withTargetField
-        //  targetType        targetField     refs                     lastIsSubField
+        //  startType           targetType          singular    refs                path
+          { Person.class,       null,               true,       null,               "." },
+          { Person.class,       null,               true,       null,               "->" },
+          { Person.class,       null,               true,       null,               "<-" },
+          { Person.class,       null,               true,       null,               "!@#$%^&" },
+          { Person.class,       null,               true,       null,               "->Person" },
+          { Person.class,       null,               true,       null,               "->->Person" },
+          { Person.class,       null,               true,       null,               "Person->" },
+          { Person.class,       null,               true,       null,               "->Person..z" },
+          { Person.class,       null,               true,       null,               "->Person.unknown" },
+          { Person.class,       null,               true,       null,               "->z" },
+          { Person.class,       null,               true,       null,               "Person->z" },
 
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "" },
-          { Person.class,
-            Person.class,     0,      0,      ii(),             false, null,   "" },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "." },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "!@#$%^&" },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   ".Person" },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "Person." },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "Person..z" },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "Person.unknown" },
+          { Person.class,       Person.class,       true,       ii(),               "" },
+          { Person.class,       Person.class,       true,       ii(110),            "->friend" },
+          { Person.class,       Dog.class,          false,      ii(-310),           "<-Dog.owner" },
+          { Dog.class,          null,               true,       null,               "<-Dog.owner" },    // Dogs can't be owners
+          { Person.class,       MeanPerson.class,   false,      ii(110, -151),      "->friend<-Person.enemies" },
+          { MeanPerson.class,   Person.class,       false,      ii(151),            "->enemies" },
+          { MeanPerson.class,   Person.class,       false,      ii(151),            "->enemies.element" },
+          { MeanPerson.class,   null,               true,       null,               "->enemies.smelement" },
+          { MeanPerson.class,   null,               true,       null,               "->enemies.element->ratings" },
+          { MeanPerson.class,   Person.class,       false,      ii(151, 141),       "->enemies.element->ratings.key" },
+          { MeanPerson.class,   null,               false,      null,               "->enemies.element->ratings.value" },
+          { Person.class,       MeanPerson.class,   false,      ii(-151),           "<-MeanPerson.enemies" },
+          { Person.class,       MeanPerson.class,   false,      ii(-151),           "<-MeanPerson.enemies.element" },
+          { Person.class,       null,               false,      null,               "<-MeanPerson.enemies.element->z" },
+          { Person.class,       Person.class,       false,      ii(151, -151, 151), "->enemies<-MeanPerson.enemies->enemies" },
+        };
+    }
 
-          { Person.class,
-            Person.class,     101,    0,      null,             true,  null,   "z" },
-          { Person.class,
-            null,             -1,     -1,     null,             true,  null,   "Person.z" },
+    @DataProvider(name = "paths2")
+    public Object[][] genPaths2() {
+        return new Object[][] {
 
-          { MeanPerson.class,
-            MeanPerson.class, 150,    0,      null,             true,  null,   "enemies" },
-          { MeanPerson.class,
-            MeanPerson.class, 150,    0,      null,             true,  false,  "enemies" },
-          { MeanPerson.class,
-            null,             -1,     -1,     null,             true,  true,   "enemies" },
+        //  startType           targetType          singular    refs                path
+          { WackyPaths1.class,  WackyPaths1.class,  true,       ii(),               "" },
+          { WackyPaths2.class,  WackyPaths2.class,  true,       ii(),               "" },
+          { WackyPaths3.class,  WackyPaths3.class,  true,       ii(),               "" },
 
-          { MeanPerson.class,
-            MeanPerson.class, 151,    150,    null,             true,  null,   "enemies.element" },
-          { MeanPerson.class,
-            MeanPerson.class, 151,    150,    null,             true,  true,   "enemies.element" },
-          { MeanPerson.class,
-            null,             -1,     -1,     null,             true,  false,  "enemies.element" },
+          { WackyPaths1.class,  JObject.class,      true,       ii(123),            "->foo" },
+          { WackyPaths1.class,  WackyPaths1.class,  true,       ii(123, 321),       "->foo->bar" },
+          { WackyPaths1.class,  JObject.class,      true,       ii(123, 321, 123),  "->foo->bar->foo" },
 
-          { MeanPerson.class,
-            Person.class,     101,    0,      ii(151),          true,  null,   "enemies.element.z" },
-          { MeanPerson.class,
-            Person.class,     141,    140,    ii(151),          true,  null,   "enemies.element.ratings.key" },
-          { MeanPerson.class,
-            Person.class,     101,    0,      ii(151, 141),     true,  null,   "enemies.element.ratings.key.z" },
+          { JObject.class,      null,               true,       null,               "->foo" },          // ambiguous
+          { JObject.class,      null,               true,       null,               "->foo->element" }, // ambiguous
+          { JObject.class,      JObject.class,      true,       ii(123),            "->foo#123" },      // disambiguated
 
-      // Sub-field
-          { Person.class,
-            MeanPerson.class, 150,    0,      null,             true,  false,  "enemies" },
+          { WackyPaths1.class,  null,               true,       null,               "->foo.element" },  // wrong start type
+          { WackyPaths2.class,  null,               true,       null,               "->foo.element" },  // wrong start type
+          { WackyPaths3.class,  WackyPaths2.class,  false,      ii(789),            "->foo.element" },
+          { WackyPaths3.class,  WackyPaths2.class,  false,      ii(789),            "->foo"         },  // abbreviated form
+          { JObject.class,      WackyPaths2.class,  false,      ii(789),            "->foo.element" },
 
-      // Reverse paths
-
-        //  startType                 targetSuperField          withTargetField
-        //  targetType        targetField     refs                     lastIsSubField
-
-          { Person.class,
-            null,             -1,     -1,     null,             true,  false,  "^MeanPerson:enemies.element^" },
-          { Person.class,
-            null,             -1,     -1,     null,             false, false,  "^MeanPerson:enemies^" },
-          { Person.class,
-            null,             -1,     -1,     null,             false, true,   "^MeanPerson:enemies^" },
-          { Person.class,
-            MeanPerson.class, 0,      0,      ii(-151),         false, false,  "^MeanPerson:enemies.element^" },
-          { Person.class,
-            null,             -1,     -1,     null,             false, false,  "^MeanPerson:enemies.element^.z" },
-          { Person.class,
-            MeanPerson.class, 101,    0,      ii(-151),         true,  false,  "^MeanPerson:enemies.element^.z" },
+          { JObject.class,      WackyPaths1.class,  false,      ii(-321, 321),      "<-WackyPaths2.bar->bar" },
+          { JObject.class,      WackyPaths1.class,  false,      ii(-321, 321),      "<-io.permazen.JObject.bar->bar" },
         };
     }
 
     private static int[] ii(int... ints) {
         return ints;
-    }
-
-    @Test
-    public void testWackyPaths() throws Exception {
-        final Permazen jdb2 = BasicTest.getPermazen(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
-
-        // this should be OK - two hops through two reference fields: foo->element->name
-        new ReferencePath(jdb2, WackyPaths1.class, "foo.element.name", true, null);
-
-        // this should be OK - one hop through one set element sub-field: foo.element->name
-        new ReferencePath(jdb2, WackyPaths3.class, "foo.element.name", true, null);
-
-        // these should be OK - we are disambiguating which "foo" field by specifying the storage ID
-        new ReferencePath(jdb2, JObject.class, "foo#123.element.name", true, null);
-        new ReferencePath(jdb2, JObject.class, "foo#456.element.name", true, null);
-
-        // this should be OK - second "foo" must be in the context of WackyPaths3
-        new ReferencePath(jdb2, JObject.class, "foo.^java.lang.Object:bar^.foo.element", false, null);
-
-        // this should fail - ambiguous path of references
-        try {
-            new ReferencePath(jdb2, JObject.class, "foo.element.name", true, null);
-            assert false : "path was supposed to be invalid";
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
     }
 
 // Model Classes
@@ -193,6 +171,14 @@ public class ReferencePathTest extends TestSupport {
         public abstract List<Person> getEnemies();
     }
 
+    @PermazenType(storageId = 300)
+    public abstract static class Dog implements JObject {
+
+        @JField(storageId = 310)
+        public abstract Person getOwner();
+        public abstract void setOwner(Person x);
+    }
+
 // Wacky paths
 
     @PermazenType
@@ -211,15 +197,17 @@ public class ReferencePathTest extends TestSupport {
 
         public abstract JObject getElement();
         public abstract void setElement(JObject x);
+
+        @JField(storageId = 321)
+        public abstract WackyPaths1 getBar();
+        public abstract void setBar(WackyPaths1 x);
     }
 
     @PermazenType
     public abstract static class WackyPaths3 implements JObject {
 
-        @JListField(storageId = 456)
-        public abstract List<JObject> getFoo();
-
-        public abstract JObject getBar();
-        public abstract void setBar(JObject x);
+        @JListField(storageId = 456,
+          element = @JField(storageId = 789))
+        public abstract List<WackyPaths2> getFoo();
     }
 }

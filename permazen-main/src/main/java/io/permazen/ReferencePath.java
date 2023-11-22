@@ -7,7 +7,6 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
-import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.OnChange;
@@ -15,22 +14,22 @@ import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaObjectType;
-import io.permazen.util.ApplicationClassLoader;
-import io.permazen.util.ParseContext;
-import io.permazen.util.Streams;
+import io.permazen.tuple.Tuple2;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,70 +37,88 @@ import org.slf4j.LoggerFactory;
 /**
  * Reference paths.
  *
- * <p>
- * A reference path is a {@link String} specifying a path from some implicit <em>starting object type</em>, through zero
- * or more reference fields, ending up at some <em>target object type(s)</em>.
- * In other words, given some starting object(s), a reference path takes you through a path of references to the target object(s).
- * Note that the number of target objects can be vastly different than the number of starting objects, depending on
- * the fan-in/fan-out of the references traversed.
- *
- * <p><b>Specifying Fields</b>
+ * <p><b>Overview</b>
  *
  * <p>
- * The starting object type is always implicit from the context in which the path is used. The {@link String} path describes
- * the reference fields, i.e., the "steps" in the path that travel from the starting object type to the target object type.
- * The steps are separated by dot ({@code "."}) characters.
+ * A reference path defines a path of object references, starting from an instance of some <em>starting object type</em>
+ * and ending up at one or more target objects (having some <em>target object types</em>), by hopping from object to
+ * object through a sequence of reference fields. The reference fields may be simple reference fields or sub-fields
+ * of complex fields (i.e., list or set element, or map key or value), and may be traversed in either direction
+ * (forward or inverse). At its heart, a reference path is simply a list of reference fields along with a flag
+ * for each field that determines in which direction the reference should be traversed.
  *
  * <p>
- * The reference fields in the path may be traversed in either the <i>forward</i> or <i>inverse</i> direction:
- * to traverse a field in the forward direction, specify name of the field; to traverse a field in the inverse direction,
- * specify the name of the field and its containing type using the syntax {@code ^Type:field^}.
+ * At each step in the path, there is a set of possible <em>current object types</em>: at the initial step, this set
+ * is just the starting object type, and after the final step, this set equals the target object types. It is possible
+ * for any step to only apply to some of the current object types. This can happen when the field is only defined in some
+ * of the object types (for forward step) or when the field can only refer to some of them (for inverse steps). In these
+ * cases, the search ends for any unmatched types and continues for matching types. However, it is an error if, at any step,
+ * no types match, which would mean no objects could ever be found. It's also an error if the field specified at any
+ * step is ambiguous, which can happen when two sub-types define incompatible fields using the same name.
  *
  * <p>
- * For complex fields, specify both the field and sub-field: for {@link Set} and {@link java.util.List} fields, the sub-field is
- * always {@code "element"}, while for {@link java.util.Map} fields the sub-field is either {@code "key"} or {@code "value"}.
- * For example, to traverse a map field's {@code key} sub-field, specify {@code "mymap.key"}.
+ * When stepping through a collection field in the forward direction, or through any field in the inverse direction,
+ * the number of objects can multiply. In general, the number of target objects can be vastly different than
+ * the number of starting objects, depending on the fan-in/fan-out of the references traversed.
  *
- * <p><b>Target Fields</b>
- *
- * <p>
- * A reference path may optionally have a <b>target field</b> appended to the end of the path. The target field does not have
- * to be a reference field. If a target field is specified, the target object types
- * are restricted to those types containing the target field.
+ * <p><b>Reference Steps</b>
  *
  * <p>
- * Note that to avoid ambiguity it must be known at the time the path is parsed whether the path contains a target field: for
- * example, consider the path {@code "parent.parent"} in the context of a {@code Child} object: if there is a target field,
- * the target object is the child's parent and the target field is the {@code "parent"} field of the child's parent
- * (which just happens to also be a reference field), but if there is no target field, the path simply refers to the child's
- * grandparent.
+ * Reference paths are denoted in {@link String} form as zero or more concatenated <em>reference steps</em>:
+ * <ul>
+ *  <li>Forward reference steps are denoted {@code "->fieldName"} where {@code fieldName} is the name
+ *      of a reference field defined in at least one of the current object types.
+ *  <li>Inverse reference steps are denoted {@code "<-TypeName.fieldName"} where {@code fieldName} is the name
+ *      of a reference field defined in {@code TypeName} (or some sub-type).
+ * </ul>
+ *
+ * <p><b>Field Names</b>
+ *
+ * <p>
+ * In the case of complex fields, the {@code fieldName} must include a sub-field:
+ * <ul>
+ *  <li>For List and Set fields, the only sub-field is {@code element}; for these field types,
+ *      {@code myfield} can be used as an abbreviation for {@code myfield.element}.
+ *  <li>For Map fields, either {@code myfield.key} or {@code myfield.value} must be specified.
+ * </ul>
+ *
+ * <p>
+ * In rare cases, sub-types of a common super-type type have fields with the same name but different storage IDs.
+ * To disambiguate, the storage ID may always be explicitly specified as a suffix like this: {@code "myfield#123"}.
+ *
+ * <p><b>Type Names</b>
+ *
+ * <p>
+ * For inverse steps, the {@code TypeName} must be given to specify the type of the referring object.
+ * {@code TypeName} is either the name of an object type in the schema (typically this is the unqualified
+ * class name of the corresponding Java model class), or any fully-qualified Java class name.
  *
  * <p><b>Examples</b>
  *
  * <p>
- * Considering the following model classes:
+ * Consider the following model classes:
  *
  * <pre>
- * &#64;PermazenType
- * public class Employee {
+ * public interface Animal&lt;T extends Animal&lt;T&gt;&gt; {
  *
- *     public abstract String getName();
- *     public abstract void setName(String name);
+ *     T getParent();
+ *     void setParent(T parent);
  *
- *     public abstract Employee getManager();
- *     public abstract void setManager(Employee manager);
- *
- *     public abstract Set&lt;Asset&gt; getAssets();
+ *     Set&lt;Animal&lt;?&gt;&gt; getEnemies();
  * }
  *
  * &#64;PermazenType
- * public class Asset {
+ * public interface Elephant extends Animal&lt;Elephant&gt; {
  *
- *     public abstract int getAssetId();
- *     public abstract void setAssetId(int assetId);
+ *     Elephant getFriend();
+ *     void setFriend(Elephant friend);
+ * }
  *
- *     public abstract String getName();
- *     public abstract void setName(String name);
+ * &#64;PermazenType
+ * public interface Giraffe extends Animal&lt;Giraffe&gt; {
+ *
+ *     Giraffe getFriend();
+ *     void setFriend(Giraffe friend);
  * }
  * </pre>
  *
@@ -113,114 +130,77 @@ import org.slf4j.LoggerFactory;
  * <tr style="bgcolor:#ccffcc">
  *  <th style="font-weight: bold; text-align: left">Start&nbsp;Type</th>
  *  <th style="font-weight: bold; text-align: left">Path</th>
- *  <th style="font-weight: bold; text-align: left">Has Target Field?</th>
+ *  <th style="font-weight: bold; text-align: left">Target Types</th>
  *  <th style="font-weight: bold; text-align: left">Description</th>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
+ *  <td>{@code Elephant}</td>
  *  <td>{@code ""}</td>
- *  <td>No</td>
- *  <td>The {@code Employee}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>The starting {@code Elephant}</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code ""}</td>
- *  <td>Yes</td>
- *  <td>Invalid - no target field specified</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "->parent"}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>The {@code Elephant}'s parent</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "name"}</td>
- *  <td>Yes</td>
- *  <td>The {@code Employee}'s name</td>
+ *  <td>{@code Giraffe}</td>
+ *  <td>{@code "->parent"}</td>
+ *  <td>{@code Giraffe}</td>
+ *  <td>The {@code Giraffe}'s parent</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "name"}</td>
- *  <td>No</td>
- *  <td>Invalid - {@code "name"} is not a reference field</td>
+ *  <td>{@code Animal}</td>
+ *  <td>{@code "->parent"}</td>
+ *  <td>{@code Elephant},&nbsp;{@code Giraffe}</td>
+ *  <td>The {@code Animals}'s parent</td>
  * </tr>
  * <tr>
- *  <td>{@code Asset}</td>
- *  <td>{@code "name"}</td>
- *  <td>Yes</td>
- *  <td>The {@code Asset}'s name</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "<-Elephant.enemies"}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>All {@code Elephant}s for whom the original {@code Elephant} is an enemy</td>
  * </tr>
  * <tr>
- *  <td>{@code Object}</td>
- *  <td>{@code "name"}</td>
- *  <td>Yes</td>
- *  <td>The {@code Employee}'s or {@code Asset}'s name</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "<-Animal.enemies"}</td>
+ *  <td>{@code Elephant},&nbsp;{@code Giraffe}</td>
+ *  <td>All {@code Animal}s for whom the original {@code Elephant} is an enemy</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "manager"}</td>
- *  <td>No</td>
- *  <td>The {@code Employee}'s manager</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "<-friend"}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>All {@code Elephant}s for whom the original {@code Elephant} is their friend</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "manager"}</td>
- *  <td>Yes</td>
- *  <td>The {@code "manager"} field of the {@code Employee}</td>
+ *  <td>{@code Animal}</td>
+ *  <td>{@code "<-friend"}</td>
+ *  <td>{@code Elephant},&nbsp;{@code Giraffe}</td>
+ *  <td>All {@code Animal}s for whom the original {@code Animal} is their friend</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "manager.name"}</td>
- *  <td>Yes</td>
- *  <td>The {@code Employee}'s manager's name</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "->friend<-Giraffe.enemies"}</td>
+ *  <td>{@code Giraffe}</td>
+ *  <td>All {@code Giraffe}s for whom the original {@code Elephant}'s friend is an enemy</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "^Employee:manager^.name"}</td>
- *  <td>Yes</td>
- *  <td>The names of all of the {@code Employee}'s direct reports</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "->enemies<-Giraffe.friend}<br>  {@code ->enemies<-Elephant.friend"}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>All {@code Elephant}s who's friend is an enemy of some {@code Giraffe} for whom one of the original {@code Elephant}'s enemies is their friend</td>
  * </tr>
  * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "manager.assets.description"}</td>
- *  <td>Yes</td>
- *  <td>The descriptions of the {@code Employee}'s manager's assets</td>
- * </tr>
- * <tr>
- *  <td>{@code Employee}</td>
- *  <td>{@code "manager.^Employee:manager^"}</td>
- *  <td>No</td>
- *  <td>All of the {@code Employee}'s manager's direct reports</td>
- * </tr>
- * <tr>
- *  <td>{@code Asset}</td>
- *  <td>{@code "^Employee:assets.element^"}</td>
- *  <td>No</td>
- *  <td>The employee owning the {@code Asset}</td>
- * </tr>
- * <tr>
- *  <td>{@code Asset}</td>
- *  <td>{@code "^Employee:assets.element^"}</td>
- *  <td>Yes</td>
- *  <td>Invalid - no target field specified</td>
- * </tr>
- * <tr>
- *  <td>{@code Asset}</td>
- *  <td>{@code "^Employee:assets.element^}<br>&nbsp;&nbsp;{@code .manager.^Employee:manager^.asset.assetId"}</td>
- *  <td>Yes</td>
- *  <td>ID's of all {@code Asset}s owned by direct reports of the manager of the {@code Employee} owning the original
- *      {@code Asset}</td>
+ *  <td>{@code Elephant}</td>
+ *  <td>{@code "<-Giraffe.friend"}</td>
+ *  <td>N/A</td>
+ *  <td>Invalid - it's not possible for an {@code Elephant} to be a {@code Giraffe}'s friend</td>
  * </tr>
  * </table>
  * </div>
- *
- * <p><b>Fields of Sub-Types</b>
- *
- * <p>
- * The same field can appear in multiple types, e.g., {@code "name"} in the example above appears in both {@code Employee}
- * and {@code Asset}. The set of all possible object types is recalculated at each step in the reference path, including
- * at the last step, which gives the target object type(s). At each intermediate step, as long as the Java types do not
- * contain incompatible definitions for the named field, the step is valid.
- *
- * <p>
- * In rare cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
- * the storage ID may be explicitly specified as a suffix, for example, {@code "name#123"}.
  *
  * <p><b>Using Reference Paths</b>
  *
@@ -230,34 +210,25 @@ import org.slf4j.LoggerFactory;
  * or in the inverse direction via {@link JTransaction#invertReferencePath JTransaction.invertReferencePath()}.
  *
  * <p>
- * Reference paths are also used implicitly by {@link OnChange &#64;OnChange} annotations to specify non-local objects
+ * Reference paths are also used by {@link OnChange &#64;OnChange} annotations to specify non-local objects
  * for change monitoring, and by {@link FollowPath &#64;FollowPath} annotations.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see JTransaction#followReferencePath JTransaction.followReferencePath()
  * @see JTransaction#invertReferencePath JTransaction.invertReferencePath()
+ * @see FollowPath &#64;FollowPath
  * @see OnChange &#64;OnChange
  */
 public class ReferencePath {
 
-    private static final String IDENT = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
-    private static final String IDENT_ID = IDENT + "(?:#[0-9]+)?";
-    private static final String IDENT_ID_1OR2 = IDENT_ID + "(?:\\." + IDENT_ID + ")?";
-    private static final String IDENTS = IDENT + "(?:\\." + IDENT + ")*";
-    private static final String FWD_STEP = "(" + IDENT_ID + ")";
-    private static final String REV_STEP = "\\^((" + IDENTS + "):(" + IDENT_ID_1OR2 + "))\\^";
+    private static final String FWD_PREFIX = "->";
+    private static final String REV_PREFIX = "<-";
 
     final Permazen jdb;
-    final Class<?> startType;
-    final ArrayList<Set<Class<?>>> pathTypes;
-    final Set<TypeToken<?>> targetEncodings;
-    final int targetFieldStorageId;
-    final int targetSuperFieldStorageId;
-    final int[] referenceFieldStorageIds;
-    final Set<Cursor> cursors;
     final String path;
-
-    boolean someTargetFieldIndexed;
+    final boolean singular;
+    final int[] storageIds;
+    final ArrayList<Set<JClass<?>>> currentTypesList;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -267,382 +238,279 @@ public class ReferencePath {
      * Constructor.
      *
      * @param jdb {@link Permazen} against which to resolve object and field names
-     * @param startType starting Java type for the path
-     * @param path dot-separated path of zero or more reference fields, followed by a target field
-     * @param withTargetField true if this path has a target field
-     * @param lastIsSubField true if the last field can be a complex sub-field but not a complex field, false for the reverse,
-     *  or null for don't care
-     * @throws IllegalArgumentException if {@code jdb}, {@code startType}, or {@code path} is null
-     * @throws IllegalArgumentException if {@code startType} is not compatible with any Java model types
+     * @param startTypes starting model types for the path, with null meaning {@link UntypedJObject}
+     * @param path reference path in string form
+     * @throws IllegalArgumentException if {@code startTypes} is empty
      * @throws IllegalArgumentException if {@code path} is invalid
+     * @throws IllegalArgumentException if any parameter is null
      */
-    ReferencePath(Permazen jdb, Class<?> startType, String path, boolean withTargetField, Boolean lastIsSubField) {
+    ReferencePath(Permazen jdb, Collection<JClass<?>> startTypes, String path) {
 
         // Sanity check
         Preconditions.checkArgument(jdb != null, "null jdb");
-        Preconditions.checkArgument(startType != null, "null startType");
+        Preconditions.checkArgument(startTypes != null, "null startTypes");
+        Preconditions.checkArgument(!startTypes.isEmpty(), "empty startTypes");
         Preconditions.checkArgument(path != null, "null path");
-        final String errorPrefix = "invalid path \"" + path + "\": ";
+        startTypes.forEach(jclass -> Preconditions.checkArgument(jclass == null || jclass.jdb == jdb, "foreign model type"));
         this.jdb = jdb;
-        this.startType = startType;
         this.path = path;
 
         // Debug
-        if (this.log.isTraceEnabled()) {
-            this.log.trace("RefPath: START startType={} path=\"{}\" withTargetField={} lastIsSubField={}",
-              startType.getName(), path, withTargetField, lastIsSubField);
-        }
+        if (this.log.isTraceEnabled())
+            this.log.trace("RefPath: START path=\"{}\" startTypes={}", path, debugFormat(startTypes));
 
-        // Split the path into field names
-        final ArrayDeque<String> fieldNames = new ArrayDeque<>();
-        final ParseContext ctx = new ParseContext(path);
-        while (!ctx.isEOF()) {
-
-            // Gobble separator
-            if (ctx.getIndex() > 0)
-                ctx.expect('.');
-
-            // Parse next step (either forward or reverse)
-            Matcher matcher = ctx.tryPattern(FWD_STEP);
-            if (matcher == null && (matcher = ctx.tryPattern(REV_STEP)) == null) {
-                throw new IllegalArgumentException(errorPrefix + "invalid path starting at \""
-                  + ParseContext.truncate(ctx.getInput(), 32) + "\"");
+        // Split the path into steps, each starting with "->" or "<-"
+        final List<String> steps = new ArrayList<>();           // steps without prefixes
+        final List<Boolean> inverses = new ArrayList<>();       // true = inverse, false = forward
+        final Pattern prefixPattern = Pattern.compile(String.format("(%s|%s)",
+          Pattern.quote(FWD_PREFIX), Pattern.quote(REV_PREFIX)));
+        final String errorPrefix = "invalid path \"" + path + "\"";
+        while (!path.isEmpty()) {
+            Matcher matcher = prefixPattern.matcher(path);
+            if (!matcher.lookingAt()) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: steps must start with either \"%s\" or \"%s\"", errorPrefix, FWD_PREFIX, REV_PREFIX));
             }
-            fieldNames.add(matcher.group());
+            final String prefix = matcher.group();
+            final boolean inverse = prefix.equals(REV_PREFIX);
+            path = path.substring(prefix.length());
+            final String step = (matcher = prefixPattern.matcher(path)).find() ? path.substring(0, matcher.start()) : path;
+            if (step.isEmpty())
+                throw new IllegalArgumentException(String.format("%s: invalid empty step \"%s\"", errorPrefix, prefix));
+            steps.add(step);
+            inverses.add(inverse);
+            path = path.substring(step.length());
         }
 
         // Debug
         if (this.log.isTraceEnabled())
-            this.log.trace("RefPath: fieldNames={}", fieldNames);
-
-        // Get starting types
-        final List<? extends JClass<?>> startJClasses = this.jdb.getJClasses(this.startType);
-        if (startJClasses.isEmpty()) {
-            throw new IllegalArgumentException(errorPrefix
-              + "no model type is an instance of path start type " + this.startType.getName());
-        }
+            this.log.trace("RefPath: steps={}", steps);
 
         // Initialize cursors
-        final HashSet<Cursor> remainingCursors = new HashSet<>();
-        Streams.iterate(startJClasses.stream().map(jclass -> new Cursor(jclass, jclass.getType(), fieldNames)),
-          remainingCursors::add);
-        if (this.startType.isAssignableFrom(UntypedJObject.class))
-          remainingCursors.add(new Cursor(null, UntypedJObject.class, fieldNames));
+        HashSet<Cursor> cursors = new HashSet<>();
+        for (JClass<?> startType : startTypes)
+            cursors.add(new Cursor(startType));
 
-        // Recursively advance cursors
-        IllegalArgumentException error = null;
-        final HashSet<Cursor> completedCursors = new HashSet<>();
-        while (!remainingCursors.isEmpty()) {
+        // Advance cursors until all steps are completed or they all peter out
+        for (int i = 0; i < steps.size(); i++) {
+            final String step = steps.get(i);
+            final boolean inverse = inverses.get(i);
 
             // Debug
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: remainingCursors={}", remainingCursors);
+                this.log.trace("RefPath: step={} inverse={} cursors={}", step, inverse, debugFormat(cursors));
 
-            // Advance outstanding cursors
-            final HashSet<Cursor> previouslyRemainingCursors = new HashSet<>(remainingCursors);
-            remainingCursors.clear();
-            for (Cursor cursor : previouslyRemainingCursors) {
+            // Advance the remaining cursors
+            final HashSet<Cursor> newCursors = new HashSet<>();
+            IllegalArgumentException error = null;
+            for (Cursor cursor : cursors) {
 
                 // Debug
                 if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: processing remainingCursor {}", cursor);
+                    this.log.trace("RefPath: processing cursor {}", cursor);
 
-                // Cursors that have no remaining fields, and for which no target field is required, are completed
-                if (!withTargetField && !cursor.hasMoreFieldNames()) {
-                    if (this.log.isTraceEnabled())
-                        this.log.trace("RefPath: remainingCursor {} is completed", cursor);
-                    completedCursors.add(cursor);
-                    continue;
-                }
-
-                // Try to identify the next field in the path
-                final Set<Cursor> newCursors;
+                // Try to advance this cursor
+                final Set<Cursor> advancedCursors;
                 try {
-                    newCursors = cursor.identifyNextField(withTargetField, lastIsSubField);
+                    advancedCursors = cursor.advance(inverse, step);
                 } catch (IllegalArgumentException e) {
                     if (this.log.isTraceEnabled())
-                        this.log.trace("RefPath: identifyNextField() on {} failed: {}", cursor, e.getMessage());
-                    error = e;
+                        this.log.trace("RefPath: advance({}, \"{}\") on {} failed: {}", inverse, step, cursor, e.getMessage());
+                    if (error == null || cursor.jclass != null)
+                        error = e;
                     continue;
                 }
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: identifyNextField() on {} succeeded: newCursors={}", cursor, newCursors);
-
-                // Debug
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: after identifyNextField(), newCursors={}",  newCursors);
-
-                // Remove cursors for which we have reached the end of the path
-                for (Iterator<Cursor> i = newCursors.iterator(); i.hasNext(); ) {
-                    final Cursor newCursor = i.next();
-                    if (withTargetField && !newCursor.hasMoreFieldNames()) {
-                        if (newCursor.isReverseStep())                              // target field cannot be a reverse step
-                            throw new IllegalArgumentException("Invalid reference path: missing target field");
-                        if (this.log.isTraceEnabled())
-                            this.log.trace("RefPath: newCursor {} is completed", cursor);
-                        completedCursors.add(newCursor);
-                        i.remove();
-                    }
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("RefPath: advance({}, \"{}\") on {} succeeded: advancedCursors={}",
+                      inverse, step, cursor, debugFormat(advancedCursors));
                 }
 
-                // Debug
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: after identifyNextField(), remaining newCursors={}", newCursors);
-
-                // Advance the unfinished cursors through the next reference field
-                for (Cursor newCursor : newCursors) {
-
-                    // Debug
-                    if (this.log.isTraceEnabled())
-                        this.log.trace("RefPath: invoking stepThroughReference() on {}", newCursor);
-
-                    // "Dereference" the reference field, possibly branching to create multiple new cursors
-                    final Set<Cursor> dereferencedCursors;
-                    try {
-                        dereferencedCursors = newCursor.stepThroughReference();
-                    } catch (IllegalArgumentException e) {
-                        error = e;
-                        continue;
-                    }
-
-                    // Debug
-                    if (this.log.isTraceEnabled())
-                        this.log.trace("RefPath: stepThroughReference() returned {}", dereferencedCursors);
-                    remainingCursors.addAll(dereferencedCursors);
-                }
+                // Add new cursors to next cursor set
+                newCursors.addAll(advancedCursors);
             }
-        }
 
-        // Check for error
+            // Any cursors remaining?
+            if ((cursors = newCursors).isEmpty())
+                throw error;
+        }
         if (this.log.isTraceEnabled())
-            this.log.trace("RefPath: remainingCursors={} completedCursors={}", remainingCursors, completedCursors);
-        if (completedCursors.isEmpty())
-            throw error;
+            this.log.trace("RefPath: final cursors={}", debugFormat(cursors));
 
-        // Check that all cursors took the same path
-        final ArrayList<Integer> referenceFieldList = completedCursors.iterator().next().getReferenceFields();
-        for (Cursor cursor : completedCursors) {
-            if (!cursor.getReferenceFields().equals(referenceFieldList)) {
-                throw new IllegalArgumentException(errorPrefix
-                  + "path is ambiguous due to traversal of fields with different types");
+        // Verify all cursors stepped through the same fields
+        final Iterator<Cursor> cursortIterator = cursors.iterator();
+        this.storageIds = cursortIterator.next().getStorageIds();
+        cursortIterator.forEachRemaining(cursor -> {
+            if (!Arrays.equals(cursor.getStorageIds(), storageIds)) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: path is ambiguous due to traversal of different fields in different types", errorPrefix));
             }
-        }
+        });
 
-        // Get target field info
-        if (withTargetField) {
+        // Record the current types at each step
+        this.currentTypesList = new ArrayList<>(steps.size() + 1);
+        for (int i = 0; i <= steps.size(); i++) {
 
-            // Sanity check target field has a consistent storage ID and parent storage ID
-            final Set<Integer> targetFieldStorageIds = completedCursors.stream()
-              .map(Cursor::getField)
-              .map(JField::getStorageId)
-              .collect(Collectors.toSet());
-            final Set<Integer> targetSuperFieldStorageIds = completedCursors.stream()
-              .map(Cursor::getSuperField)
-              .map(sf -> sf != null ? sf.storageId : 0)
-              .collect(Collectors.toSet());
-            if (targetFieldStorageIds.size() != 1 || targetSuperFieldStorageIds.size() != 1) {
-                throw new IllegalArgumentException(errorPrefix + "the target field \"" + fieldNames.pollLast()
-                  + "\" is ambiguous: " + completedCursors.stream().map(Cursor::getField).collect(Collectors.toSet()));
-            }
-
-            // Calculate all possible target encodings, and whether any target field is indexed
-            final Set<TypeToken<?>> targetEncodingsSet = completedCursors.stream()
-              .peek(cursor -> this.someTargetFieldIndexed |= cursor.isIndexedSimpleField())
-              .map(Cursor::getField)
-              .map(JField::getTypeToken)
+            // Combine current types at this step from all cursors
+            final int i2 = i;
+            final Set<JClass<?>> currentTypes = cursors.stream()
+              .map(Cursor::getCurrentTypesList)
+              .map(list -> list.get(i2))
               .collect(Collectors.toSet());
 
-            // Initialize
-            this.targetEncodings = Collections.unmodifiableSet(targetEncodingsSet);
-            this.targetFieldStorageId = targetFieldStorageIds.iterator().next();
-            this.targetSuperFieldStorageId = targetSuperFieldStorageIds.iterator().next();
-        } else {
-            this.targetEncodings = null;
-            this.targetFieldStorageId = 0;
-            this.targetSuperFieldStorageId = 0;
+            // If UntypedObject is possible, then all model types should be possible
+            assert !currentTypes.contains(null) || currentTypes.containsAll(this.jdb.jclasses.values());
+
+            // Add to current types to list
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath: currentTypesList[{}] = {}", this.currentTypesList.size(), currentTypes);
+            this.currentTypesList.add(Collections.unmodifiableSet(currentTypes));
         }
 
-        // Gather and minimize path types
-        this.pathTypes = new ArrayList<>(referenceFieldList.size() + 1);
-        for (int i = 0; i <= referenceFieldList.size(); i++) {
-            final HashSet<Class<?>> types = new HashSet<>();
-            for (Cursor cursor : completedCursors) {
-                final Class<?> type = cursor.getPathTypes().get(i);
-                types.add(type);
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: added {} to pathTypes[{}] from {}", type, i, cursor);
-            }
-            this.pathTypes.add(ReferencePath.minimizeAndSeal(types));
-        }
-        assert this.pathTypes.size() == referenceFieldList.size() + 1;
-
-        // Done
-        this.referenceFieldStorageIds = Ints.toArray(referenceFieldList);
-        this.cursors = completedCursors;
+        // Record whether path is singular
+        this.singular = cursors.iterator().next().isSingular();     // all cursors should be the same on this question
 
         // Logging
         if (this.log.isTraceEnabled()) {
-            this.log.trace("RefPath: DONE: targetFieldStorageId={} targetSuperFieldStorageId={} targetEncodings={}"
-              + " references={} cursors={} pathTypes={}", this.targetFieldStorageId, this.targetSuperFieldStorageId,
-              this.targetEncodings, referenceFieldList, this.cursors, this.pathTypes);
+            this.log.trace("RefPath: DONE: singular={} fields={} currentTypesList={}",
+              singular, Ints.asList(this.storageIds), debugFormat(this.currentTypesList));
         }
     }
 
-    /**
-     * Get the Java type of the object at which this path starts.
-     *
-     * <p>
-     * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
-     * equal the {@linkplain #getTargetType target object type}, or possibly a super-type if the target
-     * field exists only in a sub-type.
-     *
-     * @return the Java type at which this reference path starts
-     */
-    public Class<?> getStartType() {
-        return this.startType;
+    private String debugFormat(Collection<?> items) {
+        if (items == null)
+            return "null";
+        if (items.isEmpty())
+            return "EMPTY";
+        return "\n  " + items.stream().map(String::valueOf).collect(Collectors.joining("\n  "));
     }
 
     /**
-     * Get the Java type of the object at which this path ends.
+     * Get the possible model object types for the objects at the start of this path.
+     *
+     * <p>
+     * This method returns the first set in the list returned by {@link #getCurrentTypesList}.
+     * If this path has zero length, then this method returns the same set as {@link #getTargetTypes}.
+     *
+     * <p>
+     * The returned set will contain a null element when the target object can possibly be an {@link UntypedJObject}.
+     *
+     * @return non-empty set of model object types at which this reference path starts, possibly including null
+     */
+    public Set<JClass<?>> getStartingTypes() {
+        return this.currentTypesList.get(0);
+    }
+
+    /**
+     * Get the narrowest possible Java type of the object(s) at which this path starts.
+     *
+     * <p>
+     * The returned type will be as narrow as possible while still including all possibilities, but note that it's
+     * possible for there to be multiple candidates for the "starting type", none of which is a sub-type of any other.
+     * To retrieve all such starting types, use {@link #getStartingTypes}; this method just invokes
+     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on that result.
+     *
+     * @return the Java type at which this reference path starts
+     */
+    public Class<?> getStartingType() {
+        return Util.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getStartingTypes())).getRawType();
+    }
+
+    /**
+     * Get the possible model object types for the objects at the end of this path.
+     *
+     * <p>
+     * This method returns the last set in the list returned by {@link #getCurrentTypesList}.
+     * If this path has zero length, then this method returns the same set as {@link #getStartingTypes}.
+     *
+     * <p>
+     * The returned set will contain a null element when the target object can possibly be an {@link UntypedJObject}.
+     *
+     * @return non-empty set of model object types at which this reference path ends, possibly including null
+     */
+    public Set<JClass<?>> getTargetTypes() {
+        return this.currentTypesList.get(this.currentTypesList.size() - 1);
+    }
+
+    /**
+     * Get the narrowest possible Java type of the object(s) at which this path ends.
      *
      * <p>
      * The returned type will be as narrow as possible while still including all possibilities, but note that it's
      * possible for there to be multiple candidates for the "target type", none of which is a sub-type of any other.
      * To retrieve all such target types, use {@link #getTargetTypes}; this method just invokes
-     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on the result.
+     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on that result.
      *
      * @return the Java type at which this reference path ends
      */
     public Class<?> getTargetType() {
-        return Util.findLowestCommonAncestorOfClasses(this.getTargetTypes().stream()).getRawType();
+        return Util.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getTargetTypes())).getRawType();
     }
 
     /**
-     * Get the possible Java types of the object at which this path ends.
-     *
-     * <p>
-     * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this method will
-     * return only the Java type of the {@linkplain #getStartType starting object type}, or possibly a sub-type
-     * if the target field exists only in a sub-type.
-     *
-     * <p>
-     * The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
-     * type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
-     * at which this path ends.
-     *
-     * @return the Java type(s) at which this reference path ends
-     */
-    public Set<Class<?>> getTargetTypes() {
-        return this.getPathTypes().get(this.pathTypes.size() - 1);
-    }
-
-    /**
-     * Get the set of possible model object types at each step in the path.
+     * Get the current object types at each step in the path.
      *
      * <p>
      * The returned list always has length one more than the length of the array returned by {@link #getReferenceFields},
      * such that the set at index <i>i</i> contains all possible types found after the <i>i<sup>th</sup></i> step.
-     * The first element contains type(s) that are all assignable to the {@linkplain #getStartType starting type}
-     * (possibly only the starting type if it was already maximally narrow), and the last element contains the
-     * {@linkplain #getTargetTypes target type(s)}.
+     * The first element contains the {@linkplain #getStartingTypes starting object types}
+     * and the last element contains the {@linkplain #getTargetTypes target types}.
      *
      * <p>
-     * Each set in the returned list will be maximally narrow: it will contain only one element if a unique such type exists,
-     * otherwise it will contain multiple mutually incompatible supertypes of the object types at that step.
+     * A set in the list will contain a null element if an object at that step can possibly be an {@link UntypedJObject}.
      *
-     * @return list of possible {@link JClass} corresponding to each step
+     * @return list of the possible {@link JClass}'s appearing at each step in this path, each of which is
+     *  non-empty and may include null
      */
-    public List<Set<Class<?>>> getPathTypes() {
-        return Collections.unmodifiableList(this.pathTypes);
-    }
-
-    KeyRanges[] getPathKeyRanges() {
-        if (this.pathKeyRanges == null) {
-            final int numJClasses = this.jdb.jclasses.size();
-            final KeyRanges[] array = new KeyRanges[this.pathTypes.size()];
-            for (int i = 0; i < this.pathTypes.size(); i++) {
-                final HashSet<JClass<?>> jclasses = new HashSet<>();
-                final Set<Class<?>> types = this.pathTypes.get(i);
-                for (Class<?> type : types)
-                    jclasses.addAll(this.jdb.getJClasses(type));
-                if (jclasses.size() == numJClasses && this.isAnyAssignableFrom(types, UntypedJObject.class))
-                    continue;                                                           // no filter needed
-                final ArrayList<KeyRange> ranges = new ArrayList<>(jclasses.size());
-                for (JClass<?> jclass : jclasses)
-                    ranges.add(ObjId.getKeyRange(jclass.storageId));
-                array[i] = new KeyRanges(ranges);
-            }
-            this.pathKeyRanges = array;
-        }
-        return this.pathKeyRanges;
-    }
-
-    private boolean isAnyAssignableFrom(Iterable<Class<?>> tos, Class<?> from) {
-        for (Class<?> to : tos) {
-            if (to.isAssignableFrom(from))
-                return true;
-        }
-        return false;
+    public List<Set<JClass<?>>> getCurrentTypesList() {
+        return Collections.unmodifiableList(this.currentTypesList);
     }
 
     /**
-     * Get the Java type(s) corresponding to the target field at which this path ends, if any.
-     *
-     * <p>
-     * The returned type(s) will be maximally narrow. The set will contain only one element if a unique such
-     * type exists, otherwise it will contain multiple mutually incompatible supertypes of the object types
-     * at which this path ends. The latter case can only occur when the field is a reference field, and there
-     * are multiple Java model classes compatible with the field's type.
-     *
-     * @return the type of the field at which this reference path ends, or null if this reference path does
-     *  not have a target field
-     */
-    public Set<TypeToken<?>> getTargetEncodings() {
-        return this.targetEncodings;
-    }
-
-    /**
-     * Get the storage ID associated with the target field, if any, in the {@linkplain #getTargetType target object type}.
-     *
-     * <p>
-     * This is just the storage ID of the last field in the path.
-     *
-     * @return the storage ID of the field at which this reference path ends, or zero if this reference path does
-     *  not have a target field
-     */
-    public int getTargetField() {
-        return this.targetFieldStorageId;
-    }
-
-    /**
-     * Get the storage ID associated with the complex field containing the {@linkplain #getTargetField target field},
-     * if any, in the case that the target field is a sub-field of a complex field.
-     *
-     * @return target field's complex super-field storage ID, or zero if the target field is not a complex sub-field
-     * or this reference path does not have a target field
-     */
-    public int getTargetSuperField() {
-        return this.targetSuperFieldStorageId;
-    }
-
-    /**
-     * Get the storage IDs of the reference fields in this path.
+     * Get the storage IDs of the reference fields in this path in the order they occur.
      *
      * <p>
      * Storage ID's will be negated to indicate reference fields traversed in the reverse direction.
      *
      * <p>
-     * The path may be empty, i.e., zero references are traversed in the path.
-     *
-     * <p>
-     * Otherwise, the first field is a field in the {@linkplain #getStartType starting object type} and
-     * the last field is field in some object type that refers to the {@linkplain #getTargetType target object type}.
+     * The result will be empty if this path is empty.
      *
      * @return zero or more possibly negated reference field storage IDs
      */
     public int[] getReferenceFields() {
-        return this.referenceFieldStorageIds.clone();
+        return this.storageIds.clone();
     }
+
+    /**
+     * Determine whether traversing this path can result in only one object being found.
+     *
+     * <p>
+     * An empty path is always singular - it always returns just the starting object.
+     *
+     * @return true if this path only includes forward simple field references, otherwise false
+     */
+    public boolean isSingular() {
+        return this.singular;
+    }
+
+    /**
+     * Get the number of steps in this reference path.
+     *
+     * @return the length of this path
+     */
+    public int size() {
+        return this.storageIds.length;
+    }
+
+    /**
+     * Determine whether this path is empty, i.e., contains zero steps.
+     *
+     * @return true if this path is empty
+     */
+    public boolean isEmpty() {
+        return this.size() == 0;
+    }
+
+// Object
 
     /**
      * Get the {@link String} form of the path associated with this instance.
@@ -652,147 +520,58 @@ public class ReferencePath {
         return this.path;
     }
 
-    /**
-     * Identify the named field at the start of the given field name list in the given {@link JClass}.
-     *
-     * <p>
-     * Either one or two field names will be consumed, depending on whether the field is complex.
-     *
-     * @param jclass starting type
-     * @param fieldNames list of field names
-     * @param lastIsSubField true if the last field can be a complex sub-field but not a complex field, false for the reverse,
-     *  or null for don't care
-     * @return resulting {@link JField}
-     * @throws IllegalArgumentException if something is bogus
-     */
-    private JField findField(JClass<?> jclass, ArrayDeque<String> fieldNames, Boolean lastIsSubField) {
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final ReferencePath that = (ReferencePath)obj;
+        return this.jdb.equals(that.jdb)
+          && this.path.equals(that.path);
+          // the other fields are derived from the above
+    }
 
-        // Sanity check
-        Preconditions.checkArgument(jclass != null, "null jclass");
-        Preconditions.checkArgument(fieldNames != null, "null fieldNames");
-        Preconditions.checkArgument(!fieldNames.isEmpty(), "empty reference path");
+    @Override
+    public int hashCode() {
+        return this.getClass().hashCode()
+          ^ this.jdb.hashCode()
+          ^ this.path.hashCode();
+    }
 
-        // Logging
-        if (this.log.isTraceEnabled())
-            this.log.trace("RefPath.findField(): jclass={} fieldNames={} lastIsSubField={}", jclass, fieldNames, lastIsSubField);
+// Package Methods
 
-        // Get field name and containing type
-        final String fieldName = fieldNames.removeFirst();
-        String description = "field \"" + fieldName + "\" in " + jclass.getType();
+    KeyRanges[] getPathKeyRanges() {
+        if (this.pathKeyRanges == null) {
+            final int numJClasses = this.jdb.jclasses.size();
+            final KeyRanges[] array = new KeyRanges[this.currentTypesList.size()];
+            for (int i = 0; i < this.currentTypesList.size(); i++) {
 
-        // Parse explicit storage ID, if any
-        final int hash = fieldName.indexOf('#');
-        int explicitStorageId = 0;
-        final String searchName;
-        if (hash != -1) {
-            try {
-                explicitStorageId = Integer.parseInt(fieldName.substring(hash + 1));
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("invalid field name \"" + fieldName + "\"");
+                // Get the current types at this step
+                final Set<JClass<?>> jclasses = this.currentTypesList.get(i);
+
+                // If every model type plus UntypedJObject is possible, then no filter is needed
+                if (jclasses.size() > numJClasses)
+                    continue;
+
+                // Restrict to the specific JClass's ranges
+                final ArrayList<KeyRange> ranges = new ArrayList<>(jclasses.size());
+                for (JClass<?> jclass : jclasses)
+                    ranges.add(ObjId.getKeyRange(jclass.storageId));
+
+                // Build filter
+                array[i] = new KeyRanges(ranges);
             }
-            searchName = fieldName.substring(0, hash);
-        } else
-            searchName = fieldName;
-
-        // Find the JField matching 'fieldName' in jclass
-        JField matchingField = jclass.jfieldsByName.get(searchName);
-        if (matchingField == null || (explicitStorageId != 0 && matchingField.storageId != explicitStorageId)) {
-            throw new IllegalArgumentException("there is no field named \"" + searchName + "\""
-              + (explicitStorageId != 0 ? " with storage ID " + explicitStorageId : "") + " in " + jclass.getType());
+            this.pathKeyRanges = array;
         }
-
-        // Logging
-        if (this.log.isTraceEnabled())
-            this.log.trace("RefPath.findField(): found field {} in {}", matchingField, jclass.getType());
-
-        // Handle complex fields
-        JComplexField superField = null;
-        if (matchingField instanceof JComplexField) {
-            superField = (JComplexField)matchingField;
-
-            // Logging
-            if (this.log.isTraceEnabled())
-                this.log.trace("RefPath.findField(): field is a complex field");
-
-            // Last field?
-            if (fieldNames.isEmpty()) {
-
-                // Verify it's OK to end on a complex field
-                if (Boolean.TRUE.equals(lastIsSubField)) {
-                    final StringBuilder buf = new StringBuilder();
-                    for (JSimpleField subField : superField.getSubFields()) {
-                        if (buf.length() == 0) {
-                            buf.append("path may not end on complex ")
-                              .append(description)
-                              .append("; a sub-field must be specified (e.g., ");
-                        } else
-                            buf.append(" or ");
-                        buf.append('`').append(matchingField.name).append('.').append(subField.name).append('\'');
-                    }
-                    buf.append(")");
-                    throw new IllegalArgumentException(buf.toString());
-                }
-
-                // Done
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath.findField(): ended on complex field; result={}", matchingField);
-                return matchingField;
-            }
-
-            // Get the specified sub-field
-            final String subFieldName = fieldNames.removeFirst();
-            description = "sub-field \"" + subFieldName + "\" of complex " + description;
-            try {
-                matchingField = superField.getSubField(subFieldName);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage(), e);
-            }
-
-            // Logging
-            if (this.log.isTraceEnabled()) {
-                this.log.trace("RefPath.findField(): also stepping through sub-field ["
-                  + searchName + "." + subFieldName + "] to reach " + matchingField);
-            }
-        } else if (this.log.isTraceEnabled()) {
-            if (matchingField instanceof JSimpleField) {
-                final JSimpleField simpleField = (JSimpleField)matchingField;
-                this.log.trace("RefPath.findField(): field is a simple field of type {}", simpleField.getTypeToken());
-            } else
-                this.log.trace("RefPath.findField(): field is {}", matchingField);
-        }
-
-        // Verify it's OK to end on a complex sub-field (if that's what happened)
-        if (fieldNames.isEmpty() && superField != null && Boolean.FALSE.equals(lastIsSubField)) {
-            throw new IllegalArgumentException("path may not end on " + description
-              + "; instead, specify the complex field itself");
-        }
-
-        // Done
-        if (this.log.isTraceEnabled())
-            this.log.trace("RefPath.findField(): result={}", matchingField);
-        return matchingField;
+        return this.pathKeyRanges;
     }
 
 // Utility methods
 
-    private static Set<Class<?>> minimizeAndSeal(Set<Class<?>> types) {
-        final HashSet<Class<?>> minimalTypes = new HashSet<>(types.size());
-        for (TypeToken<?> typeToken : Util.findLowestCommonAncestorsOfClasses(types.stream()))
-            minimalTypes.add((Class<?>)typeToken.getRawType());
-        return Collections.unmodifiableSet(minimalTypes);
-    }
-
-    private static ArrayList<Class<?>> arrayListOf(Class<?> type) {
-        final ArrayList<Class<?>> list = new ArrayList<>(1);
-        list.add(type);
-        return list;
-    }
-
-    private static <T> ArrayList<T> copyAndAppend(List<T> original, T elem) {
-        final ArrayList<T> list = new ArrayList<>(original.size() + 1);
-        list.addAll(original);
-        list.add(elem);
-        return list;
+    private static Stream<Class<?>> toClasses(Set<JClass<?>> jclasses) {
+        return jclasses.stream()
+          .map(jclass -> jclass != null ? jclass.type : UntypedJObject.class);
     }
 
 // Cursor
@@ -801,237 +580,248 @@ public class ReferencePath {
      * A cursor position in a partially parsed reference path.
      *
      * <p>
-     * An instance points to a {@link JClass}, and optionally to a {@link JField} within that class (or within
-     * some referring class in the case of a reverse step).
-     * It has a list of references it has already traversed, and a list of field names it has yet to traverse.
-     * Traversing a field involves two steps: (a) finding the field via {@link #identifyNextField},
-     * and (if not done yet) (b) dereferencing that (presumably reference) field via {@link #stepThroughReference}.
-     * Note prior to step (a), {@code this.jfield} is null; prior to step (b), {@code this.jfield} is the field
-     * we just dereferenced in the previous {@link JClass}.
-     *
-     * <p>
      * Instances are immutable.
      */
     final class Cursor {
 
         private final Logger log = LoggerFactory.getLogger(this.getClass());
-        private final ArrayList<Integer> referenceFields = new ArrayList<>();
-        private final ArrayList<Class<?>> pathTypes = new ArrayList<>();
-        private final JClass<?> jclass;                                         // null means UntypedJObject
-        private final JField jfield;
-        private final ArrayDeque<String> fieldNames;
-        private final boolean reverseStep;
+        private final int stepsSoFar;                                   // number of previous steps/cursors
+        private final Cursor previousCursor;                            // previous step's cursor (null if none)
+        private final int previousStorageId;                            // previous step's storage ID (zero if none)
+        private final JClass<?> jclass;                                 // current step's JClass, or null for UntypedJObject
+        private final boolean singular;
 
-        private Cursor(JClass<?> jclass, Class<?> startType, ArrayDeque<String> fieldNames) {
-            this(new ArrayList<>(0), ReferencePath.arrayListOf(startType), jclass, null, fieldNames, false);
+        // Constructor for initial cursors
+        private Cursor(JClass<?> jclass) {
+            this(null, 0, jclass, true);
         }
 
-        private Cursor(ArrayList<Integer> referenceFields, ArrayList<Class<?>> pathTypes, JClass<?> jclass,
-          JField jfield, ArrayDeque<String> fieldNames, boolean reverseStep) {
-            assert pathTypes.size() == referenceFields.size() + 1;
-            this.referenceFields.addAll(referenceFields);
-            this.pathTypes.addAll(pathTypes);
+        // Constructor for additional cursors
+        private Cursor(Cursor previousCursor, int previousStorageId, JClass<?> jclass, boolean singular) {
+            this.stepsSoFar = previousCursor != null ? previousCursor.stepsSoFar + 1 : 0;
+            this.previousCursor = previousCursor;
+            this.previousStorageId = previousStorageId;
             this.jclass = jclass;
-            this.jfield = jfield;
-            this.fieldNames = fieldNames.clone();
-            this.reverseStep = reverseStep;
+            this.singular = singular;
         }
 
-        public ArrayList<Integer> getReferenceFields() {
-            return this.referenceFields;
+        // Get the number of previous steps/cursors
+        public int getStepsSoFar() {
+            return this.stepsSoFar;
         }
 
-        public ArrayList<Class<?>> getPathTypes() {
-            return this.pathTypes;
+        // Get the reference field storage ID's corresponding to all previous steps, negated for inverse steps
+        public int[] getStorageIds() {
+            return Stream.concat(this.streamPrevious(), Stream.of(this))
+              .skip(1)
+              .mapToInt(cursor -> cursor.previousStorageId)
+              .toArray();
         }
 
-        public int getNumRefs() {
-            return this.referenceFields.size();
+        // Get the current object type for all previous steps plus this next one
+        public List<JClass<?>> getCurrentTypesList() {
+            return Stream.concat(this.streamPrevious().map(cursor -> cursor.jclass), Stream.of(this.jclass))
+              .collect(Collectors.toList());
         }
 
-        public JClass<?> getJClass() {
-            return this.jclass;
+        // Does this path only return ever a single object?
+        public boolean isSingular() {
+            return this.singular;
         }
 
-        public JField getField() {
-            return this.jfield;
-        }
-
-        public JComplexField getSuperField() {
-            return this.jfield instanceof JSimpleField ? ((JSimpleField)this.jfield).getParentField() : null;
-        }
-
-        public boolean hasMoreFieldNames() {
-            return !this.fieldNames.isEmpty();
-        }
-
-        public boolean isReverseStep() {
-            return this.reverseStep;
-        }
-
-        public boolean isIndexedSimpleField() {
-            return this.jfield instanceof JSimpleField && ((JSimpleField)this.jfield).indexed;
+        // Stream the previous cursors in order
+        private Stream<Cursor> streamPrevious() {
+            final Cursor[] cursors = new Cursor[this.stepsSoFar];
+            int index = this.stepsSoFar;
+            for (Cursor cursor = this.previousCursor; cursor != null; cursor = cursor.previousCursor)
+                cursors[--index] = cursor;
+            return Stream.of(cursors);
         }
 
         /**
-         * Get the type associated with the next reference field.
+         * Advance through the given step and return the resulting new cursors.
          *
-         * @return referred-to type, or null if field is not a reference field
-         * @throws IllegalStateException if field not identified yet
+         * @param inverse true for inverse step
+         * @param step step to advance without prefix
+         * @return resulting cursors
+         * @throws IllegalArgumentException if step is invalid
          */
-        public Class<?> getFieldTargetType() {
-            Preconditions.checkState(this.jfield != null, "have not yet stepped through field");
-            return this.reverseStep ? this.jfield.getJClass().type :
-              this.jfield instanceof JReferenceField ? ((JReferenceField)this.jfield).typeToken.getRawType() : null;
-        }
-
-        /**
-         * Step through the next field name and return the resulting cursor(s).
-         *
-         * @param lastIsSubField true if the last field can be a complex sub-field but not a complex field, false for the reverse,
-         *  or null for don't care
-         * @return resulting cursor(s)
-         * @throws IllegalArgumentException if step is bogus
-         */
-        public Set<Cursor> identifyNextField(boolean withTargetField, Boolean lastIsSubField) {
+        public Set<Cursor> advance(boolean inverse, String step) {
 
             // Sanity check
-            Preconditions.checkArgument(!this.fieldNames.isEmpty(), "empty reference path");
-            Preconditions.checkState(this.jfield == null, "already stepped through field");
+            Preconditions.checkArgument(step != null, "null step");
+            final String errorPrefix = String.format("invalid %s step \"%s\"", inverse ? "inverse" : "forward", step);
 
-            // Get next field name and containing type
-            final ArrayDeque<String> remainingFieldNames = this.fieldNames.clone();
-            final String step = remainingFieldNames.peekFirst();
+            // Parse next step
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.advance(): next step: {} \"{}\"", inverse ? "inverse" : "forward", step);
 
-            // Handle forward vs. reverse
-            final HashSet<Cursor> newCursors = new HashSet<>(3);
-            final Matcher reverseMatcher = Pattern.compile(REV_STEP).matcher(step);
-            if (reverseMatcher.matches()) {
+            // Handle forward vs. inverse
+            final Collection<? extends JClass<?>> nextJClasses;     // possible types of next object
+            final JReferenceField nextJField;                       // the next field to step through
+            if (inverse) {
 
-                // This field cannot be the target field
-                if (withTargetField && remainingFieldNames.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid reference path: missing target field after last step \""
-                      + step + "\"");
+                // Find the last component and the second-to-last component, if any
+                final int lastDot1 = step.lastIndexOf('.');
+                if (lastDot1 == -1)
+                    throw new IllegalArgumentException(errorPrefix);
+                final int lastDot2 = step.lastIndexOf('.', lastDot1 - 1);
+
+                // Parse into TypeName and fieldName, but note the ambiguity: "foo.bar.key" could
+                // mean either { type="foo", field="bar.key" } or { type="foo.bar", field="key" }.
+                // If field name has three or more components, try interpreting it both ways.
+                final Tuple2<Set<JClass<?>>, JReferenceField> try1 = this.tryInverseStep(errorPrefix, step, lastDot1);
+                final Tuple2<Set<JClass<?>>, JReferenceField> try2 = lastDot2 != -1 ?
+                  this.tryInverseStep(errorPrefix, step, lastDot2) : null;
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath.advance(): inverse candidates: try1={} try2={}", try1, try2);
+
+                // Check and extract result
+                if (try1 == null && try2 == null)
+                    throw new IllegalArgumentException(String.format("%s: no such type and/or reference field found", errorPrefix));
+                if (try1 != null && try2 != null
+                  && (!try1.getValue1().equals(try2.getValue1())
+                   || !try1.getValue2().isIndexCompatibleWith(try2.getValue2()))) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: ambiguous reference; matched %s in %s and %s in %s",
+                      errorPrefix, try1.getValue2(), try1.getValue1(), try2.getValue2(), try2.getValue1()));
                 }
+                nextJClasses = (try1 != null ? try1 : try2).getValue1();
+                nextJField = (try1 != null ? try1 : try2).getValue2();
 
-                // Get type and field names
-                final String typeName = reverseMatcher.group(2);
-                final String fieldName = reverseMatcher.group(3);
-
-                // Consume step
-                remainingFieldNames.removeFirst();
-                if (this.log.isTraceEnabled()) {
-                    this.log.trace("RefPath.identifyNextField(): reverse step `{}' -> type `{}' field `{}'",
-                      step, typeName, fieldName);
-                }
-
-                // Resolve type into all assignable JClass's, plus null if untyped objects are possible
-                final Class<?> type;
-                final SchemaObjectType schemaType = ReferencePath.this.jdb.getNameIndex().getSchemaObjectType(typeName);
-                if (schemaType != null)
-                    type = ReferencePath.this.jdb.getJClass(schemaType.getStorageId()).getType();
-                else {
-                    try {
-                        type = Class.forName(typeName, false, ApplicationClassLoader.getInstance());
-                    } catch (Exception e) {
-                        throw new IllegalArgumentException("Unknown type \"" + typeName
-                          + "\" in reference path reverse traversal step \"" + step + "\"");
-                    }
-                }
-                List<? extends JClass<?>> jclasses = ReferencePath.this.jdb.getJClasses(type);
-                if (type.isAssignableFrom(UntypedJObject.class)) {
-                    final ArrayList<JClass<?>> jclasses2 = new ArrayList<>(jclasses.size() + 1);
-                    jclasses2.addAll(jclasses);
-                    jclasses2.add(null);
-                    jclasses = jclasses2;
-                }
-
-                // Any types found?
-                if (jclasses.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid type \"" + typeName
-                      + "\" in reference path reverse traversal step \"" + step
-                      + "\": no schema model types are assignable to \"" + typeName + "\"");
-                }
-
-                // Find field in each type and create corresponding cursors
-                for (JClass<?> nextJClass : jclasses) {
-                    if (nextJClass == null)
-                        continue;
-                    final ArrayDeque<String> stepFieldNames = new ArrayDeque<>(Arrays.asList(fieldName.split("\\.")));
-                    final JField nextJField;
-                    try {
-                        nextJField = ReferencePath.this.findField(nextJClass, stepFieldNames, true);
-                    } catch (IllegalArgumentException e) {
-                        continue;
-                    }
-                    newCursors.add(new Cursor(this.referenceFields,
-                      this.pathTypes, nextJClass, nextJField, remainingFieldNames, true));
-                }
-
-                // Any fields found?
-                if (newCursors.isEmpty()) {
-                    throw new IllegalArgumentException("Invalid reference path reverse traversal step \"" + step
-                      + "\": field \"" + fieldName + "\" does not exist in "
-                      + (schemaType == null ? "any model type assignable to " : "") + "\"" + typeName + "\"");
+                // Check whether the reference field can actually refer to the current type
+                final Class<?> currentType = Optional.ofNullable(this.jclass)
+                  .<Class<?>>map(JClass::getType)
+                  .orElse(UntypedJObject.class);
+                if (!nextJField.typeToken.getRawType().isAssignableFrom(currentType)) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: %s can't refer to %s", errorPrefix, nextJField, currentType));
                 }
             } else {
-                assert Pattern.compile(FWD_STEP).matcher(step).matches() : "\"" + step + "\" is not a forward step";
 
-                // Resolve field
-                if (this.jclass != null) {
-                    final JField nextJField = ReferencePath.this.findField(this.jclass, remainingFieldNames, lastIsSubField);
-                    newCursors.add(new Cursor(this.referenceFields,
-                      this.pathTypes, this.jclass, nextJField, remainingFieldNames, false));
+                // Get the field name
+                final String fieldName = step;
+
+                // Handle the UntypedJObject case
+                if (this.jclass == null) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, UntypedJObject.class));
                 }
+
+                // Find the named field
+                final JSimpleField jfield;
+                try {
+                    jfield = Util.findSimpleField(this.jclass, fieldName);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
+                }
+                if (jfield == null) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, this.jclass));
+                } else if (!(jfield instanceof JReferenceField)) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: field \"%s\" in %s is not a reference field", errorPrefix, fieldName, this.jclass));
+                }
+                nextJClasses = ReferencePath.this.jdb.getJClasses(jfield.typeToken.getRawType());
+                nextJField = (JReferenceField)jfield;
             }
+
+            // Get the storage ID representing this step, negated for inverse steps
+            final int storageId = inverse ? -nextJField.storageId : nextJField.storageId;
+
+            // Can the new cursor produce multiple objects? Yes unless we've only seen forward simple references so far.
+            final boolean nextSingular = this.singular && !inverse && nextJField.getParentField() == null;
+
+            // Debug
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("RefPath.advance(): nextJField={} storageId={} nextSingular={} nextJClasses={}",
+                  nextJField, storageId, nextSingular, debugFormat(nextJClasses));
+            }
+
+            // Create new cursor(s)
+            final HashSet<Cursor> newCursors = new HashSet<>(3);
+            for (JClass<?> nextJClass : nextJClasses)
+                newCursors.add(new Cursor(this, storageId, nextJClass, nextSingular));
+            assert !newCursors.isEmpty();
 
             // Done
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath.identifyNextField(): result={}", newCursors);
+                this.log.trace("RefPath.advance(): result={}", debugFormat(newCursors));
             return newCursors;
         }
 
-        /**
-         * Step through the current reference field to the referred-to types.
-         */
-        public Set<Cursor> stepThroughReference() {
+        // Decode an inverse step "<-[typeName].[fieldName]", where "typeName" could be either a schema object
+        // name or fully qualified Java class name, and "fieldName" is a simple field, possibly a complex sub-field.
+        private Tuple2<Set<JClass<?>>, JReferenceField> tryInverseStep(String errorPrefix, String typeAndField, int dotIndex) {
 
-            // Logging
-            if (this.log.isTraceEnabled())
-                this.log.trace("RefPath.stepThroughReference(): this={}", this);
+            // Split into typeName and fieldName
+            final String typeName = typeAndField.substring(0, dotIndex);
+            final String fieldName = typeAndField.substring(dotIndex + 1);
 
-            // Sanity check
-            Preconditions.checkState(this.jfield != null, "have not yet stepped through field");
-            assert this.reverseStep
-              || this.jfield.parent == this.jclass
-              || (this.jfield instanceof JSimpleField && ((JSimpleField)this.jfield).getParentField().parent == this.jclass);
-            Preconditions.checkArgument(this.jfield instanceof JReferenceField, this.jfield + " is not a reference field");
+            // Try resolving type name as a schema model object type
+            final Class<?> modelType = Optional.ofNullable(ReferencePath.this.jdb.getNameIndex().getSchemaObjectType(typeName))
+              .map(SchemaObjectType::getStorageId)
+              .map(ReferencePath.this.jdb::getJClass)
+              .map(JClass::getType)
+              .orElse(null);
 
-            // Append reference field to list
-            final int stepStorageId = this.reverseStep ? -this.jfield.storageId : this.jfield.storageId;
-            final ArrayList<Integer> newReferenceFields = ReferencePath.copyAndAppend(this.referenceFields, stepStorageId);
-
-            // Advance through the reference, either forward or inverse
-            final Class<?> targetType = this.reverseStep ?
-              this.jfield.getJClass().type : ((JReferenceField)this.jfield).typeToken.getRawType();
-            if (this.log.isTraceEnabled()) {
-                this.log.trace("RefPath.stepThroughReference(): targetType="
-                  + targetType + " -> " + ReferencePath.this.jdb.getJClasses(targetType));
+            // Try resolving type name as a regular Java class
+            Class<?> javaType = null;
+            try {
+                javaType = Class.forName(typeName, false, ReferencePath.this.jdb.loader.getParent());
+            } catch (ClassNotFoundException e) {
+                // ignore
             }
-            final HashSet<Cursor> newCursors = new HashSet<>();
-            for (JClass<?> targetJClass : ReferencePath.this.jdb.getJClasses(targetType)) {
-                final ArrayList<Class<?>> newPathTypes = ReferencePath.copyAndAppend(this.pathTypes, targetJClass.getType());
-                newCursors.add(new Cursor(newReferenceFields, newPathTypes, targetJClass, null, this.fieldNames, false));
+
+            // Anything matched?
+            if (modelType == null && javaType == null)
+                return null;
+
+            // Check for ambiguity
+            if (modelType != null && javaType != null && modelType != javaType) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: ambiguous type name \"{}\" matches both %s and %s", errorPrefix, typeName, modelType, javaType));
             }
-            if (targetType.isAssignableFrom(UntypedJObject.class)) {
-                final ArrayList<Class<?>> newPathTypes = ReferencePath.copyAndAppend(this.pathTypes, UntypedJObject.class);
-                newCursors.add(new Cursor(newReferenceFields, newPathTypes, null, null, this.fieldNames, false));
+
+            // Get the type we found
+            if (javaType == null)
+                javaType = modelType;
+
+            // Find the field, gather matching JClass's, and verify field apepars consistently
+            JReferenceField jfield = null;
+            final HashSet<JClass<?>> jclasses = new HashSet<>();
+            for (JClass<?> nextJClass : ReferencePath.this.jdb.getJClasses(javaType)) {
+
+                // Find the reference field
+                final JSimpleField candidateJField;
+                try {
+                    candidateJField = Util.findSimpleField(nextJClass, fieldName);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                if (!(candidateJField instanceof JReferenceField))
+                    continue;
+                final JReferenceField jfield2 = (JReferenceField)candidateJField;
+
+                // Check for ambiguity
+                if (jfield == null)
+                    jfield = jfield2;
+                else if (!jfield2.isIndexCompatibleWith(jfield)) {
+                    throw new IllegalArgumentException(String.format(
+                      "%s: ambiguous field \"%s\" in %s matches both %s and %s",
+                      errorPrefix, fieldName, nextJClass, jfield, jfield2));
+                }
+
+                // Add jclass
+                jclasses.add(nextJClass);
             }
+
+            // Anything found?
+            if (jfield == null)
+                return null;
 
             // Done
-            if (this.log.isTraceEnabled())
-                this.log.trace("RefPath.stepThroughReference(): result={}", newCursors);
-            return newCursors;
+            return new Tuple2<>(jclasses, jfield);
         }
 
     // Object
@@ -1043,32 +833,28 @@ public class ReferencePath {
             if (obj == null || obj.getClass() != this.getClass())
                 return false;
             final Cursor that = (Cursor)obj;
-            return this.referenceFields.equals(that.referenceFields)
-              && this.pathTypes.equals(that.pathTypes)
+            return Objects.equals(this.previousCursor, that.previousCursor)
+              && this.previousStorageId == that.previousStorageId
               && Objects.equals(this.jclass, that.jclass)
-              && Objects.equals(this.jfield, that.jfield)
-              && this.reverseStep == that.reverseStep;
+              && this.singular == that.singular;
         }
 
         @Override
         public int hashCode() {
             return this.getClass().hashCode()
-              ^ this.referenceFields.hashCode()
-              ^ this.pathTypes.hashCode()
+              ^ Objects.hashCode(this.previousCursor)
+              ^ Integer.hashCode(this.previousStorageId)
               ^ Objects.hashCode(this.jclass)
-              ^ Objects.hashCode(this.jfield)
-              ^ (this.reverseStep ? 1 : 0);
+              ^ Boolean.hashCode(this.singular);
         }
 
         @Override
         public String toString() {
             return "Cursor"
-              + "[jclass=" + this.jclass
-              + (this.jfield != null ? ",jfield=" + this.jfield : "")
-              + (!this.fieldNames.isEmpty() ? ",fieldNames=" + this.fieldNames : "")
-              + (!this.referenceFields.isEmpty() ? ",refs=" + this.referenceFields : "")
-              + (!this.pathTypes.isEmpty() ? ",pathTypes=" + this.pathTypes : "")
-              + (this.reverseStep ? ",reverseStep" : "")
+              + "[stepsSoFar=" + this.stepsSoFar
+              + (this.previousCursor != null ? ",previousStorageId=" + this.previousStorageId : "")
+              + ",jclass=" + this.jclass
+              + ",singular=" + this.singular
               + "]";
         }
     }

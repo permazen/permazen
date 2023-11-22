@@ -44,34 +44,34 @@ public class InvertReferencePathTest extends TestSupport {
             p2.setFriend(p1);
             p3.setFriend(p3);
 
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key",
               Arrays.asList(p1)),            buildSet(m1));
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key",
               Arrays.asList(p1, m2)),        buildSet(m1));
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key",
               Arrays.asList(p1, m2, p3)),    buildSet(m1, m2));
 
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies",
               Arrays.asList(m2, p3)),       buildSet());
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies",
               Arrays.asList(m1, p1, p2)),   buildSet(m1));
 
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend",
               Arrays.asList(p1)),           buildSet(m1));
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend",
               Arrays.asList(p2)),           buildSet());
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend",
               Arrays.asList(p3)),           buildSet(m1));
 
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend->friend",
               Arrays.asList(p1)),           buildSet());
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend->friend",
               Arrays.asList(p2)),           buildSet());
-            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(this.invertRefPath(tx, BasicTest.MeanPerson.class, "->ratings.key->enemies->friend->friend",
               Arrays.asList(p3)),           buildSet(m1));
 
             // Illegal paths
-            for (String path : new String[] { "ratings", "string", "ratings.key.string" }) {
+            for (String path : new String[] { "->ratings", "->string", "->ratings.key->string" }) {
                 try {
                     this.invertRefPath(tx, BasicTest.MeanPerson.class, path, Collections.<JObject>emptySet());
                     assert false : "path \"" + path + "\" should be invalid";
@@ -104,9 +104,9 @@ public class InvertReferencePathTest extends TestSupport {
             b.setA(a);
             c.setA(a);
 
-            final ReferencePath inverseAny = jdb.parseReferencePath(Object.class, "^" + HasA.class.getName() + ":a^", false);
-            final ReferencePath inverseB = jdb.parseReferencePath(A.class, "^B:a^", false);
-            final ReferencePath inverseC = jdb.parseReferencePath(A.class, "^C:a^", false);
+            final ReferencePath inverseAny = jdb.parseReferencePath(Object.class, "<-" + HasA.class.getName() + ".a");
+            final ReferencePath inverseB = jdb.parseReferencePath(A.class, "<-B.a");
+            final ReferencePath inverseC = jdb.parseReferencePath(A.class, "<-C.a");
 
             TestSupport.checkSet(jtx.followReferencePath(inverseAny, Stream.of(a)), buildSet(b, c));
             TestSupport.checkSet(jtx.followReferencePath(inverseB, Stream.of(a)), buildSet(b));
@@ -121,7 +121,7 @@ public class InvertReferencePathTest extends TestSupport {
 
     private NavigableSet<JObject> invertRefPath(JTransaction jtx,
       Class<?> startType, String path, Collection<? extends JObject> objs) {
-        final ReferencePath refPath = jtx.getPermazen().parseReferencePath(startType, path, false);
+        final ReferencePath refPath = jtx.getPermazen().parseReferencePath(startType, path);
         return jtx.invertReferencePath(refPath, objs.stream());
     }
 

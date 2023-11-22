@@ -13,7 +13,6 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.test.TestSupport;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -84,11 +83,14 @@ public class GenericsFunTest extends TestSupport {
     public void testGenerics5() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(ListSub1.class, ListSub2.class);
 
-        final ReferencePath path1 = jdb.parseReferencePath(ListSub1.class, "list.element");
-        final ReferencePath path2 = jdb.parseReferencePath(ListSub2.class, "list.element");
+        final JClass<ListSub1> jclass1 = jdb.getJClass(ListSub1.class);
+        final JClass<ListSub2> jclass2 = jdb.getJClass(ListSub2.class);
 
-        Assert.assertEquals(path1.getTargetEncodings(), Collections.singleton(TypeToken.of(ListSub2.class)));
-        Assert.assertEquals(path2.getTargetEncodings(), Collections.singleton(TypeToken.of(ListSub1.class)));
+        final JSimpleField field1 = Util.findSimpleField(jclass1, "list.element");
+        final JSimpleField field2 = Util.findSimpleField(jclass2, "list.element");
+
+        Assert.assertEquals(field1.getTypeToken(), TypeToken.of(ListSub2.class));
+        Assert.assertEquals(field2.getTypeToken(), TypeToken.of(ListSub1.class));
 
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Information used for index queries.
@@ -54,27 +55,53 @@ class IndexQueryInfo {
         Preconditions.checkArgument(!startType.isPrimitive() && !startType.isArray(), "invalid startType " + startType);
         this.startType = startType;
 
-        // Parse reference path
-        final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true, true);
-        if (path.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("invalid field name \"" + fieldName + "\": contains intermediate reference(s)");
+        // Identify the value field(s)
+        final HashSet<JSimpleField> jfields = new HashSet<>();
+        boolean anyFieldsFound = false;
+        int storageId = 0;
+        for (JClass<?> jclass : jdb.getJClasses(startType)) {
+            final JSimpleField jfield;
+            try {
+                jfield = Util.findSimpleField(jclass, fieldName);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (jfield == null)
+                continue;
+            anyFieldsFound = true;
+            if (!jfield.indexed)
+                continue;
+            if (jfields.isEmpty())
+                storageId = jfield.storageId;
+            else {
+                final JSimpleField jfield2 = jfields.iterator().next();
+                if (!jfield.isIndexCompatibleWith(jfield2)) {
+                    throw new IllegalArgumentException(String.format(
+                      "field name \"%s\" is ambiguous in %s: %s and %s", fieldName, startType, jfield, jfield2));
+                }
+            }
+            jfields.add(jfield);
+        }
+        if (storageId == 0) {
+            if (anyFieldsFound)
+                throw new IllegalArgumentException(String.format("field \"%s\" in %s is not indexed", fieldName, startType));
+            throw new IllegalArgumentException(String.format("field \"%s\" not found in %s", fieldName, startType));
+        }
+        final Set<TypeToken<?>> valueTypes = jfields.stream()
+          .map(JSimpleField::getTypeToken)
+          .collect(Collectors.toSet());
 
-        // Verify the field is actually indexed in the specified type
-        if (!path.someTargetFieldIndexed)
-            throw new IllegalArgumentException("invalid index query on non-indexed field \"" + fieldName + "\" in " + startType);
-
-        // Get field index info (this verifies the field is indexed); keyType != null iff the field is a map value field
-        final SimpleFieldIndexInfo fieldIndexInfo = jdb.getIndexInfo(path.targetFieldStorageId,
+        // Get field index info; keyType != null iff the field is a map value field
+        final SimpleFieldIndexInfo fieldIndexInfo = jdb.getIndexInfo(storageId,
           keyType != null ? MapValueIndexInfo.class : SimpleFieldIndexInfo.class);
         this.indexInfo = fieldIndexInfo;
 
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
-        valueChecks.add(new ValueCheck("value type", valueType,
-          this.wrapRaw(path.getTargetEncodings()), fieldIndexInfo.getEncoding()));
+        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(valueTypes), fieldIndexInfo.getEncoding()));
 
         // Verify target type
-        valueChecks.add(new ValueCheck("target type", startType, path.getTargetTypes()));
+        valueChecks.add(new ValueCheck("target type", this.startType, this.startType));
 
         // Add additional check for the map key type when doing a map value index query
         if (keyType != null) {
@@ -115,7 +142,7 @@ class IndexQueryInfo {
         }
 
         // Verify target type
-        valueChecks.add(new ValueCheck("target type", startType, startType));
+        valueChecks.add(new ValueCheck("target type", this.startType, this.startType));
 
         // Check values
         for (ValueCheck check : valueChecks)

@@ -39,8 +39,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Scans for {@link OnChange &#64;OnChange} annotations.
@@ -54,8 +58,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
     @Override
     protected boolean includeMethod(Method method, OnChange annotation) {
         this.checkReturnType(method, void.class);
-        if (this.getParameterTypeTokens(method).size() > 1)
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to take zero or one parameter");
+        if (this.getParameterTypeTokens(method).size() != 1) {
+            throw new IllegalArgumentException(String.format(
+              "%s: method is required to take exactly one parameter", this.getErrorPrefix(method)));
+        }
         return true;                                    // we do further parameter type check in ChangeMethodInfo
     }
 
@@ -68,195 +74,147 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
     class ChangeMethodInfo extends MethodInfo implements AllChangesListener {
 
-        final HashSet<ReferencePath> paths;
-        final Class<?>[] genericTypes;      // derived from this.method, so there's no need to include it in equals() or hashCode()
+        final HashSet<Integer> targetFieldStorageIds = new HashSet<>();
+        final ReferencePath path;
+        final Class<?>[] genericTypes;
 
         ChangeMethodInfo(Method method, OnChange annotation) {
             super(method, annotation);
 
             // Get database
             final Permazen jdb = OnChangeScanner.this.jclass.jdb;
+            final String errorPrefix = OnChangeScanner.this.getErrorPrefix(method);
 
-            // Get start type
-            Class<?> startType = method.getDeclaringClass();
-            if (annotation.startType() != void.class) {
-                if ((method.getModifiers() & Modifier.STATIC) == 0) {
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                      + "startType() may only be used for annotations on static methods");
-                }
-                if (annotation.startType().isPrimitive() || annotation.startType().isArray()) {
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                      + "invalid startType() " + annotation.startType());
-                }
-                startType = annotation.startType();
+            // Parse reference path
+            try {
+                this.path = jdb.parseReferencePath(method.getDeclaringClass(), annotation.path());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
             }
 
-            // Initialize path list
-            final List<String> unexpandedPathList = new ArrayList<>(Arrays.asList(annotation.value()));
+            // Get target object types
+            final Set<JClass<?>> targetTypes = path.getTargetTypes();
 
-            // An empty list is the same as @OnChange("*")
-            if (unexpandedPathList.isEmpty())
-                unexpandedPathList.add("*");
+            // Get method parameter type (generic and raw)
+            final Class<?> rawParameterType = method.getParameterTypes()[0];
+            final TypeToken<?> genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
 
-            // Replace paths ending in "*" them with an iteration of all fields in the corresponding type(s)
-            final List<String> expandedPathList = new ArrayList<>(unexpandedPathList.size());
-            final HashSet<Integer> expandedPathWasWildcard = new HashSet<>();
-            for (String unexpandedPath : unexpandedPathList) {
+            // Extract generic types from the FieldChange<?> parameter
+            final Type firstParameterType = method.getGenericParameterTypes()[0];
+            if (firstParameterType instanceof ParameterizedType) {
+                final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
+                for (Type type : ((ParameterizedType)firstParameterType).getActualTypeArguments())
+                    genericTypeList.add(TypeToken.of(type).getRawType());
+                this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
+            } else
+                this.genericTypes = new Class<?>[] { rawParameterType };
 
-                // Check for immediate wildcard: "*"
-                if (unexpandedPath.equals("*")) {
+            // Wildcard field names?
+            final boolean wildcard = annotation.value().length == 0;
 
-                    // Replace path with non-wildcard paths for every field in the start type
-                    for (JClass<?> jclass : jdb.getJClasses(startType)) {
-                        for (JField jfield : jclass.jfields.values()) {
-                            expandedPathWasWildcard.add(expandedPathList.size());
-                            expandedPathList.add(jfield.name + "#" + jfield.storageId);
-                        }
-                    }
-                    continue;
-                }
+            // Track which fields (a) were found, and (b) emit change events compatible with method parameter type
+            final Set<String> fieldsNotFound = new LinkedHashSet<>(Arrays.asList(annotation.value()));
+            final Set<String> fieldsNotMatched = new LinkedHashSet<>(Arrays.asList(annotation.value()));
 
-                // Check for a reference path ending with wildcard: "foo.bar.*"
-                if (unexpandedPath.length() > 2 && unexpandedPath.endsWith(".*")) {
+            // Iterate over all target object types
+            for (JClass<?> jclass : targetTypes) {
 
-                    // Parse the reference path up to the wildcard
-                    final String prefixPath = unexpandedPath.substring(0, unexpandedPath.length() - 2);
-                    final ReferencePath prefixReferencePath;
+                // Get field list, but replace an empty list with every notifying field in the target object type
+                final List<String> fieldNames = wildcard ?
+                  jclass.jfields.values().stream()
+                    .filter(JField::supportsChangeNotifications)
+                    .map(jfield -> jfield.name + "#" + jfield.storageId)
+                    .collect(Collectors.toList()) :
+                  Arrays.asList(annotation.value());
+
+                // Iterate over target fields
+                for (String fieldName : fieldNames) {
+
+                    // Find the field in this cursor's target object type
+                    final JField jfield;
                     try {
-                        prefixReferencePath = jdb.parseReferencePath(startType, prefixPath, false, true);
+                        jfield = Util.findField(jclass, fieldName);
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
+                        throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
                     }
 
-                    // Create a new non-wildcard path from each field in the dereferenced object types
-                    final HashSet<ReferencePath.Cursor> expandedCursors = new HashSet<>(prefixReferencePath.cursors.size() * 2);
-                    for (ReferencePath.Cursor cursor : prefixReferencePath.cursors) {
-                        for (JField jfield : cursor.getJClass().jfields.values()) {
-                            if (!jfield.supportsChangeNotifications())
-                                continue;
-                            expandedPathWasWildcard.add(expandedPathList.size());
-                            expandedPathList.add(prefixPath + "." + jfield.name + "#" + jfield.storageId);
-                        }
-                    }
-                    continue;
-                }
+                    // Not found?
+                    if (jfield == null)
+                        continue;
+                    fieldsNotFound.remove(fieldName);
 
-                // Non-wildcard path
-                expandedPathList.add(unexpandedPath);
-            }
-
-            // Get method parameter type (generic and raw), if any, and extract generic types from the FieldChange<?> parameter
-            final TypeToken<?> genericParameterType;
-            final Class<?> rawParameterType;
-            switch (method.getParameterTypes().length) {
-            case 1:
-                rawParameterType = method.getParameterTypes()[0];
-                genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
-                final Type firstParameterType = method.getGenericParameterTypes()[0];
-                if (firstParameterType instanceof ParameterizedType) {
-                    final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
-                    for (Type type : ((ParameterizedType)firstParameterType).getActualTypeArguments())
-                        genericTypeList.add(TypeToken.of(type).getRawType());
-                    this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
-                } else
-                    this.genericTypes = new Class<?>[] { rawParameterType };
-                break;
-            case 0:
-                rawParameterType = null;
-                genericParameterType = null;
-                this.genericTypes = null;
-                break;
-            default:
-                throw new RuntimeException("internal error");
-            }
-
-            // Parse reference paths
-            boolean anyFieldsFound = false;
-            this.paths = new HashSet<>(expandedPathList.size());
-            for (int i = 0; i < expandedPathList.size(); i++) {
-                final String stringPath = expandedPathList.get(i);
-                final boolean wildcard = expandedPathWasWildcard.contains(i);           // path was auto-generated from a wildcard
-
-                // Parse reference path
-                final ReferencePath path;
-                try {
-                    path = jdb.parseReferencePath(startType, stringPath, true, false);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
-                }
-
-                // Validate the parameter type against the types of possible change events
-                if (rawParameterType != null) {
-
-                    // Get all possible (concrete) change types emitted by the target field
+                    // Gather its possible change event types
                     final ArrayList<TypeToken<?>> possibleChangeTypes = new ArrayList<TypeToken<?>>();
-                    for (ReferencePath.Cursor cursor : path.cursors) {
-                        try {
-                            cursor.getField().addChangeParameterTypes(possibleChangeTypes, cursor.getJClass().getType());
-                        } catch (UnsupportedOperationException e) {
-                            if (wildcard)
-                                continue;
-                        }
-                        anyFieldsFound = true;
-                    }
-                    if (possibleChangeTypes.isEmpty() && !wildcard) {
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path \"" + stringPath
-                          + "\" is invalid because change notifications are not supported for any target field");
+                    try {
+                        jfield.addChangeParameterTypes(possibleChangeTypes, jclass.getType());
+                    } catch (UnsupportedOperationException e) {
+                        throw new IllegalArgumentException(String.format(
+                          "%s: %s in %s does not support change notifications", errorPrefix, jfield, jclass));
                     }
 
-                    // Check whether method parameter type accepts as least one of them; it must do so consistently raw vs. generic
-                    boolean anyChangeMatch = false;
+                    // Check whether method parameter type matches as least one of them; it must do so consistently raw vs. generic
+                    boolean matched = false;
                     for (TypeToken<?> possibleChangeType : possibleChangeTypes) {
                         final boolean matchesGeneric = genericParameterType.isSupertypeOf(possibleChangeType);
                         final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
                         assert !matchesGeneric || matchesRaw;
                         if (matchesGeneric != matchesRaw) {
-                            throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                              + "parameter type " + genericParameterType + " will match change events of type "
-                              + possibleChangeType + " from field \"" + stringPath + "\" at runtime due to type erasure,"
-                              + " but its generic type is does not match " + possibleChangeType
-                              + "; try narrowing or widening the parameter type, keeping it compatible with "
-                              + (possibleChangeTypes.size() != 1 ?
-                                  "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
+                            throw new IllegalArgumentException(String.format(
+                              "%s: parameter type %s will match change events of type %s from field \"%s\" at runtime"
+                              + " due to type erasure, but its generic type is does not match %s; try narrowing or"
+                              + " widening the parameter type while keeping it compatible with %s",
+                              errorPrefix, genericParameterType, possibleChangeType, fieldName, possibleChangeType,
+                              possibleChangeTypes.size() != 1 ?
+                                "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                         }
-                        if (matchesGeneric) {
-                            anyChangeMatch = true;
-                            break;
-                        }
+                        matched |= matchesGeneric;
                     }
 
-                    // If not wildcard match, then at least one change type must match method
-                    if (!anyChangeMatch) {
-                        if (wildcard)
-                            continue;
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path \"" + stringPath
-                          + "\" is invalid because no changes emitted by the target field match the method's"
-                          + " parameter type " + genericParameterType + "; the emitted change type is "
-                          + (possibleChangeTypes.size() != 1 ? "one of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
-                    }
+                    // Not matched?
+                    if (!matched)
+                        continue;
+                    fieldsNotMatched.remove(fieldName);
+
+                    // Configure monitoring for this field
+                    this.targetFieldStorageIds.add(jfield.storageId);
                 }
-
-                // Add path
-                this.paths.add(path);
             }
 
-            // No matching fields?
-            if (this.paths.isEmpty()) {                                                         // must be wildcard
-                if (!anyFieldsFound) {
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
-                      + "there are no fields that will generate change events");
-                }
-                throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "no changes emitted by any field"
-                  + " will match the method's parameter type " + genericParameterType);
+            // Check for bogus field names (non-wildcard only)
+            final Iterator<String> fieldsNotFoundIterator = fieldsNotFound.iterator();
+            if (fieldsNotFoundIterator.hasNext()) {
+                final String fieldName = fieldsNotFoundIterator.next();
+                throw new IllegalArgumentException(String.format(
+                  "%s: field \"%s\" not found in %s", errorPrefix, fieldName,
+                  this.path.isEmpty() ? method.getDeclaringClass() :
+                  targetTypes.size() == 1 ? targetTypes.iterator().next() :
+                  "any of " + targetTypes));
+            }
+
+            // Check for valid field names that didn't match event type (non-wildcard only)
+            final Iterator<String> fieldsNotMatchedIterator = fieldsNotMatched.iterator();
+            if (fieldsNotMatchedIterator.hasNext()) {
+                final String fieldName = fieldsNotMatchedIterator.next();
+                throw new IllegalArgumentException(String.format(
+                  "%s: field \"%s\" doesn't generate any change events matching the method's parameter type %s",
+                  errorPrefix, fieldName, genericParameterType));
+            }
+
+            // Check for wildcard with no matches
+            if (this.targetFieldStorageIds.isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: there are no fields that will generate change events matching the method's parameter type %s",
+                  errorPrefix, genericParameterType));
             }
         }
 
         // Register listeners for this method
         void registerChangeListener(Transaction tx) {
-            for (ReferencePath path : this.paths)
-                tx.addFieldChangeListener(path.targetFieldStorageId, path.getReferenceFields(), path.getPathKeyRanges(), this);
+            for (int storageId : this.targetFieldStorageIds)
+                tx.addFieldChangeListener(storageId, path.getReferenceFields(), path.getPathKeyRanges(), this);
         }
 
+        // Note genericTypes is derived from this.method, so there's no need to include it in equals() or hashCode()
         @Override
         public boolean equals(Object obj) {
             if (obj == this)
@@ -264,12 +222,14 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (!super.equals(obj))
                 return false;
             final OnChangeScanner<?>.ChangeMethodInfo that = (OnChangeScanner<?>.ChangeMethodInfo)obj;
-            return this.paths.equals(that.paths);
+            return this.path.equals(that.path) && this.targetFieldStorageIds.equals(that.targetFieldStorageIds);
         }
 
         @Override
         public int hashCode() {
-            return super.hashCode() ^ this.paths.hashCode();
+            return super.hashCode()
+              ^ this.targetFieldStorageIds.hashCode()
+              ^ this.path.hashCode();
         }
 
     // SimpleFieldChangeListener
@@ -283,10 +243,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JSimpleField jfield = this.getJField(jtx, id, field, JSimpleField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object joldValue = this.convertCoreValue(jtx, jfield, oldValue);
             final Object jnewValue = this.convertCoreValue(jtx, jfield, newValue);
             final JObject jobj = this.checkTypes(jtx, SimpleFieldChange.class, id, joldValue, jnewValue);
@@ -306,10 +262,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, SetFieldAdd.class, id, jvalue);
             if (jobj == null)
@@ -326,10 +278,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, SetFieldRemove.class, id, jvalue);
             if (jobj == null)
@@ -344,10 +292,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final JObject jobj = this.checkTypes(jtx, SetFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -365,10 +309,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JListField jfield = this.getJField(jtx, id, field, JListField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, ListFieldAdd.class, id, jvalue);
             if (jobj == null)
@@ -385,10 +325,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JListField jfield = this.getJField(jtx, id, field, JListField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
             final JObject jobj = this.checkTypes(jtx, ListFieldRemove.class, id, jvalue);
             if (jobj == null)
@@ -405,10 +341,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JListField jfield = this.getJField(jtx, id, field, JListField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object joldValue = this.convertCoreValue(jtx, jfield.elementField, oldValue);
             final Object jnewValue = this.convertCoreValue(jtx, jfield.elementField, newValue);
             final JObject jobj = this.checkTypes(jtx, ListFieldReplace.class, id, joldValue, jnewValue);
@@ -425,10 +357,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JListField jfield = this.getJField(jtx, id, field, JListField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final JObject jobj = this.checkTypes(jtx, ListFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -446,10 +374,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
             final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
             final JObject jobj = this.checkTypes(jtx, MapFieldAdd.class, id, jkey, jvalue);
@@ -467,10 +391,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
             final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
             final JObject jobj = this.checkTypes(jtx, MapFieldRemove.class, id, jkey, jvalue);
@@ -488,10 +408,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
             final Object joldValue = this.convertCoreValue(jtx, jfield.valueField, oldValue);
             final Object jnewValue = this.convertCoreValue(jtx, jfield.valueField, newValue);
@@ -509,10 +425,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
             if (jfield == null)
                 return;
-            if (this.genericTypes == null) {
-                this.invoke(jtx, referrers);
-                return;
-            }
             final JObject jobj = this.checkTypes(jtx, MapFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -558,24 +470,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             return jobj;
         }
 
-        // Used when @OnChange method takes zero parameters
-        private void invoke(JTransaction jtx, NavigableSet<ObjId> referrers) {
-            final Method method = this.getMethod();
-            if ((method.getModifiers() & Modifier.STATIC) != 0)
-                Util.invoke(method, null);
-            else {
-                for (ObjId id : referrers) {
-                    final JObject target = jtx.get(id);             // type of 'id' should always be found
-
-                    // Avoid invoking subclass's @OnChange method on superclass instance;
-                    // this can happen when the field is in superclass but wildcard @OnChange is in the subclass
-                    if (method.getDeclaringClass().isInstance(target))
-                        Util.invoke(method, target);
-                }
-            }
-        }
-
-        // Used when @OnChange method takes one parameter
+        // Invoke the @OnChange method
         private void invoke(JTransaction jtx, NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
             assert change != null;
             final Method method = this.getMethod();

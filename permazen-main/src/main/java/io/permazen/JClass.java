@@ -273,7 +273,8 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
               SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
-              "element field of set field \"" + fieldName + "\" in object type \"" + this.name + "\"");
+              String.format("%s sub-field \"%s.%s\" in object type \"%s\"",
+              "set", fieldName, SetField.ELEMENT_FIELD_NAME, this.name));
 
             // Create set field
             final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, annotation, elementField,
@@ -314,7 +315,8 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
               ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
-              "element field of list field \"" + fieldName + "\" in object type \"" + this.name + "\"");
+              String.format("%s sub-field \"%s.%s\" in object type \"%s\"",
+              "list", fieldName, ListField.ELEMENT_FIELD_NAME, this.name));
 
             // Create list field
             final JListField jfield = new JListField(this.jdb, fieldName, storageId, annotation, elementField,
@@ -358,10 +360,12 @@ public class JClass<T> extends JSchemaObject {
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,
               MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,
-              "key field of map field \"" + fieldName + "\" in object type \"" + this.name + "\"");
+              String.format("%s sub-field \"%s.%s\" in object type \"%s\"", "map",
+              fieldName, MapField.KEY_FIELD_NAME, this.name));
             final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,
               MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,
-              "value field of map field \"" + fieldName + "\" in object type \"" + this.name + "\"");
+              String.format("%s sub-field \"%s.%s\" in object type \"%s\"", "map",
+              fieldName, MapField.VALUE_FIELD_NAME, this.name));
 
             // Create map field
             final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, annotation, keyField, valueField,

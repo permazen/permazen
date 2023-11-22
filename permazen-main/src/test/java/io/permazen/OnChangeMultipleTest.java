@@ -132,7 +132,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @PermazenType(storageId = 200)
     public abstract static class Person2 extends Person {
 
-        @OnChange("friends.element.name")
+        @OnChange(path = "->friends", value = "name")
         private void friendNameChange(FieldChange<?> change) {
             EVENTS.get().add(change);
         }

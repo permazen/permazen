@@ -18,6 +18,7 @@ import io.permazen.tuple.Tuple2;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.DataProvider;
@@ -239,17 +240,17 @@ public class OnChangeWildcardTest extends TestSupport {
             this.changes1.add(new Pair(change));
         }
 
-        @OnChange("*")
+        @OnChange
         private void onChange2(FieldChange<?> change) {
             this.changes2.add(new Pair(change));
         }
 
-        @OnChange("friends.element.*")
+        @OnChange(path = "->friends")
         private void onChange3(FieldChange<?> change) {
             this.changes3.add(new Pair(change));
         }
 
-        @OnChange("friends.element.friends.element.*")
+        @OnChange(path = "->friends.element->friends")
         private void onChange4(FieldChange<?> change) {
             this.changes4.add(new Pair(change));
         }
@@ -261,11 +262,11 @@ public class OnChangeWildcardTest extends TestSupport {
 
     // Test valid reference path + parameter type combinations
 
-        @OnChange("friends.element.*")
+        @OnChange(path = "->friends")
         private void onChangeParameterTypeTest1(SimpleFieldChange<Person, ?> change) {
         }
 
-        @OnChange("friends.element.*")
+        @OnChange(path = "->friends")
         private void onChangeParameterTypeTest2(ListFieldChange<Person> change) {
         }
     }
@@ -278,7 +279,7 @@ public class OnChangeWildcardTest extends TestSupport {
 
     // Malformed path
 
-        @OnChange("friend*")
+        @OnChange(path = "?friend?")
         private void onChange() {
         }
     }
@@ -286,11 +287,11 @@ public class OnChangeWildcardTest extends TestSupport {
     @PermazenType
     public abstract static class Bogus2 implements JObject {
 
-        public abstract List<Person> getFriends();
+        public abstract Map<Person, Integer> getFriends();
 
-    // Path can't end on a complex field
+    // Invalid path missing sub-field
 
-        @OnChange("friends.*")
+        @OnChange(path = "->friends")
         private void onChange() {
         }
     }
@@ -302,7 +303,7 @@ public class OnChangeWildcardTest extends TestSupport {
 
     // Invalid reference path + parameter type combination due to no matching field
 
-        @OnChange("friends.element.*")
+        @OnChange(path = "->friends")
         private void onChange(SetFieldChange<Person> change) {
         }
     }
@@ -314,7 +315,7 @@ public class OnChangeWildcardTest extends TestSupport {
 
     // Invalid reference path + parameter type combination due to type erasure
 
-        @OnChange("friends.element.*")
+        @OnChange(path = "->friends")
         private void onChange(SimpleFieldChange<Person, String> change) {
         }
     }
@@ -324,10 +325,10 @@ public class OnChangeWildcardTest extends TestSupport {
 
         public abstract List<Person> getFriends();
 
-    // No target field specified
+    // Invalid target field specified
 
-        @OnChange("^Bogus5:friends^")
-        private void onChange() {
+        @OnChange(path = "<-Bogus5.friends", value = "blob")
+        private void onChange(FieldChange<?> change) {
         }
     }
 }

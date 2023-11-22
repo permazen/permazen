@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -902,39 +903,42 @@ public class Permazen {
 // Reference Paths
 
     /**
-     * Parse a {@link ReferencePath} containing a target field.
+     * Parse a {@link ReferencePath} starting from a Java type.
      *
      * <p>
-     * Equivalent to: {@link #parseReferencePath(Class, String, boolean) parseReferencePath}{@code (startType, path, true)}.
+     * Roughly equivalent to: {@code this.parseReferencePath(this.getJClasses(startType), path)}.
      *
      * @param startType starting Java type for the path
-     * @param path dot-separated path of zero or more reference fields, followed by a target field
+     * @param path reference path in string form
      * @return parsed reference path
+     * @throws IllegalArgumentException if no model types are instances of {@code startType}
      * @throws IllegalArgumentException if {@code path} is invalid
-     * @throws IllegalArgumentException if {@code startType} or {@code path} is null
+     * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
      */
     public ReferencePath parseReferencePath(Class<?> startType, String path) {
-        return this.parseReferencePath(startType, path, true);
+        Preconditions.checkArgument(startType != null, "null startType");
+        final HashSet<JClass<?>> startTypes = new HashSet<>(this.getJClasses(startType));
+        if (startTypes.isEmpty())
+            throw new IllegalArgumentException(String.format("no model type is an instance of %s", startType));
+        if (startType.isAssignableFrom(UntypedJObject.class))
+            startTypes.add(null);
+        return this.parseReferencePath(startTypes, path);
     }
 
     /**
-     * Parse a {@link ReferencePath}.
+     * Parse a {@link ReferencePath} starting from a set of model object types.
      *
-     * @param startType starting Java type for the path
-     * @param path dot-separated path of zero or more reference fields, followed by an optional target field
-     * @param expectTargetField true if {@code path} contains a target field, false otherwise
+     * @param startTypes starting model types for the path, with null meaning {@link UntypedJObject}
+     * @param path reference path in string form
      * @return parsed reference path
+     * @throws IllegalArgumentException if {@code startTypes} is empty or contains null
      * @throws IllegalArgumentException if {@code path} is invalid
-     * @throws IllegalArgumentException if {@code startType} or {@code path} is null
+     * @throws IllegalArgumentException if either parameter is null
      * @see ReferencePath
      */
-    public ReferencePath parseReferencePath(Class<?> startType, String path, boolean expectTargetField) {
-        return this.parseReferencePath(startType, path, expectTargetField, null);
-    }
-
-    ReferencePath parseReferencePath(Class<?> startType, String path, boolean expectTargetField, Boolean lastIsSubField) {
-        return this.referencePathCache.get(startType, path, expectTargetField, lastIsSubField);
+    public ReferencePath parseReferencePath(Set<JClass<?>> startTypes, String path) {
+        return this.referencePathCache.get(startTypes, path);
     }
 
 // Validation

@@ -162,10 +162,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Reference Paths</b>
  * <ul>
- *  <li>{@link #followReferencePath followReferencePath()} - Find all objects referred to by to any element in a given set
- *      of starting objects through a specified {@link ReferencePath}</li>
- *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
- *      of objects through a specified {@link ReferencePath}</li>
+ *  <li>{@link #followReferencePath followReferencePath()} - Find all objects reachable by traversing a {@link ReferencePath}</li>
+ *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects reachable by traversing a {@link ReferencePath}
+ *      in the reverse direction</li>
  * </ul>
  *
  * <p>
@@ -450,12 +449,11 @@ public class JTransaction {
      */
     public byte[] getKey(JObject jobj, String fieldName) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        final Class<?> type = this.jdb.getJClass(jobj.getObjId()).type;
-        final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, true, false);
-        if (refPath.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("invalid field name \"" + fieldName + "\"");
-        assert refPath.getTargetTypes().iterator().next().isInstance(jobj);
-        return this.tx.getKey(jobj.getObjId(), refPath.targetFieldStorageId);
+        final JClass<?> jclass = this.jdb.getJClass(jobj.getObjId());
+        final JField jfield = Util.findField(jclass, fieldName, false);
+        if (jfield == null)
+            throw new IllegalArgumentException(String.format("field \"%s\" not found in %s", fieldName, jclass));
+        return this.tx.getKey(jobj.getObjId(), jfield.storageId);
     }
 
 // Snapshots
@@ -579,10 +577,10 @@ public class JTransaction {
 
             // Parse reference path
             Preconditions.checkArgument(refPath != null, "null refPath");
-            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, false, true);
+            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath);
 
             // Append array of reference fields to our list
-            pathReferencesList.add(path.referenceFieldStorageIds);
+            pathReferencesList.add(path.storageIds);
         }
 
         // Reset deleted assignments
@@ -1380,7 +1378,7 @@ public class JTransaction {
 // Reference Path Access
 
     /**
-     * Find all objects that are reachable from the given starting object set through the specified {@link ReferencePath}.
+     * Find all target objects that are reachable from the given starting object set through the specified {@link ReferencePath}.
      *
      * @param path reference path
      * @param startObjects starting objects
@@ -1398,7 +1396,7 @@ public class JTransaction {
     }
 
     /**
-     * Find all objects that refer to any object in the given target set through the specified {@link ReferencePath}.
+     * Find all starting objects that refer to any object in the given target set through the specified {@link ReferencePath}.
      *
      * @param path reference path
      * @param targetObjects target objects
@@ -1424,6 +1422,7 @@ public class JTransaction {
      *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; for complex fields,
      *  must include the sub-field name (e.g., {@code "mylist.element"}, {@code "mymap.key"})
+     *  unless there is only one sub-field (i.e., sets and lists but not maps)
      * @param valueType the Java type corresponding to the field value
      * @param <V> Java type corresponding to the indexed field
      * @param <T> Java type containing the field

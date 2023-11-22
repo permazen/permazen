@@ -39,7 +39,7 @@ public class JObjectCopyTest extends TestSupport {
             p2b.getFriends().add(p3);
 
             // Copy out
-            p1.copyOut("friends.element.friends.element");
+            p1.copyOut("->friends->friends");
 
             // Verify p3 got copied out
             Assert.assertTrue(stx.get(p3).exists());
@@ -67,7 +67,7 @@ public class JObjectCopyTest extends TestSupport {
             p2.setRef(p3);
 
             // Copy out
-            p1.copyOut("ref", "ref.ref");
+            p1.copyOut("->ref", "->ref->ref");
 
             // Verify p3 got copied out
             Assert.assertTrue(stx.get(p3).exists());

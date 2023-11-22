@@ -63,10 +63,6 @@ public class FollowPathTest extends TestSupport {
             TestSupport.checkSet(child2.getSiblings(), family.getChildren());
             TestSupport.checkSet(child3.getSiblings(), family.getChildren());
 
-            TestSupport.checkSet(child1.getSiblings2(), family.getChildren());
-            TestSupport.checkSet(child2.getSiblings2(), family.getChildren());
-            TestSupport.checkSet(child3.getSiblings2(), family.getChildren());
-
             final Car mcar = jtx.create(Car.class);
             final Car dcar = jtx.create(Car.class);
 
@@ -108,21 +104,21 @@ public class FollowPathTest extends TestSupport {
         }
     }
 
-    @Test(dataProvider = "badChildClasses")
-    public void testBadChild(Class<?> badChildClass) {
+    @Test(dataProvider = "badClasses")
+    public void testBadChild(Class<?> badClass) {
         try {
-            BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badChildClass);
+            BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badClass);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());
         }
     }
 
-    @DataProvider(name = "badChildClasses")
-    public Object[][] badChildClasses() {
+    @DataProvider(name = "badClasses")
+    public Object[][] badClasses() {
         return new Object[][] {
             { BadChild1.class },
-            { BadChild2.class },
+            { BadParent1.class },
             { BadChild3.class },
             { BadChild4.class },
             { BadChild5.class },
@@ -133,10 +129,10 @@ public class FollowPathTest extends TestSupport {
 
     public interface Vehicle extends JObject {
 
-        @FollowPath(inverseOf = "vehicle", startingFrom = Person.class)
+        @FollowPath("<-io.permazen.FollowPathTest$Person.vehicle")
         NavigableSet<Person> getAllOwners();
 
-        @FollowPath(inverseOf = "vehicle", startingFrom = Person.class, firstOnly = true)
+        @FollowPath("<-io.permazen.FollowPathTest$Person.vehicle")
         Optional<Person> getFirstOwner();
     }
 
@@ -149,23 +145,23 @@ public class FollowPathTest extends TestSupport {
         Family getFamily();
         void setFamily(Family x);
 
-        @FollowPath(inverseOf = "family.^io.permazen.FollowPathTest$Person:family^", startingFrom = Person.class)
+        @FollowPath("->family<-io.permazen.FollowPathTest$Person.family")
         NavigableSet<Person> getAllFamilyMembers();
     }
 
     @PermazenType
     public abstract static class Family implements JObject {
 
-        @FollowPath(startingFrom = Person.class, inverseOf = "family")
+        @FollowPath("<-io.permazen.FollowPathTest$Person.family")
         public abstract NavigableSet<Person> getMembers();
 
-        @FollowPath(value = "^Mom:family^", firstOnly = true)
+        @FollowPath("<-Mom.family")
         public abstract Optional<Mom> getMom();
 
-        @FollowPath(value = "^Dad:family^", firstOnly = true)
+        @FollowPath("<-Dad.family")
         public abstract Optional<Dad> getDad();
 
-        @FollowPath(startingFrom = Child.class, inverseOf = "family")
+        @FollowPath("<-io.permazen.FollowPathTest$Child.family")
         public abstract NavigableSet<Child> getChildren();
     }
 
@@ -182,38 +178,37 @@ public class FollowPathTest extends TestSupport {
 
     @PermazenType
     public abstract static class Dad implements Parent {
-        @FollowPath(value = "family.^Mom:family^", firstOnly = true)
+
+        @FollowPath("->family<-Mom.family")
         public abstract Optional<Parent> getWife();
     }
 
     @PermazenType
     public abstract static class Mom implements Parent {
-        @FollowPath(value = "family.^Dad:family^", firstOnly = true)
+
+        @FollowPath("->family<-Dad.family")
         public abstract Optional<Parent> getHusband();
     }
 
     public abstract static class Child implements Person, HasVehicle {
 
-        @FollowPath(value = "family.^io.permazen.FollowPathTest$Child:family^.vehicle")
+        @FollowPath("->family<-io.permazen.FollowPathTest$Child.family->vehicle")
         public abstract NavigableSet<Vehicle> getSiblingBikes();
 
-        @FollowPath(value = "family.^Dad:family^", firstOnly = true)
+        @FollowPath("->family<-Dad.family")
         public abstract Optional<Dad> getDad();
 
-        @FollowPath(inverseOf = "family.^io.permazen.FollowPathTest$Child:family^", startingFrom = Mom.class, firstOnly = true)
+        @FollowPath("->family<-Mom.family")
         public abstract Optional<Mom> getMom();
 
-        @FollowPath("family.^io.permazen.FollowPathTest$Child:family^")
+        @FollowPath("->family<-io.permazen.FollowPathTest$Child.family")
         public abstract NavigableSet<Child> getSiblings();
 
-        @FollowPath(startingFrom = Child.class, inverseOf = "family.^io.permazen.FollowPathTest$Child:family^")
-        public abstract NavigableSet<Child> getSiblings2();
-
-        @FollowPath(value = "family.^Dad:family^.vehicle", firstOnly = true)
+        @FollowPath("->family<-Dad.family->vehicle")
         public abstract Optional<Vehicle> getDadsVehicle();
 
         // Wider element type than necessary
-        @FollowPath(value = "family.^Dad:family^.vehicle", firstOnly = true)
+        @FollowPath("->family<-Dad.family->vehicle")
         public abstract Optional<JObject> getDadsVehicle2();
     }
 
@@ -226,28 +221,28 @@ public class FollowPathTest extends TestSupport {
     // Wrong return type - should be NavigableSet<Vehicle>
     @PermazenType
     public abstract static class BadChild1 extends Child {
-        @FollowPath("family.vehicles.element")
+        @FollowPath("->family->vehicles")
         public abstract NavigableSet<Bike> getFamilyVehicles();
     }
 
-    // Wrong return type - should be Optional<Vehicle>
+    // Wrong return type - should be Optional not NavigableSet
     @PermazenType
-    public abstract static class BadChild2 extends Child {
-        @FollowPath(value = "family.vehicles.element", firstOnly = true)
-        public abstract NavigableSet<Vehicle> getFirstFamilyVehicle();
+    public abstract static class BadParent1 implements Parent {
+        @FollowPath("->vehicle")
+        public abstract NavigableSet<Vehicle> getMyVehicle();
     }
 
     // Wrong return type - should be Optional<Vehicle>
     @PermazenType
     public abstract static class BadChild3 extends Child {
-        @FollowPath(value = "family.vehicles.element", firstOnly = true)
+        @FollowPath("->family<-Parent.family->vehicle")
         public abstract Optional<Bike> getFirstFamilyVehicle();
     }
 
     // Invalid path not ending on BadChild4
     @PermazenType
     public abstract static class BadChild4 extends Child {
-        @FollowPath(inverseOf = "vehicles.element", startingFrom = Parent.class)
+        @FollowPath("<-Parent.vehicle")
         public abstract NavigableSet<Parent> getBogus();
     }
 

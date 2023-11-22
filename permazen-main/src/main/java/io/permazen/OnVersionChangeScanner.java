@@ -62,8 +62,8 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
         choices.add(this.byNameType);
         this.checkParameterType(method, index++, choices);
         if (index != numParams) {
-            throw new IllegalArgumentException(this.getErrorPrefix(method)
-              + "method has " + (numParams - index) + " too many parameter(s)");
+            throw new IllegalArgumentException(String.format(
+              "%s: method has %d too many parameter(s)", this.getErrorPrefix(method), numParams - index));
         }
 
         // Done

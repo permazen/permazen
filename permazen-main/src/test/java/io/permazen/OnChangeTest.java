@@ -374,7 +374,7 @@ public class OnChangeTest extends TestSupport {
         @JListField(storageId = 103, element = @JField(storageId = 104))
         public abstract List<Person> getKnownPeople();
 
-        @OnChange("knownPeople.element.enemies.key.age")
+        @OnChange(path = "->knownPeople->enemies.key", value = "age")
         private void knownEnemyAgeChange(SimpleFieldChange<NicePerson, Integer> change) {
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
@@ -392,6 +392,12 @@ public class OnChangeTest extends TestSupport {
         private void nameChange(SimpleFieldChange<? extends Person, String> change) {
             Assert.assertSame(change.getObject(), this);
             OnChangeTest.verifyCopy(change);
+        }
+
+        @OnChange("name")
+        private static void personNameChange(SimpleFieldChange<? extends Person, String> change) {
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
     // knownPeople
@@ -488,12 +494,6 @@ public class OnChangeTest extends TestSupport {
         @OnChange("enemies")
         private void enemiesChange(MapFieldReplace<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
-            OnChangeTest.recordChange(change);
-        }
-
-        @OnChange(startType = Person.class, value = "name")
-        private static void personNameChange(SimpleFieldChange<? extends Person, String> change) {
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
@@ -635,8 +635,8 @@ public class OnChangeTest extends TestSupport {
         @JSetField
         public abstract Set<Person2> getFriends();
 
-        @OnChange("friends.element.name")
-        private void onChange() {
+        @OnChange(path = "->friends.element", value = "name")
+        private void onChange(Change<?> change) {
             this.changeNotifications++;
         }
     }
@@ -676,7 +676,7 @@ public class OnChangeTest extends TestSupport {
         public abstract String getName();
         public abstract void setName(String name);
 
-        @OnChange("parent.^InversePaths:parent^.name")          // i.e., change in any sibling's name (including myself)
+        @OnChange(path = "->parent<-InversePaths.parent", value = "name")   // i.e., change in any sibling's name (including myself)
         private void onChange(SimpleFieldChange<?, ?> change) {
             this.change = change;
         }
@@ -698,7 +698,7 @@ public class OnChangeTest extends TestSupport {
             return this.change;
         }
 
-        @OnChange("^B:a^.^D:middleMan^.foo")
+        @OnChange(path = "<-B.a<-D.middleMan", value = "foo")
         private void onChange(SimpleFieldChange<D, Integer> change) {
             this.change = change;
         }
@@ -755,7 +755,7 @@ public class OnChangeTest extends TestSupport {
         public abstract Color getColor();
         public abstract void setColor(Color color);
 
-        @OnChange("^Node:parent^.color")
+        @OnChange(path = "<-Node.parent", value = "color")
         private void onChange(SimpleFieldChange<Node, Color> change) {
             this.changes.add(change);
         }

@@ -72,7 +72,6 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_REGISTER_JOBJECT_METHOD;
     static final Method JTRANSACTION_GET_PERMAZEN_METHOD;
     static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
-    static final Method JTRANSACTION_INVERT_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_GET_TRANSACTION;
 
     // Permazen method handles
@@ -94,12 +93,18 @@ class ClassGenerator<T> {
     static final Method OBJ_DUMPER_TO_STRING_METHOD;
 
     // Collections method handles
-    static final Method OPTIONAL_OF_METHOD;
-    static final Method OPTIONAL_EMPTY_METHOD;
     static final Method SORTED_SET_FIRST_METHOD;
 
+    // Optional method handles
+    static final Method OPTIONAL_OF_METHOD;
+    static final Method OPTIONAL_EMPTY_METHOD;
+
     // Object method handles
+    static final Method OBJECT_GET_CLASS_METHOD;
     static final Method OBJECT_TO_STRING_METHOD;
+
+    // Class method handles
+    static final Method CLASS_GET_SUPERCLASS_METHOD;
 
     // Util method handles
     static final Method UTIL_STREAM_OF_METHOD;
@@ -131,13 +136,10 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_PERMAZEN_METHOD = JTransaction.class.getMethod("getPermazen");
             JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Stream.class);
-            JTRANSACTION_INVERT_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("invertReferencePath",
-              ReferencePath.class, Stream.class);
             JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
 
             // Permazen methods
-            PERMAZEN_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath",
-              Class.class, String.class, boolean.class);
+            PERMAZEN_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath", Class.class, String.class);
 
             // Transaction methods
             TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",
@@ -156,16 +158,22 @@ class ClassGenerator<T> {
             // ObjDumper
             OBJ_DUMPER_TO_STRING_METHOD = ObjDumper.class.getMethod("toString", Transaction.class, ObjId.class, int.class);
 
-            // Collections
+            // Optional
             OPTIONAL_OF_METHOD = Optional.class.getMethod("of", Object.class);
             OPTIONAL_EMPTY_METHOD = Optional.class.getMethod("empty");
+
+            // Collections
             SORTED_SET_FIRST_METHOD = SortedSet.class.getMethod("first");
 
             // Util
             UTIL_STREAM_OF_METHOD = Util.class.getMethod("streamOf", Object.class);
 
             // Object
+            OBJECT_GET_CLASS_METHOD = Object.class.getMethod("getClass");
             OBJECT_TO_STRING_METHOD = Object.class.getMethod("toString");
+
+            // Class
+            CLASS_GET_SUPERCLASS_METHOD = Class.class.getMethod("getSuperclass");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
         }
@@ -497,14 +505,15 @@ class ClassGenerator<T> {
         final Label gotPath = new Label();
         mv.visitJumpInsn(Opcodes.IFNONNULL, gotPath);
 
-        // Parse the path and cache it
+        // Parse the path and cache it in this instance
         final ReferencePath path = info.getReferencePath();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_PERMAZEN_METHOD);
-        mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(path.getStartType())));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, ClassGenerator.OBJECT_GET_CLASS_METHOD);
+        this.emitInvoke(mv, ClassGenerator.CLASS_GET_SUPERCLASS_METHOD);
         mv.visitLdcInsn(path.toString());
-        mv.visitInsn(Opcodes.ICONST_0);
         this.emitInvoke(mv, ClassGenerator.PERMAZEN_PARSE_REFERENCE_PATH_METHOD);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
 
@@ -516,11 +525,10 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, ClassGenerator.UTIL_STREAM_OF_METHOD);
-        this.emitInvoke(mv, info.isInverse() ?
-          JTRANSACTION_INVERT_REFERENCE_PATH_METHOD : JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
+        this.emitInvoke(mv, JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
 
-        // Extract first element if firstOnly()
-        if (info.getAnnotation().firstOnly()) {
+        // Extract first element if method returns Optional
+        if (info.isReturnsOptional()) {
             final Label tryStart = new Label();
             final Label tryStop = new Label();
             final Label catchLabel = new Label();

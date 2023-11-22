@@ -241,6 +241,12 @@ public class JSimpleField extends JField {
         return null;
     }
 
+    // Are these two fields compatible in the sense that they can appear in the same index?
+    boolean isIndexCompatibleWith(JSimpleField that) {
+        Preconditions.checkArgument(that != null, "null that");
+        return this.toIndexInfo().equals(that.toIndexInfo());
+    }
+
 // POJO import/export
 
     @Override

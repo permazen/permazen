@@ -122,7 +122,7 @@ import java.lang.annotation.Target;
  *      /**
  *       * Get the children of this node.
  *       *&#47;
- *      &#64;FollowPath(inverseOf = "parent", startingFrom = TreeNode.class)
+ *      &#64;FollowPath("&lt;-TreeNode.parent")
  *      NavigableSet&lt;TreeNode&gt; getChildren();
  *
  *      default TreeNode copySubtreeTo(JTransaction dest) {
