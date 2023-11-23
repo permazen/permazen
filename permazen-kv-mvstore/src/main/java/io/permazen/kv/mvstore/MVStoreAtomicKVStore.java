@@ -7,8 +7,12 @@ package io.permazen.kv.mvstore;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
+
+import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -99,7 +103,18 @@ public class MVStoreAtomicKVStore extends AbstractMVStoreKVStore implements Atom
     @Override
     public synchronized void apply(Mutations mutations, boolean sync) {
         Preconditions.checkState(this.mvstore != null, "closed");
-        this.apply(mutations);
+        try (Stream<KeyRange> stream = mutations.getRemoveRanges()) {
+            stream.iterator()
+              .forEachRemaining(this::removeRange);
+        }
+        try (Stream<Map.Entry<byte[], byte[]>> stream = mutations.getPutPairs()) {
+            stream.iterator()
+              .forEachRemaining(entry -> this.put(entry.getKey(), entry.getValue()));
+        }
+        try (Stream<Map.Entry<byte[], Long>> stream = mutations.getAdjustPairs()) {
+            stream.iterator()
+              .forEachRemaining(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+        }
         this.commitOrRollback();
     }
 
