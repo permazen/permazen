@@ -282,7 +282,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * Import objects pairs into the {@link Transaction} associated with this instance from the given XML input.
      *
      * <p>
-     * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
+     * The input format is auto-detected for each {@code <object>} based on the presence of the {@code "type"} attribute.
      *
      * <p>
      * Can optionally check for unresolved object references after reading is complete. If this checking is enabled,
@@ -314,7 +314,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * larger XML document.
      *
      * <p>
-     * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
+     * The input format is auto-detected for each {@code <object>} based on the presence of the {@code "type"} attribute.
      *
      * @param reader XML reader
      * @return the number of objects read
