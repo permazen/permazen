@@ -5,13 +5,14 @@
 
 package io.permazen.schema;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 import io.permazen.core.MapField;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.SortedMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -42,11 +43,8 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
     }
 
     @Override
-    public Map<String, SimpleSchemaField> getSubFields() {
-        final LinkedHashMap<String, SimpleSchemaField> map = new LinkedHashMap<>(2);
-        map.put(MapField.KEY_FIELD_NAME, this.keyField);
-        map.put(MapField.VALUE_FIELD_NAME, this.valueField);
-        return map;
+    public SortedMap<String, SimpleSchemaField> getSubFields() {
+        return ImmutableSortedMap.of(MapField.KEY_FIELD_NAME, this.keyField, MapField.VALUE_FIELD_NAME, this.valueField);
     }
 
 // Lockdown

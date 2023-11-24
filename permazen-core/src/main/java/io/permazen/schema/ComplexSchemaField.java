@@ -10,6 +10,7 @@ import io.permazen.core.InvalidSchemaException;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.SortedMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -21,7 +22,7 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public abstract class ComplexSchemaField extends SchemaField {
 
-    public abstract Map<String, SimpleSchemaField> getSubFields();
+    public abstract SortedMap<String, SimpleSchemaField> getSubFields();
 
 // Validation
 

@@ -5,12 +5,13 @@
 
 package io.permazen.schema;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 import io.permazen.core.CollectionField;
 import io.permazen.util.Diffs;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
+import java.util.SortedMap;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -42,8 +43,8 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
 // ComplexSchemaField
 
     @Override
-    public Map<String, SimpleSchemaField> getSubFields() {
-        return Collections.<String, SimpleSchemaField>singletonMap(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
+    public SortedMap<String, SimpleSchemaField> getSubFields() {
+        return ImmutableSortedMap.of(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
     }
 
 // XML Reading
