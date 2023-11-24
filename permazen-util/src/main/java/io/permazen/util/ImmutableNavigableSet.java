@@ -37,9 +37,20 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      * @param source data source
      * @throws IllegalArgumentException if {@code source} is null
      */
-    @SuppressWarnings("unchecked")
     public ImmutableNavigableSet(NavigableSet<E> source) {
-        this((E[])source.toArray(), source.comparator());
+        this(source, source.comparator());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param source data source
+     * @param comparator element comparator, or null for natural ordering
+     * @throws IllegalArgumentException if {@code source} is null
+     */
+    @SuppressWarnings("unchecked")
+    public ImmutableNavigableSet(NavigableSet<E> source, Comparator<? super E> comparator) {
+        this((E[])source.toArray(), comparator);
     }
 
     /**

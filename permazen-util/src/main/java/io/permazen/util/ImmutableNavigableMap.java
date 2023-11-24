@@ -40,9 +40,20 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      * @param source data source
      * @throws IllegalArgumentException if {@code source} is null
      */
-    @SuppressWarnings("unchecked")
     public ImmutableNavigableMap(NavigableMap<K, V> source) {
-        this((K[])source.keySet().toArray(), (V[])source.values().toArray(), source.comparator());
+        this(source, source.comparator());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param source data source
+     * @param comparator key comparator, or null for natural ordering
+     * @throws IllegalArgumentException if {@code source} is null
+     */
+    @SuppressWarnings("unchecked")
+    public ImmutableNavigableMap(NavigableMap<K, V> source, Comparator<? super K> comparator) {
+        this((K[])source.keySet().toArray(), (V[])source.values().toArray(), comparator);
     }
 
     /**
