@@ -341,7 +341,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 try {
                     schema = this.tx.getSchemas().getVersion(Integer.parseInt(versionAttr));
                 } catch (IllegalArgumentException e) {
-                    throw new XMLStreamException("invalid object schema version \"" + versionAttr + "\": " + e,
+                    throw new XMLStreamException(String.format(
+                      "invalid object schema version \"%s\": %s", versionAttr, e.getMessage()),
                       reader.getLocation(), e);
                 }
             } else
@@ -356,30 +357,37 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 try {
                     objType = schema.getObjType(Integer.parseInt(storageIdAttr));
                 } catch (UnknownTypeException e) {
-                    throw new XMLStreamException("invalid object type storage ID \"" + storageIdAttr + "\": " + e,
+                    throw new XMLStreamException(String.format(
+                      "invalid object type storage ID \"%s\": %s", storageIdAttr, e.getMessage()),
                       reader.getLocation(), e);
                 }
                 if (!name.equals(OBJECT_TAG)) {
                     if (!XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
-                        throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
-                          + name.getLocalPart() + ">; expected <" + OBJECT_TAG.getLocalPart() + ">", reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "unexpected element <%s:%s>; expected <%s>",
+                          name.getPrefix(), name.getLocalPart(), OBJECT_TAG.getLocalPart()),
+                          reader.getLocation());
                     }
                     if (!objType.getName().equals(name.getLocalPart())) {
-                        throw new XMLStreamException("element <" + name.getLocalPart() + "> does not match storage ID "
-                          + objType.getStorageId() + "; should be <" + objType.getName() + ">", reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "element <%s> does not match storage ID %d; should be <%s>",
+                          name.getLocalPart(), objType.getStorageId(), objType.getName()),
+                          reader.getLocation());
                     }
                 }
             } else {
                 if (!XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
-                    throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
-                      + name.getLocalPart() + ">; expected <object> or object type name", reader.getLocation());
+                    throw new XMLStreamException(String.format(
+                      "unexpected element <%s:%s>; expected <object> or object type name", name.getPrefix(), name.getLocalPart()),
+                      reader.getLocation());
                 }
                 if (!name.equals(OBJECT_TAG)) {
                     final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(name.getLocalPart());
                     if (schemaObjectType == null) {
-                        throw new XMLStreamException("unexpected element <" + name.getLocalPart()
-                          + ">; no object type named \"" + name.getLocalPart() + "\" found in schema version "
-                          + schema.getVersionNumber(), reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "unexpected element <%s>; no object type named \"%s\" found in schema version %d",
+                          name.getLocalPart(), name.getLocalPart(), schema.getVersionNumber()),
+                          reader.getLocation());
                     }
                     objType = schema.getObjType(schemaObjectType.getStorageId());
                 }
@@ -395,8 +403,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Verify we know object type
                 if (objType == null) {
-                    throw new XMLStreamException("invalid <" + OBJECT_TAG.getLocalPart() + "> element: either \""
-                      + STORAGE_ID_ATTR.getLocalPart() + "\" or \"" + ID_ATTR.getLocalPart() + "\" attribute is required",
+                    throw new XMLStreamException(String.format(
+                      "invalid <%s> element: either \"%s\" or \"%s\" attribute is required",
+                      OBJECT_TAG.getLocalPart(), STORAGE_ID_ATTR.getLocalPart(), ID_ATTR.getLocalPart()),
                       reader.getLocation());
                 }
 
@@ -409,16 +418,19 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     id = new ObjId(idAttr);
                 } catch (IllegalArgumentException e) {
                     final Matcher matcher = GENERATED_ID_PATTERN.matcher(idAttr);
-                    if (!matcher.matches())
-                        throw new XMLStreamException("invalid object ID \"" + idAttr + "\"", reader.getLocation());
+                    if (!matcher.matches()) {
+                        throw new XMLStreamException(String.format(
+                          "invalid object ID \"%s\"", idAttr), reader.getLocation());
+                    }
                     final String typeAttr = matcher.group(1);
                     final ObjType genType = this.parseGeneratedType(reader, idAttr, typeAttr, schema);
                     if (objType == null)
                         objType = genType;
                     else if (!genType.equals(objType)) {
-                        throw new XMLStreamException("type \"" + typeAttr + "\" in generated object ID \"" + idAttr
-                          + "\" does not match type \"" + objType.getName() + "\" in schema version "
-                          + schema.getVersionNumber(), reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "type \"%s\" in generated object ID \"%s\" does not match type \"%s\" in schema version %d",
+                          typeAttr, idAttr, objType.getName(), schema.getVersionNumber()),
+                          reader.getLocation());
                     }
                     id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), matcher.group(2));
                 }
@@ -443,24 +455,28 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     try {
                         field = objType.getFields().get(Integer.parseInt(storageIdAttr));
                     } catch (IllegalArgumentException e) {
-                        throw new XMLStreamException("invalid field storage ID \"" + storageIdAttr
-                          + "\": " + e, reader.getLocation(), e);
+                        throw new XMLStreamException(String.format(
+                          "invalid field storage ID \"%s\": %s", storageIdAttr, e.getMessage()),
+                          reader.getLocation(), e);
                     }
                     if (field == null) {
-                        throw new XMLStreamException("unknown field storage ID \"" + storageIdAttr + "\" for object type \""
-                          + objType.getName() + "\" #" + objType.getStorageId() + " in schema version "
-                          + schema.getVersionNumber(), reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "unknown field storage ID \"%s\" for object type \"%s\" #%d in schema version %d",
+                          storageIdAttr, objType.getName(), objType.getStorageId(), schema.getVersionNumber()),
+                          reader.getLocation());
                     }
                 } else {
                     if (!XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
-                        throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
-                          + name.getLocalPart() + ">; expected field name", reader.getLocation());
+                        throw new XMLStreamException(String.format(
+                          "unexpected element <%s:%s>; expected field name", name.getPrefix(), name.getLocalPart()),
+                          reader.getLocation());
                     }
                     final SchemaField schemaField = nameIndex.getSchemaField(schemaObjectType, name.getLocalPart());
                     if (schemaField == null) {
-                        throw new XMLStreamException("unexpected element <" + name.getLocalPart() + ">; unknown field \""
-                          + name.getLocalPart() + "\" in object type \"" + objType.getName() + "\" #"
-                          + objType.getStorageId() + " in schema version " + schema.getVersionNumber(),
+                        throw new XMLStreamException(String.format(
+                          "unexpected element <%s>; unknown field \"%s\" in object type \"%s\" #%d in schema version %d",
+                          name.getLocalPart(), name.getLocalPart(), objType.getName(), objType.getStorageId(),
+                          schema.getVersionNumber()),
                           reader.getLocation());
                     }
                     field = objType.getFields().get(schemaField.getStorageId());
@@ -475,7 +491,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     try {
                         value = Long.parseLong(reader.getElementText());
                     } catch (Exception e) {
-                        throw new XMLStreamException("invalid counter value for field \"" + field.getName() + "\": " + e,
+                        throw new XMLStreamException(String.format(
+                          "invalid counter value for field \"%s\": %s", field.getName(), e.getMessage()),
                           reader.getLocation(), e);
                     }
                     snapshot.writeCounterField(id, field.getStorageId(), value, false);
@@ -490,8 +507,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         throw new RuntimeException("internal error: " + field);
                     while ((name = this.next(reader)) != null) {
                         if (!ELEMENT_TAG.equals(name)) {
-                            throw new XMLStreamException("invalid field element; expected <" + ELEMENT_TAG.getLocalPart()
-                              + "> but found opening <" + name.getLocalPart() + ">", reader.getLocation());
+                            throw new XMLStreamException(String.format(
+                              "invalid field element; expected <%s> but found opening <%s>",
+                              ELEMENT_TAG.getLocalPart(), name.getLocalPart()),
+                              reader.getLocation());
                         }
                         ((Collection<Object>)collection).add(this.readSimpleField(reader, elementField));
                     }
@@ -501,23 +520,29 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     final Map<?, ?> map = snapshot.readMapField(id, field.getStorageId(), false);
                     while ((name = this.next(reader)) != null) {
                         if (!ENTRY_TAG.equals(name)) {
-                            throw new XMLStreamException("invalid map field entry; expected <" + ENTRY_TAG.getLocalPart()
-                              + "> but found opening <" + name.getLocalPart() + ">", reader.getLocation());
+                            throw new XMLStreamException(String.format(
+                              "invalid map field entry; expected <%s> but found opening <%s>",
+                              ENTRY_TAG.getLocalPart(), name.getLocalPart()),
+                              reader.getLocation());
                         }
                         if (!KEY_TAG.equals(this.next(reader))) {
-                            throw new XMLStreamException("invalid map entry key; expected <" + KEY_TAG.getLocalPart()
-                              + ">", reader.getLocation());
+                            throw new XMLStreamException(String.format(
+                              "invalid map entry key; expected <%s>", KEY_TAG.getLocalPart()),
+                              reader.getLocation());
                         }
                         final Object key = this.readSimpleField(reader, keyField);
                         if (!VALUE_TAG.equals(this.next(reader))) {
-                            throw new XMLStreamException("invalid map entry value; expected <" + VALUE_TAG.getLocalPart()
-                              + ">", reader.getLocation());
+                            throw new XMLStreamException(String.format(
+                              "invalid map entry value; expected <%s>", VALUE_TAG.getLocalPart()),
+                              reader.getLocation());
                         }
                         final Object value = this.readSimpleField(reader, valueField);
                         ((Map<Object, Object>)map).put(key, value);
                         if ((name = this.next(reader)) != null) {
-                            throw new XMLStreamException("invalid map field entry; expected closing <" + ENTRY_TAG.getLocalPart()
-                              + "> but found opening <" + name.getLocalPart() + ">", reader.getLocation());
+                            throw new XMLStreamException(String.format(
+                              "invalid map field entry; expected closing <%s> but found opening <%s>",
+                              ENTRY_TAG.getLocalPart(), name.getLocalPart()),
+                              reader.getLocation());
                         }
                     }
                 } else
@@ -747,8 +772,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 isNull = Boolean.valueOf(nullAttr);
                 break;
             default:
-                throw new XMLStreamException("invalid value \"" + nullAttr + "\" for \"" + NULL_ATTR.getLocalPart()
-                 + "\" attribute: value must be \"true\" or \"false\"", reader.getLocation());
+                throw new XMLStreamException(String.format(
+                  "invalid value \"%s\" for \"%s\" attribute: value must be \"true\" or \"false\"",
+                  nullAttr, NULL_ATTR.getLocalPart()), reader.getLocation());
             }
         }
 
@@ -757,7 +783,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             text = reader.getElementText();
         } catch (Exception e) {
-            throw new XMLStreamException("invalid value for field \"" + field.getName() + "\": " + e, reader.getLocation(), e);
+            throw new XMLStreamException(String.format(
+              "invalid value for field \"%s\": %s", field.getName(), e.getMessage()),
+              reader.getLocation(), e);
         }
 
         // If null, verify there is no text content
@@ -780,7 +808,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             return encoding.fromString(text);
         } catch (Exception e) {
-            throw new XMLStreamException("invalid value \"" + text + "\" for field \"" + field.getName() + "\": " + e,
+            throw new XMLStreamException(String.format(
+              "invalid value \"%s\" for field \"%s\": %s", text, field.getName(), e.getMessage()),
               reader.getLocation(), e);
         }
     }
@@ -796,15 +825,17 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 continue;
             }
             if (storageId != -1 && storageId != objType.getStorageId()) {
-                throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
-                  + text + "\": two or more incompatible object types named \"" + attr
-                  + "\" exist (in different schema versions)", reader.getLocation());
+                throw new XMLStreamException(String.format(
+                  "invalid object type \"%s\" in generated object ID \"%s\": two or more incompatible object types"
+                  + " named \"%s\" exist (in different schema versions)", attr, text, attr),
+                  reader.getLocation());
             }
             storageId = objType.getStorageId();
         }
         if (storageId == -1) {
-            throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
-              + text + "\": no such object type found in any schema version", reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "invalid object type \"%s\" in generated object ID \"%s\": no such object type found in any schema version",
+              attr, text), reader.getLocation());
         }
         return storageId;
     }
@@ -824,14 +855,18 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             storageId = Integer.parseInt(attr);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException("invalid object type \"" + attr + "\" in generated object ID \""
-              + text + "\": no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "invalid object type \"%s\" in generated object ID \"%s\": no such object type found in schema version %d",
+              attr, text, schema.getVersionNumber()),
+              reader.getLocation());
         }
         try {
             return schema.getObjType(storageId);
         } catch (UnknownTypeException e) {
-            throw new XMLStreamException("invalid storage ID " + storageId + " in generated object ID \""
-              + text + "\": no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "invalid storage ID %d in generated object ID \"%s\": no such object type found in schema version %d",
+              storageId, text, schema.getVersionNumber()),
+              reader.getLocation());
         }
     }
 
