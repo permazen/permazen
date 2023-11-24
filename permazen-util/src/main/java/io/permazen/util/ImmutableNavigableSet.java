@@ -38,7 +38,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if {@code source} is null
      */
     public ImmutableNavigableSet(NavigableSet<E> source) {
-        this(source, source.comparator());
+        this(source, checkNull(source).comparator());
     }
 
     /**
@@ -50,7 +50,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      */
     @SuppressWarnings("unchecked")
     public ImmutableNavigableSet(NavigableSet<E> source, Comparator<? super E> comparator) {
-        this((E[])source.toArray(), comparator);
+        this((E[])checkNull(source).toArray(), comparator);
     }
 
     /**
@@ -64,7 +64,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
      * @throws IllegalArgumentException if {@code elems} is null
      */
     public ImmutableNavigableSet(E[] elems, Comparator<? super E> comparator) {
-        this(new Bounds<>(), elems, 0, elems.length, comparator);
+        this(new Bounds<>(), checkNull(elems), 0, elems.length, comparator);
     }
 
     /**
@@ -293,6 +293,12 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
         if (index < this.minIndex || index >= this.maxIndex)
             throw new NoSuchElementException();
         return index;
+    }
+
+    private static <T> T checkNull(T obj) {
+        if (obj == null)
+            throw new IllegalArgumentException();
+        return obj;
     }
 
 // Iter

@@ -41,7 +41,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code source} is null
      */
     public ImmutableNavigableMap(NavigableMap<K, V> source) {
-        this(source, source.comparator());
+        this(source, checkNull(source).comparator());
     }
 
     /**
@@ -53,7 +53,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      */
     @SuppressWarnings("unchecked")
     public ImmutableNavigableMap(NavigableMap<K, V> source, Comparator<? super K> comparator) {
-        this((K[])source.keySet().toArray(), (V[])source.values().toArray(), comparator);
+        this((K[])checkNull(source).keySet().toArray(), (V[])source.values().toArray(), comparator);
     }
 
     /**
@@ -69,7 +69,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code keys} and {@code vals} have different lengths
      */
     public ImmutableNavigableMap(K[] keys, V[] vals, Comparator<? super K> comparator) {
-        this(new Bounds<>(), keys, vals, 0, Math.min(keys.length, vals.length), comparator);
+        this(new Bounds<>(), checkNull(keys), checkNull(vals), 0, Math.min(keys.length, vals.length), comparator);
     }
 
     /**
@@ -336,6 +336,12 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
         if (index < this.minIndex || index >= this.maxIndex)
             throw new NoSuchElementException();
         return index;
+    }
+
+    private static <T> T checkNull(T obj) {
+        if (obj == null)
+            throw new IllegalArgumentException();
+        return obj;
     }
 
     private AbstractMap.SimpleImmutableEntry<K, V> createEntry(int index) {
