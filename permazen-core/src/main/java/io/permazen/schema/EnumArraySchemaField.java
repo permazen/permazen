@@ -8,6 +8,9 @@ package io.permazen.schema;
 import io.permazen.encoding.Encoding;
 import io.permazen.util.Diffs;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -58,6 +61,12 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
             return false;
         final EnumArraySchemaField that = (EnumArraySchemaField)field;
         return this.dimensions == that.dimensions;
+    }
+
+    @Override
+    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
+        super.writeCompatibilityHashData(output);
+        output.writeInt(this.dimensions);
     }
 
 // XML Reading
