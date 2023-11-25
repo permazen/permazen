@@ -235,7 +235,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         // Close all unclosed cursors
         this.cursorTracker.close();
 
-        // Remove this transction from database
+        // Remove this transaction from database
         this.store.removeTransaction(this);
     }
 
