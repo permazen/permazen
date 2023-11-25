@@ -34,7 +34,7 @@ public class LotsOfFieldsTest extends TestSupport {
             Fields65.class
         };
         final Permazen jdb = BasicTest.getPermazen(classes);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -77,7 +77,7 @@ public class LotsOfFieldsTest extends TestSupport {
     public void testCopyCacheReset() throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(Fields65.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
             final Fields65 f1 = jtx.create(Fields65.class);

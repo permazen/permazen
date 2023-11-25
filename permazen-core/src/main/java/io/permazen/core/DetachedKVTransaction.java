@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * {@link KVTransaction} interface. They cannot be committed or rolled back: all {@link KVStore}
  * methods are supported, but all {@link KVTransaction} methods throw {@link UnsupportedOperationException}.
  */
-class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
+class DetachedKVTransaction extends ForwardingKVStore implements KVTransaction {
 
     private final KVStore kvstore;
 
@@ -32,7 +32,7 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
      *
      * @param kvstore underlying key/value store
      */
-    SnapshotKVTransaction(KVStore kvstore) {
+    DetachedKVTransaction(KVStore kvstore) {
         assert kvstore != null;
         this.kvstore = kvstore;
     }
@@ -43,33 +43,33 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public KVDatabase getKVDatabase() {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public void setTimeout(long timeout) {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public Future<Void> watchKey(byte[] key) {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 
     @Override
@@ -83,32 +83,32 @@ class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public void commit() {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public void rollback() {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 
     /**
-     * Not supported by {@link SnapshotKVTransaction}.
+     * Not supported by {@link DetachedKVTransaction}.
      *
      * @throws UnsupportedOperationException always
      */
     @Override
     public CloseableKVStore readOnlySnapshot() {
-        throw new UnsupportedOperationException("snapshot transaction");
+        throw new UnsupportedOperationException("detached transaction");
     }
 }

@@ -10,7 +10,6 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
-import io.permazen.SnapshotJTransaction;
 import io.permazen.StorageIdGenerator;
 import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
@@ -406,42 +405,16 @@ public @interface JField {
      * {@link DeleteAction#EXCEPTION} (see {@link #inverseDelete}), the field is guaranteed to never be a dangling reference.
      *
      * <p>
-     * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
-     * separately controls validation for {@link SnapshotJTransaction}s.
+     * This property only applies to regular (non-detached) transactions.
      *
      * <p>
      * For consistency, this property must be set to true when {@link #inverseDelete} is set to {@link DeleteAction#IGNORE}.
      *
      * @return whether the reference field should allow assignment to deleted objects in normal transactions
      * @see #inverseDelete
-     * @see #allowDeletedSnapshot
      * @see PermazenType#autogenAllowDeleted
      */
     boolean allowDeleted() default false;
-
-    /**
-     * Allow the field to reference non-existent objects in snapshot transactions.
-     *
-     * <p>
-     * For non-reference fields, this property must be equal to its default value.
-     *
-     * <p>
-     * This property is equivalent to {@link #allowDeleted}, but applies to {@link SnapshotJTransaction}s
-     * instead of normal {@link JTransaction}s; see {@link #allowDeleted} for details.
-     *
-     * <p>
-     * Snapshot transactions typically hold a copy of some small portion of the database. If this property is set to false,
-     * then it effectively creates a requirement that this "small portion" be transitively closed under object references.
-     *
-     * <p>
-     * For consistency, this property must be set to true when {@link #inverseDelete} is set to {@link DeleteAction#IGNORE}.
-     *
-     * @return whether the reference field should allow assignment to deleted objects in snapshot transactions
-     * @see #inverseDelete
-     * @see #allowDeleted
-     * @see PermazenType#autogenAllowDeletedSnapshot
-     */
-    boolean allowDeletedSnapshot() default true;
 
     /**
      * Specify the {@link UpgradeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.

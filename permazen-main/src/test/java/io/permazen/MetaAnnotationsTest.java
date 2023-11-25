@@ -24,7 +24,7 @@ public class MetaAnnotationsTest extends TestSupport {
     @Test
     public void testGenerics1() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Mommy.class, Baby.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

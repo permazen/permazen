@@ -23,7 +23,7 @@ public class GenericsFunTest extends TestSupport {
     @Test
     public void testGenerics1() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Widget.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             jtx.queryIndex(AbstractData.class, "name", String.class);
@@ -35,7 +35,7 @@ public class GenericsFunTest extends TestSupport {
     @Test
     public void testGenerics2() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(AccountEvent.class, Account.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             jtx.queryIndex(AbstractData.class, "name", String.class);
@@ -49,7 +49,7 @@ public class GenericsFunTest extends TestSupport {
     @Test
     public void testGenerics3() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             final Class2 c2 = jtx.create(Class2.class);
@@ -64,7 +64,7 @@ public class GenericsFunTest extends TestSupport {
     @Test
     public void testGenerics4() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             final Class2 c2 = jtx.create(Class2.class);
@@ -92,7 +92,7 @@ public class GenericsFunTest extends TestSupport {
         Assert.assertEquals(field1.getTypeToken(), TypeToken.of(ListSub2.class));
         Assert.assertEquals(field2.getTypeToken(), TypeToken.of(ListSub1.class));
 
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             final ListSub1 sub1 = jtx.create(ListSub1.class);

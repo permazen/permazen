@@ -35,7 +35,7 @@ public class UntypedJObjectTest extends TestSupport {
         factory1.setSchemaVersion(1);
         factory1.setModelClasses(Foo.class, Bar.class);
         final Permazen jdb1 = factory1.newPermazen();
-        final JTransaction jtx1 = jdb1.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx1 = jdb1.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx1);
         try {
 
@@ -62,7 +62,7 @@ public class UntypedJObjectTest extends TestSupport {
         factory2.setSchemaVersion(2);
         factory2.setModelClasses(Foo.class);
         final Permazen jdb2 = factory2.newPermazen();
-        final JTransaction jtx2 = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx2 = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx2);
         try {
 
@@ -91,7 +91,7 @@ public class UntypedJObjectTest extends TestSupport {
 
     // Query HasName index in schema version 2 transaction
 
-        final JTransaction jtx3 = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx3 = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx3);
         try {
 

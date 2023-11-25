@@ -33,7 +33,7 @@ public class TypeSafetyTest3 extends TestSupport {
     // Version 1
 
         final Permazen jdb1 = new Permazen(db, 1, null, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
-        JTransaction jtx = jdb1.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
         Car car;
@@ -61,7 +61,7 @@ public class TypeSafetyTest3 extends TestSupport {
     // Version 2
 
         final Permazen jdb2 = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
-        jtx = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
         final Inventory2 inventory2;

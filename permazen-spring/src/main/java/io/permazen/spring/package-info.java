@@ -24,10 +24,10 @@
  *      <ul>
  *      <li>{@link io.permazen.spring.KVStoreHttpMessageConverter} for encoding/decoding a raw
  *          {@link io.permazen.kv.KVStore}</li>
- *      <li>{@link io.permazen.spring.SnapshotJTransactionHttpMessageConverter} for encoding/decoding an entire
- *          {@link io.permazen.SnapshotJTransaction}</li>
+ *      <li>{@link io.permazen.spring.DetachedJTransactionHttpMessageConverter} for encoding/decoding an entire
+ *          {@link io.permazen.DetachedJTransaction}</li>
  *      <li>{@link io.permazen.spring.JObjectHttpMessageConverter} for encoding/decoding a specific
- *          {@link io.permazen.JObject} within a {@link io.permazen.SnapshotJTransaction}</li>
+ *          {@link io.permazen.JObject} within a {@link io.permazen.DetachedJTransaction}</li>
  *      </ul>
  *  </li>
  * </ul>

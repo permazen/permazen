@@ -20,7 +20,7 @@ public class UniqueConstraintTest extends TestSupport {
     public void testUniqueConstraint() throws Exception {
 
         Permazen jdb = BasicTest.getPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
 
         JTransaction.setCurrent(jtx);
         try {
@@ -164,7 +164,7 @@ public class UniqueConstraintTest extends TestSupport {
         Permazen jdb = BasicTest.getPermazen(UniqueName.class);
         JTransaction jtx;
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -198,14 +198,14 @@ public class UniqueConstraintTest extends TestSupport {
         Permazen jdb = BasicTest.getPermazen(UniqueName.class);
         JTransaction jtx;
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
             final UniqueName u1 = jtx.create(UniqueName.class);
             u1.setName("Jeffrey");
 
-            final JTransaction stx = jtx.getSnapshotTransaction();
+            final JTransaction stx = jtx.getDetachedTransaction();
             final UniqueName u2s = stx.create(UniqueName.class);
             u2s.setName("Jeffrey");
 
@@ -247,7 +247,7 @@ public class UniqueConstraintTest extends TestSupport {
         final ObjId id2;
 
         // Create two objects with different names
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -276,11 +276,11 @@ public class UniqueConstraintTest extends TestSupport {
         // Copy on top of the second object, which already exists, but where the copy has the same name
         // Configure the CopyState to suppress notifications. The bug was that this also inadvertently
         // suppressed the notification that was supposed to trigger validation.
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
-            final UniqueName u2s = jtx.getSnapshotTransaction().get(id2, UniqueName.class);
+            final UniqueName u2s = jtx.getDetachedTransaction().get(id2, UniqueName.class);
             u2s.recreate();
             u2s.setName("Jeffrey");
 
@@ -318,7 +318,7 @@ public class UniqueConstraintTest extends TestSupport {
         JTransaction jtx;
 
         // test 1
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -339,7 +339,7 @@ public class UniqueConstraintTest extends TestSupport {
         }
 
         // test 2
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -355,7 +355,7 @@ public class UniqueConstraintTest extends TestSupport {
         }
 
         // test 3
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -377,7 +377,7 @@ public class UniqueConstraintTest extends TestSupport {
         Permazen jdb = BasicTest.getPermazen(UniqueName3.class, UniqueName4.class);
         JTransaction jtx;
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -397,7 +397,7 @@ public class UniqueConstraintTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -417,7 +417,7 @@ public class UniqueConstraintTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

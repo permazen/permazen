@@ -30,7 +30,6 @@ public final class XMLConstants {
 
     // Attributes
     public static final QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
-    public static final QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
     public static final QName DIMENSIONS_ATTRIBUTE = new QName("dimensions");
     public static final QName ENCODING_ATTRIBUTE = new QName("encoding");
     public static final QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");

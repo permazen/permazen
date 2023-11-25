@@ -81,8 +81,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setReadOnly setReadOnly()} - Set transaction to read-only</li>
  *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
- *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a empty, in-memory copy of this transaction</li>
- *  <li>{@link #isSnapshot} - Determine whether this transaction is a snapshot transaction</li>
+ *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a empty, in-memory copy of this transaction</li>
+ *  <li>{@link #isDetached} - Determine whether this transaction is a detached transaction</li>
  * </ul>
  *
  * <p>
@@ -592,31 +592,31 @@ public class Transaction {
     }
 
     /**
-     * Create an empty, in-memory "snapshot" transaction.
+     * Create an empty, in-memory detached transaction.
      *
      * <p>
-     * The snapshot transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
-     * (i.e., contain no objects). It can be used as a destination for "snapshot" copies of objects made via {@link #copy copy()}.
+     * The detached transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
+     * (i.e., contain no objects). It can be used as a destination for in-memory copies of objects made via {@link #copy copy()}.
      *
      * <p>
-     * The returned {@link SnapshotTransaction} does not support {@link #commit}, {@link #rollback},
+     * The returned {@link DetachedTransaction} does not support {@link #commit}, {@link #rollback},
      * or {@link #addCallback addCallback()}, and can be used indefinitely after this transaction closes.
      *
-     * @return empty in-memory snapshot transaction with compatible schema information
-     * @see Database#createSnapshotTransaction Database.createSnapshotTransaction()
+     * @return empty in-memory detached transaction with compatible schema information
+     * @see Database#createDetachedTransaction Database.createDetachedTransaction()
      */
-    public SnapshotTransaction createSnapshotTransaction() {
+    public DetachedTransaction createDetachedTransaction() {
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
         Layout.copyMetaData(this.kvt, kvstore);
-        return new SnapshotTransaction(this.db, kvstore, this.schemas, this.schema);
+        return new DetachedTransaction(this.db, kvstore, this.schemas, this.schema);
     }
 
     /**
-     * Determine whether this instance is a {@link SnapshotTransaction}.
+     * Determine whether this instance is a {@link DetachedTransaction}.
      *
-     * @return true if this instance is a {@link SnapshotTransaction}, otherwise false
+     * @return true if this instance is a {@link DetachedTransaction}, otherwise false
      */
-    public boolean isSnapshot() {
+    public boolean isDetached() {
         return false;
     }
 
@@ -1947,7 +1947,7 @@ public class Transaction {
             return;
 
         // Is deleted assignment disallowed for this field?
-        if ((this instanceof SnapshotTransaction) ? field.allowDeletedSnapshot : field.allowDeleted)
+        if (this instanceof DetachedTransaction || field.allowDeleted)
             return;
 
         // Is the target a deleted object?

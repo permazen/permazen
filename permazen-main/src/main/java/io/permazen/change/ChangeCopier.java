@@ -58,40 +58,40 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     }
 
     /**
-     * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction
-     * associated with the current thread and no copy cascade is needed
+     * Constructor for when the destination transaction is the detached transaction of the transaction
+     * associated with the current thread and no copy cascade is needed.
      *
      * <p>
      * This is a convenience constructor, equivalent to:
      * <blockquote><pre>
-     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())
+     * ChangeCopier(JTransaction.getCurrent().getDetachedTransaction())
      * </pre></blockquote>
      *
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
+     * @throws IllegalStateException if this is not a detached instance and there is no {@link JTransaction}
      *  associated with the current thread
      */
     public ChangeCopier() {
-        this(JTransaction.getCurrent().getSnapshotTransaction());
+        this(JTransaction.getCurrent().getDetachedTransaction());
     }
 
     /**
-     * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction
+     * Constructor for when the destination transaction is the detached transaction of the transaction
      * associated with the current thread.
      *
      * <p>
      * This is a convenience constructor, equivalent to:
      * <blockquote><pre>
-     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName, recursionLimit)
+     * ChangeCopier(JTransaction.getCurrent().getDetachedTransaction(), cascadeName, recursionLimit)
      * </pre></blockquote>
      *
      * @param cascadeName cascade to use when copying objects, or null to not cascade
      * @param recursionLimit the maximum number of cascaded references to traverse, or -1 for infinity
      * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
+     * @throws IllegalStateException if this is not a detached instance and there is no {@link JTransaction}
      *  associated with the current thread
      */
     public ChangeCopier(String cascadeName, int recursionLimit) {
-        this(JTransaction.getCurrent().getSnapshotTransaction(), cascadeName, recursionLimit);
+        this(JTransaction.getCurrent().getDetachedTransaction(), cascadeName, recursionLimit);
     }
 
     /**

@@ -16,10 +16,11 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import io.permazen.annotation.JCompositeIndexes;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
+import io.permazen.core.DetachedTransaction;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceEncoding;
-import io.permazen.core.SnapshotTransaction;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.UnknownTypeException;
@@ -101,12 +102,12 @@ import org.slf4j.LoggerFactory;
  * Instance creation, index queries, and certain other database-related tasks are initiated using a {@link JTransaction}.
  *
  * <p>
- * Normal database transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
+ * Normal database transactions are created via {@link #createTransaction createTransaction()}. Detached transactions are
  * purely in-memory transactions that are detached from the database and may persist indefinitely; their purpose is to hold a
  * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
  * they function like normal transactions, with support for index queries, listener callbacks, etc. See
- * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
- * {@link JTransaction#getSnapshotTransaction}, {@link JObject#copyOut JObject.copyOut()}, and
+ * {@link JTransaction#createDetachedTransaction JTransaction.createDetachedTransaction()},
+ * {@link JTransaction#getDetachedTransaction}, {@link JObject#copyOut JObject.copyOut()}, and
  * {@link JObject#copyIn JObject.copyIn()}.
  *
  * <p>
@@ -162,6 +163,7 @@ public class Permazen {
         }
     });
 
+    private TransactionConfig txConfig;
     private SchemaModel schemaModel;
     private NameIndex nameIndex;
 
@@ -487,7 +489,7 @@ public class Permazen {
     }
 
     /**
-     * Get the schema version that this instance was configured to use.
+     * Get the schema version that this instance is configured to use.
      *
      * <p>
      * This will either be a specific non-zero schema version number, or zero, indicating that the highest schema version
@@ -564,22 +566,19 @@ public class Permazen {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  {@link #createTransaction(boolean, ValidationMode, Map) createTransaction}(true, {@link ValidationMode#AUTOMATIC}, null)
+     *  {@link #createTransaction(ValidationMode, Map) createTransaction}({@link ValidationMode#AUTOMATIC}, null)
      *  </pre></blockquote>
      *
      * @return the newly created transaction
      * @throws io.permazen.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is false
-     * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
-     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
-     *  incompatibly between schema versions)
+     *  is not recorded in the database but the schema is incompatible with one or more previous schemas
+     *  already recorded in the database (i.e., the same storage ID is used incompatibly between schema versions)
      * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      */
     public JTransaction createTransaction() {
-        return this.createTransaction(true, ValidationMode.AUTOMATIC, null);
+        return this.createTransaction(ValidationMode.AUTOMATIC, null);
     }
 
     /**
@@ -588,25 +587,21 @@ public class Permazen {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  {@link #createTransaction(boolean, ValidationMode, Map) createTransaction}(allowNewSchema, validationMode, null)
+     *  {@link #createTransaction(ValidationMode, Map) createTransaction}(validationMode, null)
      *  </pre></blockquote>
      *
-     * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @return the newly created transaction
      * @throws io.permazen.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is false
-     * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
-     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
-     *  incompatibly between schema versions)
+     *  is not recorded in the database but the schema is incompatible with one or more previous schemas
+     *  already recorded in the database (i.e., the same storage ID is used incompatibly between schema versions)
      * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
-    public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
-        return this.createTransaction(allowNewSchema, validationMode, null);
+    public JTransaction createTransaction(ValidationMode validationMode) {
+        return this.createTransaction(validationMode, null);
     }
 
     /**
@@ -619,24 +614,20 @@ public class Permazen {
      * returned transaction is committed (or rolled back), assuming {@link JTransaction#getCurrent} returns the
      * {@link JTransaction} returned here at that time.
      *
-     * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
-     * @param kvoptions optional {@link KVDatabase}-specific transaction options; may be null
+     * @param kvoptions {@link KVDatabase}-specific transaction options, or null for none
      * @return the newly created transaction
      * @throws io.permazen.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is false
-     * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
-     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
-     *  incompatibly between schema versions)
+     *  is not recorded in the database, but the schema is incompatible with one or more previous schemas
+     *  alread recorded in the database (i.e., the same storage ID is used incompatibly between schema versions)
      * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
-    public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode, Map<String, ?> kvoptions) {
-        return this.createTransaction(
-          this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema, kvoptions), validationMode);
+    public JTransaction createTransaction(ValidationMode validationMode, Map<String, ?> kvoptions) {
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
+        return this.createTransaction(this.db.createTransaction(this.buildTransactionConfig(kvoptions)), validationMode);
     }
 
     /**
@@ -650,28 +641,24 @@ public class Permazen {
      * {@link JTransaction} returned here at that time.
      *
      * @param kvt already opened key/value store transaction
-     * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @return the newly created transaction
      * @throws io.permazen.core.InvalidSchemaException if the schema does not match what's recorded in the
      *  database for the schema version provided to the constructor
      * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is false
-     * @throws io.permazen.core.InvalidSchemaException if the schema version provided to the constructor
-     *  is not recorded in the database and {@code allowNewSchema} is true, but the schema is incompatible
-     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
-     *  incompatibly between schema versions)
+     *  is not recorded in the database but the schema is incompatible with one or more previous schemas
+     *  already recorded in the database (i.e., the same storage ID is used incompatibly between schema versions)
      * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws IllegalArgumentException if {@code kvt} or {@code validationMode} is null
      */
-    public JTransaction createTransaction(KVTransaction kvt, boolean allowNewSchema, ValidationMode validationMode) {
-        return this.createTransaction(
-          this.db.createTransaction(kvt, this.getSchemaModel(), this.configuredVersion, allowNewSchema), validationMode);
+    public JTransaction createTransaction(KVTransaction kvt, ValidationMode validationMode) {
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
+        return this.createTransaction(this.db.createTransaction(kvt, this.buildTransactionConfig(null)), validationMode);
     }
 
     private JTransaction createTransaction(Transaction tx, ValidationMode validationMode) {
         assert tx != null;
-        Preconditions.checkArgument(validationMode != null, "null validationMode");
+        assert validationMode != null;
         this.actualVersion = tx.getSchema().getVersionNumber();
         final JTransaction jtx = new JTransaction(this, tx, validationMode);
         tx.addCallback(new CleanupCurrentCallback(jtx));
@@ -679,46 +666,60 @@ public class Permazen {
     }
 
     /**
-     * Create a new, empty {@link SnapshotJTransaction} backed by a {@link NavigableMapKVStore}.
+     * Create a new, empty {@link DetachedJTransaction} backed by a {@link NavigableMapKVStore}.
      *
      * <p>
-     * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
-     * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
+     * The returned {@link DetachedJTransaction} does not support {@link DetachedJTransaction#commit commit()} or
+     * {@link DetachedJTransaction#rollback rollback()}, and can be used indefinitely.
      *
-     * @param validationMode the {@link ValidationMode} to use for the snapshot transaction
-     * @return initially empty snapshot transaction
+     * @param validationMode the {@link ValidationMode} to use for the detached transaction
+     * @return initially empty detached transaction
      */
-    public SnapshotJTransaction createSnapshotTransaction(ValidationMode validationMode) {
-        return this.createSnapshotTransaction(new NavigableMapKVStore(), true, validationMode);
+    public DetachedJTransaction createDetachedTransaction(ValidationMode validationMode) {
+        return this.createDetachedTransaction(new NavigableMapKVStore(), validationMode);
     }
 
     /**
-     * Create a new {@link SnapshotJTransaction} based on the provided key/value store.
+     * Create a new {@link DetachedJTransaction} based on the provided key/value store.
      *
      * <p>
      * The key/value store will be initialized if necessary (i.e., {@code kvstore} may be empty), otherwise it will be
      * validated against the schema information associated with this instance.
      *
      * <p>
-     * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
-     * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
+     * The returned {@link DetachedJTransaction} does not support {@link DetachedJTransaction#commit commit()} or
+     * {@link DetachedJTransaction#rollback rollback()}, and can be used indefinitely.
      *
      * <p>
      * If {@code kvstore} is a {@link CloseableKVStore}, then it will be {@link CloseableKVStore#close close()}'d
-     * if/when the returned {@link SnapshotJTransaction} is.
+     * if/when the returned {@link DetachedJTransaction} is.
      *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Permazen}
-     * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
-     * @param validationMode the {@link ValidationMode} to use for the snapshot transaction
-     * @return snapshot transaction based on {@code kvstore}
+     * @param validationMode the {@link ValidationMode} to use for the detached transaction
+     * @return detached transaction based on {@code kvstore}
      * @throws io.permazen.core.SchemaMismatchException if {@code kvstore} contains incompatible or missing schema information
      * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
-     * @throws IllegalArgumentException if {@code kvstore} is null
+     * @throws IllegalArgumentException if {@code kvstore} or {@code validationMode} is null
      */
-    public SnapshotJTransaction createSnapshotTransaction(KVStore kvstore, boolean allowNewSchema, ValidationMode validationMode) {
-        final SnapshotTransaction stx = this.db.createSnapshotTransaction(kvstore,
-          this.getSchemaModel(), this.configuredVersion, allowNewSchema);
-        return new SnapshotJTransaction(this, stx, validationMode);
+    public DetachedJTransaction createDetachedTransaction(KVStore kvstore, ValidationMode validationMode) {
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
+        final DetachedTransaction dtx = this.db.createDetachedTransaction(kvstore, this.buildTransactionConfig(null));
+        return new DetachedJTransaction(this, dtx, validationMode);
+    }
+
+    /**
+     * Build the {@link TransactionConfig} for a new core API transaction.
+     *
+     * @return core API transaction config
+     */
+    protected TransactionConfig buildTransactionConfig(Map<String, ?> kvoptions) {
+        return TransactionConfig.builder()
+          .schemaModel(this.getSchemaModel())
+          .schemaVersion(this.configuredVersion)
+          .allowNewSchema(true)
+          .garbageCollectSchemas(true)
+          .kvOptions(kvoptions)
+          .build();
     }
 
 // Schema

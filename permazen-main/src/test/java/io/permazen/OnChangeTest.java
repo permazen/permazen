@@ -53,7 +53,7 @@ public class OnChangeTest extends TestSupport {
     public void testSimpleFieldChange() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class, MeanPerson.class, NicePerson.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -136,7 +136,7 @@ public class OnChangeTest extends TestSupport {
     public void testColorChange() {
 
         final Permazen jdb = BasicTest.getPermazen(ColorHolder.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -163,7 +163,7 @@ public class OnChangeTest extends TestSupport {
     public void testNoParamChange() {
 
         final Permazen jdb = BasicTest.getPermazen(Person2.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -206,7 +206,7 @@ public class OnChangeTest extends TestSupport {
     public void testNonGenericParameter() {
 
         final Permazen jdb = BasicTest.getPermazen(NonGenericChange.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -230,7 +230,7 @@ public class OnChangeTest extends TestSupport {
     public void testInversePaths() {
 
         final Permazen jdb = BasicTest.getPermazen(InversePaths.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -268,7 +268,7 @@ public class OnChangeTest extends TestSupport {
     public void testInverseRestrictedTypes() {
 
         final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class, D.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -319,7 +319,7 @@ public class OnChangeTest extends TestSupport {
     public void testChangeWithDelete() {
 
         final Permazen jdb = BasicTest.getPermazen(Node.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -345,13 +345,13 @@ public class OnChangeTest extends TestSupport {
     }
 
     private static void recordChange(FieldChange<?> change) {
-        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
+        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore detached changes
             return;
         EVENTS.get().add(change);
     }
 
     private static void verifyCopy(Change<?> change) {
-        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
+        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore detached changes
             return;
         final Change<?> copy1 = change.visit(new ChangeCopier());
         final Change<?> copy2 = copy1.visit(new ChangeCopier(JTransaction.getCurrent()));

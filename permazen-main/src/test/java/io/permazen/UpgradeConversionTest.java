@@ -52,7 +52,7 @@ public class UpgradeConversionTest extends TestSupport {
         final long f21 = 0x3373373373L;
 
         Permazen jdb = new Permazen(db, 1, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person1.class));
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -93,7 +93,7 @@ public class UpgradeConversionTest extends TestSupport {
     // Version 2
 
         jdb = new Permazen(db, 2, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person2.class));
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

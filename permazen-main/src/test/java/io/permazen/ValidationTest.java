@@ -36,7 +36,7 @@ public class ValidationTest extends TestSupport {
         final Permazen jdb = BasicTest.getPermazen(Person.class);
 
         // Transaction with validation disabled
-        JTransaction tx = jdb.createTransaction(true, ValidationMode.DISABLED);
+        JTransaction tx = jdb.createTransaction(ValidationMode.DISABLED);
         JTransaction.setCurrent(tx);
         Person p1;
         try {
@@ -64,7 +64,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Transaction with validation manually requested
-        tx = jdb.createTransaction(false, ValidationMode.MANUAL);
+        tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 
@@ -139,7 +139,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Transaction with automatic validation
-        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -165,7 +165,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Now fix the problem
-        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -188,7 +188,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Now test @OnValidate
-        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -214,7 +214,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Test clearing validation queue
-        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -246,7 +246,7 @@ public class ValidationTest extends TestSupport {
         final Permazen jdb = BasicTest.getPermazen(Person.class);
 
         // Transaction with validation disabled
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
             jtx.create(Person.class);           // a newly created person is invalid due to having a null name
@@ -296,7 +296,7 @@ public class ValidationTest extends TestSupport {
         final Permazen jdb = BasicTest.getPermazen(type);
 
         // Transaction with validation enabled
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
             final NameThing nameThing = jtx.create(type);

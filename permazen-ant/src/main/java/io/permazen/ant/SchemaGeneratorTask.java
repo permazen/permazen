@@ -11,6 +11,7 @@ import io.permazen.PermazenFactory;
 import io.permazen.StorageIdGenerator;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
+import io.permazen.core.TransactionConfig;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
@@ -470,7 +471,11 @@ public class SchemaGeneratorTask extends Task {
             this.log("auto-generate schema version is " + schemaModel.autogenerateVersion());
 
             // Record schema model in database
-            db.createTransaction(schemaModel, 1, true).commit();
+            final TransactionConfig txConfig1 = TransactionConfig.builder()
+              .schemaModel(schemaModel)
+              .schemaVersion(1)
+              .build();
+            db.createTransaction(txConfig1).commit();
 
             // Parse verification file
             SchemaModel verifyModel = null;
@@ -519,8 +524,12 @@ public class SchemaGeneratorTask extends Task {
                         } catch (IOException e) {
                             throw new BuildException("error reading schema from \"" + resource + "\": " + e, e);
                         }
+                        final TransactionConfig txConfig2 = TransactionConfig.builder()
+                          .schemaModel(otherSchema)
+                          .schemaVersion(schemaVersion++)
+                          .build();
                         try {
-                            db.createTransaction(otherSchema, schemaVersion++, true).commit();
+                            db.createTransaction(txConfig2).commit();
                         } catch (Exception e) {
                             this.log("schema conflicts with " + resource + ": " + e);
                             verified = false;

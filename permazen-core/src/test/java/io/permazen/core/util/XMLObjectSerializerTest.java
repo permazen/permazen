@@ -10,6 +10,7 @@ import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -69,7 +70,10 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build());
 
         ObjId id1 = new ObjId("0100000000000001");
         tx.create(id1, 1);
@@ -155,7 +159,10 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        tx = db.createTransaction(schema2, 2, true);
+        tx = db.createTransaction(TransactionConfig.builder()
+          .schemaModel(schema2)
+          .schemaVersion(2)
+          .build());
 
         ObjId id2 = new ObjId("1400000000000001");
         tx.create(id2, 2);
@@ -211,14 +218,14 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         this.log.info("verifying XML output with \"{}\"", resource);
         Assert.assertEquals(new String(buf, StandardCharsets.UTF_8), text);
 
-        // Parse XML back into a snapshot transaction
+        // Parse XML back into a detached transaction
         if (reparse)
             this.compareParse(tx, text);
     }
 
     private void compareParse(Transaction tx, String text) throws Exception {
 
-        final Transaction stx = tx.createSnapshotTransaction();
+        final Transaction stx = tx.createDetachedTransaction();
         XMLObjectSerializer s = new XMLObjectSerializer(stx);
         s.read(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
 

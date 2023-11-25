@@ -33,7 +33,7 @@ public class EncodingsConflictTest extends TestSupport {
         Encodings2 ft2;
         Encodings3 ft3;
 
-        final JTransaction jtx1 = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx1 = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx1);
         try {
 
@@ -59,7 +59,7 @@ public class EncodingsConflictTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        final JTransaction jtx2 = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx2 = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx2);
         try {
 

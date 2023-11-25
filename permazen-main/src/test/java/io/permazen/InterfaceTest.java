@@ -28,7 +28,7 @@ public class InterfaceTest extends TestSupport {
     public void testInterface() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class, Dog.class, Cat.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -60,7 +60,7 @@ public class InterfaceTest extends TestSupport {
     public void testInterfaceModelClasses() {
 
         final Permazen jdb = BasicTest.getPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

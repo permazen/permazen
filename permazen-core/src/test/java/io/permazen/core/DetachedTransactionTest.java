@@ -23,11 +23,11 @@ import java.util.NavigableSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class SnapshotTest extends CoreAPITestSupport {
+public class DetachedTransactionTest extends CoreAPITestSupport {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSnapshot() throws Exception {
+    public void testDetachedTransaction() throws Exception {
 
         // Setup database
         final NavigableMapKVStore kvstore1 = new NavigableMapKVStore();
@@ -86,9 +86,9 @@ public class SnapshotTest extends CoreAPITestSupport {
 
     // Setup tx2
 
-        Transaction tx2 = tx1.createSnapshotTransaction();
+        Transaction tx2 = tx1.createDetachedTransaction();
 
-    // Snapshot
+    // Detached
 
         // Copy id1
         Assert.assertTrue(tx1.copy(id1, tx2, false, false, null, null));
@@ -149,7 +149,7 @@ public class SnapshotTest extends CoreAPITestSupport {
     }
 
     @Test
-    public void testSnapshotConflict() throws Exception {
+    public void testDetachedConflict() throws Exception {
 
         // Setup databases
         final Database db1 = new Database(new SimpleKVDatabase());
@@ -198,7 +198,7 @@ public class SnapshotTest extends CoreAPITestSupport {
     }
 
     @Test
-    public void testSnapshotSame() throws Exception {
+    public void testDetachedSame() throws Exception {
 
         // Setup databases
         final Database db1 = new Database(new SimpleKVDatabase());

@@ -38,7 +38,7 @@ public class OnDeleteTest extends TestSupport {
     public void testOnDelete() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

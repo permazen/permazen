@@ -17,7 +17,7 @@ public class ConstructorTest extends TestSupport {
     @Test
     public void testConstrutorWithParam() {
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
             jtx.create(Person.class);

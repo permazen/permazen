@@ -42,7 +42,7 @@ public class ImportExportTest extends TestSupport {
         final ObjId margoId;
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -74,7 +74,7 @@ public class ImportExportTest extends TestSupport {
         Person mom3;
         Person margo3;
 
-        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

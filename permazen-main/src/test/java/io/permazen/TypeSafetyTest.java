@@ -12,6 +12,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -68,7 +69,11 @@ public class TypeSafetyTest extends TestSupport {
           ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        final TransactionConfig txConfig1 = TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build();
+        Transaction tx = db.createTransaction(txConfig1);
 
         final ObjId f1 = tx.create(10);
         final ObjId f2 = tx.create(10);
@@ -117,7 +122,7 @@ public class TypeSafetyTest extends TestSupport {
     // Version 2
 
         Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Bar.class));       // note: no Foo.class, only Bar.class
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

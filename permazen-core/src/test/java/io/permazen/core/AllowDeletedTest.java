@@ -163,7 +163,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
     public void testAllowDeletedCopy() throws Exception {
 
         Transaction tx = this.createTx();
-        SnapshotTransaction stx = tx.createSnapshotTransaction();
+        DetachedTransaction stx = tx.createDetachedTransaction();
 
         final ObjId id1 = stx.create(1);
         final ObjId deleted1 = stx.create(1);

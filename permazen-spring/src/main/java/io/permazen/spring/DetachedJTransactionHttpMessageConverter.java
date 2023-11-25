@@ -7,9 +7,9 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.DetachedJTransaction;
 import io.permazen.JObject;
 import io.permazen.Permazen;
-import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationException;
 import io.permazen.ValidationMode;
 import io.permazen.kv.util.NavigableMapKVStore;
@@ -27,7 +27,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter} capable of
- * encoding and decoding a graph of {@link JObject}s contained in a {@link SnapshotJTransaction} that is
+ * encoding and decoding a graph of {@link JObject}s contained in a {@link DetachedJTransaction} that is
  * backed by a {@link NavigableMapKVStore}.
  *
  * <p>
@@ -39,7 +39,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * @see JObjectHttpMessageConverter
  * @see KVStoreHttpMessageConverter
  */
-public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessageConverter<SnapshotJTransaction> {
+public class DetachedJTransactionHttpMessageConverter extends AbstractHttpMessageConverter<DetachedJTransaction> {
 
     /**
      * MIME type supported by this class: {@code application/x-permazen-transaction}.
@@ -60,7 +60,7 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      *
      * @param jdb {@link Permazen} instance defining the convertible types
      */
-    public SnapshotJTransactionHttpMessageConverter(Permazen jdb) {
+    public DetachedJTransactionHttpMessageConverter(Permazen jdb) {
         this(jdb, MIME_TYPE, LEGACY_MIME_TYPE);
     }
 
@@ -70,7 +70,7 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
      * @param jdb {@link Permazen} instance defining the convertible types
      * @param supportedMediaTypes supported media types
      */
-    public SnapshotJTransactionHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
+    public DetachedJTransactionHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
         super(supportedMediaTypes);
         Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
@@ -96,37 +96,37 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
 // AbstractHttpMessageConverter
 
     @Override
-    protected Long getContentLength(SnapshotJTransaction jtx, MediaType contentType) {
+    protected Long getContentLength(DetachedJTransaction jtx, MediaType contentType) {
         return KVStoreHttpMessageConverter.getKVStoreContentLength(jtx.getTransaction().getKVStore());
     }
 
     @Override
     protected boolean supports(Class<?> clazz) {
-        return clazz == SnapshotJTransaction.class;
+        return clazz == DetachedJTransaction.class;
     }
 
     @Override
-    protected SnapshotJTransaction readInternal(Class<? extends SnapshotJTransaction> clazz, HttpInputMessage input)
+    protected DetachedJTransaction readInternal(Class<? extends DetachedJTransaction> clazz, HttpInputMessage input)
       throws IOException {
-        return clazz.cast(SnapshotJTransactionHttpMessageConverter.readSnapshotTransaction(this.jdb, input, this.validationGroups));
+        return clazz.cast(DetachedJTransactionHttpMessageConverter.readDetachedTransaction(this.jdb, input, this.validationGroups));
     }
 
     @Override
-    protected void writeInternal(SnapshotJTransaction jtx, HttpOutputMessage output) throws IOException {
+    protected void writeInternal(DetachedJTransaction jtx, HttpOutputMessage output) throws IOException {
         KVStoreHttpMessageConverter.writeKVStore(jtx.getTransaction().getKVStore(), output);
     }
 
 // Utility methods
 
-    static SnapshotJTransaction readSnapshotTransaction(Permazen jdb, HttpInputMessage input, Class<?>[] validationGroups)
+    static DetachedJTransaction readDetachedTransaction(Permazen jdb, HttpInputMessage input, Class<?>[] validationGroups)
       throws IOException {
 
         // Decode key/value store
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
         KVStoreHttpMessageConverter.readKVStore(kvstore, input);
 
-        // Create snapshot transaction
-        final SnapshotJTransaction jtx = jdb.createSnapshotTransaction(kvstore, true,
+        // Create detached transaction
+        final DetachedJTransaction jtx = jdb.createDetachedTransaction(kvstore,
           validationGroups != null ? ValidationMode.MANUAL : ValidationMode.DISABLED);
 
         // Optionally validate

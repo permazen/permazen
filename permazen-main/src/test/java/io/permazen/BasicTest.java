@@ -38,7 +38,7 @@ public class BasicTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen();
 
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 

@@ -36,7 +36,7 @@ public class CompositeIndexTest extends TestSupport {
 
         final Permazen jdb = new Permazen(db, 2, null, this.getClasses());
 
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -140,7 +140,7 @@ public class CompositeIndexTest extends TestSupport {
     @Test
     public void testCompositeIndex2() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(IndexedOn2.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -204,7 +204,7 @@ public class CompositeIndexTest extends TestSupport {
     @Test
     public void testCompositeIndex3() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(IndexedOn3.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -319,7 +319,7 @@ public class CompositeIndexTest extends TestSupport {
     @Test
     public void testCompositeIndex4() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(IndexedOn4.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -407,7 +407,7 @@ public class CompositeIndexTest extends TestSupport {
     @Test
     public void testCompositeIndexSubTypes() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(A.class, B.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -457,7 +457,7 @@ public class CompositeIndexTest extends TestSupport {
     @Test
     public void testCompositeInitialUnique() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(C.class, D.class);
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

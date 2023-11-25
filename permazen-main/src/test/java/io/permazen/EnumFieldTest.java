@@ -12,6 +12,7 @@ import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
@@ -55,7 +56,11 @@ public class EnumFieldTest extends TestSupport {
 
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        final TransactionConfig txConfig1 = TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build();
+        Transaction tx = db.createTransaction(txConfig1);
 
         final ObjId id1 = tx.create(1);
 
@@ -97,7 +102,7 @@ public class EnumFieldTest extends TestSupport {
     // Version 2
 
         Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Foo.class));
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -156,7 +161,7 @@ public class EnumFieldTest extends TestSupport {
     @Test
     public void testEnumGetSetValue() throws Exception {
         final Permazen permazen = BasicTest.getPermazen(Foo.class);
-        final JTransaction jtx = permazen.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = permazen.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -180,7 +185,7 @@ public class EnumFieldTest extends TestSupport {
     @Test
     public void testEnumArrays() throws Exception {
         final Permazen permazen = BasicTest.getPermazen(EnumArrays.class);
-        final JTransaction jtx = permazen.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = permazen.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -239,7 +244,11 @@ public class EnumFieldTest extends TestSupport {
 
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        final TransactionConfig txConfig1 = TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build();
+        Transaction tx = db.createTransaction(txConfig1);
 
         final ObjId id1 = tx.create(1);
 
@@ -253,7 +262,7 @@ public class EnumFieldTest extends TestSupport {
     // Version 2
 
         Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Foo2.class));
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

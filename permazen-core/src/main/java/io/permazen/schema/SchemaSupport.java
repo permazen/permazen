@@ -13,7 +13,7 @@ import io.permazen.util.AbstractXMLStreaming;
  */
 class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
 
-    /*final*/ boolean lockedDown;
+    boolean lockedDown;
 
 // Lockdown
 

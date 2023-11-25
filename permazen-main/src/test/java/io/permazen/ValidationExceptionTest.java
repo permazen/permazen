@@ -22,7 +22,7 @@ public class ValidationExceptionTest extends TestSupport {
         final Permazen jdb = BasicTest.getPermazen(Retryer.class);
 
         // Transaction with validation disabled
-        JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         Retryer jobj;
         try {

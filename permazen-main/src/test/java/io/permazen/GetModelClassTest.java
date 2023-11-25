@@ -16,7 +16,7 @@ public class GetModelClassTest extends TestSupport {
     @Test
     public void testGetModelClass() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(ModelA.class, ModelB.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             final ModelA a = jtx.create(ModelA.class);

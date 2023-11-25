@@ -76,11 +76,6 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     protected transient Permazen jdb;
 
     /**
-     * Whether a new schema version is allowed. Default true.
-     */
-    protected boolean allowNewSchema = true;
-
-    /**
      * The {@link ValidationMode} to use for transactions.
      */
     protected ValidationMode validationMode = DEFAULT_VALIDATION_MODE;
@@ -103,18 +98,6 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      */
     public void setPermazen(Permazen jdb) {
         this.jdb = jdb;
-    }
-
-    /**
-     * Configure whether a new schema version may be created.
-     *
-     * <p>
-     * Default value is false.
-     *
-     * @param allowNewSchema whether to allow recording new schema versions
-     */
-    public void setAllowNewSchema(boolean allowNewSchema) {
-        this.allowNewSchema = allowNewSchema;
     }
 
     /**
@@ -234,7 +217,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * @throws DatabaseException if an error occurs
      */
     protected JTransaction createTransaction(Map<String, Object> options) {
-        return this.jdb.createTransaction(this.allowNewSchema, this.validationMode, options);
+        return this.jdb.createTransaction(this.validationMode, options);
     }
 
     /**

@@ -168,12 +168,12 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Snapshot Transactions</b>
+ * <b>Detached Transactions</b>
  * <ul>
- *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory snapshot transaction
+ *  <li>{@link #getDetachedTransaction getDetachedTransaction()} - Get the default in-memory detached transaction
  *      associated with this regular transaction</li>
- *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a new in-memory snapshot transaction</li>
- *  <li>{@link #isSnapshot} - Determine whether this transaction is a snapshot transaction</li>
+ *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a new in-memory detached transaction</li>
+ *  <li>{@link #isDetached} - Determine whether this transaction is a detached transaction</li>
  * </ul>
  *
  * <p>
@@ -233,7 +233,7 @@ public class JTransaction {
     private final JObjectCache jobjectCache = new JObjectCache(this);
 
     @GuardedBy("this")
-    private SnapshotJTransaction snapshotTransaction;
+    private DetachedJTransaction detachedTransaction;
     @GuardedBy("this")
     private boolean commitInvoked;
 
@@ -259,18 +259,18 @@ public class JTransaction {
 
         // Register listeners, or re-use our existing listener set
         final boolean automaticValidation = validationMode == ValidationMode.AUTOMATIC;
-        final boolean isSnapshot = this.isSnapshot();
-        final int listenerSetIndex = (automaticValidation ? 2 : 0) + (isSnapshot ? 0 : 1);
+        final boolean isDetached = this.isDetached();
+        final int listenerSetIndex = (automaticValidation ? 2 : 0) + (isDetached ? 0 : 1);
         final Transaction.ListenerSet listenerSet = jdb.listenerSets[listenerSetIndex];
         if (listenerSet == null) {
-            JTransaction.registerListeners(jdb, tx, automaticValidation, isSnapshot);
+            JTransaction.registerListeners(jdb, tx, automaticValidation, isDetached);
             jdb.listenerSets[listenerSetIndex] = tx.snapshotListeners();
         } else
             tx.setListeners(listenerSet);
     }
 
     // Register listeners for the given situation
-    private static void registerListeners(Permazen jdb, Transaction tx, boolean automaticValidation, boolean isSnapshot) {
+    private static void registerListeners(Permazen jdb, Transaction tx, boolean automaticValidation, boolean isDetached) {
 
         // Register listeners for @OnCreate and validation on creation
         if (jdb.hasOnCreateMethods || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
@@ -283,8 +283,6 @@ public class JTransaction {
         // Register listeners for @OnChange
         for (JClass<?> jclass : jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
-                if (isSnapshot && !info.getAnnotation().snapshotTransactions())
-                    continue;
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(tx);
             }
@@ -456,52 +454,52 @@ public class JTransaction {
         return this.tx.getKey(jobj.getObjId(), jfield.storageId);
     }
 
-// Snapshots
+// Detached transactions
 
     /**
-     * Determine whether this instance is a {@link SnapshotJTransaction}.
+     * Determine whether this instance is a {@link DetachedJTransaction}.
      *
-     * @return true if this instance is a {@link SnapshotJTransaction}, otherwise false
+     * @return true if this instance is a {@link DetachedJTransaction}, otherwise false
      */
-    public boolean isSnapshot() {
+    public boolean isDetached() {
         return false;
     }
 
     /**
-     * Get the default {@link SnapshotJTransaction} associated with this instance.
+     * Get the default {@link DetachedJTransaction} associated with this instance.
      *
      * <p>
-     * The default {@link SnapshotJTransaction} uses {@link ValidationMode#MANUAL}.
+     * The default {@link DetachedJTransaction} uses {@link ValidationMode#MANUAL}.
      *
      * <p>
-     * This instance must not itself be a {@link SnapshotJTransaction}; use
-     * {@link #createSnapshotTransaction createSnapshotTransaction()} to create additional snapshot transactions.
+     * This instance must not itself be a {@link DetachedJTransaction}; use
+     * {@link #createDetachedTransaction createDetachedTransaction()} to create additional detached transactions.
      *
-     * @return the associated snapshot transaction
+     * @return the associated detached transaction
      * @see JObject#copyOut JObject.copyOut()
-     * @throws IllegalArgumentException if this instance is itself a {@link SnapshotJTransaction}
+     * @throws IllegalArgumentException if this instance is itself a {@link DetachedJTransaction}
      */
-    public synchronized SnapshotJTransaction getSnapshotTransaction() {
-        Preconditions.checkArgument(!this.isSnapshot(),
-          "getSnapshotTransaction() invoked on a snapshot transaction; use createSnapshotTransaction() instead");
-        if (this.snapshotTransaction == null)
-            this.snapshotTransaction = this.createSnapshotTransaction(ValidationMode.MANUAL);
-        return this.snapshotTransaction;
+    public synchronized DetachedJTransaction getDetachedTransaction() {
+        Preconditions.checkArgument(!this.isDetached(),
+          "getDetachedTransaction() invoked on a detached transaction; use createDetachedTransaction() instead");
+        if (this.detachedTransaction == null)
+            this.detachedTransaction = this.createDetachedTransaction(ValidationMode.MANUAL);
+        return this.detachedTransaction;
     }
 
     /**
-     * Create an empty snapshot transaction based on this instance.
+     * Create an empty detached transaction based on this instance.
      *
      * <p>
      * This new instance will have the same schema meta-data as this instance.
      *
      * @param validationMode the {@link ValidationMode} to use for the new transaction
-     * @return newly created snapshot transaction
+     * @return newly created detached transaction
      * @throws IllegalArgumentException if {@code validationMode} is null
      * @throws io.permazen.core.StaleTransactionException if this instance is no longer usable
      */
-    public SnapshotJTransaction createSnapshotTransaction(ValidationMode validationMode) {
-        return new SnapshotJTransaction(this.jdb, this.tx.createSnapshotTransaction(), validationMode);
+    public DetachedJTransaction createDetachedTransaction(ValidationMode validationMode) {
+        return new DetachedJTransaction(this.jdb, this.tx.createDetachedTransaction(), validationMode);
     }
 
     /**
@@ -512,8 +510,7 @@ public class JTransaction {
      * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
      * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
-     * and {@link OnChange &#64;OnChange} notifications will also be delivered; however,
-     * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
+     * and {@link OnChange &#64;OnChange} notifications will also be delivered.
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -526,11 +523,10 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * If any copied objects contain reference fields configured with
-     * {@link io.permazen.annotation.JField#allowDeleted} equal to {@code false},
-     * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
-     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link io.permazen.annotation.JField#allowDeletedSnapshot}
-     * applies instead). Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     * If {@code dest} is not a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
+     * {@link io.permazen.annotation.JField#allowDeleted} equal to {@code false}, then any objects referenced by those fields
+     * must also be copied, or else must already exist in {@code dest}. Otherwise, a {@link DeletedObjectException} is thrown
+     * and it is indeterminate which objects were copied.
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
@@ -631,8 +627,7 @@ public class JTransaction {
      * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
      * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
-     * and {@link OnChange &#64;OnChange} notifications will also be delivered; however,
-     * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
+     * and {@link OnChange &#64;OnChange} notifications will also be delivered.
      *
      * <p>
      * The {@code copyState} tracks which objects have already been copied. For a "fresh" copy operation,
@@ -644,11 +639,10 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * If any copied objects contain reference fields configured with
-     * {@link io.permazen.annotation.JField#allowDeleted}{@code = false},
-     * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
-     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link io.permazen.annotation.JField#allowDeletedSnapshot}
-     * applies instead). Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     * If {@code dest} is a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
+     * {@link io.permazen.annotation.JField#allowDeleted}{@code = false}, then any objects referenced by those fields must
+     * also be copied, or else must already exist in {@code dest}. Otherwise, a {@link DeletedObjectException} is thrown
+     * and it is indeterminate which objects were copied.
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
@@ -700,8 +694,8 @@ public class JTransaction {
             // See if we can disable listener notifications
             boolean disableListenerNotifications = copyState.isSuppressNotifications();
             final JClass<?> jclass = dest.jdb.jclasses.get(dstId.getStorageId());
-            if (!disableListenerNotifications && dest.isSnapshot() && jclass != null)
-                disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
+            if (!disableListenerNotifications && dest.isDetached() && jclass != null)
+                disableListenerNotifications = jclass.onCreateMethods.isEmpty() && jclass.onChangeMethods.isEmpty();
 
             // Reset any cached fields in the destination object
             final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
@@ -1973,8 +1967,6 @@ public class JTransaction {
         // Notify @OnCreate methods
         Object jobj = null;
         for (OnCreateScanner<?>.MethodInfo info : jclass.onCreateMethods) {
-            if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
-                continue;
             if (jobj == null)
                 jobj = this.get(id);
             Util.invoke(info.getMethod(), jobj);
@@ -2006,8 +1998,6 @@ public class JTransaction {
         // Notify @OnDelete methods
         Object jobj = null;
         for (OnDeleteScanner<?>.MethodInfo info : jclass.onDeleteMethods) {
-            if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
-                continue;
             if (jobj == null)
                 jobj = this.get(id);
             Util.invoke(info.getMethod(), jobj);

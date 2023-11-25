@@ -27,7 +27,7 @@ public class UnknownTypeExistsTest extends TestSupport {
 
         JTransaction jtx;
 
-        jtx = jdb1.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         final Foo foo1;
         final Foo foo2;
@@ -55,7 +55,7 @@ public class UnknownTypeExistsTest extends TestSupport {
         factory2.setModelClasses(Bar.class);
         final Permazen jdb2 = factory2.newPermazen();
 
-        jtx = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         final Bar bar;
         try {

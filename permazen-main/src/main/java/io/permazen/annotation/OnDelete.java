@@ -5,7 +5,6 @@
 
 package io.permazen.annotation;
 
-import io.permazen.SnapshotJTransaction;
 import io.permazen.core.Transaction;
 
 import java.lang.annotation.Documented;
@@ -26,6 +25,10 @@ import java.lang.annotation.Target;
  * It may have any level of access, including {@code private}.
  *
  * <p>
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedTransaction detached} transactions;
+ * you can use {@code this.isDetached()} to detect that situation.
+ *
+ * <p>
  * Actions that have effects visible to the outside world should be made contingent on successful transaction commit,
  * for example, via {@link Transaction#addCallback Transaction.addCallback()}.
  *
@@ -40,14 +43,4 @@ import java.lang.annotation.Target;
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface OnDelete {
-
-    /**
-     * Determines whether this annotation should also be enabled for
-     * {@linkplain SnapshotJTransaction snapshot transaction} objects.
-     * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
-     *
-     * @return whether enabled for snapshot transactions
-     * @see SnapshotJTransaction
-     */
-    boolean snapshotTransactions() default false;
 }

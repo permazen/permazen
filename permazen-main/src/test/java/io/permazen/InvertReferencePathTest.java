@@ -24,7 +24,7 @@ public class InvertReferencePathTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen();
 
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 
@@ -92,7 +92,7 @@ public class InvertReferencePathTest extends TestSupport {
     public void testInvertReferencePath2() throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 

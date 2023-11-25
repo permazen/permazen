@@ -9,6 +9,7 @@ import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -36,7 +37,10 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build());
 
         final GeneratedIdCache c = new GeneratedIdCache();
 

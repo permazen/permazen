@@ -30,7 +30,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * <p>
  * See {@link JObjectHttpMessageConverter} for a higher level API.
  *
- * @see SnapshotJTransactionHttpMessageConverter
+ * @see DetachedJTransactionHttpMessageConverter
  * @see JObjectHttpMessageConverter
  */
 public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KVStore> {

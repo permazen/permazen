@@ -223,31 +223,6 @@ public class JFieldConflictTest extends TestSupport {
         void setRef(AllowDeletedConflict x);
     }
 
-// AllowDeletedSnapshot conflict
-
-    @Test
-    public void testAllowDeletedSnapshotConflict() {
-        try {
-            BasicTest.getPermazen(AllowDeletedSnapshotConflict.class);
-            assert false : "expected exception";
-        } catch (IllegalArgumentException e) {
-            this.log.debug("got expected exception: {}", e.toString());
-        }
-    }
-
-    public interface AllowDeletedSnapshotConflict1 {
-        @JField(allowDeletedSnapshot = true)
-        AllowDeletedSnapshotConflict getRef();
-    }
-    public interface AllowDeletedSnapshotConflict2 {
-        @JField(allowDeletedSnapshot = false)
-        AllowDeletedSnapshotConflict getRef();
-    }
-    @PermazenType
-    public interface AllowDeletedSnapshotConflict extends AllowDeletedSnapshotConflict1, AllowDeletedSnapshotConflict2 {
-        void setRef(AllowDeletedSnapshotConflict x);
-    }
-
 // ForwardCascades conflict
 
     @Test

@@ -37,7 +37,7 @@ public class OnChangeMultipleTest extends TestSupport {
     public void testMultiFieldChange() throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class, Person2.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

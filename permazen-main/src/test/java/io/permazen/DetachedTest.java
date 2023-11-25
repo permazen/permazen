@@ -30,10 +30,10 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class SnapshotTest extends TestSupport {
+public class DetachedTest extends TestSupport {
 
     @Test(dataProvider = "shapshotCases")
-    public void testSnapshot1(Class<? extends Person> personClass) throws Exception {
+    public void testDetached1(Class<? extends Person> personClass) throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(personClass);
 
@@ -41,10 +41,10 @@ public class SnapshotTest extends TestSupport {
         Person p2;
         Person p3;
 
-        Person snapshot;
+        Person detached;
 
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
-        final JTransaction stx = tx.getSnapshotTransaction();
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
+        final JTransaction stx = tx.getDetachedTransaction();
         JTransaction.setCurrent(tx);
         try {
 
@@ -92,19 +92,19 @@ public class SnapshotTest extends TestSupport {
             Assert.assertTrue(p1b.exists());
 
             Assert.assertSame(p1a.getSet().iterator().next(), p2a);
-            Assert.assertFalse(p2.isSnapshot());
+            Assert.assertFalse(p2.isDetached());
             Person p2b = (Person)p2.copyOut();
-            Assert.assertTrue(p2b.isSnapshot());
+            Assert.assertTrue(p2b.isDetached());
             Assert.assertSame(p2a, p2b);
 
-            Assert.assertFalse(p1.isSnapshot());
+            Assert.assertFalse(p1.isDetached());
             Person p1c = (Person)p1.copyOut("->list", "->map1.key", "->map2.value");
-            Assert.assertTrue(p1c.isSnapshot());
+            Assert.assertTrue(p1c.isDetached());
             Assert.assertSame(p1c, p1b);
             Assert.assertTrue(p1c.getMap1().keySet().iterator().next().exists());
             Assert.assertTrue(p1c.getMap2().values().iterator().next().exists());
 
-            snapshot = p1a;
+            detached = p1a;
 
             tx.commit();
 
@@ -112,12 +112,12 @@ public class SnapshotTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        Assert.assertTrue(snapshot.isSnapshot());
-        snapshot.setName("Foobar");
-        snapshot.setAge(19);
-        snapshot.getSet().clear();
+        Assert.assertTrue(detached.isDetached());
+        detached.setName("Foobar");
+        detached.setAge(19);
+        detached.getSet().clear();
 
-        final JTransaction tx2 = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction tx2 = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx2);
         try {
 
@@ -130,10 +130,10 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1.getAge(), 123);
             Assert.assertEquals(p1.getSet().size(), 1);
 
-            Assert.assertTrue(snapshot.isSnapshot());
-            Assert.assertFalse(p1.isSnapshot());
+            Assert.assertTrue(detached.isDetached());
+            Assert.assertFalse(p1.isDetached());
 
-            snapshot.copyIn();
+            detached.copyIn();
 
             Assert.assertEquals(p1.getName(), "Foobar");
             Assert.assertEquals(p1.getAge(), 19);
@@ -142,7 +142,7 @@ public class SnapshotTest extends TestSupport {
             p1.delete();
             Assert.assertFalse(p1.exists());
 
-            snapshot.copyIn();
+            detached.copyIn();
             Assert.assertTrue(p1.exists());
 
             Assert.assertTrue(p1.exists());
@@ -152,9 +152,9 @@ public class SnapshotTest extends TestSupport {
 
             p1.delete();
             Assert.assertFalse(p1.exists());
-            Assert.assertFalse(p1.isSnapshot());
+            Assert.assertFalse(p1.isDetached());
 
-            snapshot.copyTo(tx2, new CopyState());
+            detached.copyTo(tx2, new CopyState());
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -163,19 +163,19 @@ public class SnapshotTest extends TestSupport {
 
             p1.getSet().add(p1);
             p1.getSet().add(p2);
-            snapshot.setName("Another Name");
-            snapshot.setAge(123);
-            snapshot.getSet().add(p2);
-            snapshot.getSet().add(p3);
-            snapshot.getMap1().clear();
-            snapshot.getMap1().put(p1, 123123f);
-            snapshot.getMap1().put(p3, null);
-            snapshot.getMap2().clear();
-            snapshot.getMap2().put(64f, p1);
-            snapshot.getMap2().put(33.33f, p2);
-            snapshot.getMap2().put(null, p3);
+            detached.setName("Another Name");
+            detached.setAge(123);
+            detached.getSet().add(p2);
+            detached.getSet().add(p3);
+            detached.getMap1().clear();
+            detached.getMap1().put(p1, 123123f);
+            detached.getMap1().put(p3, null);
+            detached.getMap2().clear();
+            detached.getMap2().put(64f, p1);
+            detached.getMap2().put(33.33f, p2);
+            detached.getMap2().put(null, p3);
 
-            snapshot.copyTo(tx2, new CopyState());
+            detached.copyTo(tx2, new CopyState());
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
@@ -201,10 +201,10 @@ public class SnapshotTest extends TestSupport {
     }
 
     @Test
-    public void testSnapshotInvalid() throws Exception {
+    public void testDetachedInvalid() throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 
@@ -248,8 +248,8 @@ public class SnapshotTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen(Foo.class);
 
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
-        final JTransaction stx = tx.getSnapshotTransaction();
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
+        final JTransaction stx = tx.getDetachedTransaction();
         JTransaction.setCurrent(tx);
         try {
 
@@ -293,8 +293,8 @@ public class SnapshotTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen(Foo.class, Foo2.class);
 
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
-        final JTransaction stx = tx.getSnapshotTransaction();
+        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
+        final JTransaction stx = tx.getDetachedTransaction();
         JTransaction.setCurrent(tx);
         try {
 

@@ -21,7 +21,7 @@ public class FollowPathTest extends TestSupport {
     @Test
     public void testFollowPath() {
         final Permazen jdb = BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, GoodChild.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

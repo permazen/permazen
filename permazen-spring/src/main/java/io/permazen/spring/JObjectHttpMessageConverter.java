@@ -7,9 +7,9 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.DetachedJTransaction;
 import io.permazen.JObject;
 import io.permazen.Permazen;
-import io.permazen.SnapshotJTransaction;
 import io.permazen.core.ObjId;
 
 import jakarta.validation.groups.Default;
@@ -25,7 +25,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter} capable of
- * encoding and decoding one or more {@link JObject}s contained in a {@link SnapshotJTransaction}.
+ * encoding and decoding one or more {@link JObject}s contained in a {@link DetachedJTransaction}.
  *
  * <p>
  * The payload MIME type is set to {@code application/x-permazen-transaction} with an additional {@code root}
@@ -35,7 +35,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * <p>
  * Validation of all incoming objects is supported; see {@link #setValidationGroups setValidationGroups()}.
  *
- * @see SnapshotJTransactionHttpMessageConverter
+ * @see DetachedJTransactionHttpMessageConverter
  * @see KVStoreHttpMessageConverter
  */
 public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JObject> {
@@ -56,7 +56,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
      * @throws IllegalArgumentException if {@code jdb} is null
      */
     public JObjectHttpMessageConverter(Permazen jdb) {
-        this(jdb, SnapshotJTransactionHttpMessageConverter.MIME_TYPE, SnapshotJTransactionHttpMessageConverter.LEGACY_MIME_TYPE);
+        this(jdb, DetachedJTransactionHttpMessageConverter.MIME_TYPE, DetachedJTransactionHttpMessageConverter.LEGACY_MIME_TYPE);
     }
 
     /**
@@ -116,8 +116,8 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
     @Override
     protected JObject readInternal(Class<? extends JObject> type, HttpInputMessage input) throws IOException {
 
-        // Decode the snapshot transaction
-        final SnapshotJTransaction jtx = SnapshotJTransactionHttpMessageConverter.readSnapshotTransaction(
+        // Decode the detached transaction
+        final DetachedJTransaction jtx = DetachedJTransactionHttpMessageConverter.readDetachedTransaction(
           this.jdb, input, this.validationGroups);
 
         // Get the root object's ID

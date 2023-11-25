@@ -26,7 +26,7 @@ public class IndexQueryTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen(Account.class, Foo.class, Bar.class, Jam.class);
 
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -103,7 +103,7 @@ public class IndexQueryTest extends TestSupport {
     public void testQueryIndexType() throws Exception {
 
         final Permazen jdb = BasicTest.getPermazen(HasNameImpl.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 

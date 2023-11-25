@@ -25,7 +25,7 @@ public class BadIndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testWrongValueType() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -47,7 +47,7 @@ public class BadIndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testQueryOnNonIndexedField() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -69,7 +69,7 @@ public class BadIndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testWrongKeyType() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -98,7 +98,7 @@ public class BadIndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testGetInState() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 

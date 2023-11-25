@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.CollectionField;
 import io.permazen.core.CounterField;
 import io.permazen.core.DeletedObjectException;
+import io.permazen.core.DetachedTransaction;
 import io.permazen.core.Field;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
@@ -19,7 +20,6 @@ import io.permazen.core.ReferenceField;
 import io.permazen.core.Schema;
 import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
-import io.permazen.core.SnapshotTransaction;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.encoding.Encoding;
@@ -326,8 +326,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         Preconditions.checkArgument(reader != null, "null reader");
         this.expect(reader, false, OBJECTS_TAG);
 
-        // Create a snapshot transaction so we can replace objects without triggering DeleteAction's
-        final SnapshotTransaction snapshot = this.tx.createSnapshotTransaction();
+        // Create a detached transaction in which we will construct each object we're importing
+        final DetachedTransaction tempTx = this.tx.createDetachedTransaction();
 
         // Iterate over objects
         QName name;
@@ -393,10 +393,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 }
             }
 
-            // Reset snapshot
-            snapshot.reset();
+            // Reset detached transaction to discard previous object
+            tempTx.reset();
 
-            // Determine object ID and create object in snapshot
+            // Determine object ID and create object in detached transaction
             final String idAttr = this.getAttr(reader, ID_ATTR, false);
             ObjId id;
             if (idAttr == null) {
@@ -410,7 +410,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 }
 
                 // Create object
-                id = snapshot.create(objType.getStorageId(), schema.getVersionNumber());
+                id = tempTx.create(objType.getStorageId(), schema.getVersionNumber());
             } else {
 
                 // Parse id
@@ -436,7 +436,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 }
 
                 // Create object
-                snapshot.create(id, schema.getVersionNumber());
+                tempTx.create(id, schema.getVersionNumber());
 
                 // Lookup object type if still unknown
                 if (objType == null)
@@ -485,7 +485,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Parse the field
                 if (field instanceof SimpleField)
-                    snapshot.writeSimpleField(id, field.getStorageId(), this.readSimpleField(reader, (SimpleField<?>)field), false);
+                    tempTx.writeSimpleField(id, field.getStorageId(), this.readSimpleField(reader, (SimpleField<?>)field), false);
                 else if (field instanceof CounterField) {
                     final long value;
                     try {
@@ -495,14 +495,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                           "invalid counter value for field \"%s\": %s", field.getName(), e.getMessage()),
                           reader.getLocation(), e);
                     }
-                    snapshot.writeCounterField(id, field.getStorageId(), value, false);
+                    tempTx.writeCounterField(id, field.getStorageId(), value, false);
                 } else if (field instanceof CollectionField) {
                     final SimpleField<?> elementField = ((CollectionField<?, ?>)field).getElementField();
                     final Collection<?> collection;
                     if (field instanceof SetField)
-                        collection = snapshot.readSetField(id, field.getStorageId(), false);
+                        collection = tempTx.readSetField(id, field.getStorageId(), false);
                     else if (field instanceof ListField)
-                        collection = snapshot.readListField(id, field.getStorageId(), false);
+                        collection = tempTx.readListField(id, field.getStorageId(), false);
                     else
                         throw new RuntimeException("internal error: " + field);
                     while ((name = this.next(reader)) != null) {
@@ -517,7 +517,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 } else if (field instanceof MapField) {
                     final SimpleField<?> keyField = ((MapField<?, ?>)field).getKeyField();
                     final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
-                    final Map<?, ?> map = snapshot.readMapField(id, field.getStorageId(), false);
+                    final Map<?, ?> map = tempTx.readMapField(id, field.getStorageId(), false);
                     while ((name = this.next(reader)) != null) {
                         if (!ENTRY_TAG.equals(name)) {
                             throw new XMLStreamException(String.format(
@@ -550,7 +550,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             }
 
             // Copy over object, replacing any previous
-            snapshot.copy(id, this.tx, false, false, this.unresolvedReferences, null);
+            tempTx.copy(id, this.tx, false, false, this.unresolvedReferences, null);
 
             // Removed the copied object from deleted assignments, as any forward reference to it is now resolved
             this.unresolvedReferences.remove(id);

@@ -46,14 +46,14 @@ import java.util.NavigableSet;
  *
  * <p>
  * There are two types of transactions: normal transactions reflecting an open transaction on the underlying
- * key/value database, and {@linkplain SnapshotJTransaction snapshot transactions}, which are in-memory containers
- * of object data. Snapshot transactions are fully functional, supporting index queries, object versioning, etc.
+ * key/value database, and {@linkplain DetachedJTransaction detached transactions}, which are in-memory containers
+ * of object data. Detached transactions are fully functional, supporting index queries, object versioning, etc.
  *
  * <p><b>Copying Objects</b></p>
  *
  * <p>
  * This interface provides methods for copying a graph of objects between transactions, for example, from an open
- * key/value database transaction into an in-memory snapshot transaction ("copy out"), or vice-versa ("copy in").
+ * key/value database transaction into an in-memory detached transaction ("copy out"), or vice-versa ("copy in").
  * A graph of objects can be copied by specifying a starting object and either a list of reference paths, or
  * a cascade name (see {@link JField &#64;JField}). Object ID's can be remapped during
  * the copy if necessary, e.g., to ensure existing objects are not overwritten (see {@link CopyState}).
@@ -121,16 +121,16 @@ public interface JObject {
     }
 
     /**
-     * Determine whether this instance is a normal instance or is an in-memory "snapshot" instance associated
-     * with a {@link SnapshotJTransaction}.
+     * Determine whether this instance is a normal instance or is a detached instance associated
+     * with a {@link DetachedJTransaction}.
      *
      * <p>
-     * Equivalent to {@code getTransaction().isSnapshot()}.
+     * Equivalent to {@code getTransaction().isDetached()}.
      *
-     * @return true if instance is a snapshot instance
+     * @return true if instance lives in a detached transaction
      */
-    default boolean isSnapshot() {
-        return this.getTransaction().isSnapshot();
+    default boolean isDetached() {
+        return this.getTransaction().isDetached();
     }
 
     /**
@@ -202,10 +202,7 @@ public interface JObject {
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
      * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
-     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
-     * however, for {@link OnCreate &#64;OnCreate} and
-     * {@link OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
-     * if {@code dest} is a {@link SnapshotJTransaction}.
+     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest}).
      *
      * <p>
      * The two transactions must be compatible in that for any schema versions encountered, those schema versions
@@ -247,30 +244,26 @@ public interface JObject {
 
     /**
      * Copy this instance and other instances it references through the specified reference paths (if any)
-     * into the associated in-memory snapshot transaction.
+     * into the associated in-memory detached transaction.
      *
      * <p>
-     * Normally this method would only be invoked on a regular database {@link JObject}.
-     * The returned object will always be a snapshot {@link JObject}.
+     * This method should only be invoked on regular database {@link JObject}s.
+     * The returned object will always live in a {@link DetachedJTransaction}.
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><pre>
-     * this.copyTo(this.getTransaction().getSnapshotTransaction(), new CopyState(), refPaths);
+     * this.copyTo(this.getTransaction().getDetachedTransaction(), new CopyState(), refPaths);
      * </pre></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
-     * @return the snapshot {@link JObject} copy of this instance
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
-     *  in snapshot transactions
-     * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
+     * @return the detached {@link JObject} copy of this instance
+     * @throws IllegalArgumentException if this instance is itself a {@linkplain #isDetached detached instance}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      */
     default JObject copyOut(String... refPaths) {
-        return this.copyTo(this.getTransaction().getSnapshotTransaction(), new CopyState(), refPaths);
+        return this.copyTo(this.getTransaction().getDetachedTransaction(), new CopyState(), refPaths);
     }
 
     /**
@@ -278,7 +271,7 @@ public interface JObject {
      * into the transaction associated with the current thread.
      *
      * <p>
-     * Normally this method would only be invoked on a snapshot {@link JObject}.
+     * Normally this method would only be invoked on detached database {@link JObject}s.
      * The returned object will be a {@link JObject} in the currently open transaction.
      *
      * <p>
@@ -291,7 +284,7 @@ public interface JObject {
      * @return the regular database copy of this instance
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeleted configured} to disallow deleted assignment
      * @throws SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
@@ -349,10 +342,7 @@ public interface JObject {
      * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
      * it will have its schema version updated first, if necessary, then be overwritten.
      * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
-     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest});
-     * however, for {@link OnCreate &#64;OnCreate} and
-     * {@link OnChange &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
-     * if {@code dest} is a {@link SnapshotJTransaction}.
+     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest}).
      *
      * <p>
      * The two transactions must be compatible in that for any schema versions encountered, those schema versions
@@ -397,35 +387,31 @@ public interface JObject {
 
     /**
      * Copy this instance and all objects reachable from it via the specified cascade
-     * into the associated in-memory snapshot transaction.
+     * into the associated in-memory detached transaction.
      *
      * <p>
-     * Normally this method would only be invoked on a regular database {@link JObject}.
-     * The returned object will always be a snapshot {@link JObject}.
+     * This method should only be invoked on regular database {@link JObject}s.
+     * The returned object will always live in a {@link DetachedJTransaction}.
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><pre>
-     * this.cascadeCopyTo(this.getTransaction().getSnapshotTransaction(), cascadeName, clone);
+     * this.cascadeCopyTo(this.getTransaction().getDetachedTransaction(), cascadeName, clone);
      * </pre></blockquote>
      *
      * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
-     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the snapshot transaction,
+     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the detached transaction,
      *  or false to preserve the same object ID's, overwriting any existing objects
-     * @return the snapshot {@link JObject} copy of this instance
+     * @return the detached {@link JObject} copy of this instance
      * @throws DeletedObjectException if any object to be copied does not exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
-     *  in snapshot transactions
      * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
-     * @throws IllegalArgumentException if this instance is a {@linkplain #isSnapshot snapshot instance}
+     * @throws IllegalArgumentException if this instance is a {@linkplain #isDetached detached instance}
      * @see #cascadeCopyIn cascadeCopyIn()
      * @see #cascadeCopyTo cascadeCopyTo()
      */
     default JObject cascadeCopyOut(String cascadeName, boolean clone) {
-        return this.cascadeCopyTo(this.getTransaction().getSnapshotTransaction(), cascadeName, clone);
+        return this.cascadeCopyTo(this.getTransaction().getDetachedTransaction(), cascadeName, clone);
     }
 
     /**
@@ -433,7 +419,7 @@ public interface JObject {
      * into the transaction associated with the current thread.
      *
      * <p>
-     * Normally this method would only be invoked on a snapshot {@link JObject}.
+     * Normally this method would only be invoked on detached database {@link JObject}s.
      * The returned object will be a {@link JObject} in the currently open transaction.
      *
      * <p>
@@ -449,7 +435,7 @@ public interface JObject {
      * @throws DeletedObjectException if any object to be copied does not exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeletedSnapshot configured} to disallow deleted assignment
+     *  {@linkplain JField#allowDeleted configured} to disallow deleted assignment
      * @throws SchemaMismatchException
      *  if the schema version corresponding to any copied object is not identical in both transactions
      * @see #cascadeCopyOut cascadeCopyOut()

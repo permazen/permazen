@@ -165,21 +165,6 @@ public @interface PermazenType {
     boolean autogenAllowDeleted() default false;
 
     /**
-     * Configure the default for the {@link JField#allowDeletedSnapshot &#64;JField.allowDeletedSnapshot()} property
-     * for auto-generated reference fields.
-     *
-     * <p>
-     * If {@link #autogenFields} is false, this property is ignored. Otherwise, if this property is true,
-     * any auto-generated reference fields will allow assignment to deleted objects in snapshot transactions.
-     * In other words, they will behave as if they had a {@link JField &#64;JField} annotation with
-     * {@link JField#allowDeletedSnapshot} set to true.
-     *
-     * @return whether auto-generated reference fields should allow assignment to a deleted object in snapshot transactions
-     * @see JField#allowDeletedSnapshot
-     */
-    boolean autogenAllowDeletedSnapshot() default true;
-
-    /**
      * Configure the default for the {@link JField#upgradeConversion &#64;JField.upgradeConversion()} property
      * for auto-generated reference fields.
      *

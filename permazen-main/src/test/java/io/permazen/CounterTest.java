@@ -23,7 +23,7 @@ public class CounterTest extends TestSupport {
     public void testCounter() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

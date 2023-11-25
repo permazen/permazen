@@ -18,8 +18,8 @@ public class JObjectCopyTest extends TestSupport {
     @Test
     public void testCopyWithPath() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
-        final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
+        final DetachedJTransaction stx = jtx.getDetachedTransaction();
         JTransaction.setCurrent(jtx);
         try {
 
@@ -54,8 +54,8 @@ public class JObjectCopyTest extends TestSupport {
     @Test
     public void testCopyMultiplePath() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
-        final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
+        final DetachedJTransaction stx = jtx.getDetachedTransaction();
         JTransaction.setCurrent(jtx);
         try {
             final Person p1 = jtx.create(Person.class);

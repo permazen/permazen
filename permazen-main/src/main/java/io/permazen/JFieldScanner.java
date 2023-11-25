@@ -123,10 +123,6 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return this.permazenType.autogenAllowDeleted();
         }
         @Override
-        public boolean allowDeletedSnapshot() {
-            return this.permazenType.autogenAllowDeletedSnapshot();
-        }
-        @Override
         public UpgradeConversionPolicy upgradeConversion() {
             return this.permazenType.autogenUpgradeConversion();
         }

@@ -22,7 +22,7 @@ public class AllowDeletedTest extends TestSupport {
     public void testAllowDeleted() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
@@ -49,11 +49,11 @@ public class AllowDeletedTest extends TestSupport {
     public void testCopy() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
 
-            final JTransaction stx = jtx.getSnapshotTransaction();
+            final JTransaction stx = jtx.getDetachedTransaction();
 
             Person p1 = stx.create(Person.class);
             Person p2 = stx.create(Person.class);

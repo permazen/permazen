@@ -23,7 +23,7 @@ public class IndexQuerySetsTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen(Foo.class);
 
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 

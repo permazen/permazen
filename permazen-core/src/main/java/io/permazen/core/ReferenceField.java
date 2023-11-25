@@ -27,7 +27,6 @@ public class ReferenceField extends SimpleField<ObjId> {
     final DeleteAction inverseDelete;
     final boolean forwardDelete;
     final boolean allowDeleted;
-    final boolean allowDeletedSnapshot;
 
     /**
      * Constructor.
@@ -38,20 +37,18 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @param inverseDelete inverse deletion behavior
      * @param forwardDelete whether to cascade deletes
      * @param allowDeleted whether to allow assignment to deleted obects in normal transactions
-     * @param allowDeletedSnapshot whether to allow assignment to deleted obects in snapshot transactions
      * @param objectTypes allowed object type storage IDs, or null for no restriction
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
     ReferenceField(String name, int storageId, Schema schema, DeleteAction inverseDelete,
-      boolean forwardDelete, boolean allowDeleted, boolean allowDeletedSnapshot, Set<Integer> objectTypes) {
+      boolean forwardDelete, boolean allowDeleted, Set<Integer> objectTypes) {
         super(name, storageId, schema, new ReferenceEncoding(objectTypes), true);
         Preconditions.checkArgument(inverseDelete != null, "null inverseDelete");
         this.inverseDelete = inverseDelete;
         this.forwardDelete = forwardDelete;
         this.allowDeleted = allowDeleted;
-        this.allowDeletedSnapshot = allowDeletedSnapshot;
     }
 
 // Public methods
@@ -75,21 +72,12 @@ public class ReferenceField extends SimpleField<ObjId> {
     }
 
     /**
-     * Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.
+     * Determine whether this field accepts references to deleted objects in normal (non-detached) transactions.
      *
      * @return whether deleted objects are allowed in normal transactions
      */
     public boolean isAllowDeleted() {
         return this.allowDeleted;
-    }
-
-    /**
-     * Determine whether this field accepts references to deleted objects in snapshot transactions.
-     *
-     * @return whether deleted objects are allowed in snapshot transactions
-     */
-    public boolean isAllowDeletedSnapshot() {
-        return this.allowDeletedSnapshot;
     }
 
     /**

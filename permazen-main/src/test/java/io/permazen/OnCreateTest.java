@@ -25,7 +25,7 @@ public class OnCreateTest extends TestSupport {
     public void testOnCreate1() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -52,7 +52,7 @@ public class OnCreateTest extends TestSupport {
     public void testOnCreate2() {
 
         final Permazen jdb = BasicTest.getPermazen(HasUUID.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

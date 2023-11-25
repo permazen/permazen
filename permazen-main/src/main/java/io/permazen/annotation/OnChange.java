@@ -7,7 +7,6 @@ package io.permazen.annotation;
 
 import io.permazen.Counter;
 import io.permazen.ReferencePath;
-import io.permazen.SnapshotJTransaction;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldChange;
@@ -240,6 +239,10 @@ import java.lang.annotation.Target;
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedTransaction detached} transactions;
+ * you can use {@code this.isDetached()} to detect that situation.
+ *
+ * <p>
  * When handing change events, any action that has effects visible to the outside world should be made contingent on
  * successful transaction commit, for example, by wrapping it in {@link Transaction#addCallback Transaction.addCallback()}.
  *
@@ -294,14 +297,4 @@ public @interface OnChange {
      * @return the names of the fields to monitored in the target objects
      */
     String[] value() default { };
-
-    /**
-     * Determines whether this annotation should also be enabled for
-     * {@linkplain SnapshotJTransaction snapshot transaction} objects.
-     * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
-     *
-     * @return whether enabled for snapshot transactions
-     * @see SnapshotJTransaction
-     */
-    boolean snapshotTransactions() default false;
 }

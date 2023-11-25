@@ -18,7 +18,7 @@ public class ValidationInvalidTargetTypeTest extends TestSupport {
 
         final Permazen jdb = BasicTest.getPermazen(Person1.class, Person2.class);
 
-        JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

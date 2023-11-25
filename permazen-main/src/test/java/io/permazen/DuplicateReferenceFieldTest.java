@@ -28,7 +28,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
     public void testDuplicateReferenceFields() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(ClassA.class, ClassB.class, ClassC.class);
 
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
 

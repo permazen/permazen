@@ -33,7 +33,7 @@ public class OnChangeWildcardTest extends TestSupport {
     public void testWildcardChanges() {
 
         final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

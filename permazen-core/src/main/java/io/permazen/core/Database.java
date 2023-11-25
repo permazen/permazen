@@ -23,6 +23,7 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.Diffs;
 import io.permazen.util.UnsignedIntEncoder;
 
+import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -132,51 +133,18 @@ public class Database {
     }
 
     /**
-     * Create a new transaction.
-     *
-     * <p>
-     * Convenience method; equivalent to:
-     *  <blockquote><pre>
-     *  createTransaction(schemaModel, version, allowNewSchema, null);
-     *  </pre></blockquote>
-     *
-     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel},
-     *  zero to use the highest version already recorded in the database,
-     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
-     * @param allowNewSchema whether creating a new schema version is allowed
-     * @return newly created transaction
-     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
-     *  as recorded in the database
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
-     *  and {@code allowNewSchema} is false
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
-     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
-     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
-     * @throws SchemaMismatchException
-     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
-     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
-     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
-     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
-     */
-    public Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema) {
-        return this.createTransaction(schemaModel, version, allowNewSchema, null);
-    }
-
-    /**
-     * Create a new {@link Transaction} on this database and use the specified schema version to access objects and fields.
+     * Create a new {@link Transaction} on this database using the specific configuration.
      *
      * <p>
      * <b>Schema Versions</b>
      *
      * <p>
-     * Within each {@link Database} is stored a record of all schema versions previously used with the database.
+     * Within each {@link Database} is stored a record of all schema versions previously used with that database.
      * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.
-     * Both of these are optional: a schema version of zero means "use the highest version recorded in the
-     * database", and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under
-     * {@code version}".
+     * Either one of these is optional: a schema version of -1 means a schema version number should be auto-generated
+     * from the {@link SchemaModel}, a schema version of zero means "use the highest version recorded in the database",
+     * and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under
+     * the configured schema version".
      *
      * <p>
      * When this method is invoked, the following checks are applied:
@@ -199,8 +167,8 @@ public class Database {
      * </ul>
      *
      * <p>
-     * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.
-     * In the core API, objects and fields are identified by storage ID, not name.
+     * For two schemas to "match", they must be identical in all respects structurally, but that object, field, and index
+     * names may differ. In the core API, objects and fields are identified by storage ID, not name.
      *
      * <p>
      * Schemas must also be compatible with all other schemas previously recorded in the database.
@@ -249,33 +217,29 @@ public class Database {
      * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact
      * nothing requires schema version numbers to be consecutive.
      *
-     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel},
-     *  zero to use the highest version already recorded in the database,
-     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
-     * @param allowNewSchema whether creating a new schema version is allowed
-     * @param kvoptions optional {@link KVDatabase}-specific transaction options; may be null
+     * @param txConfig transaction configuration
      * @return newly created transaction
-     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
+     * @throws IllegalArgumentException if the schema version is less than -1, or equal to -1 when the schema model is null
+     * @throws InvalidSchemaException if the schema model is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if the schema model does not match the configured schema version
      *  as recorded in the database
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
-     *  and {@code allowNewSchema} is false
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
-     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
-     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
-     * @throws SchemaMismatchException
-     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
+     * @throws SchemaMismatchException if an explicitly configured schema version is not recorded in the database
+     *  and adding new schemas is disabled
+     * @throws SchemaMismatchException if the schema version is not recorded in the database, but the schema model is incompatible
+     *  with one or more other schemas already recorded in the database (i.e., the same storage ID is used inconsistently)
+     *@throws SchemaMismatchException
+     *  if the database is uninitialized and the schema version is zero or the schema model is null
      * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
+     * @throws IllegalArgumentException if {@code txConfig} is null
      */
-    public Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema, Map<String, ?> kvoptions) {
-        final KVTransaction kvt = this.kvdb.createTransaction(kvoptions);
+    public Transaction createTransaction(TransactionConfig txConfig) {
+        Preconditions.checkArgument(txConfig != null, "null txConfig");
+        final KVTransaction kvt = this.kvdb.createTransaction(txConfig.getKVOptions());
         boolean success = false;
         try {
-            final Transaction tx = this.createTransaction(kvt, schemaModel, version, allowNewSchema);
+            final Transaction tx = this.createTransaction(kvt, txConfig);
             success = true;
             return tx;
         } finally {
@@ -289,125 +253,97 @@ public class Database {
         }
     }
 
+    // Used only for testing
+    Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema) {
+        return this.createTransaction(TransactionConfig.builder()
+          .schemaModel(schemaModel)
+          .schemaVersion(version)
+          .allowNewSchema(allowNewSchema)
+          .build());
+    }
+
     /**
      * Create a new {@link Transaction} on this database using an already-opened {@link KVTransaction} and specified schema.
      * The given {@link KVTransaction} will be committed or rolled-back along with the returned {@link Transaction}.
      *
      * <p>
-     * See {@link #createTransaction(SchemaModel, int, boolean)} for details on schema and object versions.
+     * See {@link #createTransaction(TransactionConfig)} for further details.
      *
      * @param kvt already opened key/value store transaction
-     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel},
-     *  zero to use the highest version already recorded in the database,
-     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
-     * @param allowNewSchema whether creating a new schema version is allowed
+     * @param txConfig transaction configuration
      * @return newly created transaction
-     * @throws IllegalArgumentException if {@code kvt} is null
-     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
-     *  as recorded in the database
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
-     *  and {@code allowNewSchema} is false
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
-     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
-     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
-     * @throws SchemaMismatchException
-     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
-     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
-     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
-     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
+     * @throws IllegalArgumentException if {@code kvt} or {@code txConfig} is null
      */
-    public Transaction createTransaction(KVTransaction kvt, SchemaModel schemaModel, int version, boolean allowNewSchema) {
-
-        // Sanity check
-        Preconditions.checkArgument(kvt != null, "null kvt");
+    public Transaction createTransaction(KVTransaction kvt, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final Schemas schemas = this.verifySchemas(kvt, schemaModel, version, allowNewSchema);
+        final Schemas schemas = this.verifySchemas(kvt, txConfig);
         assert schemas != null;
 
         // Create transaction
-        return version > 0 ? new Transaction(this, kvt, schemas, version) : new Transaction(this, kvt, schemas);
+        return txConfig.getSchemaVersion() > 0 ?
+          new Transaction(this, kvt, schemas, txConfig.getSchemaVersion()) :
+          new Transaction(this, kvt, schemas);
     }
 
     /**
-     * Create a "snapshot" transaction based on the provided key/value store.
+     * Create a detached transaction based on the provided key/value store.
      *
      * <p>
      * The key/value store will be initialized if necessary (i.e., {@code kvstore} may be empty), otherwise it will be
      * validated against the schema information associated with this instance.
      *
      * <p>
-     * The returned {@link SnapshotTransaction} does not support {@link SnapshotTransaction#commit commit()},
-     * {@link SnapshotTransaction#rollback rollback()}, or {@link SnapshotTransaction#addCallback addCallback()},
+     * The returned {@link DetachedTransaction} does not support {@link DetachedTransaction#commit commit()},
+     * {@link DetachedTransaction#rollback rollback()}, or {@link DetachedTransaction#addCallback addCallback()},
      * and can be used indefinitely.
      *
      * <p>
-     * If {@code kvstore} is a {@link CloseableKVStore}, then it will be
-     * {@link CloseableKVStore#close close()}'d if/when the returned {@link SnapshotTransaction} is.
+     * {@link DetachedTransaction}'s do implement {@link Closeable}; if th{@code kvstore} is a {@link CloseableKVStore},
+     * then it will be {@link CloseableKVStore#close close()}'d if/when the returned {@link DetachedTransaction} is.
+     *
+     * <p>
+     * See {@link #createTransaction(TransactionConfig)} for further details.
      *
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
-     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
-     * @param version the schema version number corresponding to {@code schemaModel},
-     *  zero to use the highest version already recorded in the database,
-     *  or -1 to use an {@linkplain SchemaModel#autogenerateVersion auto-generated} schema version
-     * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
-     * @return snapshot transaction based on {@code kvstore}
-     * @throws IllegalArgumentException if {@code version} is less than -1, or equal to -1 when {@code schemaModel} is null
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
-     *  as recorded in the database
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
-     *  and {@code allowNewSchema} is false
-     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
-     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
-     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
-     * @throws SchemaMismatchException
-     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
-     * @throws SchemaMismatchException if {@code kvstore} contains incompatible or missing schema information
-     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
-     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
-     * @throws IllegalArgumentException if {@code kvstore} is null
-     * @see Transaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
+     * @param txConfig transaction configuration
+     * @return detached transaction based on {@code kvstore}
+     * @throws IllegalArgumentException if {@code kvstore} or {@code txConfig} is null
      */
-    public SnapshotTransaction createSnapshotTransaction(KVStore kvstore,
-      SchemaModel schemaModel, int version, boolean allowNewSchema) {
+    public DetachedTransaction createDetachedTransaction(KVStore kvstore, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final Schemas schemas = this.verifySchemas(kvstore, schemaModel, version, allowNewSchema);
+        final Schemas schemas = this.verifySchemas(kvstore, txConfig);
         assert schemas != null;
 
-        // Create snapshot transaction
-        return version > 0 ?
-          new SnapshotTransaction(this, kvstore, schemas, version) : new SnapshotTransaction(this, kvstore, schemas);
+        // Create detached transaction
+        return txConfig.getSchemaVersion() > 0 ?
+          new DetachedTransaction(this, kvstore, schemas, txConfig.getSchemaVersion()) :
+          new DetachedTransaction(this, kvstore, schemas);
     }
 
     /**
      * Initialize (if necessary) and validate the given {@link KVStore} for use with this database.
      *
      * @param kvstore key/value store
-     * @param schemaModel schema to use with the new transaction, or null
-     * @param version schema version number
-     * @param allowNewSchema whether creating a new schema version is allowed
+     * @param txConfig transaction configuration
+     * @throws IllegalArgumentException if {@code kvstore} or {@code txConfig} is null
      */
-    private Schemas verifySchemas(KVStore kvstore, SchemaModel schemaModel, int version, boolean allowNewSchema) {
+    private Schemas verifySchemas(KVStore kvstore, TransactionConfig txConfig) {
 
         // Sanity check
         Preconditions.checkArgument(kvstore != null, "null kvstore");
-        Preconditions.checkArgument(version >= -1, "invalid schema version: " + version);
-        Preconditions.checkArgument(schemaModel != null || version >= 0, "can't auto-generate version without schema model");
-        if (schemaModel != null) {
-            schemaModel.validate();
-            if (version == -1)
-                version = schemaModel.autogenerateVersion();
-        }
+        Preconditions.checkArgument(txConfig != null, "null txConfig");
+
+        // Extract config info
+        int version = txConfig.getSchemaVersion();
+        final SchemaModel schemaModel = txConfig.getSchemaModel();
+        final boolean allowNewSchema = txConfig.isAllowNewSchema();
 
         // Debug
         if (this.log.isTraceEnabled()) {
-            this.log.trace("creating transaction using "
-              + (version != 0 ? "schema version " + version : "highest recorded schema version"));
+            this.log.trace("creating transaction using {}",
+              version != 0 ? "schema version " + version : "highest recorded schema version");
         }
 
         // Get iterator over meta-data key/value pairs

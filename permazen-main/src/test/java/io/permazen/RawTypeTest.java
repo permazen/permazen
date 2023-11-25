@@ -17,7 +17,7 @@ public class RawTypeTest extends TestSupport {
     @Test
     public void testRawType() throws Exception {
         final Permazen jdb = BasicTest.getPermazen(Widget.class);
-        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
             AbstractData.queryByName();

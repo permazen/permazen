@@ -9,6 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
@@ -41,14 +42,18 @@ public class ValidateOnUpdateTest extends TestSupport {
           ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        final TransactionConfig txConfig1 = TransactionConfig.builder()
+          .schemaModel(schema1)
+          .schemaVersion(1)
+          .build();
+        Transaction tx = db.createTransaction(txConfig1);
         tx.create(10);
         tx.commit();
 
     // Version 2
 
         Permazen jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Foo.class));
-        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
             final Foo foo = jtx.getAll(Foo.class).iterator().next();

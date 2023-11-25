@@ -34,7 +34,6 @@ public class JReferenceField extends JSimpleField {
     final DeleteAction inverseDelete;
     final boolean forwardDelete;
     final boolean allowDeleted;
-    final boolean allowDeletedSnapshot;
     final String[] forwardCascades;
     final String[] inverseCascades;
 
@@ -44,7 +43,6 @@ public class JReferenceField extends JSimpleField {
         this.inverseDelete = annotation.inverseDelete();
         this.forwardDelete = annotation.forwardDelete();
         this.allowDeleted = annotation.allowDeleted();
-        this.allowDeletedSnapshot = annotation.allowDeletedSnapshot();
         this.forwardCascades = annotation.forwardCascades();
         this.inverseCascades = annotation.inverseCascades();
     }
@@ -92,15 +90,6 @@ public class JReferenceField extends JSimpleField {
     }
 
     /**
-     * Determine whether this field allows assignment to deleted objects in snapshot transactions.
-     *
-     * @return this field's deleted assignment setting for snapshot transactions
-     */
-    public boolean isAllowDeletedSnapshot() {
-        return this.allowDeletedSnapshot;
-    }
-
-    /**
      * Get this field's forward copy/find cascades.
      *
      * <p>
@@ -135,8 +124,6 @@ public class JReferenceField extends JSimpleField {
             return false;
         if (this.allowDeleted != that.allowDeleted)
             return false;
-        if (this.allowDeletedSnapshot != that.allowDeletedSnapshot)
-            return false;
         if (!new HashSet<>(Arrays.asList(this.forwardCascades)).equals(new HashSet<>(Arrays.asList(that.forwardCascades))))
             return false;
         if (!new HashSet<>(Arrays.asList(this.inverseCascades)).equals(new HashSet<>(Arrays.asList(that.inverseCascades))))
@@ -158,7 +145,6 @@ public class JReferenceField extends JSimpleField {
         schemaField.setInverseDelete(this.inverseDelete);
         schemaField.setForwardDelete(this.forwardDelete);
         schemaField.setAllowDeleted(this.allowDeleted);
-        schemaField.setAllowDeletedSnapshot(this.allowDeletedSnapshot);
         final Class<?> rawType = this.typeToken.getRawType();
         if (!rawType.isAssignableFrom(JObject.class)) {
             assert !rawType.isAssignableFrom(UntypedJObject.class);
