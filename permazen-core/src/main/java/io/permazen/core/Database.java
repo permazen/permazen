@@ -346,13 +346,13 @@ public class Database {
               version != 0 ? "schema version " + version : "highest recorded schema version");
         }
 
+        // We will pretend user meta-data is invisible
+        final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(Layout.getUserMetaDataKeyPrefix(), key);
+
         // Get iterator over meta-data key/value pairs
         final int formatVersion;
         final boolean uninitialized;
         try (CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(Layout.getMetaDataKeyRange())) {
-
-            // Pretend user meta-data is not there
-            final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(Layout.getUserMetaDataKeyPrefix(), key);
 
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
             byte[] formatVersionBytes = null;
@@ -362,8 +362,9 @@ public class Database {
                 if (Arrays.equals(pair.getKey(), Layout.getFormatVersionKey()))
                     formatVersionBytes = pair.getValue();
                 else if (!userMetaData.test(pair.getKey())) {
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                      + ByteUtil.toString(pair.getKey()) + ")");
+                    throw new InconsistentDatabaseException(String.format(
+                      "database is uninitialized but contains unrecognized garbage (key %s)",
+                      ByteUtil.toString(pair.getKey())));
                 }
             }
 
@@ -375,12 +376,14 @@ public class Database {
                 final KVPair first = kvstore.getAtLeast(new byte[0], null);
                 final KVPair last = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
                 if (first != null && !userMetaData.test(first.getKey())) {
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                      + ByteUtil.toString(first.getKey()) + ")");
+                    throw new InconsistentDatabaseException(String.format(
+                      "database is uninitialized but contains unrecognized garbage (key %s)",
+                      ByteUtil.toString(first.getKey())));
                 }
                 if (last != null && !userMetaData.test(last.getKey())) {
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                      + ByteUtil.toString(last.getKey()) + ")");
+                    throw new InconsistentDatabaseException(String.format(
+                      "database is uninitialized but contains unrecognized garbage (key %s)",
+                      ByteUtil.toString(last.getKey())));
                 }
                 if ((first != null) != (last != null) || (first != null && ByteUtil.compare(first.getKey(), last.getKey()) > 0))
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
@@ -418,8 +421,9 @@ public class Database {
                 try {
                     formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
                 } catch (IllegalArgumentException e) {
-                    throw new InconsistentDatabaseException("database contains invalid encoded format version "
-                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(Layout.getFormatVersionKey()));
+                    throw new InconsistentDatabaseException(String.format(
+                      "database contains invalid encoded format version %s under key %s",
+                      ByteUtil.toString(formatVersionBytes), ByteUtil.toString(Layout.getFormatVersionKey())));
                 }
 
                 // Validate format version
@@ -427,8 +431,9 @@ public class Database {
                 case Layout.FORMAT_VERSION_1:
                     break;
                 default:
-                    throw new InconsistentDatabaseException("database contains unrecognized format version "
-                      + formatVersion + " under key " + ByteUtil.toString(Layout.getFormatVersionKey()));
+                    throw new InconsistentDatabaseException(String.format(
+                      "database contains unrecognized version %d under key %s",
+                      formatVersion, ByteUtil.toString(Layout.getFormatVersionKey())));
                 }
             }
 
@@ -436,8 +441,8 @@ public class Database {
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
                 if (!Layout.getSchemaKeyRange().contains(pair.getKey())) {
-                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
-                      + ByteUtil.toString(pair.getKey()));
+                    throw new InconsistentDatabaseException(String.format(
+                      "database contains unrecognized garbage at key %s", ByteUtil.toString(pair.getKey())));
                 }
             }
         }
@@ -470,9 +475,10 @@ public class Database {
                     schemas = this.decodeSchemas(bytesMap, formatVersion);
                 } catch (IllegalArgumentException e) {
                     if (firstAttempt)
-                        throw new InconsistentDatabaseException("database contains invalid schema information", e);
+                        throw new InconsistentDatabaseException(String.format(
+                          "database contains invalid schema information: %s", e.getMessage()), e);
                     else
-                        throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);
+                        throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
                 }
             }
 
@@ -511,8 +517,9 @@ public class Database {
                     final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
                     this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
                       + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
-                    throw new IllegalArgumentException("the provided schema is not compatible with the schema already recorded"
-                      + " in the database under version " + version + ":\n" + diffs);
+                    throw new IllegalArgumentException(String.format(
+                      "the provided schema is incompatible with the one already recorded in the database under version %d:%n%s",
+                      version, diffs));
                 } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
                     final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
                     this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
@@ -605,7 +612,7 @@ public class Database {
             try {
                 schemaMap.put(version, new Schema(version, new byte[0], schemaModel, encodingRegistry));
             } catch (IllegalArgumentException e) {
-                throw new InvalidSchemaException("invalid schema at index " + index + ": " + e.getMessage(), e);
+                throw new InvalidSchemaException(String.format("invalid schema at index %d: %s", index, e.getMessage()), e);
             }
             index++;
         }
@@ -624,12 +631,12 @@ public class Database {
         if (version == 0)
             throw new SchemaMismatchException("database is uninitialized and no schema version was provided");
         if (schemaModel == null) {
-            throw new SchemaMismatchException("schema version " + version
-              + " was not found in database, and no schema model was provided");
+            throw new SchemaMismatchException(String.format(
+              "schema version %d was not found in database, and no schema model was provided", version));
         }
         if (!allowNewSchema) {
-            throw new SchemaMismatchException("schema version " + version
-              + " was not found in database, and recording a new schema version is disabled in this transaction");
+            throw new SchemaMismatchException(String.format(
+              "schema version %d was not found in database, and recording a new schema version is disabled", version));
         }
     }
 
@@ -647,7 +654,8 @@ public class Database {
             try {
                 schemaModel = Layout.decodeSchema(bytes, formatVersion);
             } catch (InvalidSchemaException e) {
-                throw new InconsistentDatabaseException("found invalid schema version " + version + " recorded in database", e);
+                throw new InconsistentDatabaseException(String.format(
+                  "found invalid schema version %d recorded in database: %s", version, e.getMessage()), e);
             }
             if (this.log.isTraceEnabled())
                 this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
