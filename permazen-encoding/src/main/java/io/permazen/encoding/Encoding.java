@@ -58,6 +58,9 @@ import java.util.Comparator;
  * <p>
  * An {@link EncodingRegistry} contains a registry of {@link Encoding}s indexed by {@linkplain #getEncodingId encoding ID}.
  *
+ * <p>
+ * Instances must be stateless (and therefore also thread safe).
+ *
  * @param <T> The associated Java type
  * @see EncodingRegistry
  */

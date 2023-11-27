@@ -11,7 +11,8 @@ import com.google.common.reflect.TypeToken;
  * Support superclass for {@link Encoding}'s that don't support null values.
  *
  * <p>
- * Except for primitive types, such types may not be used standalone, but only within an outer type such as {@link NullSafeEncoding}.
+ * Except for primitive types, such types may not be used standalone, but only within an outer type such as
+ * {@link NullSafeEncoding}.
  */
 abstract class BuiltinEncoding<T> extends AbstractEncoding<T> {
 
