@@ -5,6 +5,8 @@
 
 package io.permazen.util;
 
+import java.util.Objects;
+
 /**
  * Writes bytes to a buffer.
  */
@@ -68,8 +70,7 @@ public class ByteWriter {
     public byte[] getBytes(int off, int len) {
         if (off == 0 && len == this.len && this.buf.length == this.len)
             return this.buf;
-        if (off < 0 || off > this.len || len < 0 || off + len < 0 || off + len > this.len)
-            throw new IndexOutOfBoundsException("total length = " + this.len + ", off = " + off + ", len = " + len);
+        Objects.checkFromIndexSize(off, len, this.len);
         final byte[] result = new byte[len];
         System.arraycopy(this.buf, off, result, 0, len);
         return result;
@@ -115,8 +116,7 @@ public class ByteWriter {
      * @throws IndexOutOfBoundsException if {@code off} or {@code len} is out of bounds
      */
     public void write(byte[] data, int off, int len) {
-        if (off < 0 || off > data.length || len < 0 || off + len < 0 || off + len > data.length)
-            throw new IndexOutOfBoundsException("data.length = " + data.length + ", off = " + off + ", len = " + len);
+        Objects.checkFromIndexSize(off, len, data.length);
         this.makeRoom(len);
         System.arraycopy(data, off, this.buf, this.len, len);
         this.len += len;
@@ -147,8 +147,7 @@ public class ByteWriter {
      * @throws IndexOutOfBoundsException if {@code mark} is out of bounds
      */
     public void reset(int mark) {
-        if (mark < 0 || mark > this.len)
-            throw new IndexOutOfBoundsException();
+        Objects.checkIndex(mark, this.len);
         this.len = mark;
     }
 

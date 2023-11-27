@@ -5,7 +5,7 @@
 
 package io.permazen.util;
 
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 /**
  * Reads bytes from a buffer.
@@ -15,6 +15,8 @@ public class ByteReader {
     final byte[] buf;
     final int max;
     int off;
+
+// Constructors
 
     /**
      * Constructor. The provided array is read from directly; no copy is made.
@@ -50,8 +52,7 @@ public class ByteReader {
      * @throws NullPointerException if {@code buf} is null
      */
     public ByteReader(byte[] buf, int off, int len) {
-        if (off < 0 || len < 0 || off > buf.length || off + len < 0 || off + len > buf.length)
-            throw new IndexOutOfBoundsException("buf.length = " + buf.length + ", off = " + off + ", len = " + len);
+        Objects.checkFromIndexSize(off, len, buf.length);
         this.buf = buf;
         this.max = off + len;
         this.off = off;
@@ -78,6 +79,8 @@ public class ByteReader {
     public ByteReader(ByteWriter writer, int mark) {
         this(writer.buf, mark, writer.len - mark);
     }
+
+// Methods
 
     /**
      * Peek at next byte, if any.
@@ -135,9 +138,7 @@ public class ByteReader {
      * @throws IllegalArgumentException if {@code len} is negative
      */
     public byte[] readBytes(int len) {
-        Preconditions.checkArgument(len >= 0, "len < 0");
-        if (this.off + len > this.max)
-            throw new IndexOutOfBoundsException();
+        Objects.checkFromIndexSize(this.off, len, this.max);
         final byte[] result = new byte[len];
         System.arraycopy(this.buf, this.off, result, 0, len);
         this.off += len;
@@ -161,8 +162,7 @@ public class ByteReader {
      * @throws IndexOutOfBoundsException if less than {@code num} bytes remain
      */
     public void skip(int num) {
-        if (num < 0 || this.off + num > this.max)
-            throw new IndexOutOfBoundsException();
+        Objects.checkFromIndexSize(this.off, num, this.max);
         this.off += num;
     }
 
@@ -193,8 +193,7 @@ public class ByteReader {
      * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is out of bounds
      */
     public byte[] getBytes(int off, int len) {
-        if (off < 0 || len < 0 || off + len > this.max)
-            throw new IndexOutOfBoundsException();
+        Objects.checkFromIndexSize(off, len, this.max);
         final byte[] data = new byte[len];
         System.arraycopy(this.buf, off, data, 0, len);
         return data;
@@ -236,8 +235,7 @@ public class ByteReader {
      * @throws IndexOutOfBoundsException if {@code mark} is out of bounds
      */
     public void reset(int mark) {
-        if (mark < 0 || mark > this.max)
-            throw new IndexOutOfBoundsException();
+        Objects.checkIndex(mark, this.max);
         this.off = mark;
     }
 }

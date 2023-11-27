@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.stream.Collectors;
 
@@ -163,8 +164,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
         // Make room for elements
         final int size = this.size();
-        if (index < 0 || index > size || size + numElems == Integer.MAX_VALUE || size + numElems < 0)
-            throw new IndexOutOfBoundsException("index = " + index + ", size = " + size);
+        Objects.checkFromIndexSize(size, numElems, Integer.MAX_VALUE);
         this.shift(index, index + numElems, size);
 
         // Add entries
@@ -249,8 +249,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         }
 
         // Check bounds
-        if (min < 0 || max < min || max > size)
-            throw new IndexOutOfBoundsException("min = " + min + ", max = " + max + ", size = " + size);
+        Objects.checkFromToIndex(min, max, size);
 
         // Delete index entries
         if (this.field.elementField.indexed)
