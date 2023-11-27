@@ -5,6 +5,7 @@
 
 package io.permazen.util;
 
+import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -162,5 +163,25 @@ public class ByteWriter {
             System.arraycopy(this.buf, 0, newbuf, 0, this.len);
             this.buf = newbuf;
         }
+    }
+
+    /**
+     * Return a view of this instance as an {@link OutputStream}.
+     *
+     * @return streaming view of this instance
+     */
+    public OutputStream asOutputStream() {
+        return new OutputStream() {
+
+            @Override
+            public void write(int b) {
+                ByteWriter.this.writeByte(b);
+            }
+
+            @Override
+            public void write(byte[] buf, int off, int len) {
+                ByteWriter.this.write(buf, off, len);
+            }
+        };
     }
 }

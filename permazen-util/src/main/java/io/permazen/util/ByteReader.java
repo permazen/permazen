@@ -5,6 +5,7 @@
 
 package io.permazen.util;
 
+import java.io.InputStream;
 import java.util.Objects;
 
 /**
@@ -237,5 +238,69 @@ public class ByteReader {
     public void reset(int mark) {
         Objects.checkIndex(mark, this.max);
         this.off = mark;
+    }
+
+    /**
+     * Return a view of this instance as an {@link InputStream}.
+     *
+     * @return streaming view of this instance
+     */
+    public InputStream asInputStream() {
+        return new InputStream() {
+
+            private int mark;
+
+            @Override
+            public int read() {
+                try {
+                    return ByteReader.this.readByte();
+                } catch (IndexOutOfBoundsException e) {
+                    return -1;
+                }
+            }
+
+            @Override
+            public int read(byte[] buf, int off, int len) {
+                Objects.checkFromIndexSize(off, len, buf.length);
+                final int remain = ByteReader.this.remain();
+                if (remain == 0)
+                    return -1;
+                len = Math.min(len, remain);
+                System.arraycopy(ByteReader.this.buf, ByteReader.this.off, buf, off, len);
+                ByteReader.this.off += len;
+                return len;
+            }
+
+            @Override
+            public long skip(long num) {
+                final int actual = (int)Math.min(num, ByteReader.this.remain());
+                ByteReader.this.skip(actual);
+                return actual;
+            }
+
+            @Override
+            public int available() {
+                return ByteReader.this.remain();
+            }
+
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public void mark(int readlimit) {
+                this.mark = ByteReader.this.mark();
+            }
+
+            @Override
+            public void reset() {
+                ByteReader.this.reset(this.mark);
+            }
+
+            @Override
+            public boolean markSupported() {
+                return true;
+            }
+        };
     }
 }
