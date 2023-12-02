@@ -91,7 +91,7 @@ public class ByteReader {
      */
     public int peek() {
         if (this.off == this.max)
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("truncated input");
         return this.buf[this.off] & 0xff;
     }
 
@@ -103,7 +103,7 @@ public class ByteReader {
      */
     public int readByte() {
         if (this.off == this.max)
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("truncated input");
         return this.buf[this.off++] & 0xff;
     }
 
@@ -114,7 +114,7 @@ public class ByteReader {
      */
     public void unread() {
         if (this.off == 0)
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("not enough previous bytes");
         this.off--;
     }
 
@@ -126,7 +126,7 @@ public class ByteReader {
      */
     public void unread(int len) {
         if (this.off - len < 0)
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("not enough previous bytes");
         this.off -= len;
     }
 

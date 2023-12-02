@@ -41,15 +41,17 @@ public abstract class AbstractXMLStreaming {
                 break;
             if (eventType == XMLStreamConstants.END_ELEMENT) {
                 if (!closingOK) {
-                    throw new XMLStreamException("expected " + this.description(names) + " but found closing <"
-                      + reader.getName() + "> tag instead", reader.getLocation());
+                    throw new XMLStreamException(String.format(
+                      "expected %s but found closing <%s> tag instead",
+                      this.description(names), reader.getName()), reader.getLocation());
                 }
                 return false;
             }
         }
         if (!Arrays.asList(names).contains(reader.getName())) {
-            throw new XMLStreamException("expected " + this.description(names)
-              + " but found <" + reader.getName() + "> instead", reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "expected %s but found <%s> instead",
+              this.description(names), reader.getName()), reader.getLocation());
         }
         return true;
     }
@@ -157,8 +159,9 @@ public abstract class AbstractXMLStreaming {
     protected String getAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
         final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());
         if (value == null && required) {
-            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element is missing required \""
-              + name + "\" attribute", reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "<%s> element is missing required \"%s\" attribute",
+              reader.getName().getLocalPart(), name), reader.getLocation());
         }
         return value;
     }
@@ -287,9 +290,8 @@ public abstract class AbstractXMLStreaming {
     protected XMLStreamException newInvalidAttributeException(XMLStreamReader reader,
       QName name, String description, Throwable... cause) throws XMLStreamException {
         final String value = this.getAttr(reader, name, false);
-        final String content = value != null ? "value \"" + value + "\"" : "left unspecified";
-        final String message = "<" + reader.getName().getLocalPart() + "> element attribute \""
-          + name + "\" " + content + " is invalid: " + description;
+        final String message = String.format("<%s> element attribute \"%s\" %s is invalid: %s",
+          reader.getName().getLocalPart(), name, value != null ? "value \"" + value + "\"" : "left unspecified", description);
         switch (cause.length) {
         case 0:
             return new XMLStreamException(message, reader.getLocation());
