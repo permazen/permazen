@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Objects;
 
 /**
  * Support superclass for {@link NavigableSet} implementations that join together multiple other {@link NavigableSet}s
@@ -72,14 +73,23 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
         final Iterator<? extends NavigableSet<E>> i = sets.iterator();
         if (!i.hasNext())
             return null;
-        final Comparator<? super E> comparator = i.next().comparator();
+        final Comparator<? super E> comparator = AbstractMultiNavigableSet.normalize(i.next().comparator());
 
         // Verify remaining comparators are equal to it
         while (i.hasNext()) {
-            final Comparator<? super E> comparator2 = i.next().comparator();
-            if (!(comparator == null ? comparator2 == null : comparator.equals(comparator2)))
+            final Comparator<? super E> comparator2 = AbstractMultiNavigableSet.normalize(i.next().comparator());
+            if (!Objects.equals(comparator2, comparator))
                 throw new IllegalArgumentException("sets have unequal comparators: " + comparator + " != " + comparator2);
         }
+
+        // Done
+        return comparator;
+    }
+
+    // Convert comparators that sort naturally to null for comparison purposes.
+    private static <T> Comparator<T> normalize(Comparator<T> comparator) {
+        if (comparator instanceof NaturalSortAware && ((NaturalSortAware)comparator).sortsNaturally())
+            return null;
         return comparator;
     }
 
