@@ -128,6 +128,11 @@ public class StringEncoding extends BuiltinEncoding<String> {
         return string1.compareTo(string2);
     }
 
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
+
 // Conversion
 
     @Override

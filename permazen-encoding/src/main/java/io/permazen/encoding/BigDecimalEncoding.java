@@ -195,4 +195,9 @@ public class BigDecimalEncoding extends BuiltinEncoding<BigDecimal> {
         return value1.signum() < 0 ?
           Integer.compare(value2.scale(), value1.scale()) : Integer.compare(value1.scale(), value2.scale());
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }

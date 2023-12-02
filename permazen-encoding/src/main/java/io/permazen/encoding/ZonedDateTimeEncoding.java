@@ -55,4 +55,9 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
     public String toParseableString(ZonedDateTime zonedDateTime) {
         return zonedDateTime.toString();
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }

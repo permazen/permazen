@@ -56,6 +56,11 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
         return this.primitive.compare(value1, value2);
     }
 
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
+
 // Conversion
 
     @Override

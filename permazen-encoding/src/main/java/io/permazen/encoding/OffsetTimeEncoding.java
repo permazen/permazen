@@ -58,4 +58,9 @@ public class OffsetTimeEncoding extends Concat2Encoding<OffsetTime, Long, ZoneOf
     public String toParseableString(OffsetTime offsetTime) {
         return offsetTime.toString();
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }

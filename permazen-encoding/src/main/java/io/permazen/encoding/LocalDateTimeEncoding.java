@@ -74,6 +74,11 @@ public class LocalDateTimeEncoding extends BuiltinEncoding<LocalDateTime> {
     }
 
     @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

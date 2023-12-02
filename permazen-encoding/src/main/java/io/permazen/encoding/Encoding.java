@@ -14,6 +14,7 @@ import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
+import io.permazen.util.NaturalSortAware;
 import io.permazen.util.ParseContext;
 
 import java.util.Comparator;
@@ -37,7 +38,7 @@ import java.util.Comparator;
  *  <li>They may have an {@link EncodingId}, which is a globally unique URN-style identifier that allows the encoding
  *      to be looked up by name in an {@link EncodingRegistry}. Encodings with no {@link EncodingId} are <i>anonymous</i>.
  *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
- *      then the two orderings do not necessarily have to agree, but they should if possible.</li>
+ *      then the two orderings do not necessarily have to agree, but they should if possible; see also {@link #sortsNaturally}.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
  *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
@@ -52,7 +53,7 @@ import java.util.Comparator;
  * </ul>
  *
  * <p>
- * Two {@link Encoding} instances should be equal according to {@link #equals equals()} if only if they behave identically
+ * Two {@link Encoding} instances should be equal according to {@link #equals equals()} only when they behave identically
  * with respect to all of the above.
  *
  * <p>
@@ -64,7 +65,7 @@ import java.util.Comparator;
  * @param <T> The associated Java type
  * @see EncodingRegistry
  */
-public interface Encoding<T> extends Comparator<T> {
+public interface Encoding<T> extends Comparator<T>, NaturalSortAware {
 
     /**
      * The maximum number of supported array dimensions ({@value #MAX_ARRAY_DIMENSIONS}).
@@ -306,6 +307,11 @@ public interface Encoding<T> extends Comparator<T> {
      */
     @Override
     int compare(T value1, T value2);
+
+    @Override
+    default boolean sortsNaturally() {
+        return false;
+    }
 
     /**
      * Determine whether this encoding supports null values.

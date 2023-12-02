@@ -68,4 +68,9 @@ public class UUIDEncoding extends BuiltinEncoding<UUID> {
     public int compare(UUID uuid1, UUID uuid2) {
         return uuid1.compareTo(uuid2);
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }

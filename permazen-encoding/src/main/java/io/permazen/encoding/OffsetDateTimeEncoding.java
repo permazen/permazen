@@ -52,4 +52,9 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
     public String toParseableString(OffsetDateTime offsetDateTime) {
         return offsetDateTime.toString();
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }

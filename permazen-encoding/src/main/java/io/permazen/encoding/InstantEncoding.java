@@ -71,6 +71,11 @@ public class InstantEncoding extends BuiltinEncoding<Instant> {
     }
 
     @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

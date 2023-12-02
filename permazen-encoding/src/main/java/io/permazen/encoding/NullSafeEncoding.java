@@ -182,6 +182,11 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
     }
 
     @Override
+    public boolean sortsNaturally() {
+        return inner.sortsNaturally();
+    }
+
+    @Override
     public boolean allowsNull() {
         return true;
     }

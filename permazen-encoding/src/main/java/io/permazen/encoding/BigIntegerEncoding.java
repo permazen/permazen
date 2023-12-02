@@ -107,4 +107,9 @@ public class BigIntegerEncoding extends BuiltinEncoding<BigInteger> {
     public int compare(BigInteger value1, BigInteger value2) {
         return value1.compareTo(value2);
     }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
+    }
 }
