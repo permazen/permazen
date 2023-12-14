@@ -148,7 +148,7 @@ public class ByteWriter {
      * @throws IndexOutOfBoundsException if {@code mark} is out of bounds
      */
     public void reset(int mark) {
-        Objects.checkIndex(mark, this.len);
+        Objects.checkFromIndexSize(0, mark, this.len);
         this.len = mark;
     }
 
