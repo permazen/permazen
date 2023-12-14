@@ -341,6 +341,12 @@ public abstract class TestSupport {
         return b == null ? "null" : ByteArrayEncoder.encode(b);
     }
 
+    protected void assertSameOrDiff(String expected, String actual) {
+        final String diff = this.diff(expected, actual);
+        if (diff != null)
+            throw new AssertionError("differences in strings found:\n" + diff);
+    }
+
     /**
      * Run {@code diff(1)} on two strings.
      *
