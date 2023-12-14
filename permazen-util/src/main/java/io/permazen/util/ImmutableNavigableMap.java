@@ -21,6 +21,10 @@ import java.util.Objects;
 /**
  * An immutable {@link NavigableMap} implementation optimized for read efficiency.
  *
+ * <p>
+ * Because the keys and values are stored in arrays, it's also possible to get the key and/or value by index;
+ * see {@link #getKey getKey()}, {@link #getValue getValue()}, and {@link #getEntry getEntry()}.
+ *
  * @param <K> key type
  * @param <V> value type
  */
@@ -33,6 +37,8 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
     private final int maxIndex;
     private final Comparator<? super K> comparator;
     private final Comparator<? super K> actualComparator;
+
+// Constructors
 
     /**
      * Constructor.
@@ -105,6 +111,44 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
         this.actualComparator = this.comparator != null ? this.comparator : (Comparator<K>)Comparator.naturalOrder();
         for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.keys[i - 1], this.keys[i]) < 0;
+    }
+
+// Extra Methods
+
+    /**
+     * Get the key at the specified index.
+     *
+     * @param index index into the ordered key array
+     * @return the key at the specified index
+     * @throws IndexOutOfBoundsException if {@code index} is negative or greater than or equal to {@link #size}
+     */
+    public K getKey(int index) {
+        Objects.checkIndex(index, this.size());
+        return this.keys[this.minIndex + index];
+    }
+
+    /**
+     * Get the value at the specified index.
+     *
+     * @param index index into the ordered value array
+     * @return the value at the specified index
+     * @throws IndexOutOfBoundsException if {@code index} is negative or greater than or equal to {@link #size}
+     */
+    public V getValue(int index) {
+        Objects.checkIndex(index, this.size());
+        return this.vals[this.minIndex + index];
+    }
+
+    /**
+     * Get the entry at the specified index.
+     *
+     * @param index index into the ordered entry array
+     * @return the entry at the specified index
+     * @throws IndexOutOfBoundsException if {@code index} is negative or greater than or equal to {@link #size}
+     */
+    public Map.Entry<K, V> getEntry(int index) {
+        Objects.checkIndex(index, this.size());
+        return this.createEntry(this.minIndex + index);
     }
 
     /**

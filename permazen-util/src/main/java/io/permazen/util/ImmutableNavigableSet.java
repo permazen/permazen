@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -19,6 +20,9 @@ import java.util.stream.StreamSupport;
 
 /**
  * An immutable {@link NavigableSet} implementation optimized for read efficiency.
+ *
+ * <p>
+ * Because the elements are stored in an array, it's also possible to get the element by index; see {@link #get get()}.
  *
  * @param <E> element type
  */
@@ -30,6 +34,8 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
     private final int maxIndex;
     private final Comparator<? super E> comparator;
     private final Comparator<? super E> actualComparator;
+
+// Constructors
 
     /**
      * Constructor.
@@ -95,6 +101,20 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
         this.actualComparator = this.comparator != null ? this.comparator : (Comparator<E>)Comparator.naturalOrder();
         for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.elems[i - 1], this.elems[i]) < 0;
+    }
+
+// Extra Methods
+
+    /**
+     * Get the element at the specified index.
+     *
+     * @param index index into the ordered element array
+     * @return the element at the specified index
+     * @throws IndexOutOfBoundsException if {@code index} is negative or greater than or equal to {@link #size}
+     */
+    public E get(int index) {
+        Objects.checkIndex(index, this.size());
+        return this.elems[this.minIndex + index];
     }
 
     /**
