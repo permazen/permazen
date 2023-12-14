@@ -14,6 +14,9 @@ import java.util.Objects;
  * Utility class used by {@link AbstractNavigableSet} and {@link AbstractNavigableMap} to define
  * the (optional) upper and lower bounds of a restricted range.
  *
+ * <p>
+ * Instances are immutable.
+ *
  * @param <T> Java type of range bounds
  */
 public class Bounds<T> {
@@ -231,28 +234,46 @@ public class Bounds<T> {
     }
 
     /**
-     * Determine whether the given new {@link Bounds} is within of the bounds of this instance.
+     * Determine whether the given {@link Bounds} are within of the bounds of this instance.
      *
      * @param comparator comparator used to compare values, or null for natural ordering
-     * @param newBounds new bounds
-     * @return true if {@code newBounds} is in range, false otherwise
-     * @throws IllegalArgumentException if {@code newBounds} is null
+     * @param other other bounds
+     * @return true if {@code other} is in range, false otherwise
+     * @throws IllegalArgumentException if {@code other} is null
      */
-    public boolean isWithinBounds(Comparator<? super T> comparator, Bounds<? extends T> newBounds) {
-        Preconditions.checkArgument(newBounds != null, "null newBounds");
+    public boolean isWithinBounds(Comparator<? super T> comparator, Bounds<? extends T> other) {
+        Preconditions.checkArgument(other != null, "null other");
 
         // Check lower bound, if any
-        if (newBounds.lowerBoundType != BoundType.NONE
-          && !this.isWithinBound(comparator, newBounds.lowerBound, newBounds.lowerBoundType.isInclusive(), false))
+        if (other.lowerBoundType != BoundType.NONE
+          && !this.isWithinBound(comparator, other.lowerBound, other.lowerBoundType.isInclusive(), false))
             return false;
 
         // Check upper bound, if any
-        if (newBounds.upperBoundType != BoundType.NONE
-          && !this.isWithinBound(comparator, newBounds.upperBound, newBounds.upperBoundType.isInclusive(), true))
+        if (other.upperBoundType != BoundType.NONE
+          && !this.isWithinBound(comparator, other.upperBound, other.upperBoundType.isInclusive(), true))
             return false;
 
         // OK
         return true;
+    }
+
+    /**
+     * Determine if this instance has bounds that are "inverted" with respect to the given {@link Comparator}.
+     *
+     * This instance is "inverted" if it has both lower and upper bounds and
+     * the lower bound's value is strictly greater than the upper bound's value.
+     *
+     * @param comparator comparator used to compare values, or null for natural ordering
+     * @return true if this instance is backwards
+     */
+    @SuppressWarnings("unchecked")
+    public boolean isInverted(Comparator<? super T> comparator) {
+        if (!this.hasLowerBound() || !this.hasUpperBound())
+            return false;
+        final int diff = comparator != null ?
+          comparator.compare(this.lowerBound, this.upperBound) : ((Comparable<T>)this.lowerBound).compareTo(this.upperBound);
+        return diff > 0;
     }
 
     /**
