@@ -147,6 +147,15 @@ public class ByteReader {
     }
 
     /**
+     * Read all the of remaining bytes and advance the read position to the end.
+     *
+     * @return copy of the remaining data
+     */
+    public byte[] readRemaining() {
+        return this.readBytes(this.remain());
+    }
+
+    /**
      * Get the number of bytes remaining.
      *
      * @return bytes remaining
