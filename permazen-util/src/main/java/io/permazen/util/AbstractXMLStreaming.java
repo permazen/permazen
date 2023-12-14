@@ -147,6 +147,40 @@ public abstract class AbstractXMLStreaming {
     }
 
     /**
+     * Start an empty XML element.
+     *
+     * @param writer XML output
+     * @param element element name
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeEmptyElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        writer.writeEmptyElement(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    /**
+     * Start a non-empty XML element.
+     *
+     * @param writer XML output
+     * @param element element name
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeStartElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        writer.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    /**
+     * Write out an attribute.
+     *
+     * @param writer XML output
+     * @param name attribute qualified name
+     * @param value attribute value
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeAttr(XMLStreamWriter writer, QName name, Object value) throws XMLStreamException {
+        writer.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), String.valueOf(value));
+    }
+
+    /**
      * Get an attribute from the current element.
      *
      * @param reader XML input
