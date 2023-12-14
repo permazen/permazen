@@ -10,8 +10,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.permazen.core.CollectionField;
 import io.permazen.util.Diffs;
 
-import java.util.Objects;
-import java.util.SortedMap;
+import java.util.NavigableMap;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -23,27 +22,32 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
 
     private SimpleSchemaField elementField;
 
+// Properties
+
+    /**
+     * Get this collection field's element sub-field.
+     *
+     * @return element sub-field
+     */
     public SimpleSchemaField getElementField() {
         return this.elementField;
     }
+
+    /**
+     * Set this collection field's element sub-field.
+     *
+     * @param elementField element sub-field
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setElementField(SimpleSchemaField elementField) {
         this.verifyNotLockedDown();
         this.elementField = elementField;
     }
 
-// Lockdown
-
-    @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
-        if (this.elementField != null)
-            this.elementField.lockDown();
-    }
-
 // ComplexSchemaField
 
     @Override
-    public SortedMap<String, SimpleSchemaField> getSubFields() {
+    public final NavigableMap<String, SimpleSchemaField> getSubFields() {
         return ImmutableSortedMap.of(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
     }
 
@@ -65,35 +69,15 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
         return diffs;
     }
 
-// Object
-
-    @Override
-    public String toString() {
-        return super.toString() + (this.elementField != null ? " with element " + this.elementField : "");
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        final CollectionSchemaField that = (CollectionSchemaField)obj;
-        return Objects.equals(this.elementField, that.elementField);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.elementField);
-    }
-
 // Cloneable
 
     @Override
     public CollectionSchemaField clone() {
         final CollectionSchemaField clone = (CollectionSchemaField)super.clone();
-        if (clone.elementField != null)
+        if (clone.elementField != null) {
             clone.elementField = clone.elementField.clone();
+            clone.elementField.setParent(clone);
+        }
         return clone;
     }
 }

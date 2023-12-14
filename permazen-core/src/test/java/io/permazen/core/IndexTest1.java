@@ -70,12 +70,13 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final String[] fieldNames = new String[] { "z", "b", "c", "s", "i", "f", "j", "d", "str", "r" };
 
         // Create objects
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
         final ObjId[] ids = new ObjId[numObjs];
         for (int i = 0; i < ids.length; i++)
-            ids[i] = tx.create(1);
+            ids[i] = tx.create("Foo");
         //this.showKV(tx, "testSimpleFieldIndexes: 1");
 
         // Build mapping of references
@@ -89,10 +90,10 @@ public class IndexTest1 extends CoreAPITestSupport {
         for (int i = 0; i < ids.length; i++) {
             for (int j = 0; j < this.valueMatrix.length; j++) {
                 final Object[] fieldValues = this.valueMatrix[j];
-                tx.writeSimpleField(ids[i], 10 + j, fieldValues[i % fieldValues.length], true);
+                tx.writeSimpleField(ids[i], fieldNames[j], fieldValues[i % fieldValues.length], true);
             }
             final int r = this.random.nextInt(refMax + 1);
-            tx.writeSimpleField(ids[i], 19, refMap.get(ids[i]), true);
+            tx.writeSimpleField(ids[i], "r", refMap.get(ids[i]), true);
         }
         //this.showKV(tx, "testSimpleFieldIndexes: 2");
 
@@ -109,7 +110,7 @@ public class IndexTest1 extends CoreAPITestSupport {
 
                 // Query index
                 //this.log.info("testSimpleFieldIndexes: checking for value `{}' in field #{}", value, 10 + i);
-                Assert.assertEquals(tx.queryIndex(10 + i).asMap().get(value), expected);
+                Assert.assertEquals(tx.querySimpleIndex(10 + i).asMap().get(value), expected);
             }
         }
 
@@ -127,17 +128,17 @@ public class IndexTest1 extends CoreAPITestSupport {
 
             // Query index
             //this.log.info("testSimpleFieldIndexes: checking for reference {} in field #19", ref);
-            Assert.assertEquals(tx.queryIndex(19).asMap().get(ref), !expected.isEmpty() ? expected : null);
+            Assert.assertEquals(tx.querySimpleIndex(19).asMap().get(ref), !expected.isEmpty() ? expected : null);
         }
 
         //this.showKV(tx, "testSimpleFieldIndexes: 3");
 
         // Verify non-reference indexes - values
         for (int i = 0; i < this.valueMatrix.length; i++)
-            this.verifyValues(tx, 10 + i, this.valueMatrix[i][0].getClass(), numObjs, this.valueMatrix[i]);
+            this.verifyValues(tx, fieldNames[i], this.valueMatrix[i][0].getClass(), numObjs, this.valueMatrix[i]);
 
         // Verify reference index - values
-        this.verifyValues(tx, 19, ObjId.class, numObjs, new HashSet<>(refMap.values()).toArray());
+        this.verifyValues(tx, "r", ObjId.class, numObjs, new HashSet<>(refMap.values()).toArray());
 
         tx.commit();
     }
@@ -164,6 +165,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final String[] fieldNames = new String[] { "z", "b", "c", "s", "i", "f", "j", "d", "str" };
 
         final Class<?>[] elementTypes = new Class<?>[] {
             boolean.class,
@@ -178,10 +180,10 @@ public class IndexTest1 extends CoreAPITestSupport {
         };
 
         // Create objects
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
         final ObjId[] ids = new ObjId[numObjs];
         for (int i = 0; i < ids.length; i++)
-            ids[i] = tx.create(1);
+            ids[i] = tx.create("Foo");
         //this.showKV(tx, "testArrayFieldIndexes: 1");
 
         // Set object fields
@@ -191,7 +193,7 @@ public class IndexTest1 extends CoreAPITestSupport {
                 final Object[] fieldValues = this.valueMatrix[j];
                 final Object array = Array.newInstance(elementType, 1);
                 Array.set(array, 0, fieldValues[i % fieldValues.length]);
-                tx.writeSimpleField(ids[i], 10 + j, array, true);
+                tx.writeSimpleField(ids[i], fieldNames[j], array, true);
             }
         }
         //this.showKV(tx, "testArrayFieldIndexes: 2");
@@ -212,7 +214,7 @@ public class IndexTest1 extends CoreAPITestSupport {
 
                 // Query index
                 //this.log.info("testArrayFieldIndexes: checking for array with `{}' in field #{}", value, 10 + i);
-                Assert.assertEquals(tx.queryIndex(10 + i).asMap().get(array), expected);
+                Assert.assertEquals(tx.querySimpleIndex(10 + i).asMap().get(array), expected);
             }
         }
 
@@ -222,10 +224,12 @@ public class IndexTest1 extends CoreAPITestSupport {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Comparable<T>> void verifyValues(Transaction tx, int storageId, Class<?> type0, int max, Object[] values) {
-        final Encoding<T> encoding = ((SimpleField<T>)tx.getSchema().getObjType(1).getField(storageId)).getEncoding();
+    private <T extends Comparable<T>> void verifyValues(Transaction tx,
+      String fieldName, Class<?> type0, int max, Object[] values) {
+        final SimpleField<T> field = (SimpleField<T>)tx.getSchema().getObjType("Foo").getField(fieldName);
+        final Encoding<T> encoding = field.getEncoding();
         final Class<T> type = (Class<T>)type0;
-        final ArrayList<T> actual = new ArrayList<>((NavigableSet<T>)tx.queryIndex(storageId).asMap().navigableKeySet());
+        final ArrayList<T> actual = new ArrayList<>(field.getIndex().getIndex(tx).asMap().navigableKeySet());
         final ArrayList<T> sorted = new ArrayList<>(actual);
         Collections.sort(sorted, encoding);
         Assert.assertEquals(actual, sorted, "actual = " + actual + ", sorted = " + sorted);
@@ -264,24 +268,24 @@ public class IndexTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
 
-        ObjId[] ids = new ObjId[] { null, tx.create(1), tx.create(1), tx.create(1) };
+        ObjId[] ids = new ObjId[] { null, tx.create("Foo"), tx.create("Foo"), tx.create("Foo") };
 
         for (int i = 1; i <= 3; i++) {
             final ObjId id = ids[i];
 
-            NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
+            NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, "set", true);
             set.add(100 + i);
             set.add(200 + i);
             set.add(300);
 
-            List<String> list = (List<String>)tx.readListField(id, 11, true);
+            List<String> list = (List<String>)tx.readListField(id, "list", true);
             list.add("foo" + i);
             list.add("bar" + i);
             list.add("jam");
 
-            NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
+            NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, "map", true);
             map.put(1000 + i, "valueA" + i);
             map.put(2000 + i, "valueB");
             map.put(3000, "valueC" + i);
@@ -290,16 +294,16 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     // Sets
 
-        Assert.assertEquals(tx.queryIndex(20).asMap().get(999), null);
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(101), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(102), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(103), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(201), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(202), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(203), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(20).asMap().get(300), buildSet(ids[1], ids[2], ids[3]));
+        Assert.assertEquals(tx.querySimpleIndex(20).asMap().get(999), null);
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(101), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(102), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(103), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(201), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(202), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(203), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().get(300), buildSet(ids[1], ids[2], ids[3]));
 
-        TestSupport.checkMap(tx.queryIndex(20).asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.querySimpleIndex(20).asMap(), buildSortedMap(
           101,  buildSortedSet(ids[1]),
           102,  buildSortedSet(ids[2]),
           103,  buildSortedSet(ids[3]),
@@ -310,16 +314,16 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     // Lists
 
-        Assert.assertEquals(tx.queryIndex(21).asMap().get("blah"), null);
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("foo1"), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("foo2"), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("foo3"), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("bar1"), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("bar2"), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("bar3"), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().get("jam"), buildSet(ids[1], ids[2], ids[3]));
+        Assert.assertEquals(tx.querySimpleIndex(21).asMap().get("blah"), null);
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("foo1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("foo2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("foo3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("bar1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("bar2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("bar3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().get("jam"), buildSet(ids[1], ids[2], ids[3]));
 
-        TestSupport.checkMap(tx.queryIndex(21).asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.querySimpleIndex(21).asMap(), buildSortedMap(
           "foo1",   buildSortedSet(ids[1]),
           "foo2",   buildSortedSet(ids[2]),
           "foo3",   buildSortedSet(ids[3]),
@@ -353,17 +357,17 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     // Map Keys
 
-        Assert.assertEquals(tx.queryIndex(22).asMap().get(999), null);
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1001), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1002), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1003), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2001), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2002), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2003), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(3000), buildSet(ids[1], ids[2], ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(4000), buildSet(ids[1], ids[2], ids[3]));
+        Assert.assertEquals(tx.querySimpleIndex(22).asMap().get(999), null);
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1001), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1002), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1003), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2001), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2002), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2003), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(3000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(4000), buildSet(ids[1], ids[2], ids[3]));
 
-        TestSupport.checkMap(tx.queryIndex(22).asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.querySimpleIndex(22).asMap(), buildSortedMap(
           1001,     buildSortedSet(ids[1]),
           1002,     buildSortedSet(ids[2]),
           1003,     buildSortedSet(ids[3]),
@@ -373,23 +377,23 @@ public class IndexTest1 extends CoreAPITestSupport {
           3000,     buildSortedSet(ids[1], ids[2], ids[3]),
           4000,     buildSortedSet(ids[1], ids[2], ids[3])));
 
-        Assert.assertEquals(tx.queryIndex(22).asMap().get(999), null);
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1001),
+        Assert.assertEquals(tx.querySimpleIndex(22).asMap().get(999), null);
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1001),
           buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1002),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1002),
           buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(1003),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(1003),
           buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2001),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2001),
           buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2002),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2002),
           buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(2003),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(2003),
           buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(3000), buildSet(ids[1], ids[2], ids[3]));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().get(4000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(3000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().get(4000), buildSet(ids[1], ids[2], ids[3]));
 
-        TestSupport.checkMap(tx.queryIndex(22).asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.querySimpleIndex(22).asMap(), buildSortedMap(
           1001,     buildSet(ids[1]),
           1002,     buildSet(ids[2]),
           1003,     buildSet(ids[3]),
@@ -401,17 +405,17 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     // Map Values
 
-        Assert.assertEquals(tx.queryIndex(23).asMap().get("blah"), null);
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueA1"), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueA2"), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueA3"), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueB"), buildSet(ids[1], ids[2], ids[3]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueC1"), buildSet(ids[1]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueC2"), buildSet(ids[2]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueC3"), buildSet(ids[3]));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().get("valueD"), buildSet(ids[1], ids[2], ids[3]));
+        Assert.assertEquals(tx.querySimpleIndex(23).asMap().get("blah"), null);
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueA1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueA2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueA3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueB"), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueC1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueC2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueC3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().get("valueD"), buildSet(ids[1], ids[2], ids[3]));
 
-        TestSupport.checkMap(tx.queryIndex(23).asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.querySimpleIndex(23).asMap(), buildSortedMap(
           "valueA1",    buildSortedSet(ids[1]),
           "valueA2",    buildSortedSet(ids[2]),
           "valueA3",    buildSortedSet(ids[3]),
@@ -483,13 +487,13 @@ public class IndexTest1 extends CoreAPITestSupport {
 
     // Values
 
-        TestSupport.checkSet(tx.queryIndex(20).asMap().navigableKeySet(),
+        TestSupport.checkSet(tx.querySimpleIndex(20).asMap().navigableKeySet(),
           buildSortedSet(101, 102, 103, 201, 202, 203, 300));
-        TestSupport.checkSet(tx.queryIndex(21).asMap().navigableKeySet(),
+        TestSupport.checkSet(tx.querySimpleIndex(21).asMap().navigableKeySet(),
           buildSortedSet("foo1", "foo2", "foo3", "bar1", "bar2", "bar3", "jam"));
-        TestSupport.checkSet(tx.queryIndex(22).asMap().navigableKeySet(),
+        TestSupport.checkSet(tx.querySimpleIndex(22).asMap().navigableKeySet(),
           buildSortedSet(1001, 1002, 1003, 2001, 2002, 2003, 3000, 4000));
-        TestSupport.checkSet(tx.queryIndex(23).asMap().navigableKeySet(),
+        TestSupport.checkSet(tx.querySimpleIndex(23).asMap().navigableKeySet(),
           buildSortedSet("valueA1", "valueA2", "valueA3", "valueB", "valueC1", "valueC2", "valueC3", "valueD"));
     }
 }

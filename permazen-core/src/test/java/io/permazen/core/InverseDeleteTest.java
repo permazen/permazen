@@ -66,18 +66,20 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // Referencefield
 
-            tx = db.createTransaction(schema, 1, true);
+            tx = db.createTransaction(schema);
 
-            id1 = tx.create(1);
-            id2 = tx.create(1);
-            id3 = tx.create(1);
+            id1 = tx.create("Foo");
+            id2 = tx.create("Foo");
+            id3 = tx.create("Foo");
 
-            tx.writeSimpleField(id1, 2, id2, true);
-            tx.writeSimpleField(id2, 2, id3, true);
-            tx.writeSimpleField(id3, 2, id1, true);
-            Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
-            Assert.assertEquals(tx.readSimpleField(id2, 2, true), id3);
-            Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
+            this.log.debug("id1={} id2={} id3={}", id1, id2, id3);
+
+            tx.writeSimpleField(id1, "ref", id2, true);
+            tx.writeSimpleField(id2, "ref", id3, true);
+            tx.writeSimpleField(id3, "ref", id1, true);
+            Assert.assertEquals(tx.readSimpleField(id1, "ref", true), id2);
+            Assert.assertEquals(tx.readSimpleField(id2, "ref", true), id3);
+            Assert.assertEquals(tx.readSimpleField(id3, "ref", true), id1);
 
             try {
                 tx.delete(id2);
@@ -90,23 +92,23 @@ public class InverseDeleteTest extends CoreAPITestSupport {
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
-                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, "ref", true), id2);
+                Assert.assertEquals(tx.readSimpleField(id3, "ref", true), id1);
                 break;
             case EXCEPTION:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
-                Assert.assertEquals(tx.readSimpleField(id2, 2, true), id3);
-                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, "ref", true), id2);
+                Assert.assertEquals(tx.readSimpleField(id2, "ref", true), id3);
+                Assert.assertEquals(tx.readSimpleField(id3, "ref", true), id1);
                 break;
             case UNREFERENCE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2, true), null);
-                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, "ref", true), null);
+                Assert.assertEquals(tx.readSimpleField(id3, "ref", true), id1);
                 break;
             case DELETE:
                 Assert.assertFalse(tx.exists(id1));
@@ -122,13 +124,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // Set
 
-            tx = db.createTransaction(schema, 1, true);
+            tx = db.createTransaction(schema);
 
-            id1 = tx.create(1);
-            id2 = tx.create(1);
-            id3 = tx.create(1);
+            id1 = tx.create("Foo");
+            id2 = tx.create("Foo");
+            id3 = tx.create("Foo");
 
-            NavigableSet<ObjId> set = (NavigableSet<ObjId>)tx.readSetField(id1, 10, true);
+            NavigableSet<ObjId> set = (NavigableSet<ObjId>)tx.readSetField(id1, "set", true);
             set.add(id1);
             set.add(id2);
             set.add(id3);
@@ -173,13 +175,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // List
 
-            tx = db.createTransaction(schema, 1, true);
+            tx = db.createTransaction(schema);
 
-            id1 = tx.create(1);
-            id2 = tx.create(1);
-            id3 = tx.create(1);
+            id1 = tx.create("Foo");
+            id2 = tx.create("Foo");
+            id3 = tx.create("Foo");
 
-            List<ObjId> list = (List<ObjId>)tx.readListField(id1, 11, true);
+            List<ObjId> list = (List<ObjId>)tx.readListField(id1, "list", true);
             list.add(id1);
             list.add(id2);
             list.add(id3);
@@ -224,13 +226,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // Map Key
 
-            tx = db.createTransaction(schema, 1, true);
+            tx = db.createTransaction(schema);
 
-            id1 = tx.create(1);
-            id2 = tx.create(1);
-            id3 = tx.create(1);
+            id1 = tx.create("Foo");
+            id2 = tx.create("Foo");
+            id3 = tx.create("Foo");
 
-            NavigableMap<ObjId, Integer> map1 = (NavigableMap<ObjId, Integer>)tx.readMapField(id1, 12, true);
+            NavigableMap<ObjId, Integer> map1 = (NavigableMap<ObjId, Integer>)tx.readMapField(id1, "map1", true);
             map1.put(id1, 123);
             map1.put(id2, 456);
             map1.put(id3, 789);
@@ -280,13 +282,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // Map Value
 
-            tx = db.createTransaction(schema, 1, true);
+            tx = db.createTransaction(schema);
 
-            id1 = tx.create(1);
-            id2 = tx.create(1);
-            id3 = tx.create(1);
+            id1 = tx.create("Foo");
+            id2 = tx.create("Foo");
+            id3 = tx.create("Foo");
 
-            NavigableMap<Integer, ObjId> map2 = (NavigableMap<Integer, ObjId>)tx.readMapField(id1, 13, true);
+            NavigableMap<Integer, ObjId> map2 = (NavigableMap<Integer, ObjId>)tx.readMapField(id1, "map2", true);
             map2.put(123, id1);
             map2.put(456, id2);
             map2.put(789, id3);
@@ -363,29 +365,29 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         ObjId target;
         ObjId other1;
         ObjId other2;
-        Transaction tx = db.createTransaction(schemas[0], 1, true);
-        target = tx.create(1);
-        tx.writeSimpleField(target, 3, "target", false);
-        other1 = tx.create(1);
-        tx.writeSimpleField(other1, 3, "other1", false);
-        tx.writeSimpleField(other1, 2, target, false);
-        other2 = tx.create(1);
-        tx.writeSimpleField(other2, 3, "other2", false);
-        ((NavigableSet<ObjId>)tx.readSetField(target, 10, true)).add(target);
-        ((NavigableSet<ObjId>)tx.readSetField(other2, 10, true)).add(target);
-        ((NavigableSet<ObjId>)tx.readSetField(other2, 10, true)).add(other1);
-        ((List<ObjId>)tx.readListField(target, 11, false)).add(target);
-        ((List<ObjId>)tx.readListField(target, 11, false)).add(target);
-        ((List<ObjId>)tx.readListField(other1, 11, false)).add(target);
-        ((List<ObjId>)tx.readListField(other1, 11, false)).add(other2);
-        ((List<ObjId>)tx.readListField(other1, 11, false)).add(target);
-        ((NavigableMap<ObjId, Integer>)tx.readMapField(target, 12, false)).put(target, 99);
-        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, 12, false)).put(other1, 123);
-        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, 12, false)).put(target, 456);
-        ((NavigableMap<Integer, ObjId>)tx.readMapField(target, 13, false)).put(88, target);
-        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(789, target);
-        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(123, other2);
-        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(636, target);
+        Transaction tx = db.createTransaction(schemas[0]);
+        target = tx.create("Foo");
+        tx.writeSimpleField(target, "name", "target", false);
+        other1 = tx.create("Foo");
+        tx.writeSimpleField(other1, "name", "other1", false);
+        tx.writeSimpleField(other1, "ref", target, false);
+        other2 = tx.create("Foo");
+        tx.writeSimpleField(other2, "name", "other2", false);
+        ((NavigableSet<ObjId>)tx.readSetField(target, "set", true)).add(target);
+        ((NavigableSet<ObjId>)tx.readSetField(other2, "set", true)).add(target);
+        ((NavigableSet<ObjId>)tx.readSetField(other2, "set", true)).add(other1);
+        ((List<ObjId>)tx.readListField(target, "list", false)).add(target);
+        ((List<ObjId>)tx.readListField(target, "list", false)).add(target);
+        ((List<ObjId>)tx.readListField(other1, "list", false)).add(target);
+        ((List<ObjId>)tx.readListField(other1, "list", false)).add(other2);
+        ((List<ObjId>)tx.readListField(other1, "list", false)).add(target);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(target, "map1", false)).put(target, 99);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, "map1", false)).put(other1, 123);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, "map1", false)).put(target, 456);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(target, "map2", false)).put(88, target);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, "map2", false)).put(789, target);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, "map2", false)).put(123, other2);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, "map2", false)).put(636, target);
         tx.commit();
 
         // Create referring objects and schema versions
@@ -393,23 +395,23 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         ObjId[] referrers = new ObjId[4];
         for (DeleteAction inverseDelete : DeleteAction.values()) {
             final int i = inverseDelete.ordinal();
-            tx = db.createTransaction(schemas[i], i + 1, true);
-            referrers[i] = tx.create(1);
-            tx.writeSimpleField(referrers[i], 3, "referrers[" + i + "]", false);
-            tx.writeSimpleField(referrers[i], 2, target, false);
-            ((NavigableSet<ObjId>)tx.readSetField(referrers[i], 10, true)).add(target);
-            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(target);
-            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(referrers[i]);
-            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(target);
-            ((NavigableMap<ObjId, Integer>)tx.readMapField(referrers[i], 12, false)).put(target, 343);
-            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(452, target);
-            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(453, referrers[i]);
-            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(454, target);
+            tx = db.createTransaction(schemas[i]);
+            referrers[i] = tx.create("Foo");
+            tx.writeSimpleField(referrers[i], "name", "referrers[" + i + "]", false);
+            tx.writeSimpleField(referrers[i], "ref", target, false);
+            ((NavigableSet<ObjId>)tx.readSetField(referrers[i], "set", true)).add(target);
+            ((List<ObjId>)tx.readListField(referrers[i], "list", false)).add(target);
+            ((List<ObjId>)tx.readListField(referrers[i], "list", false)).add(referrers[i]);
+            ((List<ObjId>)tx.readListField(referrers[i], "list", false)).add(target);
+            ((NavigableMap<ObjId, Integer>)tx.readMapField(referrers[i], "map1", false)).put(target, 343);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], "map2", false)).put(452, target);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], "map2", false)).put(453, referrers[i]);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], "map2", false)).put(454, target);
             tx.commit();
         }
 
         // Try to delete target - should fail due to referrers[1] inverseDelete=EXCEPTION
-        tx = db.createTransaction(schemas[0], 1, false);
+        tx = db.createTransaction(schemas[0]);
         try {
             tx.delete(target);
             assert false : "expected ReferencedObjectException";
@@ -422,13 +424,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         tx.delete(target);
 
         // Verify all indexes were updated properly
-        TestSupport.checkMap(tx.queryVersion().asMap(), buildMap(
+        TestSupport.checkMap(tx.querySchemaIndex().asMap(), buildMap(
           1, buildSet(other1, other2, referrers[0]),
           3, buildSet(referrers[2])));
-        TestSupport.checkMap(tx.queryIndex(2).asMap(), buildMap(
+        TestSupport.checkMap(tx.querySimpleIndex(2).asMap(), buildMap(
           target, buildSet(referrers[0], other1),
           null, buildSet(other2, referrers[2])));
-        TestSupport.checkMap(tx.queryIndex(20).asMap(), buildMap(
+        TestSupport.checkMap(tx.querySimpleIndex(20).asMap(), buildMap(
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
         TestSupport.checkSet(tx.queryListElementIndex(21).asSet(), buildSet(
@@ -439,7 +441,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
           new Tuple3<>(other2, other1, 1),
           new Tuple3<>(referrers[0], referrers[0], 1),
           new Tuple3<>(referrers[2], referrers[2], 0)));
-        TestSupport.checkMap(tx.queryIndex(22).asMap(), buildMap(
+        TestSupport.checkMap(tx.querySimpleIndex(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
         TestSupport.checkSet(tx.queryMapValueIndex(25).asSet(), buildSet(

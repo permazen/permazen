@@ -11,6 +11,8 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
+import io.permazen.schema.MapSchemaField;
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
@@ -38,20 +40,9 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     final SimpleField<K> keyField;
     final SimpleField<V> valueField;
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field content storage ID
-     * @param schema schema version
-     * @param keyField this field's key sub-field
-     * @param valueField this field's value sub-field
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
     @SuppressWarnings("serial")
-    MapField(String name, int storageId, Schema schema, SimpleField<K> keyField, SimpleField<V> valueField) {
-        super(name, storageId, schema, new TypeToken<NavigableMap<K, V>>() { }
+    MapField(Schema schema, MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
+        super(schema, field, new TypeToken<NavigableMap<K, V>>() { }
           .where(new TypeParameter<K>() { }, keyField.typeToken.wrap())
           .where(new TypeParameter<V>() { }, valueField.typeToken.wrap()));
         this.keyField = keyField;
@@ -82,6 +73,28 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         return this.valueField;
     }
 
+    /**
+     * Get the index on this fields's {@value #KEY_FIELD_NAME} sub-field.
+     *
+     * @return the index on this field's {@value #KEY_FIELD_NAME} sub-field
+     * @throws UnknownIndexException if there is no index on the {@value #KEY_FIELD_NAME} sub-field
+     */
+    @SuppressWarnings("unchecked")
+    public MapKeyIndex<K, V> getMapKeyIndex() {
+        return (MapKeyIndex<K, V>)this.keyField.getIndex();
+    }
+
+    /**
+     * Get the index on this fields's {@value #VALUE_FIELD_NAME} sub-field.
+     *
+     * @return the index on this field's {@value #VALUE_FIELD_NAME} sub-field
+     * @throws UnknownIndexException if there is no index on the {@value #VALUE_FIELD_NAME} sub-field
+     */
+    @SuppressWarnings("unchecked")
+    public MapValueIndex<K, V> getMapValueIndex() {
+        return (MapValueIndex<K, V>)this.valueField.getIndex();
+    }
+
     @Override
     public List<SimpleField<?>> getSubFields() {
         final ArrayList<SimpleField<?>> list = new ArrayList<>(2);
@@ -94,7 +107,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @SuppressWarnings("unchecked")
     public NavigableMap<K, V> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
-        return (NavigableMap<K, V>)tx.readMapField(id, this.storageId, false);
+        return (NavigableMap<K, V>)tx.readMapField(id, this.name, false);
     }
 
     @Override
@@ -110,14 +123,28 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseMapField(this);
     }
 
-// Non-public methods
+// Package Methods
+
+    @Override
+    ComplexSubFieldIndex<NavigableMap<K, V>, ?> createSubFieldIndex(
+      Schema schema, SimpleSchemaField schemaField, ObjType objType, SimpleField<?> field) {
+        Preconditions.checkArgument(schemaField != null, "null schemaField");
+        Preconditions.checkArgument(field != null, "null field");
+        if (field == this.keyField)
+            return new MapKeyIndex<>(schema, schemaField, objType, this);
+        if (field == this.valueField)
+            return new MapValueIndex<>(schema, schemaField, objType, this);
+        throw new IllegalArgumentException("wrong sub-field");
+    }
 
     @Override
     @SuppressWarnings("unchecked")
     <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField) {
+        Preconditions.checkArgument(subField != null, "null subField");
         if (subField == this.keyField)
             return (Iterable<F>)this.getValue(tx, id).keySet();
         if (subField == this.valueField)
@@ -133,15 +160,6 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @Override
     NavigableMap<K, V> getValueReadOnlyCopy(Transaction tx, ObjId id) {
         return Collections.unmodifiableNavigableMap(new TreeMap<K, V>(this.getValueInternal(tx, id)));
-    }
-
-    @Override
-    ComplexSubFieldStorageInfo<?, ?> toStorageInfo(SimpleField<?> subField) {
-        if (subField == this.keyField)
-            return new MapKeyStorageInfo<K>(this);
-        if (subField == this.valueField)
-            return new MapValueStorageInfo<K, V>(this);
-        throw new IllegalArgumentException("unknown sub-field");
     }
 
     @Override
@@ -228,14 +246,5 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
             if (ref != null && removedStorageIds.contains(ref.getStorageId()))
                 i.remove();
         }
-    }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final MapField<?, ?> that = (MapField<?, ?>)field;
-        return this.keyField.isUpgradeCompatible(that.keyField)
-          && this.valueField.isUpgradeCompatible(that.valueField);
     }
 }

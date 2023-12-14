@@ -6,6 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
@@ -34,6 +35,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId1 = schema1.getSchemaId();
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -42,39 +44,40 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId2 = schema2.getSchemaId();
 
         final Database db = new Database(kvstore);
 
     // Version 1
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
 
-        final ObjId id1 = tx.create(1);
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, 2, true);
+        final ObjId id1 = tx.create("Foo");
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, "set", true);
         set.add(123);
 
         TestSupport.checkSet(set, buildSet(123));
-        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap(123, buildSet(id1)));
+        TestSupport.checkMap(tx.querySimpleIndex(3).asMap(), buildMap(123, buildSet(id1)));
 
         tx.commit();
 
     // Version 2
 
-        tx = db.createTransaction(schema2, 2, true);
+        tx = db.createTransaction(schema2);
 
-        Assert.assertEquals(tx.getSchemaVersion(id1), 1);
-        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap(123, buildSet(id1)));
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId1);
+        TestSupport.checkMap(tx.querySimpleIndex(3).asMap(), buildMap(123, buildSet(id1)));
 
-        tx.updateSchemaVersion(id1);
+        tx.migrateSchema(id1);
 
-        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId2);
         try {
-            tx.readSetField(id1, 2, true);
+            tx.readSetField(id1, "set", true);
             assert false : "expected UnknownFieldException";
         } catch (UnknownFieldException e) {
             this.log.info("got expected {}", e.toString());
         }
-        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap());        // verify index is now empty!
+        TestSupport.checkMap(tx.querySimpleIndex(3).asMap(), buildMap());        // verify index is now empty!
 
         tx.commit();
     }

@@ -8,14 +8,12 @@ package io.permazen.schema;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.SchemaItem;
 import io.permazen.util.Diffs;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiPredicate;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -23,21 +21,41 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.
+ * Support superclass for schema items that have names.
  */
-public abstract class AbstractSchemaItem extends SchemaSupport {
+public abstract class SchemaItem extends SchemaSupport {
+
+    /**
+     * The regular expression that all schema item names must match.
+     *
+     * <p>
+     * This pattern is the same as is required for Java identifiers.
+     */
+    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
     private String name;
     private int storageId;
 
+// Properties
+
     /**
      * Get the name associated with this instance, if any.
+     *
+     * <p>
+     * All names must match {@link #NAME_PATTERN}.
      *
      * @return the name of this instance, or null if it has none
      */
     public String getName() {
         return this.name;
     }
+
+    /**
+     * Set the name associated with this instance.
+     *
+     * @param name name of this instance
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setName(String name) {
         this.verifyNotLockedDown();
         this.name = name;
@@ -45,13 +63,22 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
 
     /**
      * Get the storage ID associated with this instance.
-     * Storage IDs must be positive values.
      *
-     * @return the storage ID for this instance
+     * @return the storage ID for this instance, or zero to have one automatically assigned
      */
     public int getStorageId() {
         return this.storageId;
     }
+
+    /**
+     * Set the storage ID associated with this instance.
+     *
+     * <p>
+     * The default value of zero means one should be automatically assigned when the schema is registered into a database.
+     *
+     * @param storageId storage ID for this instance, or zero for automatica assignment
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setStorageId(int storageId) {
         this.verifyNotLockedDown();
         this.storageId = storageId;
@@ -61,44 +88,39 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
 
     void validate() {
         if (name == null)
-            throw new InvalidSchemaException(this + " must specify a name");
-        if (!name.matches(SchemaItem.NAME_PATTERN))
-            throw new InvalidSchemaException(this + " has an invalid name \"" + name + "\"");
-        if (this.storageId <= 0)
-            throw new InvalidSchemaException(this + " has an invalid storage ID " + this.storageId + "; must be greater than zero");
+            throw new InvalidSchemaException(String.format("%s must specify a name", this));
+        if (this.storageId < 0)
+            throw new InvalidSchemaException(String.format("%s has an invalid storage ID %d", this, this.storageId));
+        if (!name.matches(NAME_PATTERN))
+            throw new InvalidSchemaException(String.format("%s has an invalid name \"%s\"", this, name));
     }
 
-// Compatibility
+// Structural Compatibility
 
-    static <K, V> boolean isAll(Map<K, V> map1, Map<K, V> map2, BiPredicate<V, V> checker) {
-        if (!map1.keySet().equals(map2.keySet()))
-            return false;
-        for (Map.Entry<K, V> entry : map1.entrySet()) {
-            final K key = entry.getKey();
-            final V value1 = entry.getValue();
-            final V value2 = map2.get(key);
-            if (value1 == null || value2 == null || !checker.test(value1, value2))
-                return false;
-        }
-        return true;
+    @Override
+    final void writeSchemaIdHashData(DataOutputStream output) throws IOException {
+        this.writeSchemaIdHashData(output, false);
     }
 
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        output.writeUTF(this.getClass().getSimpleName());
-        output.writeInt(this.storageId);
+    // In general, we compute different hashes for SchemaItem's vs. for SchemaModel's
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output);
+        if (this.name != null)
+            output.writeUTF(this.name);
     }
 
 // DiffGenerating
 
-    protected Diffs differencesFrom(AbstractSchemaItem that) {
+    protected Diffs differencesFrom(SchemaItem that) {
         Preconditions.checkArgument(that != null, "null that");
         final Diffs diffs = new Diffs();
-        if (!(this.name != null ? this.name.equals(that.name) : that.name == null)) {
-            diffs.add("changed name from " + (that.name != null ? "\"" + that.name + "\"" : null)
-              + " to " + (this.name != null ? "\"" + this.name + "\"" : null));
+        if (!Objects.equals(this.name, that.name)) {
+            diffs.add(String.format("changed name from %s to %s",
+              that.name != null ? "\"" + that.name + "\"" : null,
+              this.name != null ? "\"" + this.name + "\"" : null));
         }
         if (this.storageId != that.storageId)
-            diffs.add("changed storage ID from " + that.storageId + " to " + this.storageId);
+            diffs.add(String.format("changed storage ID from %d to %d", that.storageId, this.storageId));
         return diffs;
     }
 
@@ -108,42 +130,46 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
      * Read in this item's XML.
      *
      * <p>
-     * The implementation in {@link AbstractSchemaItem} invokes {@link #readAttributes readAttributes()}
+     * The implementation in {@link SchemaItem} invokes {@link #readAttributes readAttributes()}
      * followed by {@link #readSubElements readSubElements()}.
      *
      * <p>
      * Start state: positioned at opening XML tag.
      * Return state: positioned at closing XML tag.
      */
-    void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        this.readAttributes(reader, formatVersion);
+    void readXML(XMLStreamReader reader, int formatVersion, boolean requireName) throws XMLStreamException {
+        this.readAttributes(reader, formatVersion, requireName);
         this.readSubElements(reader, formatVersion);
+    }
+
+    void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        this.readXML(reader, formatVersion, true);
     }
 
     /**
      * Read in this item's start tag attributes.
      *
      * <p>
-     * The implementation in {@link AbstractSchemaItem} reads in required storage ID and name attributes.
+     * The implementation in {@link SchemaItem} reads in an optional name attribute.
      *
      * <p>
      * Start state: positioned at opening XML tag.
      * Return state: same.
      */
-    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+    void readAttributes(XMLStreamReader reader, int formatVersion, boolean requireName) throws XMLStreamException {
+        final String nameAttr = this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE, requireName);
+        if (nameAttr != null)
+            this.setName(nameAttr);
         final Integer storageIdAttr = this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE, false);
         if (storageIdAttr != null)
             this.setStorageId(storageIdAttr);
-        final String nameAttr = this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE, false);
-        if (nameAttr != null)
-            this.setName(nameAttr);
     }
 
     /**
      * Read in this item's sub-elements.
      *
      * <p>
-     * The implementation in {@link AbstractSchemaItem} expects no sub-elements.
+     * The implementation in {@link SchemaItem} expects no sub-elements.
      *
      * <p>
      * Start state: positioned at opening XML tag.
@@ -176,7 +202,7 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
                 }
             }
         }
-        throw new RuntimeException("internal error: didn't find " + reader.getName() + " in tagMap");
+        throw new RuntimeException("internal error: didn't find " + reader.getName());
     }
 
     /**
@@ -194,33 +220,42 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
         try {
             return Enum.valueOf(type, text);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException("invalid value \"" + text
-              + "\" for \"" + name.getLocalPart() + "\" attribute in " + this, reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "invalid value \"%s\" for \"%s\" attribute in %s", text, name.getLocalPart(), this),
+              reader.getLocation());
         }
     }
 
 // XML Writing
 
-    abstract void writeXML(XMLStreamWriter writer) throws XMLStreamException;
+    abstract void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException;
+
+    void writeStartItemElement(XMLStreamWriter writer) throws XMLStreamException {
+        this.writeStartElement(writer, this.getItemType().getElementName());
+    }
+
+    void writeEmptyItemElement(XMLStreamWriter writer) throws XMLStreamException {
+        this.writeEmptyElement(writer, this.getItemType().getElementName());
+    }
 
     final void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
         this.writeAttributes(writer, true);
     }
 
     void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
-          XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
-        if (includeName && this.name != null) {
-            writer.writeAttribute(XMLConstants.NAME_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.NAME_ATTRIBUTE.getLocalPart(), this.name);
-        }
+        if (this.storageId != 0)
+            this.writeAttr(writer, XMLConstants.STORAGE_ID_ATTRIBUTE, this.storageId);
+        if (includeName && this.name != null)
+            this.writeAttr(writer, XMLConstants.NAME_ATTRIBUTE, this.name);
     }
 
 // Object
 
     @Override
-    public String toString() {
-        return "#" + this.storageId + (this.name != null ? " \"" + this.name + "\"" : "");
+    public abstract String toString();
+
+    String toStringName() {
+        return this.name != null ? "\"" + this.name + "\"" : "(anonymous)";
     }
 
     @Override
@@ -229,8 +264,9 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final AbstractSchemaItem that = (AbstractSchemaItem)obj;
-        return Objects.equals(this.name, that.name) && this.storageId == that.storageId;
+        final SchemaItem that = (SchemaItem)obj;
+        return Objects.equals(this.name, that.name)
+          && this.storageId == that.storageId;
     }
 
     @Override
@@ -243,7 +279,7 @@ public abstract class AbstractSchemaItem extends SchemaSupport {
 // Cloneable
 
     @Override
-    protected AbstractSchemaItem clone() {
-        return (AbstractSchemaItem)super.clone();
+    protected SchemaItem clone() {
+        return (SchemaItem)super.clone();
     }
 }

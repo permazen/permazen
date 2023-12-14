@@ -51,9 +51,9 @@ public class UserMetaDataTest extends CoreAPITestSupport {
 
     // Setup tx
 
-        final Transaction tx = db.createTransaction(schema, 1, true);
+        final Transaction tx = db.createTransaction(schema);
 
-        tx.create(1);
+        tx.create("Foo");
 
         tx.commit();
 

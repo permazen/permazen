@@ -10,171 +10,219 @@ import com.google.common.base.Preconditions;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
- * Contains information describing one schema version.
+ * Reflects one {@link Schema} recorded in a {@link Database} as seen by a particular {@link Transaction}.
+ *
+ * <p>
+ * Instances are immutable and thread safe.
  */
 public class Schema {
 
-    final int versionNumber;
-    final byte[] encodedXML;
-    final SchemaModel schemaModel;
-    final TreeMap<Integer, ObjType> objTypeMap = new TreeMap<>();
-    final TreeMap<Integer, StorageInfo> storageInfoMap = new TreeMap<>();
-    final ArrayList<HashMap<ReferenceField, KeyRanges>> deleteActionKeyRanges = new ArrayList<>(DeleteAction.values().length);
+    private final int schemaIndex;
+    private final SchemaModel schemaModel;
+    private final SchemaBundle schemaBundle;
+    private final TreeMap<String, ObjType> objTypesByName = new TreeMap<>();
+    private final HashMap<Integer, ObjType> objTypesByStorageId = new HashMap<>();
 
-    /**
-     * Constructor.
-     *
-     * @throws IllegalArgumentException if a storage ID is used twice
-     */
-    Schema(int versionNumber, byte[] encodedXML, SchemaModel schemaModel, EncodingRegistry encodingRegistry) {
+    // Maps each DeleteAction to a map from reference field to key ranges of object types that have the field with that action
+    private final EnumMap<DeleteAction, Map<ReferenceField, KeyRanges>> deleteActionKeyRanges = new EnumMap<>(DeleteAction.class);
+
+// Constructor
+
+    Schema(SchemaBundle schemaBundle, int schemaIndex, SchemaModel schemaModel) {
 
         // Sanity check
-        Preconditions.checkArgument(versionNumber > 0, "non-positive versionNumber");
-        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
-        this.versionNumber = versionNumber;
-        this.encodedXML = encodedXML;
-        final SchemaModel lockedDownSchemaModel;
-        if (schemaModel.isLockedDown())
-            lockedDownSchemaModel = schemaModel;
-        else {
-            lockedDownSchemaModel = schemaModel.clone();
-            lockedDownSchemaModel.lockDown();
-        }
-        this.schemaModel = lockedDownSchemaModel;
+        Preconditions.checkArgument(schemaBundle != null, "null schemaBundle");
+        Preconditions.checkArgument(schemaIndex > 0, "non-positive schemaIndex");
+        Preconditions.checkArgument(schemaModel.isLockedDown(), "schemaModel not locked down");
+        schemaModel.validate();                             // this should already be done so this should be quick
 
-        // Build object types
-        for (SchemaObjectType schemaObjectType : this.schemaModel.getSchemaObjectTypes().values()) {
-            final ObjType objType = new ObjType(schemaObjectType, this, encodingRegistry);
-            final int storageId = objType.getStorageId();
-            final ObjType otherObjType = this.objTypeMap.put(storageId, objType);
-            if (otherObjType != null) {
-                throw new IllegalArgumentException("incompatible use of storage ID " + storageId
-                  + " by both " + otherObjType + " and " + objType + " in " + this);
-            }
-        }
+        // Initialize fields
+        this.schemaIndex = schemaIndex;
+        this.schemaModel = schemaModel;
+        this.schemaBundle = schemaBundle;
 
-        // Create StorageInfo objects and check for conflicts
-        final HashMap<Integer, String> descriptionMap = new HashMap<>();
-        for (ObjType objType : this.objTypeMap.values()) {
-            this.addStorageInfo(objType, descriptionMap);
-            for (Field<?> field : objType.fields.values()) {
-                this.addStorageInfo(field, descriptionMap);
-                if (field instanceof ComplexField) {
-                    final ComplexField<?> complexField = (ComplexField<?>)field;
-                    for (SimpleField<?> subField : complexField.getSubFields())
-                        this.addStorageInfo(subField, descriptionMap);
-                }
-            }
-            for (CompositeIndex index : objType.compositeIndexes.values())
-                this.addStorageInfo(index, descriptionMap);
+        // Create object types but don't initialize them yet
+        for (SchemaObjectType schemaType : this.schemaModel.getSchemaObjectTypes().values()) {
+            final ObjType objType = new ObjType(this, schemaType);
+            assert !this.objTypesByName.containsKey(objType.getName());
+            assert !this.objTypesByStorageId.containsKey(objType.getStorageId());
+            this.objTypesByName.put(objType.getName(), objType);
+            this.objTypesByStorageId.put(objType.getStorageId(), objType);
+        }
+    }
+
+// Initialization
+
+    void initialize(EncodingRegistry encodingRegistry) {
+
+        // Sanity check
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
+
+        // Initialize object types
+        for (SchemaObjectType schemaType : this.schemaModel.getSchemaObjectTypes().values()) {
+            final ObjType objType = this.objTypesByName.get(schemaType.getName());
+            objType.initialize(schemaType, encodingRegistry);
         }
 
-        // This is an optimization for handling DeleteAction. Because the same reference field can be configured with a
-        // different DeleteAction in different object types, which can come from the same or a different schema version,
-        // when an object is deleted, we have to be careful to only apply DeleteAction's matching the schema version and
-        // object type of the referring fields. What follows builds a data structure to optimize finding them at runtime...
+        // This is an optimization for handling DeleteAction. Because the same reference field can be configured with
+        // a different DeleteAction in different object types, which can come from the same or different schemas,
+        // when an object is deleted, we have to be careful to only apply DeleteAction's matching the schema and object
+        // type of the referring fields. What follows builds a data structure to optimize finding them at runtime.
 
-        // First calculate, for each reference field, the KeyRanges covering all object types that contain the field
+        // First calculate, for each reference field, KeyRanges covering all object types that contain the field
         final HashMap<ReferenceField, KeyRanges> allObjTypesKeyRangesMap = new HashMap<>();
-        for (ObjType objType : this.objTypeMap.values()) {
-            final KeyRange objTypeKeyRange = ObjId.getKeyRange(objType.storageId);
+        this.objTypesByStorageId.forEach((storageId, objType) -> {
+            final KeyRange objTypeKeyRange = ObjId.getKeyRange((int)storageId);
             for (ReferenceField field : objType.referenceFieldsAndSubFields.values())
                 allObjTypesKeyRangesMap.computeIfAbsent(field, f -> KeyRanges.empty()).add(objTypeKeyRange);
-        }
+        });
 
         // Now do the same thing again, but broken out by the reference fields' configured DeleteAction
         for (DeleteAction deleteAction : DeleteAction.values()) {
 
             // Find reference fields matching the DeleteAction
             final HashMap<ReferenceField, KeyRanges> fieldKeyRanges = new HashMap<>();
-            for (ObjType objType : this.objTypeMap.values()) {
-                final KeyRange objTypeKeyRange = ObjId.getKeyRange(objType.storageId);
+            this.objTypesByStorageId.forEach((storageId, objType) -> {
+                final KeyRange objTypeKeyRange = ObjId.getKeyRange((int)storageId);
                 for (ReferenceField field : objType.referenceFieldsAndSubFields.values()) {
                     if (field.inverseDelete.equals(deleteAction))
                         fieldKeyRanges.computeIfAbsent(field, i -> KeyRanges.empty()).add(objTypeKeyRange);
                 }
-            }
+            });
 
             // If for any field, the field is configured the same way in every object type, then no need to restrict by object type
-            for (Map.Entry<ReferenceField, KeyRanges> entry : fieldKeyRanges.entrySet()) {
-                final ReferenceField field = entry.getKey();
-                final KeyRanges keyRanges = entry.getValue();
-                if (keyRanges.equals(allObjTypesKeyRangesMap.get(field)))
+            fieldKeyRanges.entrySet().forEach(entry -> {
+                if (entry.getValue().equals(allObjTypesKeyRangesMap.get(entry.getKey())))
                     entry.setValue(null);
-            }
+            });
 
             // Done
-            this.deleteActionKeyRanges.add(fieldKeyRanges);
+            this.deleteActionKeyRanges.put(deleteAction, fieldKeyRanges);
         }
     }
 
+// Public Methods
+
     /**
-     * Get the version number associated with this instance.
+     * Get the schema bundle that this instance is a member of.
      *
-     * @return version number, always greater than zero
+     * @return the containing schema bundle
      */
-    public int getVersionNumber() {
-        return this.versionNumber;
+    public SchemaBundle getSchemaBundle() {
+        return this.schemaBundle;
     }
 
     /**
-     * Get the {@link SchemaModel} on which this schema version is based.
+     * Get the schema index associated with this instance.
+     *
+     * @return schema index
+     */
+    public int getSchemaIndex() {
+        return this.schemaIndex;
+    }
+
+    /**
+     * Get the schema ID associated with this instance.
+     *
+     * @return schema ID
+     */
+    public SchemaId getSchemaId() {
+        return this.schemaModel.getSchemaId();
+    }
+
+    /**
+     * Get the original {@link SchemaModel} on which this instance is based as it is recorded in the database.
+     *
+     * <p>
+     * Equivalent to: {@link getSchemaModel(boolean)}{@code (false)}.
      *
      * @return schema model
      */
     public SchemaModel getSchemaModel() {
-        return this.schemaModel;
+        return this.getSchemaModel(false);
     }
 
     /**
-     * Get all of the {@link ObjType}s that constitute this schema version, indexed by storage ID.
+     * Get the {@link SchemaModel} on which this instance is based, optionally including explicit storage ID assignments.
      *
-     * @return unmodifiable mapping from {@linkplain ObjType#getStorageId storage ID} to {@link ObjType}
+     * <p>
+     * If {@code withStorageIds} is true, then all of the schema items in the returned model will
+     * have non-zero storage ID's reflecting their storage ID assignments in the database.
+     *
+     * @param withStorageIds true to include all storage ID assignments, false for the original model
+     * @return schema model with storage ID assignments
      */
-    public SortedMap<Integer, ObjType> getObjTypes() {
-        return Collections.unmodifiableSortedMap(this.objTypeMap);
+    public SchemaModel getSchemaModel(boolean withStorageIds) {
+        if (!withStorageIds)
+            return this.schemaModel;
+        final SchemaModel model = this.schemaModel.clone();
+        model.visitSchemaItems(item -> item.setStorageId(this.schemaBundle.getStorageId(item.getSchemaId())));
+        return model;
+    }
+
+    /**
+     * Get all of the {@link ObjType}s that constitute this schema, indexed by type name.
+     *
+     * @return unmodifiable mapping from {@linkplain ObjType#getName type name} to {@link ObjType}
+     */
+    public NavigableMap<String, ObjType> getObjTypes() {
+        return Collections.unmodifiableNavigableMap(this.objTypesByName);
+    }
+
+    /**
+     * Get the {@link ObjType} in this schema with the given name.
+     *
+     * @param typeName object type name
+     * @return the corresponding {@link ObjType}
+     * @throws UnknownTypeException if no such {@link ObjType} exists
+     * @throws IllegalArgumentException if {@code typeName} is null
+     */
+    public ObjType getObjType(String typeName) {
+        Preconditions.checkArgument(typeName != null, "null typeName");
+        final ObjType objType = this.objTypesByName.get(typeName);
+        if (objType == null)
+            throw new UnknownTypeException(typeName, this);
+        return objType;
     }
 
     /**
      * Get the {@link ObjType} in this schema with the given storage ID.
      *
-     * @param storageId storage ID
-     * @return the {@link ObjType} with storage ID {@code storageID}
-     * @throws UnknownTypeException if no {@link ObjType} with storage ID {@code storageId} exists
+     * @param storageId object type storage ID
+     * @return the corresponding {@link ObjType}
+     * @throws UnknownTypeException if no such {@link ObjType} exists
+     * @throws IllegalArgumentException if {@code storageId} is invalid
      */
     public ObjType getObjType(int storageId) {
-        final ObjType objType = this.objTypeMap.get(storageId);
+        Preconditions.checkArgument(storageId > 0, "invalid storageId");
+        final ObjType objType = this.objTypesByStorageId.get(storageId);
         if (objType == null)
-            throw new UnknownTypeException(storageId, this.versionNumber);
+            throw new UnknownTypeException("#" + storageId, this);
         return objType;
     }
 
+// Object
+
     @Override
     public String toString() {
-        return "schema version " + this.versionNumber;
+        return this.schemaModel.getSchemaId() + "@" + this.schemaIndex;
     }
 
-    // Add new StorageInfo, checking for storage conflicts
-    private void addStorageInfo(SchemaItem schemaItem, Map<Integer, String> descriptionMap) {
-        final StorageInfo storageInfo = schemaItem.toStorageInfo();
-        if (storageInfo == null)
-            return;
-        final StorageInfo previous = this.storageInfoMap.put(storageInfo.storageId, storageInfo);
-        if (previous != null && !previous.equals(storageInfo)) {
-            throw new IllegalArgumentException("incompatible use of storage ID " + storageInfo.storageId
-              + " for both " + descriptionMap.get(storageInfo.storageId) + " and " + schemaItem);
-        }
-        descriptionMap.put(storageInfo.storageId, "" + schemaItem);
+// Package Methods
+
+    EnumMap<DeleteAction, Map<ReferenceField, KeyRanges>> getDeleteActionKeyRanges() {
+        return this.deleteActionKeyRanges;
     }
 }

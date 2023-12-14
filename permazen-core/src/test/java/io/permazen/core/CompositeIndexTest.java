@@ -31,14 +31,14 @@ public class CompositeIndexTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"11\"/>\n"
           + "    <ReferenceField name=\"r\" storageId=\"12\"/>\n"
           + "    <CompositeIndex storageId=\"20\" name=\"ir\">\n"
-          + "      <IndexedField storageId=\"11\"/>\n"
-          + "      <IndexedField storageId=\"12\"/>\n"
+          + "      <Field name=\"i\"/>\n"
+          + "      <Field name=\"r\"/>\n"
           + "    </CompositeIndex>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
 
         ObjId id1 = new ObjId("0a11111111111111");
         ObjId id2 = new ObjId("0a22222222222222");
@@ -52,23 +52,25 @@ public class CompositeIndexTest extends CoreAPITestSupport {
         tx.create(id4);
         tx.create(id5);
 
-        tx.writeSimpleField(id1, 11, 555, true);
-        tx.writeSimpleField(id1, 12, id3, true);
+        tx.writeSimpleField(id1, "i", 555, true);
+        tx.writeSimpleField(id1, "r", id3, true);
 
-        tx.writeSimpleField(id2, 11, 555, true);
-        tx.writeSimpleField(id2, 12, id4, true);
+        tx.writeSimpleField(id2, "i", 555, true);
+        tx.writeSimpleField(id2, "r", id4, true);
 
-        tx.writeSimpleField(id3, 11, 666, true);
-        tx.writeSimpleField(id3, 12, id3, true);
+        tx.writeSimpleField(id3, "i", 666, true);
+        tx.writeSimpleField(id3, "r", id3, true);
 
-        tx.writeSimpleField(id4, 11, 666, true);
-        tx.writeSimpleField(id4, 12, id4, true);
+        tx.writeSimpleField(id4, "i", 666, true);
+        tx.writeSimpleField(id4, "r", id4, true);
 
         // id5 same as id4
-        tx.writeSimpleField(id5, 11, 666, true);
-        tx.writeSimpleField(id5, 12, id4, true);
+        tx.writeSimpleField(id5, "i", 666, true);
+        tx.writeSimpleField(id5, "r", id4, true);
 
-        final CoreIndex2<?, ?, ObjId> index = tx.queryCompositeIndex2(20);
+        final CompositeIndex ci = tx.getSchema().getObjType("Foo").getCompositeIndex("ir");
+
+        final CoreIndex2<?, ?, ObjId> index = tx.queryCompositeIndex2(ci.getStorageId());
         TestSupport.checkSet(index.asSet(), buildSet(
           new Tuple3<>(555, id3, id1),
           new Tuple3<>(555, id4, id2),

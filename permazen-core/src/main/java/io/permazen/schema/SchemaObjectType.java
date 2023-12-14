@@ -12,15 +12,13 @@ import io.permazen.util.NavigableSets;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -29,40 +27,66 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * One object type in a {@link SchemaModel}.
  */
-public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerating<SchemaObjectType> {
-
-    private /*final*/ NavigableMap<Integer, SchemaField> schemaFields = new TreeMap<>();
-    private /*final*/ NavigableMap<Integer, SchemaCompositeIndex> schemaCompositeIndexes = new TreeMap<>();
+public class SchemaObjectType extends SchemaItem implements DiffGenerating<SchemaObjectType> {
 
     /**
-     * Get this object type's {@link SchemaField}s, indexed by storage ID.
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.OBJECT_TYPE;
+
+    private NavigableMap<String, SchemaField> fields = new TreeMap<>();
+    private NavigableMap<String, SchemaCompositeIndex> indexes = new TreeMap<>();
+
+// Properties
+
+    /**
+     * Get this object type's {@link SchemaField}s, indexed by name.
      *
      * @return fields in this object type
      */
-    public NavigableMap<Integer, SchemaField> getSchemaFields() {
-        return this.schemaFields;
+    public NavigableMap<String, SchemaField> getSchemaFields() {
+        return this.fields;
     }
 
     /**
-     * Get the {@link SchemaCompositeIndex}s defined on this object type's fields, indexed by storage ID.
+     * Get the {@link SchemaCompositeIndex}s defined on this object type's fields, indexed by name.
      *
      * @return composite indexes in this object type
      */
-    public NavigableMap<Integer, SchemaCompositeIndex> getSchemaCompositeIndexes() {
-        return this.schemaCompositeIndexes;
+    public NavigableMap<String, SchemaCompositeIndex> getSchemaCompositeIndexes() {
+        return this.indexes;
+    }
+
+// Recursion
+
+    @Override
+    public void visitSchemaItems(Consumer<? super SchemaItem> visitor) {
+        super.visitSchemaItems(visitor);
+        this.fields.values().forEach(field -> field.visitSchemaItems(visitor));
+        this.indexes.values().forEach(index -> index.visitSchemaItems(visitor));
     }
 
 // Lockdown
 
     @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
-        this.schemaFields = Collections.unmodifiableNavigableMap(this.schemaFields);
-        for (SchemaField schemaField : this.schemaFields.values())
-            schemaField.lockDown();
-        this.schemaCompositeIndexes = Collections.unmodifiableNavigableMap(this.schemaCompositeIndexes);
-        for (SchemaCompositeIndex schemaCompositeIndex : this.schemaCompositeIndexes.values())
-            schemaCompositeIndex.lockDown();
+    public void lockDown() {
+        super.lockDown();
+
+        // Set simple sub-fields' parent field to null
+        this.fields.values().stream()
+          .filter(SimpleSchemaField.class::isInstance)
+          .map(SimpleSchemaField.class::cast)
+          .iterator()
+          .forEachRemaining(field -> field.setParent(null));
+
+        // Set fields' and indexs' parent object types to this instance
+        Stream.concat(this.fields.values().stream(), this.indexes.values().stream())
+          .iterator()
+          .forEachRemaining(item -> item.setObjectType(this));
+
+        // Lock down maps
+        this.fields = this.lockDownMap(this.fields);
+        this.indexes = this.lockDownMap(this.indexes);
     }
 
 // Validation
@@ -71,39 +95,39 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
     void validate() {
         super.validate();
 
-        // Validate fields and verify field names are unique
-        final TreeMap<String, SchemaField> fieldsByName = new TreeMap<>();
-        for (SchemaField field : this.schemaFields.values()) {
-            field.validate();
-            final String fieldName = field.getName();
-            if (fieldsByName.put(fieldName, field) != null)
-                throw new InvalidSchemaException("duplicate field name \"" + fieldName + "\"");
-        }
+        // Verify mapped field and index names
+        this.verifyMappedNames("field", this.fields);
+        this.verifyMappedNames("composite index", this.indexes);
 
-        // Validate composite indexes and verify index names are unique
-        final TreeMap<String, SchemaCompositeIndex> compositeIndexesByName = new TreeMap<>();
-        for (SchemaCompositeIndex index : this.schemaCompositeIndexes.values()) {
-            index.validate();
-            final String indexName = index.getName();
-            if (compositeIndexesByName.put(indexName, index) != null)
-                throw new InvalidSchemaException("duplicate composite index name \"" + indexName + "\"");
-        }
+        // Validate fields and composite indexes
+        this.fields.values().forEach(SchemaField::validate);
+        this.indexes.values().forEach(SchemaCompositeIndex::validate);
 
-        // Verify indexes index valid simple fields that are not sub-fields of complex fields
-        for (SchemaCompositeIndex index : this.schemaCompositeIndexes.values()) {
-            for (int storageId : index.getIndexedFields()) {
-                final SchemaField field = this.schemaFields.get(storageId);
-                if (!(field instanceof SimpleSchemaField))
-                    throw new InvalidSchemaException(index + " indexes unknown or invalid field with storage ID " + storageId);
+        // Verify object type back references
+        this.verifyBackReferences("object type", this.fields, SchemaField::getObjectType);
+        this.verifyBackReferences("object type", this.indexes, SchemaCompositeIndex::getObjectType);
+
+        // Verify top level simple fields have no complex parent
+        this.fields.values().forEach(field -> {
+            if (field instanceof SimpleSchemaField) {
+                final ComplexSchemaField parent = ((SimpleSchemaField)field).getParent();
+                if (parent != null)
+                    throw new InvalidSchemaException(String.format("top level %s has non-null parent %s", field, parent));
             }
-        }
+        });
 
-        // Verify there are no duplicate composite indexes
-        final HashMap<List<Integer>, SchemaCompositeIndex> compositeIndexFields = new HashMap<>();
-        for (SchemaCompositeIndex index : this.schemaCompositeIndexes.values()) {
-            final SchemaCompositeIndex previous = compositeIndexFields.put(index.getIndexedFields(), index);
-            if (previous != null)
-                throw new InvalidSchemaException("duplicate " + index + " (duplicates " + previous + ")");
+        // Verify there are no duplicate composite indexes and that field and composite index names don't conflict
+        final HashMap<List<String>, SchemaCompositeIndex> fieldListMap = new HashMap<>();
+        for (SchemaCompositeIndex index : this.indexes.values()) {
+            final SchemaCompositeIndex previous = fieldListMap.put(index.getIndexedFields(), index);
+            if (previous != null) {
+                throw new InvalidSchemaException(String.format(
+                  "composite index \"%s\" duplicates composite index \"%s\"", index.getName(), previous.getName()));
+            }
+            if (this.fields.containsKey(index.getName())) {
+                throw new InvalidSchemaException(String.format(
+                  "composite index name \"%s\" is already used as a field name", index.getName()));
+            }
         }
     }
 
@@ -111,32 +135,37 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        this.schemaFields.clear();
-        this.schemaCompositeIndexes.clear();
-        boolean seenIndex = false;
-        for (AbstractSchemaItem item;
-          (item = this.readMappedType(reader, true, SchemaModel.FIELD_OR_COMPOSITE_INDEX_TAG_MAP)) != null; ) {
+        this.fields.clear();
+        this.indexes.clear();
+        boolean seenCompositeIndex = false;
+        for (SchemaItem item; (item = this.readMappedType(reader, true, SchemaModel.FIELD_OR_COMPOSITE_INDEX_TAG_MAP)) != null; ) {
             if (item instanceof SchemaField) {
-                if (seenIndex)
-                    throw new XMLStreamException("indexes must appear after fields", reader.getLocation());
+                if (seenCompositeIndex)
+                    throw new XMLStreamException("composite indexes must appear after fields", reader.getLocation());
                 final SchemaField field = (SchemaField)item;
                 field.readXML(reader, formatVersion);
-                final int storageId = field.getStorageId();
-                final SchemaField previous = this.schemaFields.put(storageId, field);
+                final String fieldName = field.getName();
+                if (fieldName == null)
+                    throw this.newInvalidAttributeException(reader, XMLConstants.NAME_ATTRIBUTE, "name is required");
+                final SchemaField previous = this.fields.put(fieldName, field);
                 if (previous != null) {
-                    throw new XMLStreamException("duplicate use of storage ID " + storageId
-                      + " for both " + previous + " and " + field + " in " + this, reader.getLocation());
+                    throw new XMLStreamException(String.format(
+                      "duplicate %s name \"%s\" in %s", "field", fieldName, this), reader.getLocation());
                 }
+                field.setObjectType(this);
             } else if (item instanceof SchemaCompositeIndex) {
                 final SchemaCompositeIndex index = (SchemaCompositeIndex)item;
                 index.readXML(reader, formatVersion);
-                final int storageId = index.getStorageId();
-                final SchemaCompositeIndex previous = this.schemaCompositeIndexes.put(storageId, index);
+                final String indexName = index.getName();
+                if (indexName == null)
+                    throw this.newInvalidAttributeException(reader, XMLConstants.NAME_ATTRIBUTE, "name is required");
+                final SchemaCompositeIndex previous = this.indexes.put(indexName, index);
                 if (previous != null) {
-                    throw new XMLStreamException("duplicate use of storage ID " + storageId
-                      + " for both " + previous + " and " + index + " in " + this, reader.getLocation());
+                    throw new XMLStreamException(String.format(
+                      "duplicate %s name \"%s\" in %s", "composite index", indexName, this), reader.getLocation());
                 }
-                seenIndex = true;
+                index.setObjectType(this);
+                seenCompositeIndex = true;
             } else
                 throw new RuntimeException("internal error");
         }
@@ -145,42 +174,50 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        if (this.schemaFields.isEmpty() && this.schemaCompositeIndexes.isEmpty()) {
-            writer.writeEmptyElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
+    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+
+        // Totally empty?
+        if (this.fields.isEmpty() && this.indexes.isEmpty()) {
+            this.writeEmptyElement(writer, XMLConstants.OBJECT_TYPE_TAG);
             this.writeAttributes(writer);
+            if (prettyPrint)
+                this.writeSchemaIdComment(writer);
             return;
         }
-        writer.writeStartElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
+
+        // Write fields and/or composite indexes
+        this.writeStartElement(writer, XMLConstants.OBJECT_TYPE_TAG);
         this.writeAttributes(writer);
-        final ArrayList<SchemaField> fieldList = new ArrayList<>(this.schemaFields.values());
-        Collections.sort(fieldList, Comparator.comparing(SchemaField::getName));
-        for (SchemaField schemaField : fieldList)
-            schemaField.writeXML(writer);
-        final ArrayList<SchemaCompositeIndex> indexList = new ArrayList<>(this.schemaCompositeIndexes.values());
-        Collections.sort(indexList, Comparator.comparing(SchemaCompositeIndex::getName));
-        for (SchemaCompositeIndex schemaCompositeIndex : indexList)
-            schemaCompositeIndex.writeXML(writer);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
+        for (SchemaField schemaField : this.fields.values())
+            schemaField.writeXML(writer, prettyPrint);
+        for (SchemaCompositeIndex schemaIndex : this.indexes.values())
+            schemaIndex.writeXML(writer, prettyPrint);
         writer.writeEndElement();
     }
 
-// Compatibility
-
-    boolean isCompatibleWith(SchemaObjectType that) {
-        return AbstractSchemaItem.isAll(this.schemaFields, that.schemaFields, SchemaField::isCompatibleWith)
-          && AbstractSchemaItem.isAll(this.schemaCompositeIndexes,
-           that.schemaCompositeIndexes, SchemaCompositeIndex::isCompatibleWith);
-    }
+// Schema ID
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
-        output.writeInt(this.schemaFields.size());
-        for (SchemaField field : this.schemaFields.values())
-            field.writeCompatibilityHashData(output);
-        output.writeInt(this.schemaCompositeIndexes.size());
-        for (SchemaCompositeIndex index : this.schemaCompositeIndexes.values())
-            index.writeCompatibilityHashData(output);
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
+    }
+
+    // When computing our own schema ID, we don't include fields or indexes, meaning the schema ID of a SchemaObjectType
+    // depends only on the type name. When compuing a schema ID as part of a SchemaModel, we include fields and indexes.
+    @Override
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output, forSchemaModel);
+        output.writeBoolean(forSchemaModel);
+        if (forSchemaModel) {
+            output.writeInt(this.fields.size());
+            for (SchemaField field : this.fields.values())
+                field.writeSchemaIdHashData(output, true);
+            output.writeInt(this.indexes.size());
+            for (SchemaCompositeIndex index : this.indexes.values())
+                index.writeSchemaIdHashData(output, true);
+        }
     }
 
 // DiffGenerating
@@ -190,11 +227,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         final Diffs diffs = new Diffs(super.differencesFrom(that));
 
         // Check fields
-        final NavigableSet<Integer> allFieldIds = NavigableSets.union(
-          this.schemaFields.navigableKeySet(), that.schemaFields.navigableKeySet());
-        for (int storageId : allFieldIds) {
-            final SchemaField thisField = this.schemaFields.get(storageId);
-            final SchemaField thatField = that.schemaFields.get(storageId);
+        final NavigableSet<String> allFieldNames = NavigableSets.union(
+          this.fields.navigableKeySet(), that.fields.navigableKeySet());
+        for (String fieldName : allFieldNames) {
+            final SchemaField thisField = this.fields.get(fieldName);
+            final SchemaField thatField = that.fields.get(fieldName);
             if (thatField != null && (thisField == null || !thisField.getClass().equals(thatField.getClass())))
                 diffs.add("removed " + thatField);
             else if (thisField != null && (thatField == null || !thatField.getClass().equals(thisField.getClass())))
@@ -240,11 +277,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         }
 
         // Check composite indexes
-        final NavigableSet<Integer> allIndexIds = NavigableSets.union(
-          this.schemaCompositeIndexes.navigableKeySet(), that.schemaCompositeIndexes.navigableKeySet());
-        for (int storageId : allIndexIds) {
-            final SchemaCompositeIndex thisIndex = this.schemaCompositeIndexes.get(storageId);
-            final SchemaCompositeIndex thatIndex = that.schemaCompositeIndexes.get(storageId);
+        final NavigableSet<String> allIndexNames = NavigableSets.union(
+          this.indexes.navigableKeySet(), that.indexes.navigableKeySet());
+        for (String indexName : allIndexNames) {
+            final SchemaCompositeIndex thisIndex = this.indexes.get(indexName);
+            final SchemaCompositeIndex thatIndex = that.indexes.get(indexName);
             if (thisIndex == null)
                 diffs.add("removed " + thatIndex);
             else if (thatIndex == null)
@@ -264,7 +301,7 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 
     @Override
     public String toString() {
-        return "object " + super.toString();
+        return "object type " + this.toStringName();
     }
 
     @Override
@@ -274,12 +311,13 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
         if (!super.equals(obj))
             return false;
         final SchemaObjectType that = (SchemaObjectType)obj;
-        return this.schemaFields.equals(that.schemaFields) && this.schemaCompositeIndexes.equals(that.schemaCompositeIndexes);
+        return this.fields.equals(that.fields)
+          && this.indexes.equals(that.indexes);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.schemaFields.hashCode() ^ this.schemaCompositeIndexes.hashCode();
+        return super.hashCode() ^ this.fields.hashCode() ^ this.indexes.hashCode();
     }
 
 // Cloneable
@@ -288,12 +326,11 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
     @SuppressWarnings("unchecked")
     public SchemaObjectType clone() {
         final SchemaObjectType clone = (SchemaObjectType)super.clone();
-        clone.schemaFields = new TreeMap<>(clone.schemaFields);
-        for (Map.Entry<Integer, SchemaField> entry : clone.schemaFields.entrySet())
-            entry.setValue(entry.getValue().clone());
-        clone.schemaCompositeIndexes = new TreeMap<>(clone.schemaCompositeIndexes);
-        for (Map.Entry<Integer, SchemaCompositeIndex> entry : clone.schemaCompositeIndexes.entrySet())
-            entry.setValue(entry.getValue().clone());
+        clone.fields = this.cloneMap(clone.fields);
+        clone.indexes = this.cloneMap(clone.indexes);
+        Stream.concat(clone.fields.values().stream(), clone.indexes.values().stream())
+          .iterator()
+          .forEachRemaining(item -> item.setObjectType(clone));
         return clone;
     }
 }

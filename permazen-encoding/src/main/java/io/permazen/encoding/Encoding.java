@@ -380,21 +380,6 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware {
     }
 
     /**
-     * Remove any information that may differ between instances associated with the same indexed field in the same schema.
-     *
-     * <p>
-     * This operation should be applied before using this instance with index queries.
-     *
-     * <p>
-     * The implementation in {@link Encoding} just returns itself.
-     *
-     * @return this instance with all non-index-relevant information elided
-     */
-    default Encoding<T> genericizeForIndex() {
-        return this;
-    }
-
-    /**
      * Calculate the {@link KeyRange} that includes exactly those encoded values that lie within the given bounds.
      *
      * @param bounds bounds to impose

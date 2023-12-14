@@ -6,24 +6,25 @@
 package io.permazen.core;
 
 /**
- * Thrown when an object is found to have an invalid schema version.
+ * Thrown when an object is found to have an invalid schema index.
+ *
+ * <p>
  * This indicates database or recorded schema corruption.
  */
 @SuppressWarnings("serial")
 public class InvalidObjectVersionException extends InconsistentDatabaseException {
 
     private final ObjId id;
-    private final int version;
+    private final int schemaIndex;
 
-    InvalidObjectVersionException(ObjId id, int version) {
-        super("object " + id + " contains invalid schema version number "
-          + version + " which is not recorded in the database");
+    InvalidObjectVersionException(ObjId id, int schemaIndex, Throwable cause) {
+        super(String.format("object %s has an invalid schema index %d", id, schemaIndex), cause);
         this.id = id;
-        this.version = version;
+        this.schemaIndex = schemaIndex;
     }
 
     /**
-     * Get the ID of the object containing the invalid version number.
+     * Get the ID of the object containing the invalid schema index.
      *
      * @return object ID
      */
@@ -32,11 +33,11 @@ public class InvalidObjectVersionException extends InconsistentDatabaseException
     }
 
     /**
-     * Get the invalid version number found.
+     * Get the invalid schema index number found.
      *
-     * @return invalid version number
+     * @return invalid schema index
      */
-    public int getInvalidVersion() {
-        return this.version;
+    public int getSchemaIndex() {
+        return this.schemaIndex;
     }
 }

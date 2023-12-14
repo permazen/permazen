@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.collect.Sets;
 
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -18,11 +19,11 @@ import java.util.NavigableSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class VersionChangeListenerTest extends CoreAPITestSupport {
+public class SchemaChangeListenerTest extends CoreAPITestSupport {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testVersionChangeListener() throws Exception {
+    public void testSchemaChangeListener() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
@@ -34,6 +35,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId1 = schema1.getSchemaId();
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -47,6 +49,7 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId2 = schema2.getSchemaId();
 
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -56,50 +59,51 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId3 = schema3.getSchemaId();
 
         final Database db = new Database(kvstore);
 
     // Tx #1
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
 
-        ObjId id1 = tx.create(100);
-        tx.writeSimpleField(id1, 101, 100, true);
-        Assert.assertEquals(tx.getSchemaVersion(id1), 1);
+        ObjId id1 = tx.create("Foo");
+        tx.writeSimpleField(id1, "i", 100, true);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId1);
 
         tx.commit();
 
     // Tx #2
 
-        tx = db.createTransaction(schema2, 2, true);
+        tx = db.createTransaction(schema2);
 
         final boolean[] notified = new boolean[1];
-        tx.addVersionChangeListener((tx12, id, oldVersion, newVersion, oldFieldValues) -> {
-            Assert.assertEquals(oldVersion, 1);
-            Assert.assertEquals(newVersion, 2);
-            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101));
-            Assert.assertEquals(oldFieldValues.get(101), 100);
+        tx.addSchemaChangeListener((tx12, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
+            Assert.assertEquals(oldSchemaId, schemaId1);
+            Assert.assertEquals(newSchemaId, schemaId2);
+            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet("i"));
+            Assert.assertEquals(oldFieldValues.get("i"), 100);
             notified[0] = true;
         });
 
-        Assert.assertEquals(tx.getSchemaVersion(id1), 1);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId1);
         Assert.assertFalse(notified[0]);
 
-        Assert.assertEquals(tx.readSimpleField(id1, 101, false), 100);
-        Assert.assertEquals(tx.getSchemaVersion(id1), 1);
+        Assert.assertEquals(tx.readSimpleField(id1, "i", false), 100);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId1);
         Assert.assertFalse(notified[0]);
 
-        Assert.assertEquals(tx.readSimpleField(id1, 101, true), 100);
-        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        Assert.assertEquals(tx.readSimpleField(id1, "i", true), 100);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId2);
         Assert.assertTrue(notified[0]);
 
-        Assert.assertFalse(tx.updateSchemaVersion(id1));
-        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        Assert.assertFalse(tx.migrateSchema(id1));
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId2);
         Assert.assertTrue(notified[0]);
 
-        tx.writeSimpleField(id1, 102, "foobar", true);
+        tx.writeSimpleField(id1, "s", "foobar", true);
 
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, 103, true);
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, "set", true);
         Assert.assertTrue(set.isEmpty());
 
         set.add(123);
@@ -112,38 +116,38 @@ public class VersionChangeListenerTest extends CoreAPITestSupport {
 
     // Tx #3
 
-        tx = db.createTransaction(schema3, 3, true);
+        tx = db.createTransaction(schema3);
 
         notified[0] = false;
-        tx.addVersionChangeListener((tx1, id, oldVersion, newVersion, oldFieldValues) -> {
-            Assert.assertEquals(oldVersion, 2);
-            Assert.assertEquals(newVersion, 3);
-            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet(101, 102, 103));
-            Assert.assertEquals(oldFieldValues.get(101), 100);
-            Assert.assertEquals(oldFieldValues.get(102), "foobar");
-            Assert.assertEquals(oldFieldValues.get(103), Sets.<Integer>newHashSet(123, 456, 789));
+        tx.addSchemaChangeListener((tx1, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
+            Assert.assertEquals(oldSchemaId, schemaId2);
+            Assert.assertEquals(newSchemaId, schemaId3);
+            Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet("i", "s", "set"));
+            Assert.assertEquals(oldFieldValues.get("i"), 100);
+            Assert.assertEquals(oldFieldValues.get("s"), "foobar");
+            Assert.assertEquals(oldFieldValues.get("set"), Sets.<Integer>newHashSet(123, 456, 789));
             notified[0] = true;
         });
 
-        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId2);
         Assert.assertFalse(notified[0]);
 
-        set = (NavigableSet<Integer>)tx.readSetField(id1, 103, false);
-        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        set = (NavigableSet<Integer>)tx.readSetField(id1, "set", false);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId2);
         Assert.assertFalse(notified[0]);
 
         Assert.assertEquals(set, Sets.newHashSet(123, 456, 789));
 
-        Assert.assertTrue(tx.updateSchemaVersion(id1));
-        Assert.assertEquals(tx.getSchemaVersion(id1), 3);
+        Assert.assertTrue(tx.migrateSchema(id1));
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId3);
         Assert.assertTrue(notified[0]);
 
         Assert.assertEquals(set, new HashSet<Integer>());
 
-        Assert.assertFalse(tx.updateSchemaVersion(id1));
+        Assert.assertFalse(tx.migrateSchema(id1));
 
         Assert.assertTrue(notified[0]);
-        Assert.assertEquals(tx.getSchemaVersion(id1), 3);
+        Assert.assertEquals(tx.getObjType(id1).getSchema().getSchemaId(), schemaId3);
 
         tx.commit();
 

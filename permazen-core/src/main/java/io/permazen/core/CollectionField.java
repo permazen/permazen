@@ -8,6 +8,9 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.schema.CollectionSchemaField;
+import io.permazen.schema.SimpleSchemaField;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,19 +29,8 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 
     final SimpleField<E> elementField;
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field content storage ID
-     * @param typeToken Java type for the field's values
-     * @param schema schema version
-     * @param elementField this field's element sub-field
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
-    CollectionField(String name, int storageId, Schema schema, TypeToken<C> typeToken, SimpleField<E> elementField) {
-        super(name, storageId, schema, typeToken);
+    CollectionField(Schema schema, CollectionSchemaField field, TypeToken<C> typeToken, SimpleField<E> elementField) {
+        super(schema, field, typeToken);
         Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
         assert this.elementField.parent == null;
@@ -56,9 +48,20 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
         return this.elementField;
     }
 
+    /**
+     * Get the index on this fields's {@value #ELEMENT_FIELD_NAME} sub-field.
+     *
+     * @return the index on this field's {@value #ELEMENT_FIELD_NAME} sub-field
+     * @throws UnknownIndexException if there is no index on the {@value #ELEMENT_FIELD_NAME} sub-field
+     */
+    @SuppressWarnings("unchecked")
+    public CollectionElementIndex<C, E> getElementIndex() {
+        return (CollectionElementIndex<C, E>)this.elementField.getIndex();
+    }
+
     @Override
     public final List<SimpleField<E>> getSubFields() {
-        return Collections.<SimpleField<E>>singletonList(this.elementField);
+        return Collections.singletonList(this.elementField);
     }
 
     @Override
@@ -69,7 +72,17 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
     @Override
     public abstract C getValue(Transaction tx, ObjId id);
 
-// Non-public methods
+// Package methods
+
+    @Override
+    @SuppressWarnings("unchecked")
+    final CollectionElementIndex<C, E> createSubFieldIndex(
+      Schema schema, SimpleSchemaField schemaField, ObjType objType, SimpleField<?> field) {
+        Preconditions.checkArgument(field == this.getElementField(), "wrong sub-field");
+        return this.createElementSubFieldIndex(schema, schemaField, objType);
+    }
+
+    abstract CollectionElementIndex<C, E> createElementSubFieldIndex(Schema schema, SimpleSchemaField schemaField, ObjType objType);
 
     @Override
     @SuppressWarnings("unchecked")
@@ -87,13 +100,5 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
             if (ref != null && removedStorageIds.contains(ref.getStorageId()))
                 i.remove();
         }
-    }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final CollectionField<?, ?> that = (CollectionField<?, ?>)field;
-        return this.elementField.isUpgradeCompatible(that.elementField);
     }
 }

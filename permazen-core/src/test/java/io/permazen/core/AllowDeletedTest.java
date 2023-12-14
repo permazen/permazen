@@ -64,92 +64,92 @@ public class AllowDeletedTest extends CoreAPITestSupport {
 
         Transaction tx = this.createTx();
 
-        final ObjId id1 = tx.create(1);
-        final ObjId id2 = tx.create(1);
-        final ObjId id3 = tx.create(1);
-        final ObjId id4 = tx.create(1);
-        final ObjId deleted1 = tx.create(1);
-        final ObjId deleted2 = tx.create(1);
-        final ObjId deleted3 = tx.create(1);
+        final ObjId id1 = tx.create("Foo");
+        final ObjId id2 = tx.create("Foo");
+        final ObjId id3 = tx.create("Foo");
+        final ObjId id4 = tx.create("Foo");
+        final ObjId deleted1 = tx.create("Foo");
+        final ObjId deleted2 = tx.create("Foo");
+        final ObjId deleted3 = tx.create("Foo");
 
         tx.delete(deleted1);
         tx.delete(deleted2);
         tx.delete(deleted3);
 
         // ref1 - self reference
-        tx.writeSimpleField(id1, 10, id1, true);
-        tx.writeSimpleField(id1, 10, null, true);
+        tx.writeSimpleField(id1, "ref1", id1, true);
+        tx.writeSimpleField(id1, "ref1", null, true);
 
         // ref1 vs. ref2
         try {
-            tx.writeSimpleField(id1, 10, deleted1, true);
+            tx.writeSimpleField(id1, "ref1", deleted1, true);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
         }
-        tx.writeSimpleField(id1, 11, deleted1, true);
+        tx.writeSimpleField(id1, "ref2", deleted1, true);
 
         // set1
-        ((Set)tx.readSetField(id1, 20, true)).add(id1);
-        ((Set)tx.readSetField(id1, 20, true)).add(id2);
+        ((Set)tx.readSetField(id1, "set1", true)).add(id1);
+        ((Set)tx.readSetField(id1, "set1", true)).add(id2);
         try {
-            ((Set)tx.readSetField(id1, 20, true)).add(deleted1);
+            ((Set)tx.readSetField(id1, "set1", true)).add(deleted1);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
         }
-        ((Set)tx.readSetField(id1, 20, true)).add(id3);
+        ((Set)tx.readSetField(id1, "set1", true)).add(id3);
 
         // set2
-        ((Set)tx.readSetField(id1, 21, true)).add(id1);
-        ((Set)tx.readSetField(id1, 21, true)).add(id2);
-        ((Set)tx.readSetField(id1, 21, true)).add(deleted1);
-        ((Set)tx.readSetField(id1, 21, true)).add(id3);
+        ((Set)tx.readSetField(id1, "set2", true)).add(id1);
+        ((Set)tx.readSetField(id1, "set2", true)).add(id2);
+        ((Set)tx.readSetField(id1, "set2", true)).add(deleted1);
+        ((Set)tx.readSetField(id1, "set2", true)).add(id3);
 
         // list1
-        ((List)tx.readListField(id1, 30, true)).add(id1);
-        ((List)tx.readListField(id1, 30, true)).add(id2);
+        ((List)tx.readListField(id1, "list1", true)).add(id1);
+        ((List)tx.readListField(id1, "list1", true)).add(id2);
         try {
-            ((List)tx.readListField(id1, 30, true)).add(deleted1);
+            ((List)tx.readListField(id1, "list1", true)).add(deleted1);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
         }
-        Assert.assertEquals(tx.readListField(id1, 30, true).size(), 2);
-        ((List)tx.readListField(id1, 30, true)).add(id3);
-        Assert.assertEquals(tx.readListField(id1, 30, true).size(), 3);
-        Assert.assertEquals(tx.readListField(id1, 30, true).get(2), id3);
+        Assert.assertEquals(tx.readListField(id1, "list1", true).size(), 2);
+        ((List)tx.readListField(id1, "list1", true)).add(id3);
+        Assert.assertEquals(tx.readListField(id1, "list1", true).size(), 3);
+        Assert.assertEquals(tx.readListField(id1, "list1", true).get(2), id3);
         try {
-            ((List)tx.readListField(id1, 30, true)).set(2, deleted1);
+            ((List)tx.readListField(id1, "list1", true)).set(2, deleted1);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
         }
-        Assert.assertEquals(tx.readListField(id1, 30, true).size(), 3);
-        Assert.assertEquals(tx.readListField(id1, 30, true).get(2), id3);
+        Assert.assertEquals(tx.readListField(id1, "list1", true).size(), 3);
+        Assert.assertEquals(tx.readListField(id1, "list1", true).get(2), id3);
 
         // list2
-        ((List)tx.readListField(id1, 31, true)).add(id1);
-        ((List)tx.readListField(id1, 31, true)).add(id2);
-        ((List)tx.readListField(id1, 31, true)).add(deleted1);
-        ((List)tx.readListField(id1, 31, true)).add(id3);
-        ((List)tx.readListField(id1, 31, true)).set(0, deleted1);
+        ((List)tx.readListField(id1, "list2", true)).add(id1);
+        ((List)tx.readListField(id1, "list2", true)).add(id2);
+        ((List)tx.readListField(id1, "list2", true)).add(deleted1);
+        ((List)tx.readListField(id1, "list2", true)).add(id3);
+        ((List)tx.readListField(id1, "list2", true)).set(0, deleted1);
 
         // map1
-        ((Map)tx.readMapField(id1, 40, true)).put(id1, id2);
+        ((Map)tx.readMapField(id1, "map1", true)).put(id1, id2);
         try {
-            ((Map)tx.readMapField(id1, 40, true)).put(deleted1, id3);
+            ((Map)tx.readMapField(id1, "map1", true)).put(deleted1, id3);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
         }
-        ((Map)tx.readMapField(id1, 40, true)).put(id4, deleted2);
+        ((Map)tx.readMapField(id1, "map1", true)).put(id4, deleted2);
 
         // map2
-        ((Map)tx.readMapField(id1, 41, true)).put(id1, id2);
-        ((Map)tx.readMapField(id1, 41, true)).put(id3, deleted1);
+        ((Map)tx.readMapField(id1, "map2", true)).put(id1, id2);
+        ((Map)tx.readMapField(id1, "map2", true)).put(id3, deleted1);
         try {
-            ((Map)tx.readMapField(id1, 41, true)).put(deleted2, id4);
+            ((Map)tx.readMapField(id1, "map2", true)).put(deleted2, id4);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected {}", e.toString());
@@ -165,20 +165,20 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         Transaction tx = this.createTx();
         DetachedTransaction stx = tx.createDetachedTransaction();
 
-        final ObjId id1 = stx.create(1);
-        final ObjId deleted1 = stx.create(1);
+        final ObjId id1 = stx.create("Foo");
+        final ObjId deleted1 = stx.create("Foo");
 
         stx.delete(deleted1);
 
         // ref1 - self reference should be OK!
-        stx.writeSimpleField(id1, 10, id1, true);
+        stx.writeSimpleField(id1, "ref1", id1, true);
         stx.copy(id1, tx, true, false, null, null);
 
         // ref1
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        stx.writeSimpleField(id1, 10, deleted1, true);
+        stx.writeSimpleField(id1, "ref1", deleted1, true);
         try {
             this.log.info("doing copy #1: id={} tx={} stx={}", id1, tx, stx);
             stx.copy(id1, tx, true, false, null, null);
@@ -191,27 +191,27 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         assert tx.exists(id1);
         this.log.info("deletedAssignments = {}", deletedAssignments);
-        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(10, true)));
+        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType("Foo").getField("ref1")));
 
         // ref2
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        stx.writeSimpleField(id1, 11, deleted1, true);
+        stx.writeSimpleField(id1, "ref2", deleted1, true);
         stx.copy(id1, tx, true, false, null, null);
 
         // list1 - self reference should be OK!
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((List)stx.readListField(id1, 30, true)).add(id1);
+        ((List)stx.readListField(id1, "list1", true)).add(id1);
         stx.copy(id1, tx, true, false, null, null);
 
         // list1
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((List)stx.readListField(id1, 30, true)).add(deleted1);
+        ((List)stx.readListField(id1, "list1", true)).add(deleted1);
         try {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
@@ -222,20 +222,20 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         deletedAssignments.clear();
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         assert tx.exists(id1);
-        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(32, true)));
+        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType("Foo").getField("list1.element")));
 
         // list2
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((List)stx.readListField(id1, 31, true)).add(deleted1);
+        ((List)stx.readListField(id1, "list2", true)).add(deleted1);
         stx.copy(id1, tx, true, false, null, null);
 
         // set1
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((Set)stx.readSetField(id1, 20, true)).add(deleted1);
+        ((Set)stx.readSetField(id1, "set1", true)).add(deleted1);
         try {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
@@ -246,20 +246,20 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         deletedAssignments.clear();
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         assert tx.exists(id1);
-        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(22, true)));
+        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType("Foo").getField("set1.element")));
 
         // set2
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((Set)stx.readSetField(id1, 21, true)).add(deleted1);
+        ((Set)stx.readSetField(id1, "set2", true)).add(deleted1);
         stx.copy(id1, tx, true, false, null, null);
 
         // set2 with deletedAssignments
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((Set)stx.readSetField(id1, 21, true)).add(deleted1);
+        ((Set)stx.readSetField(id1, "set2", true)).add(deleted1);
         deletedAssignments.clear();
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         checkMap(deletedAssignments, buildMap());
@@ -268,7 +268,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
-        ((Map)stx.readMapField(id1, 40, true)).put(deleted1, id1);
+        ((Map)stx.readMapField(id1, "map1", true)).put(deleted1, id1);
         try {
             stx.copy(id1, tx, true, false, null, null);
             assert false;
@@ -279,7 +279,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         deletedAssignments.clear();
         stx.copy(id1, tx, true, false, deletedAssignments, null);
         assert tx.exists(id1);
-        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(42, true)));
+        checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType("Foo").getField("map1.key")));
 
     }
 
@@ -287,6 +287,6 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
         final SimpleKVDatabase kv = new SimpleKVDatabase(kvstore, 100, 500);
         final Database db = new Database(kv);
-        return db.createTransaction(this.schema, 1, true);
+        return db.createTransaction(this.schema);
     }
 }

@@ -20,7 +20,14 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class EnumArraySchemaField extends AbstractEnumSchemaField {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.ENUM_ARRAY_FIELD;
+
     private int dimensions;
+
+// Properties
 
     /**
      * Get the number of enum array dimensions.
@@ -30,6 +37,13 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
     public int getDimensions() {
         return this.dimensions;
     }
+
+    /**
+     * Set the number of enum array dimensions.
+     *
+     * @param dimensions number of dimensions
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setDimensions(final int dimensions) {
         this.verifyNotLockedDown();
         this.dimensions = dimensions;
@@ -48,36 +62,34 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
     void validate() {
         super.validate();
         if (this.dimensions < 1 || this.dimensions > Encoding.MAX_ARRAY_DIMENSIONS) {
-            throw new IllegalArgumentException("invalid " + this + ": number of dimensions ("
-              + this.dimensions + ") must be in the range 1 to " + Encoding.MAX_ARRAY_DIMENSIONS);
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: number of dimensions (%d) must be in the range 1 to %d",
+              this, this.dimensions, Encoding.MAX_ARRAY_DIMENSIONS));
         }
     }
 
-// Compatibility
+// Schema ID
 
     @Override
-    boolean isCompatibleType(SimpleSchemaField field) {
-        if (!super.isCompatibleType(field))
-            return false;
-        final EnumArraySchemaField that = (EnumArraySchemaField)field;
-        return this.dimensions == that.dimensions;
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output, forSchemaModel);
         output.writeInt(this.dimensions);
     }
 
 // XML Reading
 
     @Override
-    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        super.readAttributes(reader, formatVersion);
+    void readAttributes(XMLStreamReader reader, int formatVersion, boolean requireName) throws XMLStreamException {
+        super.readAttributes(reader, formatVersion, requireName);
         this.dimensions = this.getIntAttr(reader, XMLConstants.DIMENSIONS_ATTRIBUTE);
         if (this.dimensions < 1 || this.dimensions > Encoding.MAX_ARRAY_DIMENSIONS) {
             throw this.newInvalidAttributeException(reader, XMLConstants.DIMENSIONS_ATTRIBUTE,
-              "number of dimensions must be in the range 1 to " + Encoding.MAX_ARRAY_DIMENSIONS);
+              String.format("number of dimensions must be in the range 1 to %d", Encoding.MAX_ARRAY_DIMENSIONS));
         }
     }
 
@@ -85,14 +97,12 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
 
     @Override
     void writeElement(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeStartElement(XMLConstants.ENUM_ARRAY_FIELD_TAG.getNamespaceURI(),
-          XMLConstants.ENUM_ARRAY_FIELD_TAG.getLocalPart());
+        this.writeStartElement(writer, XMLConstants.ENUM_ARRAY_FIELD_TAG);
     }
 
     @Override
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(XMLConstants.DIMENSIONS_ATTRIBUTE.getNamespaceURI(),
-          XMLConstants.DIMENSIONS_ATTRIBUTE.getLocalPart(), "" + this.dimensions);
+        this.writeAttr(writer, XMLConstants.DIMENSIONS_ATTRIBUTE, this.dimensions);
         super.writeSimpleAttributes(writer);
     }
 
@@ -102,12 +112,13 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
     public Diffs differencesFrom(SimpleSchemaField other) {
         final Diffs diffs = new Diffs(super.differencesFrom(other));
         if (!(other instanceof EnumArraySchemaField)) {
-            diffs.add("change type from " + other.getClass().getSimpleName() + " to " + this.getClass().getSimpleName());
+            diffs.add(String.format("changed type from %s to %s",
+              other.getClass().getSimpleName(), this.getClass().getSimpleName()));
             return diffs;
         }
         final EnumArraySchemaField that = (EnumArraySchemaField)other;
         if (this.dimensions != that.dimensions)
-            diffs.add("changed number of dimensions from " + that.dimensions + " to " + this.dimensions);
+            diffs.add(String.format("changed number of dimensions from %d to %d", that.dimensions, this.dimensions));
         return diffs;
     }
 

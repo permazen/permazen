@@ -11,6 +11,9 @@ import io.permazen.util.UnsignedIntEncoder;
 
 /**
  * A view of an index on a single value.
+ *
+ * @param <V> indexed value type
+ * @param <T> target type
  */
 class IndexView<V, T> extends AbstractIndexView {
 

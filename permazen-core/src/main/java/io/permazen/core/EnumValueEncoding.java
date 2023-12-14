@@ -87,8 +87,8 @@ public class EnumValueEncoding extends NullSafeEncoding<EnumValue> {
               "invalid enum identifier \"" + ident + "\" at index " + index);
             final EnumValue otherValue = identifierMap.put(ident, new EnumValue(ident, index));
             if (otherValue != null) {
-                throw new IllegalArgumentException("invalid duplicate enum identifier \"" + ident
-                  + "\" at indexes " + otherValue.getOrdinal() + " and " + index);
+                throw new IllegalArgumentException(String.format(
+                  "invalid duplicate enum identifier \"%s\" at indexes %d and %d", ident, otherValue.getOrdinal(), index));
             }
         }
         return identifierMap;

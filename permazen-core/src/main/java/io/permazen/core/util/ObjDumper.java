@@ -64,29 +64,17 @@ public final class ObjDumper {
         Preconditions.checkArgument(tx != null, "null tx");
         Preconditions.checkArgument(id != null, "null id");
 
-        // Get object info
-        /*final*/ Schema schema;
-        boolean deleted = false;
-        try {
-            schema = tx.getSchemas().getVersion(tx.getSchemaVersion(id));
-        } catch (IllegalArgumentException | StaleTransactionException | DeletedObjectException e) {
-            schema = tx.getSchema();
-            deleted = e instanceof DeletedObjectException;
-        }
+        // Get object type
         final ObjType type;
         try {
-            type = schema.getObjType(id.getStorageId());
+            type = tx.getObjType(id);
+        } catch (StaleTransactionException e) {
+            return String.format("type#%d@%s [%s]", id.getStorageId(), id, "stale tx");
         } catch (UnknownTypeException e) {
-            return "type#" + id.getStorageId() + "@" + id + " [unknown type]";
+            return String.format("type#%d@%s [%s]", id.getStorageId(), id, "unknown type");
+        } catch (DeletedObjectException e) {
+            return String.format("type#%d@%s [%s]", id.getStorageId(), id, "does not exist");
         }
-
-        // Is transaction valid?
-        if (!tx.isValid())
-            return type.getName() + "@" + id + " [stale tx]";
-
-        // Is object deleted?
-        if (deleted)
-            return type.getName() + "@" + id + " [does not exist]";
 
         // Format object
         final StringWriter buf = new StringWriter();
@@ -123,12 +111,11 @@ public final class ObjDumper {
         Preconditions.checkArgument(id != null, "null id");
 
         // Get object info
-        final int schemaVersion = tx.getSchemaVersion(id);
-        final Schema schema = tx.getSchemas().getVersion(schemaVersion);
-        final ObjType type = schema.getObjType(id.getStorageId());
+        final ObjType type = tx.getObjType(id);
+        final Schema schema = type.getSchema();
 
         // Print headline
-        writer.println("object " + id + " type " + type.getName() + "#" + type.getStorageId() + " version " + schemaVersion);
+        writer.println(String.format("object %s type %s (schema \"%s\")", id, type.getName(), schema.getSchemaId()));
         if (maxCollectionEntries < 0) {
             writer.flush();
             return;
@@ -152,20 +139,20 @@ public final class ObjDumper {
                 public <T> Void caseSimpleField(SimpleField<T> field) {
                     final Encoding<T> encoding = field.getEncoding();
                     writer.println(encoding.toParseableString(
-                      encoding.validate(tx.readSimpleField(id, field.getStorageId(), false))));
+                      encoding.validate(tx.readSimpleField(id, field.getName(), false))));
                     return null;
                 }
 
                 @Override
                 public Void caseCounterField(CounterField field) {
-                    writer.println("" + tx.readCounterField(id, field.getStorageId(), false));
+                    writer.println("" + tx.readCounterField(id, field.getName(), false));
                     return null;
                 }
 
                 @Override
                 @SuppressWarnings("unchecked")
                 public <E> Void caseSetField(SetField<E> field) {
-                    this.handleCollection((NavigableSet<E>)tx.readSetField(id, field.getStorageId(), false),
+                    this.handleCollection((NavigableSet<E>)tx.readSetField(id, field.getName(), false),
                       field.getElementField(), false);
                     return null;
                 }
@@ -173,7 +160,7 @@ public final class ObjDumper {
                 @Override
                 @SuppressWarnings("unchecked")
                 public <E> Void caseListField(ListField<E> field) {
-                    this.handleCollection((List<E>)tx.readListField(id, field.getStorageId(), false),
+                    this.handleCollection((List<E>)tx.readListField(id, field.getName(), false),
                       field.getElementField(), true);
                     return null;
                 }
@@ -206,7 +193,7 @@ public final class ObjDumper {
                     final Encoding<V> valueEncoding = field.getValueField().getEncoding();
                     writer.print("{");
                     int count = 0;
-                    final NavigableMap<K, V> map = (NavigableMap<K, V>)tx.readMapField(id, field.getStorageId(), false);
+                    final NavigableMap<K, V> map = (NavigableMap<K, V>)tx.readMapField(id, field.getName(), false);
                     for (Map.Entry<K, V> entry : map.entrySet()) {
                         if (count == 0)
                             writer.println();

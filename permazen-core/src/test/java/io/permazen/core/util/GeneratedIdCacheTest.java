@@ -9,7 +9,6 @@ import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.TransactionConfig;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -37,20 +36,17 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(TransactionConfig.builder()
-          .schemaModel(schema1)
-          .schemaVersion(1)
-          .build());
+        Transaction tx = db.createTransaction(schema1);
 
         final GeneratedIdCache c = new GeneratedIdCache();
 
-        ObjId id1 = c.getGeneratedId(tx, 1, "aaa");
+        ObjId id1 = c.getGeneratedId(tx, "Foo", "aaa");
 
         Assert.assertEquals(id1.getStorageId(), 1);
         Assert.assertFalse(tx.exists(id1));
 
-        ObjId id2 = c.getGeneratedId(tx, 1, "aaa");
-        ObjId id3 = c.getGeneratedId(tx, 1, "bbb");
+        ObjId id2 = c.getGeneratedId(tx, "Foo", "aaa");
+        ObjId id3 = c.getGeneratedId(tx, "Foo", "bbb");
 
         Assert.assertEquals(id2, id1);
         Assert.assertNotEquals(id3, id1);
@@ -58,13 +54,13 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
         Assert.assertFalse(tx.exists(id2));
         Assert.assertFalse(tx.exists(id3));
 
-        ObjId id4 = c.getGeneratedId(tx, 2, "aaa");
+        ObjId id4 = c.getGeneratedId(tx, "Bar", "aaa");
 
         Assert.assertNotEquals(id4, id1);
         Assert.assertEquals(id4.getStorageId(), 2);
 
-        ObjId id5 = c.getGeneratedId(tx, 2, "aaa");
-        ObjId id6 = c.getGeneratedId(tx, 2, "bbb");
+        ObjId id5 = c.getGeneratedId(tx, "Bar", "aaa");
+        ObjId id6 = c.getGeneratedId(tx, "Bar", "bbb");
 
         Assert.assertEquals(id5, id4);
         Assert.assertNotEquals(id6, id4);
@@ -73,21 +69,21 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
         Assert.assertEquals(id6.getStorageId(), 2);
 
         try {
-            c.getGeneratedId(null, 1, "aaa");
+            c.getGeneratedId(null, "Foo", "aaa");
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
         }
 
         try {
-            c.getGeneratedId(tx, 1, null);
+            c.getGeneratedId(tx, "Foo", null);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
         }
 
         try {
-            c.getGeneratedId(tx, 3, "aaa");
+            c.getGeneratedId(tx, "Jam", "aaa");
             assert false;
         } catch (UnknownTypeException e) {
             // expected

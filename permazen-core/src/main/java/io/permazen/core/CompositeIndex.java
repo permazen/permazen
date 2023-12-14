@@ -6,71 +6,88 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import io.permazen.encoding.Encoding;
+import io.permazen.schema.SchemaCompositeIndex;
 
 /**
  * Represents a composite index on an {@link ObjType}.
  */
-public class CompositeIndex extends SchemaItem {
+public class CompositeIndex extends Index {
 
-    final ObjType objType;
-    final List<SimpleField<?>> fields;
+// Constructor
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the index
-     * @param storageId index storage ID
-     * @param schema schema version
-     * @param objType containing object type
-     * @param fields indexed fields
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
-    CompositeIndex(String name, int storageId, Schema schema, ObjType objType, Iterable<? extends SimpleField<?>> fields) {
-        super(name, storageId, schema);
-        Preconditions.checkArgument(objType != null, "null objType");
-        Preconditions.checkArgument(fields != null, "null fields");
-        this.objType = objType;
-        this.fields = Collections.unmodifiableList(Lists.newArrayList(fields));
+    CompositeIndex(Schema schema, SchemaCompositeIndex index, ObjType objType, Iterable<? extends SimpleField<?>> fields) {
+        super(schema, index, index.getName(), objType, fields);
+        assert this.fields.size() >= 2;
+        assert this.fields.stream().noneMatch(field -> field.parent != null);
     }
 
-// Public methods
+// IndexSwitch
 
-    /**
-     * Get the containing object type.
-     *
-     * @return indexed object type
-     */
-    public ObjType getObjType() {
-        return this.objType;
+    @Override
+    public <R> R visit(IndexSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
+        return target.caseCompositeIndex(this);
     }
 
-    /**
-     * Get the indexed fields.
-     *
-     * @return list of indexed fields, always having length two or greater
-     */
-    public List<SimpleField<?>> getFields() {
-        return this.fields;
-    }
+// Object
 
     @Override
     public String toString() {
-        return "composite index \"" + this.name + "\" on fields " + this.fields.stream()
-          .map(field -> field.name)
-          .collect(Collectors.toList());
+        return "composite " + super.toString();
     }
 
-// Non-public methods
+// Package Methods
 
     @Override
-    CompositeIndexStorageInfo toStorageInfo() {
-        return new CompositeIndexStorageInfo(this);
+    public AbstractCoreIndex<ObjId> getIndex(Transaction tx) {
+        switch (this.encodings.size()) {
+        case 2:
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1));
+        case 3:
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1), this.encodings.get(2));
+        case 4:
+            return this.buildIndex(tx, this.encodings.get(0), this.encodings.get(1), this.encodings.get(2), this.encodings.get(3));
+        // COMPOSITE-INDEX
+        default:
+            throw new RuntimeException("internal error");
+        }
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <V1, V2> CoreIndex2<V1, V2, ObjId> buildIndex(Transaction tx,
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding) {
+        return new CoreIndex2<>(tx.kvt, new Index2View<>(this.storageId,
+          value1Encoding,
+          value2Encoding,
+          Encodings.OBJ_ID));
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <V1, V2, V3> CoreIndex3<V1, V2, V3, ObjId> buildIndex(Transaction tx,
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding,
+      Encoding<V3> value3Encoding) {
+        return new CoreIndex3<>(tx.kvt, new Index3View<>(this.storageId,
+          value1Encoding,
+          value2Encoding,
+          value3Encoding,
+          Encodings.OBJ_ID));
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <V1, V2, V3, V4> CoreIndex4<V1, V2, V3, V4, ObjId> buildIndex(Transaction tx,
+      Encoding<V1> value1Encoding,
+      Encoding<V2> value2Encoding,
+      Encoding<V3> value3Encoding,
+      Encoding<V4> value4Encoding) {
+        return new CoreIndex4<>(tx.kvt, new Index4View<>(this.storageId,
+          value1Encoding,
+          value2Encoding,
+          value3Encoding,
+          value4Encoding,
+          Encodings.OBJ_ID));
     }
 }

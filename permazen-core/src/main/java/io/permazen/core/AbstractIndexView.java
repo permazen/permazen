@@ -20,10 +20,10 @@ import java.util.Arrays;
  */
 abstract class AbstractIndexView {
 
-    final byte[] prefix;                            // prefix that is always expected and skipped over
-    final boolean prefixMode;                       // whether this instance requires prefix mode (i.e., entire key not consumed)
-    final Encoding<?>[] encodings;
-    final KeyFilter[] filters;
+    final byte[] prefix;                    // prefix that is always expected and skipped over
+    final boolean prefixMode;               // whether this instance requires prefix mode (i.e., entire key not consumed)
+    final Encoding<?>[] encodings;          // the encodings of the indexed values
+    final KeyFilter[] filters;              // the filter that applies to each encoding, or null
 
     /**
      * Constructor.

@@ -74,7 +74,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
 
         final ObjId id1 = new ObjId("0a11111111111111");
         final ObjId id2 = new ObjId("0a22222222222222");
@@ -84,11 +84,11 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
         tx.create(id2);
         tx.create(id3);
 
-        tx.writeSimpleField(id1, 11, "aaa", true);
-        tx.writeSimpleField(id2, 11, "aaa", true);
-        tx.writeSimpleField(id3, 11, "bbb", true);
+        tx.writeSimpleField(id1, "s", "aaa", true);
+        tx.writeSimpleField(id2, "s", "aaa", true);
+        tx.writeSimpleField(id3, "s", "bbb", true);
 
-        final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.queryIndex(11);
+        final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.querySimpleIndex(11);
         TestSupport.checkSet(index.asSet(), buildSet(
           new Tuple2<>("aaa", id1),
           new Tuple2<>("aaa", id2),

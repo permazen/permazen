@@ -33,7 +33,7 @@ import java.util.NavigableSet;
  * @param <V4> fourth index value type
  * @param <T> index target type
  */
-public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex implements Index4<V1, V2, V3, V4, T> {
+public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implements Index4<V1, V2, V3, V4, T> {
 
 // Constructors
 

@@ -27,7 +27,7 @@ import java.util.NavigableSet;
  * @param <V2> second index value type
  * @param <T> index target type
  */
-public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V1, V2, T> {
+public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex<T> implements Index2<V1, V2, T> {
 
 // Constructors
 

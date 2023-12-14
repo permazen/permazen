@@ -164,7 +164,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
         // Make room for elements
         final int size = this.size();
-        Objects.checkFromIndexSize(size, numElems, Integer.MAX_VALUE);
+        if (index < 0 || index > size || size + numElems < 0)
+            throw new IndexOutOfBoundsException("index = " + index + ", size = " + size);
         this.shift(index, index + numElems, size);
 
         // Add entries

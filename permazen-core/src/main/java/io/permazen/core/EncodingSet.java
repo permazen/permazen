@@ -70,8 +70,10 @@ abstract class EncodingSet<E> extends AbstractKVNavigableSet<E> {
         Preconditions.checkArgument(encoding != null, "null encoding");
         Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(prefix.length == 0 || keyRange != null, "null keyRange");
-        if (keyRange != null && !KeyRange.forPrefix(prefix).contains(keyRange))
-            throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
+        if (keyRange != null && !KeyRange.forPrefix(prefix).contains(keyRange)) {
+            throw new IllegalArgumentException(String.format(
+              "%s does not restrict to prefix %s", keyRange, ByteUtil.toString(prefix)));
+        }
         this.encoding = encoding;
         this.prefix = prefix;
     }

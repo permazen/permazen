@@ -5,14 +5,14 @@
 
 package io.permazen.core;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.NullSafeEncoding;
 import io.permazen.util.ByteWriter;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
@@ -28,35 +28,58 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
 
     private static final long serialVersionUID = -5980288575339951079L;
 
-    private final TreeSet<Integer> objectTypes;
+    private final Schema schema;
+    private final Set<ObjType> objectTypes;
+    private final TreeSet<String> objectTypeNames;
+    private final TreeSet<Integer> objectTypeStorageIds;
 
     /**
      * Constructor.
      *
      * <p>
      * No restrictions will be placed on encoded references.
+     *
+     * @param schema associated schema
+     * @throws IllegalArgumentException if {@code schema} is null
      */
-    public ReferenceEncoding() {
-        this(null);
+    public ReferenceEncoding(Schema schema) {
+        this(schema, null);
     }
+
+// Public Methods
 
     /**
      * Constructor.
      *
+     * @param schema associated schema
      * @param objectTypes allowed object type storage IDs, or null for no restriction
+     * @throws IllegalArgumentException if {@code schema} is null
      */
-    public ReferenceEncoding(Set<Integer> objectTypes) {
+    public ReferenceEncoding(Schema schema, Set<ObjType> objectTypes) {
         super(null, Encodings.OBJ_ID);
-        this.objectTypes = objectTypes != null ? new TreeSet<>(objectTypes) : null;
+        Preconditions.checkArgument(schema != null, "null schema");
+        this.schema = schema;
+        this.objectTypes = objectTypes;
+        if (this.objectTypes != null) {
+            this.objectTypeNames = new TreeSet<>();
+            this.objectTypeStorageIds = new TreeSet<>();
+            for (ObjType objType : this.objectTypes) {
+                this.objectTypeNames.add(objType.getName());
+                this.objectTypeStorageIds.add(objType.getStorageId());
+            }
+        } else {
+            this.objectTypeNames = null;
+            this.objectTypeStorageIds = null;
+        }
     }
 
     /**
      * Get the object types this encoding is allowed to reference, if so restricted.
      *
-     * @return storage IDs of allowed object types, or null if there is no restriction
+     * @return allowed object types, or null if there is no restriction
      */
-    public SortedSet<Integer> getObjectTypes() {
-        return objectTypes != null ? Collections.unmodifiableSortedSet(this.objectTypes) : null;
+    public Set<ObjType> getObjectTypes() {
+        return this.objectTypes;
     }
 
 // Encoding
@@ -72,16 +95,25 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
     }
 
     /**
-     * Verify the reference value is permitted by this instance.
+     * Verify the reference target is permitted by this instance.
      *
      * @param id reference value
-     * @return validated reference
+     * @return {@code id} after successful validation
      * @throws InvalidReferenceException if {@code id} has a storage ID that is not allowed by this instance
      */
-    protected ObjId checkAllowed(ObjId id) {
-        if (this.objectTypes != null && id != null && !this.objectTypes.contains(id.getStorageId()))
-            throw new InvalidReferenceException(id, this.objectTypes);
-        return id;
+    public ObjId checkAllowed(ObjId id) {
+        if (id == null || this.objectTypes == null)
+            return id;
+        final int storageId = id.getStorageId();
+        if (this.objectTypeStorageIds.contains(storageId))
+            return id;
+        String typeName;
+        try {
+            typeName = this.schema.getObjType(storageId).getName();
+        } catch (UnknownTypeException e) {
+            typeName = "(Unknown)";
+        }
+        throw new InvalidReferenceException(id, typeName, this.objectTypeNames);
     }
 
     /**
@@ -95,9 +127,14 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
         return this.validate(value);
     }
 
-    @Override
-    public ReferenceEncoding genericizeForIndex() {
-        return this.objectTypes != null ? new ReferenceEncoding() : this;
+// Package Methods
+
+    TreeSet<String> getObjectTypeNames() {
+        return this.objectTypeNames;
+    }
+
+    TreeSet<Integer> getObjectTypeStorageIds() {
+        return this.objectTypeStorageIds;
     }
 
 // Object
@@ -105,8 +142,8 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
     @Override
     public String toString() {
         String desc = super.toString();
-        if (this.objectTypes != null)
-            desc += " to " + this.objectTypes;
+        if (this.objectTypeNames != null)
+            desc += " to " + this.objectTypeNames;
         return desc;
     }
 
@@ -117,11 +154,11 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
         if (!super.equals(obj))
             return false;
         final ReferenceEncoding that = (ReferenceEncoding)obj;
-        return Objects.equals(this.objectTypes, that.objectTypes);
+        return Objects.equals(this.objectTypeStorageIds, that.objectTypeStorageIds);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.objectTypes);
+        return super.hashCode() ^ Objects.hashCode(this.objectTypeStorageIds);
     }
 }

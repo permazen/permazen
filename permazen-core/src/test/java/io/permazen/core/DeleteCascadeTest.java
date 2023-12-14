@@ -31,12 +31,12 @@ public class DeleteCascadeTest extends CoreAPITestSupport {
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
-        final Transaction tx = db.createTransaction(schema, 1, true);
+        final Transaction tx = db.createTransaction(schema);
 
-        final ObjId id1 = tx.create(1);
-        final ObjId id2 = tx.create(1);
+        final ObjId id1 = tx.create("Person");
+        final ObjId id2 = tx.create("Person");
 
-        tx.writeSimpleField(id1, 2, id2, false);
+        tx.writeSimpleField(id1, "Person", id2, false);
 
         tx.delete(id1);
 

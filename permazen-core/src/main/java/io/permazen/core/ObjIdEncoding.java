@@ -14,7 +14,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 
 /**
- * Non-null encoding for encoding {@link ObjId}s. Null values are not supported by this class.
+ * Non-null encoding for {@link ObjId}s. Null values are not supported by this class.
  *
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}.
@@ -73,6 +73,11 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
     @Override
     public int compare(ObjId id1, ObjId id2) {
         return id1.compareTo(id2);
+    }
+
+    @Override
+    public boolean sortsNaturally() {
+        return true;
     }
 
     @Override

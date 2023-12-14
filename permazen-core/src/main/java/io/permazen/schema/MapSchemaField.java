@@ -11,8 +11,7 @@ import io.permazen.core.MapField;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 
-import java.util.Objects;
-import java.util.SortedMap;
+import java.util.NavigableMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -23,39 +22,68 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class MapSchemaField extends ComplexSchemaField implements DiffGenerating<MapSchemaField> {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.MAP_FIELD;
+
     private SimpleSchemaField keyField;
     private SimpleSchemaField valueField;
 
+// Properties
+
+    /**
+     * Get this map field's key sub-field.
+     *
+     * @return key sub-field
+     */
     public SimpleSchemaField getKeyField() {
         return this.keyField;
     }
+
+    /**
+     * Set this map field's key sub-field.
+     *
+     * @param keyField key sub-field
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setKeyField(SimpleSchemaField keyField) {
         this.verifyNotLockedDown();
         this.keyField = keyField;
     }
 
+    /**
+     * Get this map field's value sub-field.
+     *
+     * @return value sub-field
+     */
     public SimpleSchemaField getValueField() {
         return this.valueField;
     }
+
+    /**
+     * Set this map field's value sub-field.
+     *
+     * @param valueField value sub-field
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setValueField(SimpleSchemaField valueField) {
         this.verifyNotLockedDown();
         this.valueField = valueField;
     }
 
+// ComplexSchemaField
+
     @Override
-    public SortedMap<String, SimpleSchemaField> getSubFields() {
+    public NavigableMap<String, SimpleSchemaField> getSubFields() {
         return ImmutableSortedMap.of(MapField.KEY_FIELD_NAME, this.keyField, MapField.VALUE_FIELD_NAME, this.valueField);
     }
 
-// Lockdown
+// Schema ID
 
     @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
-        if (this.keyField != null)
-            this.keyField.lockDown();
-        if (this.valueField != null)
-            this.valueField.lockDown();
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
 // SchemaFieldSwitch
@@ -99,25 +127,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
 
     @Override
     public String toString() {
-        return "map " + super.toString() + " with key " + this.keyField + " and value " + this.valueField;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        final MapSchemaField that = (MapSchemaField)obj;
-        return Objects.equals(this.keyField, that.keyField)
-          && Objects.equals(this.valueField, that.valueField);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode()
-          ^ Objects.hashCode(this.keyField)
-          ^ Objects.hashCode(this.valueField);
+        return "map " + super.toString();
     }
 
 // Cloneable
@@ -125,10 +135,14 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
     @Override
     public MapSchemaField clone() {
         final MapSchemaField clone = (MapSchemaField)super.clone();
-        if (clone.keyField != null)
+        if (clone.keyField != null) {
             clone.keyField = clone.keyField.clone();
-        if (clone.valueField != null)
+            clone.keyField.setParent(clone);
+        }
+        if (clone.valueField != null) {
             clone.valueField = clone.valueField.clone();
+            clone.valueField.setParent(clone);
+        }
         return clone;
     }
 }

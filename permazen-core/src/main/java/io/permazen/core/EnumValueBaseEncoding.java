@@ -71,8 +71,8 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
         try {
             return this.enumValueList.get(ordinal);
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("enum ordinal " + ordinal + " not in the range [0.."
-              + this.enumValueList.size() + ")", e);
+            throw new IllegalArgumentException(String.format(
+              "enum ordinal %d not in the range [0..%d)", ordinal, this.enumValueList.size()), e);
         }
     }
 
@@ -97,7 +97,7 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
     public EnumValue fromString(String string) {
         final EnumValue value = this.identifierMap.get(string);
         if (value == null)
-            throw new IllegalArgumentException("unknown enum identifier \"" + string + "\"");
+            throw new IllegalArgumentException(String.format("unknown enum identifier \"%s\"", string));
         return value;
     }
 
@@ -140,8 +140,8 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
             return value;
         final EnumValue sameName = this.identifierMap.get(name);
         if (sameName != null) {
-            throw new IllegalArgumentException("enum value " + value + " has incorrect ordinal value "
-              + ordinal + " != " + sameName.getOrdinal());
+            throw new IllegalArgumentException(String.format(
+              "enum value %s has incorrect ordinal value %d != %d", value, ordinal, sameName.getOrdinal()));
         }
         throw new IllegalArgumentException("unknown enum value " + value);
     }

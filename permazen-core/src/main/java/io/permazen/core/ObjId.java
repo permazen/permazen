@@ -37,12 +37,7 @@ public class ObjId implements Comparable<ObjId>, Serializable {
 
     private static final long serialVersionUID = 1598203254073015116L;
 
-    private static final ThreadLocal<SecureRandom> RANDOM = new ThreadLocal<SecureRandom>() {
-        @Override
-        protected SecureRandom initialValue() {
-            return new SecureRandom();
-        }
-    };
+    private static final ThreadLocal<SecureRandom> RANDOM = ThreadLocal.withInitial(SecureRandom::new);
 
     private final long value;
 

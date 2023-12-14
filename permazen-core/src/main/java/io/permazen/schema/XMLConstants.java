@@ -17,8 +17,8 @@ public final class XMLConstants {
     public static final QName COUNTER_FIELD_TAG = new QName("CounterField");
     public static final QName ENUM_ARRAY_FIELD_TAG = new QName("EnumArrayField");
     public static final QName ENUM_FIELD_TAG = new QName("EnumField");
+    public static final QName FIELD_TAG = new QName("Field");
     public static final QName IDENTIFIER_TAG = new QName("Identifier");
-    public static final QName INDEXED_FIELD_TAG = new QName("IndexedField");
     public static final QName LIST_FIELD_TAG = new QName("ListField");
     public static final QName MAP_FIELD_TAG = new QName("MapField");
     public static final QName OBJECT_TYPES_TAG = new QName("ObjectTypes");

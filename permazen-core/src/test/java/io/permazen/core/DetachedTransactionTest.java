@@ -56,30 +56,30 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
 
     // Setup tx1
 
-        Transaction tx1 = db1.createTransaction(schema, 1, true);
+        Transaction tx1 = db1.createTransaction(schema);
 
-        final ObjId id1 = tx1.create(1);
-        final ObjId id2 = tx1.create(1);
-        final ObjId id3 = tx1.create(1);
+        final ObjId id1 = tx1.create("Foo");
+        final ObjId id2 = tx1.create("Foo");
+        final ObjId id3 = tx1.create("Foo");
 
-        tx1.writeSimpleField(id1, 2, 123.45f, true);
-        tx1.writeSimpleField(id2, 2, Float.NEGATIVE_INFINITY, true);
-        tx1.writeSimpleField(id3, 2, Float.NaN, true);
+        tx1.writeSimpleField(id1, "float", 123.45f, true);
+        tx1.writeSimpleField(id2, "float", Float.NEGATIVE_INFINITY, true);
+        tx1.writeSimpleField(id3, "float", Float.NaN, true);
 
-        tx1.writeSimpleField(id1, 3, id2, true);
-        tx1.writeSimpleField(id2, 3, id3, true);
-        tx1.writeSimpleField(id3, 3, id1, true);
+        tx1.writeSimpleField(id1, "rref", id2, true);
+        tx1.writeSimpleField(id2, "rref", id3, true);
+        tx1.writeSimpleField(id3, "rref", id1, true);
 
-        NavigableSet<Integer> set1 = (NavigableSet<Integer>)tx1.readSetField(id1, 4, true);
+        NavigableSet<Integer> set1 = (NavigableSet<Integer>)tx1.readSetField(id1, "set", true);
         set1.add(123);
         set1.add(456);
 
-        List<Integer> list1 = (List<Integer>)tx1.readListField(id1, 6, true);
+        List<Integer> list1 = (List<Integer>)tx1.readListField(id1, "list", true);
         list1.add(234);
         list1.add(567);
         list1.add(234);
 
-        NavigableMap<Integer, String> map1 = (NavigableMap<Integer, String>)tx1.readMapField(id1, 8, true);
+        NavigableMap<Integer, String> map1 = (NavigableMap<Integer, String>)tx1.readMapField(id1, "map", true);
         map1.put(987, "foo");
         map1.put(654, "bar");
         map1.put(321, "foo");
@@ -99,17 +99,17 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
         Assert.assertFalse(tx2.exists(id3));
 
         // Check fields
-        TestSupport.checkSet(tx2.getAll(1), buildSet(id1));
-        Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 123.45f);
-        Assert.assertEquals(tx2.readSimpleField(id1, 3, true), id2);
-        TestSupport.checkSet(tx2.readSetField(id1, 4, true), buildSet(123, 456));
-        Assert.assertEquals(tx2.readListField(id1, 6, true), buildList(234, 567, 234));
-        TestSupport.checkMap(tx2.readMapField(id1, 8, true), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
+        TestSupport.checkSet(tx2.getAll("Foo"), buildSet(id1));
+        Assert.assertEquals(tx2.readSimpleField(id1, "float", true), 123.45f);
+        Assert.assertEquals(tx2.readSimpleField(id1, "rref", true), id2);
+        TestSupport.checkSet(tx2.readSetField(id1, "set", true), buildSet(123, 456));
+        Assert.assertEquals(tx2.readListField(id1, "list", true), buildList(234, 567, 234));
+        TestSupport.checkMap(tx2.readMapField(id1, "map", true), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
 
         // Check indexes
-        TestSupport.checkMap(tx2.queryIndex(3).asMap(), buildMap(id2, buildSet(id1)));
-        TestSupport.checkMap(tx2.queryIndex(7).asMap(), buildMap(234, buildSet(id1), 567, buildSet(id1)));
-        TestSupport.checkMap(tx2.queryIndex(10).asMap(), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleIndex(3).asMap(), buildMap(id2, buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleIndex(7).asMap(), buildMap(234, buildSet(id1), 567, buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleIndex(10).asMap(), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
 
         // Copy id2 and id3
         Assert.assertTrue(tx1.copy(id2, tx2, false, false, null, null));
@@ -119,29 +119,29 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
         Assert.assertFalse(tx1.copy(id1, tx2, false, false, null, null));
 
         // Check fields
-        TestSupport.checkSet(tx2.getAll(1), buildSet(id1, id2, id3));
-        Assert.assertEquals(tx2.readSimpleField(id2, 2, true), Float.NEGATIVE_INFINITY);
-        Assert.assertTrue(Float.isNaN((Float)tx2.readSimpleField(id3, 2, true)));
+        TestSupport.checkSet(tx2.getAll("Foo"), buildSet(id1, id2, id3));
+        Assert.assertEquals(tx2.readSimpleField(id2, "float", true), Float.NEGATIVE_INFINITY);
+        Assert.assertTrue(Float.isNaN((Float)tx2.readSimpleField(id3, "float", true)));
 
-        Assert.assertEquals(tx2.readSimpleField(id1, 3, true), id2);
-        Assert.assertEquals(tx2.readSimpleField(id2, 3, true), id3);
-        Assert.assertEquals(tx2.readSimpleField(id3, 3, true), id1);
+        Assert.assertEquals(tx2.readSimpleField(id1, "rref", true), id2);
+        Assert.assertEquals(tx2.readSimpleField(id2, "rref", true), id3);
+        Assert.assertEquals(tx2.readSimpleField(id3, "rref", true), id1);
 
         // Check indexes
-        TestSupport.checkMap(tx2.queryIndex(3).asMap(),
+        TestSupport.checkMap(tx2.querySimpleIndex(3).asMap(),
           buildMap(id1, buildSet(id3), id2, buildSet(id1), id3, buildSet(id2)));
 
         // Change id1 and then overwrite copy
-        tx1.writeSimpleField(id1, 2, 456.78f, true);
-        tx1.readSetField(id1, 4, true).clear();
+        tx1.writeSimpleField(id1, "float", 456.78f, true);
+        tx1.readSetField(id1, "set", true).clear();
         Assert.assertFalse(tx1.copy(id1, tx2, false, false, null, null));
-        Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 456.78f);
-        Assert.assertTrue(tx2.readSetField(id1, 4, true).isEmpty());
+        Assert.assertEquals(tx2.readSimpleField(id1, "float", true), 456.78f);
+        Assert.assertTrue(tx2.readSetField(id1, "set", true).isEmpty());
 
         // Commit transaction and verify identical key/value stores
         tx1.commit();
 
-        Transaction tx3 = db1.createTransaction(schema, 1, true);
+        Transaction tx3 = db1.createTransaction(schema);
 
         Assert.assertEquals(
           Lists.<KVPair>newArrayList(tx3.getKVTransaction().getRange(null, null)),
@@ -167,33 +167,33 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
-          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"2\">\n"
           + "    <SimpleField name=\"bar\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"7\" indexed=\"false\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx1 = db1.createTransaction(schema1, 1, true);
-        Transaction tx2 = db2.createTransaction(schema2, 1, true);
+        Transaction tx1 = db1.createTransaction(schema1);
+        Transaction tx2 = db2.createTransaction(schema2);
 
-        final ObjId id1 = tx1.create(1);
+        final ObjId id1 = tx1.create("Foo");
 
         try {
             tx1.copy(id1, tx2, false, false, null, null);
             assert false;
-        } catch (SchemaMismatchException e) {
-            // expected
+        } catch (SchemaMismatchException e) {   //
+            this.log.debug("got expected {}", e.toString());
         }
 
         tx1.delete(id1);
 
         final ObjIdMap<ObjId> remap = new ObjIdMap<>(1);
-        remap.put(id1, new ObjId(1));
+        remap.put(id1, new ObjId(2));
         try {
             tx1.copy(id1, tx2, false, false, null, remap);
             assert false;
         } catch (DeletedObjectException e) {
-            // expected
+            this.log.debug("got expected {}", e.toString());
         }
     }
 
@@ -213,18 +213,18 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx1 = db1.createTransaction(schema1, 1, true);
+        Transaction tx1 = db1.createTransaction(schema1);
 
-        final ObjId id1 = tx1.create(1);
+        final ObjId id1 = tx1.create("Foo");
         Assert.assertFalse(tx1.copy(id1, tx1, false, false, null, null));
 
-        tx1.writeSimpleField(id1, 7, 1234, false);
-        tx1.writeSimpleField(id1, 8, id1, false);
+        tx1.writeSimpleField(id1, "bar", 1234, false);
+        tx1.writeSimpleField(id1, "ref", id1, false);
         final ObjId id2 = new ObjId(1);
         final ObjIdMap<ObjId> remap = new ObjIdMap<>(1);
         remap.put(id1, id2);
         Assert.assertTrue(tx1.copy(id1, tx1, false, false, null, remap));
-        Assert.assertEquals(tx1.readSimpleField(id2, 7, false), 1234);
-        Assert.assertEquals(tx1.readSimpleField(id2, 8, false), id2);
+        Assert.assertEquals(tx1.readSimpleField(id2, "bar", false), 1234);
+        Assert.assertEquals(tx1.readSimpleField(id2, "ref", false), id2);
     }
 }

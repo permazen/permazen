@@ -34,7 +34,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
           + "    <SimpleField name=\"uuid\" encoding=\"urn:fdc:permazen.io:2020:UUID\" storageId=\"4\"/>\n"
           + "    <ReferenceField name=\"ref\" storageId=\"5\" allowDeleted=\"true\">\n"
           + "      <ObjectTypes>\n"
-          + "         <ObjectType storageId=\"3\"/>\n"
+          + "         <ObjectType name=\"Bar\"/>\n"
           + "      </ObjectTypes>\n"
           + "    </ReferenceField>\n"
           + "  </ObjectType>\n"
@@ -43,15 +43,15 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
 
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
 
-        final ObjId foo1 = tx.create(1);
-        final ObjId foo2 = tx.create(1);
-        tx.writeSimpleField(foo1, 2, 1234L, false);
-        final ObjId bar1 = tx.create(3);
-        final ObjId bar2 = tx.create(3);
-        tx.writeSimpleField(bar1, 4, UUID.randomUUID(), false);
-        tx.writeSimpleField(bar2, 4, UUID.randomUUID(), false);
+        final ObjId foo1 = tx.create("Foo");
+        final ObjId foo2 = tx.create("Foo");
+        tx.writeSimpleField(foo1, "long", 1234L, false);
+        final ObjId bar1 = tx.create("Bar");
+        final ObjId bar2 = tx.create("Bar");
+        tx.writeSimpleField(bar1, "uuid", UUID.randomUUID(), false);
+        tx.writeSimpleField(bar2, "uuid", UUID.randomUUID(), false);
 
         // Try to copy mapping bar1 -> foo1: incompatible type
         final ObjIdMap<ObjId> remap = new ObjIdMap<>(1);
@@ -59,12 +59,12 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
         try {
             tx.copy(bar1, tx, false, false, null, remap);
             assert false : "copied foo1 to bar1!";
-        } catch (IllegalArgumentException e) {
+        } catch (SchemaMismatchException e) {
             this.log.debug("got expected {}", e.toString());
         }
 
         // Try to copy mapping bar1.ref -> foo1: incompatible type in reference field
-        tx.writeSimpleField(bar1, 5, bar2, false);
+        tx.writeSimpleField(bar1, "ref", bar2, false);
         remap.clear();
         remap.put(bar2, foo2);
         try {
@@ -80,7 +80,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
         try {
             tx.copy(bar2, tx, false, false, null, remap);
             assert false : "copied bar2 to id#1!";
-        } catch (IllegalArgumentException e) {
+        } catch (SchemaMismatchException e) {
             this.log.debug("got expected {}", e.toString());
         }
 

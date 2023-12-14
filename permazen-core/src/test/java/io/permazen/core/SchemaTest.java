@@ -16,7 +16,6 @@ import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,8 +28,10 @@ public class SchemaTest extends CoreAPITestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
+        this.log.info("*** testSchema():\nXML:\n{}", xml);
+
         // Register custom type
-        ((DefaultEncodingRegistry)db.getEncodingRegistry()).add(new BarType());
+        ((DefaultEncodingRegistry)db.getEncodingRegistry()).add(new BarEncoding());
 
         // Validate XML
         final SchemaModel schema;
@@ -43,7 +44,11 @@ public class SchemaTest extends CoreAPITestSupport {
 
         // Validate schema
         try {
-            db.validateSchema(schema);
+            final TransactionConfig config = TransactionConfig.builder()
+              .garbageCollectSchemas(false)
+              .schemaModel(schema)
+              .build();
+            db.createTransaction(config).rollback();
             assert valid : "schema was supposed to be invalid";
         } catch (InvalidSchemaException e) {
             assert !valid : "schema was supposed to be valid: " + this.show(e);
@@ -57,17 +62,23 @@ public class SchemaTest extends CoreAPITestSupport {
             String xml1 = xmls[i];
             String xml2 = xmls[1 - i];
 
+            this.log.info("*** testUpgradeSchema():\nXML1:\n{}XML2:\n{}", xml1, xml2);
+
             final SimpleKVDatabase kvstore = new SimpleKVDatabase();
             final Database db = new Database(kvstore);
 
             xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml1 + "</Schema>\n";
             final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
-            db.createTransaction(schema1, 1, true).commit();
+            db.createTransaction(schema1).commit();
 
             xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml2 + "</Schema>\n";
             final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
             try {
-                db.createTransaction(schema2, 2, true);
+                final TransactionConfig config = TransactionConfig.builder()
+                  .garbageCollectSchemas(false)
+                  .schemaModel(schema2)
+                  .build();
+                db.createTransaction(config).rollback();
                 assert valid : "upgrade schema was supposed to be invalid";
             } catch (InvalidSchemaException e) {
                 assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
@@ -85,32 +96,35 @@ public class SchemaTest extends CoreAPITestSupport {
           + "  <SimpleField indexed=\"true\" name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
-        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
 
         final String xml2 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField indexed=\"true\" name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"20\"/>\n"
           + "</ObjectType>\n"
           + footer;
-        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
 
         final String xml3 = header
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"b\" encoding=\"urn:foo:bar\" storageId=\"20\"/>\n"
+          + "  <SimpleField name=\"b\" encoding=\"urn:foo:bar\"/>\n"
           + "</ObjectType>\n"
           + footer;
+
+        this.log.info("*** testValidateSchema():\nXML1:\n{}\nXML2:\n{}\nXML3:\n{}", xml1, xml2, xml3);
+
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
         final SchemaModel schema3 = SchemaModel.fromXML(new ByteArrayInputStream(xml3.getBytes(StandardCharsets.UTF_8)));
 
         final DefaultEncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
 
         this.validate(encodingRegistry, true, schema1);
         this.validate(encodingRegistry, true, schema1);
-        this.validate(encodingRegistry, false, schema3);                       // BarType not registered yet
+        this.validate(encodingRegistry, false, schema3);                       // BarEncoding not registered yet
 
-        encodingRegistry.add(new BarType());
+        encodingRegistry.add(new BarEncoding());
         this.validate(encodingRegistry, true, schema1);
         this.validate(encodingRegistry, true, schema1);
-        this.validate(encodingRegistry, true, schema3);                        // BarType is now registered
+        this.validate(encodingRegistry, true, schema3);                        // BarEncoding is now registered
 
         this.validate(encodingRegistry, false, schema1, schema2);              // incompatible use of field #20
         this.validate(encodingRegistry, true, schema1, schema3);
@@ -119,18 +133,17 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     private void validate(EncodingRegistry encodingRegistry, boolean expectedValid, SchemaModel... schemas) {
-        if (schemas.length == 0) {
-            try {
-                Database.validateSchema(encodingRegistry, schemas[1]);
-                if (!expectedValid)
-                    throw new AssertionError("expected invalid schema but schema was valid");
-            } catch (InvalidSchemaException e) {
-                if (expectedValid)
-                    throw new AssertionError("expected valid schema but got " + e, e);
-            }
-        }
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+        db.setEncodingRegistry(encodingRegistry);
         try {
-            Database.validateSchemas(encodingRegistry, Arrays.asList(schemas));
+            for (SchemaModel schema : schemas) {
+                final TransactionConfig config = TransactionConfig.builder()
+                  .garbageCollectSchemas(false)
+                  .schemaModel(schema)
+                  .build();
+                db.createTransaction(config).commit();
+            }
             if (!expectedValid)
                 throw new AssertionError("expected invalid schema combination but was valid");
         } catch (InvalidSchemaException e) {
@@ -166,8 +179,8 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     @SuppressWarnings("serial")
-    public static class BarType extends StringEncodedEncoding<Bar> {
-        public BarType() {
+    public static class BarEncoding extends StringEncodedEncoding<Bar> {
+        public BarEncoding() {
             super(new EncodingId("urn:foo:bar"), Bar.class, new BarConverter());
         }
     }
@@ -175,37 +188,54 @@ public class SchemaTest extends CoreAPITestSupport {
     @DataProvider(name = "cases")
     public Object[][] cases() {
         return new Object[][] {
+
+          // No object types
           { true,
             ""
           },
 
+          // Garbage
           { false,
             "!@#$%^&"
           },
 
-          { false,
+          // No storage ID
+          { true,
             "<!-- test 1 -->\n"
           + "<ObjectType name=\"Foo\"/>\n"
           },
 
-          { false,
+          // Zero storage ID
+          { true,
             "<!-- test 2 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"0\"/>\n"
           },
 
+          // Bogus storage ID
           { false,
             "<!-- test 3 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"-123\"/>\n"
           },
 
+          // Explicit storage ID
           { true,
             "<!-- test 4 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\"/>\n"
           },
 
+          // Missing object type name
           { false,
             "<!-- test 5 -->\n"
           + "<ObjectType storageId=\"123\"/>\n"
+          },
+
+          // Ensure automatically assigned storage IDs don't interfere with explicitly assigned ones
+          { true,
+            "<!-- test 5b -->\n"
+          + "<ObjectType name=\"Foo1\"/>\n"
+          + "<ObjectType name=\"Foo2\"/>\n"
+          + "<ObjectType name=\"Foo3\"/>\n"
+          + "<ObjectType name=\"Foo4\" storageId=\"1\"/>\n"
           },
 
           // Don't allow duplicate object storage IDs
@@ -222,6 +252,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "<ObjectType name=\"Foo\" storageId=\"456\"/>\n"
           },
 
+          // Missing encoding
           { false,
             "<!-- test 8 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
@@ -229,6 +260,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Missing field name
           { false,
             "<!-- test 9 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
@@ -236,6 +268,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Missing field name and encoding
           { false,
             "<!-- test 10 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
@@ -243,20 +276,21 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
-          { false,
+          { true,
             "<!-- test 11 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
           + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "</ObjectType>\n"
           },
 
-          { false,
+          { true,
             "<!-- test 12 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
           + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"0\"/>\n"
           + "</ObjectType>\n"
           },
 
+          // Bogus field storage ID
           { false,
             "<!-- test 13 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"123\">\n"
@@ -264,6 +298,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Conflicting storage ID's
           { false,
             "<!-- test 14 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -296,50 +331,41 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
-          // Allow different types for the same field if not both indexed
+          { true,
+            "<!-- test 18 -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "</ObjectType>\n"
+          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\"/>\n"
+          + "</ObjectType>\n"
+          },
+
+          // Allow different types for the same field name if different storage ID's
           { true,
             "<!-- test 18a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" indexed=\"true\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" indexed=\"true\" storageId=\"3\"/>\n"
           + "</ObjectType>\n"
           },
 
+          // Allow same storage ID for the field if same encoding
           { true,
             "<!-- test 18b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\" indexed=\"true\"/>\n"
-          + "</ObjectType>\n"
-          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\"/>\n"
-          + "</ObjectType>\n"
-          },
-
-          { true,
-            "<!-- test 18c -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
           },
 
+          // Disallow different types for the same field and storage ID
           { false,
             "<!-- test 18d -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\" indexed=\"true\"/>\n"
-          + "</ObjectType>\n"
-          + "<ObjectType name=\"Bar\" storageId=\"20\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"2\" indexed=\"true\"/>\n"
-          + "</ObjectType>\n"
-          },
-
-          // Disallow different types for the same field if indexed
-          { true,
-            "<!-- test 18 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
           + "</ObjectType>\n"
@@ -369,6 +395,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Wrong set sub-field name
           { false,
             "<!-- test 21 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -443,7 +470,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
-          { false,
+          { true,
             "<!-- test 25 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <CounterField name=\"counter\"/>\n"
@@ -460,6 +487,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Missing counter field name
           { false,
             "<!-- test 27 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -518,6 +546,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Wrong set sub-field name
           { false,
             "<!-- test 34 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -527,6 +556,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
+          // Wrong map sub-field names
           { false,
             "<!-- test 35 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -543,7 +573,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "<ObjectType storageId=\"10\"/>\n"
           },
 
-          // Correct encoding
+          // Correct encoding URN for BarEncoding
           { true,
             "<!-- test 37 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -551,7 +581,7 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           },
 
-          // Incorrect encoding
+          // Unknown encoding URN
           { false,
             "<!-- test 38 -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
@@ -570,24 +600,24 @@ public class SchemaTest extends CoreAPITestSupport {
           { true,
             "<!-- test 1a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <CounterField name=\"counter\" storageId=\"20\"/>\n"
+          + "  <CounterField name=\"counter\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
+          + "  <ReferenceField name=\"ref1\"/>\n"
           + "</ObjectType>\n",
           },
 
           { true,
             "<!-- test 1.1a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"dummy\" storageId=\"20\"/>\n"
+          + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"dummy\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.1b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\" indexed=\"true\"/>\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
           + "</ObjectType>\n",
           },
 
@@ -595,31 +625,31 @@ public class SchemaTest extends CoreAPITestSupport {
             "<!-- test 1.2a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.2b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"20\" indexed=\"true\"/>\n"
+          + "  <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" indexed=\"true\"/>\n"
           + "</ObjectType>\n",
           },
 
           { true,
             "<!-- test 1.3a -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <SetField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "<ObjectType name=\"Foo\">\n"
+          + "  <SetField name=\"set\">\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" indexed=\"true\"/>\n"
           + "  </SetField>\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"30\"/>\n"
+          + "  <ReferenceField name=\"ref1\"/>\n"
           + "  <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" name=\"i\" storageId=\"31\"/>\n"
           + "</ObjectType>\n",
 
             "<!-- test 1.3b -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
-          + "  <SetField name=\"set\" storageId=\"30\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"31\" indexed=\"true\"/>\n"
+          + "<ObjectType name=\"Foo\">\n"
+          + "  <ReferenceField name=\"ref1\"/>\n"
+          + "  <SetField name=\"set\">\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" indexed=\"true\"/>\n"
           + "  </SetField>\n"
           + "</ObjectType>\n",
           },
@@ -654,9 +684,28 @@ public class SchemaTest extends CoreAPITestSupport {
           + "</ObjectType>\n",
           },
 
-          // Change sub-field encodings - compatible indexing
+          // Change sub-field encodings - compatible storage ID's
           { true,
             "<!-- test 4a -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\">\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"
+          + "  </MapField>\n"
+          + "</ObjectType>\n",
+
+            "<!-- test 4b -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"set\">\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "  </MapField>\n"
+          + "</ObjectType>\n",
+          },
+
+          // Change sub-field encodings - incompatible storage ID's
+          { false,
+            "<!-- test 5a -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
           + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\"/>\n"
@@ -664,29 +713,10 @@ public class SchemaTest extends CoreAPITestSupport {
           + "  </MapField>\n"
           + "</ObjectType>\n",
 
-            "<!-- test 4b -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"21\" indexed=\"true\"/>\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\" indexed=\"true\"/>\n"
-          + "  </MapField>\n"
-          + "</ObjectType>\n",
-          },
-
-          // Change sub-field encodings - incompatible indexing
-          { false,
-            "<!-- test 5a -->\n"
-          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"21\" indexed=\"true\"/>\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"22\"/>\n"
-          + "  </MapField>\n"
-          + "</ObjectType>\n",
-
             "<!-- test 5b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
           + "  <MapField name=\"set\" storageId=\"20\">\n"
-          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"21\" indexed=\"true\"/>\n"
+          + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"21\"/>\n"
           + "    <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
           + "  </MapField>\n"
           + "</ObjectType>\n",

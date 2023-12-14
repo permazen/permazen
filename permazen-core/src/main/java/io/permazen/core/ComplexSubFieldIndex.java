@@ -5,30 +5,48 @@
 
 package io.permazen.core;
 
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.NavigableSet;
 
-abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends SimpleFieldStorageInfo<T> {
+abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
 
-    final P parentRepresentative;
+    final ComplexField<C> parentRepresentative;
 
-    private final int storageIdEncodedLength;
+// Constructor
 
-    ComplexSubFieldStorageInfo(SimpleField<T> field, P parent) {
-        super(field);
-        assert parent != null;
-        assert parent == field.parent;
+    ComplexSubFieldIndex(Schema schema, SimpleSchemaField schemaField,
+      ObjType objType, ComplexField<C> parent, SimpleField<T> field) {
+        super(schema, schemaField, parent.name + "." + schemaField.getName(), objType, field);
         this.parentRepresentative = parent;
-        this.storageIdEncodedLength = UnsignedIntEncoder.encodeLength(this.storageId);
     }
+
+// Package methods
+
+    @Override
+    public final CoreIndex<T, ObjId> getIndex(Transaction tx) {
+        return new CoreIndex<>(tx.kvt,
+          new IndexView<>(UnsignedIntEncoder.encode(this.storageId),
+            this.isPrefixModeForIndex(), this.getField().getEncoding(), Encodings.OBJ_ID));
+    }
+
+    @Override
+    String getFieldDisplayName(SimpleField<?> field) {
+        return String.format("%s.%s", field.parent.name, field.name);
+    }
+
+    // Does this simple index require prefix mode?
+    //  - YES for list element and map value
+    //  - NO for set element and map key
+    abstract boolean isPrefixModeForIndex();
 
     @Override
     void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers) {
 
         // Sanity check
-        assert this.encoding instanceof ReferenceEncoding;
+        assert this.getField() instanceof ReferenceField;
 
         // Build the index entry prefix common to all referrers' index entries
         final ByteWriter writer = new ByteWriter(this.storageIdEncodedLength + ObjId.NUM_BYTES * 2);
@@ -46,7 +64,7 @@ abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends 
 
     /**
      * Remove references in this sub-field in the specified referrer object to the specified target.
-     * Used to implement {@link DeleteAction#UNREFERENCE}.
+     * This is used to implement {@link DeleteAction#UNREFERENCE} in complex fields.
      *
      * @param tx transaction
      * @param target referenced object being deleted
@@ -54,21 +72,4 @@ abstract class ComplexSubFieldStorageInfo<T, P extends ComplexField<?>> extends 
      * @param prefix (possibly partial) index entry containing {@code target} and {@code referrer}
      */
     abstract void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix);
-
-// Object
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        final ComplexSubFieldStorageInfo<?, ?> that = (ComplexSubFieldStorageInfo<?, ?>)obj;
-        return this.parentRepresentative.storageId == that.parentRepresentative.storageId;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode() ^ this.parentRepresentative.storageId;
-    }
 }

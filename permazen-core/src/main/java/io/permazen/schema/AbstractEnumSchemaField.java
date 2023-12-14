@@ -31,12 +31,14 @@ import org.dellroad.stuff.string.StringEncoder;
  */
 public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 
-    private /*final*/ List<String> idents = new ArrayList<>();
+    private List<String> idents = new ArrayList<>();
+
+// Properties
 
     /**
      * Get the ordered list of identifiers that constitute the enum type.
      *
-     * @return enum identifier list
+     * @return enum identifier list, which will be unmodifiable if this instance is locked down
      */
     public List<String> getIdentifiers() {
         return this.idents;
@@ -45,8 +47,8 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 // Lockdown
 
     @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
+    public void lockDown() {
+        super.lockDown();
         this.idents = Collections.unmodifiableList(this.idents);
     }
 
@@ -58,7 +60,7 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
         try {
             EnumValueEncoding.validateIdentifiers(this.idents);
         } catch (IllegalArgumentException e) {
-            throw new InvalidSchemaException("invalid " + this + ": " + e.getMessage(), e);
+            throw new InvalidSchemaException(String.format("invalid %s: %s", this, e.getMessage()), e);
         }
     }
 
@@ -67,19 +69,11 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
         return true;
     }
 
-// Compatibility
-
-    // For enum types, we don't care if the type names are different; this allows enum types
-    // to change their Java class or packge names without creating an incompatible schema.
-    @Override
-    boolean isCompatibleType(SimpleSchemaField field) {
-        final AbstractEnumSchemaField that = (AbstractEnumSchemaField)field;
-        return this.idents.equals(that.idents);
-    }
+// Schema ID
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output, forSchemaModel);
         output.writeInt(this.idents.size());
         for (String ident : this.idents)
             output.writeUTF(ident);
@@ -96,11 +90,13 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean prettyPrint, boolean includeName) throws XMLStreamException {
         this.writeElement(writer, includeName);
         this.writeAttributes(writer, includeName);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
         for (String ident : this.idents) {
-            writer.writeStartElement(XMLConstants.IDENTIFIER_TAG.getNamespaceURI(), XMLConstants.IDENTIFIER_TAG.getLocalPart());
+            this.writeStartElement(writer, XMLConstants.IDENTIFIER_TAG);
             writer.writeCharacters(StringEncoder.encode(ident, false));
             writer.writeEndElement();
         }
@@ -115,7 +111,8 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
     public Diffs differencesFrom(SimpleSchemaField other) {
         final Diffs diffs = new Diffs(super.differencesFrom(other));
         if (!(other instanceof AbstractEnumSchemaField)) {
-            diffs.add("change type from " + other.getClass().getSimpleName() + " to " + this.getClass().getSimpleName());
+            diffs.add(String.format("changed type from %s to %s",
+              other.getClass().getSimpleName(), this.getClass().getSimpleName()));
             return diffs;
         }
         final AbstractEnumSchemaField that = (AbstractEnumSchemaField)other;
@@ -135,11 +132,11 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
                 assert thisName != null || thatName != null;
                 final int diff = thisName == null ? 1 : thatName == null ? -1 : thisName.compareTo(thatName);
                 if (diff < 0)
-                    enumDiffs.add("added \"" + thisName + "\" (ordinal " + thisOrdinals.get(thisName) + ")");
+                    enumDiffs.add(String.format("%s \"%s\" (ordinal %d)", "added", thisName, thisOrdinals.get(thisName)));
                 else
                     thatIterator.next();
                 if (diff > 0)
-                    enumDiffs.add("removed \"" + thatName + "\" (ordinal " + thatOrdinals.get(thatName) + ")");
+                    enumDiffs.add(String.format("%s \"%s\" (ordinal %d)", "removed", thatName, thatOrdinals.get(thatName)));
                 else
                     thisIterator.next();
             }

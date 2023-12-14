@@ -5,8 +5,8 @@
 
 package io.permazen.core;
 
-import io.permazen.encoding.BooleanEncoding;
 import io.permazen.encoding.Encoding;
+import io.permazen.encoding.StringEncoding;
 import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -17,11 +17,6 @@ import io.permazen.util.UnsignedIntEncoder;
  * All of the encodings defined in the class do <b>not</b> support null values.
  */
 public final class Encodings {
-
-    /**
-     * Encodes the "delete notified" flag in object meta-data.
-     */
-    public static final BooleanEncoding BOOLEAN = new BooleanEncoding();
 
     /**
      * Encodes {@link ObjId}s.
@@ -35,6 +30,11 @@ public final class Encodings {
      * Used (for example) for encoding list indexes.
      */
     public static final UnsignedIntEncoding UNSIGNED_INT = new UnsignedIntEncoding();
+
+    /**
+     * Encodes non-null {@link String}s.
+     */
+    public static final StringEncoding STRING = new StringEncoding();
 
     private Encodings() {
     }

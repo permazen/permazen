@@ -5,12 +5,11 @@
 
 package io.permazen.core;
 
-import com.google.common.base.Preconditions;
-
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ImmutableNavigableMap;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -19,29 +18,26 @@ import java.util.TreeMap;
 public final class TransactionConfig {
 
     private final SchemaModel schemaModel;
-    private final int schemaVersion;
     private final boolean allowNewSchema;
+    private final boolean garbageCollectSchemas;
     private final Map<String, ?> kvoptions;
 
     private TransactionConfig(Builder builder) {
 
-        // Sanity checks
-        Preconditions.checkArgument(builder.schemaVersion >= -1, "invalid schema version");
-        Preconditions.checkArgument(builder.schemaModel != null || builder.schemaVersion >= 0,
-          "auto-generating schema version but no schema model configured");
+        // Use an empty schema if none specified
+        this.schemaModel = Optional.ofNullable(builder.schemaModel)
+          .map(SchemaModel::clone)
+          .orElseGet(SchemaModel::new);
 
-        // Copy, lock down, and validate schema model
-        SchemaModel schemaModelCopy = null;
-        if (builder.schemaModel != null) {
-            schemaModelCopy = builder.schemaModel.isLockedDown() ? builder.schemaModel : builder.schemaModel.clone();
-            schemaModelCopy.lockDown();
-            schemaModelCopy.validate();
-        }
+        // Lock down schema model
+        this.schemaModel.lockDown();
 
-        // Initialize
-        this.schemaModel = schemaModelCopy;
-        this.schemaVersion = builder.schemaVersion != -1 ? builder.schemaVersion : this.schemaModel.autogenerateVersion();
+        // Validate schema model
+        this.schemaModel.validate();
+
+        // Initialize other stuff
         this.allowNewSchema = builder.allowNewSchema;
+        this.garbageCollectSchemas = builder.garbageCollectSchemas;
         this.kvoptions = this.copyOptions(builder.kvoptions);
     }
 
@@ -50,7 +46,7 @@ public final class TransactionConfig {
     }
 
     /**
-     * Get the schema model to use, or null to use a schema already recorded in the database.
+     * Get the schema model to use.
      *
      * @return the schema to use during transactions
      * @see Builder#setSchemaModel
@@ -60,23 +56,23 @@ public final class TransactionConfig {
     }
 
     /**
-     * Get the version number to use for the configured schema.
-     *
-     * @return schema version number, or zero to use the highest recorded version
-     * @see Builder#setSchemaVersion
-     */
-    public int getSchemaVersion() {
-        return this.schemaVersion;
-    }
-
-    /**
      * Get whether it is allowed to register a new schema model into the database.
      *
-     * @return whether creating a new schema version is allowed
+     * @return whether registering a new schema is allowed
      * @see Builder#setAllowNewSchema
      */
     public boolean isAllowNewSchema() {
         return this.allowNewSchema;
+    }
+
+    /**
+     * Configure whether automatic schema garbage collection should be enabled.
+     *
+     * @return whether automatically garbage collect obsolete schemas
+     * @see Builder#setGarbageCollectSchemas
+     */
+    public boolean isGarbageCollectSchemas() {
+        return this.garbageCollectSchemas;
     }
 
     /**
@@ -104,8 +100,8 @@ public final class TransactionConfig {
     public static final class Builder implements Cloneable {
 
         private SchemaModel schemaModel;
-        private int schemaVersion = -1;
         private boolean allowNewSchema = true;
+        private boolean garbageCollectSchemas;
         private Map<String, ?> kvoptions;
 
     // Constructors
@@ -115,8 +111,8 @@ public final class TransactionConfig {
 
         private Builder(TransactionConfig config) {
             this.schemaModel = config.schemaModel;
-            this.schemaVersion = config.schemaVersion;
             this.allowNewSchema = config.allowNewSchema;
+            this.garbageCollectSchemas = config.garbageCollectSchemas;
             this.kvoptions = config.kvoptions;
         }
 
@@ -126,8 +122,7 @@ public final class TransactionConfig {
          * Configure the schema to use.
          *
          * <p>
-         * By default, this is null, which means the schema used will be one already registered in the database; in that case,
-         * which one depends on the schema version, which must be explicitly {@linkplain #setSchemaVersion configured}.
+         * By default this is null, which means that an empty schema will be used.
          *
          * @param schemaModel schema to use when creating transactions
          * @return this instance
@@ -138,40 +133,36 @@ public final class TransactionConfig {
         }
 
         /**
-         * Configure the schema version number.
-         *
-         * <p>
-         * By default, this is -1, which means a schema model must be {@linkplain #setSchemaModel configured} and
-         * the schema version number will be {@linkplain SchemaModel#autogenerateVersion automatically generated} from it.
-         *
-         * <p>
-         * If this is configured as zero, then the highest version schema already recorded in the database will be used.
-         *
-         * <p>
-         * Otherwise, a positive value configures the schema version explicitly.
-         *
-         * @param schemaVersion a positive schema version number corresponding to the configured schema model,
-         *   zero to use the highest version already recorded in the database, or -1 to generate a schema version automatically
-         * @return this instance
-         */
-        public Builder schemaVersion(int schemaVersion) {
-            Preconditions.checkArgument(schemaVersion >= -1, "invalid schema version");
-            this.schemaVersion = schemaVersion;
-            return this;
-        }
-
-        /**
          * Configure whether, if the configured schema is not already registered in the database
          * when new transactions are created, it is allowed to register it.
          *
          * <p>
          * The default value is true.
          *
-         * @param allowNewSchema whether creating a new schema version is allowed
+         * @param allowNewSchema whether registering a new schema is allowed
          * @return this instance
          */
         public Builder allowNewSchema(boolean allowNewSchema) {
             this.allowNewSchema = allowNewSchema;
+            return this;
+        }
+
+        /**
+         * Configure whether automatic schema garbage collection should be enabled.
+         *
+         * <p>
+         * When automatic schema garbage collection is enabled, unused schemas are garbage collected
+         * at the start of each transaction. This adds a small amount of overhead to transaction startup,
+         * but only when a new schema set is encountered.
+         *
+         * <p>
+         * The default value is false.
+         *
+         * @param garbageCollectSchemas whether to enable automatic schema garbage collection
+         * @return this instance
+         */
+        public Builder garbageCollectSchemas(boolean garbageCollectSchemas) {
+            this.garbageCollectSchemas = garbageCollectSchemas;
             return this;
         }
 
@@ -194,6 +185,8 @@ public final class TransactionConfig {
          * Create a new {@link TransactionConfig} from this instance.
          *
          * @return new transaction config
+         * @throws InvalidSchemaException if the {@linkplain #schemaModel configured schema}
+         *  is invalid (i.e., does not pass validation checks)
          */
         public TransactionConfig build() {
             return new TransactionConfig(this);

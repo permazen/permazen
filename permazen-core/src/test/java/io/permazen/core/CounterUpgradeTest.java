@@ -37,14 +37,16 @@ public class CounterUpgradeTest extends CoreAPITestSupport {
         final Database db = new Database(kvstore);
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
-        final Transaction tx1 = db.createTransaction(schema1, 1, true);
-        final ObjId id = tx1.create(10);
+        this.log.debug("CREATING TX1 WITH \"{}\"", schema1.getSchemaId());
+        final Transaction tx1 = db.createTransaction(schema1);
+        final ObjId id = tx1.create("Foo");
         tx1.commit();
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
-        final Transaction tx2 = db.createTransaction(schema2, 2, true);
-        tx2.adjustCounterField(id, 20, 123, true);
-        Assert.assertEquals(tx2.readCounterField(id, 20, true), 123L);
+        this.log.debug("CREATING TX2 WITH \"{}\"", schema2.getSchemaId());
+        final Transaction tx2 = db.createTransaction(schema2);
+        tx2.adjustCounterField(id, "counter", 123, true);
+        Assert.assertEquals(tx2.readCounterField(id, "counter", true), 123L);
         tx2.commit();
     }
 }

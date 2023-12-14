@@ -10,9 +10,9 @@ import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
-import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.CloseableIterator;
 
@@ -40,62 +40,60 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
-          + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean\" storageId=\"3\"/>\n"
-          + "    <SimpleField name=\"b\" encoding=\"urn:fdc:permazen.io:2020:byte\" storageId=\"4\"/>\n"
-          + "    <SimpleField name=\"c\" encoding=\"urn:fdc:permazen.io:2020:char\" storageId=\"5\"/>\n"
-          + "    <SimpleField name=\"s\" encoding=\"urn:fdc:permazen.io:2020:short\" storageId=\"6\"/>\n"
-          + "    <SimpleField name=\"f\" encoding=\"urn:fdc:permazen.io:2020:float\" storageId=\"7\"/>\n"
-          + "    <SimpleField name=\"j\" encoding=\"urn:fdc:permazen.io:2020:long\" storageId=\"8\"/>\n"
-          + "    <SimpleField name=\"d\" encoding=\"urn:fdc:permazen.io:2020:double\" storageId=\"9\"/>\n"
-          + "    <SimpleField name=\"str\" encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"10\"/>\n"
-          + "    <ReferenceField name=\"r\" storageId=\"11\"/>\n"
-          + "    <SimpleField name=\"v\" encoding=\"urn:fdc:permazen.io:2020:Void\" storageId=\"12\"/>\n"
-          + "    <SimpleField name=\"date\" encoding=\"urn:fdc:permazen.io:2020:Date\" storageId=\"13\"/>\n"
-          + "    <ReferenceField name=\"r2\" storageId=\"14\"/>\n"
-          + "    <EnumField name=\"e1\" storageId=\"15\">\n"
+          + "    <SimpleField name=\"i\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "    <SimpleField name=\"z\" encoding=\"urn:fdc:permazen.io:2020:boolean\"/>\n"
+          + "    <SimpleField name=\"b\" encoding=\"urn:fdc:permazen.io:2020:byte\"/>\n"
+          + "    <SimpleField name=\"c\" encoding=\"urn:fdc:permazen.io:2020:char\"/>\n"
+          + "    <SimpleField name=\"s\" encoding=\"urn:fdc:permazen.io:2020:short\"/>\n"
+          + "    <SimpleField name=\"f\" encoding=\"urn:fdc:permazen.io:2020:float\"/>\n"
+          + "    <SimpleField name=\"j\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
+          + "    <SimpleField name=\"d\" encoding=\"urn:fdc:permazen.io:2020:double\"/>\n"
+          + "    <SimpleField name=\"str\" encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"
+          + "    <ReferenceField name=\"r\"/>\n"
+          + "    <SimpleField name=\"v\" encoding=\"urn:fdc:permazen.io:2020:Void\"/>\n"
+          + "    <SimpleField name=\"date\" encoding=\"urn:fdc:permazen.io:2020:Date\"/>\n"
+          + "    <ReferenceField name=\"r2\"/>\n"
+          + "    <EnumField name=\"e1\">\n"
           + "      <Identifier>AAA</Identifier>\n"
           + "      <Identifier>BBB</Identifier>\n"
           + "      <Identifier>CCC</Identifier>\n"
           + "    </EnumField>\n"
-          + "    <EnumArrayField name=\"ea1\" storageId=\"16\" dimensions=\"1\">\n"
+          + "    <EnumArrayField name=\"ea1\" dimensions=\"1\">\n"
           + "      <Identifier>DDD</Identifier>\n"
           + "      <Identifier>EEE</Identifier>\n"
           + "    </EnumArrayField>\n"
-          + "    <EnumArrayField name=\"ea2\" storageId=\"17\" dimensions=\"2\">\n"
+          + "    <EnumArrayField name=\"ea2\" dimensions=\"2\">\n"
           + "      <Identifier>DDD</Identifier>\n"
           + "      <Identifier>EEE</Identifier>\n"
           + "    </EnumArrayField>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId1 = schema1.getSchemaId();
 
-        Transaction tx = db.createTransaction(TransactionConfig.builder()
-          .schemaModel(schema1)
-          .schemaVersion(1)
-          .build());
+        Transaction tx = db.createTransaction(schema1);
 
         ObjId id1 = new ObjId("0100000000000001");
-        tx.create(id1, 1);
+        tx.create(id1, schemaId1);
 
-        tx.writeSimpleField(id1, 2, 123, false);
-        tx.writeSimpleField(id1, 3, true, false);
-        tx.writeSimpleField(id1, 4, (byte)-7, false);
-        tx.writeSimpleField(id1, 5, '\n', false);
-        tx.writeSimpleField(id1, 6, (short)0, false);   // default value
-        tx.writeSimpleField(id1, 7, 123.45f, false);
-        tx.writeSimpleField(id1, 8, 99999999999L, false);
-        tx.writeSimpleField(id1, 9, 123.45e37, false);
-        tx.writeSimpleField(id1, 10, "hello dolly", false);
-        tx.writeSimpleField(id1, 11, id1, false);
-        tx.writeSimpleField(id1, 12, null, false);      // default value
-        tx.writeSimpleField(id1, 13, new Date(1399604568000L), false);
-        tx.writeSimpleField(id1, 14, null, false);
-        tx.writeSimpleField(id1, 15, new EnumValue("BBB", 1), false);
-        tx.writeSimpleField(id1, 16, new EnumValue[] {
+        tx.writeSimpleField(id1, "i", 123, false);
+        tx.writeSimpleField(id1, "z", true, false);
+        tx.writeSimpleField(id1, "b", (byte)-7, false);
+        tx.writeSimpleField(id1, "c", '\n', false);
+        tx.writeSimpleField(id1, "s", (short)0, false);   // default value
+        tx.writeSimpleField(id1, "f", 123.45f, false);
+        tx.writeSimpleField(id1, "j", 99999999999L, false);
+        tx.writeSimpleField(id1, "d", 123.45e37, false);
+        tx.writeSimpleField(id1, "str", "hello dolly", false);
+        tx.writeSimpleField(id1, "r", id1, false);
+        tx.writeSimpleField(id1, "v", null, false);      // default value
+        tx.writeSimpleField(id1, "date", new Date(1399604568000L), false);
+        tx.writeSimpleField(id1, "r2", null, false);
+        tx.writeSimpleField(id1, "e1", new EnumValue("BBB", 1), false);
+        tx.writeSimpleField(id1, "ea1", new EnumValue[] {
             new EnumValue("DDD", 0), null, new EnumValue("EEE", 1)
         }, false);
-        tx.writeSimpleField(id1, 17, new EnumValue[][] {
+        tx.writeSimpleField(id1, "ea2", new EnumValue[][] {
             { new EnumValue("DDD", 0), null, new EnumValue("EEE", 1) },
             null,
             { },
@@ -141,42 +139,40 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
-          + "  <ObjectType name=\"Foo\" storageId=\"20\">\n"
-          + "    <SetField name=\"set\" storageId=\"21\">\n"
-          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"22\"/>\n"
+          + "  <ObjectType name=\"Bar\" storageId=\"20\">\n"
+          + "    <SetField name=\"set\">\n"
+          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "    </SetField>"
-          + "    <ListField name=\"list\" storageId=\"23\">\n"
-          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:Integer\" storageId=\"24\"/>\n"
+          + "    <ListField name=\"list\">\n"
+          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:Integer\"/>\n"
           + "    </ListField>"
-          + "    <MapField name=\"map\" storageId=\"25\">\n"
-          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"26\"/>\n"
-          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" storageId=\"27\" indexed=\"true\"/>\n"
+          + "    <MapField name=\"map\">\n"
+          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "        <SimpleField encoding=\"urn:fdc:permazen.io:2020:String\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "    <ListField name=\"list2\" storageId=\"28\">\n"
-          + "        <ReferenceField storageId=\"29\"/>\n"
+          + "    <ListField name=\"list2\">\n"
+          + "        <ReferenceField/>\n"
           + "    </ListField>"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId2 = schema2.getSchemaId();
 
-        tx = db.createTransaction(TransactionConfig.builder()
-          .schemaModel(schema2)
-          .schemaVersion(2)
-          .build());
+        tx = db.createTransaction(schema2);
 
         ObjId id2 = new ObjId("1400000000000001");
-        tx.create(id2, 2);
+        tx.create(id2, schemaId2);
 
-        Set<Integer> set = (Set<Integer>)tx.readSetField(id2, 21, false);
+        Set<Integer> set = (Set<Integer>)tx.readSetField(id2, "set", false);
         set.add(123);
         set.add(456);
 
-        List<Integer> list = (List<Integer>)tx.readListField(id2, 23, false);
+        List<Integer> list = (List<Integer>)tx.readListField(id2, "list", false);
         list.add(789);
         list.add(null);
         list.add(101112);
 
-        Map<Integer, String> map = (Map<Integer, String>)tx.readMapField(id2, 25, false);
+        Map<Integer, String> map = (Map<Integer, String>)tx.readMapField(id2, "map", false);
         map.put(55, "fifty\nfive");
         map.put(73, "seventy three");
         map.put(99, null);
@@ -197,7 +193,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         // Turn off "omitDefaultValueFields"
         s2.setOmitDefaultValueFields(false);
         tx.delete(id1);
-        tx.create(id1, 1);
+        tx.create(id1, schemaId1);
         buf.reset();
         s2.write(buf, true, true);
         this.compareResult(tx, buf.toByteArray(), "test4c.xml");
@@ -216,7 +212,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         // Compare generated XML to expected
         this.log.info("verifying XML output with \"{}\"", resource);
-        Assert.assertEquals(new String(buf, StandardCharsets.UTF_8), text);
+        this.assertSameOrDiff(new String(buf, StandardCharsets.UTF_8), text);
 
         // Parse XML back into a detached transaction
         if (reparse)

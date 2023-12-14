@@ -5,36 +5,36 @@
 
 package io.permazen.core;
 
-import com.google.common.base.Preconditions;
+import io.permazen.schema.SchemaId;
+import io.permazen.util.UnsignedIntEncoder;
 
 /**
- * Superclass for the {@link ObjType}, {@link CompositeIndex}, and {@link Field} classes which make up a {@link Schema} version.
+ * Superclass for the {@link ObjType}, {@link Field}, and {@link Index} classes which constitute a {@link Schema}.
  *
  * <p>
- * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.
- * Instances also have a {@linkplain #getName name} which must be a {@linkplain #NAME_PATTERN valid Java identifier}.
- * Instances are also associated with a {@linkplain #getSchema specific} {@link Schema}.
+ * Instances have a {@link SchemaId} and a storage ID.
+ * Instances also have a {@linkplain #getName name} which must be a valid Java identifier.
+ * Instances are associated with a {@linkplain #getSchema specific} {@link Schema}.
  */
 public abstract class SchemaItem {
 
-    /**
-     * The regular expression that all {@link SchemaItem} names must match. This pattern is the same as is required
-     * for Java identifiers.
-     */
-    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
-
-    final String name;
-    final int storageId;
     final Schema schema;
+    final String name;
+    final SchemaId schemaId;
+    final int storageId;
+    final int storageIdEncodedLength;
 
-    SchemaItem(String name, int storageId, Schema schema) {
-        Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(name.matches(NAME_PATTERN), "invalid name \"" + name + "\"");
-        Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
-        Preconditions.checkArgument(schema != null, "null schema");
-        this.name = name;
-        this.storageId = storageId;
+    SchemaItem(Schema schema, io.permazen.schema.SchemaItem item, String name) {
         this.schema = schema;
+        this.name = name;
+        this.schemaId = item.getSchemaId();
+        this.storageId = this.schema.getSchemaBundle().getStorageId(this.schemaId);
+        this.storageIdEncodedLength = UnsignedIntEncoder.encodeLength(this.storageId);
+
+        // Notify schema bundle that we are a representative SchemaItem for our SchemaId.
+        // We omit simple indexes because their associated fields represent them as well.
+        if (!(this instanceof SimpleIndex))
+            this.schema.getSchemaBundle().registerSchemaItemForSchemaId(this);
     }
 
     /**
@@ -56,22 +56,22 @@ public abstract class SchemaItem {
     }
 
     /**
-     * Get the schema version with which this instance is associated.
+     * Get the schema ID associated with this instance.
      *
-     * @return associated schema version
+     * @return schema ID, never null
+     */
+    public SchemaId getSchemaId() {
+        return this.schemaId;
+    }
+
+    /**
+     * Get the schema with which this instance is associated.
+     *
+     * @return associated schema
      */
     public Schema getSchema() {
         return this.schema;
     }
-
-    /**
-     * Create the corresponding {@link StorageInfo} object, if any.
-     *
-     * <p>
-     * This should only return a non-null value if this instance's storage ID is used as the prefix
-     * of some key in the database. In the case of simple fields, this implies the field must be indexed.
-     */
-    abstract StorageInfo toStorageInfo();
 
     @Override
     public abstract String toString();

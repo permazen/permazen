@@ -30,7 +30,7 @@ import java.util.NavigableSet;
  * @param <V3> third index value type
  * @param <T> index target type
  */
-public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Index3<V1, V2, V3, T> {
+public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex<T> implements Index3<V1, V2, V3, T> {
 
 // Constructors
 

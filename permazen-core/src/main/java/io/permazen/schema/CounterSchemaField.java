@@ -13,6 +13,11 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class CounterSchemaField extends SchemaField {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.COUNTER_FIELD;
+
 // SchemaFieldSwitch
 
     @Override
@@ -23,18 +28,18 @@ public class CounterSchemaField extends SchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(XMLConstants.COUNTER_FIELD_TAG.getNamespaceURI(), XMLConstants.COUNTER_FIELD_TAG.getLocalPart());
+    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+        this.writeEmptyItemElement(writer);
         this.writeAttributes(writer);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
     }
 
-// Compatibility
+// Schema ID
 
     @Override
-    boolean isCompatibleWith(SchemaField field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        return true;
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
 // Object

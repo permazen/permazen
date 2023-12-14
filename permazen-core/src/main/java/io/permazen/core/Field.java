@@ -9,32 +9,23 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
+import io.permazen.schema.SchemaField;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
- * Represents a field in an {@link ObjType} or a ({@linkplain SimpleField simple}) sub-field of a {@link ComplexField}.
+ * A field in an {@link ObjType} or a ({@linkplain SimpleField simple}) sub-field of a {@link ComplexField}
+ * in an {@link ObjType}.
  *
- * @param <T> Java type for the field's values
+ * @param <T> field's value type
  */
 public abstract class Field<T> extends SchemaItem {
 
     final TypeToken<T> typeToken;
     final byte[] encodedStorageId;
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field storage ID
-     * @param schema schema version
-     * @param typeToken Java type for the field's values
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
-    Field(String name, int storageId, Schema schema, TypeToken<T> typeToken) {
-        super(name, storageId, schema);
+    Field(Schema schema, SchemaField field, TypeToken<T> typeToken) {
+        super(schema, field, field.getName());
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.typeToken = typeToken;
         this.encodedStorageId = UnsignedIntEncoder.encode(this.storageId);
@@ -53,7 +44,7 @@ public abstract class Field<T> extends SchemaItem {
 
     /**
      * Get the value of this field in the given object.
-     * Does not alter the schema version of the object.
+     * Does not alter the schema of the object.
      *
      * @param tx transaction
      * @param id object id
@@ -81,23 +72,25 @@ public abstract class Field<T> extends SchemaItem {
      */
     public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
 
+// FieldSwitch
+
     /**
      * Apply visitor pattern.
      *
      * @param target target to invoke
      * @param <R> visitor return type
-     * @return value from the method of {@code target} corresponding to this instance's type
+     * @return return value from the method of {@code target} corresponding to this instance's type
      * @throws NullPointerException if {@code target} is null
      */
     public abstract <R> R visit(FieldSwitch<R> target);
 
-// Non-public methods
+// Package Methods
 
     /**
      * Copy field value between transactions.
      *
      * <p>
-     * This method assumes both objects exist and both transactions are locked.
+     * This method assumes both objects exist, both transactions are locked, and both objects have this same field.
      */
     abstract void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap);
 
@@ -120,9 +113,4 @@ public abstract class Field<T> extends SchemaItem {
         UnsignedIntEncoder.write(writer, storageId);
         return writer.getBytes();
     }
-
-    /**
-     * Determine if the given {@link Field} is equivalent to this one, or should be reset on an upgrade.
-     */
-    abstract boolean isUpgradeCompatible(Field<?> field);
 }

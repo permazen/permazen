@@ -22,26 +22,33 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * A composite index associated with a {@link SchemaObjectType}.
+ * An index on two or more fields in a {@link SchemaObjectType}.
  */
-public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGenerating<SchemaCompositeIndex> {
+public class SchemaCompositeIndex extends AbstractObjectTypeMember implements DiffGenerating<SchemaCompositeIndex> {
 
-    private /*final*/ List<Integer> indexedFields = new ArrayList<>();
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.COMPOSITE_INDEX;
+
+    private List<String> indexedFields = new ArrayList<>();
+
+// Properties
 
     /**
      * Get the fields that comprise this index.
      *
-     * @return storage IDs of indexed fields
+     * @return names of indexed fields
      */
-    public List<Integer> getIndexedFields() {
+    public List<String> getIndexedFields() {
         return this.indexedFields;
     }
 
 // Lockdown
 
     @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
+    public void lockDown() {
+        super.lockDown();
         this.indexedFields = Collections.unmodifiableList(this.indexedFields);
     }
 
@@ -51,14 +58,20 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     void validate() {
         super.validate();
         if (this.indexedFields.size() < 2 || this.indexedFields.size() > Database.MAX_INDEXED_FIELDS) {
-            throw new InvalidSchemaException("invalid " + this + ": between 2 and "
-              + Database.MAX_INDEXED_FIELDS + " fields must be specified");
+            throw new InvalidSchemaException(String.format(
+              "invalid %s: between 2 and %d fields must be specified", this, Database.MAX_INDEXED_FIELDS));
         }
-        final HashSet<Integer> idsSeen = new HashSet<>();
-        for (Integer indexedField : this.indexedFields) {
-            final int storageId = indexedField;
-            if (!idsSeen.add(storageId))
-                throw new InvalidSchemaException("invalid " + this + ": duplicate field in composite index: " + storageId);
+        final HashSet<String> namesSeen = new HashSet<>();
+        for (String fieldName : this.indexedFields) {
+            if (fieldName == null)
+                throw new InvalidSchemaException(String.format("invalid %s: field list contains null", this));
+            if (!namesSeen.add(fieldName))
+                throw new InvalidSchemaException(String.format("invalid %s: duplicate field \"%s\"", this, fieldName));
+            final SchemaField field = this.getObjectType().getSchemaFields().get(fieldName);
+            if (field == null)
+                throw new InvalidSchemaException(String.format("%s indexes unknown field \"%s\"", this, fieldName));
+            if (!(field instanceof SimpleSchemaField))
+                throw new InvalidSchemaException(String.format("%s indexes invalid field \"%s\"", this, fieldName));
         }
     }
 
@@ -67,8 +80,8 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.indexedFields.clear();
-        while (this.expect(reader, true, XMLConstants.INDEXED_FIELD_TAG)) {
-            this.indexedFields.add(this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE));
+        while (this.expect(reader, true, XMLConstants.FIELD_TAG)) {
+            this.indexedFields.add(this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE));
             this.expectClose(reader);   // </IndexedField>
         }
         if (this.indexedFields instanceof ArrayList)
@@ -78,31 +91,39 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(XMLConstants.COMPOSITE_INDEX_TAG.getNamespaceURI(),
-          XMLConstants.COMPOSITE_INDEX_TAG.getLocalPart());
+    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+        this.writeStartElement(writer, XMLConstants.COMPOSITE_INDEX_TAG);
         this.writeAttributes(writer, true);
-        for (int storageId : this.indexedFields) {
-            writer.writeEmptyElement(XMLConstants.INDEXED_FIELD_TAG.getNamespaceURI(),
-              XMLConstants.INDEXED_FIELD_TAG.getLocalPart());
-            writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
+        for (String fieldName : this.indexedFields) {
+            this.writeEmptyElement(writer, XMLConstants.FIELD_TAG);
+            this.writeAttr(writer, XMLConstants.NAME_ATTRIBUTE, fieldName);
         }
         writer.writeEndElement();           // </CompositeIndex>
     }
 
-// Compatibility
+// Schema ID
 
-    boolean isCompatibleWith(SchemaCompositeIndex that) {
-        return this.indexedFields.equals(that.indexedFields);
+    @Override
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output, forSchemaModel);
         output.writeInt(this.indexedFields.size());
-        for (Integer storageId : this.indexedFields)
-            output.writeInt(storageId);
+        final SchemaObjectType objectType = this.getObjectType();
+        output.writeBoolean(objectType != null);
+        if (objectType != null) {
+            for (String fieldName : this.indexedFields) {
+                final SchemaField field = objectType.getSchemaFields().get(fieldName);
+                output.writeBoolean(field != null);
+                if (field != null)
+                    field.writeSchemaIdHashData(output, false);
+            }
+        }
     }
 
 // DiffGenerating
@@ -111,7 +132,7 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
     public Diffs differencesFrom(SchemaCompositeIndex that) {
         final Diffs diffs = new Diffs(super.differencesFrom(that));
         if (!this.indexedFields.equals(that.indexedFields))
-            diffs.add("changed indexed field storage IDs from " + that.indexedFields + " to " + this.indexedFields);
+            diffs.add(String.format("changed %s from %s to %s", "indexed fields", that.indexedFields, this.indexedFields));
         return diffs;
     }
 
@@ -119,7 +140,7 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
 
     @Override
     public String toString() {
-        return "composite index " + super.toString();
+        return "composite index " + this.toStringName();
     }
 
     @Override

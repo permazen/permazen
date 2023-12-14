@@ -48,15 +48,15 @@ public class DeletedAccessTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        final Transaction tx = db.createTransaction(schema, 1, true);
+        final Transaction tx = db.createTransaction(schema);
 
     // Create object
 
-        final ObjId id = tx.create(1);
+        final ObjId id = tx.create("Foo");
 
-        final NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, false);
-        final List<Integer> list = (List<Integer>)tx.readListField(id, 20, false);
-        final NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 30, false);
+        final NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, "set", false);
+        final List<Integer> list = (List<Integer>)tx.readListField(id, "list", false);
+        final NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, "map", false);
 
     // Populate collections
 
@@ -86,21 +86,21 @@ public class DeletedAccessTest extends CoreAPITestSupport {
     // Verify counter is inaccessible
 
         try {
-            tx.readCounterField(id, 5, false);
+            tx.readCounterField(id, "counter", false);
             assert false : "can access counter after object is deleted";
         } catch (DeletedObjectException e) {
             // expected
         }
 
         try {
-            tx.writeCounterField(id, 5, 123L, false);
+            tx.writeCounterField(id, "counter", 123L, false);
             assert false : "can access counter after object is deleted";
         } catch (DeletedObjectException e) {
             // expected
         }
 
         try {
-            tx.adjustCounterField(id, 5, 99, false);
+            tx.adjustCounterField(id, "counter", 99, false);
             assert false : "can access counter after object is deleted";
         } catch (DeletedObjectException e) {
             // expected

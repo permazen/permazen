@@ -11,15 +11,15 @@ import io.permazen.kv.KVStore;
 import java.io.Closeable;
 
 /**
- * A {@link Transaction} that is not actually connected to a {@link Database}, but instead exists
+ * A {@link Transaction} that is not actually connected to a persistent database, but instead exists
  * just to hold objects in memory.
  *
  * <p>
- * {@link DetachedTransaction}s are typically used to "snapshot" some portion of a normal {@link Transaction}
+ * {@link DetachedTransaction}s are typically used to hold a "snapshot" some portion of a normal {@link Transaction}
  * for later use. As with all transactions, each {@link DetachedTransaction} contains its own object data.
  *
  * <p>
- * {@link DetachedTransaction}'s cannot be committed or rolled-back; they just persist in memory until
+ * {@link DetachedTransaction}s cannot be committed or rolled-back; they just persist in memory until
  * no longer needed. {@link Transaction.Callback}s may be registered, but they will never be invoked.
  *
  * <p>
@@ -34,16 +34,8 @@ public class DetachedTransaction extends Transaction implements Closeable {
 
 // Constructors
 
-    DetachedTransaction(Database db, KVStore kvstore, Schemas schemas) {
-        super(db, new DetachedKVTransaction(kvstore), schemas);
-    }
-
-    DetachedTransaction(Database db, KVStore kvstore, Schemas schemas, int versionNumber) {
-        super(db, new DetachedKVTransaction(kvstore), schemas, versionNumber);
-    }
-
-    DetachedTransaction(Database db, KVStore kvstore, Schemas schemas, Schema schema) {
-        super(db, new DetachedKVTransaction(kvstore), schemas, schema);
+    DetachedTransaction(Database db, KVStore kvstore, Schema schema, SchemaBundle schemaBundle) {
+        super(db, new DetachedKVTransaction(kvstore), schema, schemaBundle);
     }
 
 // Methods
@@ -112,16 +104,16 @@ public class DetachedTransaction extends Transaction implements Closeable {
     }
 
     /**
-     * Determine whether this transaction is still valid.
+     * Determine whether this transaction is still open.
      *
      * <p>
-     * {@link DetachedTransaction}s are always valid.
+     * {@link DetachedTransaction}s are always open.
      *
      * @return true always
      */
     @Override
-    public boolean isValid() {
-        return super.isValid();
+    public boolean isOpen() {
+        return super.isOpen();
     }
 
 // Closeable

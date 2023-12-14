@@ -1,44 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects>
-    <object storageId="1" id="0100000000000001" version="1">
-        <field storageId="2">123</field>
-        <field storageId="3">true</field>
-        <field storageId="4">-7</field>
-        <field storageId="5">\n</field>
-        <field storageId="7">123.45</field>
-        <field storageId="8">99999999999</field>
-        <field storageId="9">1.2345E39</field>
-        <field storageId="10">hello dolly</field>
-        <field storageId="11">0100000000000001</field>
-        <field storageId="13">2014-05-09T03:02:48Z</field>
-        <field storageId="15">BBB</field>
-        <field storageId="16">[DDD, null, EEE]</field>
-        <field storageId="17">[[DDD, null, EEE], null, [], [null, EEE, null]]</field>
-    </object>
-    <object storageId="20" id="1400000000000001" version="2">
-        <field storageId="21">
-            <element>123</element>
-            <element>456</element>
-        </field>
-        <field storageId="23">
-            <element>789</element>
-            <element null="true"/>
-            <element>101112</element>
-        </field>
-        <field storageId="25">
-            <entry>
-                <key>55</key>
-                <value>fifty
+<database>
+    <schemas>
+        <Schema><!-- "Schema_68060bf82de92a6174f2549f61753e8a" -->
+            <ObjectType storageId="1" name="Foo"><!-- "ObjectType_dbe433c53ee3c5016ff034ca505d70d8" -->
+                <SimpleField name="b" encoding="urn:fdc:permazen.io:2020:byte"/><!-- "SimpleField_5a46f09d7ad42c59ce7ff8d20c3d6853" -->
+                <SimpleField name="c" encoding="urn:fdc:permazen.io:2020:char"/><!-- "SimpleField_6026f76753a18db18ff0a57b25aa406d" -->
+                <SimpleField name="d" encoding="urn:fdc:permazen.io:2020:double"/><!-- "SimpleField_2a5a27115d5d0cc47c6ad6656259cf52" -->
+                <SimpleField name="date" encoding="urn:fdc:permazen.io:2020:Date"/><!-- "SimpleField_d42233ea6570896c00af3e5805809e60" -->
+                <EnumField name="e1"><!-- "EnumField_cdd6a2492357f5465718f9e198ebbab2" -->
+                    <Identifier>AAA</Identifier>
+                    <Identifier>BBB</Identifier>
+                    <Identifier>CCC</Identifier>
+                </EnumField>
+                <EnumArrayField name="ea1" dimensions="1"><!-- "EnumArrayField_757319bd452dc7849bfbb27c9d50c01b" -->
+                    <Identifier>DDD</Identifier>
+                    <Identifier>EEE</Identifier>
+                </EnumArrayField>
+                <EnumArrayField name="ea2" dimensions="2"><!-- "EnumArrayField_c59f572c6a04ccee8dc836c84ca1a4a9" -->
+                    <Identifier>DDD</Identifier>
+                    <Identifier>EEE</Identifier>
+                </EnumArrayField>
+                <SimpleField name="f" encoding="urn:fdc:permazen.io:2020:float"/><!-- "SimpleField_affe6a3e695c920afa32ca38120668e1" -->
+                <SimpleField name="i" encoding="urn:fdc:permazen.io:2020:int"/><!-- "SimpleField_5a1f776ec0ce05b105fc006a1c8327f3" -->
+                <SimpleField name="j" encoding="urn:fdc:permazen.io:2020:long"/><!-- "SimpleField_046323c84df1cdfe4f8084a270ecda4b" -->
+                <ReferenceField name="r" inverseDelete="EXCEPTION"/><!-- "ReferenceField_75882840d4249595941d199b04279d32" -->
+                <ReferenceField name="r2" inverseDelete="EXCEPTION"/><!-- "ReferenceField_eedc733b36a00b925649e56828d26e97" -->
+                <SimpleField name="s" encoding="urn:fdc:permazen.io:2020:short"/><!-- "SimpleField_a8345d0edb377988713b1120c663041d" -->
+                <SimpleField name="str" encoding="urn:fdc:permazen.io:2020:String"/><!-- "SimpleField_271f0fbe3a78b034b01afb9220e43666" -->
+                <SimpleField name="v" encoding="urn:fdc:permazen.io:2020:Void"/><!-- "SimpleField_667b57f2a424dff576177ed3cf13c351" -->
+                <SimpleField name="z" encoding="urn:fdc:permazen.io:2020:boolean"/><!-- "SimpleField_32f25da126974dfaf07469e039cd46cf" -->
+            </ObjectType>
+        </Schema>
+        <Schema><!-- "Schema_e131db68092a6a2ec78691781bc46cff" -->
+            <ObjectType storageId="20" name="Bar"><!-- "ObjectType_11dea29cc7f2950bfceea66ab416c072" -->
+                <ListField name="list"><!-- "ListField_6bac20602b2fdbc764fc6fdf21663ebf" -->
+                    <SimpleField encoding="urn:fdc:permazen.io:2020:Integer"/><!-- "SimpleField_3f107c0973ee5c52eecb04301eb6105d" -->
+                </ListField>
+                <ListField name="list2"><!-- "ListField_aa971ad24f4899492e88b7b1d5a3dbc3" -->
+                    <ReferenceField inverseDelete="EXCEPTION"/><!-- "ReferenceField_d78e2af6855077fdd91ddf6007c02b00" -->
+                </ListField>
+                <MapField name="map"><!-- "MapField_ad81f2e94fb23d0c0c6b6ae4b3ce5a04" -->
+                    <SimpleField encoding="urn:fdc:permazen.io:2020:int"/><!-- "SimpleField_76620cd922d81c4a66fffde4cf5a12fa" -->
+                    <SimpleField encoding="urn:fdc:permazen.io:2020:String" indexed="true"/><!-- "SimpleField_91f462eb18b14fdc46adbde08168a2e1" -->
+                </MapField>
+                <SetField name="set"><!-- "SetField_5886b804dd415edf41d8bea2442dec4e" -->
+                    <SimpleField encoding="urn:fdc:permazen.io:2020:int"/><!-- "SimpleField_4b399a6f6c1b24fe381f9cfe7149a049" -->
+                </SetField>
+            </ObjectType>
+        </Schema>
+    </schemas>
+    <objects schema="Schema_e131db68092a6a2ec78691781bc46cff">
+        <object type="Foo" id="0100000000000001" schema="Schema_68060bf82de92a6174f2549f61753e8a">
+            <field name="b">-7</field>
+            <field name="c">\n</field>
+            <field name="d">1.2345E39</field>
+            <field name="date">2014-05-09T03:02:48Z</field>
+            <field name="e1">BBB</field>
+            <field name="ea1">[DDD, null, EEE]</field>
+            <field name="ea2">[[DDD, null, EEE], null, [], [null, EEE, null]]</field>
+            <field name="f">123.45</field>
+            <field name="i">123</field>
+            <field name="j">99999999999</field>
+            <field name="r">0100000000000001</field>
+            <field name="str">hello dolly</field>
+            <field name="z">true</field>
+        </object>
+        <object type="Bar" id="1400000000000001">
+            <field name="list">
+                <element>789</element>
+                <element null="true"/>
+                <element>101112</element>
+            </field>
+            <field name="map">
+                <entry>
+                    <key>55</key>
+                    <value>fifty
 five</value>
-            </entry>
-            <entry>
-                <key>73</key>
-                <value>seventy three</value>
-            </entry>
-            <entry>
-                <key>99</key>
-                <value null="true"/>
-            </entry>
-        </field>
-    </object>
-</objects>
+                </entry>
+                <entry>
+                    <key>73</key>
+                    <value>seventy three</value>
+                </entry>
+                <entry>
+                    <key>99</key>
+                    <value null="true"/>
+                </entry>
+            </field>
+            <field name="set">
+                <element>123</element>
+                <element>456</element>
+            </field>
+        </object>
+    </objects>
+</database>

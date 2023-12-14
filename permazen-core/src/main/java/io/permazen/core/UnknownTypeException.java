@@ -11,49 +11,52 @@ package io.permazen.core;
 @SuppressWarnings("serial")
 public class UnknownTypeException extends DatabaseException {
 
-    private final int storageId;
-    private final int schemaVersion;
+    private final String typeName;
+    private final Schema schema;
 
     /**
      * Constructor.
      *
-     * @param storageId unknown type storage ID
-     * @param schemaVersion schema version in which type was not found, or zero if not version specific
+     * @param typeName unknown type name
+     * @param schema schema in which {@code typeName} was not found, or null if specific to any particular schema
      */
-    public UnknownTypeException(int storageId, int schemaVersion) {
-        this(storageId, schemaVersion, "no object type with storage ID " + storageId + " exists"
-          + (schemaVersion != 0 ? " in schema version " + schemaVersion : ""));
+    public UnknownTypeException(String typeName, Schema schema) {
+        this(typeName, schema, String.format(
+          "no object type \"%s\" exists%s",
+          typeName, schema != null ? String.format(" in schema \"%s\"", schema.getSchemaId()) : ""));
     }
 
     /**
      * Constructor.
      *
-     * @param storageId unknown type storage ID
-     * @param schemaVersion schema version in which type was not found, or zero if not version specific
+     * @param typeName unknown type name
+     * @param schema schema in which {@code typeName} was not found, or null if specific to any particular schema
      * @param message exception message
      */
-    public UnknownTypeException(int storageId, int schemaVersion, String message) {
+    public UnknownTypeException(String typeName, Schema schema, String message) {
         super(message);
-        this.storageId = storageId;
-        this.schemaVersion = schemaVersion;
+        this.typeName = typeName;
+        this.schema = schema;
     }
 
     /**
-     * Get the storage ID that was not recognized.
+     * Get the type name that was not recognized.
      *
-     * @return unrecognized object type storage ID
+     * @return unrecognized object type name
      */
-    public int getStorageId() {
-        return this.storageId;
+    public String getTypeName() {
+        return this.typeName;
     }
 
     /**
-     * Get the schema version in which the type was not found.
-     * This may return zero if a query was not specific to a single schema version.
+     * Get the schema in which the type was not found.
      *
-     * @return schema version not having the object type
+     * <p>
+     * This may return null if a query was not specific to any particular schema.
+     *
+     * @return schema not having the object type, possibly null
      */
-    public int getSchemaVersion() {
-        return this.schemaVersion;
+    public Schema getSchema() {
+        return this.schema;
     }
 }

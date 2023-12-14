@@ -9,32 +9,26 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
+import io.permazen.encoding.EncodingId;
 import io.permazen.encoding.EncodingRegistry;
+import io.permazen.tuple.Tuple2;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 import io.permazen.util.NavigableSets;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -50,16 +44,21 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  */
 public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaModel> {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.SCHEMA_MODEL;
+
     static final Map<QName, Class<? extends SchemaField>> FIELD_TAG_MAP = new HashMap<>();
     static {
-        FIELD_TAG_MAP.put(XMLConstants.COUNTER_FIELD_TAG, CounterSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.ENUM_FIELD_TAG, EnumSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.ENUM_ARRAY_FIELD_TAG, EnumArraySchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.LIST_FIELD_TAG, ListSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.MAP_FIELD_TAG, MapSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.REFERENCE_FIELD_TAG, ReferenceSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.SET_FIELD_TAG, SetSchemaField.class);
-        FIELD_TAG_MAP.put(XMLConstants.SIMPLE_FIELD_TAG, SimpleSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.COUNTER_FIELD_TAG,       CounterSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.ENUM_FIELD_TAG,          EnumSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.ENUM_ARRAY_FIELD_TAG,    EnumArraySchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.LIST_FIELD_TAG,          ListSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.MAP_FIELD_TAG,           MapSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.REFERENCE_FIELD_TAG,     ReferenceSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.SET_FIELD_TAG,           SetSchemaField.class);
+        FIELD_TAG_MAP.put(XMLConstants.SIMPLE_FIELD_TAG,        SimpleSchemaField.class);
     }
     static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = new HashMap<>();
     static {
@@ -67,11 +66,13 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
           .filter(entry -> SimpleSchemaField.class.isAssignableFrom(entry.getValue()))
           .forEach(entry -> SIMPLE_FIELD_TAG_MAP.put(entry.getKey(), entry.getValue().asSubclass(SimpleSchemaField.class)));
     }
-    static final Map<QName, Class<? extends AbstractSchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
+    static final Map<QName, Class<? extends SchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
     static {
         FIELD_OR_COMPOSITE_INDEX_TAG_MAP.putAll(FIELD_TAG_MAP);
         FIELD_OR_COMPOSITE_INDEX_TAG_MAP.put(XMLConstants.COMPOSITE_INDEX_TAG, SchemaCompositeIndex.class);
     }
+
+    private static final RuntimeException VALIDATION_OK = new RuntimeException();   // validation sentinel value
 
     private static final String XML_OUTPUT_FACTORY_PROPERTY = "javax.xml.stream.XMLOutputFactory";
     private static final String DEFAULT_XML_OUTPUT_FACTORY_IMPLEMENTATION = "com.sun.xml.internal.stream.XMLOutputFactoryImpl";
@@ -79,30 +80,60 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     // Current format version for schema XML
     private static final int CURRENT_FORMAT_VERSION = 0;
 
-    // Keys into this.lockedDownCache
-    private static final int VALIDATION_RESULT_KEY = 1;
-    private static final int COMPATIBILITY_HASH_KEY = 2;
+    private NavigableMap<String, SchemaObjectType> objectTypes = new TreeMap<>();
 
-    private /*final*/ NavigableMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
+    // Cached info (after lockdown only)
+    private RuntimeException validation;
 
-    // Computed information we cache after being locked down
-    private final HashMap<Integer, Object> lockedDownCache = new HashMap<>();
+// Properties
 
-    public NavigableMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
-        return this.schemaObjectTypes;
+    /**
+     * Get the object types defined in this schema.
+     *
+     * @return object types keyed by name
+     */
+    public NavigableMap<String, SchemaObjectType> getSchemaObjectTypes() {
+        return this.objectTypes;
     }
 
     /**
-     * Serialize an instance to the given XML output.
+     * Determine if this schema is empty, i.e., defines zero object types.
+     *
+     * @return true if this is an empty schema
+     */
+    public boolean isEmpty() {
+        return this.objectTypes.isEmpty();
+    }
+
+// Recursion
+
+    @Override
+    public void visitSchemaItems(Consumer<? super SchemaItem> visitor) {
+        super.visitSchemaItems(visitor);
+        this.objectTypes.values().forEach(objType -> objType.visitSchemaItems(visitor));
+    }
+
+// Lockdown
+
+    @Override
+    public void lockDown() {
+        super.lockDown();
+        this.objectTypes = this.lockDownMap(this.objectTypes);
+    }
+
+// XML Serialization
+
+    /**
+     * Serialize this instance to the given XML output.
      *
      * <p>
      * The {@code output} is not closed by this method.
      *
      * @param output XML output
-     * @param indent true to pretty print the XML
+     * @param prettyPrint true to indent the XML and add schema ID comments
      * @throws IOException if an I/O error occurs
      */
-    public void toXML(OutputStream output, boolean indent) throws IOException {
+    public void toXML(OutputStream output, boolean prettyPrint) throws IOException {
         try {
 
             // Create factory, preferring Sun implementation to avoid https://github.com/FasterXML/woodstox/issues/17
@@ -121,10 +152,10 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
             // Create writer
             XMLStreamWriter writer = factory.createXMLStreamWriter(output, "UTF-8");
-            if (indent)
+            if (prettyPrint)
                 writer = new IndentXMLStreamWriter(writer);
             writer.writeStartDocument("UTF-8", "1.0");
-            this.writeXML(writer);
+            this.writeXML(writer, prettyPrint);
             writer.writeEndDocument();
             writer.flush();
         } catch (XMLStreamException e) {
@@ -139,7 +170,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     }
 
     /**
-     * Deserialize an instance from the given XML input and validate it.
+     * Deserialize an instance from the given XML input.
      *
      * @param input XML input
      * @return deserialized schema model
@@ -152,33 +183,13 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         final SchemaModel schemaModel = new SchemaModel();
         try {
             final XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
-            schemaModel.readXML(reader);
+            schemaModel.readXML(reader, false);
         } catch (XMLStreamException e) {
-            throw new InvalidSchemaException("error parsing schema model XML", e);
+            if (e.getCause() instanceof IOException)        // XMLInputFactory API should throw IOException directly
+                throw (IOException)e.getCause();
+            throw new InvalidSchemaException(String.format("error in schema XML: %s", e.getMessage()), e);
         }
-        schemaModel.validate();
         return schemaModel;
-    }
-
-// Lockdown
-
-    @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
-        this.schemaObjectTypes = Collections.unmodifiableNavigableMap(this.schemaObjectTypes);
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
-            schemaObjectType.lockDown();
-    }
-
-    private <T> T calculate(Class<T> type, int key, Supplier<T> supplier) {
-        if (!this.lockedDown)
-            return supplier.get();
-        T value = type.cast(this.lockedDownCache.get(key));                 // can't use computeIfAbsent() because of null values
-        if (value == null && !this.lockedDownCache.containsKey(key)) {
-            value = supplier.get();
-            this.lockedDownCache.put(key, value);
-        }
-        return value;
     }
 
 // Validation
@@ -187,164 +198,138 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * Validate this instance.
      *
      * <p>
-     * This performs some basic structural validation. Full validation is not possible without a
-     * {@link Database} instance (for example, we don't know whether or not a custom
-     * {@link SimpleSchemaField} type name is registered with the associated {@link EncodingRegistry}).
+     * This performs basic structural validation. Full validation is not possible without a
+     * {@link Database} instance; for example, simple field {@link EncodingId}'s must be resolved
+     * in the {@linkplain Database#getEncodingRegistry associated} {@link EncodingRegistry}.
      *
      * <p>
-     * Note that after this instance has been {@linkplain #lockDown locked down}, repeated invocations of this
-     * method will be very fast, just returning the cached previous result.
+     * Once this instance is {@linkplain #lockDown locked down}, repeated invocations of this method will be very fast,
+     * just returning the cached previous result.
      *
-     * @throws InvalidSchemaException if this instance is detected to be invalid
+     * @throws InvalidSchemaException if this instance is invalid
+     * @throws IllegalStateException if this instance is not locked down
      */
-    public void validate() {
-        final RuntimeException failure = this.calculate(RuntimeException.class, VALIDATION_RESULT_KEY, () -> {
+    public final void validate() {
+
+        // Compute validation status if not already cached
+        RuntimeException result;
+        if (this.validation != null)
+            result = this.validation;
+        else {
+
+            // Calculate whether valid
             try {
                 this.doValidate();
+                result = VALIDATION_OK;
             } catch (RuntimeException e) {
-                return e;
+                result = e;
             }
-            return null;
+
+            // Cache value if locked down
+            if (this.lockedDown)
+                this.validation = result;
+        }
+
+        // Check result
+        if (result != VALIDATION_OK)
+            throw result;
+    }
+
+    void doValidate() {
+
+        // Verify mapped object type names
+        this.verifyMappedNames("object type", this.objectTypes);
+
+        // Validate object types
+        this.objectTypes.values().forEach(SchemaObjectType::validate);
+
+        // Verify reference field object type restrictions
+        this.visitSchemaItems(ReferenceSchemaField.class, field -> {
+            final NavigableSet<String> refObjectTypes = field.getObjectTypes();
+            if (refObjectTypes == null)
+                return;
+            for (String typeName : refObjectTypes) {
+                if (!this.objectTypes.containsKey(typeName))
+                    throw new InvalidSchemaException(String.format("invalid %s: unknown type restriction \"%s\"", field, typeName));
+            }
         });
-        if (failure != null)
-            throw failure;
-    }
 
-    private void doValidate() {
-
-        // Validate object types and verify object type names are unique
-        final TreeMap<String, SchemaObjectType> schemaObjectTypesByName = new TreeMap<>();
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
-            schemaObjectType.validate();
-            final String schemaObjectTypeName = schemaObjectType.getName();
-            if (schemaObjectTypesByName.put(schemaObjectTypeName, schemaObjectType) != null)
-                throw new InvalidSchemaException("duplicate object name \"" + schemaObjectTypeName + "\"");
-        }
-
-        // Collect all field storage ID's
-        final TreeMap<Integer, AbstractSchemaItem> globalItemsByStorageId = new TreeMap<>();
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
-            for (SchemaField field : schemaObjectType.getSchemaFields().values()) {
-                globalItemsByStorageId.put(field.getStorageId(), field);
-                if (field instanceof ComplexSchemaField) {
-                    final ComplexSchemaField complexField = (ComplexSchemaField)field;
-                    for (SimpleSchemaField subField : complexField.getSubFields().values())
-                        globalItemsByStorageId.put(subField.getStorageId(), subField);
-                }
+        // Verify that non-zero storage ID's don't have any conflicts or duplicates
+        final HashMap<Integer, Tuple2<SchemaId, SchemaItem>> prevSchemaIdMap = new HashMap<>();
+        final HashMap<SchemaId, Tuple2<Integer, SchemaItem>> prevStorageIdMap = new HashMap<>();
+        this.visitSchemaItems(item -> {
+            final int storageId = item.getStorageId();
+            if (storageId <= 0)
+                return;
+            final SchemaId schemaId = item.getSchemaId();
+            final Tuple2<SchemaId, SchemaItem> prevSchemaId = prevSchemaIdMap.put(storageId, new Tuple2<>(schemaId, item));
+            if (prevSchemaId != null && !prevSchemaId.getValue1().equals(schemaId)) {
+                throw new InvalidSchemaException(
+                  String.format("conflicting assignment of storage ID %d to both %s and %s",
+                  storageId, prevSchemaId.getValue2(), item));
             }
-        }
-
-        // Verify object type, field, and index storage ID's are non-overlapping
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
-            SchemaModel.verifyUniqueStorageId(globalItemsByStorageId, schemaObjectType);
-            for (SchemaCompositeIndex index : schemaObjectType.getSchemaCompositeIndexes().values())
-                SchemaModel.verifyUniqueStorageId(globalItemsByStorageId, index);
-        }
-    }
-
-    static <T extends AbstractSchemaItem> void verifyUniqueStorageId(TreeMap<Integer, T> itemsByStorageId, T item) {
-        final int storageId = item.getStorageId();
-        final T previous = itemsByStorageId.get(storageId);
-        if (previous != null && !previous.equals(item)) {
-            throw new InvalidSchemaException("incompatible duplicate use of storage ID "
-              + storageId + " by both " + previous + " and " + item);
-        }
-        itemsByStorageId.put(storageId, item);
-    }
-
-// Compatibility
-
-    /**
-     * Determine whether this instance is compatible with the given instance for use with the core API
-     * and the same version number.
-     *
-     * <p>
-     * Two instances are "same version" compatible if and only if they can be used to successfully
-     * {@linkplain Database#createTransaction(SchemaModel, int, boolean) open a transaction}
-     * against the same {@link Database} using the same schema version.
-     *
-     * <p>
-     * Such compatibility implies the instances are mostly identical, with these notable exceptions:
-     * <ul>
-     *  <li>Object and field names (the core API identifies types and fields using only storage ID's)</li>
-     *  <li>Attributes affecting behavior but not structure, such as
-     *      {@linkplain ReferenceSchemaField#isForwardDelete forward delete cascades}</li>
-     * </ul>
-     *
-     * <p>
-     * To determine whether two instances are truly identical, use {@link #equals equals()}.
-     *
-     * @param that other schema model
-     * @return true if this and {@code that} are "same version" compatible
-     * @throws InvalidSchemaException if either this or {@code that} instance is invalid
-     * @throws IllegalArgumentException if {@code that} is null
-     */
-    public boolean isCompatibleWith(SchemaModel that) {
-        Preconditions.checkArgument(that != null, "null that");
-        if (this == that)
-            return true;
-        return AbstractSchemaItem.isAll(this.schemaObjectTypes, that.schemaObjectTypes, SchemaObjectType::isCompatibleWith);
+            final Tuple2<Integer, SchemaItem> prevStorageId = prevStorageIdMap.put(schemaId, new Tuple2<>(storageId, item));
+            if (prevStorageId != null && !prevStorageId.getValue1().equals(storageId)) {
+                throw new InvalidSchemaException(
+                  String.format("duplicate assignment of storage IDs %d and %d to storage ID \"%s\" (%s)",
+                  prevStorageId.getValue1(), storageId, schemaId, item));
+            }
+        });
     }
 
     /**
-     * Generate a "same version" compatibility hash value.
+     * {@linkplain SchemaModel#validate Validate} this instance itself and also verify that all of its
+     * {@linkplain SimpleSchemaField#getEncodingId field encodings} can be found in the given {@link EncodingRegistry}.
      *
-     * <p>
-     * For any two instances, if they are {@linkplain #isCompatibleWith "same version" compatible} then
-     * the returned value will be the same; if they are different, the returned value is very likely to be different.
-     *
-     * @return "same version" compatibility hash value
+     * @param encodingRegistry registry of encodings
+     * @throws InvalidSchemaException if this instance is itself invalid
+     * @throws InvalidSchemaException if any simple field's encoding ID can't be resovled by {@code encodingRegistry}
+     * @throws IllegalArgumentException if {@code encodingRegistry} is null
      */
-    public long compatibilityHash() {
-        return this.calculate(Long.class, COMPATIBILITY_HASH_KEY, this::computeCompatibilityHash);
+    public void validateWithEncodings(EncodingRegistry encodingRegistry) {
+
+        // Sanity check
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
+
+        // Validate normally
+        this.validate();
+
+        // Validate simple field encodings
+        this.visitSchemaItems(SimpleSchemaField.class, field -> {
+            if (field.hasFixedEncoding())
+                return;
+            final EncodingId encodingId = field.getEncodingId();
+            if (encodingRegistry.getEncoding(encodingId) == null) {
+                throw new InvalidSchemaException(
+                  String.format("unknown encoding \"%s\" for field \"%s\"", encodingId, field.getName()));
+            }
+        });
     }
 
-    private long computeCompatibilityHash() {
-        final MessageDigest sha1;
-        try {
-            sha1 = MessageDigest.getInstance("SHA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        final OutputStream discardOutputStream = new OutputStream() {
-            @Override
-            public void write(int b) {
-            }
-            @Override
-            public void write(byte[] b, int off, int len) {
-            }
-        };
-        try (DigestOutputStream output = new DigestOutputStream(discardOutputStream, sha1)) {
-            this.writeCompatibilityHashData(output);
-        } catch (IOException e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
-        try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(sha1.digest()))) {
-            return input.readLong();
-        } catch (IOException e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
-    }
-
-    private void writeCompatibilityHashData(OutputStream stream) throws IOException {
-        try (DataOutputStream output = new DataOutputStream(stream)) {
-            output.writeInt(this.schemaObjectTypes.size());
-            for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
-                schemaObjectType.writeCompatibilityHashData(output);
-        }
-    }
+// Storage ID's
 
     /**
-     * Auto-generate a random schema version based on this instance's
-     * {@linkplain #compatibilityHash "same version" compatibility hash value}.
+     * Reset all non-zero storage ID's in this instance back to zero.
      *
-     * @return schema version number, always greater than zero
+     * @throws UnsupportedOperationException if this instance is {@linkplain #lockDown locked down}
      */
-    public int autogenerateVersion() {
-        int version = (int)(this.compatibilityHash() >>> 33);                       // ensure value is non-negative
-        if (version == 0)                                                           // handle unlikely zero case
-            version = 1;
-        return version;
+    public void resetStorageIds() {
+        this.visitSchemaItems(item -> item.setStorageId(0));
+    }
+
+// Schema ID
+
+    @Override
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
+    }
+
+    @Override
+    void writeSchemaIdHashData(DataOutputStream output) throws IOException {
+        super.writeSchemaIdHashData(output);
+        output.writeInt(this.objectTypes.size());
+        for (SchemaObjectType objectType : this.objectTypes.values())
+            objectType.writeSchemaIdHashData(output, true);
     }
 
 // DiffGenerating
@@ -353,11 +338,11 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     public Diffs differencesFrom(SchemaModel that) {
         Preconditions.checkArgument(that != null, "null that");
         final Diffs diffs = new Diffs();
-        final NavigableSet<Integer> allObjectTypeIds = NavigableSets.union(
-          this.schemaObjectTypes.navigableKeySet(), that.schemaObjectTypes.navigableKeySet());
-        for (int storageId : allObjectTypeIds) {
-            final SchemaObjectType thisObjectType = this.schemaObjectTypes.get(storageId);
-            final SchemaObjectType thatObjectType = that.schemaObjectTypes.get(storageId);
+        final NavigableSet<String> allObjectTypeNames = NavigableSets.union(
+          this.getSchemaObjectTypes().navigableKeySet(), that.getSchemaObjectTypes().navigableKeySet());
+        for (String typeName : allObjectTypeNames) {
+            final SchemaObjectType thisObjectType = this.getSchemaObjectTypes().get(typeName);
+            final SchemaObjectType thatObjectType = that.getSchemaObjectTypes().get(typeName);
             if (thisObjectType == null)
                 diffs.add("removed " + thatObjectType);
             else if (thatObjectType == null)
@@ -373,11 +358,26 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
 // XML Reading
 
-    void readXML(XMLStreamReader reader) throws XMLStreamException {
-        this.schemaObjectTypes.clear();
+    /**
+     * Reset this instance and (re)populate it from the given XML input.
+     *
+     * @param reader XML input
+     * @param openTag true if the opening XML {@code <SchemaModel>} tag has already been read from {@code input},
+     *  false to expect to read the tag as the next XML element
+     * @throws XMLStreamException if the XML input is invalid
+     * @throws IllegalArgumentException if {@code reader} is null
+     */
+    public void readXML(XMLStreamReader reader, boolean openTag) throws XMLStreamException {
 
-        // Read opening tag
-        this.expect(reader, false, XMLConstants.SCHEMA_MODEL_TAG);
+        // Sanity check
+        Preconditions.checkArgument(reader != null, "null reader");
+
+        // Reset state
+        this.objectTypes.clear();
+
+        // Read opening tag if needed
+        if (!openTag)
+            this.expect(reader, false, XMLConstants.SCHEMA_MODEL_TAG);
 
         // Get and verify format version
         final Integer formatAttr = this.getIntAttr(reader, XMLConstants.FORMAT_VERSION_ATTRIBUTE, false);
@@ -387,25 +387,36 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         case 0:
             break;
         default:
-            throw new XMLStreamException("unrecognized schema XML format version " + formatAttr, reader.getLocation());
+            throw new XMLStreamException(String.format(
+              "unrecognized schema XML format version %d", formatAttr), reader.getLocation());
         }
 
         // Read object type tags
         while (this.expect(reader, true, XMLConstants.OBJECT_TYPE_TAG)) {
-            final SchemaObjectType schemaObjectType = new SchemaObjectType();
-            schemaObjectType.readXML(reader, formatVersion);
-            final int storageId = schemaObjectType.getStorageId();
-            final SchemaObjectType previous = this.schemaObjectTypes.put(storageId, schemaObjectType);
-            if (previous != null) {
-                throw new XMLStreamException("duplicate use of storage ID " + storageId
-                  + " for both " + previous + " and " + schemaObjectType, reader.getLocation());
+            final SchemaObjectType objectType = new SchemaObjectType();
+            objectType.readXML(reader, formatVersion);
+            final String typeName = objectType.getName();
+            if (this.objectTypes.put(typeName, objectType) != null) {
+                throw new XMLStreamException(String.format(
+                  "duplicate use of object name \"%s\"", typeName), reader.getLocation());
             }
         }
     }
 
 // XML Writing
 
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+    /**
+     * Write this instance to the given XML output.
+     *
+     * @param writer XML output
+     * @param prettyPrint true to indent and include {@link SchemaId} comments
+     * @throws XMLStreamException if an XML error occurs
+     * @throws IllegalArgumentException if {@code writer} is null
+     */
+    public void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+
+        // Sanity check
+        Preconditions.checkArgument(writer != null, "null writer");
 
         // Get format version
         assert CURRENT_FORMAT_VERSION == 0;
@@ -413,15 +424,13 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
         // Output XML
         writer.setDefaultNamespace(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI());
-        writer.writeStartElement(XMLConstants.SCHEMA_MODEL_TAG.getNamespaceURI(), XMLConstants.SCHEMA_MODEL_TAG.getLocalPart());
-        if (formatVersion != 0) {
-            writer.writeAttribute(XMLConstants.FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + formatVersion);
-        }
-        final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
-        Collections.sort(typeList, Comparator.comparing(SchemaObjectType::getName));
-        for (SchemaObjectType schemaObjectType : typeList)
-            schemaObjectType.writeXML(writer);
+        this.writeStartElement(writer, XMLConstants.SCHEMA_MODEL_TAG);
+        if (formatVersion != 0)
+            this.writeAttr(writer, XMLConstants.FORMAT_VERSION_ATTRIBUTE, formatVersion);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
+        for (SchemaObjectType objectType : this.objectTypes.values())
+            objectType.writeXML(writer, prettyPrint);
         writer.writeEndElement();
     }
 
@@ -446,13 +455,12 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final SchemaModel that = (SchemaModel)obj;
-        return this.schemaObjectTypes.equals(that.schemaObjectTypes);
+        return this.objectTypes.equals(that.objectTypes);
     }
 
     @Override
     public int hashCode() {
-        return this.getClass().hashCode()
-          ^ this.schemaObjectTypes.hashCode();
+        return this.getClass().hashCode() ^ this.objectTypes.hashCode();
     }
 
 // Cloneable
@@ -464,9 +472,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     @SuppressWarnings("unchecked")
     public SchemaModel clone() {
         final SchemaModel clone = (SchemaModel)super.clone();
-        clone.schemaObjectTypes = new TreeMap<>(clone.schemaObjectTypes);
-        for (Map.Entry<Integer, SchemaObjectType> entry : clone.schemaObjectTypes.entrySet())
-            entry.setValue(entry.getValue().clone());
+        clone.objectTypes = this.cloneMap(clone.objectTypes);
+        clone.validation = null;
         return clone;
     }
 }

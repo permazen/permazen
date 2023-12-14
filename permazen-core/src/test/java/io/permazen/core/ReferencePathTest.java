@@ -62,7 +62,7 @@ public class ReferencePathTest extends CoreAPITestSupport {
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
 
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
 
         final ObjId id1 = new ObjId("6411111111111111");
         final ObjId id2 = new ObjId("6422222222222222");
@@ -74,25 +74,25 @@ public class ReferencePathTest extends CoreAPITestSupport {
         Assert.assertTrue(tx.create(id3));
         Assert.assertTrue(tx.create(id4));
 
-        final NavigableSet<ObjId> set1 = (NavigableSet<ObjId>)tx.readSetField(id1, 120, true);
-        final List<ObjId> list1 = (List<ObjId>)tx.readListField(id1, 130, true);
-        final NavigableMap<ObjId, ObjId> map1 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id1, 140, true);
+        final NavigableSet<ObjId> set1 = (NavigableSet<ObjId>)tx.readSetField(id1, "set", true);
+        final List<ObjId> list1 = (List<ObjId>)tx.readListField(id1, "list", true);
+        final NavigableMap<ObjId, ObjId> map1 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id1, "map", true);
 
-        final NavigableSet<ObjId> set2 = (NavigableSet<ObjId>)tx.readSetField(id2, 120, true);
-        final List<ObjId> list2 = (List<ObjId>)tx.readListField(id2, 130, true);
-        final NavigableMap<ObjId, ObjId> map2 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id2, 140, true);
+        final NavigableSet<ObjId> set2 = (NavigableSet<ObjId>)tx.readSetField(id2, "set", true);
+        final List<ObjId> list2 = (List<ObjId>)tx.readListField(id2, "list", true);
+        final NavigableMap<ObjId, ObjId> map2 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id2, "map", true);
 
-        final NavigableSet<ObjId> set3 = (NavigableSet<ObjId>)tx.readSetField(id3, 120, true);
-        final List<ObjId> list3 = (List<ObjId>)tx.readListField(id3, 130, true);
-        final NavigableMap<ObjId, ObjId> map3 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id3, 140, true);
+        final NavigableSet<ObjId> set3 = (NavigableSet<ObjId>)tx.readSetField(id3, "set", true);
+        final List<ObjId> list3 = (List<ObjId>)tx.readListField(id3, "list", true);
+        final NavigableMap<ObjId, ObjId> map3 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id3, "map", true);
 
-        final NavigableSet<ObjId> set4 = (NavigableSet<ObjId>)tx.readSetField(id4, 120, true);
-        final List<ObjId> list4 = (List<ObjId>)tx.readListField(id4, 130, true);
-        final NavigableMap<ObjId, ObjId> map4 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id4, 140, true);
+        final NavigableSet<ObjId> set4 = (NavigableSet<ObjId>)tx.readSetField(id4, "set", true);
+        final List<ObjId> list4 = (List<ObjId>)tx.readListField(id4, "list", true);
+        final NavigableMap<ObjId, ObjId> map4 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id4, "map", true);
 
-        tx.writeSimpleField(id1, 109, id2, true);
-        tx.writeSimpleField(id2, 109, id3, true);
-        tx.writeSimpleField(id3, 109, id2, true);
+        tx.writeSimpleField(id1, "ref", id2, true);
+        tx.writeSimpleField(id2, "ref", id3, true);
+        tx.writeSimpleField(id3, "ref", id2, true);
 
         set1.addAll(Arrays.asList(id1, id3));
         set2.addAll(Arrays.asList(id2, id4));
@@ -222,7 +222,7 @@ public class ReferencePathTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes(StandardCharsets.UTF_8)));
-        final Transaction tx = db.createTransaction(schema, 1, true);
+        final Transaction tx = db.createTransaction(schema);
 
         final ObjId a1 = new ObjId("0a11111111111111");
         final ObjId a2 = new ObjId("0a22222222222222");
@@ -254,15 +254,15 @@ public class ReferencePathTest extends CoreAPITestSupport {
             b3 -----/
     */
 
-        tx.writeSimpleField(a1, 1, b1, true);
-        tx.writeSimpleField(a2, 1, b1, true);
+        tx.writeSimpleField(a1, "ref", b1, true);
+        tx.writeSimpleField(a2, "ref", b1, true);
 
-        tx.writeSimpleField(b1, 1, c1, true);
-        tx.writeSimpleField(b2, 1, c2, true);
-        tx.writeSimpleField(b3, 1, b2, true);
+        tx.writeSimpleField(b1, "ref", c1, true);
+        tx.writeSimpleField(b2, "ref", c2, true);
+        tx.writeSimpleField(b3, "ref", b2, true);
 
-        tx.writeSimpleField(c1, 1, c2, true);
-        tx.writeSimpleField(c2, 1, b2, true);
+        tx.writeSimpleField(c1, "ref", c2, true);
+        tx.writeSimpleField(c2, "ref", b2, true);
 
         final KeyRange arange = ObjId.getKeyRange(10);
         final KeyRange brange = ObjId.getKeyRange(11);

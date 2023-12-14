@@ -11,6 +11,8 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
+import io.permazen.schema.SetSchemaField;
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
@@ -26,42 +28,43 @@ import java.util.TreeSet;
  */
 public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field content storage ID
-     * @param schema schema version
-     * @param elementField this field's element sub-field
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
     @SuppressWarnings("serial")
-    SetField(String name, int storageId, Schema schema, SimpleField<E> elementField) {
-        super(name, storageId, schema, new TypeToken<NavigableSet<E>>() { }
+    SetField(Schema schema, SetSchemaField field, SimpleField<E> elementField) {
+        super(schema, field, new TypeToken<NavigableSet<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
 // Public methods
 
     @Override
+    public SetElementIndex<E> getElementIndex() {
+        return (SetElementIndex<E>)super.getElementIndex();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public NavigableSet<E> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
-        return (NavigableSet<E>)tx.readSetField(id, this.storageId, false);
+        return (NavigableSet<E>)tx.readSetField(id, this.name, false);
     }
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseSetField(this);
     }
 
     @Override
     public String toString() {
-        return "set field \"" + this.name + "\" containing " + this.elementField;
+        return "set field \"" + this.name + "\"";
     }
 
-// Non-public methods
+// Package Methods
+
+    @Override
+    SetElementIndex<E> createElementSubFieldIndex(Schema schema, SimpleSchemaField schemaField, ObjType objType) {
+        return new SetElementIndex<E>(schema, schemaField, objType, this);
+    }
 
     @Override
     NavigableSet<E> getValueInternal(Transaction tx, ObjId id) {
@@ -71,12 +74,6 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     @Override
     NavigableSet<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
         return Collections.unmodifiableNavigableSet(new TreeSet<E>(this.getValueInternal(tx, id)));
-    }
-
-    @Override
-    SetElementStorageInfo<E> toStorageInfo(SimpleField<?> subField) {
-        assert subField == this.elementField;
-        return new SetElementStorageInfo<>(this);
     }
 
     @Override

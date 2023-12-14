@@ -33,12 +33,13 @@ final class ObjTypeSet extends EncodingSet<ObjId> {
     }
 
     /**
-     * Constructor for all object types in all schema versions.
+     * Constructor for all object types in all schemas.
      *
      * @param tx transaction
      */
     ObjTypeSet(Transaction tx) {
-        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<>());
+        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteUtil.EMPTY,
+          null, tx.getSchemaBundle().getObjTypesKeyRanges(), new Bounds<>());
         this.tx = tx;
     }
 

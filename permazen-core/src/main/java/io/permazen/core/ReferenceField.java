@@ -8,10 +8,11 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.core.util.ObjIdMap;
+import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.util.ByteReader;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.SortedSet;
 
 /**
  * A field that references another {@link Database} object.
@@ -28,30 +29,20 @@ public class ReferenceField extends SimpleField<ObjId> {
     final boolean forwardDelete;
     final boolean allowDeleted;
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field storage ID
-     * @param schema schema version
-     * @param inverseDelete inverse deletion behavior
-     * @param forwardDelete whether to cascade deletes
-     * @param allowDeleted whether to allow assignment to deleted obects in normal transactions
-     * @param objectTypes allowed object type storage IDs, or null for no restriction
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is invalid
-     */
-    ReferenceField(String name, int storageId, Schema schema, DeleteAction inverseDelete,
-      boolean forwardDelete, boolean allowDeleted, Set<Integer> objectTypes) {
-        super(name, storageId, schema, new ReferenceEncoding(objectTypes), true);
-        Preconditions.checkArgument(inverseDelete != null, "null inverseDelete");
-        this.inverseDelete = inverseDelete;
-        this.forwardDelete = forwardDelete;
-        this.allowDeleted = allowDeleted;
+    ReferenceField(Schema schema, ReferenceSchemaField field, Set<ObjType> objTypes) {
+        super(schema, field, new ReferenceEncoding(schema, objTypes), true);
+        this.inverseDelete = field.getInverseDelete();
+        this.forwardDelete = field.isForwardDelete();
+        this.allowDeleted = field.isAllowDeleted();
+        assert this.inverseDelete != null;
     }
 
 // Public methods
+
+    @Override
+    public ReferenceEncoding getEncoding() {
+        return (ReferenceEncoding)super.getEncoding();
+    }
 
     /**
      * Get the desired behavior when an object referred to by this field is deleted.
@@ -83,20 +74,21 @@ public class ReferenceField extends SimpleField<ObjId> {
     /**
      * Get the object types this field is allowed to reference, if so restricted.
      *
-     * @return storage IDs of allowed object types, or null if there is no restriction
+     * @return names of allowed object types, or null if there is no restriction
      */
-    public SortedSet<Integer> getObjectTypes() {
-        return ((ReferenceEncoding)this.encoding).getObjectTypes();
+    public Set<String> getObjectTypes() {
+        return Collections.unmodifiableSet(((ReferenceEncoding)this.encoding).getObjectTypeNames());
     }
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseReferenceField(this);
     }
 
     @Override
     public String toString() {
-        return "reference field \"" + this.name + "\"";
+        return "reference field \"" + this.getFullName() + "\"";
     }
 
 // Non-public methods
@@ -111,7 +103,7 @@ public class ReferenceField extends SimpleField<ObjId> {
         if (srcId == null || objectIdMap == null || !objectIdMap.containsKey(srcId))
             return srcId;
         final ObjId dstId = objectIdMap.get(srcId);
-        Preconditions.checkArgument(dstId != null, "can't copy " + srcId + " because " + srcId + " is remapped to null");
+        Preconditions.checkArgument(dstId != null, String.format("can't copy %s because %s is remapped to null", srcId, srcId));
         return dstId;
     }
 
@@ -138,12 +130,5 @@ public class ReferenceField extends SimpleField<ObjId> {
         if (value == null)
             return;
         dstTx.checkDeletedAssignment(id, this, this.encoding.read(new ByteReader(value)));
-    }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        return true;                        // we allow object type restrictions to differ
     }
 }

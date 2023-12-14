@@ -8,7 +8,7 @@ package io.permazen.schema;
 /**
  * A field in a {@link SchemaObjectType}.
  */
-public abstract class SchemaField extends AbstractSchemaItem {
+public abstract class SchemaField extends AbstractObjectTypeMember {
 
     /**
      * Apply visitor pattern.
@@ -20,15 +20,11 @@ public abstract class SchemaField extends AbstractSchemaItem {
      */
     public abstract <R> R visit(SchemaFieldSwitch<R> target);
 
-// Compatibility
-
-    abstract boolean isCompatibleWith(SchemaField that);
-
 // Object
 
     @Override
     public String toString() {
-        return "field " + super.toString();
+        return "field " + this.toStringName();
     }
 
 // Cloneable

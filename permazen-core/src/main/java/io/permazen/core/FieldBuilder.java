@@ -17,9 +17,13 @@ import io.permazen.schema.EnumSchemaField;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.ReferenceSchemaField;
+import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaFieldSwitch;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Builds {@link Field}s from {@link SchemaField}s.
@@ -27,12 +31,15 @@ import io.permazen.schema.SimpleSchemaField;
 class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     final Schema schema;
+    final ObjType objType;
     final EncodingRegistry encodingRegistry;
+    final HashMap<SimpleField<?>, SimpleSchemaField> simpleModels = new HashMap<>();
 
-    FieldBuilder(Schema schema, EncodingRegistry encodingRegistry) {
-        Preconditions.checkArgument(schema != null, "null schema");
+    FieldBuilder(ObjType objType, EncodingRegistry encodingRegistry) {
+        Preconditions.checkArgument(objType != null, "null objType");
         Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
-        this.schema = schema;
+        this.schema = objType.getSchema();
+        this.objType = objType;
         this.encodingRegistry = encodingRegistry;
     }
 
@@ -51,29 +58,40 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
     @Override
     public MapField<?, ?> caseMapSchemaField(MapSchemaField field) {
         return this.buildMapField(field,
-          (SimpleField<?>)field.getKeyField().visit(this), (SimpleField<?>)field.getValueField().visit(this));
+          (SimpleField<?>)field.getKeyField().visit(this),
+          (SimpleField<?>)field.getValueField().visit(this));
     }
 
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
+
+        // Get encoding
         final EncodingId encodingId = field.getEncodingId();
         final Encoding<?> encoding = this.encodingRegistry.getEncoding(encodingId);
         if (encoding == null) {
-            throw new IllegalArgumentException(
-              String.format("unknown encoding \"%s\" for field \"%s\"", encodingId, field.getName()));
+            throw new InvalidSchemaException(
+              String.format("unknown encoding \"%s\" for field \"%s\" in type \"%s\"",
+              encodingId, field.getName(), this.objType.getName()));
         }
-        return this.buildSimpleField(field, field.getName(), encoding);
+
+        // Build field
+        return this.buildSimpleField(field, encoding, field.isIndexed());
     }
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-        return new ReferenceField(field.getName(), field.getStorageId(), this.schema, field.getInverseDelete(),
-          field.isForwardDelete(), field.isAllowDeleted(), field.getObjectTypes());
+        HashSet<ObjType> objTypes = null;
+        if (field.getObjectTypes() != null) {
+            objTypes = new HashSet<>();
+            for (String typeName : field.getObjectTypes())
+                objTypes.add(this.schema.getObjType(typeName));
+        }
+        return this.add(field, new ReferenceField(this.schema, field, objTypes));
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
-        return new EnumField(field.getName(), field.getStorageId(), this.schema, field.isIndexed(), field.getIdentifiers());
+        return this.add(field, new EnumField(this.schema, field, field.isIndexed()));
     }
 
     @Override
@@ -83,34 +101,39 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
         Encoding<?> encoding = baseType;
         for (int dims = 0; dims < field.getDimensions(); dims++)
             encoding = SimpleEncodingRegistry.buildArrayEncoding(encoding);
-        return new EnumArrayField(field.getName(), field.getStorageId(),
-          this.schema, field.isIndexed(), baseType, encoding, field.getDimensions());
+        return this.add(field, new EnumArrayField(this.schema, field, baseType, encoding, field.isIndexed()));
     }
 
     @Override
     public CounterField caseCounterSchemaField(CounterSchemaField field) {
-        return new CounterField(field.getName(), field.getStorageId(), this.schema);
+        return new CounterField(this.schema, field);
     }
 
 // Internal methods
 
     // This method exists solely to bind the generic type parameters
-    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, Encoding<T> encoding) {
-        return new SimpleField<>(fieldName, field.getStorageId(), this.schema, encoding, field.isIndexed());
+    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
+        return this.add(field, new SimpleField<>(this.schema, field, encoding, indexed));
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> SetField<E> buildSetField(SetSchemaField field, SimpleField<E> elementField) {
-        return new SetField<>(field.getName(), field.getStorageId(), this.schema, elementField);
+        return new SetField<>(this.schema, field, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> ListField<E> buildListField(ListSchemaField field, SimpleField<E> elementField) {
-        return new ListField<>(field.getName(), field.getStorageId(), this.schema, elementField);
+        return new ListField<>(this.schema, field, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <K, V> MapField<K, V> buildMapField(MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        return new MapField<>(field.getName(), field.getStorageId(), this.schema, keyField, valueField);
+        return new MapField<>(this.schema, field, keyField, valueField);
+    }
+
+    // Maintain a map from built field to original schema item
+    private <S extends SimpleSchemaField, F extends SimpleField<?>> F add(S schemaField, F field) {
+        this.simpleModels.put(field, schemaField);
+        return field;
     }
 }

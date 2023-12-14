@@ -16,20 +16,19 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
+import io.permazen.kv.KeyRange;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
-import io.permazen.util.Diffs;
+import io.permazen.util.NavigableSets;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.Closeable;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.NavigableSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -43,14 +42,15 @@ import org.slf4j.LoggerFactory;
  * Includes support for:
  * <ul>
  *  <li>Objects and fields defined by a {@link SchemaModel}, with positive schema verification</li>
- *  <li>Simple values fields containing any atomic type, reference or custom {@link Encoding}</li>
+ *  <li>Simple value fields containing any standard or custom type that has an {@link Encoding}</li>
+ *  <li>Invertable reference fields with referential integrity and configurable delete cascading</li>
+ *  <li>Lockless counter fields</li>
  *  <li>Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}</li>
- *  <li>Invertable reference fields with strong referential integrity and configurable delete cascading</li>
  *  <li>Configurable indexing of any simple field or complex sub-field</li>
  *  <li>Composite indexes on multiple simple fields</li>
  *  <li>Notification of object creation and deletion</li>
  *  <li>Notification of object field changes, as seen through an arbitrary path of references</li>
- *  <li>Automatic schema tracking and object versioning with schema change notification support</li>
+ *  <li>Automatic schema tracking and migration with notification support</li>
  * </ul>
  *
  * <p>
@@ -63,12 +63,63 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a
  *      {@link io.permazen.Permazen} the schema is derived automatically from annotated Java model classes.</li>
- *  <li>Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type.
- *      However, reference fields may be configured with a restricted set of referrable types.</li>
- *  <li>All object types and fields are referenced by explicit storage ID.</li>
+ *  <li>Object references are represented by {@link ObjId}s instead of Java objects</li>
+ *  <li>There is no explicit notion of object sub-types, i.e., the object type hierarchy is completely flat.
+ *      However, object types can share the same field definitions, and reference fields can be restricted
+ *      to only refer to certain other types.</li>
  *  <li>Enum values are represented by {@link EnumValue} objects.</li>
  *  <li>There is no automatic validation support.</li>
  * </ul>
+ *
+ * <p>
+ * <b>Schema Tracking</b>
+ *
+ * <p>
+ * Within each {@link Database} is stored a record of all schemas used with that database (termed the "schema bundle").
+ * When creating a new transaction, the caller provides a {@link SchemaModel} to use for accessing objects in the transaction.
+ * If the schema is not already registered in the database, it is automatically registered if at the start of the transaction
+ * assuming {@link TransactionConfig#isAllowNewSchema} is true (otherwise a {@link SchemaMismatchException} is thrown).
+ *
+ * <p>
+ * <b>Schema Migration</b>
+ *
+ * <p>
+ * Each object in a {@link Database} is associated with an {@link ObjType object type} in one of the registered schemas;
+ * this dictates which fields the object contains, how they are indexed, etc. Newly created objects are always defined
+ * in terms of the transaction's configured schema, but it's also possible to access objects that were created
+ * in previous transactions under different schemas.
+ *
+ * <p>
+ * When an object is accessed during a {@link Transaction}, if the object's schema is not the transaction's configured
+ * schema, then (if requested) the object will be automatically migrated to the transaction's schema if the object's type
+ * still exists (otherwise a {@link TypeNotInSchemaException} is thrown).
+ *
+ * <p>
+ * Object migration involves the following steps:
+ * <ul>
+ *  <li>Fields that exist in the old schema but not in the current schema are removed.</li>
+ *  <li>Fields that exist in the current schema but not in the old schema are initialized to their default values.</li>
+ *  <li>For fields that are common to both the old and the new schema:</li>
+ *  <ul>
+ *      <li>If the two field's {@link Encoding}s are the same, the value is not changed
+ *      <li>Otherwise, the field's old value is converted to the new {@link Encoding}, if possible,
+ *          via {@link Encoding#convert Encoding.convert()}.
+ *      <li>Otherwise, the field is reset to its default value.
+ *  </ul>
+ *  <li>Any {@link SchemaChangeListener}s registered with the {@link Transaction} are notified.</li>
+ * </ul>
+ *
+ * <p>
+ * Object type and field identity is based on names. So when comparing across schemas,
+ * two object types or fields are assumed to be "the same" if they have the same name.
+ *
+ * <p>
+ * Indexes may be added and removed across different schemas without losing information, however,
+ * indexes only contain objects whose schema defines the index. In other words, it's not
+ * possible to find an object using an index that was added after the object was created, at least
+ * not until the object is migrated to a newer schema. Similarly for other schema-defined behavior,
+ * for example, the {@link DeleteAction} taken when a referenced object is deleted depends on the
+ * {@link DeleteAction} configured in the schema of the object containing the reference.
  *
  * @see Transaction
  * @see io.permazen
@@ -86,8 +137,8 @@ public class Database {
 
     @GuardedBy("this")
     private EncodingRegistry encodingRegistry;
-
-    private volatile Schemas lastSchemas;
+    @GuardedBy("this")
+    private SchemaCache schemaCache;
 
     /**
      * Constructor.
@@ -133,105 +184,39 @@ public class Database {
     }
 
     /**
+     * Create a new {@link Transaction} on this database using the given {@link SchemaModel}
+     * and the defaults for all other {@link TransactionConfig} items.
+     *
+     * <p>
+     * Equivalent to: {@link #createTransaction(TransactionConfig) createTransaction}{@code
+     *  (TransactionConfig.builder().schemaModel(schemaModel).build())}.
+     *
+     * @param schemaModel schema model
+     * @return newly created transaction
+     * @throws InvalidSchemaException if the configured schema is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if the configured {@link SchemaModel} has any explicit storage ID assignments
+     *  that conflict with other schemas already recorded in the database
+     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
+     * @throws IllegalArgumentException if {@code schemaModel} is null
+     */
+    public Transaction createTransaction(SchemaModel schemaModel) {
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
+        return this.createTransaction(TransactionConfig.builder().schemaModel(schemaModel).build());
+    }
+
+    /**
      * Create a new {@link Transaction} on this database using the specific configuration.
-     *
-     * <p>
-     * <b>Schema Versions</b>
-     *
-     * <p>
-     * Within each {@link Database} is stored a record of all schema versions previously used with that database.
-     * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.
-     * Either one of these is optional: a schema version of -1 means a schema version number should be auto-generated
-     * from the {@link SchemaModel}, a schema version of zero means "use the highest version recorded in the database",
-     * and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under
-     * the configured schema version".
-     *
-     * <p>
-     * When this method is invoked, the following checks are applied:
-     * <ul>
-     *  <li>If a schema with version number {@code version != 0} is recorded in the database, and {@code schemaModel} is null or
-     *      matches it, then this method succeeds, and the {@link Transaction} will use that schema.</li>
-     *  <li>If a schema with version number {@code version} (or the highest numbered schema if {@code version == 0})
-     *      is recorded in the database, and {@code schemaModel} is not null and does not match it, then this method fails
-     *      and throws a {@link SchemaMismatchException}.</li>
-     *  <li>If {@code allowNewSchema} is false, and no schema with version number {@code version != 0} has yet been
-     *      recorded in the database, then this method fails and throws a {@link SchemaMismatchException}.</li>
-     *  <li>If {@code allowNewSchema} is true, and no schema with version number {@code version != 0} has yet been
-     *      recorded in the database, then if {@code schemaModel} is null a {@link SchemaMismatchException} is thrown;
-     *      otherwise {@code schemaModel} is checked for compabitility with the schemas previously recorded in the database;
-     *      if compatible, this method succeeds, {@code schema} is recorded in the database under the new version number
-     *      {@code version}, and the {@link Transaction} will use schema version {@code version};
-     *      otherwise a {@link SchemaMismatchException} is thrown.</li>
-     *  <li>If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,
-     *      a {@link SchemaMismatchException} is thrown.</li>
-     * </ul>
-     *
-     * <p>
-     * For two schemas to "match", they must be identical in all respects structurally, but that object, field, and index
-     * names may differ. In the core API, objects and fields are identified by storage ID, not name.
-     *
-     * <p>
-     * Schemas must also be compatible with all other schemas previously recorded in the database.
-     * Basically this means storage IDs must be used consistently from a structural point of view:
-     * <ul>
-     *  <li>Once a storage ID is assigned, it cannot be re-assigned to a different type of item (object or field).</li>
-     *  <li>Fields must have a consistent type and structural parent (object type or complex field).</li>
-     * </ul>
-     *
-     * <p>
-     * However, object types and fields may be added or removed across schema versions, field indexing may change,
-     * and reference field {@link DeleteAction}s may change.
-     *
-     * <p>
-     * <b>Object Versions</b>
-     *
-     * <p>
-     * Each object in a {@link Database} contains an internal version number that indicates its current schema version;
-     * this in turn dictates what fields that object contains.
-     *
-     * <p>
-     * When an object is accessed during a {@link Transaction}, the object's version is compared to the {@code version} associated
-     * with that {@link Transaction}. If the versions are the same, no version change occurs and fields are accessed normally.
-     *
-     * <p>
-     * If the object has a version {@code oldVersion} different from {@code version}, then depending on which {@link Transaction}
-     * method is invoked, the object version may be automatically updated to {@code version}. This will cause fields to be added
-     * or removed, as follows:
-     * <ul>
-     *  <li>Fields that are common to both schema versions remain unchanged (necessarily such fields have the same storage ID,
-     *      type, and structural parent).</li>
-     *  <li>Fields that exist in {@code oldVersion} but not in {@code version} are removed.</li>
-     *  <li>Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.</li>
-     *  <li>All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.</li>
-     * </ul>
-     *
-     * <p>
-     * Note that compatibility between schema versions does not depend on the field name, nor does it depend on whether the field
-     * is indexed, or its {@link DeleteAction} (for reference fields). A field's index may be added or removed between schema
-     * versions without losing information, however, querying a field's index will only return those objects whose schema
-     * version corresponds to a schema in which the field is indexed. Similarly, the {@link DeleteAction} taken when a
-     * referenced object is deleted depends on the {@link DeleteAction} configured in the schema version of the object
-     * containing the reference.
-     *
-     * <p>
-     * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact
-     * nothing requires schema version numbers to be consecutive.
      *
      * @param txConfig transaction configuration
      * @return newly created transaction
-     * @throws IllegalArgumentException if the schema version is less than -1, or equal to -1 when the schema model is null
-     * @throws InvalidSchemaException if the schema model is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if the schema model does not match the configured schema version
-     *  as recorded in the database
-     * @throws SchemaMismatchException if an explicitly configured schema version is not recorded in the database
-     *  and adding new schemas is disabled
-     * @throws SchemaMismatchException if the schema version is not recorded in the database, but the schema model is incompatible
-     *  with one or more other schemas already recorded in the database (i.e., the same storage ID is used inconsistently)
-     *@throws SchemaMismatchException
-     *  if the database is uninitialized and the schema version is zero or the schema model is null
+     * @throws InvalidSchemaException if the configured schema is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if the configured schema is not registered in the database and
+     *  {@link TransactionConfig#isAllowNewSchema} is false
+     * @throws SchemaMismatchException if the configured {@link SchemaModel} has any explicit storage ID assignments
+     *  that conflict with other schemas already recorded in the database
      * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
-     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
      * @throws IllegalArgumentException if {@code txConfig} is null
      */
     public Transaction createTransaction(TransactionConfig txConfig) {
@@ -253,17 +238,11 @@ public class Database {
         }
     }
 
-    // Used only for testing
-    Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema) {
-        return this.createTransaction(TransactionConfig.builder()
-          .schemaModel(schemaModel)
-          .schemaVersion(version)
-          .allowNewSchema(allowNewSchema)
-          .build());
-    }
-
     /**
-     * Create a new {@link Transaction} on this database using an already-opened {@link KVTransaction} and specified schema.
+     * Create a new {@link Transaction} on this database using an already-opened {@link KVTransaction} and specified
+     * configuration.
+     *
+     * <p>
      * The given {@link KVTransaction} will be committed or rolled-back along with the returned {@link Transaction}.
      *
      * <p>
@@ -277,13 +256,15 @@ public class Database {
     public Transaction createTransaction(KVTransaction kvt, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final Schemas schemas = this.verifySchemas(kvt, txConfig);
-        assert schemas != null;
+        final SchemaResult schemaResult = this.verifySchemaBundle(kvt, txConfig);
 
         // Create transaction
-        return txConfig.getSchemaVersion() > 0 ?
-          new Transaction(this, kvt, schemas, txConfig.getSchemaVersion()) :
-          new Transaction(this, kvt, schemas);
+        final Transaction tx = new Transaction(this, kvt, schemaResult.getSchema(), schemaResult.getSchemaBundle());
+
+        // Synchronize with all future synchronized transaction access
+        synchronized (tx) {
+            return tx;
+        }
     }
 
     /**
@@ -294,9 +275,10 @@ public class Database {
      * validated against the schema information associated with this instance.
      *
      * <p>
-     * The returned {@link DetachedTransaction} does not support {@link DetachedTransaction#commit commit()},
-     * {@link DetachedTransaction#rollback rollback()}, or {@link DetachedTransaction#addCallback addCallback()},
-     * and can be used indefinitely.
+     * The returned {@link DetachedTransaction} does not support {@link DetachedTransaction#commit commit()} or
+     * {@link DetachedTransaction#rollback rollback()} and can be used indefinitely.
+     * It does support {@link DetachedTransaction#addCallback addCallback()} but that method has no effect because
+     * the transaction cannot be committed.
      *
      * <p>
      * {@link DetachedTransaction}'s do implement {@link Closeable}; if th{@code kvstore} is a {@link CloseableKVStore},
@@ -313,13 +295,16 @@ public class Database {
     public DetachedTransaction createDetachedTransaction(KVStore kvstore, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final Schemas schemas = this.verifySchemas(kvstore, txConfig);
-        assert schemas != null;
+        final SchemaResult schemaResult = this.verifySchemaBundle(kvstore, txConfig);
 
         // Create detached transaction
-        return txConfig.getSchemaVersion() > 0 ?
-          new DetachedTransaction(this, kvstore, schemas, txConfig.getSchemaVersion()) :
-          new DetachedTransaction(this, kvstore, schemas);
+        final DetachedTransaction tx = new DetachedTransaction(this,
+          kvstore, schemaResult.getSchema(), schemaResult.getSchemaBundle());
+
+        // Synchronize with all future transaction access
+        synchronized (tx) {
+            return tx;
+        }
     }
 
     /**
@@ -329,46 +314,54 @@ public class Database {
      * @param txConfig transaction configuration
      * @throws IllegalArgumentException if {@code kvstore} or {@code txConfig} is null
      */
-    private Schemas verifySchemas(KVStore kvstore, TransactionConfig txConfig) {
+    private SchemaResult verifySchemaBundle(KVStore kvstore, TransactionConfig txConfig) {
 
         // Sanity check
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         Preconditions.checkArgument(txConfig != null, "null txConfig");
 
+        // Get some key prefixes we need
+        final byte[] formatKey = Layout.getFormatVersionKey();
+        final byte[] metaDataPrefix = Layout.getMetaDataKeyPrefix();
+        final byte[] userPrefix = Layout.getUserMetaDataKeyPrefix();
+        final byte[] schemaPrefix = Layout.getSchemaTablePrefix();
+        final byte[] storageIdPrefix = Layout.getStorageIdTablePrefix();
+        final byte[] endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
+        final byte[] schemaIndexPrefix = Layout.getObjectSchemaIndexKeyPrefix();
+
         // Extract config info
-        int version = txConfig.getSchemaVersion();
         final SchemaModel schemaModel = txConfig.getSchemaModel();
-        final boolean allowNewSchema = txConfig.isAllowNewSchema();
+        assert schemaModel.isLockedDown();
+        final SchemaId schemaId = schemaModel.getSchemaId();
 
         // Debug
-        if (this.log.isTraceEnabled()) {
-            this.log.trace("creating transaction using {}",
-              version != 0 ? "schema version " + version : "highest recorded schema version");
-        }
+        if (this.log.isTraceEnabled())
+            this.log.trace("creating transaction using schema \"{}\"", schemaId);
 
         // We will pretend user meta-data is invisible
-        final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(Layout.getUserMetaDataKeyPrefix(), key);
+        final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(userPrefix, key);
 
         // Get iterator over meta-data key/value pairs
         final int formatVersion;
         final boolean uninitialized;
-        try (CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(Layout.getMetaDataKeyRange())) {
+        try (CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(KeyRange.forPrefix(metaDataPrefix))) {
 
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
             byte[] formatVersionBytes = null;
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
-                assert Layout.getMetaDataKeyRange().contains(pair.getKey());
-                if (Arrays.equals(pair.getKey(), Layout.getFormatVersionKey()))
+                final byte[] key = pair.getKey();
+
+                assert ByteUtil.isPrefixOf(metaDataPrefix, key);
+                if (Arrays.equals(key, formatKey))
                     formatVersionBytes = pair.getValue();
-                else if (!userMetaData.test(pair.getKey())) {
+                else if (!userMetaData.test(key)) {
                     throw new InconsistentDatabaseException(String.format(
-                      "database is uninitialized but contains unrecognized garbage (key %s)",
-                      ByteUtil.toString(pair.getKey())));
+                      "database is uninitialized but contains unrecognized garbage (key %s)", ByteUtil.toString(key)));
                 }
             }
 
-            // Get database format object; check for an uninitialized database
+            // If database is uninitialized, initialize it, otherwise validate format version
             uninitialized = formatVersionBytes == null;
             if (uninitialized) {
 
@@ -377,13 +370,11 @@ public class Database {
                 final KVPair last = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
                 if (first != null && !userMetaData.test(first.getKey())) {
                     throw new InconsistentDatabaseException(String.format(
-                      "database is uninitialized but contains unrecognized garbage (key %s)",
-                      ByteUtil.toString(first.getKey())));
+                      "database is uninitialized but contains unrecognized garbage (key %s)", ByteUtil.toString(first.getKey())));
                 }
                 if (last != null && !userMetaData.test(last.getKey())) {
                     throw new InconsistentDatabaseException(String.format(
-                      "database is uninitialized but contains unrecognized garbage (key %s)",
-                      ByteUtil.toString(last.getKey())));
+                      "database is uninitialized but contains unrecognized garbage (key %s)", ByteUtil.toString(last.getKey())));
                 }
                 if ((first != null) != (last != null) || (first != null && ByteUtil.compare(first.getKey(), last.getKey()) > 0))
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
@@ -397,23 +388,23 @@ public class Database {
                       last == null || !Arrays.equals(testIterator.next().getKey(), last.getKey()) : last != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtMost() and getRange()");
                 }
-                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+                this.checkAddNewSchema(schemaId, txConfig);
 
                 // Initialize database
                 formatVersion = Layout.CURRENT_FORMAT_VERSION;
                 this.log.debug("detected an uninitialized database; initializing now (format version {})", formatVersion);
                 final byte[] encodedFormatVersion = UnsignedIntEncoder.encode(formatVersion);
-                kvstore.put(Layout.getFormatVersionKey(), encodedFormatVersion);
+                kvstore.put(formatKey, encodedFormatVersion);
 
                 // Sanity check again
-                formatVersionBytes = kvstore.get(Layout.getFormatVersionKey());
+                formatVersionBytes = kvstore.get(formatKey);
                 if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, encodedFormatVersion) != 0)
                     throw new InconsistentDatabaseException("database failed basic read/write test");
                 final KVPair lower = kvstore.getAtLeast(new byte[0], null);
-                if (lower == null || !lower.equals(new KVPair(Layout.getFormatVersionKey(), encodedFormatVersion)))
+                if (lower == null || !lower.equals(new KVPair(formatKey, encodedFormatVersion)))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
-                final KVPair upper = kvstore.getAtMost(Layout.getUserMetaDataKeyPrefix(), null);
-                if (upper == null || !upper.equals(new KVPair(Layout.getFormatVersionKey(), encodedFormatVersion)))
+                final KVPair upper = kvstore.getAtMost(userPrefix, null);
+                if (upper == null || !upper.equals(new KVPair(formatKey, encodedFormatVersion)))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
             } else {
 
@@ -423,7 +414,7 @@ public class Database {
                 } catch (IllegalArgumentException e) {
                     throw new InconsistentDatabaseException(String.format(
                       "database contains invalid encoded format version %s under key %s",
-                      ByteUtil.toString(formatVersionBytes), ByteUtil.toString(Layout.getFormatVersionKey())));
+                      ByteUtil.toString(formatVersionBytes), ByteUtil.toString(formatKey)));
                 }
 
                 // Validate format version
@@ -432,235 +423,173 @@ public class Database {
                     break;
                 default:
                     throw new InconsistentDatabaseException(String.format(
-                      "database contains unrecognized version %d under key %s",
-                      formatVersion, ByteUtil.toString(Layout.getFormatVersionKey())));
+                      "database contains unrecognized version %d under key %s", formatVersion, ByteUtil.toString(formatKey)));
                 }
             }
 
-            // There should not be any other meta data prior to recorded schemas
+            // There should not be any other meta data prior to the schema table
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
-                if (!Layout.getSchemaKeyRange().contains(pair.getKey())) {
+                final byte[] key = pair.getKey();
+                if (ByteUtil.compare(key, schemaPrefix) < 0) {
                     throw new InconsistentDatabaseException(String.format(
-                      "database contains unrecognized garbage at key %s", ByteUtil.toString(pair.getKey())));
+                      "database contains unrecognized garbage at key %s", ByteUtil.toString(key)));
                 }
             }
         }
 
-        // Check schema
-        Schemas schemas = null;
-        for (boolean firstAttempt = true; true; firstAttempt = false) {
+        // Read the schema and storage ID tables
+        SchemaBundle.Encoded encodedBundle = SchemaBundle.Encoded.readFrom(kvstore);
+        //this.log.info("*** CREATE TRANSACTION(\"{}\"):\n{}\n*** FOUND BUNDLE:\n{}", schemaId, schemaModel, encodedBundle);
 
-            // Read recorded database schema versions
-            final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-            try (CloseableIterator<KVPair> i = kvstore.getRange(Layout.getSchemaKeyRange())) {
-                while (i.hasNext()) {
-                    final KVPair pair = i.next();
-                    assert Layout.getSchemaKeyRange().contains(pair.getKey());
-
-                    // Decode schema version and get XML
-                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), Layout.getSchemaKeyPrefix().length));
-                    if (vers == 0)
-                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
-                    bytesMap.put(vers, pair.getValue());
-                }
+        // There should not be any meta data between the storage ID table and the object version index
+        try (CloseableIterator<KVPair> i = kvstore.getRange(endOfStorageIdTable, schemaIndexPrefix)) {
+            if (i.hasNext()) {
+                throw new InconsistentDatabaseException(String.format(
+                  "database contains unrecognized garbage at key %s", ByteUtil.toString(i.next().getKey())));
             }
+        }
 
-            // Read and decode database schemas, avoiding rebuild if possible
-            schemas = this.lastSchemas;
-            if (schemas != null && !schemas.isSameVersions(bytesMap))
-                schemas = null;
-            if (schemas == null) {
-                try {
-                    schemas = this.decodeSchemas(bytesMap, formatVersion);
-                } catch (IllegalArgumentException e) {
-                    if (firstAttempt)
-                        throw new InconsistentDatabaseException(String.format(
-                          "database contains invalid schema information: %s", e.getMessage()), e);
-                    else
-                        throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
-                }
-            }
+        // Grab the EncodingRegistry and also decode bundle data
+        final EncodingRegistry txEncodingRegistry;
+        SchemaBundle schemaBundle;
+        synchronized (this) {
 
-            // If no version specified, assume the highest recorded version
-            if (version == 0 && !bytesMap.isEmpty())
-                version = bytesMap.lastKey();
+            // Snapshot EncodingRegistry
+            txEncodingRegistry = this.encodingRegistry;
 
-            // If transaction schema was not found in the database, add it and retry
-            if (!bytesMap.containsKey(version)) {
+            // Optimization: if everything is the same as last time, re-use the previous schema bundle
+            if (this.schemaCache != null && this.schemaCache.matches(txConfig, txEncodingRegistry, encodedBundle))
+                return this.schemaCache.getSchemaResult();
+
+            // Decode schema and storage ID tables
+            schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
+        }
+
+        // Garbage collect unused schemas, if so configured
+        boolean modifiedBundle = false;
+        if (txConfig.isGarbageCollectSchemas()) {
+            final NavigableSet<Integer> listedIndexes = schemaBundle.getSchemasBySchemaIndex().navigableKeySet();
+            final NavigableSet<Integer> activeIndexes = Layout.getSchemaIndex(kvstore).asMap().navigableKeySet();
+            final NavigableSet<Integer> unusedIndexes = NavigableSets.difference(listedIndexes, activeIndexes);
+            for (int oldSchemaIndex : unusedIndexes) {
 
                 // Log it
-                if (bytesMap.isEmpty()) {
-                    if (!uninitialized)
-                        throw new InconsistentDatabaseException("database is initialized but contains no recorded schema versions");
-                } else
-                    this.log.debug("schema version {} not found in database; known versions are {}", version, bytesMap.keySet());
+                final SchemaId oldSchemaId = schemaBundle.getSchema(oldSchemaIndex).getSchemaId();
+                this.log.debug("removing old schema \"{}\" from database at schema index {}", oldSchemaId, oldSchemaIndex);
 
-                // Check whether we can add a new schema version
-                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
-
-                // Record new schema in database
-                this.log.debug("recording new schema version {} into database", version);
-                kvstore.put(Layout.getSchemaKey(version), Layout.encodeSchema(schemaModel, formatVersion));
-
-                // Try again
-                schemas = null;
-                continue;
+                // Remove old schema
+                encodedBundle = schemaBundle.withSchemaRemoved(oldSchemaId);
+                schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
+                modifiedBundle = true;
             }
-
-            // Compare transaction schema with the schema of the same version found in the database
-            if (this.log.isTraceEnabled())
-                this.log.trace("found schema version {} in database; known versions are {}", version, bytesMap.keySet());
-            final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();
-            if (schemaModel != null) {
-                if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
-                    final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
-                    this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
-                      + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
-                    throw new IllegalArgumentException(String.format(
-                      "the provided schema is incompatible with the one already recorded in the database under version %d:%n%s",
-                      version, diffs));
-                } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
-                    final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
-                    this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
-                }
-            }
-            break;
         }
 
-        // Save schema for next time
-        this.lastSchemas = schemas;
+        // If the schema we're using is not registered, we need to add it
+        Schema schema = schemaBundle.getSchemasBySchemaId().get(schemaId);
+        if (schema == null) {
+
+            // Check whether we can add a new schema
+            String schemaList = schemaBundle.getSchemasBySchemaId().keySet().stream()
+              .map(id -> String.format("\"%s\"", id))
+              .collect(Collectors.joining(", "));
+            if (schemaList.isEmpty())
+                schemaList = "none";
+            this.log.debug("schema \"{}\" not found in database (recorded schemas: {})", schemaId, schemaList);
+            this.checkAddNewSchema(schemaId, txConfig);
+
+            // Add new schema
+            encodedBundle = schemaBundle.withSchemaAdded(schemaModel);
+
+            //this.log.info("*** ADDING SCHEMA MODEL \"{}\"", schemaModel.getSchemaId());
+            //schemaModel.visitSchemaItems(item -> this.log.info("SCHEMA ITEM: \"{}\" -> {}", item.getSchemaId(), item));
+
+            schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
+            modifiedBundle = true;
+            schema = schemaBundle.getSchema(schemaId);
+            assert schema != null;
+
+            // Log it
+            final int schemaIndex = schemaBundle.getSchema(schemaId).getSchemaIndex();
+            this.log.debug("adding new schema \"{}\" to database at schema index {}", schemaId, schemaIndex);
+        }
+
+        // Do we need to write back schema updates?
+        if (modifiedBundle)
+            encodedBundle.writeTo(kvstore);
+
+        // Prepare result
+        final SchemaResult schemaResult = new SchemaResult(schema, schemaBundle);
+
+        // Save for possible reuse next time
+        synchronized (this) {
+            this.schemaCache = new SchemaCache(schemaResult, txConfig, txEncodingRegistry, encodedBundle);
+        }
 
         // Done
-        return schemas;
+        return schemaResult;
     }
 
-    /**
-     * Validate a {@link SchemaModel} against this instance.
-     *
-     * <p>
-     * This is a convenience method, equivalent to: {@link #validateSchema(EncodingRegistry, SchemaModel)
-     * Database.validateSchema}{@code (this.getEncodingRegistry(), schemaModel)}.
-     *
-     * @param schemaModel schema to validate
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid
-     * @throws IllegalArgumentException if {@code schemaModel} is null
-     */
-    public void validateSchema(SchemaModel schemaModel) {
-        Database.validateSchema(this.getEncodingRegistry(), schemaModel);
-    }
-
-    /**
-     * Validate a {@link SchemaModel}.
-     *
-     * <p>
-     * This method only statically checks the schema; it does not validate the schema against any other
-     * existing schema versions that may be previously recorded in a database.
-     *
-     * <p>
-     * To validate a schema against a particular database, simply attempt to create a transaction
-     * via {@link #createTransaction createTransaction()}. To validate that a collection of schemas
-     * are mutually consistent independently from any database, use {@link #validateSchemas validateSchemas()}.
-     *
-     * @param encodingRegistry registry of simple encodings
-     * @param schemaModel schema to validate
-     * @throws InvalidSchemaException if {@code schemaModel} is invalid
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    public static void validateSchema(EncodingRegistry encodingRegistry, SchemaModel schemaModel) {
-
-        // Sanity check
-        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
-        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
-
-        // Validate
-        schemaModel.validate();
-        try {
-            new Schema(1, new byte[0], schemaModel, encodingRegistry);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
+    private void checkAddNewSchema(SchemaId schemaId, TransactionConfig txConfig) {
+        if (!txConfig.isAllowNewSchema()) {
+            throw new SchemaMismatchException(schemaId, String.format(
+              "schema \"%s\" was not found in the database and recording new schemas is disabled", schemaId));
         }
     }
 
-    /**
-     * Check whether a collection of {@link SchemaModel}s are individually valid and mutually consistent.
-     *
-     * <p>
-     * This method verifies each schema via {@link #validateSchema(EncodingRegistry, SchemaModel) validateSchema()},
-     * and also verifies that the schemas are mututally consistent, i.e., that they do not use storage ID's incompatibly.
-     *
-     * @param encodingRegistry registry of simple encodings
-     * @param schemaModels schemas to validate (null elements are ignored)
-     * @throws InvalidSchemaException if an element in {@code schemaModels} is invalid
-     * @throws InvalidSchemaException if the {@code schemaModels} are not mutally consistent
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    public static void validateSchemas(EncodingRegistry encodingRegistry, Collection<SchemaModel> schemaModels) {
+// SchemaResult
 
-        // Sanity check
-        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
-        Preconditions.checkArgument(schemaModels != null, "null schemaModels");
+    private static class SchemaResult {
 
-        // Validate schemas individually and build map
-        final TreeMap<Integer, Schema> schemaMap = new TreeMap<>();
-        int index = 0;
-        for (SchemaModel schemaModel : schemaModels) {
-            if (schemaModel == null)
-                continue;
-            schemaModel.validate();
-            final int version = index + 1;
-            try {
-                schemaMap.put(version, new Schema(version, new byte[0], schemaModel, encodingRegistry));
-            } catch (IllegalArgumentException e) {
-                throw new InvalidSchemaException(String.format("invalid schema at index %d: %s", index, e.getMessage()), e);
-            }
-            index++;
+        private final Schema schema;
+        private final SchemaBundle schemaBundle;
+
+        SchemaResult(Schema schema, SchemaBundle schemaBundle) {
+            this.schema = schema;
+            this.schemaBundle = schemaBundle;
         }
 
-        // Validate schemas together
-        try {
-            new Schemas(schemaMap);
-        } catch (InvalidSchemaException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidSchemaException("invalid schema combination: " + e.getMessage(), e);
+        public Schema getSchema() {
+            return this.schema;
+        }
+
+        public SchemaBundle getSchemaBundle() {
+            return this.schemaBundle;
         }
     }
 
-    private void checkAddNewSchema(SchemaModel schemaModel, int version, boolean allowNewSchema) {
-        if (version == 0)
-            throw new SchemaMismatchException("database is uninitialized and no schema version was provided");
-        if (schemaModel == null) {
-            throw new SchemaMismatchException(String.format(
-              "schema version %d was not found in database, and no schema model was provided", version));
-        }
-        if (!allowNewSchema) {
-            throw new SchemaMismatchException(String.format(
-              "schema version %d was not found in database, and recording a new schema version is disabled", version));
-        }
-    }
+// SchemaCache
 
-    /**
-     * Build {@link Schemas} object from a schema version XMLs.
-     *
-     * @throws InconsistentDatabaseException if any recorded schema version is invalid
-     */
-    private Schemas decodeSchemas(SortedMap<Integer, byte[]> bytesMap, int formatVersion) {
-        final TreeMap<Integer, Schema> versionMap = new TreeMap<>();
-        for (Map.Entry<Integer, byte[]> entry : bytesMap.entrySet()) {
-            final int version = entry.getKey();
-            final byte[] bytes = entry.getValue();
-            final SchemaModel schemaModel;
-            try {
-                schemaModel = Layout.decodeSchema(bytes, formatVersion);
-            } catch (InvalidSchemaException e) {
-                throw new InconsistentDatabaseException(String.format(
-                  "found invalid schema version %d recorded in database: %s", version, e.getMessage()), e);
-            }
-            if (this.log.isTraceEnabled())
-                this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
-            versionMap.put(version, new Schema(version, bytes, schemaModel, this.getEncodingRegistry()));
+    // Used to optimize transaction startup when the schema information in the database has not changed
+    private static class SchemaCache {
+
+        private final SchemaResult schemaResult;
+        private final TransactionConfig txConfig;
+        private final EncodingRegistry encodingRegistry;
+        private final SchemaBundle.Encoded encoded;
+
+        SchemaCache(SchemaResult schemaResult, TransactionConfig txConfig, EncodingRegistry encodingRegistry,
+          SchemaBundle.Encoded encoded) {
+            this.schemaResult = schemaResult;
+            this.txConfig = txConfig;
+            this.encodingRegistry = encodingRegistry;
+            this.encoded = encoded;
         }
-        return new Schemas(versionMap);
+
+        public SchemaResult getSchemaResult() {
+            return this.schemaResult;
+        }
+
+        public boolean matches(TransactionConfig txConfig, EncodingRegistry encodingRegistry, SchemaBundle.Encoded encoded) {
+            if (!txConfig.getSchemaModel().equals(this.txConfig.getSchemaModel()))
+                return false;
+            if (txConfig.isGarbageCollectSchemas() && !this.txConfig.isGarbageCollectSchemas())
+                return false;
+            if (!encodingRegistry.equals(this.encodingRegistry))
+                return false;
+            if (!this.encoded.equals(encoded))
+                return false;
+            return true;
+        }
     }
 }

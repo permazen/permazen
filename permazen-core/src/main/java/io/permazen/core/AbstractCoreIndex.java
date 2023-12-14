@@ -19,15 +19,20 @@ import java.util.List;
 
 /**
  * Support superclass for the various core index classes.
+ *
+ * <p>
+ * Instances are immutable.
+ *
+ * @param <T> index target type
  */
-abstract class AbstractCoreIndex {
+public abstract class AbstractCoreIndex<T> {
 
     final KVStore kv;
     final AbstractIndexView indexView;
 
 // Constructors
 
-    protected AbstractCoreIndex(KVStore kv, int size, AbstractIndexView indexView) {
+    AbstractCoreIndex(KVStore kv, int size, AbstractIndexView indexView) {
         Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(indexView != null, "null indexView");
         this.kv = kv;
@@ -36,7 +41,7 @@ abstract class AbstractCoreIndex {
             throw new RuntimeException("internal error: indexView has the wrong size");
     }
 
-// Methods
+// Public Methods
 
     /**
      * Get all of the {@link Encoding}s associated with this instance. The list includes an entry
@@ -58,7 +63,9 @@ abstract class AbstractCoreIndex {
      * @throws IndexOutOfBoundsException if {@code index} is out of range
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
-    public abstract AbstractCoreIndex filter(int index, KeyFilter keyFilter);
+    public abstract AbstractCoreIndex<T> filter(int index, KeyFilter keyFilter);
+
+// Package Methods
 
     /**
      * Get a view of this index with the specified value restricted using the given bounds.
@@ -67,7 +74,7 @@ abstract class AbstractCoreIndex {
      * @param bounds bounds to impose on value
      * @return filtered view of this instance
      */
-    <T> AbstractCoreIndex filter(int index, Encoding<T> encoding, Bounds<T> bounds) {
+    <V> AbstractCoreIndex<T> filter(int index, Encoding<V> encoding, Bounds<V> bounds) {
         assert encoding == this.indexView.encodings[index];
         final KeyRange range = encoding.getKeyRange(bounds);
         return !range.isFull() ? this.filter(index, new KeyRanges(range)) : this;

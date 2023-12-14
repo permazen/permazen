@@ -24,10 +24,10 @@ public class DroppedTypeTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "  </ObjectType>\n"
           + "  <ObjectType name=\"Bar\" storageId=\"2\">\n"
-          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"4\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
@@ -36,30 +36,36 @@ public class DroppedTypeTest extends CoreAPITestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"3\"/>\n"
+          + "    <SimpleField name=\"val\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
-        final ObjId foo = tx.create(1);
-        final ObjId bar = tx.create(2);
-        tx.writeSimpleField(foo, 3, 123, true);
-        tx.writeSimpleField(bar, 4, 567, true);
+        Transaction tx = db.createTransaction(schema1);
+        final ObjId foo = tx.create("Foo");
+        final ObjId bar = tx.create("Bar");
+        tx.writeSimpleField(foo, "val", 123, true);
+        tx.writeSimpleField(bar, "val", 567, true);
 
         tx.commit();
 
-        tx = db.createTransaction(schema2, 2, true);
+        final TransactionConfig config2 = TransactionConfig.builder()
+          .garbageCollectSchemas(false)
+          .schemaModel(schema2)
+          .build();
+        tx = db.createTransaction(config2);
 
-        tx.readSimpleField(foo, 3, true);
+        tx.readSimpleField(foo, "val", true);
 
-        tx.readSimpleField(bar, 4, false);
+        final int x = (Integer)tx.readSimpleField(bar, "val", false);
+        assert x == 567;
+
         try {
-            tx.readSimpleField(bar, 4, true);
+            tx.readSimpleField(bar, "val", true);
             assert false;
-        } catch (TypeNotInSchemaVersionException e) {
+        } catch (TypeNotInSchemaException e) {
             // expected
         }
 

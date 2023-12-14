@@ -30,11 +30,11 @@ public class DeleteListenerTest extends CoreAPITestSupport {
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
-        final Transaction tx = db.createTransaction(schema, 1, true);
+        final Transaction tx = db.createTransaction(schema);
 
-        final ObjId id1 = tx.create(1);
-        final ObjId id2 = tx.create(1);
-        final ObjId id3 = tx.create(1);
+        final ObjId id1 = tx.create("Foo");
+        final ObjId id2 = tx.create("Foo");
+        final ObjId id3 = tx.create("Foo");
 
         final int[] notify1 = new int[1];
         final int[] notify2 = new int[1];

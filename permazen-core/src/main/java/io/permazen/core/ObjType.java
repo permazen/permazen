@@ -6,238 +6,219 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
-import io.permazen.util.Streams;
+import io.permazen.schema.SimpleSchemaField;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Represents a {@link Database} object type.
  */
 public class ObjType extends SchemaItem {
 
-    final EncodingRegistry encodingRegistry;
-    final TreeMap<Integer, Field<?>> fields = new TreeMap<>();                              // does not include sub-fields
-    final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
-    final ArrayList<Field<?>> fieldsAndSubFields = new ArrayList<>();                       // includes sub-fields
-    final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
-    final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
-    final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
-    final ArrayList<SimpleField<?>> indexedSimpleFields = new ArrayList<>();
-    final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
-    final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
-    final TreeMap<Integer, ReferenceField> referenceFieldsAndSubFields = new TreeMap<>();   // includes sub-fields
+    final TreeMap<String, Field<?>> fields = new TreeMap<>();                               // does not include sub-fields
+    final TreeMap<String, Field<?>> fieldsAndSubFields = new TreeMap<>();                   // includes sub-fields
+    final TreeMap<String, ComplexField<?>> complexFields = new TreeMap<>();
+    final TreeMap<String, SimpleField<?>> simpleFields = new TreeMap<>();                   // does not include sub-fields
+    final HashSet<SimpleField<?>> indexedSimpleFields = new HashSet<>();                    // does not include sub-fields
+    final TreeMap<String, CounterField> counterFields = new TreeMap<>();
+    final TreeMap<String, ReferenceField> referenceFieldsAndSubFields = new TreeMap<>();    // includes sub-fields
+    final TreeSet<Integer> fieldStorageIds = new TreeSet<>();                               // does not include sub-fields
+    final TreeMap<String, CompositeIndex> compositeIndexes = new TreeMap<>();               // composite indexes
 
     /**
      * Constructor.
      */
-    ObjType(SchemaObjectType schemaObjectType, Schema schema, EncodingRegistry encodingRegistry) {
-        super(schemaObjectType.getName(), schemaObjectType.getStorageId(), schema);
+    ObjType(Schema schema, SchemaObjectType schemaType) {
+        super(schema, schemaType, schemaType.getName());
+    }
+
+    /**
+     * Initialization.
+     */
+    void initialize(SchemaObjectType schemaType, EncodingRegistry encodingRegistry) {
 
         // Sanity check
+        Preconditions.checkArgument(schemaType != null, "null schemaType");
         Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
-        this.encodingRegistry = encodingRegistry;
 
-        // Build fields
-        final FieldBuilder fieldBuilder = new FieldBuilder(this.schema, this.encodingRegistry);
-        for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
-            this.addSchemaItem(fields, fieldsByName, schemaField.visit(fieldBuilder));
+        // Build fields and populate various maps
+        final FieldBuilder fieldBuilder = new FieldBuilder(this, encodingRegistry);
+        for (SchemaField schemaField : schemaType.getSchemaFields().values()) {
 
-        // Build mappings for various encodings
-        this.buildMap(this.simpleFields, SimpleField.class);
-        this.buildMap(this.complexFields, ComplexField.class);
-        this.buildMap(this.counterFields, CounterField.class);
-        for (SimpleField<?> simpleField : this.simpleFields.values()) {
-            if (simpleField.indexed)
-                this.indexedSimpleFields.add(simpleField);
+            // Build field
+            final Field<?> field = schemaField.visit(fieldBuilder);
+            this.fields.put(field.name, field);
+            this.fieldStorageIds.add(field.storageId);
+            this.fieldsAndSubFields.put(field.name, field);
+
+            // Populate maps from simple fields
+            if (field instanceof SimpleField) {
+                final SimpleField<?> simpleField = (SimpleField<?>)field;
+                this.simpleFields.put(field.name, simpleField);
+                if (simpleField.indexed)
+                    this.indexedSimpleFields.add(simpleField);
+            }
+
+            // Populate maps from complex fields
+            if (field instanceof ComplexField) {
+                final ComplexField<?> complexField = (ComplexField<?>)field;
+                this.complexFields.put(field.name, complexField);
+                for (SimpleField<?> subField : complexField.getSubFields()) {
+                    final String subFieldName = complexField.name + "." + subField.name;
+                    this.fieldsAndSubFields.put(subFieldName, subField);
+                    if (subField instanceof ReferenceField)
+                        this.referenceFieldsAndSubFields.put(subFieldName, (ReferenceField)subField);
+                }
+            }
+
+            // Populate maps from counter fields
+            if (field instanceof CounterField)
+                this.counterFields.put(field.name, (CounterField)field);
+
+            // Populate maps from reference fields
+            if (field instanceof ReferenceField)
+                this.referenceFieldsAndSubFields.put(field.name, (ReferenceField)field);
         }
-        this.indexedSimpleFields.trimToSize();
 
-        // Build list of all fields including sub-fields
-        this.fieldsAndSubFields.addAll(this.fields.values());
-        for (ComplexField<?> field : this.complexFields.values())
-            this.fieldsAndSubFields.addAll(field.getSubFields());
-
-        // Build mappings for reference fields
-        Streams.iterate(this.fieldsAndSubFields.stream()
-            .filter(field -> field instanceof ReferenceField),
-          field -> this.referenceFieldsAndSubFields.put(field.storageId, (ReferenceField)field));
+        // Build simple indexes and link simple fields to them
+        for (Field<?> field : this.fieldsAndSubFields.values()) {
+            if (!(field instanceof SimpleField))
+                continue;
+            final SimpleField<?> simpleField = (SimpleField)field;
+            if (!simpleField.indexed)
+                continue;
+            this.createAndLinkSimpleIndex(schema, fieldBuilder.simpleModels.get(simpleField), simpleField);
+        }
 
         // Build composite indexes
-        for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
-            this.addCompositeIndex(this.schema, schemaIndex);
-
-        // Link simple fields to the composite indexes they include
-        for (SimpleField<?> field : this.simpleFields.values()) {
-            final HashMap<CompositeIndex, Integer> indexMap = new HashMap<>();
-            for (CompositeIndex index : this.compositeIndexes.values()) {
-                final int i = index.fields.indexOf(field);
-                if (i != -1)
-                    indexMap.put(index, i);
-            }
-            assert field.compositeIndexMap == null;
-            if (!indexMap.isEmpty())
-                field.compositeIndexMap = Collections.unmodifiableMap(indexMap);
+        for (SchemaCompositeIndex schemaIndex : schemaType.getSchemaCompositeIndexes().values()) {
+            final List<SimpleField<?>> fieldList = this.getCompositeIndexFields(schemaIndex);
+            final CompositeIndex index = new CompositeIndex(schema, schemaIndex, this, fieldList);
+            this.compositeIndexes.put(index.name, index);
         }
-    }
 
-    /**
-     * Get all fields associated with this object type keyed by storage ID. Does not include sub-fields of complex fields.
-     *
-     * @return unmodifiable mapping from {@linkplain Field#getStorageId field storage ID} to field
-     */
-    public SortedMap<Integer, Field<?>> getFields() {
-        return Collections.unmodifiableSortedMap(this.fields);
-    }
-
-    /**
-     * Get the {@link Field} in this instance with the given storage ID.
-     *
-     * <p>
-     * This version does not find sub-fields of {@link ComplexField}s; use {@link #getField(int, boolean)} for that.
-     *
-     * @param storageId storage ID
-     * @return the {@link Field} with storage ID {@code storageID}
-     * @throws UnknownFieldException if no top-level {@link Field} with storage ID {@code storageId} exists
-     * @see #getField(int, boolean)
-     */
-    public Field<?> getField(int storageId) {
-        return this.getField(storageId, false);
-    }
-
-    /**
-     * Get the {@link Field} in this instance with the given storage ID, optionally searching sub-fields.
-     *
-     * @param storageId storage ID
-     * @param searchSubFields whether to search in sub-fields as well
-     * @return the {@link Field} with storage ID {@code storageID}
-     * @throws UnknownFieldException if no {@link Field} with storage ID {@code storageId} exists
-     */
-    public Field<?> getField(int storageId, boolean searchSubFields) {
-        final Field<?> field = this.fields.get(storageId);
-        if (field != null)
-            return field;
-        if (searchSubFields) {
-            for (Field<?> parent : this.fields.values()) {
-                if (!(parent instanceof ComplexField))
-                    continue;
-                for (SimpleField<?> subField : ((ComplexField<?>)parent).getSubFields()) {
-                    if (subField.storageId == storageId)
-                        return subField;
+        // Link simple fields to all composite indexes that include them
+        for (Field<?> field : this.fieldsAndSubFields.values()) {
+            if (!(field instanceof SimpleField))
+                continue;
+            final SimpleField<?> simpleField = (SimpleField)field;
+            for (CompositeIndex index : this.compositeIndexes.values()) {
+                final int posn = index.fields.indexOf(simpleField);
+                if (posn != -1) {
+                    if (simpleField.compositeIndexMap == null)
+                        simpleField.compositeIndexMap = new HashMap<>(2);
+                    simpleField.compositeIndexMap.put(index, posn);
                 }
             }
         }
-        throw new UnknownFieldException(this, storageId, "field");
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("unchecked")
+    private <T> SimpleIndex<T> createAndLinkSimpleIndex(Schema schema, SimpleSchemaField schemaField, SimpleField<T> field) {
+        Preconditions.checkArgument(schemaField != null, "null schemaField");
+
+        // Create index
+        final SimpleIndex<T> index = field.parent != null ?
+          (SimpleIndex<T>)field.parent.createSubFieldIndex(schema, schemaField, this, field) :
+          new SimpleFieldIndex<T>(schema, schemaField, this, field);
+
+        // Link field to it
+        assert field.index == null;
+        field.index = index;
+
+        // Done
+        return index;
     }
 
     /**
      * Get all fields associated with this object type keyed by name. Does not include sub-fields of complex fields.
      *
-     * @return unmodifiable mapping from {@linkplain Field#getName field name} to field
+     * @return unmodifiable mapping from field name to field
      */
-    public SortedMap<String, Field<?>> getFieldsByName() {
-        return Collections.unmodifiableSortedMap(this.fieldsByName);
+    public NavigableMap<String, Field<?>> getFields() {
+        return Collections.unmodifiableNavigableMap(this.fields);
     }
 
     /**
-     * Get all composite indexes associated with this object type keyed by storage ID.
+     * Get the {@link Field} in this instance with the given name.
      *
-     * @return unmodifiable mapping from {@linkplain CompositeIndex#getStorageId composite index storage ID} to field
+     * <p>
+     * For complex sub-fields, specify the name like {@code mymap.key}.
+     *
+     * @param name field name
+     * @return the named {@link Field}
+     * @throws UnknownFieldException if such field exists
      */
-    public SortedMap<Integer, CompositeIndex> getCompositeIndexes() {
-        return Collections.unmodifiableSortedMap(this.compositeIndexes);
+    public Field<?> getField(String name) {
+        final Field<?> field = this.fieldsAndSubFields.get(name);
+        if (field == null)
+            throw new UnknownFieldException(this, name, "field");
+        return field;
     }
 
     /**
-     * Get the {@link CompositeIndex} associated with this instance with the given storage ID.
+     * Get all fields associated with this object type keyed by name. Includes sub-fields of complex fields.
      *
-     * @param storageId storage ID
-     * @return the {@link CompositeIndex} with storage ID {@code storageID}
-     * @throws UnknownIndexException if no {@link CompositeIndex} with storage ID {@code storageId} exists
+     * @return unmodifiable mapping from field name to field
      */
-    public CompositeIndex getCompositeIndex(int storageId) {
-        final CompositeIndex index = this.compositeIndexes.get(storageId);
-        if (index == null)
-            throw new UnknownIndexException(storageId, "no composite index with storage ID " + storageId + " exists");
-        return index;
+    public NavigableMap<String, Field<?>> getFieldsAndSubFields() {
+        return Collections.unmodifiableNavigableMap(this.fieldsAndSubFields);
     }
 
     /**
      * Get all composite indexes associated with this object type keyed by name.
      *
-     * @return unmodifiable mapping from {@linkplain CompositeIndex#getName index name} to index
+     * @return unmodifiable mapping from name to composite index
      */
-    public SortedMap<String, CompositeIndex> getCompositeIndexesByName() {
-        return Collections.unmodifiableSortedMap(this.compositeIndexesByName);
+    public NavigableMap<String, CompositeIndex> getCompositeIndexes() {
+        return Collections.unmodifiableNavigableMap(this.compositeIndexes);
     }
 
-    @Override
-    ObjTypeStorageInfo toStorageInfo() {
-        return new ObjTypeStorageInfo(this);
+    /**
+     * Get the {@link CompositeIndex} associated with this instance with the given name.
+     *
+     * @param name index name
+     * @return the named {@link CompositeIndex}
+     * @throws UnknownIndexException if no such index exists
+     */
+    public CompositeIndex getCompositeIndex(String name) {
+        final CompositeIndex index = this.compositeIndexes.get(name);
+        if (index == null)
+            throw new UnknownIndexException(name, String.format("no composite index named \"%s\" exists", name));
+        return index;
     }
 
     @Override
     public String toString() {
-        return "object type \"" + this.name + "\" in " + this.schema;
+        return String.format("object type \"%s\" in %s", this.name, this.schema);
     }
 
 // Internal methods
 
-    @SuppressWarnings("unchecked")
-    private <T extends Field<?>> void buildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
-        Streams.iterate(this.fields.values().stream()
-            .filter(field -> type.isInstance(field)),
-          field -> map.put(field.storageId, (T)type.cast(field)));
-    }
-
-    private <T extends SchemaItem> void addSchemaItem(Map<Integer, T> byStorageId, Map<String, T> byName, T item) {
-        T previous = byStorageId.put(item.storageId, item);
-        if (previous != null) {
-            throw new IllegalArgumentException("duplicate use of storage ID " + item.storageId
-              + " by " + previous + " and " + item + " in " + this);
-        }
-        previous = byName.put(item.name, item);
-        if (previous != null) {
-            throw new IllegalArgumentException("duplicate use of name \"" + item.name
-              + "\" by " + previous + " and " + item + " in " + this);
-        }
-    }
-
-    private CompositeIndex addCompositeIndex(Schema schema, SchemaCompositeIndex schemaIndex) {
-
-        // Get fields corresponding to specified storage IDs
-        final int[] storageIds = Ints.toArray(schemaIndex.getIndexedFields());
-        if (storageIds.length < 2 || storageIds.length > Database.MAX_INDEXED_FIELDS)
-            throw new IllegalArgumentException("invalid " + schemaIndex + ": can't index " + storageIds.length + " fields");
-        final ArrayList<SimpleField<?>> list = new ArrayList<>(storageIds.length);
-        int count = 0;
-        for (int storageId : storageIds) {
-            final Field<?> field = this.fields.get(storageId);
-            if (!(field instanceof SimpleField)) {
-                throw new IllegalArgumentException("invalid " + schemaIndex
-                  + ": no simple field with storage ID " + storageId + " found");
+    private List<SimpleField<?>> getCompositeIndexFields(SchemaCompositeIndex index) {
+        final List<SimpleField<?>> fieldList = new ArrayList<>(index.getIndexedFields().size());
+        for (String fieldName : index.getIndexedFields()) {
+            final SimpleField<?> field = (SimpleField<?>)this.fields.get(fieldName);
+            if (field == null) {
+                throw new IllegalArgumentException(String.format(
+                  "index \"%s\" contains invalid field \"%s\"", index.getName(), fieldName));
             }
-            final SimpleField<?> simpleField = (SimpleField<?>)field;
-            if (simpleField.parent != null) {
-                throw new IllegalArgumentException("invalid " + schemaIndex
-                  + ": simple field with storage ID " + storageId + " is a sub-field of a complex field");
-            }
-            list.add(simpleField);
+            fieldList.add(field);
         }
-
-        // Create and add index
-        final CompositeIndex index = new CompositeIndex(schemaIndex.getName(), schemaIndex.getStorageId(), schema, this, list);
-        this.addSchemaItem(this.compositeIndexes, this.compositeIndexesByName, index);
-        return index;
+        assert fieldList.size() > 1;
+        return fieldList;
     }
 }

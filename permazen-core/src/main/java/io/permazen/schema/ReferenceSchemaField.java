@@ -25,10 +25,17 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class ReferenceSchemaField extends SimpleSchemaField {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.REFERENCE_FIELD;
+
     private DeleteAction inverseDelete;
     private boolean forwardDelete;
     private boolean allowDeleted;
-    private NavigableSet<Integer> objectTypes;
+    private NavigableSet<String> objectTypes = new TreeSet<>();
+
+// Properties
 
     /**
      * Get the desired behavior when an object referred to by this field is deleted.
@@ -38,6 +45,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public DeleteAction getInverseDelete() {
         return this.inverseDelete;
     }
+
+    /**
+     * Set the desired behavior when an object referred to by this field is deleted.
+     *
+     * @param inverseDelete action on deletion of target object
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setInverseDelete(DeleteAction inverseDelete) {
         this.verifyNotLockedDown();
         this.inverseDelete = inverseDelete;
@@ -51,6 +65,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public boolean isForwardDelete() {
         return this.forwardDelete;
     }
+
+    /**
+     * Set the whether to forward cascade delete operations.
+     *
+     * @param forwardDelete true to forward cascade delete operations, false to do nothing
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setForwardDelete(boolean forwardDelete) {
         this.verifyNotLockedDown();
         this.forwardDelete = forwardDelete;
@@ -64,6 +85,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public boolean isAllowDeleted() {
         return this.allowDeleted;
     }
+
+    /**
+     * Set the whether this field may reference non-existent objects in normal (non-detached) transactions.
+     *
+     * @param allowDeleted true to allow dangling references, otherwise false
+     * @throws UnsupportedOperationException if this instance is locked down
+     */
     public void setAllowDeleted(boolean allowDeleted) {
         this.verifyNotLockedDown();
         this.allowDeleted = allowDeleted;
@@ -72,21 +100,20 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     /**
      * Get the object types this field is allowed to reference, if so restricted.
      *
-     * @return storage IDs of allowed object types, or null if there is no restriction
+     * <p>
+     * If not null, the returned set will be unmodifiable if this instance is locked down.
+     *
+     * @return names allowed object types, or null if there is no restriction
      */
-    public NavigableSet<Integer> getObjectTypes() {
+    public NavigableSet<String> getObjectTypes() {
         return this.objectTypes;
-    }
-    public void setObjectTypes(NavigableSet<Integer> objectTypes) {
-        this.verifyNotLockedDown();
-        this.objectTypes = objectTypes;
     }
 
 // Lockdown
 
     @Override
-    void lockDownRecurse() {
-        super.lockDownRecurse();
+    public void lockDown() {
+        super.lockDown();
         if (this.objectTypes != null)
             this.objectTypes = Collections.unmodifiableNavigableSet(this.objectTypes);
     }
@@ -97,11 +124,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     void validate() {
         super.validate();
         if (this.inverseDelete == null)
-            throw new InvalidSchemaException("invalid " + this + ": no delete action specified");
+            throw new InvalidSchemaException(String.format("invalid %s: no inverse delete action specified", this));
         if (this.inverseDelete == DeleteAction.IGNORE && !this.allowDeleted) {
-            throw new InvalidSchemaException("invalid " + this + ": delete action " + this.inverseDelete
-              + " is incompatible with disallowing assignment to deleted objects");
+            throw new InvalidSchemaException(String.format(
+              "invalid %s: inverse delete %s is incompatible with disallowing dangling references", this, this.inverseDelete));
         }
+        if (this.objectTypes != null && this.objectTypes.stream().anyMatch(Objects::isNull))
+            throw new InvalidSchemaException(String.format("invalid %s: object types contains null", this));
     }
 
     @Override
@@ -121,23 +150,27 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return target.caseReferenceSchemaField(this);
     }
 
-// Compatibility
+// Schema ID
 
-    // Reference fields are differentiated only by what types they can refer to
     @Override
-    boolean isCompatibleType(SimpleSchemaField field) {
-        final ReferenceSchemaField that = (ReferenceSchemaField)field;
-        return Objects.equals(this.objectTypes, that.objectTypes);
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
     @Override
-    void writeCompatibilityHashData(DataOutputStream output) throws IOException {
-        super.writeCompatibilityHashData(output);
-        output.writeBoolean(this.objectTypes != null);
-        if (this.objectTypes != null) {
-            output.writeInt(this.objectTypes.size());
-            for (Integer storageId : this.objectTypes)
-                output.writeInt(storageId);
+    void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
+        super.writeSchemaIdHashData(output, forSchemaModel);
+        output.writeBoolean(forSchemaModel);
+        if (forSchemaModel) {
+            output.writeUTF(this.inverseDelete.name());
+            output.writeBoolean(this.forwardDelete);
+            output.writeBoolean(this.allowDeleted);
+            output.writeBoolean(this.objectTypes != null);
+            if (this.objectTypes != null) {
+                output.writeInt(this.objectTypes.size());
+                for (String typeName : this.objectTypes)
+                    output.writeUTF(typeName);
+            }
         }
     }
 
@@ -147,26 +180,27 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public Diffs differencesFrom(SimpleSchemaField other) {
         final Diffs diffs = new Diffs(super.differencesFrom(other));
         if (!(other instanceof ReferenceSchemaField)) {
-            diffs.add("change type from " + other.getClass().getSimpleName() + " to " + this.getClass().getSimpleName());
+            diffs.add(String.format("changed %s from %s to %s",
+              "type", other.getClass().getSimpleName(), this.getClass().getSimpleName()));
             return diffs;
         }
         final ReferenceSchemaField that = (ReferenceSchemaField)other;
         if (!Objects.equals(this.inverseDelete, that.inverseDelete))
-            diffs.add("changed on-delete action from " + that.inverseDelete + " to " + this.inverseDelete);
+            diffs.add(String.format("changed %s from %s to %s", "inverse delete", that.inverseDelete, this.inverseDelete));
         if (this.forwardDelete != that.forwardDelete)
-            diffs.add("changed cascade delete from " + that.forwardDelete + " to " + this.forwardDelete);
+            diffs.add(String.format("changed %s from %s to %s", "forward delete", that.forwardDelete, this.forwardDelete));
         if (this.allowDeleted != that.allowDeleted)
-            diffs.add("changed allowing assignement of deleted objects from " + that.allowDeleted + " to " + this.allowDeleted);
-        if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
-            diffs.add("changed allowed object type storage IDs from " + that.objectTypes + " to " + this.objectTypes);
+            diffs.add(String.format("changed %s from %s to %s", "allow deleted objects", that.allowDeleted, this.allowDeleted));
+        if (!Objects.equals(this.objectTypes, that.objectTypes))
+            diffs.add(String.format("changed %s from %s to %s", "object types", that.objectTypes, this.objectTypes));
         return diffs;
     }
 
 // XML Reading
 
     @Override
-    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        super.readAttributes(reader, formatVersion);
+    void readAttributes(XMLStreamReader reader, int formatVersion, boolean requireName) throws XMLStreamException {
+        super.readAttributes(reader, formatVersion, requireName);
         this.setInverseDelete(this.readAttr(reader, DeleteAction.class,
           XMLConstants.INVERSE_DELETE_ATTRIBUTE, DeleteAction.EXCEPTION));
         final Boolean forwardDeleteAttr = this.getBooleanAttr(reader, XMLConstants.FORWARD_DELETE_ATTRIBUTE, false);
@@ -187,10 +221,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             return;
         }
 
-        // Read list of zero or more permitted storage ID
-        this.objectTypes = new TreeSet<>();
+        // Read list of zero or more permitted type names
+        this.objectTypes.clear();
         while (this.expect(reader, true, XMLConstants.OBJECT_TYPE_TAG)) {
-            this.objectTypes.add(this.getIntAttr(reader, XMLConstants.STORAGE_ID_ATTRIBUTE));
+            this.objectTypes.add(this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE));
             this.expectClose(reader);           // </ObjectType>
         }
 
@@ -201,30 +235,23 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        if (this.objectTypes != null) {
-            writer.writeStartElement(XMLConstants.REFERENCE_FIELD_TAG.getNamespaceURI(),
-              XMLConstants.REFERENCE_FIELD_TAG.getLocalPart());
-        } else {
-            writer.writeEmptyElement(XMLConstants.REFERENCE_FIELD_TAG.getNamespaceURI(),
-              XMLConstants.REFERENCE_FIELD_TAG.getLocalPart());
-        }
+    void writeXML(XMLStreamWriter writer, boolean prettyPrint, boolean includeName) throws XMLStreamException {
+        if (this.objectTypes != null)
+            this.writeStartElement(writer, XMLConstants.REFERENCE_FIELD_TAG);
+        else
+            this.writeEmptyElement(writer, XMLConstants.REFERENCE_FIELD_TAG);
         this.writeAttributes(writer, includeName);
-        if (this.inverseDelete != null) {
-            writer.writeAttribute(XMLConstants.INVERSE_DELETE_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.INVERSE_DELETE_ATTRIBUTE.getLocalPart(), this.inverseDelete.name());
-        }
-        if (this.allowDeleted != (this.inverseDelete == DeleteAction.IGNORE)) {
-            writer.writeAttribute(XMLConstants.ALLOW_DELETED_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.ALLOW_DELETED_ATTRIBUTE.getLocalPart(), "" + this.allowDeleted);
-        }
+        if (this.inverseDelete != null)
+            this.writeAttr(writer, XMLConstants.INVERSE_DELETE_ATTRIBUTE, this.inverseDelete.name());
+        if (this.allowDeleted != (this.inverseDelete == DeleteAction.IGNORE))
+            this.writeAttr(writer, XMLConstants.ALLOW_DELETED_ATTRIBUTE, this.allowDeleted);
+        if (prettyPrint)
+            this.writeSchemaIdComment(writer);
         if (this.objectTypes != null) {
-            writer.writeStartElement(XMLConstants.OBJECT_TYPES_TAG.getNamespaceURI(), XMLConstants.OBJECT_TYPES_TAG.getLocalPart());
-            for (int storageId : this.objectTypes) {
-                writer.writeEmptyElement(XMLConstants.OBJECT_TYPE_TAG.getNamespaceURI(),
-                  XMLConstants.OBJECT_TYPE_TAG.getLocalPart());
-                writer.writeAttribute(XMLConstants.STORAGE_ID_ATTRIBUTE.getNamespaceURI(),
-                  XMLConstants.STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+            this.writeStartElement(writer, XMLConstants.OBJECT_TYPES_TAG);
+            for (String typeName : this.objectTypes) {
+                this.writeEmptyElement(writer, XMLConstants.OBJECT_TYPE_TAG);
+                this.writeAttr(writer, XMLConstants.NAME_ATTRIBUTE, typeName);
             }
             writer.writeEndElement();           // </ObjectTypes>
             writer.writeEndElement();           // </ReferenceField>
@@ -234,10 +261,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         super.writeSimpleAttributes(writer);
-        if (this.forwardDelete) {
-            writer.writeAttribute(XMLConstants.FORWARD_DELETE_ATTRIBUTE.getNamespaceURI(),
-              XMLConstants.FORWARD_DELETE_ATTRIBUTE.getLocalPart(), "" + this.forwardDelete);
-        }
+        if (this.forwardDelete)
+            this.writeAttr(writer, XMLConstants.FORWARD_DELETE_ATTRIBUTE, this.forwardDelete);
     }
 
 // Object
@@ -249,7 +274,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!super.equals(obj))
             return false;
         final ReferenceSchemaField that = (ReferenceSchemaField)obj;
-        return this.inverseDelete == that.inverseDelete
+        return Objects.equals(this.inverseDelete, that.inverseDelete)
           && this.forwardDelete == that.forwardDelete
           && this.allowDeleted == that.allowDeleted
           && Objects.equals(this.objectTypes, that.objectTypes);
@@ -258,9 +283,9 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     public int hashCode() {
         return super.hashCode()
-          ^ (this.forwardDelete ? 1 : 0)
-          ^ (this.allowDeleted ? 2 : 0)
           ^ Objects.hashCode(this.inverseDelete)
+          ^ (this.forwardDelete ? 2 : 0)
+          ^ (this.allowDeleted ? 4 : 0)
           ^ Objects.hashCode(this.objectTypes);
     }
 

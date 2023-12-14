@@ -14,15 +14,15 @@ public class ReferencedObjectException extends DatabaseException {
 
     private final ObjId id;
     private final ObjId referrer;
-    private final int storageId;
+    private final String fieldName;
 
-    ReferencedObjectException(Transaction tx, ObjId id, ObjId referrer, int storageId) {
-        super(tx.getObjDescription(id) + " cannot be deleted because it is still referenced by "
-          + tx.getFieldDescription(referrer, storageId) + " in " + tx.getObjDescription(referrer)
-          + ", which is configured for error on deletion");
+    ReferencedObjectException(Transaction tx, ObjId id, ObjId referrer, String fieldName) {
+        super(String.format(
+          "%s cannot be deleted because it is still referenced by %s, which is configured for error on deletion",
+          tx.getObjDescription(id), tx.getFieldDescription(referrer, fieldName)));
         this.id = id;
         this.referrer = referrer;
-        this.storageId = storageId;
+        this.fieldName = fieldName;
     }
 
     /**
@@ -44,11 +44,11 @@ public class ReferencedObjectException extends DatabaseException {
     }
 
     /**
-     * Get the storage ID of the field in the referring object that still referrs to the object that was supposed to be deleted.
+     * Get the name of the field in the referring object that still referrs to the object that was supposed to be deleted.
      *
-     * @return reference field storage ID
+     * @return reference field name
      */
-    public int getStorageId() {
-        return this.storageId;
+    public String getFieldName() {
+        return this.fieldName;
     }
 }

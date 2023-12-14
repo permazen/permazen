@@ -10,6 +10,8 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
+import io.permazen.schema.ListSchemaField;
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -27,33 +29,29 @@ import java.util.List;
  */
 public class ListField<E> extends CollectionField<List<E>, E> {
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field content storage ID
-     * @param schema schema version
-     * @param elementField this field's element sub-field
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
     @SuppressWarnings("serial")
-    ListField(String name, int storageId, Schema schema, SimpleField<E> elementField) {
-        super(name, storageId, schema, new TypeToken<List<E>>() { }
+    ListField(Schema schema, ListSchemaField field, SimpleField<E> elementField) {
+        super(schema, field, new TypeToken<List<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
 // Public methods
 
     @Override
+    public ListElementIndex<E> getElementIndex() {
+        return (ListElementIndex<E>)super.getElementIndex();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<E> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
-        return (List<E>)tx.readListField(id, this.storageId, false);
+        return (List<E>)tx.readListField(id, this.name, false);
     }
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseListField(this);
     }
 
@@ -62,7 +60,12 @@ public class ListField<E> extends CollectionField<List<E>, E> {
         return "list field \"" + this.name + "\" containing " + this.elementField;
     }
 
-// Non-public methods
+// Package Methods
+
+    @Override
+    ListElementIndex<E> createElementSubFieldIndex(Schema schema, SimpleSchemaField schemaField, ObjType objType) {
+        return new ListElementIndex<>(schema, schemaField, objType, this);
+    }
 
     @Override
     List<E> getValueInternal(Transaction tx, ObjId id) {
@@ -72,12 +75,6 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     @Override
     List<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
         return Collections.unmodifiableList(new ArrayList<>(this.getValueInternal(tx, id)));
-    }
-
-    @Override
-    ListElementStorageInfo<E> toStorageInfo(SimpleField<?> subField) {
-        assert subField == this.elementField;
-        return new ListElementStorageInfo<>(this);
     }
 
     @Override

@@ -11,25 +11,25 @@ package io.permazen.core;
 @SuppressWarnings("serial")
 public class UnknownIndexException extends DatabaseException {
 
-    private final int storageId;
+    private final String indexName;
 
     /**
      * Constructor.
      *
-     * @param storageId unknown index storage ID
+     * @param indexName unknown index name
      * @param description description of the problem
      */
-    public UnknownIndexException(int storageId, String description) {
+    public UnknownIndexException(String indexName, String description) {
         super(description);
-        this.storageId = storageId;
+        this.indexName = indexName;
     }
 
     /**
-     * Get the storage ID that was not recognized.
+     * Get the name of the index that was not recognized.
      *
-     * @return unrecognized index storage ID
+     * @return unrecognized index name
      */
-    public int getStorageId() {
-        return this.storageId;
+    public String getIndexName() {
+        return this.indexName;
     }
 }

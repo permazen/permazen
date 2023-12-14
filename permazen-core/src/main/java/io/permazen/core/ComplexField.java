@@ -10,6 +10,8 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyRange;
+import io.permazen.schema.ComplexSchemaField;
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
@@ -28,19 +30,8 @@ public abstract class ComplexField<T> extends Field<T> {
 
     private final int storageIdLength;
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field content storage ID
-     * @param schema schema version
-     * @param typeToken Java type for the field's values
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
-    ComplexField(String name, int storageId, Schema schema, TypeToken<T> typeToken) {
-        super(name, storageId, schema, typeToken);
+    ComplexField(Schema schema, ComplexSchemaField schemaField, TypeToken<T> typeToken) {
+        super(schema, schemaField, typeToken);
         this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);
     }
 
@@ -54,6 +45,12 @@ public abstract class ComplexField<T> extends Field<T> {
     public abstract List<? extends SimpleField<?>> getSubFields();
 
 // Non-public methods
+
+    /**
+     * Create a sub-field index.
+     */
+    abstract ComplexSubFieldIndex<T, ?> createSubFieldIndex(Schema schema,
+      SimpleSchemaField schemaField, ObjType objType, SimpleField<?> field);
 
     /**
      * Get the Java collection object representing the value of this instance in the given object.
@@ -73,14 +70,6 @@ public abstract class ComplexField<T> extends Field<T> {
      * @throws IllegalArgumentException if {@code subField} is not a sub-field of this instance
      */
     abstract <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField);
-
-    // Complex fields are never indexed; only their sub-fields are
-    @Override
-    final StorageInfo toStorageInfo() {
-        return null;
-    }
-
-    abstract ComplexSubFieldStorageInfo<?, ?> toStorageInfo(SimpleField<?> subField);
 
     /**
      * Delete all content (but not index entries) for the given object.
@@ -116,6 +105,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param contentValue the value associated with the content key, or null if not needed
      */
     void addIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, byte[] contentKey, byte[] contentValue) {
+        Preconditions.checkArgument(subField.indexed, "not indexed");
         tx.kvt.put(this.buildIndexEntry(id, subField, contentKey, contentValue), ByteUtil.EMPTY);
     }
 
@@ -129,6 +119,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param contentValue the value associated with the content key, or null if not needed
      */
     void removeIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, byte[] contentKey, byte[] contentValue) {
+        Preconditions.checkArgument(subField.indexed, "not indexed");
         tx.kvt.remove(this.buildIndexEntry(id, subField, contentKey, contentValue));
     }
 

@@ -9,10 +9,13 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
+import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteWriter;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * A simple {@link Field}.
@@ -33,23 +36,17 @@ public class SimpleField<T> extends Field<T> {
     final Encoding<T> encoding;
     final boolean indexed;
 
+    // Parent field if sub-field
     ComplexField<?> parent;
-    Map<CompositeIndex, Integer> compositeIndexMap;         // maps index to this field's offset in field list
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field storage ID
-     * @param schema schema version
-     * @param encoding encoding
-     * @param indexed whether this field is indexed
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is zero or less
-     */
-    SimpleField(String name, int storageId, Schema schema, Encoding<T> encoding, boolean indexed) {
-        super(name, storageId, schema, encoding.getTypeToken());
+    // The simple index on this field, if any
+    SimpleIndex<T> index;
+
+    // Maps composite index to this field's offset in index field list, or null if none
+    HashMap<CompositeIndex, Integer> compositeIndexMap;
+
+    SimpleField(Schema schema, SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
+        super(schema, field, encoding.getTypeToken());
         this.encoding = encoding;
         this.indexed = indexed;
     }
@@ -75,8 +72,52 @@ public class SimpleField<T> extends Field<T> {
     }
 
     /**
+     * Get the parent field if this field is a sub-field of a complex field.
+     *
+     * @return parent field, or null if this is not a sub-field
+     */
+    public ComplexField<?> getParentField() {
+        return this.parent;
+    }
+
+    /**
+     * Get the full name of this field.
+     *
+     * <p>
+     * If the field is a sub-field of a complex field, the full name is the field's name qualified
+     * by the parent field name, e.g., {@code "mymap.key"}. Otherwise, the full is is the same as the name.
+     *
+     * @return this field's full name
+     */
+    public String getFullName() {
+        return this.parent != null ? this.parent.name + "." + this.name : this.name;
+    }
+
+    /**
+     * Get the {@link SimpleIndex} on this field.
+     *
+     * @return the index on this field
+     * @throws UnknownIndexException if there is no simple index on this field
+     */
+    public SimpleIndex<T> getIndex() {
+        if (this.index != null)
+            return this.index;
+        throw new UnknownIndexException(name, String.format("there is no index on field \"%s\"", this.getName()));
+    }
+
+    /**
+     * Get the {@link CompositeIndex}s that contain this field, if any.
+     *
+     * @return zero or more {@link CompositeIndex} that contain this field
+     */
+    public Set<CompositeIndex> getCompositeIndexes() {
+        return this.compositeIndexMap != null ?
+          Collections.unmodifiableSet(this.compositeIndexMap.keySet()) : Collections.emptySet();
+    }
+
+    /**
      * Set the value of this field in the given object.
-     * Does not alter the schema version of the object.
+     * Does not alter the schema of the object.
      *
      * @param tx transaction
      * @param id object id
@@ -89,7 +130,7 @@ public class SimpleField<T> extends Field<T> {
     public void setValue(Transaction tx, ObjId id, T value) {
         Preconditions.checkArgument(tx != null, "null tx");
         Preconditions.checkArgument(this.parent == null, "field is a sub-field of " + this.parent);
-        tx.writeSimpleField(id, this.storageId, value, false);
+        tx.writeSimpleField(id, this.name, value, false);
     }
 
     @Override
@@ -97,7 +138,7 @@ public class SimpleField<T> extends Field<T> {
     public T getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
         Preconditions.checkArgument(this.parent == null, "field is a sub-field of " + this.parent);
-        return (T)tx.readSimpleField(id, this.storageId, false);
+        return (T)tx.readSimpleField(id, this.name, false);
     }
 
     @Override
@@ -109,30 +150,25 @@ public class SimpleField<T> extends Field<T> {
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseSimpleField(this);
     }
 
     @Override
     public String toString() {
-        return (this.indexed ? "indexed " : "") + "field \"" + this.name + "\" of type " + this.encoding.getTypeToken();
+        return String.format(
+          "%sfield \"%s\" of type %s", this.indexed ? "indexed " : "", this.getFullName(), this.encoding.getTypeToken());
     }
 
 // Non-public methods
 
     @Override
-    SimpleFieldStorageInfo<?> toStorageInfo() {
-        if (!this.indexed)
-            return null;
-        return this.parent != null ? this.parent.toStorageInfo(this) : new RegularSimpleFieldStorageInfo<T>(this);
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
-        T value = (T)srcTx.readSimpleField(srcId, this.storageId, false);
+        T value = (T)srcTx.readSimpleField(srcId, this.name, false);
         if (objectIdMap != null)
             value = this.remapObjectId(objectIdMap, value);
-        dstTx.writeSimpleField(dstId, this.storageId, value, false);
+        dstTx.writeSimpleField(dstId, this.name, value, false);
     }
 
     protected boolean remapsObjectId() {
@@ -161,13 +197,5 @@ public class SimpleField<T> extends Field<T> {
         this.encoding.write(writer, value);
         final byte[] result = writer.getBytes();
         return Arrays.equals(result, this.encoding.getDefaultValue()) ? null : result;
-    }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final SimpleField<?> that = (SimpleField<?>)field;
-        return this.encoding.equals(that.encoding);
     }
 }

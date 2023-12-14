@@ -5,26 +5,28 @@
 
 package io.permazen.core;
 
+import io.permazen.schema.SchemaId;
+
 /**
- * Thrown by {@link Database#createTransaction} when the given schema cannot be matched with the
- * schema of the same version already recorded in the database, or cannot be added to the database
- * because it is incompatible with one or more prior schema versions.
+ * Thrown by {@link Database#createTransaction} when the expected schema does not match
+ * and of the schemas already recorded in the database.
  */
 @SuppressWarnings("serial")
 public class SchemaMismatchException extends InvalidSchemaException {
 
-    SchemaMismatchException() {
-    }
+    private final SchemaId schemaId;
 
-    public SchemaMismatchException(String message) {
+    public SchemaMismatchException(SchemaId schemaId, String message) {
         super(message);
+        this.schemaId = schemaId;
     }
 
-    public SchemaMismatchException(Throwable cause) {
-        super(cause);
-    }
-
-    public SchemaMismatchException(String message, Throwable cause) {
-        super(message, cause);
+    /**
+     * Get the ID of the schema that failed to match.
+     *
+     * @return mismatched schema ID
+     */
+    public SchemaId getSchemaId() {
+        return this.schemaId;
     }
 }

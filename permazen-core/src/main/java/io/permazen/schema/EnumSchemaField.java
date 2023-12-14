@@ -13,6 +13,18 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class EnumSchemaField extends AbstractEnumSchemaField {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.ENUM_FIELD;
+
+// Schema ID
+
+    @Override
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
+    }
+
 // SchemaFieldSwitch
 
     @Override
@@ -24,7 +36,7 @@ public class EnumSchemaField extends AbstractEnumSchemaField {
 
     @Override
     void writeElement(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeStartElement(XMLConstants.ENUM_FIELD_TAG.getNamespaceURI(), XMLConstants.ENUM_FIELD_TAG.getLocalPart());
+        this.writeStartElement(writer, XMLConstants.ENUM_FIELD_TAG);
     }
 
 // Cloneable

@@ -25,6 +25,20 @@
     </Match>
     <Match>
         <Class name="io.permazen.core.Transaction"/>
+        <Field name="schemaBundle"/>
+        <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.ReferenceEncoding"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.Transaction"/>
+        <Method name="create"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.core.Transaction"/>
         <!-- <Method name="hasFieldMonitor"/> -->
         <Field name="monitorMap"/>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>

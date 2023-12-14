@@ -15,6 +15,11 @@ import javax.xml.namespace.QName;
  */
 public class SetSchemaField extends CollectionSchemaField implements DiffGenerating<SetSchemaField> {
 
+    /**
+     * The {@link ItemType} that this class represents.
+     */
+    public static final ItemType ITEM_TYPE = ItemType.SET_FIELD;
+
 // SchemaFieldSwitch
 
     @Override
@@ -27,6 +32,13 @@ public class SetSchemaField extends CollectionSchemaField implements DiffGenerat
     @Override
     QName getXMLTag() {
         return XMLConstants.SET_FIELD_TAG;
+    }
+
+// Schema ID
+
+    @Override
+    public final ItemType getItemType() {
+        return ITEM_TYPE;
     }
 
 // DiffGenerating

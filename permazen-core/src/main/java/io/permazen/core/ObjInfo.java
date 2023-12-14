@@ -5,22 +5,31 @@
 
 package io.permazen.core;
 
+import io.permazen.schema.SchemaId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
+import java.util.Optional;
+
 /**
  * Per-object meta data encoded in the object's KV value.
+ *
+ * <p>
+ * Instances are immutable. If an object's meta-data is updated (via {@link #write write()},
+ * then a new instance should be created.
  */
 class ObjInfo {
 
-    private static final int META_DATA_VERSION = 1;
+    // Flags byte
+    public static final int FLAG_DELETE_NOTIFIED = 0x01;
+    public static final int FLAG_ZERO_BITS = 0xfe;
 
     // Stored meta-data
     final Transaction tx;
     final ObjId id;
-    final int version;
-    final boolean deleteNotified;
+    final int schemaIndex;
+    final int flags;
 
     // Additional derived meta-data
     Schema schema;
@@ -36,23 +45,26 @@ class ObjInfo {
         if (value == null)
             throw new DeletedObjectException(tx, this.id);
         final ByteReader reader = new ByteReader(value);
-        final int metaDataVersion = UnsignedIntEncoder.read(reader);
-        if (metaDataVersion != META_DATA_VERSION)
-            throw new InconsistentDatabaseException("found unknown object meta-data version " + metaDataVersion + " in " + this.id);
-        this.version = UnsignedIntEncoder.read(reader);
-        if (this.version == 0)
-            throw new InvalidObjectVersionException(this.id, this.version);
-        this.deleteNotified = Encodings.BOOLEAN.read(reader);
+        this.schemaIndex = UnsignedIntEncoder.read(reader);
+        if (this.schemaIndex == 0)
+            throw new InvalidObjectVersionException(this.id, this.schemaIndex, null);
+        this.flags = reader.readByte();
+        if ((this.flags & FLAG_ZERO_BITS) != 0) {
+            throw new InconsistentDatabaseException(String.format(
+              "object meta-data in %s has invalid flags byte 0x%02x", this.id, this.flags));
+        }
+        if (reader.remain() > 0)
+            throw new InconsistentDatabaseException(String.format("object meta-data in %s has trailing garbage", this.id));
     }
 
     // Constructor for explicitly given data
-    ObjInfo(Transaction tx, ObjId id, int version, boolean deleteNotified, Schema schema, ObjType objType) {
+    ObjInfo(Transaction tx, ObjId id, int schemaIndex, boolean deleteNotified, Schema schema, ObjType objType) {
         assert tx != null;
         assert id != null;
         this.tx = tx;
         this.id = id;
-        this.version = version;
-        this.deleteNotified = deleteNotified;
+        this.schemaIndex = schemaIndex;
+        this.flags = deleteNotified ? FLAG_DELETE_NOTIFIED : 0;
         this.schema = schema;
         this.objType = objType;
     }
@@ -61,20 +73,24 @@ class ObjInfo {
         return this.id;
     }
 
-    public int getVersion() {
-        return this.version;
+    public int getSchemaIndex() {
+        return this.schemaIndex;
     }
 
     public boolean isDeleteNotified() {
-        return this.deleteNotified;
+        return (this.flags & FLAG_DELETE_NOTIFIED) != 0;
+    }
+
+    public SchemaId getSchemaId() {
+        return this.getSchema().getSchemaId();
     }
 
     public Schema getSchema() {
         if (this.schema == null) {
             try {
-                this.schema = this.tx.schemas.getVersion(this.version);
+                this.schema = this.tx.getSchemaBundle().getSchema(this.schemaIndex);
             } catch (IllegalArgumentException e) {
-                throw new InvalidObjectVersionException(id, this.version);
+                throw new InvalidObjectVersionException(id, this.schemaIndex, e);
             }
         }
         return this.schema;
@@ -91,11 +107,12 @@ class ObjInfo {
         return this.objType;
     }
 
-    public static void write(Transaction tx, ObjId id, int version, boolean deleteNotified) {
-        final ByteWriter writer = new ByteWriter();
-        UnsignedIntEncoder.write(writer, META_DATA_VERSION);
-        UnsignedIntEncoder.write(writer, version);
-        Encodings.BOOLEAN.write(writer, deleteNotified);
+    public static void write(Transaction tx, ObjId id, int schemaIndex, boolean deleteNotified) {
+        assert schemaIndex > 0;
+        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(schemaIndex) + 1);
+        Encodings.UNSIGNED_INT.write(writer, schemaIndex);
+        final int flags = deleteNotified ? FLAG_DELETE_NOTIFIED : 0;
+        writer.writeByte(flags);
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }
 
@@ -103,10 +120,10 @@ class ObjInfo {
     public String toString() {
         return "ObjInfo"
           + "[id=" + this.id
-          + ",version=" + this.version
-          + (this.deleteNotified ? ",deleteNotified" : "")
+          + ",schemaIndex=" + this.schemaIndex
+          + ",flags=" + String.format("%02x", this.flags)
           + ",schema=" + this.schema
-          + ",objType=" + this.objType
+          + ",objType=" + Optional.ofNullable(this.objType).map(ObjType::getName).orElse(null)
           + "]";
     }
 }

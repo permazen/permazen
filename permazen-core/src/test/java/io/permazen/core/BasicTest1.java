@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -47,68 +49,73 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  <ObjectType name=\"Bar\" storageId=\"20\"/>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId1 = schema1.getSchemaId();
+        schema1.lockDown();
+        Assert.assertEquals(schema1.getSchemaId(), schemaId1);
 
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema1, 1, true);
+        Transaction tx = db.createTransaction(schema1);
+        Assert.assertEquals(tx.getSchema().getSchemaId(), schemaId1);
         //this.showKV(tx, "testPrimitiveFields: 1");
-        ObjId id = tx.create(1);
-        ObjId id2 = tx.create(20);
+        ObjId id = tx.create("Foo");
+        ObjId id2 = tx.create("Bar");
         Assert.assertTrue(tx.exists(id));
         Assert.assertTrue(tx.exists(id2));
         //this.showKV(tx, "testPrimitiveFields: 2");
-        Assert.assertEquals(tx.getSchemaVersion(id), 1);
-        Assert.assertEquals(tx.getAll(1), Collections.singleton(id));
-        Assert.assertEquals(tx.getAll(20), Collections.singleton(id2));
-        Assert.assertEquals(tx.readSimpleField(id, 2, true), 0);
-        tx.writeSimpleField(id, 2, 123456, true);
+        Assert.assertEquals(tx.getObjType(id).getSchema().getSchemaId(), schemaId1);
+        Assert.assertEquals(tx.getAll("Foo"), Collections.singleton(id));
+        Assert.assertEquals(tx.getAll("Bar"), Collections.singleton(id2));
+        Assert.assertEquals(tx.readSimpleField(id, "i", true), 0);
+        tx.writeSimpleField(id, "i", 123456, true);
         //this.showKV(tx, "testPrimitiveFields: 3");
-        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
+        Assert.assertEquals(tx.readSimpleField(id, "i", true), 123456);
         tx.commit();
 
-        tx = db.createTransaction(schema1, 1, true);
-        Assert.assertTrue(tx.getAll(1).equals(Collections.singleton(id)), tx.getAll(1) + " != " + Collections.singleton(id));
-        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
+        tx = db.createTransaction(schema1);
+        Assert.assertTrue(tx.getAll("Foo").equals(Collections.singleton(id)),
+          tx.getAll("Foo") + " != " + Collections.singleton(id));
+        Assert.assertEquals(tx.readSimpleField(id, "i", true), 123456);
         tx.commit();
 
-        tx = db.createTransaction(schema1, 1, true);
-        tx.writeSimpleField(id, 2, 987654, true);
+        tx = db.createTransaction(schema1);
+        tx.writeSimpleField(id, "i", 987654, true);
         tx.rollback();
 
-        tx = db.createTransaction(schema1, 1, true);
-        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
+        tx = db.createTransaction(schema1);
+        Assert.assertEquals(tx.readSimpleField(id, "i", true), 123456);
         tx.commit();
 
-        tx = db.createTransaction(schema1, 1, true);
+        tx = db.createTransaction(schema1);
         Assert.assertTrue(tx.exists(id));
         Assert.assertTrue(tx.delete(id));
         Assert.assertFalse(tx.exists(id));
         Assert.assertFalse(tx.delete(id));
         Assert.assertFalse(tx.exists(id));
-        Assert.assertTrue(tx.getAll(1).equals(Collections.emptySet()));
+        Assert.assertTrue(tx.getAll("Foo").equals(Collections.emptySet()));
         try {
-            tx.getSchemaVersion(id);
+            tx.getObjType(id);
             assert false : "expected " + id + " to be deleted";
         } catch (DeletedObjectException e) {
             // expected
         }
         tx.rollback();
 
-        // Change all the names - should still work
+        // Add a new schema - should still work
 
         final SchemaModel schema1a = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
-          + "  <ObjectType name=\"AAAA\" storageId=\"1\">\n"
-          + "    <SimpleField name=\"BBB\" encoding=\"urn:fdc:permazen.io:2020:int\" storageId=\"2\"/>\n"
+          + "  <ObjectType name=\"AAAA\">\n"
+          + "    <SimpleField name=\"BBB\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
           + "  </ObjectType>\n"
-          + "  <ObjectType name=\"CCC\" storageId=\"20\"/>\n"
+          + "  <ObjectType name=\"CCC\"/>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
-        tx = db.createTransaction(schema1a, 1, false);
+        tx = db.createTransaction(schema1a);
         tx.rollback();
 
-        // Do schema update that adds new fields
+        // Add a schema that adds more fields to the "Foo" type
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -129,37 +136,41 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId2 = schema2.getSchemaId();
 
-        tx = db.createTransaction(schema2, 2, true);
+        tx = db.createTransaction(schema2);
         //this.showKV(tx, "testPrimitiveFields[2]: 1");
-        Assert.assertEquals(tx.getSchemaVersion(id), 1);
+        Assert.assertEquals(tx.getObjType(id).getSchema().getSchemaId(), schemaId1);
 
-        final int[] oldValue = new int[1];
-        tx.addVersionChangeListener((tx1, id1, oldVersion, newVersion, oldFieldValues) -> {
-            //log.info("version change: " + oldVersion + " -> " + newVersion + " oldFields=" + oldFieldValues);
-            oldValue[0] = (Integer)oldFieldValues.get(2);
-            tx1.writeSimpleField(id1, 6, (short)4444, true);
+        final AtomicInteger oldIntValue = new AtomicInteger();
+        tx.addSchemaChangeListener((tx1, id1, oldSchemaId, newSchemaId, oldFieldValues) -> {
+            this.log.info("version change: {} -> {} oldFields={}", oldSchemaId, newSchemaId, oldFieldValues);
+            Assert.assertEquals(oldSchemaId, schemaId1);
+            Assert.assertEquals(newSchemaId, schemaId2);
+            oldIntValue.set((Integer)oldFieldValues.get("i"));
+            tx1.writeSimpleField(id1, "s", (short)4444, true);
         });
 
-        Assert.assertEquals(tx.readSimpleField(id, 3, true), false);
+        Assert.assertEquals(tx.readSimpleField(id, "z", true), false);
         //this.showKV(tx, "testPrimitiveFields[2]: 2");
-        Assert.assertEquals(tx.readSimpleField(id, 4, true), (byte)0);
-        Assert.assertEquals(tx.readSimpleField(id, 5, true), (char)0);
-        Assert.assertEquals(tx.readSimpleField(id, 6, true), (short)4444);
-        Assert.assertEquals(tx.readSimpleField(id, 7, true), (float)0);
-        Assert.assertEquals(tx.readSimpleField(id, 8, true), (long)0);
-        Assert.assertEquals(tx.readSimpleField(id, 9, true), (double)0);
-        Assert.assertEquals(tx.readSimpleField(id, 10, true), null);
-        Assert.assertEquals(tx.readSimpleField(id, 11, true), null);
-        Assert.assertEquals(tx.readSimpleField(id, 12, true), null);
-        Assert.assertEquals(tx.readSimpleField(id, 13, true), null);
+        Assert.assertEquals(tx.readSimpleField(id, "b", true), (byte)0);
+        Assert.assertEquals(tx.readSimpleField(id, "c", true), (char)0);
+        Assert.assertEquals(tx.readSimpleField(id, "s", true), (short)4444);
+        Assert.assertEquals(tx.readSimpleField(id, "f", true), (float)0);
+        Assert.assertEquals(tx.readSimpleField(id, "j", true), (long)0);
+        Assert.assertEquals(tx.readSimpleField(id, "d", true), (double)0);
+        Assert.assertEquals(tx.readSimpleField(id, "str", true), null);
+        Assert.assertEquals(tx.readSimpleField(id, "r", true), null);
+        Assert.assertEquals(tx.readSimpleField(id, "v", true), null);
+        Assert.assertEquals(tx.readSimpleField(id, "date", true), null);
 
-        Assert.assertEquals(tx.getSchemaVersion(id), 2);
-        Assert.assertEquals(oldValue[0], 123456);
+        Assert.assertEquals(tx.getObjType(id).getSchema().getSchemaId(), schemaId2);
+        Assert.assertEquals(oldIntValue.get(), 123456);
 
-        for (int sid = 2; sid <= 9; sid++) {
+        // Verify you can't write null to a primitive field
+        for (String fieldName : new String[] { "i", "z", "b", "c", "s", "f", "j", "d" }) {
             try {
-                tx.writeSimpleField(id, sid, null, true);
+                tx.writeSimpleField(id, fieldName, null, true);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
@@ -167,8 +178,10 @@ public class BasicTest1 extends CoreAPITestSupport {
         }
 
         final Date now = new Date();
-        tx.writeSimpleField(id, 13, now, true);
-        Assert.assertEquals(tx.readSimpleField(id, 13, true), now);
+        tx.writeSimpleField(id, "date", now, true);
+        Assert.assertEquals(tx.readSimpleField(id, "date", true), now);
+        tx.writeSimpleField(id, "date", null, true);
+        Assert.assertNull(tx.readSimpleField(id, "date", true));
 
         tx.rollback();
     }
@@ -193,11 +206,13 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId = schema.getSchemaId();
+
         final Database db = new Database(kvstore);
 
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
         //this.showKV(tx, "testPrimitiveFields: 1");
-        final ObjId id = tx.create(1);
+        final ObjId id = tx.create("Foo");
 
         final int[] i = new int[] { this.random.nextInt(), this.random.nextInt(), this.random.nextInt() };
         final boolean[] z = new boolean[] { this.random.nextBoolean(), this.random.nextBoolean(), this.random.nextBoolean() };
@@ -210,25 +225,25 @@ public class BasicTest1 extends CoreAPITestSupport {
         final double[] d = new double[] { this.random.nextDouble(), this.random.nextDouble(), this.random.nextDouble() };
         final String[] str = new String[] { "abc", "def", "", "\ud0d0" };
 
-        tx.writeSimpleField(id, 2, i, false);
-        tx.writeSimpleField(id, 3, z, false);
-        tx.writeSimpleField(id, 4, b, false);
-        tx.writeSimpleField(id, 5, c, false);
-        tx.writeSimpleField(id, 6, s, false);
-        tx.writeSimpleField(id, 7, f, false);
-        tx.writeSimpleField(id, 8, j, false);
-        tx.writeSimpleField(id, 9, d, false);
-        tx.writeSimpleField(id, 10, str, false);
+        tx.writeSimpleField(id, "i", i, false);
+        tx.writeSimpleField(id, "z", z, false);
+        tx.writeSimpleField(id, "b", b, false);
+        tx.writeSimpleField(id, "c", c, false);
+        tx.writeSimpleField(id, "s", s, false);
+        tx.writeSimpleField(id, "f", f, false);
+        tx.writeSimpleField(id, "j", j, false);
+        tx.writeSimpleField(id, "d", d, false);
+        tx.writeSimpleField(id, "str", str, false);
 
-        Assert.assertTrue(Arrays.equals((int[])tx.readSimpleField(id, 2, false), i));
-        Assert.assertTrue(Arrays.equals((boolean[])tx.readSimpleField(id, 3, false), z));
-        Assert.assertTrue(Arrays.equals((byte[])tx.readSimpleField(id, 4, false), b));
-        Assert.assertTrue(Arrays.equals((char[])tx.readSimpleField(id, 5, false), c));
-        Assert.assertTrue(Arrays.equals((short[])tx.readSimpleField(id, 6, false), s));
-        Assert.assertTrue(Arrays.equals((float[])tx.readSimpleField(id, 7, false), f));
-        Assert.assertTrue(Arrays.equals((long[])tx.readSimpleField(id, 8, false), j));
-        Assert.assertTrue(Arrays.equals((double[])tx.readSimpleField(id, 9, false), d));
-        Assert.assertTrue(Arrays.equals((String[])tx.readSimpleField(id, 10, false), str));
+        Assert.assertTrue(Arrays.equals((int[])tx.readSimpleField(id, "i", false), i));
+        Assert.assertTrue(Arrays.equals((boolean[])tx.readSimpleField(id, "z", false), z));
+        Assert.assertTrue(Arrays.equals((byte[])tx.readSimpleField(id, "b", false), b));
+        Assert.assertTrue(Arrays.equals((char[])tx.readSimpleField(id, "c", false), c));
+        Assert.assertTrue(Arrays.equals((short[])tx.readSimpleField(id, "s", false), s));
+        Assert.assertTrue(Arrays.equals((float[])tx.readSimpleField(id, "f", false), f));
+        Assert.assertTrue(Arrays.equals((long[])tx.readSimpleField(id, "j", false), j));
+        Assert.assertTrue(Arrays.equals((double[])tx.readSimpleField(id, "d", false), d));
+        Assert.assertTrue(Arrays.equals((String[])tx.readSimpleField(id, "str", false), str));
 
         tx.rollback();
     }
@@ -257,22 +272,23 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        final SchemaId schemaId = schema.getSchemaId();
 
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
 
-        ObjId id = tx.create(1);
+        ObjId id = tx.create("Foo");
 
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, "set", true);
         set.add(123);
         set.add(456);
         set.add(789);
 
-        List<Integer> list = (List<Integer>)tx.readListField(id, 11, true);
+        List<Integer> list = (List<Integer>)tx.readListField(id, "list", true);
         list.add(234);
         list.add(567);
         list.add(890);
 
-        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
+        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, "map", true);
         map.put(987, "foo");
         map.put(654, "bar");
         map.put(321, "jan");
@@ -366,11 +382,12 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
-        Transaction tx = db.createTransaction(schema, 1, true);
 
-        ObjId id = tx.create(1);
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
-        Assert.assertEquals(tx.readSetField(id, 10, true), Collections.emptySet());
+        Transaction tx = db.createTransaction(schema);
+
+        ObjId id = tx.create("Foo");
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, "set", true);
+        Assert.assertEquals(tx.readSetField(id, "set", true), Collections.emptySet());
         set.add(456);
         set.add(123);
         set.add(789);
@@ -383,13 +400,13 @@ public class BasicTest1 extends CoreAPITestSupport {
         }
 
         try {
-            tx.readListField(id, 10, true);
+            tx.readListField(id, "set", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readMapField(id, 10, true);
+            tx.readMapField(id, "set", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
@@ -552,6 +569,8 @@ public class BasicTest1 extends CoreAPITestSupport {
             // expected
         }
         Assert.assertEquals(set, Sets.newHashSet(123, 456, 789, 890));
+        Assert.assertEquals(new ArrayList<>(set), Lists.newArrayList(123, 456, 789, 890));
+        Assert.assertEquals(new ArrayList<>(set.descendingSet()), Lists.newArrayList(890, 789, 456, 123));
         Assert.assertEquals(set.descendingSet().pollFirst(), (Integer)890);
         Assert.assertEquals(set, Sets.newHashSet(123, 456, 789));
 
@@ -728,10 +747,10 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
-        Transaction tx = db.createTransaction(schema, 1, true);
+        Transaction tx = db.createTransaction(schema);
 
-        ObjId id = tx.create(1);
-        List<String> list = (List<String>)tx.readListField(id, 11, true);
+        ObjId id = tx.create("Foo");
+        List<String> list = (List<String>)tx.readListField(id, "list", true);
         Assert.assertEquals(list, Collections.emptySet());
         Assert.assertEquals(Collections.emptyList(), list);
         Assert.assertEquals(Collections.emptyList().hashCode(), list.hashCode());
@@ -740,13 +759,13 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertTrue(Lists.newArrayList(list.iterator()).isEmpty());
 
         try {
-            tx.readSetField(id, 11, true);
+            tx.readSetField(id, "list", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readMapField(id, 11, true);
+            tx.readMapField(id, "list", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
@@ -882,10 +901,11 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
-        Transaction tx = db.createTransaction(schema, 1, true);
 
-        ObjId id = tx.create(1);
-        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
+        Transaction tx = db.createTransaction(schema);
+
+        ObjId id = tx.create("Foo");
+        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, "map", true);
         Assert.assertEquals(map, Collections.emptyMap());
         Assert.assertEquals(Collections.emptyMap(), map);
         Assert.assertEquals(Collections.emptyMap().hashCode(), map.hashCode());
@@ -896,13 +916,13 @@ public class BasicTest1 extends CoreAPITestSupport {
         }
 
         try {
-            tx.readSetField(id, 12, true);
+            tx.readSetField(id, "map", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readListField(id, 12, true);
+            tx.readListField(id, "map", true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected

@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
+import io.permazen.schema.CounterSchemaField;
 
 /**
  * Counter fields.
@@ -19,22 +20,13 @@ import io.permazen.core.util.ObjIdMap;
  * Counter fields do not support indexing or change listeners.
  *
  * <p>
- * Note: during schema version change notification, counter field values appear as plain {@code long} values.
+ * Note: during {@link io.permazen.annotation.OnSchemaChange &#64;OnSchemaChange} notifications, counter field
+ * values appear as {@code Long}s.
  */
 public class CounterField extends Field<Long> {
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field storage ID
-     * @param schema schema version
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is zero or less
-     */
-    CounterField(String name, int storageId, Schema schema) {
-        super(name, storageId, schema, TypeToken.of(Long.class));
+    CounterField(Schema schema, CounterSchemaField schemaField) {
+        super(schema, schemaField, TypeToken.of(Long.class));
     }
 
 // Public methods
@@ -42,7 +34,7 @@ public class CounterField extends Field<Long> {
     @Override
     public Long getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
-        return tx.readCounterField(id, this.storageId, false);
+        return tx.readCounterField(id, this.name, false);
     }
 
     @Override
@@ -52,6 +44,7 @@ public class CounterField extends Field<Long> {
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseCounterField(this);
     }
 
@@ -60,23 +53,10 @@ public class CounterField extends Field<Long> {
         return "counter field \"" + this.name + "\"";
     }
 
-// Non-public methods
+// Package Methods
 
     @Override
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx, ObjIdMap<ObjId> objectIdMap) {
-        dstTx.writeCounterField(dstId, this.storageId, srcTx.readCounterField(srcId, this.storageId, false), false);
-    }
-
-    // Counter fields are never indexed
-    @Override
-    StorageInfo toStorageInfo() {
-        return null;
-    }
-
-    @Override
-    boolean isUpgradeCompatible(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        return true;
+        dstTx.writeCounterField(dstId, this.name, srcTx.readCounterField(srcId, this.name, false), false);
     }
 }

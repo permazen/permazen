@@ -16,12 +16,13 @@ import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.schema.SchemaId;
+import io.permazen.schema.SchemaModel;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.NavigableSets;
-import io.permazen.util.Streams;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.ArrayList;
@@ -64,11 +65,11 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
  *  <li>{@link #getKVTransaction getKVTransaction()} -  Get the underlying key/value store transaction.</li>
- *  <li>{@link #getSchemas getSchemas()} - Get the database {@link Schemas}, as seen by this transaction</li>
  *  <li>{@link #getSchema() getSchema()} - Get the {@link Schema} that will be used by this transaction</li>
- *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
+ *  <li>{@link #addSchema() addSchema()} - Register a new {@link Schema} in the database</li>
+ *  <li>{@link #getSchemaBundle getSchemaBundle()} - Get all {@link Schema}s registered in the database</li>
  *  <li>{@link #getUserObject} - Get user object associated with this instance</li>
- *  <li>{@link #setUserObject} - Set user object associated with this instance</li>
+ *  <li>{@link #setUserObject setUserObject()} - Set user object associated with this instance</li>
  * </ul>
  *
  * <p>
@@ -81,8 +82,19 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setReadOnly setReadOnly()} - Set transaction to read-only</li>
  *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
- *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a empty, in-memory copy of this transaction</li>
+ *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a empty, in-memory transaction</li>
  *  <li>{@link #isDetached} - Determine whether this transaction is a detached transaction</li>
+ * </ul>
+ *
+ * <p>
+ * <b>Object Meta-Data</b>
+ * <ul>
+ *  <li>{@link #getObjType(ObjId) getObjType()} - Get an object's associated object type</li>
+ *  <li>{@link #getSchema(ObjId) getSchema()} - Get an object's associated schema</li>
+ *  <li>{@link #migrateSchema migrateSchema()} - Migrate an object's schema to match this transaction</li>
+ *  <li>{@link #addSchemaChangeListener addSchemaChangeListener()} - Register a {@link SchemaChangeListener}
+ *      for notifications about object schema migrations</li>
+ *  <li>{@link #removeSchemaChangeListener removeSchemaChangeListener()} - Unregister a {@link SchemaChangeListener}</li>
  * </ul>
  *
  * <p>
@@ -95,25 +107,31 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
- *      about object deletions</li>
+ *      about deleted objects</li>
  *  <li>{@link #removeDeleteListener removeDeleteListener()} - Unregister a {@link DeleteListener}</li>
  * </ul>
  *
  * <p>
- * <b>Object Versioning</b>
+ * <b>Object Access</b>
  * <ul>
- *  <li>{@link #getSchemaVersion(ObjId) getSchemaVersion()} - Inspect an object's schema version</li>
- *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version to match this transaction</li>
- *  <li>{@link #queryVersion queryVersion()} - Locate objects by schema version</li>
- *  <li>{@link #addVersionChangeListener addVersionChangeListener()} - Register a {@link VersionChangeListener}
- *      for notifications about object version changes</li>
- *  <li>{@link #removeVersionChangeListener removeVersionChangeListener()} - Unregister a {@link VersionChangeListener}</li>
+ *  <li>{@link #getAll getAll()} - Get all objects</li>
+ *  <li>{@link #getAll getAll(String)} - Get all objects of a specific object type</li>
+ *  <li>{@link #queryIndex queryIndex()} - Query an index on a {@link SimpleField} (including {@link ComplexField} sub-fields)</li>
+ *  <li>{@link #queryListElementIndex queryListElementIndex()}
+ *      - Query an index on a {@link ListField}'s elements and corresponding list index</li>
+ *  <li>{@link #queryMapValueIndex queryMapValueIndex()}
+ *      - Query an index on a {@link mapField}'s values and corresponding key</li>
+ *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
+ *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
+ *  <li>{@link #queryCompositeIndex3 queryCompositeIndex3()} - Query a composite index on three fields</li>
+ *  <li>{@link #queryCompositeIndex3 queryCompositeIndex4()} - Query a composite index on four fields</li>
+ *  <!-- COMPOSITE-INDEX -->
+ *  <li>{@link #querySchemaIndex querySchemaIndex()} - Get all objects grouped by schema index</li>
  * </ul>
  *
  * <p>
- * <b>Object and Field Access</b>
+ * <b>Field Access</b>
  * <ul>
- *  <li>{@link #getAll getAll(int)} - Get all objects, or all objects of a specific type</li>
  *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a {@link SimpleField} in an object</li>
  *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a {@link SimpleField} in an object</li>
  *  <li>{@link #readCounterField readCounterField()} - Read the value of a {@link CounterField} in an object</li>
@@ -122,8 +140,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readSetField readSetField()} - Access a {@link SetField} in an object as a {@link NavigableSet}</li>
  *  <li>{@link #readListField readListField()} - Access a {@link ListField} in an object as a {@link List}</li>
  *  <li>{@link #readMapField readMapField()} - Access a {@link MapField} in an object as a {@link NavigableMap}</li>
- *  <li>{@link #getKey getKey(ObjId)} - Get the {@link KVDatabase} key corresponding to an object</li>
- *  <li>{@link #getKey getKey(ObjId, int)} - Get the {@link KVDatabase} key corresponding to a field in an object</li>
+ *  <li>{@link #getKey getKey(ObjId)} - Get the {@link KVDatabase} key prefix corresponding to an object</li>
+ *  <li>{@link #getKey getKey(ObjId, String)} - Get the {@link KVDatabase} key corresponding to a field in an object</li>
  * </ul>
  *
  * <p>
@@ -157,23 +175,6 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Index Queries</b>
- * <ul>
- *  <li>{@link #queryIndex queryIndex()} - Query the index associated with a {@link SimpleField}
- *      to identify all values and all objects having those values</li>
- *  <li>{@link #queryListElementIndex queryListElementIndex()} - Query the index associated with a {@link ListField}
- *      element sub-field to identify all list elements, all objects having those elements in the list,
- *      and their corresponding indices</li>
- *  <li>{@link #queryMapValueIndex queryMapValueIndex()} - Query the index associated with a {@link MapField}
- *      value sub-field to identify all map values, all objects having those values in the map, and the corresponding keys</li>
- *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
- *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
- *  <li>{@link #queryCompositeIndex3 queryCompositeIndex3()} - Query a composite index on three fields</li>
- *  <li>{@link #queryCompositeIndex3 queryCompositeIndex4()} - Query a composite index on four fields</li>
- *  <!-- COMPOSITE-INDEX -->
- * </ul>
- *
- * <p>
  * <b>Listener Sets</b>
  * <ul>
  *  <li>{@link #snapshotListeners} - Create an immutable snapshot of all registered listeners</li>
@@ -186,6 +187,9 @@ import org.slf4j.LoggerFactory;
  * {@link NavigableSets#union union}, {@link NavigableSets#difference difference}, and
  * {@link NavigableSets#symmetricDifference symmetric difference} of {@link NavigableSet}s containing the same element type,
  * thereby providing the equivalent of traditional database joins.
+ *
+ * <p>
+ * Instances of this class are thread safe.
  */
 @ThreadSafe
 public class Transaction {
@@ -200,8 +204,8 @@ public class Transaction {
     // Meta-data
     final Database db;
     final KVTransaction kvt;
-    final Schemas schemas;
     final Schema schema;
+    SchemaBundle schemaBundle;
 
     // TX state
     @GuardedBy("this")
@@ -215,7 +219,7 @@ public class Transaction {
 
     // Listeners
     @GuardedBy("this")
-    private Set<VersionChangeListener> versionChangeListeners;
+    private Set<SchemaChangeListener> schemaChangeListeners;
     @GuardedBy("this")
     private Set<CreateListener> createListeners;
     @GuardedBy("this")
@@ -245,24 +249,17 @@ public class Transaction {
 
 // Constructors
 
-    Transaction(Database db, KVTransaction kvt, Schemas schemas) {
-        this(db, kvt, schemas, schemas.versions.lastKey());
-    }
-
-    Transaction(Database db, KVTransaction kvt, Schemas schemas, int versionNumber) {
-        this(db, kvt, schemas, schemas.getVersion(versionNumber));
-    }
-
-    Transaction(Database db, KVTransaction kvt, Schemas schemas, Schema schema) {
+    Transaction(Database db, KVTransaction kvt, Schema schema, SchemaBundle schemaBundle) {
         assert db != null;
         assert kvt != null;
-        assert schemas != null;
         assert schema != null;
-        assert schema == schemas.getVersion(schema.versionNumber);
+        assert schemaBundle != null;
+        assert schema == schemaBundle.getSchema(schema.getSchemaIndex());
+        assert schema == schemaBundle.getSchema(schema.getSchemaId());
         this.db = db;
         this.kvt = kvt;
-        this.schemas = schemas;
         this.schema = schema;
+        this.schemaBundle = schemaBundle;
     }
 
 // Transaction Meta-Data
@@ -272,70 +269,94 @@ public class Transaction {
      *
      * @return associated database
      */
-    public Database getDatabase() {
+    public synchronized Database getDatabase() {
         return this.db;
     }
 
     /**
-     * Get the database schema versions known to this transaction.
-     * This reflects all schema versions currently recorded in the database.
+     * Get the database's schema bundle
      *
-     * @return associated schemas
+     * <p>
+     * This returns all of the schemas currently recorded in the database as seen by this transaction.
+     *
+     * @return database schema bundle
      */
-    public Schemas getSchemas() {
-        return this.schemas;
+    public synchronized SchemaBundle getSchemaBundle() {
+        return this.schemaBundle;
     }
 
     /**
-     * Get the database schema version associated with this transaction.
-     * This is the schema version used for newly created objects, and the target schema version when
-     * {@linkplain #updateSchemaVersion upgrading} objects.
+     * Get the database schema associated with this transaction.
      *
-     * @return associated schema
+     * <p>
+     * This is the target schema for newly created and {@linkplain #migrateSchema migrated} objects.
+     *
+     * @return this transaction's schema
      */
-    public Schema getSchema() {
+    public synchronized Schema getSchema() {
         return this.schema;
-    }
-
-    /**
-     * Delete a schema version that is no longer being used. There must be no objects with the given version
-     * in the database, and {@code version} must not be the version being used by this transaction.
-     *
-     * @param version schema version to remove
-     * @return true if schema version was found and removed, false if schema version does not exist in database
-     * @throws InvalidSchemaException if one or more objects with schema version {@code version} still exist
-     * @throws InvalidSchemaException if {@code version} is equal to this transaction's version
-     * @throws IllegalArgumentException if {@code version} is zero or negative
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    public synchronized boolean deleteSchemaVersion(int version) {
-
-        // Sanity check
-        Preconditions.checkArgument(version > 0, "invalid non-positive schema version");
-        Preconditions.checkArgument(version != this.schema.getVersionNumber(), "version is this transaction's version");
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        if (this.queryVersion().asMap().containsKey(version))
-            throw new InvalidSchemaException("one or more version " + version + " objects still exist in database");
-
-        // Delete schema version
-        if (!this.schemas.deleteVersion(version))
-            return false;
-        this.kvt.remove(Layout.getSchemaKey(version));
-        return true;
     }
 
     /**
      * Get the underlying key/value store transaction.
      *
      * <p>
-     * <b>Warning:</b> making changes to the key/value store directly is not supported. If any changes
-     * are made, all future behavior is undefined.
+     * <b>Warning:</b> making changes directly to the key/value store directly is not supported.
+     * If changes are made, future behavior is undefined.
      *
      * @return the associated key/value transaction
      */
-    public KVTransaction getKVTransaction() {
+    public synchronized KVTransaction getKVTransaction() {
         return this.kvt;
+    }
+
+    /**
+     * Manually add the given schema to the database.
+     *
+     * <p>
+     * If successful, {@linkplain #getSchemaBundle this transaction's schema bundle} will be updated.
+     *
+     * <p>
+     * This method is dangerous and should normally not be used except by low-level tools.
+     *
+     * @return true if the schema was added, false if it was already in the schema bundle
+     * @throws InvalidSchemaException if the given schema is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if the given schema has any explicit storage ID assignments
+     *  that conflict with other schemas already recorded in the database
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code schemaModel} is null
+     */
+    public boolean addSchema(SchemaModel schemaModel) {
+
+        // Sanity check
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
+        if (!schemaModel.isLockedDown()) {
+            schemaModel = schemaModel.clone();
+            schemaModel.lockDown();
+        }
+        schemaModel.validate();
+        final SchemaId schemaId = schemaModel.getSchemaId();
+
+        // Add new schema
+        synchronized (this) {
+
+            // Already added?
+            if (this.schemaBundle.getSchemasBySchemaId().containsKey(schemaId))
+                return false;
+
+            // Integrate the new schema into the existing bundle
+            final SchemaBundle.Encoded newEncoded = this.schemaBundle.withSchemaAdded(schemaModel);
+            final SchemaBundle newSchemaBundle = new SchemaBundle(newEncoded, this.db.getEncodingRegistry());
+
+            // Update key/value store
+            newEncoded.writeTo(this.kvt);
+
+            // Update our bundle
+            this.schemaBundle = newSchemaBundle;
+        }
+
+        // Done
+        return true;
     }
 
 // Transaction Lifecycle
@@ -495,12 +516,14 @@ public class Transaction {
     }
 
     /**
-     * Determine whether this transaction is still valid. If not, all other methods in this class
-     * will throw {@link StaleTransactionException}.
+     * Determine whether this transaction is still open.
+     *
+     * <p>
+     * In other words, other methods in this class won't throw {@link StaleTransactionException}.
      *
      * @return true if this instance is still usable
      */
-    public synchronized boolean isValid() {
+    public synchronized boolean isOpen() {
         return !this.stale;
     }
 
@@ -508,7 +531,7 @@ public class Transaction {
      * Determine whether this transaction is read-only.
      *
      * <p>
-     * This method just invokes {@link KVTransaction#isReadOnly} on the wrapped key/value transaction.
+     * This method just invokes {@link KVTransaction#isReadOnly} on the underlying key/value transaction.
      *
      * @return true if this instance is read-only
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -527,7 +550,7 @@ public class Transaction {
      * Registered {@link Callback}s are still processed normally.
      *
      * <p>
-     * This method just invokes {@link KVTransaction#setReadOnly} on the wrapped key/value transaction.
+     * This method just invokes {@link KVTransaction#setReadOnly} on the underlying key/value transaction.
      *
      * @param readOnly read-only setting
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -548,7 +571,10 @@ public class Transaction {
     }
 
     /**
-     * Mark this transaction for rollback only. A subsequent attempt to {@link #commit} will throw an exception.
+     * Mark this transaction for rollback only.
+     *
+     * <p>
+     * Once a transaction is marked rollback only, any subsequent {@link #commit} attempt will throw an exception.
      */
     public synchronized void setRollbackOnly() {
         this.rollbackOnly = true;
@@ -556,6 +582,9 @@ public class Transaction {
 
     /**
      * Change the timeout for this transaction from its default value (optional operation).
+     *
+     * <p>
+     * This method just invokes {@link KVTransaction#setTimeout} on the underlying key/value transaction.
      *
      * @param timeout transaction timeout in milliseconds, or zero for unlimited
      * @throws UnsupportedOperationException if this transaction does not support timeouts
@@ -570,7 +599,10 @@ public class Transaction {
 
     /**
      * Register a transaction {@link Callback} to be invoked when this transaction completes.
-     * Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>.
+     *
+     * <p>
+     * Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>
+     * (based on comparison via {@link Object#equals}).
      *
      * <p>
      * Note: if you are using Spring for transaction demarcation (via {@link io.permazen.spring.PermazenTransactionManager}),
@@ -605,10 +637,10 @@ public class Transaction {
      * @return empty in-memory detached transaction with compatible schema information
      * @see Database#createDetachedTransaction Database.createDetachedTransaction()
      */
-    public DetachedTransaction createDetachedTransaction() {
+    public synchronized DetachedTransaction createDetachedTransaction() {
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
         Layout.copyMetaData(this.kvt, kvstore);
-        return new DetachedTransaction(this.db, kvstore, this.schemas, this.schema);
+        return new DetachedTransaction(this.db, kvstore, this.schema, this.schemaBundle);
     }
 
     /**
@@ -624,17 +656,20 @@ public class Transaction {
      * Apply weaker transaction consistency while performing the given action, if supported.
      *
      * <p>
-     * Some key/value implementations support reads with weaker consistency guarantees. These reads generate fewer
-     * transaction conflicts but return possibly out-of-date information. Depending on the implementation, when operating
-     * in this mode writes may not be supported and may generate a {@link IllegalStateException} or just be ignored.
+     * Some key/value implementations support reads with weaker consistency guarantees, where reads generate fewer
+     * transaction conflicts in exchange for returning possibly out-of-date information.
+     *
+     * <p>
+     * Depending on the key/value implementation, in this mode writes may not be supported; instead, they would
+     * generate a {@link IllegalStateException} or just be ignored.
      *
      * <p>
      * The weaker consistency is only applied for the current thread, and it ends when this method returns.
      *
      * <p>
      * <b>This method is for experts only</b>; inappropriate use can result in a corrupted database.
-     * You should not make any changes to the database after this method returns based on any information
-     * read by the {@code action}.
+     * In general, after this method returns you should not make any changes to the database that are
+     * based on any information read by the {@code action}.
      *
      * @param action the action to perform
      * @throws IllegalArgumentException if {@code action} is null
@@ -646,41 +681,45 @@ public class Transaction {
 // Object Lifecycle
 
     /**
-     * Create a new object with the given object ID, if it doesn't already exist. If it does exist, nothing happens.
+     * Create a new object with the given object ID, if it doesn't already exist.
+     *
+     * <p>
+     * If the object already exists, nothing happens.
      *
      * <p>
      * If the object doesn't already exist, all fields are set to their default values and the object's
-     * schema version is set to {@linkplain #getSchema() the version associated with this transaction}.
+     * schema is set to the {@linkplain #getSchema() schema associated with this transaction}.
      *
      * @param id object ID
      * @return true if the object did not exist and was created, false if the object already existed
-     * @throws UnknownTypeException if {@code id} does not correspond to a known object type in this transaction's schema version
+     * @throws UnknownTypeException if {@code id} does not correspond to an object type in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public boolean create(ObjId id) {
-        return this.create(id, this.schema.versionNumber);
+        return this.create(id, this.schema.getSchemaId());
     }
 
     /**
      * Create a new object with the given object ID, if it doesn't already exist. If it does exist, nothing happens.
      *
      * <p>
-     * If the object doesn't already exist, all fields are set to their default values and the object's
-     * schema version is set to the specified version.
+     * If the object doesn't already exist, the object's schema is set to the specified schema and all fields are set
+     * to their default values.
      *
      * @param id object ID
-     * @param versionNumber schema version number to use for newly created object
+     * @param schemaId the schema to use for the newly created object
      * @return true if the object did not exist and was created, false if the object already existed
-     * @throws UnknownTypeException if {@code id} does not correspond to a known object type in the specified schema version
-     * @throws IllegalArgumentException if {@code id} is null
-     * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
+     * @throws UnknownTypeException if {@code id} does not correspond to a known object type in the specified schema
+     * @throws InvalidSchemaException if {@code schemaId} is invalid
+     * @throws IllegalArgumentException if {@code id} or {@code schemaId} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized boolean create(ObjId id, int versionNumber) {
+    public synchronized boolean create(ObjId id, SchemaId schemaId) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(schemaId != null, "null schemaId");
         if (this.stale)
             throw new StaleTransactionException(this);
 
@@ -688,10 +727,14 @@ public class Transaction {
         if (this.exists(id))
             return false;
 
-        // Initialize object
-        final Schema objSchema = versionNumber == this.schema.versionNumber ? this.schema : this.schemas.getVersion(versionNumber);
+        // Find object type
+        final Schema objSchema = schemaId.equals(this.schema.getSchemaId()) ? this.schema : this.schemaBundle.getSchema(schemaId);
+        if (objSchema == null)
+            throw new InvalidSchemaException(String.format("unknown schema \"%s\"", schemaId));
         final ObjType objType = objSchema.getObjType(id.getStorageId());
-        this.createObjectData(id, versionNumber, objSchema, objType);
+
+        // Initialize object
+        this.createObjectData(id, objSchema, objType);
 
         // Done
         return true;
@@ -702,66 +745,80 @@ public class Transaction {
      *
      * <p>
      * All fields will be set to their default values.
-     * The object's schema version will be set to {@linkplain #getSchema() the version associated with this transaction}.
+     * The object's schema will be set to {@linkplain #getSchema() the associated with this transaction}.
      *
-     * @param storageId object type storage ID
+     * @param typeName object type name
      * @return object id of newly created object
-     * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in this transaction's schema
+     * @throws UnknownTypeException if {@code typeName} does not correspond to a known object type in this transaction's schema
+     * @throws IllegalArgumentException if {@code typeName} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public ObjId create(int storageId) {
-        return this.create(storageId, this.schema.versionNumber);
+    public ObjId create(String typeName) {
+        return this.create(typeName, this.schema.getSchemaId());
     }
 
     /**
-     * Create a new object with a randomly assigned object ID and having the given type and schema version.
+     * Create a new object with a randomly assigned object ID and having the given type and schema.
      *
      * <p>
      * All fields will be set to their default values.
-     * The object's schema version will be set to the specified version.
+     * The object's schema will be set to the specified schema.
      *
-     * @param storageId object type storage ID
-     * @param versionNumber schema version number to use for newly created object
+     * @param typeName object type name
+     * @param schemaId ID of the schema to use for the newly created object
      * @return object id of newly created object
-     * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in the specified schema version
-     * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
+     * @throws UnknownTypeException if {@code typeName} does not correspond to a known object type in the specified schema
+     * @throws InvalidSchemaException if {@code schemaId} is invalid
+     * @throws IllegalArgumentException if {@code id} or {@code schemaId} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized ObjId create(int storageId, int versionNumber) {
+    public synchronized ObjId create(String typeName, SchemaId schemaId) {
 
         // Sanity check
+        Preconditions.checkArgument(typeName != null, "null typeName");
+        Preconditions.checkArgument(schemaId != null, "null schemaId");
         if (this.stale)
             throw new StaleTransactionException(this);
-        final Schema objSchema = versionNumber == this.schema.versionNumber ? this.schema : this.schemas.getVersion(versionNumber);
-        final ObjType objType = objSchema.getObjType(storageId);
+
+        // Find object type
+        final Schema objSchema = schemaId.equals(this.schema.getSchemaId()) ? this.schema : this.schemaBundle.getSchema(schemaId);
+        if (objSchema == null)
+            throw new InvalidSchemaException(String.format("unknown schema \"%s\"", schemaId));
+        final ObjType objType = objSchema.getObjType(typeName);
 
         // Generate object ID
-        final ObjId id = this.generateIdValidated(storageId);
+        final ObjId id = this.generateIdValidated(objType.getStorageId());
 
         // Initialize object
-        this.createObjectData(id, versionNumber, objSchema, objType);
+        this.createObjectData(id, objSchema, objType);
 
         // Done
         return id;
     }
 
     /**
-     * Generate a random, unused {@link ObjId} for the given storage ID.
+     * Generate a random, unused {@link ObjId} for the given object type.
      *
-     * @param storageId object type storage ID
+     * @param typeName object type name
      * @return random unassigned object id
-     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
+     * @throws UnknownTypeException if {@code typeName} does not correspond to any known object type
+     * @throws IllegalArgumentException if {@code typeName} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized ObjId generateId(int storageId) {
+    public synchronized ObjId generateId(String typeName) {
 
         // Sanity check
+        Preconditions.checkArgument(typeName != null, "null typeName");
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ObjTypeStorageInfo info = this.schemas.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
+
+        // Get storage ID
+        final Integer storageId = this.schemaBundle.getStorageIdsByTypeName().get(typeName);
+        if (storageId == null)
+            throw new UnknownTypeException(typeName, null);
 
         // Generate ID
-        return this.generateIdValidated(info.storageId);
+        return this.generateIdValidated(storageId);
     }
 
     private /*synchronized*/ ObjId generateIdValidated(int storageId) {
@@ -778,14 +835,15 @@ public class Transaction {
         }
 
         // Give up
-        throw new DatabaseException("could not find a new, unused object ID after "
-          + MAX_GENERATED_KEY_ATTEMPTS + " attempts; is our source of randomness truly random?");
+        throw new DatabaseException(String.format(
+          "could not find a new, unused object ID after %d attempts; is our source of randomness truly random?",
+          MAX_GENERATED_KEY_ATTEMPTS));
     }
 
     /**
      * Initialize key/value pairs for a new object. The object must not already exist.
      */
-    private synchronized void createObjectData(ObjId id, int versionNumber, Schema schema, ObjType objType) {
+    private synchronized void createObjectData(ObjId id, Schema schema, ObjType objType) {
 
         // Sanity check
         if (this.stale)
@@ -794,13 +852,10 @@ public class Transaction {
         assert this.objInfoCache.get(id) == null;
 
         // Write object meta-data and update object info cache
-        ObjInfo.write(this, id, versionNumber, false);
-        if (this.objInfoCache.size() >= MAX_OBJ_INFO_CACHE_ENTRIES)
-            this.objInfoCache.removeOne();
-        this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
+        this.updateObjInfo(id, schema.getSchemaIndex(), false, schema, objType);
 
-        // Write object version index entry
-        this.kvt.put(Layout.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
+        // Write object schema index entry
+        this.kvt.put(Layout.buildSchemaIndexKey(id, schema.getSchemaIndex()), ByteUtil.EMPTY);
 
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
@@ -827,7 +882,7 @@ public class Transaction {
      * Delete an object. Does nothing if object does not exist (e.g., has already been deleted).
      *
      * <p>
-     * This method does <i>not</i> change the object's schema version if it has a different version that this transaction.
+     * This method does <i>not</i> change the object's schema if it is different from this transaction's schema.
      *
      * <p><b>Secondary Deletions</b></p>
      *
@@ -883,7 +938,7 @@ public class Transaction {
 
             // Get object info
             try {
-                info = this.getObjectInfo(id, false);
+                info = this.getObjInfo(id, false);
             } catch (DeletedObjectException e) {                    // possibly due to a cycle of DeleteAction.DELETE references
                 deletables.remove(id);
                 return false;
@@ -893,9 +948,13 @@ public class Transaction {
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
             for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.EXCEPTION).entrySet()) {
-                for (ObjId referrer : entry.getValue()) {
-                    if (!referrer.equals(id))
-                        throw new ReferencedObjectException(this, id, referrer, entry.getKey());
+                final int fieldStorageId = entry.getKey();
+                final NavigableSet<ObjId> referrers = entry.getValue();
+                for (ObjId referrer : referrers) {
+                    if (!referrer.equals(id)) {
+                        final ReferenceField field = this.schemaBundle.getSchemaItem(fieldStorageId, ReferenceField.class);
+                        throw new ReferencedObjectException(this, id, referrer, field.getName());
+                    }
                 }
             }
 
@@ -904,8 +963,7 @@ public class Transaction {
                 break;
 
             // Set "delete notified" flag and update object info cache
-            ObjInfo.write(this, id, info.getVersion(), true);
-            this.objInfoCache.put(id, new ObjInfo(this, id, info.getVersion(), true, info.schema, info.objType));
+            info = this.updateObjInfo(id, info.getSchemaIndex(), true, info.schema, info.objType);
 
             // Issue delete notifications and retry
             if (!this.disableListenerNotifications) {
@@ -932,10 +990,10 @@ public class Transaction {
 
         // Find all UNREFERENCE references and unreference them
         for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.UNREFERENCE).entrySet()) {
-            final int storageId = entry.getKey();
+            final int fieldStorageId = entry.getKey();
             final NavigableSet<ObjId> referrers = entry.getValue();
-            final SimpleFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-            fieldInfo.unreferenceAll(this, id, referrers);
+            final ReferenceField field = this.schemaBundle.getSchemaItem(fieldStorageId, ReferenceField.class);
+            field.getIndex().unreferenceAll(this, id, referrers);
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
@@ -976,8 +1034,8 @@ public class Transaction {
         final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.kvt.removeRange(minKey, maxKey);
 
-        // Delete object schema version entry
-        this.kvt.remove(Layout.buildVersionIndexKey(id, info.getVersion()));
+        // Delete object's schema index entry
+        this.kvt.remove(Layout.buildSchemaIndexKey(id, info.getSchemaIndex()));
 
         // Update ObjInfo cache
         this.objInfoCache.remove(id);
@@ -987,8 +1045,7 @@ public class Transaction {
      * Determine if an object exists.
      *
      * <p>
-     * This method does <i>not</i> change the object's schema version if it exists
-     * and has a different version that this transaction.
+     * This method does <i>not</i> change the object's schema if it exists and is different from this transaction's schema.
      *
      * @param id object ID of the object to find
      * @return true if object was found, false if object was not found, or if {@code id} specifies an unknown object type
@@ -996,7 +1053,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized boolean exists(ObjId id) {
-        return this.getObjectInfoIfExists(id, false) != null;
+        return this.getObjInfoIfExists(id, false) != null;
     }
 
     /**
@@ -1009,20 +1066,19 @@ public class Transaction {
      * <p>
      * Only the object itself is copied; any other objects it references are not copied. If the target object does not exist
      * in {@code dest}, it will be created first (and {@link CreateListener}s notified); otherwise, first the target object's
-     * schema version will be upgraded if necessary to match {@code source} (and {@link VersionChangeListener}s notified).
+     * schema will be migrated if necessary to match {@code source} (and {@link SchemaChangeListener}s notified).
      * Finally, as fields are copied, non-trivial changes to the target object's fields generate change listener notifications.
      *
      * <p>
-     * If {@code updateVersion} is true, the {@code source} object is first upgraded to
-     * {@linkplain #getSchema() the schema version associated with this transaction}.
-     * In any case, the schema version associated with {@code source}, when copied, must be identical
-     * in this transaction and {@code dest}.
+     * If {@code migrateSchema} is true, the {@code source} object is first migrated to
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary.
+     * In any case, {@code source}'s schema must also already exist in {@code dest}.
      *
      * <p><b>Disabling Notifications</b></p>
      *
      * <p>
      * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
-     * and field change listeners as objects are created and modified in {@code dest}. {@link VersionChangeListener}s
+     * and field change listeners as objects are created and modified in {@code dest}. {@link SchemaChangeListener}s
      * are always notified.
      *
      * <p><b>Deleted Assignments Handling</b></p>
@@ -1034,53 +1090,53 @@ public class Transaction {
      * and there are cycles in the graph of references between objects.
      *
      * <p>
-     * If {@code deletedAssignments} is non-null, then instead of triggering an exception, illegal references to deleted objects
-     * are collected in {@code deletedAssignments}, which maps each deleted object to (some) referring field in the copied
-     * object. This lets the caller to decide what to do about them.
+     * To handle this situation, if {@code deletedAssignments} is non-null, then instead of triggering an exception,
+     * illegal references to deleted objects are collected in {@code deletedAssignments}, which maps each deleted object
+     * to (some) referring field in the copied object. This lets the caller to decide what to do about them.
      *
      * <p><b>Object ID Remapping</b></p>
      *
      * <p>
      * The optional {@code objectIdMap} parameter specifies how object ID's should be remapped as fields are copied into
      * {@code dest}. This remapping applies to all {@linkplain ReferenceField reference fields}, and also applies to
-     * {@code source} itself, i.e., the target object ID may be different from {@code source}.
+     * {@code source} itself, i.e., the target {@link ObjId} will be different from {@code source}'s {@link ObjId} if remapped.
      *
      * <p><b>Return Value</b></p>
      *
      * <p>
      * If {@code dest} is this instance, and the {@code source} is not remapped (see below), no fields are changed and false is
-     * returned; however, a schema update may still occur (if {@code updateVersion} is true), and deleted assignment checks are
-     * applied.
+     * returned; however, a schema migration may still occur (if {@code migrateSchema} is true), and deleted assignment checks
+     * are applied.
      *
      * <p><b>Deadlocks</b></p>
      *
      * <p>
-     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
-     * deadlock could result.
+     * If two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock can result.
      *
      * @param source object ID of the source object in this transaction
      * @param dest destination for the copy of {@code source} (possibly this transaction)
-     * @param updateVersion true to automatically update {@code source}'s schema version prior to the copy, false to not change it
-     * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners
-     * @param deletedAssignments if not null, collect assignments to deleted objects here instead of throwing
-     *  {@link DeletedObjectException}s, where the map key is the deleted object and the map value is some referring field
+     * @param migrateSchema whether to automatically migrate {@code source}'s schema prior to the copy
+     * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners in {@code dest}
+     * @param deletedAssignments if not null, where to collect assignments to deleted objects instead of throwing
+     *  {@link DeletedObjectException}s; the map key is the deleted object and the map value is some referring field
      * @param objectIdMap if not null, a remapping of object ID's in this transaction to object ID's in {@code dest}
      * @return false if the target object already existed in {@code dest}, true if it was newly created
      * @throws DeletedObjectException if no object with ID equal to {@code source} exists in this transaction
      * @throws DeletedObjectException if {@code deletedAssignments} is null, and a non-null reference field in {@code source}
      *  that disallows deleted assignments contains a reference to an object that does not exist in {@code dest}
-     * @throws UnknownTypeException if {@code source} or an ID in {@code objectIdMap} specifies an unknown object type
-     * @throws IllegalArgumentException if {@code objectIdMap} maps an object ID to null
+     * @throws UnknownTypeException if {@code source} or an {@link ObjId} in {@code objectIdMap} specifies an unknown object type
+     * @throws IllegalArgumentException if {@code objectIdMap} maps an {@link ObjId} to null
      * @throws IllegalArgumentException if {@code objectIdMap} maps {@code source} to a different object type
      * @throws IllegalArgumentException if {@code objectIdMap} maps the value of a reference field to an incompatible object type
      * @throws IllegalArgumentException if any parameter is null
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
-     *  this transaction and {@code dest}
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws SchemaMismatchException if {@code source}'s schema does not exist in {@code dest}
+     * @throws SchemaMismatchException if the object's ID in {@code dest} does not match the assigned storage ID for its type
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      */
-    public synchronized boolean copy(ObjId source, final Transaction dest, final boolean updateVersion,
+    public synchronized boolean copy(ObjId source, final Transaction dest, final boolean migrateSchema,
       final boolean notifyListeners, final ObjIdMap<ReferenceField> deletedAssignments, final ObjIdMap<ObjId> objectIdMap) {
 
         // Sanity check
@@ -1090,7 +1146,7 @@ public class Transaction {
             throw new StaleTransactionException(this);
 
         // Get source object info
-        final ObjInfo srcInfo = this.getObjectInfo(source, updateVersion);
+        final ObjInfo srcInfo = this.getObjInfo(source, migrateSchema);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
@@ -1108,7 +1164,7 @@ public class Transaction {
                 final boolean previousDisableListenerNotifications = dest.disableListenerNotifications;
                 dest.disableListenerNotifications = !notifyListeners;
                 try {
-                    return Transaction.doCopyFields(srcInfo, Transaction.this, dest, updateVersion);
+                    return Transaction.doCopyFields(srcInfo, Transaction.this, dest, migrateSchema);
                 } finally {
                     dest.copyIdMap = previousCopyIdMap;
                     dest.deletedAssignments = previousCopyDeletedAssignments;
@@ -1119,70 +1175,69 @@ public class Transaction {
     }
 
     // This method assumes both transactions are locked
-    private static boolean doCopyFields(ObjInfo srcInfo, Transaction srcTx, Transaction dstTx, boolean updateVersion) {
+    private static boolean doCopyFields(ObjInfo srcInfo, Transaction srcTx, Transaction dstTx, boolean migrateSchema) {
 
         // Sanity check
         assert Thread.holdsLock(srcTx);
         assert Thread.holdsLock(dstTx);
 
-        // Get destination object ID and verify it is sensible
-        final ObjId srcId = srcInfo.getId();
-        final ObjId dstId = dstTx.copyIdMap != null && dstTx.copyIdMap.containsKey(srcId) ? dstTx.copyIdMap.get(srcId) : srcId;
-        if (dstId == null)
-            throw new IllegalArgumentException("can't copy " + srcId + " because " + srcId + " is remapped to null");
-        final int typeStorageId = srcId.getStorageId();
-        if (dstId.getStorageId() != typeStorageId) {
-            throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
-              + " due to non-equal storage ID's (" + typeStorageId + " != " + dstId.getStorageId() + ")");
-        }
-
         // Upgrade source object if necessary
-        if (updateVersion && srcInfo.getVersion() != srcTx.schema.versionNumber) {
-            srcTx.changeVersion(srcInfo, srcTx.schema);
+        final ObjId srcId = srcInfo.getId();
+        if (migrateSchema && srcInfo.getSchemaIndex() != srcTx.schema.getSchemaIndex()) {
+            srcTx.migrateSchema(srcInfo, srcTx.schema);
             srcInfo = srcTx.loadIntoCache(srcId);
         }
-        final Schema srcSchema = srcInfo.getSchema();
 
-        // Find and verify the expected schema version in the destination transaction
-        final int objectVersion = srcSchema.versionNumber;
+        // Get source info
+        final Schema srcSchema = srcInfo.getSchema();
+        final SchemaId schemaId = srcSchema.getSchemaId();
+        final ObjType srcType = srcInfo.getObjType();
+        final String typeName = srcType.getName();
+
+        // Find the same schema in the destination transaction
         final Schema dstSchema;
         try {
-            dstSchema = dstTx.schemas.getVersion(objectVersion);
+            dstSchema = dstTx.schemaBundle.getSchema(schemaId);
         } catch (IllegalArgumentException e) {
-            throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
+            throw new SchemaMismatchException(schemaId,
+              String.format("destination transaction has no schema \"%s\"", schemaId));
         }
-        if (!Arrays.equals(srcSchema.encodedXML, dstSchema.encodedXML)
-          && !srcSchema.schemaModel.isCompatibleWith(dstSchema.schemaModel)) {
-            throw new SchemaMismatchException("destination transaction schema version "
-              + objectVersion + " does not match source schema version " + objectVersion + "\n"
-              + dstSchema.schemaModel.differencesFrom(srcSchema.schemaModel));
+        final ObjType dstType = dstSchema.getObjType(typeName);
+
+        // Get destination object ID and verify it has the right storage ID
+        final ObjId dstId = dstTx.copyIdMap != null && dstTx.copyIdMap.containsKey(srcId) ? dstTx.copyIdMap.get(srcId) : srcId;
+        if (dstId == null)
+            throw new IllegalArgumentException(String.format("can't copy %s because %s is remapped to null", srcId, srcId));
+        if (dstId.getStorageId() != dstType.getStorageId()) {
+            throw new SchemaMismatchException(schemaId, String.format(
+              "can't copy %s to %s because %s has storage ID %d but the storage ID for type \"%s\" in the"
+              + " destination transaction is %d", srcId, dstId, dstId, dstId.getStorageId(), typeName, dstType.getStorageId()));
         }
 
         // Determine if destination object already exists, and if so get info about it
-        ObjInfo dstInfo = dstTx.getObjectInfoIfExists(dstId, false);
+        ObjInfo dstInfo = dstTx.getObjInfoIfExists(dstId, false);
         final boolean existed = dstInfo != null;
 
-        // If destination object already exists and has upgrade listeners, go through the normal upgrade process first
-        if (existed && dstInfo.getVersion() != objectVersion
-          && dstTx.versionChangeListeners != null && !dstTx.versionChangeListeners.isEmpty()) {
-            dstTx.changeVersion(dstInfo, dstSchema);
+        // If destination object already exists and needs schema migration, go through the normal migration process first
+        if (existed && !dstInfo.getSchemaId().equals(schemaId)) {
+            dstTx.migrateSchema(dstInfo, dstSchema);
             dstInfo = dstTx.loadIntoCache(dstId);
         }
 
-        // Do field-by-field copy if there are change listeners or remapping, otherwise do fast copy of key/value pairs directly
-        final ObjType srcType = srcSchema.getObjType(typeStorageId);
-        final ObjType dstType = dstSchema.getObjType(typeStorageId);
-        if (dstTx.copyIdMap != null || (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType))) {
+        // Do field-by-field copy if we have to for various reasons, otherwise do fast direct copy of key/value pairs
+        if (dstTx.copyIdMap != null
+          || srcSchema.getSchemaIndex() != dstSchema.getSchemaIndex()
+          || !dstTx.schemaBundle.matches(srcTx.schemaBundle)
+          || (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType))) {
 
             // Create destination object if it does not exist
             if (!existed)
-                dstTx.createObjectData(dstId, objectVersion, dstSchema, dstType);
+                dstTx.createObjectData(dstId, dstSchema, dstType);
 
             // Copy fields
             for (Field<?> field : srcType.fields.values())
                 field.copy(srcId, dstId, srcTx, dstTx, dstTx.copyIdMap);
         } else {
-            assert srcType.schema.versionNumber == dstType.schema.versionNumber;
 
             // Check for any deleted reference assignments
             for (ReferenceField field : dstType.referenceFieldsAndSubFields.values())
@@ -1195,9 +1250,6 @@ public class Transaction {
             // Nuke previous destination object, if any
             if (dstInfo != null)
                 dstTx.deleteObjectData(dstInfo);
-
-            // Add schema version index entry
-            dstTx.kvt.put(Layout.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
 
             // Copy object meta-data and all field content in one key range sweep
             final KeyRange srcKeyRange = KeyRange.forPrefix(srcId.getBytes());
@@ -1216,9 +1268,11 @@ public class Transaction {
                 }
             }
 
-            // Create object's simple field index entries
-            dstType.indexedSimpleFields
-              .forEach(field -> {
+            // Add schema index entry
+            dstTx.kvt.put(Layout.buildSchemaIndexKey(dstId, dstSchema.getSchemaIndex()), ByteUtil.EMPTY);
+
+            // Create object's simple (non-subfield) field index entries
+            dstType.indexedSimpleFields.forEach(field -> {
                 final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
                 final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
                 dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
@@ -1230,9 +1284,10 @@ public class Transaction {
 
             // Create object's complex field index entries
             for (ComplexField<?> field : dstType.complexFields.values()) {
-                Streams.iterate(field.getSubFields().stream()
-                    .filter(subField -> subField.indexed),
-                  subField -> field.addIndexEntries(dstTx, dstId, subField));
+                for (SimpleField<?> subField : field.getSubFields()) {
+                    if (subField.indexed)
+                        field.addIndexEntries(dstTx, dstId, subField);
+                }
             }
         }
 
@@ -1316,48 +1371,59 @@ public class Transaction {
         this.deleteListeners.remove(listener);
     }
 
-// Object Versioning
+// Object Schemas
 
     /**
-     * Read the current schema version of the given object. Does not change the object's version.
+     * Get the given object's {@link ObjType}.
      *
      * @param id object id
-     * @return object's current schema version
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @return object's object type
+     * @throws DeletedObjectException if no such object exists
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized int getSchemaVersion(ObjId id) {
+    public synchronized ObjType getObjType(ObjId id) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
 
-        // Get object version
-        return this.getObjectInfo(id, false).getVersion();
+        // Get object schema
+        return this.getObjInfo(id, false).getObjType();
     }
 
     /**
-     * Change the schema version of the specified object, if necessary, so that its version matches
-     * {@linkplain #getSchema() the schema version associated with this transaction}.
+     * Get the object type assigned to the given storage ID.
+     *
+     * @param storageId object type storage ID
+     * @return the corresponding object type name
+     * @throws UnknownTypeException if {@code storageId} specifies an unknown object type
+     */
+    public synchronized String getTypeName(int storageId) {
+        final String typeName = this.schemaBundle.getTypeNamesByStorageId().get(storageId);
+        if (typeName == null)
+            throw new UnknownTypeException("storage ID " + storageId, null);
+        return typeName;
+    }
+
+    /**
+     * Migrate the specified object, if necessary, to {@linkplain #getSchema() the schema associated with this transaction}.
      *
      * <p>
-     * If a schema change occurs, any registered {@link VersionChangeListener}s will be notified prior
+     * If a schema change occurs, any registered {@link SchemaChangeListener}s will be notified prior
      * to this method returning.
      *
-     * @param id object ID of the object to delete
-     * @return true if the object schema version was changed, otherwise false
+     * @param id object ID of the object to migrate
+     * @return true if the object's schema was migrated, false if it's schema already matched
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws TypeNotInSchemaVersionException if the object version could not be updated because the object's type
-     *   does not exist in the schema version associated with this transaction
-     * @see #getSchemaVersion(ObjId)
+     * @throws TypeNotInSchemaException if the object's type is not defined in this transaction's schema
+     * @see #getSchema(ObjId)
      */
-    public synchronized boolean updateSchemaVersion(ObjId id) {
+    public synchronized boolean migrateSchema(ObjId id) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
@@ -1365,86 +1431,80 @@ public class Transaction {
             throw new StaleTransactionException(this);
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, false);
-        if (info.getVersion() == this.schema.versionNumber)
+        final ObjInfo info = this.getObjInfo(id, false);
+        if (info.getSchemaIndex() == this.schema.getSchemaIndex())
             return false;
 
-        // Update schema version
-        this.mutateAndNotify(() -> this.changeVersion(info, this.schema));
+        // Migrate schema
+        this.mutateAndNotify(() -> this.migrateSchema(info, this.schema));
 
         // Done
         return true;
     }
 
     /**
-     * Migrate object's schema to the version specified and notify listeners. This assumes we are locked.
+     * Migrate object's schema to the specified schema and notify listeners. This assumes we are locked.
      *
      * @param info original object info
-     * @param targetVersion version to change to
+     * @param newSchema schema to change to
+     * @throws TypeNotInSchemaException if {@code newSchema} does not define the object's type
      */
-    private void changeVersion(final ObjInfo info, final Schema targetVersion) {
-
-        // Get version numbers
-        final ObjId id = info.getId();
-        final int oldVersion = info.getVersion();
-        final int newVersion = targetVersion.versionNumber;
+    private synchronized void migrateSchema(ObjInfo info, final Schema newSchema) {
 
         // Sanity check
         assert Thread.holdsLock(this);
-        assert this.schemas.getVersion(targetVersion.versionNumber) == targetVersion;
-        Preconditions.checkArgument(newVersion != oldVersion, "object already at version");
+        final ObjId id = info.getId();
+        final Schema oldSchema = info.getSchema();
+        Preconditions.checkArgument(newSchema != oldSchema, "object already migrated");
 
         // Get old and new types
         final ObjType oldType = info.getObjType();
+        final String typeName = oldType.getName();
         final ObjType newType;
         try {
-            newType = targetVersion.getObjType(id.getStorageId());
+            newType = newSchema.getObjType(typeName);
         } catch (UnknownTypeException e) {
-            throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id, newVersion).initCause(e);
+            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, typeName, newSchema).initCause(e);
         }
 
-        // Gather removed fields' values here for user migration if any VersionChangeListeners are registered
-        final TreeMap<Integer, Object> oldValueMap
-          = this.versionChangeListeners != null && !this.versionChangeListeners.isEmpty() ? new TreeMap<>() : null;
+        // Gather removed fields' values here for user migration if any SchemaChangeListeners are registered
+        final NavigableMap<String, Object> oldValueMap
+          = this.schemaChangeListeners != null && !this.schemaChangeListeners.isEmpty() ? new TreeMap<>() : null;
 
     //////// Remove the index entries corresponding to removed composite indexes
 
         // Remove index entries for composite indexes that are going away
-        Streams.iterate(oldType.compositeIndexes.values().stream()
-            .filter(index -> !newType.compositeIndexes.containsKey(index.storageId)),
-          index -> this.kvt.remove(this.buildCompositeIndexEntry(id, index)));
+        oldType.compositeIndexes.forEach((name, oldIndex) -> {
+            final Index newIndex = newType.compositeIndexes.get(name);
+            if (newIndex == null || !newIndex.getSchemaId().equals(oldIndex.getSchemaId()))
+                this.kvt.remove(this.buildCompositeIndexEntry(id, oldIndex));
+        });
 
     //////// Determine Field Compatibility
 
-        // Build a mapping from old field to compatible new field, or null if none
+        // Build a mapping from old field -> compatible new field or null if none
         final HashMap<Field<?>, Field<?>> compatibleFieldMap = new HashMap<>(oldType.fields.size());
-        for (Map.Entry<Integer, Field<?>> entry : oldType.fields.entrySet()) {
-            final Integer storageId = entry.getKey();
-            final Field<?> oldField = entry.getValue();
-            final Field<?> newField = newType.fields.get(storageId);
-            final boolean compatible = newField != null && newField.isUpgradeCompatible(oldField);
+        oldType.fields.forEach((name, oldField) -> {
+            final Field<?> newField = newType.fields.get(name);
+            final boolean compatible = newField != null && newField.getSchemaId().equals(oldField.getSchemaId());
             compatibleFieldMap.put(oldField, compatible ? newField : null);
-        }
+        });
 
-        // Build a list of remaining new fields not compatible with some old field
-        final ArrayList<Field<?>> incompatibleNewFields = new ArrayList<>(newType.fields.size());
-        for (Map.Entry<Integer, Field<?>> entry : newType.fields.entrySet()) {
-            final Integer storageId = entry.getKey();
-            final Field<?> newField = entry.getValue();
-            final Field<?> oldField = oldType.fields.get(storageId);
+        // Build a list of the new fields that are not compatible with some old field
+        final ArrayList<Field<?>> newFieldsToReset = new ArrayList<>(newType.fields.size());
+        newType.fields.forEach((name, newField) -> {
+            final Field<?> oldField = oldType.fields.get(name);
             if (oldField == null || compatibleFieldMap.get(oldField) == null)
-                incompatibleNewFields.add(newField);
-            else
-                assert compatibleFieldMap.get(oldField) == newField;
-        }
+                newFieldsToReset.add(newField);
+        });
 
     //////// Process old fields
 
-        // Iterate over all the fields that existed in the old schema version
+        // Iterate over all the fields that existed in the old schema
         for (Map.Entry<Field<?>, Field<?>> entry : compatibleFieldMap.entrySet()) {
             final Field<?> oldField = entry.getKey();
 
-            // Copy the old field's original value for the version change notification, if any
+            // Grab the old field's original value for the schema change notification, if any
             if (oldValueMap != null) {
                 oldField.visit(new FieldSwitch<Void>() {
 
@@ -1453,7 +1513,7 @@ public class Transaction {
                     public <T> Void caseSimpleField(SimpleField<T> oldField) {
                         final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
-                        oldValueMap.put(oldField.storageId, oldValue != null ?
+                        oldValueMap.put(oldField.name, oldValue != null ?
                           oldField.encoding.read(new ByteReader(oldValue)) : oldField.encoding.getDefaultValueObject());
                         return null;
                     }
@@ -1461,7 +1521,7 @@ public class Transaction {
                     @Override
                     @SuppressWarnings("shadow")
                     public <T> Void caseComplexField(ComplexField<T> oldField) {
-                        oldValueMap.put(oldField.storageId, oldField.getValueReadOnlyCopy(Transaction.this, id));
+                        oldValueMap.put(oldField.name, oldField.getValueReadOnlyCopy(Transaction.this, id));
                         return null;
                     }
 
@@ -1470,7 +1530,7 @@ public class Transaction {
                     public Void caseCounterField(CounterField oldField) {
                         final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
-                        oldValueMap.put(oldField.storageId, oldValue != null ? Transaction.this.kvt.decodeCounter(oldValue) : 0L);
+                        oldValueMap.put(oldField.name, oldValue != null ? Transaction.this.kvt.decodeCounter(oldValue) : 0L);
                         return null;
                     }
                 });
@@ -1493,7 +1553,7 @@ public class Transaction {
 
                                 // Change new field to be incompatible, so it will get reset
                                 entry.setValue(null);
-                                incompatibleNewFields.add(newField);
+                                newFieldsToReset.add(newField);
                             }
                         }
                     }
@@ -1568,11 +1628,9 @@ public class Transaction {
                 @SuppressWarnings("shadow")
                 public Void caseCounterField(CounterField oldField) {
 
-                    // Reset field?
-                    final boolean reset = entry.getValue() == null;
-
                     // Reset field value if needed
-                    if (reset)
+                    final CounterField newField = (CounterField)entry.getValue();
+                    if (newField == null)
                         Transaction.this.kvt.remove(Field.buildKey(id, oldField.storageId));
                     return null;
                 }
@@ -1582,7 +1640,7 @@ public class Transaction {
     //////// For fields that are new or were reset, initialize values and add index entries
 
         // Iterate over the new fields that are truly new or got reset
-        for (Field<?> newField : incompatibleNewFields) {
+        for (Field<?> newField : newFieldsToReset) {
             newField.visit(new FieldSwitch<Void>() {
 
                 @Override
@@ -1612,48 +1670,50 @@ public class Transaction {
     //////// Add composite index entries for newly added composite indexes
 
         // Add index entries for composite indexes that are newly added
-        Streams.iterate(newType.compositeIndexes.values().stream()
-            .filter(index -> !oldType.compositeIndexes.containsKey(index.storageId)),
-          index -> this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY));
+        newType.compositeIndexes.forEach((name, newIndex) -> {
+            final Index oldIndex = oldType.compositeIndexes.get(name);
+            if (oldIndex == null || !oldIndex.getSchemaId().equals(newIndex.getSchemaId()))
+                this.kvt.put(this.buildCompositeIndexEntry(id, newIndex), ByteUtil.EMPTY);
+        });
 
-    //////// Update object version and corresponding index entry
+    //////// Update object schema and corresponding schema index entry
 
-        // Change object version and update object info cache
-        ObjInfo.write(this, id, newVersion, info.isDeleteNotified());
-        this.objInfoCache.put(id, new ObjInfo(this, id, newVersion, info.isDeleteNotified(), targetVersion, newType));
+        // Change object schema and update object info cache
+        final int newSchemaIndex = newSchema.getSchemaIndex();
+        this.updateObjInfo(id, newSchemaIndex, info.isDeleteNotified(), newSchema, newType);
 
-        // Update object version index entry
-        this.kvt.remove(Layout.buildVersionIndexKey(id, oldVersion));
-        this.kvt.put(Layout.buildVersionIndexKey(id, newVersion), ByteUtil.EMPTY);
+        // Update object schema index entry
+        final int oldSchemaIndex = oldSchema.getSchemaIndex();
+        this.kvt.remove(Layout.buildSchemaIndexKey(id, oldSchemaIndex));
+        this.kvt.put(Layout.buildSchemaIndexKey(id, newSchemaIndex), ByteUtil.EMPTY);
 
     //////// Notify listeners
 
-        // Lock down old field values map
-        final NavigableMap<Integer, Object> readOnlyOldValuesMap = oldValueMap != null ?
-          Collections.unmodifiableNavigableMap(oldValueMap) : null;
-
-        // Notify about version update
-        if (this.versionChangeListeners != null) {
-            for (VersionChangeListener listener : this.versionChangeListeners)
-                listener.onVersionChange(this, id, oldVersion, newVersion, readOnlyOldValuesMap);
+        // Lock down old field values map and notify listeners about schema change
+        if (oldValueMap != null) {
+            final SchemaId oldSchemaId = oldSchema.getSchemaId();
+            final SchemaId newSchemaId = newSchema.getSchemaId();
+            final NavigableMap<String, Object> immutableOldValueMap = Collections.unmodifiableNavigableMap(oldValueMap);
+            for (SchemaChangeListener listener : this.schemaChangeListeners)
+                listener.onSchemaChange(this, id, oldSchemaId, newSchemaId, immutableOldValueMap);
         }
     }
 
     /**
      * Find storage ID's which are no longer allowed by a reference field when upgrading to the specified
-     * schema version and therefore need to be scrubbed during the upgrade.
+     * schema and therefore need to be scrubbed during the upgrade.
      *
      * @return set of storage ID's that are no longer allowed and should be audited on upgrade
      */
     private SortedSet<Integer> findRemovedTypes(ReferenceField oldField, ReferenceField newField) {
 
         // Check allowed storage IDs
-        final SortedSet<Integer> newObjectTypes = newField.getObjectTypes();
+        final SortedSet<Integer> newObjectTypes = newField.getEncoding().getObjectTypeStorageIds();
         if (newObjectTypes == null)
-            return Collections.emptySortedSet();                        // new field can refer to any type in any schema version
-        SortedSet<Integer> oldObjectTypes = oldField.getObjectTypes();
+            return Collections.emptySortedSet();                            // new field can refer to any type in any schema
+        SortedSet<Integer> oldObjectTypes = oldField.getEncoding().getObjectTypeStorageIds();
         if (oldObjectTypes == null)
-            oldObjectTypes = this.schemas.objTypeStorageIds;            // old field can refer to any type in any schema version
+            oldObjectTypes = this.getSchemaBundle().getObjTypeStorageIds(); // old field can refer to any type in any schema
 
         // Identify storage IDs which are were allowed by old field but are no longer allowed by new field
         final TreeSet<Integer> removedObjectTypes = new TreeSet<>(oldObjectTypes);
@@ -1662,53 +1722,58 @@ public class Transaction {
     }
 
     /**
-     * Query objects by schema version.
+     * Query objects by schema.
      *
-     * @return read-only, real-time view of all database objects indexed by schema version
+     * <p>
+     * This returns all objects in the database grouped by {@link Schema}. The keys in the returned
+     * map are {@linkplain Schema#getSchemaIndex schema indexes}; use {@link #getSchemaBundle} and then
+     * {@link SchemaBundle#getSchemasBySchemaIndex} to access the corresponding {@link Schema}s.
+     *
+     * @return read-only, real-time view of all database objects grouped by schema
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex<Integer, ObjId> queryVersion() {
+    public synchronized CoreIndex<Integer, ObjId> querySchemaIndex() {
         if (this.stale)
             throw new StaleTransactionException(this);
-        return Layout.getVersionIndex(this.kvt);
+        return Layout.getSchemaIndex(this.kvt);
     }
 
     /**
-     * Add an {@link VersionChangeListener} to this transaction.
+     * Add an {@link SchemaChangeListener} to this transaction.
      *
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addVersionChangeListener(VersionChangeListener listener) {
+    public synchronized void addSchemaChangeListener(SchemaChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
         if (this.listenerSetInstalled)
             throw new UnsupportedOperationException("ListenerSet installed");
-        if (this.versionChangeListeners == null)
-            this.versionChangeListeners = new HashSet<>(1);
-        this.versionChangeListeners.add(listener);
+        if (this.schemaChangeListeners == null)
+            this.schemaChangeListeners = new HashSet<>(1);
+        this.schemaChangeListeners.add(listener);
     }
 
     /**
-     * Remove an {@link VersionChangeListener} from this transaction.
+     * Remove an {@link SchemaChangeListener} from this transaction.
      *
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeVersionChangeListener(VersionChangeListener listener) {
+    public synchronized void removeSchemaChangeListener(SchemaChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(listener != null, "null listener");
         if (this.listenerSetInstalled)
             throw new UnsupportedOperationException("ListenerSet installed");
-        if (this.versionChangeListeners == null)
+        if (this.schemaChangeListeners == null)
             return;
-        this.versionChangeListeners.remove(listener);
+        this.schemaChangeListeners.remove(listener);
     }
 
 // Object and Field Access
@@ -1717,8 +1782,7 @@ public class Transaction {
      * Get all objects in the database.
      *
      * <p>
-     * The returned set includes objects from all schema versions. Use {@link #queryVersion} to
-     * find objects with a specific schema version.
+     * The returned set includes objects from all schemas. Use {@link #querySchemaIndex} to access objects with a specific schema.
      *
      * <p>
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
@@ -1739,62 +1803,69 @@ public class Transaction {
     }
 
     /**
-     * Get all objects whose object type has the specified storage ID.
+     * Get all objects whose object type has the specified name.
      *
      * <p>
+     * The returned set includes objects of the specified type from all schemas in the database.
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
      * Deleting an element results in {@linkplain #delete deleting} the corresponding object.
      *
-     * @param storageId object type storage ID
-     * @return a live view of all database objects having the specified storage ID
-     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
+     * @param typeName object type name
+     * @return a live view of all database objects having the specified type
+     * @throws UnknownTypeException if {@code typeName} does not correspond to any known object type
+     * @throws IllegalArgumentException if {@code typeName} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll()
      */
-    public synchronized NavigableSet<ObjId> getAll(int storageId) {
+    public synchronized NavigableSet<ObjId> getAll(String typeName) {
 
         // Sanity check
+        Preconditions.checkArgument(typeName != null, "null typeName");
         if (this.stale)
             throw new StaleTransactionException(this);
-        this.schemas.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
+
+        // Get storage ID
+        final Integer storageId = this.schemaBundle.getStorageIdsByTypeName().get(typeName);
+        if (storageId == null)
+            throw new UnknownTypeException(typeName, null);
 
         // Return objects
         return new ObjTypeSet(this, storageId);
     }
 
     /**
-     * Read the value of a {@link SimpleField} from an object, optionally updating the object's schema version.
+     * Read the value of a {@link SimpleField} from an object, optionally migrating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
-     * reading the field.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary, prior to reading the field.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link SimpleField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param name field name
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code name} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      */
-    public synchronized Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
+    public synchronized Object readSimpleField(ObjId id, String name, boolean migrateSchema) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        this.checkStaleFieldAccess(id, storageId);
+        Preconditions.checkArgument(name != null, "null name");
+        this.checkStaleFieldAccess(id, name);
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Find field
-        final SimpleField<?> field = info.getObjType().simpleFields.get(storageId);
+        final SimpleField<?> field = info.getObjType().simpleFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
+            throw new UnknownFieldException(info.getObjType(), name, "simple field");
 
         // Read field
         final byte[] key = field.buildKey(id);
@@ -1805,39 +1876,39 @@ public class Transaction {
     }
 
     /**
-     * Change the value of a {@link SimpleField} in an object, optionally updating the object's schema version.
+     * Change the value of a {@link SimpleField} in an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
-     * writing the field.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary, prior to writing the field.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link SimpleField}
+     * @param name field name
      * @param value new value for the field
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public void writeSimpleField(final ObjId id, final int storageId, final Object value, final boolean updateVersion) {
-        this.mutateAndNotify(id, () -> this.doWriteSimpleField(id, storageId, value, updateVersion));
+    public void writeSimpleField(final ObjId id, final String name, final Object value, final boolean migrateSchema) {
+        this.mutateAndNotify(id, () -> this.doWriteSimpleField(id, name, value, migrateSchema));
     }
 
-    private synchronized void doWriteSimpleField(ObjId id, int storageId, final Object newObj, boolean updateVersion) {
+    private synchronized void doWriteSimpleField(ObjId id, String name, final Object newObj, boolean migrateSchema) {
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        Preconditions.checkArgument(name != null, "null name");
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Find field
-        final SimpleField<?> field = info.getObjType().simpleFields.get(storageId);
+        final SimpleField<?> field = info.getObjType().simpleFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
+            throw new UnknownFieldException(info.getObjType(), name, "simple field");
 
         // Check for deleted assignment
         if (field instanceof ReferenceField)
@@ -1850,9 +1921,9 @@ public class Transaction {
         // Before setting the new value, read the old value if one of the following is true:
         //  - The field is being monitored -> we need to filter out "changes" that don't actually change anything
         //  - The field is indexed -> we need the old value so we can remove the old index entry
-        // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
-        if (field.indexed || field.compositeIndexMap != null
+        if (field.indexed
+          || field.compositeIndexMap != null
           || (!this.disableListenerNotifications && this.hasFieldMonitor(id, field.storageId))) {
 
             // Get old value
@@ -1937,6 +2008,7 @@ public class Transaction {
      * @throws DeletedObjectException if assignment is invalid
      */
     void checkDeletedAssignment(ObjId id, ReferenceField field, ObjId targetId) {
+        assert Thread.holdsLock(this);
 
         // Allow null
         if (targetId == null)
@@ -1961,8 +2033,9 @@ public class Transaction {
         }
 
         // Not allowed
-        throw new DeletedObjectException(targetId, "illegal assignment to " + field + " in " + this.getObjDescription(id)
-          + " of reference to deleted object " + this.getObjDescription(targetId));
+        throw new DeletedObjectException(targetId, String.format(
+          "illegal assignment to %s of reference to deleted %s",
+          this.getFieldDescription(id, field.name), this.getObjDescription(targetId)));
     }
 
     /**
@@ -1976,8 +2049,9 @@ public class Transaction {
     private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
         if (value == null)
             value = field.encoding.getDefaultValue();
-        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(field.storageId) + value.length + ObjId.NUM_BYTES);
-        UnsignedIntEncoder.write(writer, field.storageId);
+        final int storageId = field.getIndex().storageId;
+        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(storageId) + value.length + ObjId.NUM_BYTES);
+        UnsignedIntEncoder.write(writer, storageId);
         writer.write(value);
         id.writeTo(writer);
         return writer.getBytes();
@@ -1991,72 +2065,78 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public String getTypeDescription(ObjId id) {
-        Preconditions.checkArgument(id != null, "null id");
         final int storageId = id.getStorageId();
-        final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
-        return type != null ? "type \"" + type.getName() + "\"" : "type #" + storageId;
+        final String typeName = this.getSchemaBundle().getTypeName(storageId);
+        return typeName != null ? "type \"" + typeName + "\"" : "unknown type #" + storageId;
     }
 
-    String getObjDescription(ObjId id) {
+    /**
+     * Get a description of the given object.
+     *
+     * @param id object ID
+     * @return textual description of the specified object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public String getObjDescription(ObjId id) {
         Preconditions.checkArgument(id != null, "null id");
         return "object " + id + " (" + this.getTypeDescription(id) + ")";
     }
 
-    String getFieldDescription(ObjId id, int storageId) {
+    /**
+     * Get a description of the given object field.
+     *
+     * @param id object ID
+     * @param name field's name
+     * @return textual description of the specified object field
+     * @throws IllegalArgumentException if {@code id} or {@code name} is null
+     */
+    public String getFieldDescription(ObjId id, String name) {
         Preconditions.checkArgument(id != null, "null id");
-        final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
-        if (type == null)
-            return "field #" + storageId;
-        final Field<?> field;
-        try {
-            field = type.getField(storageId, true);
-        } catch (UnknownFieldException e) {
-            return "field #" + storageId;
-        }
-        return "field \"" + field.getName() + "\"";
+        Preconditions.checkArgument(name != null, "null name");
+        return "field \"" + name + "\" in " + this.getObjDescription(id);
     }
 
-    private void checkStaleFieldAccess(ObjId id, int storageId) {
+    private void checkStaleFieldAccess(ObjId id, String name) {
         assert Thread.holdsLock(this);
         if (this.stale) {
-            throw new StaleTransactionException(this, "can't access " + this.getFieldDescription(id, storageId)
-              + " of " + this.getObjDescription(id) + ": " + StaleTransactionException.DEFAULT_MESSAGE);
+            throw new StaleTransactionException(this, String.format(
+              "can't access %s: %s", this.getFieldDescription(id, name), StaleTransactionException.DEFAULT_MESSAGE));
         }
     }
 
     /**
-     * Read the value of a {@link CounterField} from an object, optionally updating the object's schema version.
+     * Read the value of a {@link CounterField} from an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
-     * reading the field.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary, prior to reading the field.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link CounterField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param name field name
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized long readCounterField(ObjId id, int storageId, boolean updateVersion) {
+    public synchronized long readCounterField(ObjId id, String name, boolean migrateSchema) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        this.checkStaleFieldAccess(id, storageId);
+        Preconditions.checkArgument(name != null, "null name");
+        this.checkStaleFieldAccess(id, name);
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Find field
-        final CounterField field = info.getObjType().counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), name, "counter field");
 
         // Read field
         final byte[] key = field.buildKey(id);
@@ -2067,38 +2147,38 @@ public class Transaction {
     }
 
     /**
-     * Set the value of a {@link CounterField} in an object, optionally updating the object's schema version.
+     * Set the value of a {@link CounterField} in an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
-     * writing the field.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary, prior to writing the field.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link CounterField}
+     * @param name field name
      * @param value new counter value
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void writeCounterField(final ObjId id, final int storageId, final long value, final boolean updateVersion) {
+    public synchronized void writeCounterField(final ObjId id, final String name, final long value, final boolean migrateSchema) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        this.checkStaleFieldAccess(id, storageId);
+        Preconditions.checkArgument(name != null, "null name");
+        this.checkStaleFieldAccess(id, name);
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Find field
-        final CounterField field = info.getObjType().counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), name, "counter field");
 
         // Set value
         final byte[] key = field.buildKey(id);
@@ -2106,134 +2186,140 @@ public class Transaction {
     }
 
     /**
-     * Adjust the value of a {@link CounterField} in an object by some amount, optionally updating the object's schema version.
+     * Adjust the value of a {@link CounterField} in an object by some amount, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
-     * writing the field.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary, prior to adjusting the field.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link CounterField}
+     * @param name field name
      * @param offset offset value to add to counter value
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void adjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
+    public synchronized void adjustCounterField(ObjId id, String name, long offset, boolean migrateSchema) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        this.checkStaleFieldAccess(id, storageId);
+        Preconditions.checkArgument(name != null, "null name");
+        this.checkStaleFieldAccess(id, name);
 
         // Optimize away non-change
         if (offset == 0)
             return;
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Find field
-        final CounterField field = info.getObjType().counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), name, "counter field");
 
         // Adjust counter value
         this.kvt.adjustCounter(field.buildKey(id), offset);
     }
 
     /**
-     * Access a {@link SetField} associated with an object, optionally updating the object's schema version.
+     * Access a {@link SetField} associated with an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link SetField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param name field name
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @return set field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
-        return this.readComplexField(id, storageId, updateVersion, SetField.class, NavigableSet.class);
+    public NavigableSet<?> readSetField(ObjId id, String name, boolean migrateSchema) {
+        return this.readComplexField(id, name, migrateSchema, SetField.class, NavigableSet.class);
     }
 
     /**
-     * Access a {@link ListField} associated with an object, optionally updating the object's schema version.
+     * Access a {@link ListField} associated with an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link ListField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param name field name
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @return list field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
-        return this.readComplexField(id, storageId, updateVersion, ListField.class, List.class);
+    public List<?> readListField(ObjId id, String name, boolean migrateSchema) {
+        return this.readComplexField(id, name, migrateSchema, ListField.class, List.class);
     }
 
     /**
-     * Access a {@link MapField} associated with an object, optionally updating the object's schema version.
+     * Access a {@link MapField} associated with an object, optionally updating the object's schema.
      *
      * <p>
-     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
+     * If {@code migrateSchema} is true, the object will be automatically migrated to match
+     * {@linkplain #getSchema() the schema associated with this transaction}, if necessary.
      *
      * @param id object ID of the object
-     * @param storageId storage ID of the {@link MapField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param name field name
+     * @param migrateSchema true to first automatically migrate the object's schema, false to not change it
      * @return map field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
-     *   the object's type does not exist in the schema version associated with this transaction
+     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code name} exists in the object
+     * @throws TypeNotInSchemaException {@code migrateSchema} is true and the object's schema could not be migrated because
+     *   the object's type does not exist in this transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
-        return this.readComplexField(id, storageId, updateVersion, MapField.class, NavigableMap.class);
+    public NavigableMap<?, ?> readMapField(ObjId id, String name, boolean migrateSchema) {
+        return this.readComplexField(id, name, migrateSchema, MapField.class, NavigableMap.class);
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the specified object.
+     * Get the {@code byte[]} key prefix in the underlying key/value store corresponding to the specified object.
      *
      * <p>
      * Notes:
      * <ul>
-     *  <li>This method does not check whether {@code id} is valid or the object actually exists.</li>
+     *  <li>This method does not check whether the object actually exists.</li>
      *  <li>Objects utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param id object ID
      * @return the {@link KVDatabase} key corresponding to {@code id}
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws IllegalArgumentException if {@code id} is null
      * @see io.permazen.JTransaction#getKey(io.permazen.JObject) JTransaction.getKey()
      */
-    public byte[] getKey(ObjId id) {
+    public synchronized byte[] getKey(ObjId id) {
+
+        // Sanity check
         Preconditions.checkArgument(id != null, "null id");
+        this.schemaBundle.getSchemaItem(id.getStorageId(), ObjType.class);
+
+        // Done
         return id.getBytes();
     }
 
@@ -2243,30 +2329,32 @@ public class Transaction {
      * <p>
      * Notes:
      * <ul>
-     *  <li>This method does not check whether {@code id} is valid, the object exists,
-     *      or the field actually exists in the object's current schema version.</li>
+     *  <li>This method does not check whether the object actually exists.</li>
      *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
      *
      * @param id object ID
-     * @param storageId field storage ID
+     * @param name field name
      * @return the {@link KVDatabase} key of the field in the specified object
-     * @throws IllegalArgumentException if {@code storageId} is less than or equal to zero
-     * @throws IllegalArgumentException if {@code id} is null
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
+     * @throws UnknownFieldException if no field named {@code name} exists in the object
+     * @throws IllegalArgumentException if either parameter is null
      * @see io.permazen.JTransaction#getKey(io.permazen.JObject, String) JTransaction.getKey()
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, int storageId) {
+    public byte[] getKey(ObjId id, String name) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        Preconditions.checkArgument(storageId > 0, "non-positive storageId");
+        Preconditions.checkArgument(name != null, "null name");
+        final ObjType objType = this.getSchemaBundle().getSchemaItem(id.getStorageId(), ObjType.class);
+        final Field<?> field = objType.getField(name);
 
         // Build key
         final ByteWriter writer = new ByteWriter();
         id.writeTo(writer);
-        UnsignedIntEncoder.write(writer, storageId);
+        UnsignedIntEncoder.write(writer, field.storageId);
         return writer.getBytes();
     }
 
@@ -2285,55 +2373,57 @@ public class Transaction {
         return this.kvt.get(field.buildKey(id)) == null;
     }
 
-    private synchronized <F, V> V readComplexField(ObjId id,
-      int storageId, boolean updateVersion, Class<F> fieldClass, Class<V> valueType) {
+    private synchronized <F, V> V readComplexField(ObjId id, String name,
+      boolean migrateSchema, Class<F> fieldClass, Class<V> valueType) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        this.checkStaleFieldAccess(id, storageId);
+        Preconditions.checkArgument(name != null, "null name");
+        this.checkStaleFieldAccess(id, name);
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjInfo info = this.getObjInfo(id, migrateSchema);
 
         // Get field
-        final ComplexField<?> field = info.getObjType().complexFields.get(storageId);
+        final ComplexField<?> field = info.getObjType().complexFields.get(name);
         if (!fieldClass.isInstance(field))
-            throw new UnknownFieldException(info.getObjType(), storageId, fieldClass.getSimpleName());
+            throw new UnknownFieldException(info.getObjType(), name, fieldClass.getSimpleName());
 
         // Return view
         return valueType.cast(field.getValueInternal(this, id));
     }
 
     /**
-     * If an object exists, read in its meta-data, also updating its schema version it in the process if requested.
+     * If an object exists, read in its meta-data, also migrating its schema it in the process if requested.
      *
      * @param id object ID of the object
-     * @param update true to update object's schema version to match this transaction, false to leave it alone
-     * @return object info if object exists, otherwise null
+     * @param update true to migrate object's schema to match this transaction, false to leave it alone
+     * @return object info if object exists and can be updated (if requested), otherwise null
      * @throws IllegalArgumentException if {@code id} is null
      */
-    private ObjInfo getObjectInfoIfExists(ObjId id, boolean update) {
+    private ObjInfo getObjInfoIfExists(ObjId id, boolean update) {
         assert Thread.holdsLock(this);
         try {
-            return this.getObjectInfo(id, update);
+            return this.getObjInfo(id, update);
         } catch (DeletedObjectException | UnknownTypeException e) {
             return null;
         }
     }
 
     /**
-     * Read an object's meta-data, updating its schema version it in the process if requested.
+     * Read an object's meta-data, migrating its schema it in the process if requested.
      *
      * @param id object ID of the object
-     * @param update true to update object's schema version to match this transaction, false to leave it alone
+     * @param update true to migrate object's schema to match this transaction, false to leave it alone
      * @return object info
-     * @throws UnknownTypeException if object ID specifies an unknown object type
+     * @throws UnknownTypeException if {@code update} is true and object ID specifies an unknown object type
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
      */
-    private ObjInfo getObjectInfo(ObjId id, boolean update) {
+    private ObjInfo getObjInfo(ObjId id, boolean update) {
 
         // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
         assert Thread.holdsLock(this);
 
         // Load object info into cache, if not already there
@@ -2341,19 +2431,19 @@ public class Transaction {
         if (info == null) {
 
             // Verify that the object type encoded within the object ID is valid
-            this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
+            this.schemaBundle.getSchemaItem(id.getStorageId(), ObjType.class);
 
             // Load the object's info into the cache (if object doesn't exist, we'll get an exception here)
             info = this.loadIntoCache(id);
         }
 
         // Is a schema update required?
-        if (!update || info.getVersion() == this.schema.versionNumber)
+        if (!update || info.getSchemaIndex() == this.schema.getSchemaIndex())
             return info;
 
-        // Update schema version
+        // Migrate schema
         final ObjInfo info2 = info;
-        this.mutateAndNotify(() -> this.changeVersion(info2, this.schema));
+        this.mutateAndNotify(() -> this.migrateSchema(info2, this.schema));
 
         // Load (updated) object info into cache
         return this.loadIntoCache(id);
@@ -2365,6 +2455,7 @@ public class Transaction {
      * @throws DeletedObjectException if object does not exist
      */
     private ObjInfo loadIntoCache(ObjId id) {
+        assert Thread.holdsLock(this);
         ObjInfo info = this.objInfoCache.get(id);
         if (info == null) {
 
@@ -2376,6 +2467,19 @@ public class Transaction {
                 this.objInfoCache.removeOne();
             this.objInfoCache.put(id, info);
         }
+        return info;
+    }
+
+    /**
+     * Update an object's meta-data in the key/value store and in the cache.
+     */
+    private ObjInfo updateObjInfo(ObjId id, int schemaIndex, boolean deleteNotified, Schema schema, ObjType objType) {
+        assert Thread.holdsLock(this);
+        ObjInfo.write(this, id, schemaIndex, deleteNotified);
+        if (this.objInfoCache.size() >= MAX_OBJ_INFO_CACHE_ENTRIES)
+            this.objInfoCache.removeOne();
+        final ObjInfo info = new ObjInfo(this, id, schemaIndex, deleteNotified, schema, objType);
+        this.objInfoCache.put(id, info);
         return info;
     }
 
@@ -2419,10 +2523,10 @@ public class Transaction {
      * field is also in some other listener's reference path, and both listeners are watching the same field.
      *
      * <p>
-     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
-     * which the field associated with {@code storageId} is not a {@link SimpleField}. In such cases, {@code listener}
-     * will receive notifications about those changes if it also happens to implement the other listener interface.
-     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     * Permazen allows a field's type to change across schemas, therefore some schema may exist in which the field associated
+     * with {@code storageId} is not a {@link SimpleField}. In such cases, {@code listener} will receive notifications about
+     * those changes if it also happens to implement the other listener interface. In other words, this method delegates
+     * directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
@@ -2447,10 +2551,10 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
-     * which the field associated with {@code storageId} is not a {@link SetField}. In such cases, {@code listener}
-     * will receive notifications about those changes if it also happens to implement the other listener interface.
-     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     * Permazen allows a field's type to change across schemas, therefore some schema may exist in which the field associated
+     * with {@code storageId} is not a {@link SetField}. In such cases, {@code listener} will receive notifications about
+     * those changes if it also happens to implement the other listener interface. In other words, this method delegates
+     * directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
@@ -2474,10 +2578,10 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
-     * which the field associated with {@code storageId} is not a {@link ListField}. In such cases, {@code listener}
-     * will receive notifications about those changes if it also happens to implement the other listener interface.
-     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     * Permazen allows a field's type to change across schemas, therefore some schema may exist in which the field associated
+     * with {@code storageId} is not a {@link ListField}. In such cases, {@code listener} will receive notifications about
+     * those changes if it also happens to implement the other listener interface. In other words, this method delegates
+     * directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
@@ -2501,10 +2605,10 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * Permazen allows a field's type to change across schema versions, therefore some schema version may exist in
-     * which the field associated with {@code storageId} is not a {@link MapField}. In such cases, {@code listener}
-     * will receive notifications about those changes if it also happens to implement the other listener interface.
-     * In other words, this method delegates directly to {@link #addFieldChangeListener addFieldChangeListener()}.
+     * Permazen allows a field's type to change across schemas, therefore some schema may exist in which the field associated
+     * with {@code storageId} is not a {@link MapField}. In such cases, {@code listener} will receive notifications about
+     * those changes if it also happens to implement the other listener interface. In other words, this method delegates
+     * directly to {@link #addFieldChangeListener addFieldChangeListener()}.
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
@@ -2528,11 +2632,10 @@ public class Transaction {
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      *
      * <p>
-     * Permazen allows a field's type to change across schema versions, therefore in different schema versions the
-     * specified field may have different types. The {@code listener} will receive notifications about a field change
-     * if it implements the interface appropriate for the field's current type (i.e., {@link SimpleFieldChangeListener},
-     * {@link ListFieldChangeListener}, {@link SetFieldChangeListener}, or {@link MapFieldChangeListener}) at the time
-     * of the change.
+     * Permazen allows a field's type to change across schemas, therefore in different schemas the specified field may have
+     * different types. The {@code listener} will receive notifications about a field change if it implements the interface
+     * appropriate for the field's current type (i.e., {@link SimpleFieldChangeListener}, {@link ListFieldChangeListener},
+     * {@link SetFieldChangeListener}, or {@link MapFieldChangeListener}) at the time of the change.
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field;
@@ -2748,7 +2851,7 @@ public class Transaction {
         }
 
         // Do slow check
-        for (int fieldStorageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
+        for (int fieldStorageId : NavigableSets.intersection(objType.fieldStorageIds, this.monitorMap.navigableKeySet())) {
             if (this.monitorMap.get(fieldStorageId).stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
                 return true;
         }
@@ -2760,16 +2863,16 @@ public class Transaction {
     }
 
     /**
-     * Build a data structure that to optimize checking whether a field in an object type is being monitored.
+     * Build a data structure to optimize checking whether a field in an object type is being monitored.
      */
     private synchronized NavigableSet<Long> buildHasFieldMonitorCache() {
         if (this.monitorMap == null)
             return Collections.emptyNavigableSet();
         final TreeSet<Long> set = new TreeSet<>();
-        for (Schema otherSchema : this.schemas.versions.values()) {
-            for (ObjType objType : otherSchema.objTypeMap.values()) {
+        for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
+            for (ObjType objType : otherSchema.getObjTypes().values()) {
                 final int objTypeStorageId = objType.storageId;
-                for (Field<?> field : objType.fieldsAndSubFields) {
+                for (Field<?> field : objType.fieldsAndSubFields.values()) {
                     final int fieldStorageId = field.storageId;
                     final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId);
                     if (monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
@@ -2953,7 +3056,7 @@ public class Transaction {
         final KeyRanges firstFilter = filters != null ? filters[0] : null;
         if (firstFilter != null)
             startObjects = startObjects.filter(id -> firstFilter.contains(id.getBytes()));
-        Streams.iterate(startObjects, startIds::add);
+        startObjects.iterator().forEachRemaining(startIds::add);
         if (path.length == 0)
             return startIds.sortedSnapshot();
 
@@ -3034,14 +3137,15 @@ public class Transaction {
         // Check forward vs. inverse and get storage info
         final boolean inverse = referenceId < 0;
         final int storageId = inverse ? -referenceId : referenceId;
-        final SimpleFieldStorageInfo<ObjId> info = this.verifyReferenceFieldStorageInfo(storageId);
+        final ReferenceField field = this.verifyReferenceField(storageId);      // just a representative
+        final SimpleIndex<ObjId> fieldIndex = field.getIndex();
 
         // Traverse reference from each object
         final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
         if (inverse) {
 
             // Get index and apply filter, if any
-            CoreIndex<ObjId, ObjId> index = info.getIndex(this);
+            CoreIndex<ObjId, ObjId> index = fieldIndex.getIndex(this);
             if (filter != null)
                 index = index.filter(1, filter);
             final NavigableMap<ObjId, NavigableSet<ObjId>> indexMap = index.asMap();
@@ -3056,7 +3160,7 @@ public class Transaction {
             final ObjIdSet refs = new ObjIdSet();
             final Predicate<ObjId> idFilter = filter != null ? id -> filter.contains(id.getBytes()) : null;
             for (ObjId id : objects)
-                info.readAllNonNull(this, id, refs, idFilter);
+                fieldIndex.readAllNonNull(this, id, refs, idFilter);
             if (!refs.isEmpty())
                 refsList.add(refs.sortedSnapshot());
         }
@@ -3069,178 +3173,163 @@ public class Transaction {
     private void verifyReferencePath(int[] path) {
         for (int pathId : path) {
             final int storageId = pathId < 0 ? -pathId : pathId;
-            this.verifyReferenceFieldStorageInfo(storageId);
+            this.verifyReferenceField(storageId);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private SimpleFieldStorageInfo<ObjId> verifyReferenceFieldStorageInfo(int storageId) {
-        final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        if (!(info.encoding instanceof ReferenceEncoding))
-            throw new IllegalArgumentException(info + " is not a reference field");
-        return (SimpleFieldStorageInfo<ObjId>)info;
+    private ReferenceField verifyReferenceField(int storageId) {
+        return this.getSchemaBundle().getSchemaItem(storageId, ReferenceField.class);
     }
 
 // Index Queries
 
     /**
-     * Find all values stored in the specified {@link SimpleField} and, for each value,
+     * Query any simple or composite index.
+     *
+     * <p>
+     * The returned view will have type {@link CoreIndex}, {@link CoreIndex2}, {@link CoreIndex3}, etc.,
+     * corresponding to the number of fields in the index.
+     *
+     * @param storageId the storage ID associated with the field (if simple) or composite index
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public AbstractCoreIndex<ObjId> queryIndex(int storageId) {
+        return this.findIndex(storageId, Index.class).getIndex(this);
+    }
+
+    /**
+     * Query a {@link SimpleIndex} to find all values stored in some field and, for each value,
      * the set of all objects having that value in the field.
      *
      * <p>
-     * The {@code storageId} may refer to any {@link SimpleField}, whether part of an object or a sub-field
-     * of a {@link ComplexField}.
+     * Use this method to acquire a plain {@link CoreIndex} on complex sub-fields.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions for which the field is indexed;
-     * this method does not check whether any such schema versions exist.
-     *
-     * @param storageId {@link SimpleField}'s storage ID
-     * @return read-only, real-time view of field values mapped to sets of objects with the value in the field
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
+     * @param storageId the storage ID associated with the field
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex<?, ObjId> queryIndex(int storageId) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        final SimpleFieldStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return info.getIndex(this);
+    @SuppressWarnings("unchecked")
+    public CoreIndex<?, ObjId> querySimpleIndex(int storageId) {
+        return (CoreIndex<?, ObjId>)this.findIndex(storageId, SimpleIndex.class).getIndex(this);
     }
 
     /**
-     * Find all values stored as an element in the specified {@link ListField} and, for each such value,
+     * Query a {@link ListElementIndex} to find all values stored in some list field and, for each value,
      * the set of all objects having that value as an element in the list and the corresponding list index.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions for which the list element field is indexed;
-     * this method does not check whether any such schema versions exist.
-     *
-     * @param storageId {@link ListField}'s element sub-field storage ID
-     * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indices
-     * @throws UnknownFieldException if no {@link ListField} element sub-field corresponding to {@code storageId} exists
+     * @param storageId the storage ID associated with the field
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex2<?, ObjId, Integer> queryListElementIndex(int storageId) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        final ListElementStorageInfo<?> info = this.schemas.verifyStorageInfo(storageId, ListElementStorageInfo.class);
-        return info.getElementIndex(this);
+    @SuppressWarnings("unchecked")
+    public CoreIndex2<?, ObjId, Integer> queryListElementIndex(int storageId) {
+        return (CoreIndex2<?, ObjId, Integer>)this.findIndex(storageId, ListElementIndex.class).getElementIndex(this);
     }
 
     /**
-     * Find all values stored as a value in the specified {@link MapField} and, for each such value,
+     * Query a {@link MapValueIndex} to find all values stored in some map field and, for each value,
      * the set of all objects having that value as a value in the map and the corresponding key.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions for which the map value field is indexed;
-     * this method does not check whether any such schema versions exist.
-     *
-     * @param storageId {@link MapField}'s value sub-field storage ID
-     * @return read-only, real-time view of map values, objects with the value in the map, and corresponding keys
-     * @throws UnknownFieldException if no {@link MapField} value sub-field corresponding to {@code storageId} exists
+     * @param storageId the storage ID associated with the field
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex2<?, ObjId, ?> queryMapValueIndex(int storageId) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        final MapValueStorageInfo<?, ?> info = this.schemas.verifyStorageInfo(storageId, MapValueStorageInfo.class);
-        return info.getValueIndex(this);
+    @SuppressWarnings("unchecked")
+    public CoreIndex2<?, ObjId, ?> queryMapValueIndex(int storageId) {
+        return (CoreIndex2<?, ObjId, ?>)this.findIndex(storageId, MapValueIndex.class).getValueIndex(this);
     }
 
     /**
-     * Access a composite index on two fields.
+     * Query a {@link CompositeIndex} on two fields to find all value tuples stored in the corresponding
+     * field tuple and, for each value tuple, the set of all objects having those values in those fields.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     *
-     * @param storageId composite index's storage ID
-     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
-     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index on two fields
+     * @param storageId the storage ID associated with the composite index
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
+     * @throws UnknownIndexException if the index is not on two fields
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public CoreIndex2<?, ?, ObjId> queryCompositeIndex2(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
-        final Object index = indexInfo.getIndex(this);
-        if (!(index instanceof CoreIndex2)) {
-            throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.storageIds.size() + " != 2 fields");
-        }
-        return (CoreIndex2<?, ?, ObjId>)index;
+        return (CoreIndex2<?, ?, ObjId>)this.findCompositeIndex(storageId, 2, CoreIndex2.class);
     }
 
     /**
-     * Access a composite index on three fields.
+     * Query a {@link CompositeIndex} on three fields to find all value tuples stored in the corresponding
+     * field tuple and, for each value tuple, the set of all objects having those values in those fields.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     *
-     * @param storageId composite index's storage ID
-     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
-     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index on two fields
+     * @param storageId the storage ID associated with the composite index
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
+     * @throws UnknownIndexException if the index is not on three fields
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public CoreIndex3<?, ?, ?, ObjId> queryCompositeIndex3(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
-        final Object index = indexInfo.getIndex(this);
-        if (!(index instanceof CoreIndex3)) {
-            throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.storageIds.size() + " != 3 fields");
-        }
-        return (CoreIndex3<?, ?, ?, ObjId>)index;
+        return (CoreIndex3<?, ?, ?, ObjId>)this.findCompositeIndex(storageId, 3, CoreIndex3.class);
     }
 
     /**
-     * Access a composite index on four fields.
+     * Query a {@link CompositeIndex} on four fields to find all value tuples stored in the corresponding
+     * field tuple and, for each value tuple, the set of all objects having those values in those fields.
      *
-     * <p>
-     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     *
-     * @param storageId composite index's storage ID
-     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
-     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index on two fields
+     * @param storageId the storage ID associated with the composite index
+     * @return read-only, real-time view of the index
+     * @throws UnknownIndexException if no such index exists
+     * @throws UnknownIndexException if the index is not on four fields
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public CoreIndex4<?, ?, ?, ?, ObjId> queryCompositeIndex4(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
-        final Object index = indexInfo.getIndex(this);
-        if (!(index instanceof CoreIndex4)) {
-            throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
-              + " is on " + indexInfo.storageIds.size() + " != 4 fields");
-        }
-        return (CoreIndex4<?, ?, ?, ?, ObjId>)index;
+        return (CoreIndex4<?, ?, ?, ?, ObjId>)this.findCompositeIndex(storageId, 4, CoreIndex4.class);
     }
 
-    /**
-     * Access any composite index by storage ID, regardless of the number of fields indexed.
-     *
-     * <p>
-     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     *
-     * @param storageId composite index's storage ID
-     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
-     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    public Object queryCompositeIndex(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
-        return indexInfo.getIndex(this);
+    // COMPOSITE-INDEX
+
+    private <CI extends AbstractCoreIndex<ObjId>> CI findCompositeIndex(int storageId, int numFields, Class<CI> coreIndexType) {
+        final CompositeIndex index = this.findIndex(storageId, CompositeIndex.class);
+        final AbstractCoreIndex<ObjId> coreIndex = index.getIndex(this);
+        try {
+            return coreIndexType.cast(coreIndex);
+        } catch (ClassCastException e) {
+            throw new UnknownIndexException("storage ID " + storageId, String.format(
+              "the composite index \"%s\" is on %d != %d fields", index.getName(), index.getFields().size(), numFields));
+        }
     }
+
+    private synchronized <I extends Index> I findIndex(int storageId, Class<I> indexType) {
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        final Index index = SimpleIndex.class.isAssignableFrom(indexType) ?
+          this.schemaBundle.getSchemaItem(storageId, SimpleField.class).getIndex() :
+          this.schemaBundle.getSchemaItem(storageId, Index.class);
+        try {
+            return indexType.cast(index);
+        } catch (ClassCastException e) {
+            throw new UnknownIndexException("storage ID " + storageId, String.format(
+              "%s is not a %s", index, SchemaBundle.getDescription(indexType)));
+        }
+    }
+
+// Internal Methods
 
     /**
      * Find all objects that refer to the given target object through the/any reference field with the specified
      * {@link DeleteAction}.
      *
      * <p>
-     * Because different schema versions can have different {@link DeleteAction}'s configured for the
-     * same field, we have to iterate through each schema version separately.
+     * Because different schemas can have different {@link DeleteAction}'s configured for the same field,
+     * we have to iterate through each schema separately.
      *
      * @param target referred-to object
      * @param inverseDelete {@link DeleteAction} to match
-     * @return mapping from reference field storage ID to set of objects referring to {@code target} through a field whose
-     *  {@link DeleteAction} matches {@code inverseDelete}
+     * @return mapping from reference field storage ID to the set of objects referring to {@code target}
+     *  through a reference field whose {@link DeleteAction} matches {@code inverseDelete}.
      */
     @SuppressWarnings("unchecked")
     private TreeMap<Integer, NavigableSet<ObjId>> findReferrers(ObjId target, DeleteAction inverseDelete) {
@@ -3249,41 +3338,39 @@ public class Transaction {
         // Get target object type storage ID
         final int targetStorageId = target.getStorageId();
 
-        // Determine which schema versions actually have objects that exist; if there's only one we can slightly optimize below
-        final ArrayList<Map.Entry<Integer, NavigableSet<ObjId>>> versionList = new ArrayList<>(5);
-        versionList.addAll(this.queryVersion().asMap().entrySet());
-        final boolean multipleVersions = versionList.size() > 1;
+        // Determine which schemas actually have objects that exist; if there's only one we can slightly optimize below
+        final ArrayList<Map.Entry<Integer, NavigableSet<ObjId>>> schemaList = new ArrayList<>(5);
+        schemaList.addAll(this.querySchemaIndex().asMap().entrySet());
+        final boolean multipleSchemas = schemaList.size() > 1;
 
-        // Search for objects one schema version at a time, and group them by reference field
+        // Search for objects one schema at a time, and group them by reference field
         final TreeMap<Integer, Object> result = new TreeMap<>();
-        for (Map.Entry<Integer, NavigableSet<ObjId>> versionListEntry : versionList) {
-            final int schemaVersionNumber = versionListEntry.getKey();
-            final NavigableSet<ObjId> schemaVersionRefs = versionListEntry.getValue();
+        for (Map.Entry<Integer, NavigableSet<ObjId>> schemaListEntry : schemaList) {
+            final int schemaIndex = schemaListEntry.getKey();
+            final NavigableSet<ObjId> schemaRefs = schemaListEntry.getValue();
 
             // Get corresponding Schema object
-            final Schema schemaVersion = this.schemas.versions.get(schemaVersionNumber);
-            if (schemaVersion == null)
-                throw new InconsistentDatabaseException("encountered objects with unknown schema version " + schemaVersionNumber);
+            final Schema nextSchema = this.schemaBundle.getSchema(schemaIndex);
+            if (nextSchema == null)
+                throw new InconsistentDatabaseException("encountered objects with unknown schema index " + schemaIndex);
 
-            // Iterate over reference fields in this schema version that have the configured DeleteAction in some object type
-            for (Map.Entry<ReferenceField, KeyRanges> fieldRangeEntry :
-              schemaVersion.deleteActionKeyRanges.get(inverseDelete.ordinal()).entrySet()) {
-                final ReferenceField field = fieldRangeEntry.getKey();
-                final KeyRanges keyRanges = fieldRangeEntry.getValue();
+            // Iterate over reference fields in this schema that have the configured DeleteAction in some object type
+            nextSchema.getDeleteActionKeyRanges().get(inverseDelete).forEach((field, keyRanges) -> {
 
                 // Do a quick check to see whether this field can possibly refer to the target object
-                final SortedSet<Integer> targetTypes = field.getObjectTypes();
+                final SortedSet<Integer> targetTypes = field.getEncoding().getObjectTypeStorageIds();
                 if (targetTypes != null && !targetTypes.contains(targetStorageId))
-                    continue;
+                    return;
 
                 // Build the key prefix for the target object ID in this field's index
+                assert field.getIndex().storageId == field.storageId;
                 final int fieldStorageId = field.storageId;
                 final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(fieldStorageId) + ObjId.NUM_BYTES);
                 UnsignedIntEncoder.write(writer, fieldStorageId);
                 target.writeTo(writer);
                 final byte[] prefix = writer.getBytes();
 
-                // Query the index to get all objects referring to the target object through this field (in any schema version)
+                // Query the index to get all objects referring to the target object through this field (in any schema)
                 final IndexSet<ObjId> indexSet = new IndexSet<>(this.kvt, Encodings.OBJ_ID, true, prefix);
 
                 // Now restrict those referrers to only those object types where the field's DeleteAction matches (if necessary)
@@ -3291,20 +3378,20 @@ public class Transaction {
 
                 // Anything there?
                 if (referrers.isEmpty())
-                    continue;
+                    return;
 
-                // Add these referrers, restricted to the current schema version, to our list of referrers for this field
-                if (multipleVersions) {
+                // Add these referrers, restricted to the current schema, to our list of referrers for this field
+                if (multipleSchemas) {
                     ((ArrayList<NavigableSet<ObjId>>)result
-                      .computeIfAbsent(fieldStorageId, i -> new ArrayList<NavigableSet<ObjId>>(versionList.size())))
-                      .add(NavigableSets.intersection(schemaVersionRefs, referrers));
+                      .computeIfAbsent(fieldStorageId, i -> new ArrayList<NavigableSet<ObjId>>(schemaList.size())))
+                      .add(NavigableSets.intersection(schemaRefs, referrers));
                 } else
-                    result.put(fieldStorageId, referrers);              // no schema version restriction necessary; no list needed
-            }
+                    result.put(fieldStorageId, referrers);              // no schema restriction necessary; no list needed
+            });
         }
 
-        // If there were multiple schema versions, for each reference field, take the union of the sets from each schema version
-        if (multipleVersions) {
+        // If there were multiple schemas, for each reference field, take the union of the sets from each schema
+        if (multipleSchemas) {
             for (Map.Entry<Integer, Object> entry : result.entrySet()) {
                 final ArrayList<NavigableSet<ObjId>> list = (ArrayList<NavigableSet<ObjId>>)entry.getValue();
                 final NavigableSet<ObjId> union = list.size() == 1 ? list.get(0) : NavigableSets.union(list);
@@ -3338,7 +3425,7 @@ public class Transaction {
 // Listener snapshots
 
     /**
-     * Create a read-only snapshot of all ({@link CreateListener}s, {@link DeleteListener}s, {@link VersionChangeListener}s,
+     * Create a read-only snapshot of all ({@link CreateListener}s, {@link DeleteListener}s, {@link SchemaChangeListener}s,
      * {@link SimpleFieldChangeListener}s, {@link SetFieldChangeListener}s, {@link ListFieldChangeListener}s, and
      * {@link MapFieldChangeListener}s currently registered on this instance.
      *
@@ -3369,22 +3456,11 @@ public class Transaction {
         Preconditions.checkArgument(listeners != null, "null listeners");
 
         // Verify field change listeners are compatible with this transaction
-        while (listeners.monitorMap != null) {
-
-            // Do a quick check
-            if (Arrays.equals(listeners.schema.encodedXML, this.schema.encodedXML))
-                break;
-
-            // Do a slow check
-            if (listeners.schema.schemaModel.isCompatibleWith(this.schema.schemaModel))
-                break;
-
-            // Not compatible
+        if (listeners.monitorMap != null && !listeners.schemaBundle.matches(this.schemaBundle))
             throw new IllegalArgumentException("listener set was created from a transaction having an incompatible schema");
-        }
 
         // Apply listeners to this instance
-        this.versionChangeListeners = listeners.versionChangeListeners;
+        this.schemaChangeListeners = listeners.schemaChangeListeners;
         this.createListeners = listeners.createListeners;
         this.deleteListeners = listeners.deleteListeners;
         this.monitorMap = listeners.monitorMap;
@@ -3506,30 +3582,30 @@ public class Transaction {
 // Listeners
 
     /**
-     * A fixed collection of listeners ({@link CreateListener}s, {@link DeleteListener}s, {@link VersionChangeListener}s,
+     * A fixed collection of listeners ({@link CreateListener}s, {@link DeleteListener}s, {@link SchemaChangeListener}s,
      * {@link SimpleFieldChangeListener}s, {@link SetFieldChangeListener}s, {@link ListFieldChangeListener}s, and
      * {@link MapFieldChangeListener}s) that can be efficiently registered on a {@link Transaction} all at once.
      *
      * <p>
      * To create an instance of this class, use {@link Transaction#snapshotListeners} after registering the desired
      * set of listeners. Once created, the instance can be used repeatedly to configured the same set of listeners
-     * on any other compatible {@link Transaction} via {@link Transaction#setListeners Transaction.setListeners()}.
-     * Here "compatible" means field change listener paths and types are valid for the new transaction's schemas.
+     * on any other compatible {@link Transaction} via {@link Transaction#setListeners Transaction.setListeners()},
+     * where "compatible" means having the same {@link SchemaBundle}.
      */
     public static final class ListenerSet {
 
-        final Set<VersionChangeListener> versionChangeListeners;
+        final Set<SchemaChangeListener> schemaChangeListeners;
         final Set<CreateListener> createListeners;
         final Set<DeleteListener> deleteListeners;
         final NavigableMap<Integer, Set<FieldMonitor>> monitorMap;
         final NavigableSet<Long> hasFieldMonitorCache;
 
-        final Schema schema;
+        final SchemaBundle schemaBundle;
 
         private ListenerSet(Transaction tx) {
             assert Thread.holdsLock(tx);
-            this.versionChangeListeners = tx.versionChangeListeners != null ?
-              Collections.unmodifiableSet(new HashSet<>(tx.versionChangeListeners)) : null;
+            this.schemaChangeListeners = tx.schemaChangeListeners != null ?
+              Collections.unmodifiableSet(new HashSet<>(tx.schemaChangeListeners)) : null;
             this.createListeners = tx.createListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
@@ -3542,7 +3618,7 @@ public class Transaction {
             } else
                 this.monitorMap = null;
             this.hasFieldMonitorCache = tx.buildHasFieldMonitorCache();
-            this.schema = tx.schema;
+            this.schemaBundle = tx.schemaBundle;
         }
     }
 

@@ -5,7 +5,9 @@
 
 package io.permazen.core;
 
-import java.util.List;
+import com.google.common.base.Preconditions;
+
+import io.permazen.schema.EnumSchemaField;
 
 /**
  * A field that contains a value chosen from in an ordered list of unique {@link String} identifiers.
@@ -15,21 +17,8 @@ import java.util.List;
  */
 public class EnumField extends SimpleField<EnumValue> {
 
-    /**
-     * Constructor.
-     *
-     * @param name the name of the field
-     * @param storageId field storage ID
-     * @param schema schema version
-     * @param idents the unique enum identifiers
-     * @param indexed whether this field is indexed
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
-     * @throws IllegalArgumentException if {@code storageId} is invalid
-     * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier
-     */
-    EnumField(String name, int storageId, Schema schema, boolean indexed, List<String> idents) {
-        super(name, storageId, schema, new EnumValueEncoding(idents), indexed);
+    EnumField(Schema schema, EnumSchemaField field, boolean indexed) {
+        super(schema, field, new EnumValueEncoding(field.getIdentifiers()), indexed);
     }
 
 // Public methods
@@ -44,11 +33,12 @@ public class EnumField extends SimpleField<EnumValue> {
 
     @Override
     public <R> R visit(FieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseEnumField(this);
     }
 
     @Override
     public String toString() {
-        return "enum field \"" + this.name + "\"";
+        return "enum field \"" + this.getFullName() + "\"";
     }
 }

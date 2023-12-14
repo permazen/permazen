@@ -201,11 +201,6 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
         return this.inline && this.inner.hasPrefix0x00();
     }
 
-    @Override
-    public NullSafeEncoding<T> genericizeForIndex() {
-        return new NullSafeEncoding<>(this.inner.genericizeForIndex());
-    }
-
 // Object
 
     @Override

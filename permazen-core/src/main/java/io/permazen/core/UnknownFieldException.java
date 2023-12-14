@@ -12,31 +12,31 @@ package io.permazen.core;
 public class UnknownFieldException extends DatabaseException {
 
     private final ObjType type;
-    private final int storageId;
+    private final String fieldName;
 
     /**
      * Constructor.
      *
      * @param type containing object type, or null for none
-     * @param storageId unknown field storage ID
+     * @param fieldName unknown field name
      * @param description description of the unknown field
      */
-    public UnknownFieldException(ObjType type, int storageId, String description) {
-        super(type + " has no " + description + " with storage ID " + storageId);
+    public UnknownFieldException(ObjType type, String fieldName, String description) {
+        super(String.format("%s has no %s named \"%s\"", type, description, fieldName));
         this.type = type;
-        this.storageId = storageId;
+        this.fieldName = fieldName;
     }
 
     /**
      * Constructor.
      *
-     * @param storageId unknown field storage ID
+     * @param fieldName unknown field name
      * @param message exception message
      */
-    public UnknownFieldException(int storageId, String message) {
+    public UnknownFieldException(String fieldName, String message) {
         super(message);
         this.type = null;
-        this.storageId = storageId;
+        this.fieldName = fieldName;
     }
 
     /**
@@ -49,11 +49,11 @@ public class UnknownFieldException extends DatabaseException {
     }
 
     /**
-     * Get the storage ID that was not recognized.
+     * Get the name that was not recognized.
      *
-     * @return unrecognized field storage ID
+     * @return unrecognized field name
      */
-    public int getStorageId() {
-        return this.storageId;
+    public String getFieldName() {
+        return this.fieldName;
     }
 }
