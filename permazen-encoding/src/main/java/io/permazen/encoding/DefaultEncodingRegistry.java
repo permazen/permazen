@@ -11,7 +11,6 @@ import com.google.common.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
@@ -95,21 +94,12 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
 
     @Override
     public EncodingId idForAlias(String alias) {
-        Preconditions.checkArgument(alias != null, "null alias");
-        if (EncodingIds.isValidBuiltinSuffix(alias))
-            return EncodingIds.builtin(alias);
-        return new EncodingId(alias);
+        return EncodingIds.idForAlias(alias);
     }
 
     @Override
     public String aliasForId(EncodingId encodingId) {
-        Preconditions.checkArgument(encodingId != null, "null encodingId");
-        final String id = encodingId.getId();
-        return Optional.of(id)
-          .filter(s -> s.startsWith(EncodingIds.PERMAZEN_PREFIX))
-          .map(s -> s.substring(EncodingIds.PERMAZEN_PREFIX.length()))
-          .filter(EncodingIds::isValidBuiltinSuffix)
-          .orElse(id);
+        return EncodingIds.aliasForId(encodingId);
     }
 
     @Override

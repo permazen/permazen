@@ -58,7 +58,7 @@ public interface EncodingRegistry {
      *
      * @param alias encoding ID alias
      * @return corresponding encoding ID, never null
-     * @throws IllegalArgumentException if {@code alias} is not a valid alias
+     * @throws IllegalArgumentException if {@code alias} is null or not a valid alias
      */
     default EncodingId idForAlias(String alias) {
         Preconditions.checkArgument(alias != null, "null alias");
@@ -70,8 +70,8 @@ public interface EncodingRegistry {
      *
      * <p>
      * An {@link EncodingRegistry} may support aliases for some of its encoding ID's.
-     * Aliases are simply more friendly names for encoding IDs, which are officially
-     * expressed as Uniform Resource Names (URNs).
+     * Aliases are simply more friendly names for {@link EncodingId} strings, which are
+     * formatted as Uniform Resource Names (URNs).
      *
      * <p>
      * Whereas {@link EncodingId}'s are globally unique, aliases are only meaningful
@@ -81,6 +81,8 @@ public interface EncodingRegistry {
      * <p>
      * In Permazen's {@link DefaultEncodingRegistry}, the built-in encodings all have aliases;
      * for example, {@code "int"} is an alias for {@code "urn:fdc:permazen.io:2020:int"}.
+     * Permazen's aliases are available via {@link EncodingIds#aliasForId EncodingIds.aliasForId()}
+     * and {@link EncodingIds#idForAlias EncodingIds#idForAlias()}.
      *
      * <p>
      * If no alias is known for {@code encodingId}, this method should return {@link EncodingId#getId}.
@@ -94,7 +96,7 @@ public interface EncodingRegistry {
      *
      * @param encodingId encoding ID
      * @return corresponding alias, if any, otherwise {@link EncodingId#getId}
-     * @throws IllegalArgumentException if {@code alias} is null
+     * @throws IllegalArgumentException if {@code encodingId} is null
      * @see idForAlias
      */
     default String aliasForId(EncodingId encodingId) {

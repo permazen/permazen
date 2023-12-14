@@ -7,6 +7,8 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Optional;
+
 /**
  * {@link EncodingId}'s for Permazen built-in encodings.
  *
@@ -49,5 +51,49 @@ public final class EncodingIds {
     public static boolean isValidBuiltinSuffix(String suffix) {
         Preconditions.checkArgument(suffix != null, "null suffix");
         return suffix.matches("\\p{Alpha}(-?[\\p{Alnum}_]+)*(\\[\\]){0,255}");
+    }
+
+    /**
+     * Get the encoding ID corresponding to the given alias (or "nickname"), if any,
+     * for a Permazen built-in encoding.
+     *
+     * <p>
+     * This implements the default logic for {@link DefaultEncodingRegistry#idForAlias DefaultEncodingRegistry.idForAlias()}:
+     * If {@code alias} satisfies {@link #isValidBuiltinSuffix isValidBuiltinSuffix()}, then this method
+     * delegates to {@link #builtin builtin()}, otherwise to {@link EncodingId#EncodingId(String) new EncodingId()}.
+     *
+     * @param alias encoding ID alias
+     * @return corresponding encoding ID, never null
+     * @throws IllegalArgumentException if {@code alias} is null or not a valid alias
+     */
+    public static EncodingId idForAlias(String alias) {
+        Preconditions.checkArgument(alias != null, "null alias");
+        if (EncodingIds.isValidBuiltinSuffix(alias))
+            return EncodingIds.builtin(alias);
+        return new EncodingId(alias);
+    }
+
+    /**
+     * Get the alias (or "nickname") for the given encoding ID in this registry, if any,
+     * for a Permazen built-in encoding.
+     *
+     * <p>
+     * This implements the default logic for {@link DefaultEncodingRegistry#aliasForId DefaultEncodingRegistry.aliasForId()}:
+     * If {@code encodingId} equals {@value EncodingIds#PERMAZEN_PREFIX} followed by a suffix satisfying
+     * {@link #isValidBuiltinSuffix isValidBuiltinSuffix()}, then the suffix is returned, otherwise {@code encodingId}
+     * in string form is returned.
+     *
+     * @param encodingId encoding ID
+     * @return corresponding alias, if any, otherwise {@link EncodingId#getId}
+     * @throws IllegalArgumentException if {@code encodingId} is null
+     */
+    public static String aliasForId(EncodingId encodingId) {
+        Preconditions.checkArgument(encodingId != null, "null encodingId");
+        final String id = encodingId.getId();
+        return Optional.of(id)
+          .filter(s -> s.startsWith(EncodingIds.PERMAZEN_PREFIX))
+          .map(s -> s.substring(EncodingIds.PERMAZEN_PREFIX.length()))
+          .filter(EncodingIds::isValidBuiltinSuffix)
+          .orElse(id);
     }
 }
