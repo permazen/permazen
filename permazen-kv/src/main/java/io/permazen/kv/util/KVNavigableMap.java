@@ -23,6 +23,7 @@ import java.util.NavigableMap;
 /**
  * A {@link java.util.NavigableMap} view of the keys and values in a {@link KVStore}.
  *
+ * <p>
  * Instances are mutable, with these exceptions:
  * <ul>
  *  <li>{@link #clear} is not supported when a {@link KeyFilter} is configured</li>
@@ -131,7 +132,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     protected byte[] decodeKey(ByteReader reader) {
-        return reader.getBytes();
+        return reader.readRemaining();
     }
 
     @Override
