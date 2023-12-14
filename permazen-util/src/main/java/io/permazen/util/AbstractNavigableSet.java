@@ -57,6 +57,15 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     }
 
     /**
+     * Get the {@link Bounds} associated with this instance.
+     *
+     * @return range restriction
+     */
+    public Bounds<E> getBounds() {
+        return this.bounds;
+    }
+
+    /**
      * Removes the given element from this set if it is present.
      *
      * <p>
@@ -145,6 +154,8 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     @Override
     public NavigableSet<E> headSet(E newMaxElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withUpperBound(newMaxElement, BoundType.of(inclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("upper bound " + newMaxElement + " < lower bound " + this.bounds.getLowerBound());
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("upper bound " + newMaxElement + " is out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
@@ -153,6 +164,8 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     @Override
     public NavigableSet<E> tailSet(E newMinElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withLowerBound(newMinElement, BoundType.of(inclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("lower bound " + newMinElement + " > upper bound " + this.bounds.getUpperBound());
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("lower bound " + newMinElement + " is out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
@@ -162,6 +175,8 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     public NavigableSet<E> subSet(E newMinElement, boolean minInclusive, E newMaxElement, boolean maxInclusive) {
         final Bounds<E> newBounds = new Bounds<>(newMinElement,
           BoundType.of(minInclusive), newMaxElement, BoundType.of(maxInclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("new bound(s) " + newBounds + " are backwards");
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);

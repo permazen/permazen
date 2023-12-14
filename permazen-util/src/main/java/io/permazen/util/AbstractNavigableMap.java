@@ -59,6 +59,15 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     }
 
     /**
+     * Get the {@link Bounds} associated with this instance.
+     *
+     * @return range restriction
+     */
+    public Bounds<K> getBounds() {
+        return this.bounds;
+    }
+
+    /**
      * Removes the mapping for a key from this map if it is present.
      *
      * <p>
@@ -198,6 +207,8 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     @Override
     public NavigableMap<K, V> headMap(K newMaxKey, boolean inclusive) {
         final Bounds<K> newBounds = this.bounds.withUpperBound(newMaxKey, BoundType.of(inclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("upper bound " + newMaxKey + " < lower bound " + this.bounds.getLowerBound());
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("upper bound " + newMaxKey + " is out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
@@ -206,6 +217,8 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     @Override
     public NavigableMap<K, V> tailMap(K newMinKey, boolean inclusive) {
         final Bounds<K> newBounds = this.bounds.withLowerBound(newMinKey, BoundType.of(inclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("lower bound " + newMinKey + " > upper bound " + this.bounds.getUpperBound());
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("lower bound " + newMinKey + " is out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
@@ -214,6 +227,8 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     @Override
     public NavigableMap<K, V> subMap(K newMinKey, boolean minInclusive, K newMaxKey, boolean maxInclusive) {
         final Bounds<K> newBounds = new Bounds<>(newMinKey, BoundType.of(minInclusive), newMaxKey, BoundType.of(maxInclusive));
+        if (newBounds.isInverted(this.comparator()))
+            throw new IllegalArgumentException("new bound(s) " + newBounds + " are backwards");
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
