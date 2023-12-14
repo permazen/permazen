@@ -153,10 +153,13 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
         // Decode key/value pair
         final ByteReader keyReader = new ByteReader(pair.getKey());
         final E value = this.decodePair(pair, keyReader);
+
+        // In non-prefix mode, there should not be anything remaining
         if (!this.prefixMode && keyReader.remain() > 0) {
-            final String msg = this.getClass().getName() + "@"
-              + Integer.toHexString(System.identityHashCode(this)) + ": " + keyReader.remain() + " undecoded bytes remain in key "
-              + ByteUtil.toString(pair.getKey()) + ", value " + ByteUtil.toString(pair.getValue()) + " -> " + value;
+            final String msg = String.format(
+              "%s@%s: %s undecoded bytes remain in key %s, value %s -> %s",
+              this.getClass().getName(), Integer.toHexString(System.identityHashCode(this)), keyReader.remain(),
+              ByteUtil.toString(pair.getKey()), ByteUtil.toString(pair.getValue()), value);
             LoggerFactory.getLogger(this.getClass()).error(msg);
             assert false : msg;
         }
