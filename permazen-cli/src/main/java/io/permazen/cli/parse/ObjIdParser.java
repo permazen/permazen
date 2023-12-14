@@ -13,7 +13,6 @@ import io.permazen.core.Transaction;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
-import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,10 +123,11 @@ public class ObjIdParser implements Parser<ObjId> {
             }
             int count = 0;
             if (!idSets.isEmpty()) {
-                Streams.iterate(NavigableSets.union(idSets).stream()
+                NavigableSets.union(idSets).stream()
                     .limit(MAX_COMPLETE_OBJECTS)
-                    .map(ObjId::toString),
-                  this.completions::add);
+                    .map(ObjId::toString)
+                    .iterator()
+                    .forEachRemaining(this.completions::add);
             }
         }
 

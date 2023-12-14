@@ -12,7 +12,6 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.Streams;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -357,7 +356,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             // Apply removes
             final ReadOptions iteratorOptions = new ReadOptions().verifyChecksums(this.options.verifyChecksums()).fillCache(false);
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-                Streams.iterate(removes, range -> {
+                removes.iterator().forEachRemaining(range -> {
                     final byte[] min = range.getMin();
                     final byte[] max = range.getMax();
                     if (min != null && max != null && ByteUtil.isConsecutive(min, max))
@@ -379,7 +378,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 
             // Apply puts
             try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                Streams.iterate(puts, entry -> batch.put(entry.getKey(), entry.getValue()));
+                puts.iterator().forEachRemaining(entry -> batch.put(entry.getKey(), entry.getValue()));
             }
 
             // Convert counter adjustments into puts and apply them

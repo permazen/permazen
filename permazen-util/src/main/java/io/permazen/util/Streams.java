@@ -7,8 +7,6 @@ package io.permazen.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Iterator;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -17,21 +15,6 @@ import java.util.stream.Stream;
 public final class Streams {
 
     private Streams() {
-    }
-
-    /**
-     * Iterate over the items in the given stream, in order (if the stream is ordered),
-     * one-at-a-time, in the current thread.
-     *
-     * @param stream stream to iterate
-     * @see <a href="https://github.com/google/guava/issues/6831">Guava issue #6831</a>
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    public static <T> void iterate(Stream<T> stream, Consumer<? super T> action) {
-        Preconditions.checkArgument(stream != null, "null stream");
-        Preconditions.checkArgument(action != null, "null action");
-        for (Iterator<T> i = stream.iterator(); i.hasNext(); )
-            action.accept(i.next());
     }
 
     /**
@@ -46,7 +29,7 @@ public final class Streams {
     public static void exhaust(Stream<?> stream) {
         Preconditions.checkArgument(stream != null, "null stream");
         try (Stream<?> stream2 = stream) {
-            Streams.iterate(stream2, s -> { });
+            stream2.iterator().forEachRemaining(s -> { });
         }
     }
 }

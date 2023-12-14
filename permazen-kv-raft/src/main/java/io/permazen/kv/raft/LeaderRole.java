@@ -20,7 +20,6 @@ import io.permazen.kv.raft.msg.GrantVote;
 import io.permazen.kv.raft.msg.InstallSnapshot;
 import io.permazen.kv.raft.msg.Message;
 import io.permazen.kv.raft.msg.RequestVote;
-import io.permazen.util.Streams;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -187,8 +186,11 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
 
         // Find matching follower(s) and update them if needed
-        Streams.iterate(this.followerMap.values().stream().filter(follower -> follower.getAddress().equals(address)),
-          follower -> {
+        this.followerMap.values()
+          .stream()
+          .filter(follower -> follower.getAddress().equals(address))
+          .iterator()
+          .forEachRemaining(follower -> {
             if (this.log.isTraceEnabled())
                 this.trace("updating peer \"{}\" after queue empty notification", follower.getIdentity());
             this.raft.requestService(follower.getUpdateService());
@@ -639,7 +641,11 @@ public class LeaderRole extends Role {
 
     private void updateAllSynchronizedFollowersNow() {
         assert Thread.holdsLock(this.raft);
-        Streams.iterate(this.followerMap.values().stream().filter(Follower::isSynced), Follower::updateNow);
+        this.followerMap.values()
+          .stream()
+          .filter(Follower::isSynced)
+          .iterator()
+          .forEachRemaining(Follower::updateNow);
     }
 
 // Transactions

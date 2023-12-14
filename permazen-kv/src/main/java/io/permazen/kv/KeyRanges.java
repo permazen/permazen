@@ -11,7 +11,6 @@ import com.google.common.collect.UnmodifiableIterator;
 import io.permazen.kv.util.KeyListEncoder;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ImmutableNavigableSet;
-import io.permazen.util.Streams;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.IOException;
@@ -78,7 +77,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     public KeyRanges(Stream<? extends KeyRange> ranges) {
         Preconditions.checkArgument(ranges != null, "null ranges");
         this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
-        Streams.iterate(ranges, range -> {
+        ranges.iterator().forEachRemaining(range -> {
             Preconditions.checkArgument(range != null, "null range");
             this.add(range);
         });

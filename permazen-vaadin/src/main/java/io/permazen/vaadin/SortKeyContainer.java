@@ -14,7 +14,6 @@ import io.permazen.JObject;
 import io.permazen.JSimpleField;
 import io.permazen.Permazen;
 import io.permazen.parse.ParseSession;
-import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,10 +62,11 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         if (commonFields != null) {
             for (JField jfield : commonFields.values()) {
                 if (jfield instanceof JComplexField) {
-                    Streams.iterate(((JComplexField)jfield).getSubFields().stream()
-                        .filter(subField -> subField.isIndexed())
-                        .map(FieldSortKey::new),
-                      sortKeys::add);
+                    ((JComplexField)jfield).getSubFields().stream()
+                      .filter(subField -> subField.isIndexed())
+                      .map(FieldSortKey::new)
+                      .iterator()
+                      .forEachRemaining(sortKeys::add);
                 } else if (jfield instanceof JSimpleField && ((JSimpleField)jfield).isIndexed())
                     sortKeys.add(new FieldSortKey((JSimpleField)jfield));
             }

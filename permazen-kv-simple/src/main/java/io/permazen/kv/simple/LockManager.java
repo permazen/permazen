@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRanges;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.Streams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -349,7 +348,7 @@ public class LockManager {
             //+ "   overlaps = " + overlaps + "\n");
 
             // Find overlaps we can merge with
-            Streams.iterate(overlaps.stream().filter(other -> lock.mergeWith(other) != null), mergers::add);
+            overlaps.stream().filter(other -> lock.mergeWith(other) != null).iterator().forEachRemaining(mergers::add);
 
             //System.out.println(Thread.currentThread().getName() + ": LockChecker: AFTER: lock = " + lock + "\n"
             //+ "  lockByMin = " + this.locksByMin + "\n"

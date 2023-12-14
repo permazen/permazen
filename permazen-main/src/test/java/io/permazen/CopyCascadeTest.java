@@ -11,7 +11,6 @@ import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.test.TestSupport;
-import io.permazen.util.Streams;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -86,7 +85,7 @@ public class CopyCascadeTest extends TestSupport {
             Assert.assertSame(sa.getParent(), null);
             Assert.assertSame(sc.getParent(), sa);
 
-            Streams.iterate(sjtx.getAll(JObject.class).stream(), JObject::delete);
+            sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
             c.cascadeCopyOut("descendants", false);
@@ -98,7 +97,7 @@ public class CopyCascadeTest extends TestSupport {
             Assert.assertSame(sc.getParent(), sa);
             Assert.assertSame(sd.getParent(), sc);
 
-            Streams.iterate(sjtx.getAll(JObject.class).stream(), JObject::delete);
+            sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
             c.cascadeCopyOut("tree", false);
@@ -113,7 +112,7 @@ public class CopyCascadeTest extends TestSupport {
             Assert.assertSame(sc.getParent(), sa);
             Assert.assertSame(sd.getParent(), sc);
 
-            Streams.iterate(sjtx.getAll(JObject.class).stream(), JObject::delete);
+            sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
         // Check inverse cascades exclude references which do not have the cascade even if the field has the same storage ID
@@ -128,7 +127,7 @@ public class CopyCascadeTest extends TestSupport {
             Assert.assertTrue(sa.exists());
             Assert.assertFalse(sother.exists());
 
-            Streams.iterate(sjtx.getAll(JObject.class).stream(), JObject::delete);
+            sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
         // Check cascades copies with recursion limits

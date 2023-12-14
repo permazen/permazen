@@ -17,7 +17,6 @@ import io.permazen.core.TypeNotInSchemaVersionException;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
-import io.permazen.util.Streams;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -135,11 +134,11 @@ public class TypeSafetyTest extends TestSupport {
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class).asMap();
-            Streams.iterate(friendIndex.keySet().stream().filter(key -> key != null), Bar::dummy);
+            friendIndex.keySet().stream().filter(key -> key != null).iterator().forEachRemaining(Bar::dummy);
 
             // Verify index on Bar.set.element does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.queryIndex(Bar.class, "set.element", Bar.class).asMap();
-            Streams.iterate(setIndex.keySet().stream().filter(key -> key != null), Bar::dummy);
+            setIndex.keySet().stream().filter(key -> key != null).iterator().forEachRemaining(Bar::dummy);
 
             // Verify bar1 has wrongly type'd field prior to upgrade
             Assert.assertEquals(jtx.getTransaction().readSimpleField(b1, 21, false), f1);
@@ -193,9 +192,10 @@ public class TypeSafetyTest extends TestSupport {
             Assert.assertNull(jtx.readSimpleField(bar3.getObjId(), 21, false));                    // bar3.getFriend()
             Assert.assertEquals(ref1.getObjId(), f2);
             ids.clear();
-            Streams.iterate(jtx.readSetField(bar3.getObjId(), 23, false).stream()
-                .map(obj -> ((JObject)obj).getObjId()),
-              ids::add);
+            jtx.readSetField(bar3.getObjId(), 23, false).stream()
+                .map(obj -> ((JObject)obj).getObjId())
+                .iterator()
+                .forEachRemaining(ids::add);
             TestSupport.checkSet(ids, buildSet(b1, b2));
 
         } finally {

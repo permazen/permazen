@@ -21,7 +21,6 @@ import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
-import io.permazen.util.Streams;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -860,10 +859,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                     writes.getRemoves().add(new KeyRanges(removes));
                 }
                 try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                    Streams.iterate(puts, entry -> writes.getPuts().put(entry.getKey(), entry.getValue()));
+                    puts.iterator().forEachRemaining(entry -> writes.getPuts().put(entry.getKey(), entry.getValue()));
                 }
                 try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-                    Streams.iterate(adjusts, entry -> writes.getAdjusts().put(entry.getKey(), entry.getValue()));
+                    adjusts.iterator().forEachRemaining(entry -> writes.getAdjusts().put(entry.getKey(), entry.getValue()));
                 }
             }
 
@@ -903,7 +902,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Apply removes
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
-                Streams.iterate(removes, range -> {
+                removes.iterator().forEachRemaining(range -> {
                     final byte[] min = range.getMin();
                     final byte[] max = range.getMax();
                     this.mods.removeRange(min, max);
@@ -913,7 +912,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Apply puts
             try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                Streams.iterate(puts, entry -> {
+                puts.iterator().forEachRemaining(entry -> {
                     final byte[] key = entry.getKey();
                     final byte[] val = entry.getValue();
                     this.mods.put(key, val);
@@ -923,7 +922,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Apply counter adjustments
             try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-                Streams.iterate(adjusts, entry -> {
+                adjusts.iterator().forEachRemaining(entry -> {
                     final byte[] key = entry.getKey();
                     final long adjust = entry.getValue();
                     this.mods.adjustCounter(key, adjust);

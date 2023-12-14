@@ -20,7 +20,6 @@ import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
-import io.permazen.util.Streams;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -228,7 +227,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         // Do puts
         final ArrayList<byte[]> putBatch = new ArrayList<byte[]>();
         try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-            Streams.iterate(puts, entry -> {
+            puts.iterator().forEachRemaining(entry -> {
                 putBatch.add(this.encodeKey(entry.getKey()));
                 putBatch.add(entry.getValue());
                 putBatch.add(entry.getValue());
@@ -238,7 +237,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         // Do adjusts
         try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-            Streams.iterate(adjusts, entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
+            adjusts.iterator().forEachRemaining(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }
     }
 

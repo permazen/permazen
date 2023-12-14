@@ -17,7 +17,6 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.Streams;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -216,7 +215,10 @@ public class KeyWatchTracker implements Closeable {
         // Extract KeyInfo objects for all keys
         final ArrayList<KeyInfo> triggerList = new ArrayList<>();
         synchronized (this) {
-            Streams.iterate(keys.map(this.keyInfos::remove).filter(Objects::nonNull), triggerList::add);
+            keys.map(this.keyInfos::remove)
+              .filter(Objects::nonNull)
+              .iterator()
+              .forEachRemaining(triggerList::add);
         }
         if (triggerList.isEmpty())
             return false;

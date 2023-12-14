@@ -8,8 +8,6 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.Streams;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -125,10 +123,11 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
         if (encodingList == null) {
             final TypeToken<?> elementTypeToken = typeToken.getComponentType();
             if (elementTypeToken != null) {
-                Streams.iterate(this.getEncodings(elementTypeToken).stream()
+                this.getEncodings(elementTypeToken).stream()
                     .map(Encoding::getEncodingId)
-                    .map(EncodingId::getArrayId),
-                  this::getEncoding);
+                    .map(EncodingId::getArrayId)
+                    .iterator()
+                    .forEachRemaining(this::getEncoding);
                 encodingList = (List<Encoding<T>>)(Object)this.byType.get(typeToken);
             }
         }

@@ -13,7 +13,6 @@ import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
-import io.permazen.util.Streams;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -145,13 +144,13 @@ public class WritesTest extends TestSupport {
         final Writes writes3 = new Writes();
         final Mutations onlineMutations = Writes.deserializeOnline(new ByteArrayInputStream(output.toByteArray()));
         try (Stream<KeyRange> removes = onlineMutations.getRemoveRanges()) {
-            Streams.iterate(removes, writes3.getRemoves()::add);
+            removes.iterator().forEachRemaining(writes3.getRemoves()::add);
         }
         try (Stream<Map.Entry<byte[], byte[]>> puts = onlineMutations.getPutPairs()) {
-            Streams.iterate(puts, put -> writes3.getPuts().put(put.getKey(), put.getValue()));
+            puts.iterator().forEachRemaining(put -> writes3.getPuts().put(put.getKey(), put.getValue()));
         }
         try (Stream<Map.Entry<byte[], Long>> adjusts = onlineMutations.getAdjustPairs()) {
-            Streams.iterate(adjusts, adjust -> writes3.getAdjusts().put(adjust.getKey(), adjust.getValue()));
+            adjusts.iterator().forEachRemaining(adjust -> writes3.getAdjusts().put(adjust.getKey(), adjust.getValue()));
         }
         assert writes3.toString().equals(writes2.toString()) :
           "onlineMutations() difference:\n  writes2=" + writes2 + "\n  writes3=" + writes3;

@@ -13,7 +13,6 @@ import io.permazen.encoding.EncodingRegistry;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
 import io.permazen.util.NavigableSets;
-import io.permazen.util.Streams;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -64,9 +63,9 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     }
     static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = new HashMap<>();
     static {
-        Streams.iterate(SchemaModel.FIELD_TAG_MAP.entrySet().stream()
-            .filter(entry -> SimpleSchemaField.class.isAssignableFrom(entry.getValue())),
-          entry -> SIMPLE_FIELD_TAG_MAP.put(entry.getKey(), entry.getValue().asSubclass(SimpleSchemaField.class)));
+        SchemaModel.FIELD_TAG_MAP.entrySet().stream()
+          .filter(entry -> SimpleSchemaField.class.isAssignableFrom(entry.getValue()))
+          .forEach(entry -> SIMPLE_FIELD_TAG_MAP.put(entry.getKey(), entry.getValue().asSubclass(SimpleSchemaField.class)));
     }
     static final Map<QName, Class<? extends AbstractSchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
     static {
