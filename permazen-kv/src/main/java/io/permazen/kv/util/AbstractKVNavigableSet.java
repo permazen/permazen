@@ -25,8 +25,10 @@ import java.util.NoSuchElementException;
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
  * keys in a {@link KVStore} and whose sort order is consistent with their {@code byte[]} key encoding.
+ *
+ * <p>
  * There must be an equivalence between elements and {@code byte[]} key encodings (i.e., there must be
- * only one valid encoding per set element). The values corresponding to the keys are ignored.
+ * only one valid encoding per set element). The values in the {@link KVStore} are ignored.
  *
  * <p><b>Subclass Methods</b></p>
  *
@@ -215,6 +217,14 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     private KVPair firstPair() {
+        return this.reversed ? this.highestPair() : this.lowestPair();
+    }
+
+    private KVPair lastPair() {
+        return this.reversed ? this.lowestPair() : this.highestPair();
+    }
+
+    private KVPair lowestPair() {
         KVPair pair = null;
         if (this.keyFilter == null) {
             pair = this.keyRange != null ?
@@ -239,7 +249,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         return pair;
     }
 
-    private KVPair lastPair() {
+    private KVPair highestPair() {
         KVPair pair = null;
         if (this.keyFilter == null) {
             pair = this.keyRange != null ?
@@ -256,7 +266,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
                 assert this.keyRange == null || this.keyRange.contains(key);
                 if (this.keyFilter.contains(key))
                     break;
-                bounds[0] = key;
+                bounds[1] = key;
                 if (!this.seekLower(bounds))
                     return null;
             }
@@ -264,12 +274,13 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         return pair;
     }
 
+    // Create bounds that intersect the keyRange (if any) and the keyFilter (which must exist)
     private byte[][] initialBounds() {
         assert this.keyFilter != null;
         final byte[][] bounds = this.keyRange != null ?
           new byte[][] { this.keyRange.getMin(), this.keyRange.getMax() } :
           new byte[][] { ByteUtil.EMPTY, null };
-        if (!seekHigher(bounds) || !seekLower(bounds))
+        if (!this.seekHigher(bounds) || !this.seekLower(bounds))
             return null;
         return bounds;
     }
