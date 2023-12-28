@@ -6,10 +6,7 @@
 package io.permazen.maven;
 
 import io.permazen.Permazen;
-import io.permazen.annotation.JField;
 import io.permazen.core.SchemaMismatchException;
-
-import io.permazen.schema.SchemaModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,46 +28,35 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * Verify the Permazen schema auto-generated from user-supplied model classes.
  *
  * <p>
- * This goal verifies that the Permazen schema can be successfully auto-generated from user-supplied model classes.
- * It also checks that the schema will not lead to any {@link SchemaMismatchException}s at runtime.
+ * This goal verifies that the Permazen schema can be successfully auto-generated from user-supplied model classes
+ * and that the generated schema matches what is expected.
  *
  * <p>
- * Such exceptions occur when either:
- * <ul>
- *  <li>There is already a schema recorded in the database under the configured schema version,
- *      but the current schema version is not compatible with it; or
- *  <li>The current schema version conflicts with one or more other schema versions
- *      recorded in the database, e.g., because an indexed field has changed its type.
- * </ul>
+ * It can also check that the schema will not generate any {@link SchemaMismatchException}s at runtime due to conflicts
+ * with older schemas that may be already present in a database. Note, these exceptions can only occur when explicit
+ * storage ID's are used.
  *
  * <p>
- * The first case is detected by having an expected schema XML file.
- * This file should correspond to the project's current schema version, and is
- * is used to verify that the schema auto-generated from the project's model classes is still
- * {@linkplain SchemaModel#isCompatibleWith "same version" compatible} with this schema version,
- * ensuring no mismatch error will occur at runtime. In other words, the actual schema generated from the compiled classes
- * is verified to match what is expected, which is recorded in this file.
+ * The expected schema check is enabled by providing an expected schema XML file. This file should correspond to the
+ * project's current schema. It will be compared with the schema that is actually generated from the model Java classes.
  * The current expected schema XML file location is configured by {@code <expectedSchemaFile>};
  *
  * <p>
- * The second case it detected by supplying XML files containing any old schema versions that are still active
- * in the old schema files directory. All files ending in {@code .xml} found anywhere under this
- * directory are checked for "different version" incompatibilities
- * with the current schema version. The old schema XML files directory is configured by {@code <oldSchemasDirectory>}.
+ * To check for conflicts with other schema versions, supply XML files containing any old schema versions in the old schema
+ * files directory. All files ending in {@code .xml} found anywhere under this directory are checked for conflicts with
+ * the current schema version. The old schema XML files directory is configured by {@code <oldSchemasDirectory>}.
  *
  * <p>
- * If this goal fails due to an incompatibility of the first type:
+ * If this goal fails due to the schema not matching what's expected:
  * <ul>
- *  <li>The old expected schema XML file should be moved into the old schemas directory;</li>
+ *  <li>The old expected schema XML file should be deleted (or moved into the old schemas directory);</li>
  *  <li>the new expected schema XML file (found in the location configured by {@code <actualSchemaFile>})
- *      should be copied to the current expected schema XML file;</li>
- *  <li>Any manually configured Permazen schema version number should be incremented.</li>
+ *      should be copied to the current expected schema XML file.</li>
  * </ul>
  *
  * <p>
  * If this goal fails due to an incompatibility of the second type, you must adjust your model classes to make
- * them compatible again. For example, manually reassign a conflicting field a different
- * {@link JField#name name()} or {@link JField#storageId storageId()} using the {@link JField &#64;JField} annotation.
+ * them compatible again by, for example, changing field names and/or explicit storage ID assignments.
  */
 @Mojo(name = "verify",
   defaultPhase = LifecyclePhase.PROCESS_CLASSES,
@@ -94,26 +80,16 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
 
     /**
      * Whether to automatically generate the expected schema file if it does not already exist.
-     * If set to {@code false}, this goal will fail instead and leave the actual schema XML file
-     * in the {@code <actualSchemaFile>} location.
+     *
+     * <p>
+     * If changed to {@code false}, this goal will fail instead and leave the actual schema XML file
+     * in the {@code <actualSchemaFile>} location if the file doesn't exist.
      */
     @Parameter(defaultValue = "true")
     private boolean autoGenerate;
 
     /**
-     * Whether to verify not only schema compatibility but also that the two schemas are identical, i.e.,
-     * the same names are used for object types, fields, and composite indexes.
-     *
-     * <p>
-     * Two schemas that are equivalent except for names are considered compatible, because the core API uses
-     * storage ID's, not names, to encode fields. However, if names change then some Permazen layer operations,
-     * such as index queries and reference path inversion, may need to be updated.
-     */
-    @Parameter(defaultValue = "true")
-    private boolean matchNames;
-
-    /**
-     * The directory containing old schema versions still in use in any existing databases.
+     * The directory containing old schemas still in use in any existing databases.
      */
     @Parameter(defaultValue = VerifySchemaMojo.OLD_SCHEMAS_DEFAULT, property = "oldSchemasDirectory")
     private File oldSchemasDirectory;
@@ -130,13 +106,10 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
         }
 
         // Verify actual vs. expected
-        if (!this.verify(jdb.getSchemaModel(), this.expectedSchemaFile, this.matchNames)) {
+        if (!this.verify(jdb.getSchemaModel(), this.expectedSchemaFile)) {
             this.getLog().info("Recommended actions to take:\n"
               + "  (a) If no schema change was intended, undo whatever Java model class change(s) caused the schema difference.\n"
-              + "  (b) Otherwise:\n"
-              + "      1. Move " + this.expectedSchemaFile + " into " + this.oldSchemasDirectory + "\n"
-              + "      2. Copy " + this.actualSchemaFile + " to " + this.expectedSchemaFile + "\n"
-              + "      3. Update your configured Permazen schema version number (or use -1 to auto-generate)");
+              + "  (b) Otherwise, move " + this.actualSchemaFile + " to " + this.expectedSchemaFile);
         }
 
         // Gather old schema files
@@ -156,8 +129,8 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
             }
         }
 
-        // Verify compatibility with old schema versions
+        // Verify compatibility with old schemas
         if (!this.verify(jdb, oldSchemaFiles.iterator()))
-            throw new MojoFailureException("current schema conflicts with one or more old schema versions");
+            throw new MojoFailureException("current schema conflicts with one or more old schemas");
     }
 }

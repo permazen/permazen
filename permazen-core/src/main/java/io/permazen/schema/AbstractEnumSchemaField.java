@@ -44,11 +44,16 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
         return this.idents;
     }
 
+    @Override
+    public boolean hasFixedEncoding() {
+        return true;
+    }
+
 // Lockdown
 
     @Override
-    public void lockDown() {
-        super.lockDown();
+    void lockDown1() {
+        super.lockDown1();
         this.idents = Collections.unmodifiableList(this.idents);
     }
 
@@ -62,11 +67,6 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException(String.format("invalid %s: %s", this, e.getMessage()), e);
         }
-    }
-
-    @Override
-    final boolean hasFixedEncoding() {
-        return true;
     }
 
 // Schema ID

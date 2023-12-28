@@ -9,7 +9,6 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.OnValidate;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
@@ -28,12 +27,12 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ValidationTest extends TestSupport {
+public class ValidationTest extends MainTestSupport {
 
     @Test
     public void testValidation() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
 
         // Transaction with validation disabled
         JTransaction tx = jdb.createTransaction(ValidationMode.DISABLED);
@@ -243,7 +242,7 @@ public class ValidationTest extends TestSupport {
     @Test
     public void testValidationOnCreate() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
 
         // Transaction with validation disabled
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
@@ -293,7 +292,7 @@ public class ValidationTest extends TestSupport {
 
     private <T extends NameThing> void testNameThing(Class<T> type) {
 
-        final Permazen jdb = BasicTest.getPermazen(type);
+        final Permazen jdb = BasicTest.newPermazen(type);
 
         // Transaction with validation enabled
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);

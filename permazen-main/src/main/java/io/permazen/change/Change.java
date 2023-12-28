@@ -72,13 +72,13 @@ public abstract class Change<T> {
      *
      * @param jobj the target object to which to apply this change
      * @param jtx the transaction in which to apply this change
-     * @throws NullPointerException if {@code jtx} or {@code jobj} is null
      * @throws io.permazen.core.DeletedObjectException if {@code jobj} does not exist in {@code jtx}
-     * @throws io.permazen.core.UnknownFieldException  if {@code jobj} has a schema version that
+     * @throws io.permazen.core.UnknownFieldException  if {@code jobj} has a schema that
      *  does not contain the affected field, or in which the affected field has a different type
      * @throws RuntimeException if there is some other incompatibility between this change and the target object,
      *  for example, setting a list element at an index that is out of bounds
      * @throws io.permazen.kv.StaleTransactionException if {@code jtx} is no longer usable
+     * @throws IllegalArgumentException if {@code jtx} or {@code jobj} is null
      */
     public abstract void apply(JTransaction jtx, JObject jobj);
 
@@ -95,7 +95,6 @@ public abstract class Change<T> {
      * @throws IllegalArgumentException if {@code jtx} is null
      */
     public void apply(JTransaction jtx) {
-        Preconditions.checkArgument(jtx != null, "null jtx");
         this.apply(jtx, this.getJObject());
     }
 

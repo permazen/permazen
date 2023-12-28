@@ -196,7 +196,7 @@ class JObjectCache {
     private JObject createJObject(ObjId id) {
 
         // Get ClassGenerator
-        final JClass<?> jclass = this.jtx.jdb.jclasses.get(id.getStorageId());
+        final JClass<?> jclass = this.jtx.jdb.jclassesByStorageId.get(id.getStorageId());
         final ClassGenerator<?> classGenerator = jclass != null ?
           jclass.getClassGenerator() : this.jtx.jdb.getUntypedClassGenerator();
 

@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
 
@@ -26,10 +27,10 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
 
     final Converter<A, B> converter;           // converts Java value -> Core API value in the forward direction
 
-    ConvertedJSimpleField(Permazen jdb, String name, int storageId, TypeToken<A> typeToken, Encoding<B> encoding,
+    ConvertedJSimpleField(String name, int storageId, TypeToken<A> typeToken, Encoding<B> encoding,
       boolean indexed, io.permazen.annotation.JField annotation, String description, Method getter, Method setter,
       Converter<A, B> converter) {
-        super(jdb, name, storageId, typeToken, encoding, indexed, annotation, description, getter, setter);
+        super(name, storageId, typeToken, encoding, indexed, annotation, description, getter, setter);
         Preconditions.checkArgument(converter != null, "null converter");
         this.converter = converter;
     }
@@ -38,6 +39,8 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
     public Converter<B, A> getConverter(JTransaction jtx) {
         return this.converter.reverse();
     }
+
+// Package Merhods
 
     @Override
     boolean isSameAs(JField that0) {
@@ -48,6 +51,9 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
             return false;
         return true;
     }
+
+    @Override
+    abstract SimpleSchemaField createSchemaItem();
 
 // POJO import/export
 
@@ -66,7 +72,7 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
     @Override
     void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
         final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
-          ClassGenerator.CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class), null, null);
+          this.converterFieldName(), Type.getDescriptor(Converter.class), null, null);
         valueField.visitEnd();
     }
 
@@ -79,7 +85,7 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
     void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
         this.outputCreateConverterBytecode(generator, mv);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, generator.getClassName(),
-          ClassGenerator.CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
+          this.converterFieldName(), Type.getDescriptor(Converter.class));
     }
 
     abstract void outputCreateConverterBytecode(ClassGenerator<?> generator, MethodVisitor mv);
@@ -92,7 +98,7 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
           this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
         mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
-          ClassGenerator.CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
+          this.converterFieldName(), Type.getDescriptor(Converter.class));
         this.outputReadCoreValueBytecode(generator, mv);
         generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
@@ -105,7 +111,7 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
           this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
         mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
-          ClassGenerator.CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
+          this.converterFieldName(), Type.getDescriptor(Converter.class));
         generator.emitInvoke(mv, ClassGenerator.CONVERTER_REVERSE_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
@@ -113,5 +119,9 @@ abstract class ConvertedJSimpleField<A, B> extends JSimpleField {
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private String converterFieldName() {
+        return ClassGenerator.CONVERTER_FIELD_PREFIX + this.getFullName().replace('.', '$');
     }
 }

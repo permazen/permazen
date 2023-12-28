@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -28,14 +30,13 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index index at which the addition occurred
      * @param element the element that was added
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldAdd(T jobj, int storageId, String fieldName, int index, E element) {
-        super(jobj, storageId, fieldName);
+    public ListFieldAdd(T jobj, String fieldName, int index, E element) {
+        super(jobj, fieldName);
         this.index = index;
         this.element = element;
     }
@@ -48,7 +49,9 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void apply(JTransaction jtx, JObject jobj) {
-        ((List<E>)jtx.readListField(jobj.getObjId(), this.getStorageId(), false)).add(this.index, this.element);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        ((List<E>)jtx.readListField(jobj.getObjId(), this.getFieldName(), false)).add(this.index, this.element);
     }
 
     /**

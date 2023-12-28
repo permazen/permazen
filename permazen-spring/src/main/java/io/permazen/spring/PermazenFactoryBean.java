@@ -7,10 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.Permazen;
-import io.permazen.PermazenFactory;
-import io.permazen.StorageIdGenerator;
+import io.permazen.PermazenConfig;
 import io.permazen.core.Database;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
@@ -26,9 +24,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
     private KVDatabase kvstore;
-    private int schemaVersion = -1;
     private EncodingRegistry encodingRegistry;
-    private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Collection<Class<?>> modelClasses;
 
 // Properties
@@ -37,16 +33,8 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         this.kvstore = kvstore;
     }
 
-    public void setSchemaVersion(int schemaVersion) {
-        this.schemaVersion = schemaVersion;
-    }
-
     public void setEncodingRegistry(EncodingRegistry encodingRegistry) {
         this.encodingRegistry = encodingRegistry;
-    }
-
-    public void setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
-        this.storageIdGenerator = storageIdGenerator;
     }
 
     public void setModelClasses(Collection<Class<?>> modelClasses) {
@@ -71,20 +59,15 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
     @Override
     protected Permazen createInstance() {
 
-        // Apply defaults
-        KVDatabase kvstore1 = this.kvstore;
-        int schemaVersion1 = this.schemaVersion;
-        if (kvstore1 == null)
-            kvstore1 = new SimpleKVDatabase();
-        final Database db = new Database(kvstore1);
+        // Build underlying database
+        final Database db = new Database(this.kvstore != null ? this.kvstore : new SimpleKVDatabase());
 
         // Build Permazen
-        return new PermazenFactory()
-          .setDatabase(db)
-          .setSchemaVersion(schemaVersion1)
-          .setEncodingRegistry(this.encodingRegistry)
-          .setStorageIdGenerator(this.storageIdGenerator)
-          .setModelClasses(this.modelClasses)
+        return PermazenConfig.builder()
+          .database(db)
+          .encodingRegistry(this.encodingRegistry)
+          .modelClasses(this.modelClasses)
+          .build()
           .newPermazen();
     }
 }

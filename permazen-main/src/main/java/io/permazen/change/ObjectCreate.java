@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnCreate;
@@ -39,6 +41,7 @@ public class ObjectCreate<T> extends Change<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
+        Preconditions.checkArgument(jtx != null, "null jtx");
         jtx.recreate(jobj);
     }
 

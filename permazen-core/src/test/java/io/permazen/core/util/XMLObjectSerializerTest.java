@@ -69,6 +69,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        schema1.lockDown(true);
         final SchemaId schemaId1 = schema1.getSchemaId();
 
         Transaction tx = db.createTransaction(schema1);
@@ -156,6 +157,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        schema2.lockDown(true);
         final SchemaId schemaId2 = schema2.getSchemaId();
 
         tx = db.createTransaction(schema2);
@@ -212,7 +214,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         // Compare generated XML to expected
         this.log.info("verifying XML output with \"{}\"", resource);
-        this.assertSameOrDiff(new String(buf, StandardCharsets.UTF_8), text);
+        this.assertSameOrDiff(text, new String(buf, StandardCharsets.UTF_8));
 
         // Parse XML back into a detached transaction
         if (reparse)

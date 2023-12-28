@@ -11,7 +11,13 @@ import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.NavigableSet;
 
-abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
+/**
+ * A simple index on a {@link ComplexField} sub-field.
+ *
+ * @param <C> the type of the complex field
+ * @param <T> the type of the indexed sub-field
+ */
+public abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
 
     final ComplexField<C> parentRepresentative;
 
@@ -26,15 +32,10 @@ abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
 // Package methods
 
     @Override
-    public final CoreIndex<T, ObjId> getIndex(Transaction tx) {
-        return new CoreIndex<>(tx.kvt,
-          new IndexView<>(UnsignedIntEncoder.encode(this.storageId),
+    public final CoreIndex1<T, ObjId> getIndex(Transaction tx) {
+        return new CoreIndex1<>(tx.kvt,
+          new Index1View<>(UnsignedIntEncoder.encode(this.storageId),
             this.isPrefixModeForIndex(), this.getField().getEncoding(), Encodings.OBJ_ID));
-    }
-
-    @Override
-    String getFieldDisplayName(SimpleField<?> field) {
-        return String.format("%s.%s", field.parent.name, field.name);
     }
 
     // Does this simple index require prefix mode?

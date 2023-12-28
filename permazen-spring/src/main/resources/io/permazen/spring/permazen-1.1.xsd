@@ -47,32 +47,10 @@
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="schema-version" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
-            The database schema version corresponding to the Java model classes.
-            Defaults to zero (i.e., unspecified).
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
                     <xsd:attribute name="encoding-registry" type="xsd:string" use="optional">
                         <xsd:annotation>
                             <xsd:documentation><![CDATA[
             Bean name reference to a custom EncodingRegistry.
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="storage-id-generator" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
-            Bean name reference to a custom StorageIdGenerator.
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="auto-generate-storage-ids" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
-            Whether to enable automatic generation of storage IDs. Default true.
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>

@@ -5,6 +5,7 @@
 
 package io.permazen.annotation;
 
+import io.permazen.DetachedJTransaction;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.core.Transaction;
@@ -74,7 +75,7 @@ import java.lang.annotation.Target;
  * It may have any level of access, including {@code private}.
  *
  * <p>
- * Some notifications may need to be ignored by objects in {@linkplain DetachedTransaction detached} transactions;
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedJTransaction detached} transactions;
  * you can use {@code this.isDetached()} to detect that situation.
  *
  * <p>

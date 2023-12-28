@@ -7,16 +7,15 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.index.Index;
-import io.permazen.test.TestSupport;
+import io.permazen.index.Index1;
 
 import org.testng.annotations.Test;
 
-public class RawTypeTest extends TestSupport {
+public class RawTypeTest extends MainTestSupport {
 
     @Test
     public void testRawType() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Widget.class);
+        final Permazen jdb = BasicTest.newPermazen(Widget.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -36,8 +35,8 @@ public class RawTypeTest extends TestSupport {
         public abstract void setName(String name);
 
         @SuppressWarnings("rawtypes")
-        public static Index<String, AbstractData> queryByName() {
-            return JTransaction.getCurrent().queryIndex(AbstractData.class, "name", String.class);
+        public static Index1<String, AbstractData> queryByName() {
+            return JTransaction.getCurrent().querySimpleIndex(AbstractData.class, "name", String.class);
         }
     }
 

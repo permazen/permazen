@@ -48,7 +48,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setKeyField(SimpleSchemaField keyField) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.keyField = keyField;
     }
 
@@ -68,7 +68,7 @@ public class MapSchemaField extends ComplexSchemaField implements DiffGenerating
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setValueField(SimpleSchemaField valueField) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.valueField = valueField;
     }
 

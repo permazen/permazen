@@ -17,8 +17,8 @@ import io.permazen.schema.EnumSchemaField;
  */
 public class EnumField extends SimpleField<EnumValue> {
 
-    EnumField(Schema schema, EnumSchemaField field, boolean indexed) {
-        super(schema, field, new EnumValueEncoding(field.getIdentifiers()), indexed);
+    EnumField(ObjType objType, EnumSchemaField field, boolean indexed) {
+        super(objType, field, new EnumValueEncoding(field.getIdentifiers()), indexed);
     }
 
 // Public methods

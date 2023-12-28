@@ -38,7 +38,7 @@ public enum ValidationMode {
      * <ul>
      *  <li>An instance is {@linkplain JTransaction#create created}, and the Java model type (or any super-type)
      *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
-     *  <li>An instance is {@linkplain JObject#upgrade upgraded}, and the Java model type (or any super-type)
+     *  <li>An instance is {@linkplain JObject#migrateSchema migrated}, and the Java model type (or any super-type)
      *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
      *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>

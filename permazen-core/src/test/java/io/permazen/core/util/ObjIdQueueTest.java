@@ -10,6 +10,7 @@ import io.permazen.core.ObjId;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import org.testng.annotations.Test;
@@ -81,9 +82,9 @@ public class ObjIdQueueTest extends CoreAPITestSupport {
                 } else {
 
                     // Remove next ObjId
-                    final ObjId lifoNext = lifo.next();
-                    final ObjId fifoNext = fifo.next();
-                    final ObjId unorNext = unor.next();
+                    final ObjId lifoNext = next(lifo);
+                    final ObjId fifoNext = next(fifo);
+                    final ObjId unorNext = next(unor);
 
 //                    this.log.debug("ObjIdQueueTest: NEXT: LIFO={} FIFO={} UNOR={}", lifoNext, fifoNext, unorNext);
 
@@ -105,9 +106,9 @@ public class ObjIdQueueTest extends CoreAPITestSupport {
             }
 
             // Verify queues are now empty
-            assert lifo.next() == null;
-            assert fifo.next() == null;
-            assert unor.next() == null;
+            assert next(lifo) == null;
+            assert next(fifo) == null;
+            assert next(unor) == null;
 
 //            this.log.debug("ObjIdQueueTest:"
 //                + "\n  FIFO-EXPECT: {}\n  FIFO-RESULT: {}"
@@ -122,6 +123,14 @@ public class ObjIdQueueTest extends CoreAPITestSupport {
             assert Objects.equals(lifoResult, lifoExpect);
             assert new java.util.HashSet<>(unorResult).equals(new java.util.HashSet<>(unorExpect));
             assert Objects.equals(unorResult, unorExpect);
+        }
+    }
+
+    ObjId next(ObjIdQueue queue) {
+        try {
+            return queue.next();
+        } catch (NoSuchElementException e) {
+            return null;
         }
     }
 }

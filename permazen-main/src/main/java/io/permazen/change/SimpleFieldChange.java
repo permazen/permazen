@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -26,14 +28,13 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param oldValue the old field value
      * @param newValue the new field value
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SimpleFieldChange(T jobj, int storageId, String fieldName, V oldValue, V newValue) {
-        super(jobj, storageId, fieldName);
+    public SimpleFieldChange(T jobj, String fieldName, V oldValue, V newValue) {
+        super(jobj, fieldName);
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
@@ -45,7 +46,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.writeSimpleField(jobj, this.getStorageId(), this.newValue, false);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        jtx.writeSimpleField(jobj, this.getFieldName(), this.newValue, false);
     }
 
     /**

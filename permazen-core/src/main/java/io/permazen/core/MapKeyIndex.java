@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Represents an index on the keys of a map field.
+ * An index on the keys of a map field.
  *
  * @param <K> map key type
  * @param <V> map value type

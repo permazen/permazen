@@ -16,6 +16,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * A {@link KeyFilter} based on an {@link AbstractIndexView}. A prefix of the fields is used to filter the key directly,
@@ -26,7 +27,7 @@ class IndexKeyFilter implements KeyFilter {
 
     private final KVStore kv;
     private final byte[] prefix;                                // prefix to always skip over
-    private final Encoding<?>[] encodings;                    // fields to decode after prefix
+    private final Encoding<?>[] encodings;                      // fields to decode after prefix
     private final KeyFilter[] filters;                          // filters to apply to fields
     private final int prefixLen;                                // how many fields are mandatory
 
@@ -71,6 +72,7 @@ class IndexKeyFilter implements KeyFilter {
         this.filters = filters.clone();
         this.prefixLen = prefixLen;
         this.prefixFilter = new EncodingsFilter(this.prefix, this.encodings, this.filters, 0, this.prefixLen);
+        assert Stream.of(this.encodings).allMatch(encoding -> encoding == Index.genericize(encoding));
     }
 
     @Override

@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.index.Index;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
@@ -25,7 +26,7 @@ import java.util.List;
  *
  * @param <T> index target type
  */
-public abstract class AbstractCoreIndex<T> {
+public abstract class AbstractCoreIndex<T> implements Index<T> {
 
     final KVStore kv;
     final AbstractIndexView indexView;

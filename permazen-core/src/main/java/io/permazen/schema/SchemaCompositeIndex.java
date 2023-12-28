@@ -47,8 +47,8 @@ public class SchemaCompositeIndex extends AbstractObjectTypeMember implements Di
 // Lockdown
 
     @Override
-    public void lockDown() {
-        super.lockDown();
+    void lockDown1() {
+        super.lockDown1();
         this.indexedFields = Collections.unmodifiableList(this.indexedFields);
     }
 

@@ -7,16 +7,15 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
-import io.permazen.test.TestSupport;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ConstructorTest extends TestSupport {
+public class ConstructorTest extends MainTestSupport {
 
     @Test
     public void testConstrutorWithParam() {
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -30,7 +29,7 @@ public class ConstructorTest extends TestSupport {
     @Test
     public void testPrivateConstrutor() {
         try {
-            BasicTest.getPermazen(Person2.class);
+            BasicTest.newPermazen(Person2.class);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
@@ -40,7 +39,7 @@ public class ConstructorTest extends TestSupport {
     @Test
     public void testMissingConstrutor() {
         try {
-            BasicTest.getPermazen(Person3.class);
+            BasicTest.newPermazen(Person3.class);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected

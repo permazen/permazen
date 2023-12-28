@@ -15,7 +15,7 @@ import io.permazen.util.UnsignedIntEncoder;
  * @param <V> indexed value type
  * @param <T> target type
  */
-class IndexView<V, T> extends AbstractIndexView {
+class Index1View<V, T> extends AbstractIndexView {
 
     /**
      * Normal constructor.
@@ -25,7 +25,7 @@ class IndexView<V, T> extends AbstractIndexView {
      * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(int storageId, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
+    Index1View(int storageId, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
         this(UnsignedIntEncoder.encode(storageId), false, valueEncoding, targetEncoding);
     }
 
@@ -38,12 +38,12 @@ class IndexView<V, T> extends AbstractIndexView {
      * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    IndexView(byte[] prefix, boolean prefixMode, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
+    Index1View(byte[] prefix, boolean prefixMode, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
         super(prefix, prefixMode, valueEncoding, targetEncoding);
     }
 
     // Internal copy constructor
-    private IndexView(IndexView<V, T> original) {
+    private Index1View(Index1View<V, T> original) {
         super(original);
     }
 
@@ -59,12 +59,12 @@ class IndexView<V, T> extends AbstractIndexView {
 
     @Override
     @SuppressWarnings("unchecked")
-    public IndexView<V, T> filter(int index, KeyFilter keyFilter) {
-        return (IndexView<V, T>)super.filter(index, keyFilter);
+    public Index1View<V, T> filter(int index, KeyFilter keyFilter) {
+        return (Index1View<V, T>)super.filter(index, keyFilter);
     }
 
     @Override
-    protected IndexView<V, T> copy() {
-        return new IndexView<>(this);
+    protected Index1View<V, T> copy() {
+        return new Index1View<>(this);
     }
 }

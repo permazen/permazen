@@ -97,10 +97,10 @@ class Index4View<V1, V2, V3, V4, T> extends AbstractIndexView {
 
 // Tuple views
 
-    public IndexView<Tuple4<V1, V2, V3, V4>, T> asTuple4IndexView() {
+    public Index1View<Tuple4<V1, V2, V3, V4>, T> asTuple4Index1View() {
 
         // Create new IndexView
-        IndexView<Tuple4<V1, V2, V3, V4>, T> indexView = new IndexView<>(this.prefix, this.prefixMode,
+        Index1View<Tuple4<V1, V2, V3, V4>, T> indexView = new Index1View<>(this.prefix, this.prefixMode,
           new Tuple4Encoding<>(this.getValue1Encoding(), this.getValue2Encoding(),
             this.getValue3Encoding(), this.getValue4Encoding()), this.getTargetEncoding());
 

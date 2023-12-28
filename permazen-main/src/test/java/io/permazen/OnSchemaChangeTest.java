@@ -6,26 +6,31 @@
 package io.permazen;
 
 import io.permazen.annotation.JField;
-import io.permazen.annotation.OnVersionChange;
+import io.permazen.annotation.OnSchemaChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.test.TestSupport;
 
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnVersionChangeTest extends TestSupport {
+public class OnSchemaChangeTest extends MainTestSupport {
+
+    private static final ThreadLocal<List<SchemaId>> SCHEMA_IDS = new ThreadLocal<>();
 
     @Test
-    public void testOnVersionChange() {
+    public void testOnSchemaChange() {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
@@ -36,9 +41,13 @@ public class OnVersionChangeTest extends TestSupport {
         ObjId id4;
         ObjId id5;
 
+        SCHEMA_IDS.set(Arrays.asList(null, null, null, null));
+
     // Version 1
 
-        Permazen jdb = new Permazen(db, 1, null, Arrays.<Class<?>>asList(Person1.class));
+        Permazen jdb = BasicTest.newPermazen(db, Person1.class);
+        final SchemaId schemaId1 = jdb.getSchemaModel().getSchemaId();
+        SCHEMA_IDS.get().set(0, schemaId1);
         JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -74,10 +83,15 @@ public class OnVersionChangeTest extends TestSupport {
             p4.setEnum1(Enum1.DDD);
             p5.setEnum1(Enum1.EEE);
 
-            Assert.assertEquals(p1.getSchemaVersion(), 1);
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              1, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.queryIndex(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
+            Assert.assertEquals(p1.getSchemaId(), schemaId1);
+            Assert.assertEquals(p2.getSchemaId(), schemaId1);
+            Assert.assertEquals(p3.getSchemaId(), schemaId1);
+            Assert.assertEquals(p4.getSchemaId(), schemaId1);
+            Assert.assertEquals(p5.getSchemaId(), schemaId1);
+
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId1, buildSet(p1, p2, p3, p4, p5)));
+            TestSupport.checkMap(tx.querySimpleIndex(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
               Enum1.AAA, buildSet(p1),
               Enum1.BBB, buildSet(p2),
               Enum1.CCC, buildSet(p3),
@@ -92,7 +106,9 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 2
 
-        jdb = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Person2.class));
+        jdb = BasicTest.newPermazen(db, Person2.class);
+        final SchemaId schemaId2 = jdb.getSchemaModel().getSchemaId();
+        SCHEMA_IDS.get().set(1, schemaId2);
         tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -103,31 +119,31 @@ public class OnVersionChangeTest extends TestSupport {
             final Person2 p4 = tx.get(id4, Person2.class);
             final Person2 p5 = tx.get(id5, Person2.class);
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              1, buildSet(p1, p2, p3, p4, p5)));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId1, buildSet(p1, p2, p3, p4, p5)));
 
-            Assert.assertEquals(p1.getSchemaVersion(), 1);
-            Assert.assertEquals(p2.getSchemaVersion(), 1);
-            Assert.assertEquals(p3.getSchemaVersion(), 1);
-            Assert.assertEquals(p4.getSchemaVersion(), 1);
-            Assert.assertEquals(p5.getSchemaVersion(), 1);
+            Assert.assertEquals(p1.getSchemaId(), schemaId1);
+            Assert.assertEquals(p2.getSchemaId(), schemaId1);
+            Assert.assertEquals(p3.getSchemaId(), schemaId1);
+            Assert.assertEquals(p4.getSchemaId(), schemaId1);
+            Assert.assertEquals(p5.getSchemaId(), schemaId1);
 
-            p1.upgrade();
-            p2.upgrade();
-            p3.upgrade();
+            p1.migrateSchema();
+            p2.migrateSchema();
+            p3.migrateSchema();
 
-            Assert.assertEquals(p1.getSchemaVersion(), 2);
-            Assert.assertEquals(p2.getSchemaVersion(), 2);
-            Assert.assertEquals(p3.getSchemaVersion(), 2);
-            Assert.assertEquals(p4.getSchemaVersion(), 1);
-            Assert.assertEquals(p5.getSchemaVersion(), 1);
+            Assert.assertEquals(p1.getSchemaId(), schemaId2);
+            Assert.assertEquals(p2.getSchemaId(), schemaId2);
+            Assert.assertEquals(p3.getSchemaId(), schemaId2);
+            Assert.assertEquals(p4.getSchemaId(), schemaId1);
+            Assert.assertEquals(p5.getSchemaId(), schemaId1);
 
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              1, buildSet(p4, p5),
-              2, buildSet(p1, p2, p3)));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId1, buildSet(p4, p5),
+              schemaId2, buildSet(p1, p2, p3)));
 
             Assert.assertEquals(p2.getLastName(), "Jones");
             Assert.assertEquals(p2.getFirstName(), "Fred");
@@ -145,9 +161,9 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
             Assert.assertNull(p5.getEnum2());
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              2, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.queryIndex(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId2, buildSet(p1, p2, p3, p4, p5)));
+            TestSupport.checkMap(tx.querySimpleIndex(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
               null, buildSet(p1, p5),
               Enum2.BBB, buildSet(p2),
               Enum2.CCC, buildSet(p3),
@@ -165,7 +181,9 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 3
 
-        jdb = new Permazen(db, 3, null, Arrays.<Class<?>>asList(Person3.class));
+        jdb = BasicTest.newPermazen(db, Person3.class);
+        final SchemaId schemaId3 = jdb.getSchemaModel().getSchemaId();
+        SCHEMA_IDS.get().set(2, schemaId3);
         tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -176,16 +194,16 @@ public class OnVersionChangeTest extends TestSupport {
             final Person3 p4 = tx.get(id4, Person3.class);
             final Person3 p5 = tx.get(id5, Person3.class);
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              2, buildSet(p1, p2, p3, p4, p5)));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId2, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              2, buildSet(p4, p5),
-              3, buildSet(p1, p2, p3)));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId2, buildSet(p4, p5),
+              schemaId3, buildSet(p1, p2, p3)));
 
             tx.commit();
 
@@ -195,7 +213,9 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 4
 
-        jdb = new Permazen(db, 4, null, Arrays.<Class<?>>asList(Person4.class, Name.class));
+        jdb = BasicTest.newPermazen(db, Person4.class, Name.class);
+        final SchemaId schemaId4 = jdb.getSchemaModel().getSchemaId();
+        SCHEMA_IDS.get().set(3, schemaId4);
         tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -206,9 +226,9 @@ public class OnVersionChangeTest extends TestSupport {
             final Person4 p4 = tx.get(id4, Person4.class);
             final Person4 p5 = tx.get(id5, Person4.class);
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              2, buildSet(p4, p5),
-              3, buildSet(p1, p2, p3)));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId2, buildSet(p4, p5),
+              schemaId3, buildSet(p1, p2, p3)));
 
             Assert.assertEquals(p1.getName().getLastName(), "Smith");
             Assert.assertEquals(p1.getName().getFirstName(), "Joe");
@@ -221,18 +241,18 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
-              2, buildSet(p4, p5),
-              4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
+            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+              schemaId2, buildSet(p4, p5),
+              schemaId4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
 
-            TestSupport.checkMap(tx.queryVersion(Object.class), buildMap(
-              2, buildSet(p4, p5),
-              4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
+            TestSupport.checkMap(tx.querySchemaIndex(Object.class), buildMap(
+              schemaId2, buildSet(p4, p5),
+              schemaId4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
 
-            TestSupport.checkMap(tx.queryVersion(Name.class), buildMap(
-              4, buildSet(p1.getName(), p2.getName(), p3.getName())));
+            TestSupport.checkMap(tx.querySchemaIndex(Name.class), buildMap(
+              schemaId4, buildSet(p1.getName(), p2.getName(), p3.getName())));
 
-            TestSupport.checkMap(tx.queryVersion(Iterable.class), buildMap());
+            TestSupport.checkMap(tx.querySchemaIndex(Iterable.class), buildMap());
 
             tx.commit();
 
@@ -240,21 +260,29 @@ public class OnVersionChangeTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
+        SCHEMA_IDS.remove();
     }
 
     @Test
     public void testSignature1() throws Exception {
-        try {
-            BasicTest.getPermazen(SignatureCheck1.class);
-            assert false : "expected error";
-        } catch (IllegalArgumentException e) {
-            log.info("got expected {}", e.toString());
+        for (Class<?> c : new Class<?>[] {
+            SignatureBad1.class,
+            SignatureBad2.class,
+            SignatureBad3.class,
+            SignatureBad4.class
+        }) {
+            try {
+                BasicTest.newPermazen(c);
+                assert false : "expected error";
+            } catch (IllegalArgumentException e) {
+                log.info("got expected {}", e.toString());
+            }
         }
     }
 
     @Test
     public void testSignature2() throws Exception {
-        BasicTest.getPermazen(SignatureCheck2.class);
+        BasicTest.newPermazen(SignatureOk.class);
     }
 
 // HasName
@@ -274,7 +302,7 @@ public class OnVersionChangeTest extends TestSupport {
         EEE;    // 4
     }
 
-    @PermazenType(storageId = 100)
+    @PermazenType(name = "Person", storageId = 100)
     public abstract static class Person1 implements JObject {
 
         @JField(storageId = 97)
@@ -289,7 +317,7 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract Person1 getFriend();
         public abstract void setFriend(Person1 friend);
 
-        @JField(storageId = 101)
+        @JField(storageId = 106)
         public abstract String getName();
         public abstract void setName(String lastName);
     }
@@ -302,7 +330,7 @@ public class OnVersionChangeTest extends TestSupport {
         DDD;    // 2
     }
 
-    @PermazenType(storageId = 100, autogenFields = false)
+    @PermazenType(name = "Person", storageId = 100, autogenFields = false)
     public abstract static class Person2 implements JObject, HasName {
 
         @JField(storageId = 97)
@@ -327,15 +355,15 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @OnVersionChange
-        private void versionChange(int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
-            assert oldVersion == 1;
-            assert newVersion == 2;
+        @OnSchemaChange
+        private void versionChange(Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
+            Assert.assertEquals(oldSchemaId, SCHEMA_IDS.get().get(0));
+            Assert.assertEquals(newSchemaId, SCHEMA_IDS.get().get(1));
 
             // Verify enum old value
             final int index = this.getIndex();
             final Enum1 oldEnumValue = Enum1.values()[index - 1];
-            Assert.assertEquals(oldValues.get(98), new EnumValue(oldEnumValue), "wrong enum for index " + index);
+            Assert.assertEquals(oldValues.get("enum1"), new EnumValue(oldEnumValue), "wrong enum for index " + index);
 
             // Update enum value
             switch (oldEnumValue) {
@@ -353,7 +381,7 @@ public class OnVersionChangeTest extends TestSupport {
             }
 
             // Get old name
-            final String name = (String)oldValues.get(101);
+            final String name = (String)oldValues.get("name");
             if (name == null)
                 return;
 
@@ -362,16 +390,16 @@ public class OnVersionChangeTest extends TestSupport {
             this.setLastName(name.substring(0, comma).trim());
             this.setFirstName(name.substring(comma + 1).trim());
             if (this.getLastName().equals("Smith")) {
-                final Person2 oldFriend = (Person2)oldValues.get(99);
+                final Person2 oldFriend = (Person2)oldValues.get("friend");
                 Assert.assertEquals(oldFriend.getLastName(), "Jones");
             } else if (this.getLastName().equals("Jones")) {
-                final Person2 oldFriend = (Person2)oldValues.get(99);
+                final Person2 oldFriend = (Person2)oldValues.get("friend");
                 Assert.assertEquals(oldFriend.getLastName(), "Brown");
             } else
-                Assert.assertNull(oldValues.get(99));
+                Assert.assertNull(oldValues.get("friend"));
         }
 
-        @OnVersionChange(oldVersion = 1, newVersion = 2)
+        @OnSchemaChange
         private void versionChange2(Map<String, Object> oldValues) {
             switch (this.getIndex()) {
             case 1:
@@ -397,7 +425,7 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 3
 
-    @PermazenType(storageId = 100, autogenFields = false)
+    @PermazenType(name = "Person", storageId = 100, autogenFields = false)
     public abstract static class Person3 implements JObject, HasName {
 
         @JField(storageId = 101, indexed = true)
@@ -414,15 +442,21 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract float getAge();
         public abstract void setAge(float age);
 
-        @OnVersionChange(oldVersion = 2, newVersion = 3)
-        private void versionChange(Map<Integer, Object> oldValues) {
-            this.setAge((float)(int)((Integer)oldValues.get(103)));
+        @OnSchemaChange
+        private void versionChange(Map<String, Object> oldValues) {
+            this.setAge((float)(int)((Integer)oldValues.get("age")));
+        }
+
+        @OnSchemaChange
+        private void checkIds(Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
+            assert SCHEMA_IDS.get().indexOf(oldSchemaId) <= 1;
+            assert SCHEMA_IDS.get().indexOf(newSchemaId) == 2;
         }
     }
 
 // Version 4
 
-    @PermazenType(storageId = 100, autogenFields = false)
+    @PermazenType(name = "Person", storageId = 100, autogenFields = false)
     public abstract static class Person4 implements JObject {
 
         @JField(storageId = 105)
@@ -434,56 +468,104 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract float getAge();
         public abstract void setAge(float age);
 
-        @OnVersionChange(newVersion = 4)
-        private void versionChange(int oldVersion, Map<Integer, Object> oldValues) {
-            switch (oldVersion) {
+        @OnSchemaChange
+        private void versionChange(Map<String, Object> oldValues, SchemaId oldSchemaId) {
+            switch (SCHEMA_IDS.get().indexOf(oldSchemaId)) {
+            case 0:
+            case 1:
+                break;
             case 2:
             case 3:
                 final Name name = JTransaction.getCurrent().create(Name.class);
-                name.setLastName((String)oldValues.get(101));
-                name.setFirstName((String)oldValues.get(102));
+                name.setLastName((String)oldValues.get("lastName"));
+                name.setFirstName((String)oldValues.get("firstName"));
                 this.setName(name);
                 break;
             default:
-                break;
+                throw new RuntimeException("oldSchemaId=" + oldSchemaId);
             }
         }
 
-        // Version numbers being completely ignored
-        @OnVersionChange
-        private void versionChange2(Map<Integer, Object> oldValues) {
+        @OnSchemaChange
+        private void versionChange2(Map<String, Object> oldValues) {
+        }
+
+        @OnSchemaChange
+        private void checkIds(Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
+            assert SCHEMA_IDS.get().indexOf(oldSchemaId) <= 2;
+            assert SCHEMA_IDS.get().indexOf(newSchemaId) == 3;
         }
     }
 
     @PermazenType(storageId = 200, autogenFields = false)
     public abstract static class Name implements JObject, HasName {
 
-        @JField(storageId = 201, indexed = true)
+        @JField(name = "lastName2", storageId = 201, indexed = true)
         @Override
         public abstract String getLastName();
         public abstract void setLastName(String lastName);
 
-        @JField(storageId = 202)
+        @JField(name = "firstName2", storageId = 202)
         @Override
         public abstract String getFirstName();
         public abstract void setFirstName(String firstName);
     }
 
-// Method signature check
+// Method signature checks
 
     @PermazenType
-    public abstract static class SignatureCheck1 implements JObject {
+    public abstract static class SignatureOk implements JObject {
 
-        @OnVersionChange
-        private void migrate(int oldVersion, int newVersion, Map<Integer, Object> oldValues, float bogus) {
+        // Valid method signature
+        @OnSchemaChange
+        private void migrate(Map<String, Object> oldValues) {
+        }
+
+        // Valid method signature
+        @OnSchemaChange
+        private void migrate(Map<String, Object> oldValues, SchemaId oldSchemaId) {
+        }
+
+        // Valid method signature
+        @OnSchemaChange
+        private void migrate(Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
         }
     }
 
     @PermazenType
-    public abstract static class SignatureCheck2 implements JObject {
+    public abstract static class SignatureBad1 implements JObject {
 
-        @OnVersionChange
-        private void migrate(Map<Integer, Object> oldValues) {
+        // Bogus extra parameter
+        @OnSchemaChange
+        private void migrate(SchemaId oldSchemaId, SchemaId newSchemaId, Map<String, Object> oldValues, float bogus) {
+        }
+    }
+
+    @PermazenType
+    public abstract static class SignatureBad2 implements JObject {
+
+        // Parameters in wrong order
+        @OnSchemaChange
+        private void migrate(SchemaId oldSchemaId, Map<String, Object> oldValues) {
+        }
+    }
+
+    @PermazenType
+    public abstract static class SignatureBad3 implements JObject {
+
+        // Bogus return value
+        @OnSchemaChange
+        private boolean migrate(Map<String, Object> oldValues) {
+            return false;
+        }
+    }
+
+    @PermazenType
+    public abstract static class SignatureBad4 implements JObject {
+
+        // Bogus param type
+        @OnSchemaChange
+        private void migrate(SortedMap<String, Object> oldValues) {
         }
     }
 }

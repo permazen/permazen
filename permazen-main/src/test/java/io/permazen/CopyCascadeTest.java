@@ -10,16 +10,17 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
 import io.permazen.core.util.ObjIdSet;
-import io.permazen.test.TestSupport;
+
+import java.util.Iterator;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CopyCascadeTest extends TestSupport {
+public class CopyCascadeTest extends MainTestSupport {
 
     @Test
     public void testNullCopyCascade() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Node.class);
+        final Permazen jdb = BasicTest.newPermazen(Node.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -28,7 +29,7 @@ public class CopyCascadeTest extends TestSupport {
             assert n1.exists();
 
             final JTransaction stx = jtx.getDetachedTransaction();
-            final Node n2 = (Node)n1.cascadeCopyTo(stx, null, 0, false);
+            final Node n2 = (Node)n1.copyTo(stx, 0, new CopyState());
             assert n2.exists();
 
             jtx.commit();
@@ -40,7 +41,7 @@ public class CopyCascadeTest extends TestSupport {
 
     @Test
     public void testCopyCascades() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Node.class, Other.class);
+        final Permazen jdb = BasicTest.newPermazen(Node.class, Other.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         final DetachedJTransaction sjtx = jtx.getDetachedTransaction();
         JTransaction.setCurrent(jtx);
@@ -76,7 +77,7 @@ public class CopyCascadeTest extends TestSupport {
 
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
-            c.cascadeCopyOut("ancestors", false);
+            c.copyOut("ancestors");
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 2);
             Assert.assertEquals(sa.exists(), true);
             Assert.assertEquals(sb.exists(), false);
@@ -88,7 +89,7 @@ public class CopyCascadeTest extends TestSupport {
             sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
-            c.cascadeCopyOut("descendants", false);
+            c.copyOut("descendants");
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 2);
             Assert.assertEquals(sa.exists(), false);
             Assert.assertEquals(sb.exists(), false);
@@ -100,7 +101,7 @@ public class CopyCascadeTest extends TestSupport {
             sjtx.getAll(JObject.class).stream().iterator().forEachRemaining(JObject::delete);
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 0);
 
-            c.cascadeCopyOut("tree", false);
+            c.copyOut("tree");
             Assert.assertEquals(sjtx.getAll(Object.class).size(), 4);
             Assert.assertEquals(sjtx.get(a).exists(), true);
             Assert.assertEquals(sjtx.get(b).exists(), true);
@@ -122,7 +123,7 @@ public class CopyCascadeTest extends TestSupport {
 
             other.setNodeRef(a);
 
-            a.cascadeCopyOut("tree", false);
+            a.copyOut("tree");
 
             Assert.assertTrue(sa.exists());
             Assert.assertFalse(sother.exists());
@@ -140,36 +141,54 @@ public class CopyCascadeTest extends TestSupport {
             final ObjIdSet ids = new ObjIdSet();
 
             ids.clear();
-            jtx.cascadeFindAll(ia, "tree", -1, ids);
+            exhaust(jtx.cascade(ia, -1, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
 
             ids.clear();
-            jtx.cascadeFindAll(ia, "tree", 0, ids);
+            exhaust(jtx.cascade(ia, 0, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia));
 
             ids.clear();
-            jtx.cascadeFindAll(ia, "tree", 1, ids);
+            exhaust(jtx.cascade(ia, 1, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic));
 
             ids.clear();
-            jtx.cascadeFindAll(ia, "tree", 2, ids);
+            exhaust(jtx.cascade(ia, 2, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
 
             ids.clear();
-            jtx.cascadeFindAll(ib, "tree", 2, ids);
+            exhaust(jtx.cascade(ib, 2, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic));
 
             ids.clear();
-            jtx.cascadeFindAll(ib, "tree", 3, ids);
+            exhaust(jtx.cascade(ib, 3, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
 
             ids.clear();
-            jtx.cascadeFindAll(ib, "tree", Integer.MAX_VALUE, ids);
+            exhaust(jtx.cascade(ib, Integer.MAX_VALUE, ids, "tree"));
             Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
 
             ids.clear();
-            jtx.cascadeFindAll(ib, "ancestors", Integer.MAX_VALUE, ids);
+            exhaust(jtx.cascade(ib, Integer.MAX_VALUE, ids, "ancestors"));
             Assert.assertEquals(ids, buildSet(ia, ib));
+
+        // Check cascade through multiple cascade names
+
+            ids.clear();
+            exhaust(jtx.cascade(ic, 0, ids, "ancestors", "descendants"));
+            Assert.assertEquals(ids, buildSet(ic));
+
+            ids.clear();
+            exhaust(jtx.cascade(ic, 1, ids, "ancestors", "descendants"));
+            Assert.assertEquals(ids, buildSet(ia, ic, id));
+
+            ids.clear();
+            exhaust(jtx.cascade(ic, 2, ids, "ancestors", "descendants"));
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
+
+            ids.clear();
+            exhaust(jtx.cascade(ic, 3, ids, "ancestors", "descendants"));
+            Assert.assertEquals(ids, buildSet(ia, ib, ic, id));
 
         // Done
 
@@ -180,6 +199,11 @@ public class CopyCascadeTest extends TestSupport {
         }
     }
 
+    private static void exhaust(Iterator<ObjId> i) {
+        while (i.hasNext())
+            i.next();
+    }
+
 // Model Classes
 
     @PermazenType
@@ -188,8 +212,9 @@ public class CopyCascadeTest extends TestSupport {
         /**
          * Get the parent of this node, or null if node is the root.
          */
-        @JField(storageId = 10, inverseDelete = DeleteAction.DELETE,
-          forwardCascades = { "tree", "ancestors" }, inverseCascades = { "tree", "descendants" })
+        @JField(inverseDelete = DeleteAction.DELETE,
+          forwardCascades = { "tree", "ancestors" },
+          inverseCascades = { "tree", "descendants" })
         Node getParent();
         void setParent(Node x);
     }
@@ -197,7 +222,7 @@ public class CopyCascadeTest extends TestSupport {
     @PermazenType
     public interface Other extends JObject {
 
-        @JField(storageId = 10, inverseDelete = DeleteAction.DELETE)
+        @JField(inverseDelete = DeleteAction.DELETE)
         Node getNodeRef();
         void setNodeRef(Node x);
     }

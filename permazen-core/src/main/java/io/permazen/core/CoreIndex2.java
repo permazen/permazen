@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Tuple3Encoding;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
@@ -75,7 +75,7 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex<T> implements Index
         final Index2View<V1, V2, T> iv = this.getIndex2View();
 
         // Create new IndexView
-        final IndexView<Tuple2<V1, V2>, T> tupleIV = iv.asTuple2IndexView();
+        final Index1View<Tuple2<V1, V2>, T> tupleIV = iv.asTuple2Index1View();
 
         // Build map and apply filtering
         IndexMap<Tuple2<V1, V2>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.kv, tupleIV);
@@ -87,13 +87,13 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex<T> implements Index
     }
 
     @Override
-    public NavigableMap<V1, Index<V2, T>> asMapOfIndex() {
+    public NavigableMap<V1, Index1<V2, T>> asMapOfIndex1() {
 
         // Get index view
         final Index2View<V1, V2, T> iv = this.getIndex2View();
 
         // Build map and apply filtering
-        IndexMap<V1, Index<V2, T>> indexMap = new IndexMap.OfIndex<>(this.kv, iv);
+        IndexMap<V1, Index1<V2, T>> indexMap = new IndexMap.OfIndex1<>(this.kv, iv);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, iv, 1));
 
@@ -102,8 +102,8 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex<T> implements Index
     }
 
     @Override
-    public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<>(this.kv, this.getIndex2View().asIndexView());
+    public CoreIndex1<V1, V2> asIndex1() {
+        return new CoreIndex1<>(this.kv, this.getIndex2View().asIndex1View());
     }
 
     @Override

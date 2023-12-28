@@ -13,10 +13,10 @@ import io.permazen.ValidationMode;
 import io.permazen.core.Database;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryTransactionException;
-import io.permazen.schema.NameIndex;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ParseException;
 
@@ -71,9 +71,7 @@ public class Session {
     private SessionMode mode;
     private SchemaModel schemaModel;
     private ValidationMode validationMode;
-    private NameIndex nameIndex;
     private String databaseDescription;
-    private int schemaVersion;
     private boolean allowNewSchema;
     private boolean readOnly;
 
@@ -254,16 +252,6 @@ public class Session {
     }
     public void setSchemaModel(SchemaModel schemaModel) {
         this.schemaModel = schemaModel;
-        this.nameIndex = this.schemaModel != null ? new NameIndex(this.schemaModel) : null;
-    }
-
-    /**
-     * Get the {@link NameIndex} for this instance's {@link SchemaModel}.
-     *
-     * @return name index for the schema model assumed by this session
-     */
-    public NameIndex getNameIndex() {
-        return this.nameIndex != null ? this.nameIndex : new NameIndex(new SchemaModel());
     }
 
     /**
@@ -276,23 +264,6 @@ public class Session {
     }
     public void setDatabaseDescription(String databaseDescription) {
         this.databaseDescription = databaseDescription;
-    }
-
-    /**
-     * Get the schema version associated with this instance.
-     * If this is left unconfigured, the highest numbered schema version will be
-     * used and after the first transaction this property will be updated accordingly.
-     *
-     * <p>
-     * In {@link SessionMode#KEY_VALUE}, this always returns zero.
-     *
-     * @return the schema version used by this session if known, otherwise zero
-     */
-    public int getSchemaVersion() {
-        return this.schemaVersion;
-    }
-    public void setSchemaVersion(int schemaVersion) {
-        this.schemaVersion = schemaVersion;
     }
 
     /**
@@ -655,17 +626,18 @@ public class Session {
                 this.kvt = this.kvdb.createTransaction(options);
                 break;
             case CORE_API:
-                if (this.schemaVersion == -1)
-                    this.schemaVersion = this.schemaModel.autogenerateVersion();
-                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema, options);
+                this.tx = TransactionConfig.builder()
+                  .schemaModel(this.schemaModel)
+                  .allowNewSchema(this.allowNewSchema)
+                  .kvOptions(options)
+                  .build()
+                  .newTransaction(this.db);
                 this.kvt = this.tx.getKVTransaction();
                 break;
             case PERMAZEN:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a Permazen transaction is already open in the current thread");
-                if (this.schemaVersion != 0)
-                    this.jdb.setConfiguredVersion(this.schemaVersion);
-                final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
+                final JTransaction jtx = this.jdb.createTransaction(
                   this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
                 JTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();
@@ -680,7 +652,6 @@ public class Session {
             if (this.tx != null) {
                 final Schema schema = this.tx.getSchema();
                 this.setSchemaModel(schema.getSchemaModel());
-                this.setSchemaVersion(schema.getVersionNumber());
             }
 
             // Set transaction read/only if appropriate

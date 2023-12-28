@@ -7,7 +7,6 @@ package io.permazen.core;
 
 import com.google.common.collect.Lists;
 
-import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
@@ -47,9 +46,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
         kvt.put(b("aaaa0503"), b(""));
         kvt.put(b("aaaa0504"), b(""));
 
-        final UnsignedIntEncoding uintType = new UnsignedIntEncoding();
-
-        final EncodingsFilter filter1 = new EncodingsFilter(b("aaaa"), uintType, uintType);
+        final EncodingsFilter filter1 = new EncodingsFilter(b("aaaa"), Encodings.UNSIGNED_INT, Encodings.UNSIGNED_INT);
         final KVPairIterator i1 = new KVPairIterator(kvt, KeyRange.forPrefix(b("aaaa04")), filter1, false);
         Assert.assertEquals(Lists.newArrayList(i1), Arrays.asList(
             kv("aaaa0401"),
@@ -88,7 +85,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
         tx.writeSimpleField(id2, "s", "aaa", true);
         tx.writeSimpleField(id3, "s", "bbb", true);
 
-        final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.querySimpleIndex(11);
+        final CoreIndex1<String, ObjId> index = (CoreIndex1<String, ObjId>)tx.querySimpleIndex(11);
         TestSupport.checkSet(index.asSet(), buildSet(
           new Tuple2<>("aaa", id1),
           new Tuple2<>("aaa", id2),
@@ -97,7 +94,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
           "aaa", buildSet(id1, id2),
           "bbb", buildSet(id3)));
 
-        final CoreIndex<String, ObjId> index2 = index.filter(1, new KeyRanges(b("0a20"), b("0a30")));
+        final CoreIndex1<String, ObjId> index2 = index.filter(1, new KeyRanges(b("0a20"), b("0a30")));
         TestSupport.checkSet(index2.asSet(), buildSet(
           new Tuple2<>("aaa", id2)));
         TestSupport.checkMap(index2.asMap(), buildMap(

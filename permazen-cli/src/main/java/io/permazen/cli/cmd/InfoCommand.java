@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import io.permazen.ValidationMode;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 import java.io.PrintStream;
@@ -46,11 +47,12 @@ public class InfoCommand extends AbstractCommand implements Session.Action {
         writer.println("  Verbose Mode: " + session.isVerbose());
         if (session.getMode().equals(SessionMode.KEY_VALUE))
             return;
-        final int schemaVersion = InfoCommand.getSchemaVersion(session);
-        writer.println("  Schema Version: " + (schemaVersion != 0 ? schemaVersion : "Undefined"));
+        final SchemaId schemaId = InfoCommand.getSchemaId(session);
+        writer.println("  Schema ID: " + (schemaId != null ? schemaId : "Undefined"));
         final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
-        writer.println("  Schema Model: "
-          + (schemaModel != null ? schemaModel.getSchemaObjectTypes().size() + " object type(s)" : "Undefined"));
+        writer.println("  Schema Model: " + (schemaModel != null ?
+          (schemaModel.isEmpty() ? "Empty" : schemaModel.getSchemaObjectTypes().size() + " object type(s)") :
+          "Undefined"));
         writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "Yes" : "No"));
         if (session.getPermazen() != null) {
             writer.println("  Validation Mode: " + (session.getValidationMode() != null ?
@@ -58,14 +60,9 @@ public class InfoCommand extends AbstractCommand implements Session.Action {
         }
     }
 
-    static int getSchemaVersion(Session session) {
-        int schemaVersion = session.getSchemaVersion();
-        if (schemaVersion == 0 && session.getPermazen() != null) {
-            schemaVersion = session.getPermazen().getActualVersion();
-            if (schemaVersion == 0)
-                schemaVersion = session.getPermazen().getConfiguredVersion();
-        }
-        return schemaVersion;
+    static SchemaId getSchemaId(Session session) {
+        final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
+        return schemaModel != null ? schemaModel.getSchemaId() : null;
     }
 
     static SchemaModel getSchemaModel(Session session) {

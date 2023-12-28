@@ -15,7 +15,7 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.util.List;
 
 /**
- * Represents an index on the elements of a list field.
+ * An index on the elements of a list field.
  *
  * @param <E> list element type
  */

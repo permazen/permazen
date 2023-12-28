@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -29,15 +31,14 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index the index at which the replacement occurred
      * @param oldValue the old value in the list
      * @param newValue the new value in the list
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldReplace(T jobj, int storageId, String fieldName, int index, E oldValue, E newValue) {
-        super(jobj, storageId, fieldName);
+    public ListFieldReplace(T jobj, String fieldName, int index, E oldValue, E newValue) {
+        super(jobj, fieldName);
         this.index = index;
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -51,7 +52,9 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void apply(JTransaction jtx, JObject jobj) {
-        ((List<E>)jtx.readListField(jobj.getObjId(), this.getStorageId(), false)).set(this.index, this.newValue);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        ((List<E>)jtx.readListField(jobj.getObjId(), this.getFieldName(), false)).set(this.index, this.newValue);
     }
 
     /**

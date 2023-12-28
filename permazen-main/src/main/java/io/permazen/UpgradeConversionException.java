@@ -5,6 +5,8 @@
 
 package io.permazen;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.annotation.JField;
 import io.permazen.core.DatabaseException;
 import io.permazen.core.ObjId;
@@ -21,31 +23,34 @@ import io.permazen.core.ObjId;
 public class UpgradeConversionException extends DatabaseException {
 
     private final ObjId id;
-    private final int storageId;
+    private final String fieldName;
 
     /**
      * Constructor.
      *
      * @param id ID of the object being upgraded
-     * @param storageId the storage ID of the field
+     * @param fieldName the name of the field
      * @param message exception message
      */
-    public UpgradeConversionException(ObjId id, int storageId, String message) {
-        this(id, storageId, message, null);
+    public UpgradeConversionException(ObjId id, String fieldName, String message) {
+        this(id, fieldName, message, null);
     }
 
     /**
      * Constructor.
      *
      * @param id ID of the object being upgraded
-     * @param storageId the storage ID of the field
+     * @param fieldName the name of the field
      * @param message exception message
      * @param cause underlying exception, or null if none
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public UpgradeConversionException(ObjId id, int storageId, String message, Throwable cause) {
+    public UpgradeConversionException(ObjId id, String fieldName, String message, Throwable cause) {
         super(message, cause);
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
         this.id = id;
-        this.storageId = storageId;
+        this.fieldName = fieldName;
     }
 
     /**
@@ -58,11 +63,11 @@ public class UpgradeConversionException extends DatabaseException {
     }
 
     /**
-     * Get the the field to which the old value could not be converted.
+     * Get the name of the field from which the old value could not be converted.
      *
-     * @return the storage ID of the field
+     * @return the name of the field
      */
-    public int getFieldStorageId() {
-        return this.storageId;
+    public String getFieldName() {
+        return this.fieldName;
     }
 }

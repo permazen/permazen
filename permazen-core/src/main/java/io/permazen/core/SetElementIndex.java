@@ -12,7 +12,7 @@ import io.permazen.schema.SimpleSchemaField;
 import java.util.NavigableSet;
 
 /**
- * Represents an index on the elements of a set field.
+ * An index on the elements of a set field.
  *
  * @param <E> set element type
  */

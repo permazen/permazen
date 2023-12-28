@@ -7,14 +7,13 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.util.ObjIdMap;
-import io.permazen.test.TestSupport;
 
 import java.util.Collections;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class LotsOfFieldsTest extends TestSupport {
+public class LotsOfFieldsTest extends MainTestSupport {
 
     @Test
     public void testLotsOfFields() throws Exception {
@@ -33,7 +32,7 @@ public class LotsOfFieldsTest extends TestSupport {
             Fields64.class,
             Fields65.class
         };
-        final Permazen jdb = BasicTest.getPermazen(classes);
+        final Permazen jdb = BasicTest.newPermazen(classes);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -76,7 +75,7 @@ public class LotsOfFieldsTest extends TestSupport {
     @Test
     public void testCopyCacheReset() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Fields65.class);
+        final Permazen jdb = BasicTest.newPermazen(Fields65.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -89,7 +88,7 @@ public class LotsOfFieldsTest extends TestSupport {
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 456);
 
-            f1.copyTo(jtx, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId()))));
+            f1.copyTo(jtx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId()))));
 
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 123);

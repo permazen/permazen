@@ -3,32 +3,32 @@
     <schemas>
         <Schema><!-- "Schema_68060bf82de92a6174f2549f61753e8a" -->
             <ObjectType storageId="1" name="Foo"><!-- "ObjectType_dbe433c53ee3c5016ff034ca505d70d8" -->
-                <SimpleField name="b" encoding="urn:fdc:permazen.io:2020:byte"/><!-- "SimpleField_5a46f09d7ad42c59ce7ff8d20c3d6853" -->
-                <SimpleField name="c" encoding="urn:fdc:permazen.io:2020:char"/><!-- "SimpleField_6026f76753a18db18ff0a57b25aa406d" -->
-                <SimpleField name="d" encoding="urn:fdc:permazen.io:2020:double"/><!-- "SimpleField_2a5a27115d5d0cc47c6ad6656259cf52" -->
-                <SimpleField name="date" encoding="urn:fdc:permazen.io:2020:Date"/><!-- "SimpleField_d42233ea6570896c00af3e5805809e60" -->
-                <EnumField name="e1"><!-- "EnumField_cdd6a2492357f5465718f9e198ebbab2" -->
+                <SimpleField storageId="2" name="b" encoding="urn:fdc:permazen.io:2020:byte"/><!-- "SimpleField_5a46f09d7ad42c59ce7ff8d20c3d6853" -->
+                <SimpleField storageId="3" name="c" encoding="urn:fdc:permazen.io:2020:char"/><!-- "SimpleField_6026f76753a18db18ff0a57b25aa406d" -->
+                <SimpleField storageId="4" name="d" encoding="urn:fdc:permazen.io:2020:double"/><!-- "SimpleField_2a5a27115d5d0cc47c6ad6656259cf52" -->
+                <SimpleField storageId="5" name="date" encoding="urn:fdc:permazen.io:2020:Date"/><!-- "SimpleField_d42233ea6570896c00af3e5805809e60" -->
+                <EnumField storageId="6" name="e1"><!-- "EnumField_cdd6a2492357f5465718f9e198ebbab2" -->
                     <Identifier>AAA</Identifier>
                     <Identifier>BBB</Identifier>
                     <Identifier>CCC</Identifier>
                 </EnumField>
-                <EnumArrayField name="ea1" dimensions="1"><!-- "EnumArrayField_757319bd452dc7849bfbb27c9d50c01b" -->
+                <EnumArrayField storageId="7" name="ea1" dimensions="1"><!-- "EnumArrayField_757319bd452dc7849bfbb27c9d50c01b" -->
                     <Identifier>DDD</Identifier>
                     <Identifier>EEE</Identifier>
                 </EnumArrayField>
-                <EnumArrayField name="ea2" dimensions="2"><!-- "EnumArrayField_c59f572c6a04ccee8dc836c84ca1a4a9" -->
+                <EnumArrayField storageId="8" name="ea2" dimensions="2"><!-- "EnumArrayField_c59f572c6a04ccee8dc836c84ca1a4a9" -->
                     <Identifier>DDD</Identifier>
                     <Identifier>EEE</Identifier>
                 </EnumArrayField>
-                <SimpleField name="f" encoding="urn:fdc:permazen.io:2020:float"/><!-- "SimpleField_affe6a3e695c920afa32ca38120668e1" -->
-                <SimpleField name="i" encoding="urn:fdc:permazen.io:2020:int"/><!-- "SimpleField_5a1f776ec0ce05b105fc006a1c8327f3" -->
-                <SimpleField name="j" encoding="urn:fdc:permazen.io:2020:long"/><!-- "SimpleField_046323c84df1cdfe4f8084a270ecda4b" -->
-                <ReferenceField name="r" inverseDelete="EXCEPTION"/><!-- "ReferenceField_75882840d4249595941d199b04279d32" -->
-                <ReferenceField name="r2" inverseDelete="EXCEPTION"/><!-- "ReferenceField_eedc733b36a00b925649e56828d26e97" -->
-                <SimpleField name="s" encoding="urn:fdc:permazen.io:2020:short"/><!-- "SimpleField_a8345d0edb377988713b1120c663041d" -->
-                <SimpleField name="str" encoding="urn:fdc:permazen.io:2020:String"/><!-- "SimpleField_271f0fbe3a78b034b01afb9220e43666" -->
-                <SimpleField name="v" encoding="urn:fdc:permazen.io:2020:Void"/><!-- "SimpleField_667b57f2a424dff576177ed3cf13c351" -->
-                <SimpleField name="z" encoding="urn:fdc:permazen.io:2020:boolean"/><!-- "SimpleField_32f25da126974dfaf07469e039cd46cf" -->
+                <SimpleField storageId="9" name="f" encoding="urn:fdc:permazen.io:2020:float"/><!-- "SimpleField_affe6a3e695c920afa32ca38120668e1" -->
+                <SimpleField storageId="10" name="i" encoding="urn:fdc:permazen.io:2020:int"/><!-- "SimpleField_5a1f776ec0ce05b105fc006a1c8327f3" -->
+                <SimpleField storageId="11" name="j" encoding="urn:fdc:permazen.io:2020:long"/><!-- "SimpleField_046323c84df1cdfe4f8084a270ecda4b" -->
+                <ReferenceField storageId="12" name="r" inverseDelete="EXCEPTION"/><!-- "ReferenceField_75882840d4249595941d199b04279d32" -->
+                <ReferenceField storageId="13" name="r2" inverseDelete="EXCEPTION"/><!-- "ReferenceField_eedc733b36a00b925649e56828d26e97" -->
+                <SimpleField storageId="14" name="s" encoding="urn:fdc:permazen.io:2020:short"/><!-- "SimpleField_a8345d0edb377988713b1120c663041d" -->
+                <SimpleField storageId="15" name="str" encoding="urn:fdc:permazen.io:2020:String"/><!-- "SimpleField_271f0fbe3a78b034b01afb9220e43666" -->
+                <SimpleField storageId="16" name="v" encoding="urn:fdc:permazen.io:2020:Void"/><!-- "SimpleField_667b57f2a424dff576177ed3cf13c351" -->
+                <SimpleField storageId="17" name="z" encoding="urn:fdc:permazen.io:2020:boolean"/><!-- "SimpleField_32f25da126974dfaf07469e039cd46cf" -->
             </ObjectType>
         </Schema>
     </schemas>

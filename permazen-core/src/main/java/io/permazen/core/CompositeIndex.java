@@ -11,7 +11,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.schema.SchemaCompositeIndex;
 
 /**
- * Represents a composite index on an {@link ObjType}.
+ * A composite index on two or more fields in an {@link ObjType}.
  */
 public class CompositeIndex extends Index {
 

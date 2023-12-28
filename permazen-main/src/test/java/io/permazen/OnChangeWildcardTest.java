@@ -24,15 +24,15 @@ import java.util.Set;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class OnChangeWildcardTest extends TestSupport {
+public class OnChangeWildcardTest extends MainTestSupport {
 
-    private static final int NAME_ID = 10;
-    private static final int AGE_ID = 11;
+    private static final String NAME_ID = "name";
+    private static final String AGE_ID = "age";
 
     @Test
     public void testWildcardChanges() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -138,7 +138,7 @@ public class OnChangeWildcardTest extends TestSupport {
     @Test(dataProvider = "bogusPaths")
     public void testBogusPaths(Class<? extends JObject> cl) throws Exception {
         try {
-            BasicTest.getPermazen(Person.class, cl);
+            BasicTest.newPermazen(Person.class, cl);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected exception from {}: {}", cl, e.toString());
@@ -160,18 +160,18 @@ public class OnChangeWildcardTest extends TestSupport {
             person.reset();
     }
 
-    private static Pair pair(Person p, int sid) {
-        return new Pair(p, sid);
+    private static Pair pair(Person p, String fieldName) {
+        return new Pair(p, fieldName);
     }
 
-    public static class Pair extends Tuple2<JObject, Integer> {
+    public static class Pair extends Tuple2<JObject, String> {
 
         public Pair(FieldChange<?> change) {
-            this(change.getJObject(), change.getStorageId());
+            this(change.getJObject(), change.getFieldName());
         }
 
-        public Pair(JObject jobj, Integer i) {
-            super(jobj, i);
+        public Pair(JObject jobj, String fieldName) {
+            super(jobj, fieldName);
         }
     }
 
@@ -223,11 +223,11 @@ public class OnChangeWildcardTest extends TestSupport {
             this.reset();
         }
 
-        @JField(storageId = NAME_ID)
+        @JField
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = AGE_ID)
+        @JField
         public abstract int getAge();
         public abstract void setAge(int age);
 

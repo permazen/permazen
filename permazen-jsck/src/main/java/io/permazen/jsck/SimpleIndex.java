@@ -5,39 +5,33 @@
 
 package io.permazen.jsck;
 
+import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
-import io.permazen.core.ObjIdEncoding;
+import io.permazen.core.SimpleField;
 import io.permazen.encoding.Encoding;
-import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 
-abstract class SimpleIndex extends Index {
+abstract class SimpleIndex<T, I extends io.permazen.core.SimpleIndex<T>> extends Index<I> {
 
-    protected final Encoding<?> type;
+    protected final SimpleField<T> field;
+    protected final Encoding<T> encoding;
 
-    SimpleIndex(JsckInfo info, int schemaVersion, SimpleSchemaField field) {
-        super(info, field.getStorageId());
+    @SuppressWarnings("unchecked")
+    SimpleIndex(JsckInfo info, SimpleField<T> field) {
+        super(info, (I)field.getIndex());
         assert field.isIndexed();
-        this.type = this.info.findEncoding(schemaVersion, field).genericizeForIndex();
-    }
-
-    @Override
-    public boolean isCompatible(Storage that) {
-        if (!super.isCompatible(that))
-            return false;
-        if (!this.type.equals(((SimpleIndex)that).type))
-            return false;
-        return true;
+        this.field = field;
+        this.encoding = field.getIndex().getEncoding();
     }
 
     @Override
     protected final void validateIndexEntryContent(JsckInfo info, ByteReader reader) {
 
         // Decode indexed value
-        final byte[] value = this.validateEncodedBytes(reader, this.type);
+        final byte[] value = this.validateEncodedBytes(reader, this.encoding);
 
         // Decode object ID
-        final ObjId id = this.validateEncodedValue(reader, new ObjIdEncoding());
+        final ObjId id = this.validateEncodedValue(reader, Encodings.OBJ_ID);
 
         // Validate object exists
         this.validateObjectExists(info, reader, id);

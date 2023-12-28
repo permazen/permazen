@@ -7,7 +7,6 @@ package io.permazen;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 
 import io.permazen.core.DatabaseException;
 import io.permazen.core.ObjId;
@@ -99,7 +98,8 @@ class ClassGenerator<T> {
     static final Method OPTIONAL_OF_METHOD;
     static final Method OPTIONAL_EMPTY_METHOD;
 
-    // Object method handles
+    // Object constructor and method handles
+    static final Constructor<Object> OBJECT_CONSTRUCTOR;
     static final Method OBJECT_GET_CLASS_METHOD;
     static final Method OBJECT_TO_STRING_METHOD;
 
@@ -123,13 +123,13 @@ class ClassGenerator<T> {
 
             // JTransaction methods
             JTRANSACTION_READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField",
-              ObjId.class, int.class, boolean.class);
+              ObjId.class, String.class, boolean.class);
             JTRANSACTION_READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField",
-              ObjId.class, int.class, boolean.class);
+              ObjId.class, String.class, boolean.class);
             JTRANSACTION_READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField",
-              ObjId.class, int.class, boolean.class);
+              ObjId.class, String.class, boolean.class);
             JTRANSACTION_READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField",
-              ObjId.class, int.class, boolean.class);
+              ObjId.class, String.class, boolean.class);
             JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
@@ -143,9 +143,9 @@ class ClassGenerator<T> {
 
             // Transaction methods
             TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",
-              ObjId.class, int.class, boolean.class);
+              ObjId.class, String.class, boolean.class);
             TRANSACTION_WRITE_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("writeSimpleField",
-              ObjId.class, int.class, Object.class, boolean.class);
+              ObjId.class, String.class, Object.class, boolean.class);
 
             // Converter
             CONVERTER_CONVERT_METHOD = Converter.class.getMethod("convert", Object.class);
@@ -169,6 +169,7 @@ class ClassGenerator<T> {
             UTIL_STREAM_OF_METHOD = Util.class.getMethod("streamOf", Object.class);
 
             // Object
+            OBJECT_CONSTRUCTOR = Object.class.getConstructor();
             OBJECT_GET_CLASS_METHOD = Object.class.getMethod("getClass");
             OBJECT_TO_STRING_METHOD = Object.class.getMethod("toString");
 
@@ -185,6 +186,8 @@ class ClassGenerator<T> {
     protected final JClass<T> jclass;
     protected final Class<T> modelClass;
 
+    private final ArrayList<String> simpleFieldNames = new ArrayList<>();
+
     private Class<? extends T> subclass;
     private Constructor<? extends T> constructor;
     private Constructor<? super T> superclassConstructor;
@@ -192,8 +195,8 @@ class ClassGenerator<T> {
     /**
      * Constructor for application classes.
      */
-    ClassGenerator(JClass<T> jclass) {
-        this(jclass.jdb, jclass, jclass.type);
+    ClassGenerator(Permazen jdb, JClass<T> jclass) {
+        this(jdb, jclass, jclass.type);
     }
 
     /**
@@ -212,13 +215,9 @@ class ClassGenerator<T> {
         this.modelClass = modelClass;
 
         // Use superclass constructor taking either (a) (JTransaction tx, ObjId id) or (b) no parameters
-        if (this.modelClass.isInterface()) {
-            try {
-                this.superclassConstructor = Object.class.getConstructor();
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("unexpected exception", e);
-            }
-        } else {
+        if (this.modelClass.isInterface())
+            this.superclassConstructor = OBJECT_CONSTRUCTOR;
+        else {
             try {
                 this.superclassConstructor = this.modelClass.getDeclaredConstructor(JTransaction.class, ObjId.class);
             } catch (NoSuchMethodException e) {
@@ -226,7 +225,8 @@ class ClassGenerator<T> {
                     this.superclassConstructor = this.modelClass.getDeclaredConstructor();
                 } catch (NoSuchMethodException e2) {
                     String message = String.format("no suitable constructor found in model class %s; model classes must have"
-                      + " a public or protected constructor taking either () or (JTransaction, ObjId)", this.modelClass.getName());
+                      + " a public or protected constructor taking either () or (%s, %s)",
+                      this.modelClass.getName(), JTransaction.class.getSimpleName(), ObjId.class.getSimpleName());
                     if (this.modelClass.isMemberClass() && !Modifier.isStatic(this.modelClass.getModifiers()))
                         message += "; did you mean to declare this class `static'?";
                     throw new IllegalArgumentException(message);
@@ -267,6 +267,16 @@ class ClassGenerator<T> {
      */
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateClass() {
+
+        // Gather simple field names (non sub-field only)
+        if (this.jclass != null) {
+            for (JSimpleField jfield : this.jclass.jsimpleFieldsByName.values()) {
+                if (!jfield.isSubField())
+                    this.simpleFieldNames.add(jfield.name);
+            }
+        }
+
+        // Load class to generate it
         try {
             return (Class<? extends T>)Class.forName(this.getClassName().replace('/', '.'), true, this.jdb.loader);
         } catch (ClassNotFoundException e) {
@@ -296,7 +306,8 @@ class ClassGenerator<T> {
     protected byte[] generateBytecode() {
 
         // Generate class
-        this.log.debug("begin generating class {}", this.getClassName());
+        if (this.log.isTraceEnabled())
+            this.log.trace("begin generating class {}", this.getClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         final String[] interfaces = this.modelClass.isInterface() ?
           new String[] { Type.getInternalName(this.modelClass), Type.getInternalName(JObject.class) } :
@@ -309,7 +320,8 @@ class ClassGenerator<T> {
         this.outputMethods(cw);
         cw.visitEnd();
         final byte[] classfile = cw.toByteArray();
-        this.log.debug("done generating class {}", this.getClassName());
+        if (this.log.isTraceEnabled())
+            this.log.trace("done generating class {}", this.getClassName());
         this.debugDump(System.out, classfile);
 
         // Done
@@ -328,15 +340,14 @@ class ClassGenerator<T> {
 
         // Output fields associated with JFields
         if (this.jclass != null) {
-            for (JField jfield : this.jclass.jfields.values())
+            for (JField jfield : this.jclass.jfieldsByName.values())
                 jfield.outputFields(this, cw);
         }
 
         // Output field(s) for cached simple field flags
         if (this.jclass != null) {
-            final int[] simpleFieldStorageIds = this.jclass.simpleFieldStorageIds;
             String lastFieldName = null;
-            for (int i = 0; i < simpleFieldStorageIds.length; i++) {
+            for (int i = 0; i < this.simpleFieldNames.size(); i++) {
                 final String fieldName = this.getCachedFlagFieldName(i);
                 if (fieldName.equals(lastFieldName))
                     continue;
@@ -389,7 +400,7 @@ class ClassGenerator<T> {
 
             // Do any fields require initialization bytecode?
             boolean needClassInitializer = false;
-            for (JField jfield : this.jclass.jfields.values()) {
+            for (JField jfield : this.jclass.jfieldsByName.values()) {
                 if (jfield.hasClassInitializerBytecode()) {
                     needClassInitializer = true;
                     break;
@@ -400,7 +411,7 @@ class ClassGenerator<T> {
             if (needClassInitializer) {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
                 mv.visitCode();
-                for (JField jfield : this.jclass.jfields.values()) {
+                for (JField jfield : this.jclass.jfieldsByName.values()) {
                     if (jfield.hasClassInitializerBytecode())
                         jfield.outputClassInitializerBytecode(this, mv);
                 }
@@ -440,9 +451,8 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
         mv.visitCode();
         if (this.jclass != null) {
-            final int[] simpleFieldStorageIds = this.jclass.simpleFieldStorageIds;
             String lastFieldName = null;
-            for (int i = 0; i < simpleFieldStorageIds.length; i++) {
+            for (int i = 0; i < this.simpleFieldNames.size(); i++) {
                 final String fieldName = this.getCachedFlagFieldName(i);
                 if (fieldName.equals(lastFieldName))
                     continue;
@@ -488,7 +498,7 @@ class ClassGenerator<T> {
             return;
 
         // Add methods that override field getters & setters
-        for (JField jfield : this.jclass.jfields.values())
+        for (JField jfield : this.jclass.jfieldsByName.values())
             jfield.outputMethods(this, cw);
 
         // Add @FollowPath methods
@@ -641,7 +651,7 @@ class ClassGenerator<T> {
     }
 
     private Class<?> getCachedFlagEncoding(int simpleFieldIndex) {
-        final int numSimpleFields = this.jclass.simpleFieldStorageIds.length;
+        final int numSimpleFields = this.simpleFieldNames.size();
         Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < numSimpleFields);
         if (simpleFieldIndex / 32 < numSimpleFields / 32)
             return int.class;
@@ -650,13 +660,13 @@ class ClassGenerator<T> {
     }
 
     private String getCachedFlagFieldName(int simpleFieldIndex) {
-        Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < this.jclass.simpleFieldStorageIds.length);
+        Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < this.simpleFieldNames.size());
         return ClassGenerator.CACHED_FLAG_FIELD_PREFIX + (simpleFieldIndex / 32);
     }
 
     private int getCachedFlagIndex(JSimpleField jfield) {
         Preconditions.checkArgument(jfield.parent == this.jclass);
-        final int simpleFieldIndex = Ints.indexOf(this.jclass.simpleFieldStorageIds, jfield.storageId);
+        final int simpleFieldIndex = this.simpleFieldNames.indexOf(jfield.name);
         Preconditions.checkArgument(simpleFieldIndex != -1);
         return simpleFieldIndex;
     }

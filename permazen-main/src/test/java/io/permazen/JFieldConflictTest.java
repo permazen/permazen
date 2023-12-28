@@ -8,21 +8,20 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.test.TestSupport;
 
 import org.testng.annotations.Test;
 
 /**
  * This test checks for conflicting @JField annotations inherited from different supertypes.
  */
-public class JFieldConflictTest extends TestSupport {
+public class JFieldConflictTest extends MainTestSupport {
 
 // Indexed conflict
 
     @Test
     public void testIndexedConflict() {
         try {
-            BasicTest.getPermazen(IndexedConflict.class);
+            BasicTest.newPermazen(IndexedConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -48,7 +47,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testInverseDeleteConflict() {
         try {
-            BasicTest.getPermazen(InverseDeleteConflict.class);
+            BasicTest.newPermazen(InverseDeleteConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -74,7 +73,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testForwardDeleteConflict() {
         try {
-            BasicTest.getPermazen(ForwardDeleteConflict.class);
+            BasicTest.newPermazen(ForwardDeleteConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -100,7 +99,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testUniqueConflict() {
         try {
-            BasicTest.getPermazen(UniqueConflict.class);
+            BasicTest.newPermazen(UniqueConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -126,7 +125,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testUniqueExcludeConflict() {
         try {
-            BasicTest.getPermazen(UniqueExcludeConflict.class);
+            BasicTest.newPermazen(UniqueExcludeConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -152,7 +151,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testUniqueExcludeNullConflict() {
         try {
-            BasicTest.getPermazen(UniqueExcludeNullConflict.class);
+            BasicTest.newPermazen(UniqueExcludeNullConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -178,7 +177,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testUpgradeConversionConflict() {
         try {
-            BasicTest.getPermazen(UpgradeConversionConflict.class);
+            BasicTest.newPermazen(UpgradeConversionConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             this.log.debug("got expected exception: {}", e.toString());
@@ -203,7 +202,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testAllowDeletedConflict() {
         try {
-            BasicTest.getPermazen(AllowDeletedConflict.class);
+            BasicTest.newPermazen(AllowDeletedConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             this.log.debug("got expected exception: {}", e.toString());
@@ -228,7 +227,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testForwardCascadesConflict() {
         try {
-            BasicTest.getPermazen(ForwardCascadesConflict.class);
+            BasicTest.newPermazen(ForwardCascadesConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;
@@ -254,7 +253,7 @@ public class JFieldConflictTest extends TestSupport {
     @Test
     public void testInverseCascadesConflict() {
         try {
-            BasicTest.getPermazen(InverseCascadesConflict.class);
+            BasicTest.newPermazen(InverseCascadesConflict.class);
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             assert e.getMessage().matches("two or more methods.*conflict.*") : "wrong exception: " + e;

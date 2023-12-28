@@ -86,11 +86,21 @@ public class SchemaBundle {
 
 // Constructors
 
-    SchemaBundle(Encoded encoded, EncodingRegistry encodingRegistry) {
+    /**
+     * Constructor.
+     *
+     * @param encoded encoded schema and storage ID tables
+     * @param encodingRegistry registry for simple field encodings
+     * @throws InconsistentDatabaseException if the encoded data is invalid
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public SchemaBundle(Encoded encoded, EncodingRegistry encodingRegistry) {
 
-        // Store raw byte[] data
-        assert encoded != null;
-        assert encodingRegistry != null;
+        // Sanity check
+        Preconditions.checkArgument(encoded != null, "null encoded");
+        Preconditions.checkArgument(encodingRegistry != null, "null encodingRegistry");
+
+        // Initialize
         this.encoded = encoded;
         this.encodingRegistry = encodingRegistry;
 
@@ -196,6 +206,15 @@ public class SchemaBundle {
     }
 
     /**
+     * Get the {@link EncodingRegistry} associated with this instance.
+     *
+     * @return encoding registry
+     */
+    public EncodingRegistry getEncodingRegistry() {
+        return this.encodingRegistry;
+    }
+
+    /**
      * Get all of the schemas in this bundle keyed by schema index.
      *
      * @return unmodifiable map of {@link Schema}s indexed by schema index
@@ -244,6 +263,15 @@ public class SchemaBundle {
     }
 
     /**
+     * Get all of the storage ID's in this bundle with their corresponding {@link SchemaId}'s.
+     *
+     * @return unmodifiable map from storage ID to {@link SchemaId}
+     */
+    public Map<Integer, SchemaId> getSchemaIdsByStorageId() {
+        return Collections.unmodifiableMap(this.schemaIdsByStorageId);
+    }
+
+    /**
      * Get the storage ID corresponding to the given schema ID.
      *
      * @param schemaId schema structure ID
@@ -266,26 +294,27 @@ public class SchemaBundle {
      * <p>
      * Any required storage ID assignments will be added automatically.
      *
-     * @param schemaModel schema to add
+     * @param schemaIndex schema table index at which to add the schema or zero for next available
+     * @param schemaModel the new schema to add
      * @throws IllegalArgumentException if the schema already exists
      * @throws SchemaMismatchException if {@code schemaModel} has any explicit storage ID assignments
      *  that conflict with other schemas in this bundle
+     * @throws SchemaMismatchException if {@code schemaIndex} is non-zero and some schema already exists at that index
      * @throws IllegalArgumentException if {@code schemaModel} is not locked down
      * @throws IllegalArgumentException if {@code schemaModel} does not validate
      * @throws IllegalArgumentException if {@code schemaModel} is null
+     * @throws IllegalArgumentException if {@code schemaIndex} is negative
      */
-    public Encoded withSchemaAdded(SchemaModel schemaModel) {
+    public Encoded withSchemaAdded(int schemaIndex, SchemaModel schemaModel) {
 
         // Sanity check
         Preconditions.checkArgument(schemaModel != null, "null schemaModel");
-        Preconditions.checkArgument(schemaModel.isLockedDown(), "unlocked schemaModel");
-
-        // Clone schema so we can modify it
-        schemaModel = schemaModel.clone();
-        final SchemaId schemaId = schemaModel.getSchemaId();
+        Preconditions.checkArgument(schemaModel.isLockedDown(true), "unlocked schemaModel");
+        Preconditions.checkArgument(schemaIndex >= 0, "schemaIndex < 0");
 
         // Validate schema
         schemaModel.validate();
+        final SchemaId schemaId = schemaModel.getSchemaId();
         Preconditions.checkArgument(!this.schemasBySchemaId.containsKey(schemaId), "schema already exists in bundle");
 
         // Copy this instance's encoded tables
@@ -298,10 +327,11 @@ public class SchemaBundle {
         Layout.encodeSchema(writer, schemaModel);
         final byte[] encodedSchema = writer.getBytes();
 
-        // Add schema at the next available schema index
-        this.assignNextFreeIndex(schemaBytes, encodedSchema);
-        //final int schemaIndex = this.assignNextFreeIndex(schemaBytes, encodedSchema);
-        //this.log.info("*** BEFORE ADD SCHEMA \"{}\" @ {}:\n{}", schemaId, schemaIndex, this.encoded);
+        // Add schema to the schema table at the next available schema index, or use the specified index
+        if (schemaIndex == 0)
+            this.assignNextFreeIndex(schemaBytes, encodedSchema);
+        else if (schemaBytes.put(schemaIndex, encodedSchema) != null)
+            throw new SchemaMismatchException(schemaId, String.format("schema index %d is already in use", schemaIndex));
 
         // Sort schema items so those with explicit storage ID's are first
         final ArrayList<io.permazen.schema.SchemaItem> schemaItemList = new ArrayList<>();
@@ -331,14 +361,24 @@ public class SchemaBundle {
             Encodings.STRING.write(idWriter, itemSchemaId.getId());
             final byte[] encodedItemSchemaId = idWriter.getBytes();
 
-            // If item has an explicit storage ID, check it doesn't conflict and assign it
+            // If item has an explicit storage ID, check it doesn't conflict with any existing assignments and assign it
             if (modelStorageId != 0) {
                 final byte[] prevSchemaIdBytes = storageIdBytes.put(modelStorageId, encodedItemSchemaId);
                 if (prevSchemaIdBytes != null && !Arrays.equals(prevSchemaIdBytes, encodedItemSchemaId)) {
+
+                    // Decode the conflicting schema ID
                     final SchemaId prevSchemaId = new SchemaId(Encodings.STRING.read(new ByteReader(prevSchemaIdBytes)));
+
+                    // Get a random example schema item that is using this schema ID
+                    final SchemaItem prevItem = this.schemaItemsBySchemaId.get(prevSchemaId);
+                    final String conflictor = prevItem != null ?
+                      String.format("(for example) %s", prevItem) :
+                      "an unknown conflicting schema item";
+
+                    // Throw exception
                     throw new SchemaMismatchException(schemaId, String.format(
-                      "%s in schema \"%s\" has explicit model storage ID %d already assigned in the database to \"%s\"",
-                      item, schemaId, modelStorageId, prevSchemaId));
+                      "%s in schema \"%s\" has explicit model storage ID %d already assigned in the database to \"%s\" used by %s",
+                      item, schemaId, modelStorageId, prevSchemaId, conflictor));
                 }
                 newStorageIdsBySchemaId.put(itemSchemaId, modelStorageId);
                 return;
@@ -775,7 +815,7 @@ public class SchemaBundle {
 
                 // Validate schema model
                 try {
-                    schemaModel.lockDown();
+                    schemaModel.lockDown(true);
                     schemaModel.validate();
                 } catch (InvalidSchemaException e) {
                     throw new IllegalArgumentException(String.format(

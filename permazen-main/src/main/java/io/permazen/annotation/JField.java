@@ -10,7 +10,6 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
-import io.permazen.StorageIdGenerator;
 import io.permazen.UniquenessConstraints;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.ValidationMode;
@@ -31,52 +30,48 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for defining simple fields, including reference fields that refer to other Java model object types,
+ * Java annotation for defining simple fields (including reference fields that refer to other Java model object types)
  * and {@link Counter} fields.
  *
  * <p>
  * This annotation is used in two scenarios:
  * <ul>
- *  <li>To describe a <b>simple</b> or <b>counter</b> database field, by annotating the corresponding abstract Java bean
- *      property `getter' method</li>
- *  <li>To describe the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
+ *  <li>To configure a <b>simple</b> or <b>counter</b> database field, by annotating the corresponding abstract Java bean
+ *      property "getter" method</li>
+ *  <li>To configure the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
  *      a collection {@code element} field, or a map {@code key} or {@code value} field. In this case this annotation
  *      nests within the corresponding {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField},
  *      or {@link JMapField &#64;JMapField} annotation.</li>
  * </ul>
  *
  * <p>
- * This annotation can be applied to superclass and interface methods to have the corresponding field defined in all
- * {@link PermazenType &#64;PermazenType}-annotated sub-types.
- *
- * <p>
- * When auto-generation of properties is enabled, use of this annotation is not required unless you need to override
+ * When auto-generation of properties is enabled, use of this annotation is not required unless you want to override
  * the defaults; see {@link PermazenType#autogenFields}.
  *
- * <p><b>Non-Reference Fields</b></p>
- *
  * <p>
- * If the field is not a reference field, the property type is inferred from the type of the annotated method or,
- * in the case of complex sub-fields, the generic type of the collection class. The property type must be registered
- * in the {@link EncodingRegistry} and the corresponding {@link Encoding} is then used to encode/decode field values.
- * See {@link EncodingRegistry} for a list of built-in (pre-defined) encodings. Alternately, an encoding may be
- * specified explicitly via {@link #encoding}.
- *
- * <p>
- * Simple fields may be {@link #indexed}; see {@link io.permazen.index} for information on querying indexes.
- * {@link Counter} fields may not be indexed.
- *
- * <p>
- * Two or more simple fields may be indexed together in a composite index; see {@link JCompositeIndex &#64;JCompositeIndex}.
+ * The annotated method's declaring class does not have to be a {@link PermazenType &#64;PermazenType}-annotated type;
+ * annotations are "inherited" and so apply to all {@link PermazenType &#64;PermazenType}-annotated sub-types.
  *
  * <p><b>Reference Fields</b></p>
  *
  * <p>
- * If the type of the field is (assignable to) a {@link PermazenType &#64;PermazenType}-annotated Java model object type,
- * or any supertype thereof, then the field is a reference field.
+ * If the type of the field is a {@link PermazenType &#64;PermazenType}-annotated Java model object type, or any supertype
+ * thereof, then the field is a <b>reference</b> field. Reference fields are simple fields that refer to other database objects.
+ *
+ * <p><b>Non-Reference Fields</b></p>
  *
  * <p>
- * Reference fields are always indexed; the value of {@link #indexed} is ignored.
+ * If the field is not a reference field, the field's Java type is inferred from the type of the annotated method or,
+ * in the case of complex sub-fields, the generic type of the collection class. The field's Java type must be supported by
+ * some {@link Encoding} registered in the {@link EncodingRegistry} that is
+ * {@linkplain io.permazen.PermazenConfig.Builder configured} for the database so that the field's values can be encoded
+ * into {@code byte[]} array values in the key/value store.
+ *
+ * <p>
+ * See {@link DefaultEncodingRegistry} for a list of built-in (pre-defined) encodings.
+ *
+ * <p>
+ * To use user-defined encodings, configure a custom {@link EncodingRegistry} and specify them via {@link #encoding}.
  *
  * <p><b>Referential Integrity</b></p>
  *
@@ -89,14 +84,29 @@ import java.lang.annotation.Target;
  * By default, neither (a) nor (b) is allowed; if attempted, a {@link DeletedObjectException} is thrown.
  * This ensures references are always valid.
  *
+ * <p><b>Indexing</b></p>
+ *
+ * <p>
+ * Simple fields may be indexed by marking them as {@link #indexed()}; see {@link JTransaction} for information on querying
+ * indexes. This includes reference fields and fields with user-defined custom encodings.
+ *
+ * <p>
+ * Reference fields are always indexed.
+ *
+ * <p>
+ * {@link Counter} fields may not be indexed.
+ *
+ * <p>
+ * Two or more simple fields may be indexed together in a composite index; see {@link JCompositeIndex &#64;JCompositeIndex}.
+ *
  * <p><b>Cascades</b></p>
  *
  * <p>
- * The {@link JObject} methods {@link JObject#cascadeCopyIn cascadeCopyIn()},
- * {@link JObject#cascadeCopyOut cascadeCopyOut()}, and {@link JObject#cascadeCopyTo cascadeCopyTo()}
+ * The {@link JObject} methods {@link JObject#copyIn copyIn()},
+ * {@link JObject#copyOut copyOut()}, and {@link JObject#copyTo copyTo()}
  * copy a graph of related objects between transactions by first copying a starting object, then cascading through matching
  * reference fields and repeating recursively. This cascade operation is capable of traversing references in both the
- * forward and inverse directions. There is also {@link JTransaction#cascadeFindAll} which performs a general purpose
+ * forward and inverse directions. There is also {@link JTransaction#cascade} which performs a general purpose
  * cascade exploration.
  *
  * <p>
@@ -155,31 +165,29 @@ import java.lang.annotation.Target;
  * <p><b>Uniqueness Constraints</b></p>
  *
  * <p>
- * Fields that are not complex sub-fields may be marked as {@link #unique} to impose a uniqueness constraint on the value.
- * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the Permazen layer and function as
- * an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
- * and is affected by the transaction's configured {@link ValidationMode}.
+ * Simple fields that are not complex sub-fields may be marked as {@link #unique} to impose a uniqueness constraint on the field.
+ * Uniqueness constraints function as an implicit validation constraint. In other words, the uniqueness constraint is verified
+ * when the validation queue is processed, and is affected by the transaction's configured {@link ValidationMode}.
  *
  * <p>
- * Optionally, specific field values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
- * If so, the specified values may appear in multiple objects without violating the constraint. Because null values
- * are not allowed in annotations, include {@link #NULL} to indicate that null values should be excluded.
+ * Optionally, specific values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
+ * If so, the specified values may appear in more than one object without violating the constraint. Because it's not possible
+ * to specify null in annotations, specify {@link #NULL} to indicate that null values should be excluded.
  *
  * <p>
- * In {@link ValidationMode#AUTOMATIC}, any upgraded {@link JObject}s are automatically
- * added to the validation queue, so a uniqueness constraint added in a new schema version will be automatically verified
- * when any object is upgraded.
+ * In {@link ValidationMode#AUTOMATIC}, any upgraded {@link JObject}s are automatically added to the validation queue,
+ * so a uniqueness constraint added in a new schema will be automatically verified when any object is upgraded.
  *
  * <p>
- * Beware however, that like all other types of validation constraint, uniqueness constraints can be added or changed on a field
- * without any schema version change. Therefore, after such changes, it's possible for pre-existing database objects that were
- * previously valid to suddenly become invalid, and these invalid objects would not be detected until they are validated in some
- * future transaction and a validation exception is thrown.
+ * Beware however, that like all other types of validation constraint, uniqueness constraints can be changed without requiring
+ * a schema change (e.g., by adding {@code &#64;NotNull} to an existing property). Therefore, after such changes, it's possible
+ * for pre-existing database objects that were previously valid to suddenly become invalid, and these invalid objects will not
+ * be detected until they are validated in some future transaction and a validation exception thrown.
  *
  * <p><b>Upgrade Conversions</b></p>
  *
  * <p>
- * When a field's type has changed in a new schema version, the old field value can be automatically converted into the
+ * When a field's type has changed in a new schema, the old field value can be automatically converted into the
  * new type. See {@link #upgradeConversion} for how to control this behavior.
  *
  * <p><b>Meta-Annotations</b></p>
@@ -255,19 +263,12 @@ public @interface JField {
      * Storage ID for this field.
      *
      * <p>
-     * Value should be positive and unique within the contained class.
+     * Normally this value is left as zero, in which case a value will be automatically assigned.
      *
      * <p>
-     * If zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value
-     * unless {@link PermazenType#autogenFields} is false (in which case an error occurs).
+     * Otherwise, the value should be positive and unique within the contained class.
      *
-     * @see StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
-     * @see StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
-     * @see StorageIdGenerator#generateListElementStorageId StorageIdGenerator.generateListElementStorageId()
-     * @see StorageIdGenerator#generateMapKeyStorageId StorageIdGenerator.generateMapKeyStorageId()
-     * @see StorageIdGenerator#generateMapValueStorageId StorageIdGenerator.generateMapValueStorageId()
-     *
-     * @return the field's storage ID
+     * @return the field's storage ID, or zero for automatic assignment
      */
     int storageId() default 0;
 
@@ -291,15 +292,15 @@ public @interface JField {
      *
      * <p>
      * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
-     * and an object with the annotated reference field is copied, then the reference field will
+     * and an object with the annotated reference field is copied, then the annotated reference field will
      * will be traversed in the forward direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
      *
      * @return forward cascade names for the annotated reference field
-     * @see io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()
-     * @see io.permazen.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
+     * @see io.permazen.JObject#copyTo JObject.copyTo()
+     * @see io.permazen.JTransaction#cascade JTransaction.cascade()
      */
     String[] forwardCascades() default {};
 
@@ -308,15 +309,15 @@ public @interface JField {
      *
      * <p>
      * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
-     * and an object with the annotated reference field is copied, then the reference field will
+     * and an object with the annotated reference field is copied, then the annotated reference field will
      * will be traversed in the inverse direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
      *
      * @return inverse cascade names for the annotated reference field
-     * @see io.permazen.JObject#cascadeCopyTo JObject.cascadeCopyTo()
-     * @see io.permazen.JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
+     * @see io.permazen.JObject#copyTo JObject.copyTo()
+     * @see io.permazen.JTransaction#cascade JTransaction.cascade()
      */
     String[] inverseCascades() default {};
 
@@ -417,12 +418,12 @@ public @interface JField {
     boolean allowDeleted() default false;
 
     /**
-     * Specify the {@link UpgradeConversionPolicy} policy to apply when a schema change occurs and this field's type changes.
+     * Specify the {@link UpgradeConversionPolicy} policy to apply when this field's type has changed due to a schema change.
      *
      * <p>
-     * With one restriction<sup>*</sup>, Permazen supports schema changes that alter a field's type, and in some cases
-     * can automatically convert field values from the old to the new type (for example, from the {@code int} value {@code 1234}
-     * to the {@link String} value {@code "1234"}).
+     * Permazen supports schema changes that alter a field's type, and in some cases can automatically convert field values
+     * from the old to the new type (for example, from the {@code int} value {@code 1234} to the {@link String} value
+     * {@code "1234"}).
      *
      * <p>
      * See {@link Encoding#convert Encoding.convert()} for details about conversions between simple encodings.
@@ -431,19 +432,16 @@ public @interface JField {
      *
      * <p>
      * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some
-     * other schema version to the current schema version. Note custom conversion logic is also possible using
-     * {@link OnVersionChange &#64;OnVersionChange} methods.
+     * other schema to the current schema. Note custom conversion logic is also possible using
+     * {@link OnSchemaChange &#64;OnSchemaChange} methods.
      *
      * <p>
      * For sub-fields of complex fields, this property is ignored.
      *
-     * <p>
-     * <sup>*</sup>A simple field may not have different types across schema versions and be indexed in both versions.
-     *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
      * @see io.permazen.encoding.Encoding#convert Encoding.convert()
-     * @see OnVersionChange
+     * @see OnSchemaChange
      */
     UpgradeConversionPolicy upgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 }

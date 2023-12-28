@@ -90,7 +90,7 @@ public class JsckCommand extends AbstractCommand {
         final boolean weak = params.containsKey("weak");
         final Integer formatVersion = (Integer)params.get("format-version");
         if (formatVersion != null)
-            config.setForceFormatVersion(formatVersion);
+            config.setFormatVersionOverride(formatVersion);
         final Integer limit = (Integer)params.get("limit");
         if (limit != null)
             config.setMaxIssues(limit);

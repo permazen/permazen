@@ -26,12 +26,16 @@ public abstract class JCollectionField extends JComplexField {
 
     final JSimpleField elementField;
 
-    JCollectionField(Permazen jdb, String name, int storageId,
-      Annotation annotation, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, annotation, description, getter);
+// Constructor
+
+    JCollectionField(String name, int storageId, Annotation annotation,
+      JSimpleField elementField, String description, Method getter) {
+        super(name, storageId, annotation, description, getter);
         Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
     }
+
+// Public Methods
 
     /**
      * Get the element sub-field.
@@ -51,29 +55,21 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
-    boolean isSameAs(JField that0) {
-        if (!super.isSameAs(that0))
-            return false;
-        final JCollectionField that = (JCollectionField)that0;
-        if (!this.elementField.isSameAs(that.elementField))
-            return false;
-        return true;
+    public CollectionField<?, ?> getSchemaItem() {
+        return (CollectionField<?, ?>)super.getSchemaItem();
+    }
+
+// Package Methods
+
+    @Override
+    CollectionSchemaField toSchemaItem() {
+        final CollectionSchemaField schemaField = (CollectionSchemaField)super.toSchemaItem();
+        schemaField.setElementField(this.elementField.toSchemaItem());
+        return schemaField;
     }
 
     @Override
-    String getSubFieldName(JSimpleField subField) {
-        if (subField == this.elementField)
-            return CollectionField.ELEMENT_FIELD_NAME;
-        throw new IllegalArgumentException("unknown sub-field");
-    }
-
-    @Override
-    abstract CollectionSchemaField toSchemaItem(Permazen jdb);
-
-    void initialize(Permazen jdb, CollectionSchemaField schemaField) {
-        super.initialize(jdb, schemaField);
-        schemaField.setElementField(this.elementField.toSchemaItem(jdb));
-    }
+    abstract CollectionSchemaField createSchemaItem();
 
     @Override
     public TypeToken<?> getTypeToken() {
@@ -107,7 +103,7 @@ public abstract class JCollectionField extends JComplexField {
 
         // Get JCollectionField collection
         final Collection<Object> coreCollection = (Collection<Object>)this.readCoreCollection(
-          context.getTransaction().getTransaction(), id);
+          context.getJTransaction().getTransaction(), id);
 
         // Copy values over
         coreCollection.clear();
@@ -145,7 +141,7 @@ public abstract class JCollectionField extends JComplexField {
         }
 
         // Get JCollectionField collection
-        final Collection<?> coreCollection = this.readCoreCollection(context.getTransaction().getTransaction(), id);
+        final Collection<?> coreCollection = this.readCoreCollection(context.getJTransaction().getTransaction(), id);
 
         // Copy values over
         objCollection.clear();

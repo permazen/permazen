@@ -5,6 +5,7 @@
 
 package io.permazen;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
@@ -343,7 +344,7 @@ public final class Util {
      * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
      *
      * <p>
-     * This method is equivalent to {@code findField(jclass, fieldName, true)}.
+     * This method is equivalent to {@code findField(jclass, fieldName, true)} plus filtering out non-{@link JSimpleField}s.
      *
      * @param jclass containing object type
      * @param fieldName field name
@@ -352,7 +353,12 @@ public final class Util {
      * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
      */
     public static JSimpleField findSimpleField(JClass<?> jclass, String fieldName) {
-        return (JSimpleField)Util.findField(jclass, fieldName, true);
+        final JField jfield = Util.findField(jclass, fieldName, true);
+        try {
+            return (JSimpleField)jfield;
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 
     /**
@@ -393,27 +399,44 @@ public final class Util {
         if (components.isEmpty() || components.size() > 2)
             throw new IllegalArgumentException(String.format("invalid field name \"%s\"", fieldName));
 
-        // Get first field name component
-        String component = components.removeFirst();
+        // Represents a parsed field name with optional storage ID
+        class NameParse {
 
-        // Parse explicit storage ID, if any
-        final int hash = component.indexOf('#');
-        int explicitStorageId = 0;
-        final String searchName;
-        if (hash != -1) {
-            try {
-                if ((explicitStorageId = Integer.parseInt(component.substring(hash + 1))) <= 0)
-                    throw new NumberFormatException();
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(String.format("invalid field name \"%s\"", fieldName));
+            final String name;
+            final int storageId;
+
+            NameParse(String name) {
+                final int hash = name.indexOf('#');
+                if (hash == -1) {
+                    this.name = name;
+                    this.storageId = 0;
+                } else {
+                    try {
+                        if ((this.storageId = Integer.parseInt(name.substring(hash + 1))) <= 0)
+                            throw new NumberFormatException();
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(String.format("invalid field name \"%s\"", name));
+                    }
+                    this.name = name.substring(0, hash);
+                }
             }
-            searchName = component.substring(0, hash);
-        } else
-            searchName = component;
+
+            boolean matches(JField jfield) {
+                return jfield.name.equals(this.name) && (this.storageId == 0 || jfield.storageId == this.storageId);
+            }
+
+            @Override
+            public String toString() {
+                return this.name;
+            }
+        }
+
+        // Get first field name component
+        final NameParse firstName = new NameParse(components.removeFirst());
 
         // Find the JField matching 'component' in jclass
-        JField matchingField = jclass.jfieldsByName.get(searchName);
-        if (matchingField == null || (explicitStorageId != 0 && matchingField.storageId != explicitStorageId))
+        JField matchingField = jclass.jfieldsByName.get(firstName.name);
+        if (matchingField == null || !firstName.matches(matchingField))
             return null;
 
         // Logging
@@ -429,24 +452,31 @@ public final class Util {
 
             // Get complex field
             final JComplexField complexField = (JComplexField)matchingField;
-            String description = "field \"" + component + "\" in " + jclass;
+            String description = "field \"" + firstName + "\" in " + jclass;
 
             // Logging
             if (log.isTraceEnabled())
                 log.trace("Util.findField(): field is a complex field");
 
             // If no sub-field is given, field has only one sub-field, and a simple field is required, then default to that
-            if (requireSimpleField && components.isEmpty() && complexField.getSubFields().size() == 1)
-                components.add(complexField.getSubFields().get(0).name);
+            if (requireSimpleField && components.isEmpty()) {
+                final List<JSimpleField> subFields = complexField.getSubFields();
+                if (subFields.size() == 1)
+                    components.add(subFields.get(0).name);
+            }
 
             // Is there a sub-field component?
             if (!components.isEmpty()) {
 
                 // Find the specified sub-field
-                final String subFieldName = components.removeFirst();
-                description = "sub-field \"" + subFieldName + "\" of " + description;
+                final NameParse subFieldName = new NameParse(components.removeFirst());
+                description = String.format("sub-field \"%s\" of %s", subFieldName.name, description);
                 try {
-                    matchingField = complexField.getSubField(subFieldName);
+                    matchingField = complexField.getSubField(subFieldName.name);
+                    if (!subFieldName.matches(matchingField)) {
+                        throw new IllegalArgumentException(String.format("explicit storage ID %d != field storage ID %d",
+                          subFieldName.storageId, matchingField.storageId));
+                    }
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(String.format("invalid %s: %s", description, e.getMessage()), e);
                 }
@@ -460,14 +490,14 @@ public final class Util {
                 // Logging
                 if (log.isTraceEnabled()) {
                     log.trace("Util.findField(): also stepping through sub-field [{}.{}] to reach {}",
-                      searchName, subFieldName, matchingField);
+                      firstName, subFieldName, matchingField);
                 }
             } else {
 
                 // Verify it's OK to end on a complex field
                 if (requireSimpleField) {
                     final String hints = complexField.getSubFields().stream()
-                      .map(subField -> String.format("\"%s.%s\"", searchName, subField.name))
+                      .map(subField -> String.format("\"%s\"", subField.getFullName()))
                       .collect(Collectors.joining(" or "));
                     throw new IllegalArgumentException(String.format(
                       "for complex %s a sub-field must be specified (i.e., %s)", description, hints));
@@ -829,5 +859,18 @@ public final class Util {
             throw new RuntimeException("unexpected exception", e);
         }
         return (TypeToken<T>)TypeToken.of(type);
+    }
+
+    /**
+     * Return the reverse of the given {@link Converter}, treating a null converter as if it were the identity.
+     *
+     * @param converter original converter, or null for the identity conversion
+     * @return reversed converter
+     */
+    @SuppressWarnings("unchecked")
+    public static <A, B> Converter<B, A> reverse(Converter<A, B> converter) {
+        if (converter != null)
+            return converter.reverse();
+        return (Converter<B, A>)Converter.<Object>identity();
     }
 }

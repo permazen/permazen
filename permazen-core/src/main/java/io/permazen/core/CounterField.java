@@ -25,8 +25,8 @@ import io.permazen.schema.CounterSchemaField;
  */
 public class CounterField extends Field<Long> {
 
-    CounterField(Schema schema, CounterSchemaField schemaField) {
-        super(schema, schemaField, TypeToken.of(Long.class));
+    CounterField(ObjType objType, CounterSchemaField schemaField) {
+        super(objType, schemaField, TypeToken.of(Long.class));
     }
 
 // Public methods

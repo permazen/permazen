@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.tuple.Tuple2;
 import io.permazen.util.Bounds;
 import io.permazen.util.ConvertedNavigableMap;
@@ -18,20 +18,20 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 /**
- * Converter for {@link Index}es.
+ * Converter for {@link Index1}es.
  *
  * @param <V> value type of this index
  * @param <T> target type of this index
  * @param <WV> value type of wrapped index
  * @param <WT> target type of wrapped index
  */
-class ConvertedIndex<V, T, WV, WT> implements Index<V, T> {
+class ConvertedIndex1<V, T, WV, WT> implements Index1<V, T> {
 
-    private final Index<WV, WT> index;
+    private final Index1<WV, WT> index;
     private final Converter<V, WV> valueConverter;
     private final Converter<T, WT> targetConverter;
 
-    ConvertedIndex(Index<WV, WT> index, Converter<V, WV> valueConverter, Converter<T, WT> targetConverter) {
+    ConvertedIndex1(Index1<WV, WT> index, Converter<V, WV> valueConverter, Converter<T, WT> targetConverter) {
         Preconditions.checkArgument(index != null, "null index");
         Preconditions.checkArgument(valueConverter != null, "null valueConverter");
         Preconditions.checkArgument(targetConverter != null, "null targetConverter");
@@ -53,18 +53,18 @@ class ConvertedIndex<V, T, WV, WT> implements Index<V, T> {
     }
 
     @Override
-    public Index<V, T> withValueBounds(Bounds<V> bounds) {
-        return this.convert(this.index.withValueBounds(ConvertedIndex.convert(bounds, this.valueConverter)));
+    public Index1<V, T> withValueBounds(Bounds<V> bounds) {
+        return this.convert(this.index.withValueBounds(ConvertedIndex1.convert(bounds, this.valueConverter)));
     }
 
     @Override
-    public Index<V, T> withTargetBounds(Bounds<T> bounds) {
-        return this.convert(this.index.withTargetBounds(ConvertedIndex.convert(bounds, this.targetConverter)));
+    public Index1<V, T> withTargetBounds(Bounds<T> bounds) {
+        return this.convert(this.index.withTargetBounds(ConvertedIndex1.convert(bounds, this.targetConverter)));
     }
 
-    private Index<V, T> convert(Index<WV, WT> boundedIndex) {
+    private Index1<V, T> convert(Index1<WV, WT> boundedIndex) {
         return boundedIndex == this.index ? this :
-          new ConvertedIndex<V, T, WV, WT>(boundedIndex, this.valueConverter, this.targetConverter);
+          new ConvertedIndex1<V, T, WV, WT>(boundedIndex, this.valueConverter, this.targetConverter);
     }
 
     static <T1, T2> Bounds<T2> convert(Bounds<T1> bounds, Converter<T1, T2> converter) {

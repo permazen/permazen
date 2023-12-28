@@ -11,7 +11,13 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
-abstract class CollectionElementIndex<C extends Collection<E>, E> extends ComplexSubFieldIndex<C, E> {
+/**
+ * A simple index on the elements of a {@link CollectionField}.
+ *
+ * @param <C> the type of the collection field
+ * @param <E> the type of the collection element sub-field
+ */
+public abstract class CollectionElementIndex<C extends Collection<E>, E> extends ComplexSubFieldIndex<C, E> {
 
 // Constructor
 

@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 
 /**
  * Superclass of fields with types assignable to {@link Collection}.
@@ -29,8 +29,8 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 
     final SimpleField<E> elementField;
 
-    CollectionField(Schema schema, CollectionSchemaField field, TypeToken<C> typeToken, SimpleField<E> elementField) {
-        super(schema, field, typeToken);
+    CollectionField(ObjType objType, CollectionSchemaField field, TypeToken<C> typeToken, SimpleField<E> elementField) {
+        super(objType, field, typeToken);
         Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
         assert this.elementField.parent == null;
@@ -93,7 +93,7 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
     }
 
     @Override
-    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, Set<Integer> removedStorageIds) {
         assert subField == this.elementField;
         for (Iterator<?> i = this.getValueInternal(tx, id).iterator(); i.hasNext(); ) {
             final ObjId ref = (ObjId)i.next();

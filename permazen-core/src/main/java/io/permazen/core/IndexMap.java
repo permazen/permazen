@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.kv.KVPair;
@@ -77,16 +77,16 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
      */
     static class OfValues<V, E> extends IndexMap<V, NavigableSet<E>> {
 
-        private final IndexView<V, E> indexView;
+        private final Index1View<V, E> indexView;
 
         // Primary constructor
-        OfValues(KVStore kv, IndexView<V, E> indexView) {
+        OfValues(KVStore kv, Index1View<V, E> indexView) {
             super(kv, indexView.getValueEncoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfValues(KVStore kv, IndexView<V, E> indexView,
+        private OfValues(KVStore kv, Index1View<V, E> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V> bounds) {
             super(kv, indexView.getValueEncoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
@@ -118,20 +118,20 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 // OfIndex
 
     /**
-     * Implements {@link NavigableMap} views of composite indexes where the map values are of type {@link CoreIndex}.
+     * Implements {@link NavigableMap} views of composite indexes where the map values are of type {@link CoreIndex1}.
      */
-    static class OfIndex<V1, V2, T> extends IndexMap<V1, Index<V2, T>> {
+    static class OfIndex1<V1, V2, T> extends IndexMap<V1, Index1<V2, T>> {
 
         private final Index2View<V1, V2, T> indexView;
 
         // Primary constructor
-        OfIndex(KVStore kv, Index2View<V1, V2, T> indexView) {
+        OfIndex1(KVStore kv, Index2View<V1, V2, T> indexView) {
             super(kv, indexView.getValue1Encoding(), indexView.prefix);
             this.indexView = indexView;
         }
 
         // Internal constructor
-        private OfIndex(KVStore kv, Index2View<V1, V2, T> indexView,
+        private OfIndex1(KVStore kv, Index2View<V1, V2, T> indexView,
           boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
             super(kv, indexView.getValue1Encoding(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
             this.indexView = indexView;
@@ -140,16 +140,16 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
     // AbstractKVNavigableMap
 
         @Override
-        protected NavigableMap<V1, Index<V2, T>> createSubMap(boolean newReversed,
+        protected NavigableMap<V1, Index1<V2, T>> createSubMap(boolean newReversed,
           KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
-            return new OfIndex<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+            return new OfIndex1<>(this.kv, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
         }
 
     // IndexMap
 
         @Override
-        protected CoreIndex<V2, T> decodeValue(byte[] keyPrefix) {
-            return new CoreIndex<>(this.kv, this.indexView.asIndexView(keyPrefix));
+        protected CoreIndex1<V2, T> decodeValue(byte[] keyPrefix) {
+            return new CoreIndex1<>(this.kv, this.indexView.asIndex1View(keyPrefix));
         }
     }
 

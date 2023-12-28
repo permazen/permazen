@@ -14,6 +14,7 @@ import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldClear;
 import io.permazen.change.SetFieldRemove;
 import io.permazen.core.ObjId;
+import io.permazen.core.SetField;
 import io.permazen.core.Transaction;
 import io.permazen.schema.SetSchemaField;
 
@@ -30,10 +31,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 public class JSetField extends JCollectionField {
 
-    JSetField(Permazen jdb, String name, int storageId,
-      io.permazen.annotation.JSetField annotation, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, annotation, elementField, description, getter);
+// Constructor
+
+    JSetField(String name, int storageId, io.permazen.annotation.JSetField annotation,
+      JSimpleField elementField, String description, Method getter) {
+        super(name, storageId, annotation, elementField, description, getter);
     }
+
+// Public Methods
 
     @Override
     public io.permazen.annotation.JSetField getDeclaringAnnotation() {
@@ -43,25 +48,31 @@ public class JSetField extends JCollectionField {
     @Override
     public NavigableSet<?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readSetField(jobj.getObjId(), this.storageId, false);
+        return jobj.getTransaction().readSetField(jobj.getObjId(), this.name, false);
     }
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJSetField(this);
     }
 
     @Override
-    SetSchemaField toSchemaItem(Permazen jdb) {
-        final SetSchemaField schemaField = new SetSchemaField();
-        super.initialize(jdb, schemaField);
-        return schemaField;
+    public SetField<?> getSchemaItem() {
+        return (SetField<?>)super.getSchemaItem();
+    }
+
+// Package Methods
+
+    @Override
+    SetSchemaField createSchemaItem() {
+        return new SetSchemaField();
     }
 
     @Override
-    SetElementIndexInfo toIndexInfo(JSimpleField subField) {
-        assert subField == this.elementField;
-        return new SetElementIndexInfo(this);
+    @SuppressWarnings("unchecked")
+    Iterable<ObjId> iterateReferences(Transaction tx, ObjId id, JReferenceField subField) {
+        return (Iterable<ObjId>)tx.readSetField(id, this.name, false);
     }
 
     @Override
@@ -105,7 +116,7 @@ public class JSetField extends JCollectionField {
 
     @Override
     NavigableSet<?> readCoreCollection(Transaction tx, ObjId id) {
-        return tx.readSetField(id, this.storageId, true);
+        return tx.readSetField(id, this.name, true);
     }
 
 // Bytecode generation

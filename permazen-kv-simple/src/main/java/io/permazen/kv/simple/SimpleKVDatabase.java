@@ -649,6 +649,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     private /*synchronized*/ void getLock(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey, boolean write) {
 
         // Attempt to get the lock
+        assert Thread.holdsLock(this);
         LockManager.LockResult lockResult;
         try {
             lockResult = this.lockManager.lock(tx.lockOwner, minKey, maxKey, write, tx.waitTimeout);

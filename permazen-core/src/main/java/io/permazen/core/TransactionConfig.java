@@ -5,6 +5,9 @@
 
 package io.permazen.core;
 
+import com.google.common.base.Preconditions;
+
+import io.permazen.kv.KVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ImmutableNavigableMap;
 
@@ -30,7 +33,7 @@ public final class TransactionConfig {
           .orElseGet(SchemaModel::new);
 
         // Lock down schema model
-        this.schemaModel.lockDown();
+        this.schemaModel.lockDown(true);
 
         // Validate schema model
         this.schemaModel.validate();
@@ -49,7 +52,7 @@ public final class TransactionConfig {
      * Get the schema model to use.
      *
      * @return the schema to use during transactions
-     * @see Builder#setSchemaModel
+     * @see Builder#schemaModel
      */
     public SchemaModel getSchemaModel() {
         return this.schemaModel;
@@ -59,7 +62,7 @@ public final class TransactionConfig {
      * Get whether it is allowed to register a new schema model into the database.
      *
      * @return whether registering a new schema is allowed
-     * @see Builder#setAllowNewSchema
+     * @see Builder#allowNewSchema
      */
     public boolean isAllowNewSchema() {
         return this.allowNewSchema;
@@ -69,7 +72,7 @@ public final class TransactionConfig {
      * Configure whether automatic schema garbage collection should be enabled.
      *
      * @return whether automatically garbage collect obsolete schemas
-     * @see Builder#setGarbageCollectSchemas
+     * @see Builder#garbageCollectSchemas
      */
     public boolean isGarbageCollectSchemas() {
         return this.garbageCollectSchemas;
@@ -79,12 +82,14 @@ public final class TransactionConfig {
      * Configure {@link KVDatabase} transaction options.
      *
      * @return transaction options for the underlying {@link KVDatabase}, or null for none
-     * @see Builder#setKVOptions
+     * @see Builder#kvOptions
      * @see KVDatabase#createTransaction(Map)
      */
     public Map<String, ?> getKVOptions() {
         return this.kvoptions;
     }
+
+// Other Methods
 
     /**
      * Create a {@link Builder}.
@@ -95,8 +100,24 @@ public final class TransactionConfig {
         return new Builder();
     }
 
+    /**
+     * Convenience method that uses this instance to create a new transaction in the given database.
+     *
+     * @param db database in which to open a new transaction
+     * @return new transaction in {@code db}
+     * @throws IllegalArgumentException if {@code db} is null
+     * @see Database#createTransaction(TransactionConfig)
+     */
+    public Transaction newTransaction(Database db) {
+        Preconditions.checkArgument(db != null, "null db");
+        return db.createTransaction(this);
+    }
+
 // Builder
 
+    /**
+     * Builder for {@link TransactionConfig}s.
+     */
     public static final class Builder implements Cloneable {
 
         private SchemaModel schemaModel;
@@ -107,13 +128,6 @@ public final class TransactionConfig {
     // Constructors
 
         private Builder() {
-        }
-
-        private Builder(TransactionConfig config) {
-            this.schemaModel = config.schemaModel;
-            this.allowNewSchema = config.allowNewSchema;
-            this.garbageCollectSchemas = config.garbageCollectSchemas;
-            this.kvoptions = config.kvoptions;
         }
 
     // Methods

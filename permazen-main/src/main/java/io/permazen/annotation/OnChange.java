@@ -6,6 +6,7 @@
 package io.permazen.annotation;
 
 import io.permazen.Counter;
+import io.permazen.DetachedJTransaction;
 import io.permazen.ReferencePath;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
@@ -239,7 +240,7 @@ import java.lang.annotation.Target;
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
- * Some notifications may need to be ignored by objects in {@linkplain DetachedTransaction detached} transactions;
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedJTransaction detached} transactions;
  * you can use {@code this.isDetached()} to detect that situation.
  *
  * <p>

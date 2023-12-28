@@ -58,13 +58,11 @@ public class LockDownTest extends CoreAPITestSupport {
         final Database db = new Database(kvstore);
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
-        // Check calculations before lockdown
+        // Lock down schema
+        schema.lockDown(false);
         schema.validate();
         final SchemaId hash1 = schema.getSchemaId();
         this.log.debug("hash = \"{}\" for schema\n{}", hash1, schema);
-
-        // Lock down schema
-        schema.lockDown();
 
         // Try to modify it
         try {
@@ -81,12 +79,6 @@ public class LockDownTest extends CoreAPITestSupport {
         }
         try {
             ((SimpleSchemaField)schema.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).setEncodingId(null);
-            assert false;
-        } catch (UnsupportedOperationException e) {
-            this.log.debug("got expected {}", e.toString());
-        }
-        try {
-            ((SimpleSchemaField)schema.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).setStorageId(123);
             assert false;
         } catch (UnsupportedOperationException e) {
             this.log.debug("got expected {}", e.toString());
@@ -134,6 +126,24 @@ public class LockDownTest extends CoreAPITestSupport {
             this.log.debug("got expected {}", e.toString());
         }
 
+        // We should still be able to modify storage ID's
+        try {
+            ((SimpleSchemaField)schema.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).setStorageId(11);
+            this.log.debug("yay - we can change a storage ID");
+            assert ((SimpleSchemaField)schema.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).getStorageId() == 11;
+        } catch (UnsupportedOperationException e) {
+            assert false;
+        }
+
+        // But not after complete lockdown
+        schema.lockDown(true);
+        try {
+            ((SimpleSchemaField)schema.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).setStorageId(10);
+            assert false;
+        } catch (UnsupportedOperationException e) {
+            this.log.debug("got expected {}", e.toString());
+        }
+
         // Check calculations after lockdown
         schema.validate();
         final SchemaId hash2 = schema.getSchemaId();
@@ -146,11 +156,6 @@ public class LockDownTest extends CoreAPITestSupport {
         // Clone it to make it modifiable again
         final SchemaModel schema2 = schema.clone();
         Assert.assertEquals(schema2, schema);
-
-        schema2.validate();
-        final SchemaId hash4 = schema2.getSchemaId();
-        this.log.debug("hash = \"{}\" for schema\n{}", hash4, schema2);
-        Assert.assertEquals(hash4, hash1);
 
         // We should be able to modify the clone
         ((SimpleSchemaField)schema2.getSchemaObjectTypes().get("Foo").getSchemaFields().get("i")).setEncodingId(null);
@@ -165,8 +170,10 @@ public class LockDownTest extends CoreAPITestSupport {
         schema2.getSchemaObjectTypes().get("Foo").getSchemaFields().remove("e");
         schema2.getSchemaObjectTypes().remove("Foo");
 
-        final SchemaId hash5 = schema2.getSchemaId();
-        this.log.debug("hash = \"{}\" for schema\n{}", hash5, schema2);
-        Assert.assertNotEquals(hash5, hash1, "\n" + schema2 + "\n");
+        // Hash should now be different
+        schema2.lockDown(true);
+        final SchemaId hash4 = schema2.getSchemaId();
+        this.log.debug("hash = \"{}\" for schema\n{}", hash4, schema2);
+        Assert.assertNotEquals(hash4, hash1, "\n" + schema2 + "\n");
     }
 }

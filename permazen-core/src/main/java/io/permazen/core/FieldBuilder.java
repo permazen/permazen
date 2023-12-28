@@ -86,12 +86,12 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
             for (String typeName : field.getObjectTypes())
                 objTypes.add(this.schema.getObjType(typeName));
         }
-        return this.add(field, new ReferenceField(this.schema, field, objTypes));
+        return this.add(field, new ReferenceField(this.objType, field, objTypes));
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
-        return this.add(field, new EnumField(this.schema, field, field.isIndexed()));
+        return this.add(field, new EnumField(this.objType, field, field.isIndexed()));
     }
 
     @Override
@@ -101,34 +101,34 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
         Encoding<?> encoding = baseType;
         for (int dims = 0; dims < field.getDimensions(); dims++)
             encoding = SimpleEncodingRegistry.buildArrayEncoding(encoding);
-        return this.add(field, new EnumArrayField(this.schema, field, baseType, encoding, field.isIndexed()));
+        return this.add(field, new EnumArrayField(this.objType, field, baseType, encoding, field.isIndexed()));
     }
 
     @Override
     public CounterField caseCounterSchemaField(CounterSchemaField field) {
-        return new CounterField(this.schema, field);
+        return new CounterField(this.objType, field);
     }
 
 // Internal methods
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
-        return this.add(field, new SimpleField<>(this.schema, field, encoding, indexed));
+        return this.add(field, new SimpleField<>(this.objType, field, encoding, indexed));
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> SetField<E> buildSetField(SetSchemaField field, SimpleField<E> elementField) {
-        return new SetField<>(this.schema, field, elementField);
+        return new SetField<>(this.objType, field, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> ListField<E> buildListField(ListSchemaField field, SimpleField<E> elementField) {
-        return new ListField<>(this.schema, field, elementField);
+        return new ListField<>(this.objType, field, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <K, V> MapField<K, V> buildMapField(MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        return new MapField<>(this.schema, field, keyField, valueField);
+        return new MapField<>(this.objType, field, keyField, valueField);
     }
 
     // Maintain a map from built field to original schema item

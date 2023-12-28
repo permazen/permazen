@@ -8,19 +8,18 @@ package io.permazen;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.test.TestSupport;
 
 import java.util.UUID;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnChangeNestedGetterTest extends TestSupport {
+public class OnChangeNestedGetterTest extends MainTestSupport {
 
     @Test
     public void testSimpleFieldChange() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

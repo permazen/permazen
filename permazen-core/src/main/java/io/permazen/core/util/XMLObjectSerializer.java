@@ -390,10 +390,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             final SchemaModel schemaModel = new SchemaModel();
             try {
                 schemaModel.readXML(reader, true);
-                schemaModel.lockDown();
+                schemaModel.lockDown(true);
                 schemaModel.validate();
             } catch (IllegalArgumentException | XMLStreamException | InvalidSchemaException e) {
-                throw new XMLStreamException(String.format("invalid schema: %s", e.getMessage()), reader.getLocation(), e);
+                throw this.newInvalidInputException(reader, e, "invalid schema: %s", e.getMessage());
             }
 
             // Add to map
@@ -423,9 +423,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 try {
                     schema = this.tx.getSchemaBundle().getSchema(schemaId);
                 } catch (IllegalArgumentException e) {
-                    throw new XMLStreamException(String.format(
-                      "invalid schema \"%s\": %s", schemaId, e.getMessage()),
-                      reader.getLocation(), e);
+                    throw this.newInvalidInputException(reader, e, "invalid schema \"%s\": %s", schemaId, e.getMessage());
                 }
             } else
                 schema = this.tx.getSchema();
@@ -435,24 +433,21 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             String typeName = this.getAttr(reader, TYPE_ATTR, false);
             if (typeName == null) {                                                     // custom mode
                 if (!XMLConstants.NULL_NS_URI.equals(tagName.getNamespaceURI())) {
-                    throw new XMLStreamException(String.format(
+                    throw this.newInvalidInputException(reader,
                       "unexpected element <%s:%s>; expected <%s> or object type name",
-                      tagName.getPrefix(), tagName.getLocalPart(), OBJECT_TAG),
-                      reader.getLocation());
+                      tagName.getPrefix(), tagName.getLocalPart(), OBJECT_TAG);
                 }
                 typeName = tagName.getLocalPart();
             } else if (!tagName.equals(OBJECT_TAG)) {                                   // plain mode
                 if (!XMLConstants.NULL_NS_URI.equals(tagName.getNamespaceURI())) {
-                    throw new XMLStreamException(String.format(
+                    throw this.newInvalidInputException(reader,
                       "unexpected element <%s:%s>; expected <%s>",
-                      tagName.getPrefix(), tagName.getLocalPart(), OBJECT_TAG),
-                      reader.getLocation());
+                      tagName.getPrefix(), tagName.getLocalPart(), OBJECT_TAG);
                 }
                 if (!typeName.equals(tagName.getLocalPart())) {
-                    throw new XMLStreamException(String.format(
+                    throw this.newInvalidInputException(reader,
                       "element <%s> does not match object type name \"%s\" (should be <%s> or <%s>)",
-                      tagName.getLocalPart(), typeName, typeName, OBJECT_TAG),
-                      reader.getLocation());
+                      tagName.getLocalPart(), typeName, typeName, OBJECT_TAG);
                 }
             }
 
@@ -464,7 +459,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 final String message = typeName.equals(OBJECT_TAG.toString()) ?
                   String.format("<%s> tag is missing \"%s\" attribute", OBJECT_TAG, TYPE_ATTR) :
                   String.format("invalid object type \"%s\": %s", typeName, e.getMessage());
-                throw new XMLStreamException(message, reader.getLocation(), e);
+                throw this.newInvalidInputException(reader, e, "%s", message);
             }
 
             // Reset detached transaction to discard previous object
@@ -484,7 +479,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                     // Check for generated:TYPE:SUFFIX
                     if ((id = this.parseGeneratedId(reader, schema, idAttr, objType)) == null)
-                        throw new XMLStreamException(String.format("invalid object ID \"%s\"", idAttr), reader.getLocation());
+                        throw this.newInvalidInputException(reader, e, "invalid object ID \"%s\"", idAttr);
                 }
 
                 // Create the specified object
@@ -500,21 +495,19 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 final Field<?> field;
                 if (fieldNameAttr == null) {
                     if (!XMLConstants.NULL_NS_URI.equals(tagName.getNamespaceURI())) {
-                        throw new XMLStreamException(String.format(
-                          "unexpected element <%s:%s>; expected field name", tagName.getPrefix(), tagName.getLocalPart()),
-                          reader.getLocation());
+                        throw this.newInvalidInputException(reader,
+                          "unexpected element <%s:%s>; expected field name",
+                          tagName.getPrefix(), tagName.getLocalPart());
                     }
                     if ((field = objType.getFields().get(tagName.getLocalPart())) == null) {
-                        throw new XMLStreamException(String.format(
+                        throw this.newInvalidInputException(reader,
                           "unexpected element <%s>; unknown field \"%s\" in object type \"%s\" in schema \"%s\"",
-                          tagName.getLocalPart(), tagName.getLocalPart(), objType.getName(), schema.getSchemaId()),
-                          reader.getLocation());
+                          tagName.getLocalPart(), tagName.getLocalPart(), objType.getName(), schema.getSchemaId());
                     }
                 } else if ((field = objType.getFields().get(fieldNameAttr)) == null) {
-                    throw new XMLStreamException(String.format(
+                    throw this.newInvalidInputException(reader,
                       "unknown field \"%s\" in object type \"%s\" in schema %s",
-                      fieldNameAttr, objType.getName(), schema.getSchemaId()),
-                      reader.getLocation());
+                      fieldNameAttr, objType.getName(), schema.getSchemaId());
                 }
 
                 // Parse the field
@@ -525,9 +518,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     try {
                         value = Long.parseLong(reader.getElementText());
                     } catch (Exception e) {
-                        throw new XMLStreamException(String.format(
-                          "invalid counter value for field \"%s\": %s", field.getName(), e.getMessage()),
-                          reader.getLocation(), e);
+                        throw this.newInvalidInputException(reader, e,
+                          "invalid counter value for field \"%s\": %s", field.getName(), e.getMessage());
                     }
                     tempTx.writeCounterField(id, field.getName(), value, false);
                 } else if (field instanceof CollectionField) {
@@ -541,10 +533,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         throw new RuntimeException("internal error: " + field);
                     while ((tagName = this.next(reader)) != null) {
                         if (!ELEMENT_TAG.equals(tagName)) {
-                            throw new XMLStreamException(String.format(
+                            throw this.newInvalidInputException(reader,
                               "invalid field element; expected <%s> but found opening <%s>",
-                              ELEMENT_TAG.getLocalPart(), tagName.getLocalPart()),
-                              reader.getLocation());
+                              ELEMENT_TAG.getLocalPart(), tagName.getLocalPart());
                         }
                         ((Collection<Object>)collection).add(this.readSimpleField(reader, elementField));
                     }
@@ -554,29 +545,25 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     final Map<?, ?> map = tempTx.readMapField(id, field.getName(), false);
                     while ((tagName = this.next(reader)) != null) {
                         if (!ENTRY_TAG.equals(tagName)) {
-                            throw new XMLStreamException(String.format(
+                            throw this.newInvalidInputException(reader,
                               "invalid map field entry; expected <%s> but found opening <%s>",
-                              ENTRY_TAG.getLocalPart(), tagName.getLocalPart()),
-                              reader.getLocation());
+                              ENTRY_TAG.getLocalPart(), tagName.getLocalPart());
                         }
                         if (!KEY_TAG.equals(this.next(reader))) {
-                            throw new XMLStreamException(String.format(
-                              "invalid map entry key; expected <%s>", KEY_TAG.getLocalPart()),
-                              reader.getLocation());
+                            throw this.newInvalidInputException(reader,
+                              "invalid map entry key; expected <%s>", KEY_TAG.getLocalPart());
                         }
                         final Object key = this.readSimpleField(reader, keyField);
                         if (!VALUE_TAG.equals(this.next(reader))) {
-                            throw new XMLStreamException(String.format(
-                              "invalid map entry value; expected <%s>", VALUE_TAG.getLocalPart()),
-                              reader.getLocation());
+                            throw this.newInvalidInputException(reader,
+                              "invalid map entry value; expected <%s>", VALUE_TAG.getLocalPart());
                         }
                         final Object value = this.readSimpleField(reader, valueField);
                         ((Map<Object, Object>)map).put(key, value);
                         if ((tagName = this.next(reader)) != null) {
-                            throw new XMLStreamException(String.format(
+                            throw this.newInvalidInputException(reader,
                               "invalid map field entry; expected closing <%s> but found opening <%s>",
-                              ENTRY_TAG.getLocalPart(), tagName.getLocalPart()),
-                              reader.getLocation());
+                              ENTRY_TAG.getLocalPart(), tagName.getLocalPart());
                         }
                     }
                 } else
@@ -601,8 +588,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             return new SchemaId(attr);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException(String.format(
-              "invalid schema ID \"%s\": %s", attr, e.getMessage()), reader.getLocation(), e);
+            throw this.newInvalidInputException(reader, e, "invalid schema ID \"%s\": %s", attr, e.getMessage());
         }
     }
 
@@ -652,9 +638,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
         // Write <schemas>
         writer.writeStartElement(SCHEMAS_TAG.getNamespaceURI(), SCHEMAS_TAG.getLocalPart());
-        for (Schema schema : this.tx.getSchemaBundle().getSchemasBySchemaIndex().values()) {
-            schema.getSchemaModel().writeXML(writer, true);
-        }
+        for (Schema schema : this.tx.getSchemaBundle().getSchemasBySchemaIndex().values())
+            schema.getSchemaModel(true).writeXML(writer, true);         // always include storage ID assignments
         writer.writeEndElement();       // </schemas>
 
         // Write <objects>
@@ -837,9 +822,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 isNull = Boolean.valueOf(nullAttr);
                 break;
             default:
-                throw new XMLStreamException(String.format(
+                throw this.newInvalidInputException(reader,
                   "invalid value \"%s\" for \"%s\" attribute: value must be \"true\" or \"false\"",
-                  nullAttr, NULL_ATTR.getLocalPart()), reader.getLocation());
+                  nullAttr, NULL_ATTR.getLocalPart());
             }
         }
 
@@ -848,15 +833,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             text = reader.getElementText();
         } catch (Exception e) {
-            throw new XMLStreamException(String.format(
-              "invalid value for field \"%s\": %s", field.getName(), e.getMessage()),
-              reader.getLocation(), e);
+            throw this.newInvalidInputException(reader, e,
+              "invalid value for field \"%s\": %s", field.getName(), e.getMessage());
         }
 
         // If null, verify there is no text content
         if (isNull) {
             if (text.length() != 0)
-                throw new XMLStreamException("text content not allowed for values with null=\"true\"", reader.getLocation());
+                throw this.newInvalidInputException(reader, "text content not allowed for values with null=\"true\"");
             return null;
         }
 
@@ -871,9 +855,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             return encoding.fromString(text);
         } catch (Exception e) {
-            throw new XMLStreamException(String.format(
-              "invalid value \"%s\" for field \"%s\": %s", text, field.getName(), e.getMessage()),
-              reader.getLocation(), e);
+            throw this.newInvalidInputException(reader, e,
+              "invalid value \"%s\" for field \"%s\": %s", text, field.getName(), e.getMessage());
         }
     }
 
@@ -900,15 +883,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         try {
             objType = schema.getObjType(typeName);
         } catch (UnknownTypeException e) {
-            throw new XMLStreamException(String.format("invalid object type \"%s\": %s", typeName, e.getMessage()),
-              reader.getLocation(), e);
+            throw this.newInvalidInputException(reader, e, "invalid object type \"%s\": %s", typeName, e.getMessage());
         }
 
         // Verify object type
         if (expectedType != null && objType != expectedType) {
-            throw new XMLStreamException(String.format(
-              "invalid object type \"%s\": %s", typeName, String.format("expected \"%s\"", expectedType.getName())),
-              reader.getLocation());
+            throw this.newInvalidInputException(reader,
+              "invalid object type \"%s\": expected \"%s\"", typeName, expectedType.getName());
         }
 
         // Get the generated ID

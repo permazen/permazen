@@ -19,7 +19,7 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 
 /**
  * A complex {@link Field}, such as a collection or map field.
@@ -30,8 +30,8 @@ public abstract class ComplexField<T> extends Field<T> {
 
     private final int storageIdLength;
 
-    ComplexField(Schema schema, ComplexSchemaField schemaField, TypeToken<T> typeToken) {
-        super(schema, schemaField, typeToken);
+    ComplexField(ObjType objType, ComplexSchemaField schemaField, TypeToken<T> typeToken) {
+        super(objType, schemaField, typeToken);
         this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);
     }
 
@@ -210,6 +210,5 @@ public abstract class ComplexField<T> extends Field<T> {
      * Remove all field entries in which the specified reference sub-field refers to an object
      * type that is in the specified set of newly disallowed object types.
      */
-    abstract void unreferenceRemovedTypes(Transaction tx,
-      ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds);
+    abstract void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, Set<Integer> removedStorageIds);
 }

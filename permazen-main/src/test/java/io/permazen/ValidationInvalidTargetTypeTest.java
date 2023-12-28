@@ -7,16 +7,15 @@ package io.permazen;
 
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import org.testng.annotations.Test;
 
-public class ValidationInvalidTargetTypeTest extends TestSupport {
+public class ValidationInvalidTargetTypeTest extends MainTestSupport {
 
     @Test
     public void testValidationInvalidTargetType() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person1.class, Person2.class);
+        final Permazen jdb = BasicTest.newPermazen(Person1.class, Person2.class);
 
         JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);

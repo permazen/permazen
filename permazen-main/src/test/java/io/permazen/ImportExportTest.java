@@ -8,7 +8,6 @@ package io.permazen;
 import io.permazen.annotation.JTransient;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
-import io.permazen.test.TestSupport;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ImportExportTest extends TestSupport {
+public class ImportExportTest extends MainTestSupport {
 
     @Test
     public void testImportExport() {
@@ -41,7 +40,7 @@ public class ImportExportTest extends TestSupport {
         final ObjId momId;
         final ObjId margoId;
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

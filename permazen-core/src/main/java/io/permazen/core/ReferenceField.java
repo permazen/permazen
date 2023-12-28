@@ -29,8 +29,8 @@ public class ReferenceField extends SimpleField<ObjId> {
     final boolean forwardDelete;
     final boolean allowDeleted;
 
-    ReferenceField(Schema schema, ReferenceSchemaField field, Set<ObjType> objTypes) {
-        super(schema, field, new ReferenceEncoding(schema, objTypes), true);
+    ReferenceField(ObjType objType, ReferenceSchemaField field, Set<ObjType> objTypes) {
+        super(objType, field, new ReferenceEncoding(objType.getSchema(), objTypes), true);
         this.inverseDelete = field.getInverseDelete();
         this.forwardDelete = field.isForwardDelete();
         this.allowDeleted = field.isAllowDeleted();

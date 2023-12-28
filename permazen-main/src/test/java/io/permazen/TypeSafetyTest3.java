@@ -13,15 +13,13 @@ import io.permazen.change.SetFieldRemove;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
-import java.util.Arrays;
 import java.util.NavigableSet;
 
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class TypeSafetyTest3 extends TestSupport {
+public class TypeSafetyTest3 extends MainTestSupport {
 
     @SuppressWarnings("unchecked")
     @Test
@@ -32,7 +30,7 @@ public class TypeSafetyTest3 extends TestSupport {
 
     // Version 1
 
-        final Permazen jdb1 = new Permazen(db, 1, null, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
+        final Permazen jdb1 = BasicTest.newPermazen(db, Inventory1.class, Car.class, Boat.class);
         JTransaction jtx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
@@ -60,7 +58,7 @@ public class TypeSafetyTest3 extends TestSupport {
 
     // Version 2
 
-        final Permazen jdb2 = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
+        final Permazen jdb2 = BasicTest.newPermazen(db, Inventory2.class, Car.class, Boat.class);
         jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 

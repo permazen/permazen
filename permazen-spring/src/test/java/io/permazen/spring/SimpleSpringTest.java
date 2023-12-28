@@ -47,8 +47,8 @@ public class SimpleSpringTest extends SpringTest {
     @Test
     public void testFilter() {
         final Permazen db = this.context.getBean(Permazen.class);
-        Assert.assertTrue(db.getJClasses().keySet().contains(100));
-        Assert.assertFalse(db.getJClasses().keySet().contains(200));
+        Assert.assertTrue(db.getJClassesByName().keySet().contains("Person"));
+        Assert.assertFalse(db.getJClassesByName().keySet().contains("Banana"));
     }
 
 // Bean methods
@@ -78,10 +78,10 @@ public class SimpleSpringTest extends SpringTest {
 
 // Model Classes
 
-    @PermazenType(storageId = 100)
+    @PermazenType
     public abstract static class Person implements JObject {
 
-        @JField(storageId = 109)
+        @JField
         public abstract String getName();
         public abstract void setName(String value);
 
@@ -90,10 +90,10 @@ public class SimpleSpringTest extends SpringTest {
         }
     }
 
-    @PermazenType(storageId = 200)
+    @PermazenType
     public abstract static class Banana implements JObject {
 
-        @JField(storageId = 201)
+        @JField
         public abstract float getWeight();
         public abstract void setWeight(float weight);
     }

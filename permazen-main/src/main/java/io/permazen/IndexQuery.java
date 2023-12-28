@@ -1,0 +1,449 @@
+
+/*
+ * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
+ */
+
+package io.permazen;
+
+import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
+
+import io.permazen.core.CoreIndex1;
+import io.permazen.core.CoreIndex2;
+import io.permazen.core.CoreIndex3;
+import io.permazen.core.CoreIndex4;
+import io.permazen.core.ReferenceEncoding;
+import io.permazen.encoding.Encoding;
+import io.permazen.kv.KeyRange;
+import io.permazen.kv.KeyRanges;
+import io.permazen.schema.SchemaId;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * Information used for index queries.
+ */
+class IndexQuery {
+
+    private static final KeyRange NULL_RANGE = new KeyRange(new byte[] { (byte)0xff }, null);
+
+    final JSchemaItem schemaItem;           // a REPRESENTATIVE schema item
+
+    private final Class<?> targetType;
+    private final ArrayList<KeyRanges> filters = new ArrayList<>();
+
+// Constructors
+
+    // Constructor for all simple index queries other than map value
+    IndexQuery(Permazen jdb, Class<?> targetType, String fieldName, Class<?> valueType) {
+        this(jdb, targetType, fieldName, valueType, null);
+    }
+
+    // Constructor for map value index queries
+    IndexQuery(Permazen jdb, Class<?> targetType, String fieldName, Class<?> valueType, Class<?> keyType) {
+
+        // Sanity check
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(targetType != null, "null targetType");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
+        Preconditions.checkArgument(valueType != null, "null valueType");
+
+        // Get start type
+        Preconditions.checkArgument(!targetType.isPrimitive() && !targetType.isArray(), "invalid targetType " + targetType);
+        this.targetType = targetType;
+
+        // Identify the value field(s)
+        final ArrayList<JSimpleField> jfields = new ArrayList<>();
+        boolean foundAny = false;
+        SchemaId schemaId = null;
+        for (JClass<?> jclass : jdb.getJClasses(targetType)) {
+
+            // Find the field
+            JSimpleField jfield = Util.findSimpleField(jclass, fieldName);
+            if (jfield == null)
+                continue;
+            foundAny = true;
+
+            // Is the field actually indexed?
+            if (!jfield.indexed)
+                continue;
+
+            // Does the field conflict with another field of the same name encoding-wise?
+            final SchemaId fieldSchemaId = jfield.getSchemaId();
+            if (jfields.isEmpty())
+                schemaId = fieldSchemaId;
+            else if (!fieldSchemaId.equals(schemaId)) {
+                throw new IllegalArgumentException(String.format(
+                  "field name \"%s\" is ambiguous in %s, matching incompatible fields in %s and %s",
+                  fieldName, targetType, jfield, jfields.get(0)));
+            }
+
+            // Add field
+            jfields.add(jfield);
+        }
+
+        // Any fields found?
+        if (jfields.isEmpty()) {
+            throw new IllegalArgumentException(foundAny ?
+              String.format("field \"%s\" in %s is not indexed", fieldName, targetType) :
+              String.format("field \"%s\" not found in %s", fieldName, targetType));
+        }
+
+        // Use the first field found as representative
+        final JSimpleField jfield = jfields.get(0);
+        this.schemaItem = jfield;
+
+        // Identify the value type(s)
+        final Set<TypeToken<?>> valueTypes = jfields.stream()
+          .map(JSimpleField::getTypeToken)
+          .collect(Collectors.toSet());
+
+        // Verify value type
+        final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
+        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(valueTypes), jfield.encoding));
+
+        // Verify target type
+        valueChecks.add(new ValueCheck("target type", this.targetType));
+
+        // Add additional check for the map key type when doing a map value index query
+        if (keyType != null) {
+            final JMapField parent = (JMapField)jfield.getParentField();
+            final String keyFieldName = parent.getKeyField().getFullName();
+            valueChecks.add(new ValueCheck("map key type", keyType,
+              this.wrapRaw(this.getTypeTokens(jdb, this.targetType, keyFieldName)), parent.keyField.encoding));
+        }
+
+        // Check values
+        this.checkValues(jdb, valueChecks, "index query on field \"%s\"", fieldName);
+    }
+
+    // Constructor for composite index queries
+    IndexQuery(Permazen jdb, Class<?> targetType, String indexName, Class<?>... valueTypes) {
+
+        // Sanity check
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(targetType != null, "null targetType");
+        Preconditions.checkArgument(indexName != null, "null indexName");
+        Preconditions.checkArgument(valueTypes != null, "null valueTypes");
+        Preconditions.checkArgument(valueTypes.length >= 2, "not enough value types");
+
+        // Get start type
+        Preconditions.checkArgument(!targetType.isPrimitive() && !targetType.isArray(), "invalid targetType " + targetType);
+        this.targetType = targetType;
+
+        // Find composite index(es)
+        JCompositeIndex index = null;
+        boolean foundAny = false;
+        final int numValues = valueTypes.length;
+        for (JClass<?> jclass : jdb.getJClasses(targetType)) {
+            final JCompositeIndex nextIndex = jclass.jcompositeIndexesByName.get(indexName);
+            if (nextIndex == null)
+                continue;
+            foundAny = true;
+            if (nextIndex.jfields.size() != numValues)
+                continue;
+            if (index == null)
+                index = nextIndex;
+            else if (!nextIndex.getSchemaId().equals(index.getSchemaId())) {
+                throw new IllegalArgumentException(String.format("ambiguous composite index name \"%s\":"
+                  + " multiple incompatible composite indexes with that name exist on sub-types of %s",
+                  indexName, targetType.getName()));
+            }
+        }
+        if (index == null) {
+            throw new IllegalArgumentException(String.format(
+              "no composite index named \"%s\"%s exists on any sub-type of %s",
+              indexName, foundAny ? " on " + numValues + " fields" : "", targetType.getName()));
+        }
+
+        // Use the first index found as representative
+        this.schemaItem = index;
+
+        // Verify value encodings
+        final ArrayList<ValueCheck> valueChecks = new ArrayList<>(valueTypes.length + 1);
+        for (int i = 0; i < valueTypes.length; i++) {
+            final JSimpleField jfield = index.jfields.get(i);
+            valueChecks.add(new ValueCheck("value type #" + (i + 1), valueTypes[i],
+              this.wrapRaw(this.getTypeTokens(jdb, this.targetType, jfield.name)), jfield.encoding));
+        }
+
+        // Verify target type
+        valueChecks.add(new ValueCheck("target type", this.targetType));
+
+        // Check values
+        this.checkValues(jdb, valueChecks, "query on composite index \"%s\"", indexName);
+    }
+
+    private void checkValues(Permazen jdb, List<ValueCheck> valueChecks, String format, Object... args) {
+        final String description = String.format(format, args);
+        for (ValueCheck check : valueChecks) {
+            final KeyRanges ranges = check.checkAndGetKeyRanges(jdb, this.targetType, description);
+            this.filters.add(ranges);
+        }
+    }
+
+    private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, String fieldName) {
+        final HashSet<TypeToken<?>> contextEncodings = new HashSet<>();
+        for (JClass<?> jclass : jdb.jclasses) {
+
+            // Check if jclass is under consideration
+            if (!context.isAssignableFrom(jclass.type))
+                continue;
+
+            // Find the simple field field in jclass, if it exists
+            final JSimpleField field = jclass.jsimpleFieldsByName.get(fieldName);
+            if (field == null)
+                continue;
+
+            // Add field's type in jclass
+            contextEncodings.add(field.typeToken);
+        }
+        if (contextEncodings.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+              "no sub-type of %s contains an indexed simple field named \"%s\"", context, fieldName));
+        }
+        return Util.findLowestCommonAncestors(contextEncodings.stream());
+    }
+
+    private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {
+        final HashSet<Class<?>> classes = new HashSet<>(typeTokens.size());
+        for (TypeToken<?> typeToken : typeTokens)
+            classes.add(typeToken.wrap().getRawType());
+        return classes;
+    }
+
+// Public Methods
+
+    public <V, T> CoreIndex1<V, T> applyFilters(CoreIndex1<V, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    public <V1, V2, T> CoreIndex2<V1, V2, T> applyFilters(CoreIndex2<V1, V2, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    public <V1, V2, V3, T> CoreIndex3<V1, V2, V3, T> applyFilters(CoreIndex3<V1, V2, V3, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    public <V1, V2, V3, V4, T> CoreIndex4<V1, V2, V3, V4, T> applyFilters(CoreIndex4<V1, V2, V3, V4, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    // COMPOSITE-INDEX
+
+    @Override
+    public String toString() {
+        return "IndexQuery"
+          + "[targetType=" + this.targetType
+          + ",schemaItem=" + this.schemaItem
+          + ",filters=" + this.filters + "]";
+    }
+
+// ValueCheck
+
+    // Used to verify that the application of a Java type to a value or target component of an index makes sense.
+    private static class ValueCheck {
+
+        private final String description;                   // describes which type component of the index
+        private final Class<?> actualType;                  // actual type found for this component
+        private final Set<Class<?>> expectedTypes;          // types expected based on index definition
+        private final boolean reference;                    // true if we're talking about a reference type
+        private final boolean matchNull;                    // whether filter should include null values (all but target)
+
+    // Constructors
+
+        // Primary constructor
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, boolean reference, boolean matchNull) {
+            this.description = description;
+            this.actualType = actualType;
+            this.expectedTypes = expectedTypes;
+            this.reference = reference;
+            this.matchNull = matchNull;
+        }
+
+        // Constructor for value types
+        ValueCheck(String description, Class<?> actualType, Set<Class<?>> expectedTypes, Encoding<?> encoding) {
+            this(description, actualType, expectedTypes, encoding instanceof ReferenceEncoding, true);
+        }
+
+        // Constructor for target types
+        ValueCheck(String description, Class<?> targetType) {
+            this(description, targetType, Collections.<Class<?>>singleton(targetType), true, false);
+        }
+
+    // Methods
+
+        public KeyRanges checkAndGetKeyRanges(Permazen jdb, Class<?> targetType, String indexDescription) {
+
+            // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
+            // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).
+            boolean match = this.expectedTypes.contains(this.actualType)
+              || this.expectedTypes.contains(TypeToken.of(this.actualType).wrap().getRawType());
+            if (!match) {
+                for (Class<?> expectedType : this.expectedTypes) {
+                    if (this.actualType.isAssignableFrom(expectedType)
+                      || (this.reference && expectedType.isAssignableFrom(this.actualType))) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if (!match) {
+                final StringBuilder expectedTypesDescription = new StringBuilder();
+                if (this.expectedTypes.size() == 1)
+                    expectedTypesDescription.append(this.expectedTypes.iterator().next().getName());
+                else {
+                    for (Class<?> expectedType : this.expectedTypes) {
+                        expectedTypesDescription.append(expectedTypesDescription.length() == 0 ? "one or more of: " : ", ");
+                        expectedTypesDescription.append(expectedType.getName());
+                    }
+                }
+                throw new IllegalArgumentException(String.format("invalid %s %s for %s in %s: should be a super-type%s of %s",
+                  this.description, actualType.getName(), indexDescription, targetType,
+                  this.reference ? " or sub-type" : "", expectedTypesDescription));
+            }
+
+            // For non reference fields, we don't have any restrictions on 'type'
+            if (!this.reference)
+                return null;
+
+            // If actual type includes all JObject's no filter is necessary
+            if (actualType.isAssignableFrom(JObject.class))
+                return null;
+
+            // Create a filter for the actual type
+            final KeyRanges filter = jdb.keyRangesFor(this.actualType);
+
+            // For values other than the target value, we need to also accept null values in the index
+            if (this.matchNull)
+                filter.add(NULL_RANGE);
+
+            // Done
+            return filter;
+        }
+
+    // Object
+
+        @Override
+        public String toString() {
+            return "ValueCheck"
+              + "[description=\"" + this.description + "\""
+              + ",actualType=" + this.actualType.getSimpleName()
+              + ",expectedTypes=" + this.expectedTypes
+              + ",reference=" + this.reference
+              + ",matchNull=" + this.matchNull
+              + "]";
+        }
+    }
+
+// Key
+
+    // Key for the IndexQuery cache
+    static class Key {
+
+        private final String name;                  // field full name or composite index name
+        private final boolean composite;
+        private final Class<?> targetType;
+        private final Class<?>[] valueTypes;
+
+        // Constructor for a simple index when you already know the field
+        Key(JSimpleField jfield) {
+            this(jfield.name, false, jfield.getter.getDeclaringClass(), jfield.typeToken.wrap().getRawType());
+        }
+
+        // Constructor for a composite index when you already know the index
+        Key(JCompositeIndex jindex) {
+            this(jindex.name, true, jindex.declaringType, jindex.getQueryInfoValueTypes());
+        }
+
+        // Primary constructor
+        Key(String name, boolean composite, Class<?> targetType, Class<?>... valueTypes) {
+            assert name != null;
+            assert targetType != null;
+            assert valueTypes != null;
+            assert valueTypes.length > 0;
+            this.name = name;
+            this.composite = composite;
+            this.targetType = targetType;
+            this.valueTypes = valueTypes;
+        }
+
+        public IndexQuery getIndexQuery(Permazen jdb) {
+
+            // Handle composite index
+            if (this.composite)
+                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes);
+
+            // Handle simple index
+            switch (this.valueTypes.length) {
+            case 2:
+                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes[0], this.valueTypes[1]); // map value index
+            case 1:
+                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes[0]);                     // all others
+            default:
+                throw new RuntimeException("internal error");
+            }
+        }
+
+    // Object
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName()
+              + "[name=" + this.name
+              + ",composite=" + this.composite
+              + ",targetType=" + this.targetType
+              + ",valueTypes=" + Arrays.asList(this.valueTypes)
+              + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final Key that = (Key)obj;
+            return this.name.equals(that.name)
+              && this.composite == that.composite
+              && this.targetType.equals(that.targetType)
+              && Arrays.equals(this.valueTypes, that.valueTypes);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.getClass().hashCode()
+              ^ this.name.hashCode()
+              ^ (this.composite ? ~0 : 0)
+              ^ this.targetType.hashCode()
+              ^ Arrays.hashCode(this.valueTypes);
+        }
+    }
+}

@@ -5,19 +5,16 @@
 
 package io.permazen.cli.parse;
 
-import com.google.common.reflect.TypeToken;
-
 import io.permazen.cli.Session;
-import io.permazen.core.Database;
 import io.permazen.core.ObjType;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.schema.NameIndex;
-import io.permazen.schema.SchemaObjectType;
+import io.permazen.schema.SchemaId;
 import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -26,9 +23,8 @@ import java.util.regex.Matcher;
  * <p>
  * Syntax examples:
  * <ul>
- *  <li><code>100</code> - object type with schema ID 100</li>
- *  <li><code>Person</code> - `Person' object type defined in the current schema version</li>
- *  <li><code>Person#12</code> - `Person' object type defined in schema version 12</li>
+ *  <li><code>Person</code> - `Person' object type in the current schema version</li>
+ *  <li><code>Person#Schema_d462f3e631781b00ef812561115c48f6</code> - `Person' object type in the specified schema version</li>
  * </ul>
  */
 public class ObjTypeParser implements Parser<ObjType> {
@@ -50,51 +46,39 @@ public class ObjTypeParser implements Parser<ObjType> {
 
     private ObjType parseInTransaction(Session session, final ParseContext ctx, final boolean complete) {
 
-        // Try to parse as an integer
-        final Transaction tx = session.getTransaction();
-        final Database db = session.getDatabase();
+        // Try to parse as an object type name with optional #schemaId suffix
         final int startIndex = ctx.getIndex();
-        try {
-            final int storageId = db.getEncodingRegistry().getEncoding(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
-            return tx.getSchema().getObjType(storageId);
-        } catch (IllegalArgumentException | UnknownTypeException e) {
-            // ignore
-        }
-        ctx.setIndex(startIndex);
-
-        // Try to parse as an object type name with optional #version suffix
         final Matcher matcher;
         try {
-            matcher = ctx.matchPrefix("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)(#([0-9]+))?");
+            matcher = ctx.matchPrefix("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)(#(Schema_[0-9a-f]{32}))?$");
         } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid object type").addCompletions(session.getNameIndex().getSchemaObjectTypeNames());
+            ctx.setIndex(startIndex);
+            throw new ParseException(ctx, "invalid object type")
+              .addCompletions(session.getSchemaModel().getSchemaObjectTypes().keySet());
         }
         final String typeName = matcher.group(1);
-        final String versionString = matcher.group(3);
+        final SchemaId schemaId = Optional.ofNullable(matcher.group(3)).map(SchemaId::new).orElse(null);
 
         // Get specified schema version and corresponding name index
+        final Transaction tx = session.getTransaction();
         final Schema schema;
-        final NameIndex nameIndex;
-        if (versionString != null) {
+        if (schemaId != null) {
             try {
-                schema = tx.getSchemas().getVersion(Integer.parseInt(versionString));
+                schema = tx.getSchemaBundle().getSchema(schemaId);
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(startIndex);
-                throw new ParseException(ctx, "invalid object type schema version \"" + versionString + "\"");
+                throw new ParseException(ctx, String.format("invalid object type schema \"%s\"", schemaId));
             }
-            nameIndex = new NameIndex(schema.getSchemaModel());
-        } else {
+        } else
             schema = tx.getSchema();
-            nameIndex = session.getNameIndex();
-        }
 
-        // Find type by name
-        final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(typeName);
-        if (schemaObjectType == null) {
-            throw new ParseException(ctx, "unknown object type \"" + typeName + "\"")
-               .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));
+        // Find object type
+        try {
+            return schema.getObjType(typeName);
+        } catch (UnknownTypeException e) {
+            throw new ParseException(ctx, String.format("unknown object type \"%s\"", typeName))
+               .addCompletions(ParseUtil.complete(schema.getObjTypes().keySet(), typeName));
         }
-        return schema.getObjType(schemaObjectType.getStorageId());
     }
 
     private class ParserAction implements Session.Action, Session.RetryableAction {

@@ -40,7 +40,7 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setElementField(SimpleSchemaField elementField) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.elementField = elementField;
     }
 

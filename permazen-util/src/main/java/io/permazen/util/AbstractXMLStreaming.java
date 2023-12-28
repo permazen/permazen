@@ -35,23 +35,23 @@ public abstract class AbstractXMLStreaming {
     protected boolean expect(XMLStreamReader reader, boolean closingOK, QName... names) throws XMLStreamException {
         while (true) {
             if (!reader.hasNext())
-                throw new XMLStreamException("unexpected end of input", reader.getLocation());
+                throw this.newInvalidInputException(reader, "unexpected end of input");
             final int eventType = reader.next();
             if (eventType == XMLStreamConstants.START_ELEMENT)
                 break;
             if (eventType == XMLStreamConstants.END_ELEMENT) {
                 if (!closingOK) {
-                    throw new XMLStreamException(String.format(
+                    throw this.newInvalidInputException(reader,
                       "expected %s but found closing <%s> tag instead",
-                      this.description(names), reader.getName()), reader.getLocation());
+                      this.description(names), reader.getName());
                 }
                 return false;
             }
         }
         if (!Arrays.asList(names).contains(reader.getName())) {
-            throw new XMLStreamException(String.format(
+            throw this.newInvalidInputException(reader,
               "expected %s but found <%s> instead",
-              this.description(names), reader.getName()), reader.getLocation());
+              this.description(names), reader.getName());
         }
         return true;
     }
@@ -67,7 +67,7 @@ public abstract class AbstractXMLStreaming {
     protected QName next(XMLStreamReader reader) throws XMLStreamException {
         while (true) {
             if (!reader.hasNext())
-                throw new XMLStreamException("unexpected end of input", reader.getLocation());
+                throw this.newInvalidInputException(reader, "unexpected end of input");
             final int eventType = reader.next();
             if (eventType == XMLStreamConstants.END_ELEMENT)
                 return null;
@@ -86,7 +86,7 @@ public abstract class AbstractXMLStreaming {
     protected void skip(XMLStreamReader reader) throws XMLStreamException {
         for (int depth = 1; depth > 0; ) {
             if (!reader.hasNext())
-                throw new XMLStreamException("unexpected end of input", reader.getLocation());
+                throw this.newInvalidInputException(reader, "unexpected end of input");
             switch (reader.next()) {
             case XMLStreamConstants.START_ELEMENT:
                 depth++;
@@ -150,7 +150,7 @@ public abstract class AbstractXMLStreaming {
      * Start an empty XML element.
      *
      * @param writer XML output
-     * @param element element name
+     * @param name element name
      * @throws XMLStreamException if error occurs writing output
      */
     protected void writeEmptyElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
@@ -161,7 +161,7 @@ public abstract class AbstractXMLStreaming {
      * Start a non-empty XML element.
      *
      * @param writer XML output
-     * @param element element name
+     * @param name element name
      * @throws XMLStreamException if error occurs writing output
      */
     protected void writeStartElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
@@ -193,9 +193,9 @@ public abstract class AbstractXMLStreaming {
     protected String getAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
         final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());
         if (value == null && required) {
-            throw new XMLStreamException(String.format(
+            throw this.newInvalidInputException(reader,
               "<%s> element is missing required \"%s\" attribute",
-              reader.getName().getLocalPart(), name), reader.getLocation());
+              reader.getName().getLocalPart(), name);
         }
         return value;
     }
@@ -328,11 +328,42 @@ public abstract class AbstractXMLStreaming {
           reader.getName().getLocalPart(), name, value != null ? "value \"" + value + "\"" : "left unspecified", description);
         switch (cause.length) {
         case 0:
-            return new XMLStreamException(message, reader.getLocation());
+            return this.newInvalidInputException(reader, "%s", message);
         case 1:
-            return new XMLStreamException(message, reader.getLocation(), cause[0]);
+            return this.newInvalidInputException(reader, cause[0], "%s", message);
         default:
             throw new IllegalArgumentException("invalid multiple causes");
         }
+    }
+
+    /**
+     * Build a {@link XMLStreamException} caused by invalid input.
+     *
+     * @param reader XML input
+     * @param format format string for {@link String#format String.format()}
+     * @param args format arguments for {@link String#format String.format()}
+     * @return exception to throw
+     */
+    protected XMLStreamException newInvalidInputException(XMLStreamReader reader, String format, Object... args) {
+        return this.newInvalidInputException(reader, null, format, args);
+    }
+
+    /**
+     * Build a {@link XMLStreamException} caused by invalid input.
+     *
+     * <p>
+     * This method exists to help workaround <a href="https://bugs.openjdk.org/browse/JDK-8322027">JDK-8322027</a>.
+     *
+     * @param reader XML input
+     * @param cause optional underlying exception for chaining, or null for none
+     * @param format format string for {@link String#format String.format()}
+     * @param args format arguments for {@link String#format String.format()}
+     * @return exception to throw
+     */
+    protected XMLStreamException newInvalidInputException(XMLStreamReader reader, Throwable cause, String format, Object... args) {
+        final XMLStreamException e = new XMLStreamException(String.format(format, args), reader.getLocation());
+        if (cause != null)
+            e.initCause(cause);
+        return e;
     }
 }

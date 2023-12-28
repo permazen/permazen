@@ -6,14 +6,16 @@
 package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
-import io.permazen.schema.SetSchemaField;
+import io.permazen.core.SetField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
-class SetElementIndex extends CollectionElementIndex {
+import java.util.NavigableSet;
 
-    SetElementIndex(JsckInfo info, int schemaVersion, SetSchemaField field) {
-        super(info, schemaVersion, field, "set");
+class SetElementIndex<E> extends CollectionElementIndex<NavigableSet<E>, SetField<E>, E, io.permazen.core.SetElementIndex<E>> {
+
+    SetElementIndex(JsckInfo info, SetField<E> setField) {
+        super(info, setField);
     }
 
     @Override
@@ -24,12 +26,13 @@ class SetElementIndex extends CollectionElementIndex {
 
         // Validate element exists in set
         if (info.getConfig().isRepair()) {
-            final ByteWriter writer = this.buildFieldKey(id, this.parentStorageId);
+            final ByteWriter writer = this.buildFieldKey(id, this.parentField.getStorageId());
             writer.write(indexValue);
             final byte[] key = writer.getBytes();
             if (info.getKVStore().get(key) == null) {
-                throw new IllegalArgumentException("object " + id + " set field #" + this.parentStorageId
-                  + " does not contain value " + Jsck.ds(indexValue) + " having " + this.type);
+                throw new IllegalArgumentException(String.format(
+                  "object %s %s element index does not contain indexed value %s",
+                  id, this.parentField, Jsck.ds(indexValue)));
             }
         }
     }

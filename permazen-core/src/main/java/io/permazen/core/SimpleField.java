@@ -45,8 +45,8 @@ public class SimpleField<T> extends Field<T> {
     // Maps composite index to this field's offset in index field list, or null if none
     HashMap<CompositeIndex, Integer> compositeIndexMap;
 
-    SimpleField(Schema schema, SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
-        super(schema, field, encoding.getTypeToken());
+    SimpleField(ObjType objType, SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
+        super(objType, field, encoding.getTypeToken());
         this.encoding = encoding;
         this.indexed = indexed;
     }
@@ -80,15 +80,7 @@ public class SimpleField<T> extends Field<T> {
         return this.parent;
     }
 
-    /**
-     * Get the full name of this field.
-     *
-     * <p>
-     * If the field is a sub-field of a complex field, the full name is the field's name qualified
-     * by the parent field name, e.g., {@code "mymap.key"}. Otherwise, the full is is the same as the name.
-     *
-     * @return this field's full name
-     */
+    @Override
     public String getFullName() {
         return this.parent != null ? this.parent.name + "." + this.name : this.name;
     }
@@ -187,14 +179,12 @@ public class SimpleField<T> extends Field<T> {
      * @throws IllegalArgumentException if {@code obj} cannot be encoded
      */
     byte[] encode(Object obj) {
-        T value;
-        try {
-            value = this.encoding.validate(obj);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can't set " + this + " to value " + obj + ": " + e.getMessage(), e);
-        }
         final ByteWriter writer = new ByteWriter();
-        this.encoding.write(writer, value);
+        try {
+            this.encoding.validateAndWrite(writer, obj);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format("can't set %s to value %s: %s", this, obj, e.getMessage()), e);
+        }
         final byte[] result = writer.getBytes();
         return Arrays.equals(result, this.encoding.getDefaultValue()) ? null : result;
     }

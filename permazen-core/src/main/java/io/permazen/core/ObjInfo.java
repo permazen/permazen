@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 class ObjInfo {
 
-    // Flags byte
-    public static final int FLAG_DELETE_NOTIFIED = 0x01;
-    public static final int FLAG_ZERO_BITS = 0xfe;
-
     // Stored meta-data
     final Transaction tx;
     final ObjId id;
@@ -49,7 +45,7 @@ class ObjInfo {
         if (this.schemaIndex == 0)
             throw new InvalidObjectVersionException(this.id, this.schemaIndex, null);
         this.flags = reader.readByte();
-        if ((this.flags & FLAG_ZERO_BITS) != 0) {
+        if ((this.flags & ~Layout.OBJECT_FLAGS_VALID_BITS) != 0) {
             throw new InconsistentDatabaseException(String.format(
               "object meta-data in %s has invalid flags byte 0x%02x", this.id, this.flags));
         }
@@ -64,7 +60,7 @@ class ObjInfo {
         this.tx = tx;
         this.id = id;
         this.schemaIndex = schemaIndex;
-        this.flags = deleteNotified ? FLAG_DELETE_NOTIFIED : 0;
+        this.flags = deleteNotified ? Layout.OBJECT_FLAG_DELETE_NOTIFIED : 0;
         this.schema = schema;
         this.objType = objType;
     }
@@ -78,7 +74,7 @@ class ObjInfo {
     }
 
     public boolean isDeleteNotified() {
-        return (this.flags & FLAG_DELETE_NOTIFIED) != 0;
+        return (this.flags & Layout.OBJECT_FLAG_DELETE_NOTIFIED) != 0;
     }
 
     public SchemaId getSchemaId() {
@@ -111,7 +107,7 @@ class ObjInfo {
         assert schemaIndex > 0;
         final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(schemaIndex) + 1);
         Encodings.UNSIGNED_INT.write(writer, schemaIndex);
-        final int flags = deleteNotified ? FLAG_DELETE_NOTIFIED : 0;
+        final int flags = deleteNotified ? Layout.OBJECT_FLAG_DELETE_NOTIFIED : 0;
         writer.writeByte(flags);
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }

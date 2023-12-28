@@ -5,15 +5,17 @@
 
 package io.permazen.jsck;
 
+import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
-import io.permazen.schema.MapSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
-class MapKeyIndex extends ComplexFieldIndex {
+import java.util.NavigableMap;
 
-    MapKeyIndex(JsckInfo info, int schemaVersion, MapSchemaField field) {
-        super(info, schemaVersion, field, field.getKeyField(), "map", "key");
+class MapKeyIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>, MapField<K, V>, K, io.permazen.core.MapKeyIndex<K, V>> {
+
+    MapKeyIndex(JsckInfo info, MapField<K, V> mapField) {
+        super(info, mapField, mapField.getKeyField());
     }
 
     @Override
@@ -24,13 +26,14 @@ class MapKeyIndex extends ComplexFieldIndex {
 
         // Validate key exists in map
         if (info.getConfig().isRepair()) {
-            final ByteWriter writer = this.buildFieldKey(id, this.parentStorageId);
+            final ByteWriter writer = this.buildFieldKey(id, this.parentField.getStorageId());
             writer.write(indexKeyValue);
             final byte[] key = writer.getBytes();
             final byte[] actualValue = info.getKVStore().get(key);
             if (actualValue == null) {
-                throw new IllegalArgumentException("object " + id + " map field #" + this.parentStorageId
-                  + " with key " + this.type + " does not contain key " + Jsck.ds(indexKeyValue));
+                throw new IllegalArgumentException(String.format(
+                  "object %s %s key index does not contain indexed value %s",
+                  id, this.parentField, Jsck.ds(indexKeyValue)));
             }
         }
     }

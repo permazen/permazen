@@ -48,29 +48,67 @@ public final class Layout {
     /**
      * The single byte value that is a prefix of all meta-data keys.
      */
-    private static final byte METADATA_PREFIX_BYTE = (byte)0x00;
+    public static final int METADATA_PREFIX_BYTE = 0x00;
 
-    private static final byte[] METADATA_PREFIX = new byte[] { METADATA_PREFIX_BYTE };
+    /**
+     * The single byte that follows {@link #METADATA_PREFIX_BYTE} to form the format version key.
+     */
+    public static final int METADATA_FORMAT_VERSION_BYTE = 0x00;
+
+    /**
+     * The single byte that follows {@link #METADATA_PREFIX_BYTE} to indicate the schema table.
+     */
+    public static final int METADATA_SCHEMA_TABLE_BYTE = 0x01;
+
+    /**
+     * The single byte that follows {@link #METADATA_PREFIX_BYTE} to indicate the storage ID table.
+     */
+    public static final int METADATA_STORAGE_ID_TABLE_BYTE = 0x02;
+
+    /**
+     * The single byte that follows {@link #METADATA_PREFIX_BYTE} to indicate the object schema index.
+     */
+    public static final int METADATA_SCHEMA_INDEX_BYTE = 0x80;
+
+    /**
+     * The single byte that follows {@link #METADATA_PREFIX_BYTE} to indicate the user meta-data area.
+     */
+    public static final int METADATA_USER_META_DATA_BYTE = 0xff;
+
+    /**
+     * Object meta-data flags byte: delete notified.
+     */
+    public static final int OBJECT_FLAG_DELETE_NOTIFIED = 0x01;
+
+    /**
+     * Object meta-data flags byte valid bits.
+     *
+     * <p>
+     * All other bits must be zero.
+     */
+    public static final int OBJECT_FLAGS_VALID_BITS = OBJECT_FLAG_DELETE_NOTIFIED;
+
+    private static final byte[] METADATA_PREFIX = new byte[] { (byte)METADATA_PREFIX_BYTE };
 
     private static final byte[] FORMAT_VERSION_KEY = new byte[] {
-      METADATA_PREFIX_BYTE, (byte)0x00,
+      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_FORMAT_VERSION_BYTE,
       (byte)'P', (byte)'e', (byte)'r', (byte)'m', (byte)'a', (byte)'z', (byte)'e', (byte)'n', (byte)0x00
     };
 
     private static final byte[] SCHEMA_TABLE_PREFIX = new byte[] {
-      METADATA_PREFIX_BYTE, (byte)0x01
+      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_SCHEMA_TABLE_BYTE
     };
 
     private static final byte[] STORAGE_ID_TABLE_PREFIX = new byte[] {          // must immediately follow SCHEMA_TABLE_PREFIX
-      METADATA_PREFIX_BYTE, (byte)0x02
+      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_STORAGE_ID_TABLE_BYTE
     };
 
     private static final byte[] SCHEMA_INDEX_PREFIX = new byte[] {
-      METADATA_PREFIX_BYTE, (byte)0x80
+      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_SCHEMA_INDEX_BYTE
     };
 
     private static final byte[] USER_META_DATA_KEY_PREFIX = new byte[] {
-      METADATA_PREFIX_BYTE, (byte)0xff
+      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_USER_META_DATA_BYTE
     };
 
     // Sanity check assumptions
@@ -146,7 +184,7 @@ public final class Layout {
      *
      * @return object schema index key prefix
      */
-    public static byte[] getObjectSchemaIndexKeyPrefix() {
+    public static byte[] getSchemaIndexKeyPrefix() {
         return SCHEMA_INDEX_PREFIX.clone();
     }
 
@@ -160,15 +198,15 @@ public final class Layout {
     }
 
     /**
-     * Get a {@link CoreIndex} view of the object schema index in a key/value database.
+     * Get a {@link CoreIndex1} view of the object schema index in a key/value database.
      *
      * @param kv key/value data
      * @return object schema index
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    public static CoreIndex<Integer, ObjId> getSchemaIndex(KVStore kv) {
+    public static CoreIndex1<Integer, ObjId> getSchemaIndex(KVStore kv) {
         Preconditions.checkArgument(kv != null, "null kv");
-        return new CoreIndex<>(kv, new IndexView<>(SCHEMA_INDEX_PREFIX, false, Encodings.UNSIGNED_INT, Encodings.OBJ_ID));
+        return new CoreIndex1<>(kv, new Index1View<>(SCHEMA_INDEX_PREFIX, false, Encodings.UNSIGNED_INT, Encodings.OBJ_ID));
     }
 
     /**
@@ -246,7 +284,7 @@ public final class Layout {
 
         // Get ranges
         final KeyRange metaDataRange = KeyRange.forPrefix(Layout.getMetaDataKeyPrefix());
-        final KeyRange schemaIndexRange = KeyRange.forPrefix(Layout.getObjectSchemaIndexKeyPrefix());
+        final KeyRange schemaIndexRange = KeyRange.forPrefix(Layout.getSchemaIndexKeyPrefix());
         assert metaDataRange.contains(schemaIndexRange);
 
         // Delete everything except meta-data
@@ -272,7 +310,7 @@ public final class Layout {
 
         // Get ranges
         final KeyRange metaDataRange = KeyRange.forPrefix(Layout.getMetaDataKeyPrefix());
-        final KeyRange schemaIndexRange = KeyRange.forPrefix(Layout.getObjectSchemaIndexKeyPrefix());
+        final KeyRange schemaIndexRange = KeyRange.forPrefix(Layout.getSchemaIndexKeyPrefix());
         assert metaDataRange.contains(schemaIndexRange);
 
         // Copy meta-data

@@ -5,16 +5,14 @@
 
 package io.permazen.maven;
 
-import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.Permazen;
-import io.permazen.PermazenFactory;
-import io.permazen.StorageIdGenerator;
+import io.permazen.PermazenConfig;
 import io.permazen.annotation.PermazenType;
-import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
+import io.permazen.core.TransactionConfig;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingRegistry;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
 
@@ -91,32 +89,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     protected String encodingRegistryClass;
 
     /**
-     * <p>
-     * The {@link StorageIdGenerator} to use for generating Permazen storage ID's.
-     * By default, a {@link DefaultStorageIdGenerator} is used.
-     *
-     * <p>
-     * To configure a custom {@link StorageIdGenerator}, specify its class name like this:
-     * <blockquote><pre>
-     * &lt;configuration&gt;
-     *     &lt;storageIdGeneratorClass&gt;com.example.MyStorageIdGenerator&lt;/storageIdGeneratorClass&gt;
-     *     ...
-     * &lt;/configuration&gt;
-     * </pre></blockquote>
-     * The specified class ({@code com.example.MyStorageIdGenerator} in this example) must be available either
-     * as part of the project being built or in one of the project's dependencies.
-     */
-    @Parameter
-    protected String storageIdGeneratorClass;
-
-    /**
-     * The name of a Maven property to set to the auto-generated schema version number. This is the schema
-     * version number that will be auto-generated when a schema version number of {@code -1} is configured.
-     * This auto-generated version number is based on
-     * {@linkplain SchemaModel#autogenerateVersion hashing the generated schema}.
+     * The name of a Maven property to set to the auto-generated schema ID. This is a string that is
+     * a unique hash of the schema and which looks like {@code "Schema_12e983a72e72ed56741ddc45e47d3377"}.
      */
     @Parameter(defaultValue = "")
-    protected String schemaVersionProperty;
+    protected String schemaIdProperty;
 
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
@@ -270,49 +247,26 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 }
             }
 
-            // Instantiate StorageIdGenerator
-            final StorageIdGenerator storageIdGenerator;
-            if (storageIdGeneratorClass != null) {
-                try {
-                    storageIdGenerator = Class.forName(this.storageIdGeneratorClass, false,
-                       Thread.currentThread().getContextClassLoader())
-                      .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
-                } catch (Exception e) {
-                    throw new MojoExecutionException("error instantiatiating the configured <storageIdGeneratorClass> \""
-                      + storageIdGeneratorClass + "\"", e);
-                }
-            } else
-                storageIdGenerator = new DefaultStorageIdGenerator();
-
-            // Set up database
-            final Database db = new Database(new SimpleKVDatabase());
-
-            // Set up factory
-            final PermazenFactory factory = new PermazenFactory();
-            factory.setDatabase(db);
-            factory.setSchemaVersion(1);
-            factory.setEncodingRegistry(encodingRegistry);
-            factory.setStorageIdGenerator(storageIdGenerator);
-            factory.setModelClasses(modelClasses);
-
             // Construct database and schema model
             this.getLog().info("generating Permazen schema from schema classes");
             final Permazen jdb;
             final SchemaModel schema;
             try {
-                jdb = factory.newPermazen();
+                jdb = PermazenConfig.builder()
+                  .modelClasses(modelClasses)
+                  .encodingRegistry(encodingRegistry)
+                  .build()
+                  .newPermazen();
                 schema = jdb.getSchemaModel();
             } catch (Exception e) {
                 throw new MojoFailureException("schema generation failed: " + e, e);
             }
-            this.getLog().info("auto-generate schema version is " + schema.autogenerateVersion());
+            final SchemaId schemaId = schema.getSchemaId();
+            this.getLog().info("schema ID is \"" + schemaId + "\"");
 
-            // Set auto-generated schema version property
-            if (this.schemaVersionProperty != null && this.schemaVersionProperty.length() > 0)
-                this.project.getProperties().setProperty(this.schemaVersionProperty, "" + schema.autogenerateVersion());
-
-            // Record schema model in database as version 1
-            db.createTransaction(schema, 1, true).commit();
+            // Set auto-generated schema ID property
+            if (this.schemaIdProperty != null && this.schemaIdProperty.length() > 0)
+                this.project.getProperties().setProperty(this.schemaIdProperty, "" + schemaId);
 
             // Proceed
             this.execute(jdb);
@@ -351,16 +305,14 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     }
 
     /**
-     * Verify that the provided schema is {@linkplain SchemaModel#isCompatibleWith "same version" compatible}
-     * with the schema defined by the specified XML file.
+     * Verify that the provided schema is the sam as the schema defined by the specified XML file.
      *
      * @param schema actual schema
      * @param file expected schema XML file
-     * @param matchNames whether schema must match exactly, or only be compatible with
      * @return true if verification succeeded, otherwise false
      * @throws MojoExecutionException if an unexpected error occurs
      */
-    protected boolean verify(SchemaModel schema, File file, boolean matchNames) throws MojoExecutionException {
+    protected boolean verify(SchemaModel schema, File file) throws MojoExecutionException {
 
         // Read file
         this.getLog().info("verifying Permazen schema matches \"" + file + "\"");
@@ -372,7 +324,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         }
 
         // Compare
-        final boolean matched = matchNames ? schema.equals(verifyModel) : schema.isCompatibleWith(verifyModel);
+        final boolean matched = schema.getSchemaId().equals(verifyModel.getSchemaId());
         if (!matched) {
             this.getLog().error("schema verification failed:");
             this.getLog().error(schema.differencesFrom(verifyModel).toString());
@@ -384,19 +336,19 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     }
 
     /**
-     * Check schema for structural conflicts with other schema versions defined by an iteration of XML files.
+     * Check schema for structural conflicts with other schemas defined by an iteration of XML files.
      *
      * @param jdb database instance
-     * @param otherVersionFiles iteration of other schema version XML files
+     * @param otherSchemaFiles iteration of other schema XML files
      * @return true if verification succeeded, otherwise false
      * @throws MojoExecutionException if an unexpected error occurs
      */
-    protected boolean verify(Permazen jdb, Iterator<? extends File> otherVersionFiles) throws MojoExecutionException {
+    protected boolean verify(Permazen jdb, Iterator<? extends File> otherSchemaFiles) throws MojoExecutionException {
         boolean success = true;
-        while (otherVersionFiles.hasNext()) {
+        while (otherSchemaFiles.hasNext()) {
 
             // Read next file
-            final File file = otherVersionFiles.next();
+            final File file = otherSchemaFiles.next();
             this.getLog().info("checking schema for conflicts with " + file);
             final SchemaModel otherSchema;
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
@@ -407,7 +359,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
             // Check compatible
             try {
-                jdb.getDatabase().createTransaction(otherSchema, 2, true).rollback();
+                TransactionConfig.builder()
+                  .schemaModel(otherSchema)
+                  .build()
+                  .newTransaction(jdb.getDatabase())
+                  .rollback();
             } catch (Exception e) {
                 this.getLog().error("schema conflicts with " + file + ": " + e);
                 success = false;

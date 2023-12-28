@@ -7,11 +7,16 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.ComplexField;
+import io.permazen.core.ObjId;
+import io.permazen.core.ObjType;
+import io.permazen.core.Transaction;
 import io.permazen.schema.ComplexSchemaField;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassWriter;
@@ -21,13 +26,14 @@ import org.objectweb.asm.ClassWriter;
  */
 public abstract class JComplexField extends JField {
 
-    JComplexField(Permazen jdb, String name, int storageId, Annotation annotation, String description, Method getter) {
-        super(jdb, name, storageId, annotation, description, getter);
+// Constructor
+
+    JComplexField(String name, int storageId, Annotation annotation, String description, Method getter) {
+        super(name, storageId, annotation, description, getter);
         Preconditions.checkArgument(name != null, "null name");
     }
 
-    @Override
-    abstract ComplexSchemaField toSchemaItem(Permazen jdb);
+// Public Methods
 
     /**
      * Get the sub-fields associated with this field.
@@ -48,9 +54,9 @@ public abstract class JComplexField extends JField {
         // Sanity check
         Preconditions.checkArgument(name != null, "null name");
 
-        // Check sub-fields, with or without explicit storage ID
+        // Find sub-fields
         for (JSimpleField subField : this.getSubFields()) {
-            if (name.equals(subField.name) || name.equals(String.format("%s#%d", subField.name, subField.storageId)))
+            if (name.equals(subField.name))
                 return subField;
         }
 
@@ -62,34 +68,51 @@ public abstract class JComplexField extends JField {
         throw new IllegalArgumentException(String.format("unknown sub-field \"%s\" (did you mean %s instead?)", name, hints));
     }
 
-    /**
-     * Get the sub-field with the given storage ID.
-     *
-     * @param storageId sub-field storage ID
-     * @throws IllegalArgumentException if not found
-     */
-    JSimpleField getSubField(int storageId) {
-        for (JSimpleField subField : this.getSubFields()) {
-            if (subField.storageId == storageId)
-                return subField;
-        }
-        throw new IllegalArgumentException(String.format("storage ID %d not found", storageId));
+    @Override
+    public ComplexField<?> getSchemaItem() {
+        return (ComplexField<?>)super.getSchemaItem();
     }
 
-    /**
-     * Get the name of the given sub-field.
-     *
-     * @throws IllegalArgumentException if {@code subField} is not one of {@link #getSubFields}
-     */
-    abstract String getSubFieldName(JSimpleField subField);
+// Package Methods
 
-    abstract SimpleFieldIndexInfo toIndexInfo(JSimpleField subField);
+    void replaceSchemaItems(ObjType objType) {
+        super.replaceSchemaItems(objType);
+        for (JSimpleField subField : this.getSubFields())
+            subField.replaceSchemaItems(objType);
+    }
 
     @Override
-    JClass<?> getJClass() {
-        assert this.parent instanceof JClass;
-        return (JClass<?>)this.parent;
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JComplexField that = (JComplexField)that0;
+        final List<JSimpleField> thisSubFields = this.getSubFields();
+        final List<JSimpleField> thatSubFields = that.getSubFields();
+        if (thisSubFields.size() != thatSubFields.size())
+            return false;
+        for (int i = 0; i < thisSubFields.size(); i++) {
+            if (!thisSubFields.get(i).isSameAs(thatSubFields.get(i)))
+                return false;
+        }
+        return true;
     }
+
+    @Override
+    ComplexSchemaField toSchemaItem() {
+        return (ComplexSchemaField)super.toSchemaItem();
+    }
+
+    @Override
+    abstract ComplexSchemaField createSchemaItem();
+
+    @Override
+    void visitSchemaItems(Consumer<? super JSchemaItem> visitor) {
+        super.visitSchemaItems(visitor);
+        this.getSubFields().forEach(item -> item.visitSchemaItems(visitor));
+    }
+
+    // Iterate all of the values in the given reference sub-field in the given object
+    abstract Iterable<ObjId> iterateReferences(Transaction tx, ObjId id, JReferenceField subField);
 
 // Bytecode generation
 

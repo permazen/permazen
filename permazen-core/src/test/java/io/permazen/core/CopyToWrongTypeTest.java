@@ -84,14 +84,13 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
             this.log.debug("got expected {}", e.toString());
         }
 
-        // Try to copy mapping bar2 -> null
+        // Try to copy mapping bar2 -> null (i.e., new object)
         remap.clear();
         remap.put(bar2, null);
-        try {
-            tx.copy(bar2, tx, false, false, null, remap);
-            assert false : "copied bar2 to null!";
-        } catch (IllegalArgumentException e) {
-            this.log.debug("got expected {}", e.toString());
-        }
+        tx.copy(bar2, tx, false, false, null, remap);
+        ObjId bar2a = remap.get(bar2);
+        assert bar2a != null;
+        assert !bar2a.equals(bar2);
+        assert tx.readSimpleField(bar2a, "uuid", false).equals(tx.readSimpleField(bar2, "uuid", false));
     }
 }

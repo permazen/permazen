@@ -9,11 +9,13 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.core.CounterField;
 import io.permazen.core.ObjId;
 import io.permazen.schema.CounterSchemaField;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 import org.objectweb.asm.ClassWriter;
 
@@ -26,11 +28,14 @@ public class JCounterField extends JField {
 
     final UpgradeConversionPolicy upgradeConversion;
 
-    JCounterField(Permazen jdb, String name, int storageId,
-      io.permazen.annotation.JField annotation, String description, Method getter) {
-        super(jdb, name, storageId, annotation, description, getter);
+// Constructor
+
+    JCounterField(String name, int storageId, io.permazen.annotation.JField annotation, String description, Method getter) {
+        super(name, storageId, annotation, description, getter);
         this.upgradeConversion = annotation.upgradeConversion();
     }
+
+// Public Methods
 
     @Override
     public io.permazen.annotation.JField getDeclaringAnnotation() {
@@ -40,19 +45,13 @@ public class JCounterField extends JField {
     @Override
     public Counter getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readCounterField(jobj.getObjId(), this.storageId, false);
+        return jobj.getTransaction().readCounterField(jobj.getObjId(), this.name, false);
     }
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJCounterField(this);
-    }
-
-    @Override
-    CounterSchemaField toSchemaItem(Permazen jdb) {
-        final CounterSchemaField schemaField = new CounterSchemaField();
-        this.initialize(jdb, schemaField);
-        return schemaField;
     }
 
     @Override
@@ -66,13 +65,35 @@ public class JCounterField extends JField {
     }
 
     @Override
-    boolean supportsChangeNotifications() {
-        return false;
+    public CounterField getSchemaItem() {
+        return (CounterField)super.getSchemaItem();
+    }
+
+// Package Methods
+
+    @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JCounterField that = (JCounterField)that0;
+        if (!Objects.equals(this.upgradeConversion, that.upgradeConversion))
+            return false;
+        return true;
+    }
+
+    @Override
+    CounterSchemaField createSchemaItem() {
+        return new CounterSchemaField();
     }
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         throw new UnsupportedOperationException("counter fields do not support change notifications");
+    }
+
+    @Override
+    boolean supportsChangeNotifications() {
+        return false;
     }
 
 // POJO import/export
@@ -96,7 +117,7 @@ public class JCounterField extends JField {
             return;
 
         // Set counter value
-        context.getTransaction().getTransaction().writeCounterField(id, this.storageId, count, true);
+        context.getJTransaction().getTransaction().writeCounterField(id, this.name, count, true);
     }
 
     @Override
@@ -111,7 +132,7 @@ public class JCounterField extends JField {
         }
 
         // Get counter value
-        final long count = context.getTransaction().getTransaction().readCounterField(id, this.storageId, true);
+        final long count = context.getJTransaction().getTransaction().readCounterField(id, this.name, true);
 
         // Auto-convert any Number
         final Class<?> valueType = TypeToken.of(objSetter.getParameterTypes()[0]).wrap().getRawType();

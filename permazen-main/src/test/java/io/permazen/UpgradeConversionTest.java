@@ -10,14 +10,13 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class UpgradeConversionTest extends TestSupport {
+public class UpgradeConversionTest extends MainTestSupport {
 
     @Test
     public void testUpgradeConversion() {
@@ -51,7 +50,7 @@ public class UpgradeConversionTest extends TestSupport {
         final int f19 = -12345678;
         final long f21 = 0x3373373373L;
 
-        Permazen jdb = new Permazen(db, 1, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person1.class));
+        Permazen jdb = BasicTest.newPermazen(db, Person1.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -92,7 +91,7 @@ public class UpgradeConversionTest extends TestSupport {
 
     // Version 2
 
-        jdb = new Permazen(db, 2, new DefaultStorageIdGenerator(), Arrays.<Class<?>>asList(Person2.class));
+        jdb = BasicTest.newPermazen(db, Person2.class);
         jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -129,7 +128,7 @@ public class UpgradeConversionTest extends TestSupport {
             final Person2 jobj2 = jtx.get(id2, Person2.class);
 
             try {
-                jobj2.upgrade();
+                jobj2.migrateSchema();
                 assert false : "expected UpgradeConversionException";
             } catch (UpgradeConversionException e) {
                 this.log.info("got expected {}", e.toString());
@@ -149,7 +148,7 @@ public class UpgradeConversionTest extends TestSupport {
         RIGHT
     }
 
-    @PermazenType(storageId = 100)
+    @PermazenType(name = "Person")
     public abstract static class Person1 implements JObject {
 
         public abstract boolean getField1();
@@ -220,7 +219,7 @@ public class UpgradeConversionTest extends TestSupport {
         WRONG
     }
 
-    @PermazenType(storageId = 100)
+    @PermazenType(name = "Person")
     public abstract static class Person2 implements JObject {
 
         @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)

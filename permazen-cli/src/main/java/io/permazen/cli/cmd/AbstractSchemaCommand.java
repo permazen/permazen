@@ -10,6 +10,8 @@ import io.permazen.cli.Session;
 import io.permazen.core.Schema;
 import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 abstract class AbstractSchemaCommand extends AbstractCommand {
@@ -18,11 +20,11 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         super(spec);
     }
 
-    // Get the schema having the specified version
-    protected static SchemaModel getSchemaModel(Session session, final int version) {
+    // Get the schema having the specified ID
+    protected static SchemaModel getSchemaModel(Session session, final SchemaId schemaId) {
 
-        // Version zero means "the configured schema"
-        if (version == 0) {
+        // Null means "the configured schema"
+        if (schemaId == null) {
             SchemaModel schemaModel = session.getSchemaModel();
             if (schemaModel == null) {
                 final Permazen jdb = session.getPermazen();
@@ -38,10 +40,11 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
 
         // Read schema from the database
         return AbstractSchemaCommand.runWithoutSchema(session, (session1, tx) -> {
-            final Schema schema = tx.getSchemas().getVersions().get(version);
+            final Schema schema = tx.getSchemaBundle().getSchema(schemaId);
             if (schema == null) {
-                session1.getOutput().println("Schema version " + version
-                  + " not found (known versions: " + tx.getSchemas().getVersions().keySet() + ")");
+                session1.getOutput().println(String.format(
+                  "Schema \"%s\" not found (known versions: %s)",
+                  schemaId, tx.getSchemaBundle().getSchemasBySchemaId().keySet()));
                 return null;
             }
             return schema.getSchemaModel();
@@ -53,7 +56,7 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
 
         final Transaction tx;
         try {
-            tx = session.getDatabase().createTransaction(null, 0, false);
+            tx = TransactionConfig.builder().build().newTransaction(session.getDatabase());
         } catch (SchemaMismatchException e) {                                   // must be a uninitialized database
             session.getOutput().println("Database is uninitialized");
             return null;

@@ -31,9 +31,10 @@ import javax.xml.stream.XMLStreamWriter;
  */
 abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
 
-    boolean lockedDown;
+    boolean lockedDown1;    // locked down for everything except storage ID's
+    boolean lockedDown2;    // lockedDown1 + storage ID's
 
-    // Cached info (after lockdown only)
+    // Cached info (after lockdown1 only)
     private SchemaId schemaId;
 
 // Recursion
@@ -77,32 +78,31 @@ abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
 // Lockdown
 
     /**
-     * Lock down this instance and every other schema item it contains so that no further changes can be made.
-     *
-     * <p>
-     * Attempts to modify a locked down schema item generate an {@link UnsupportedOperationException}.
-     */
-    public void lockDown() {
-        this.lockedDown = true;
-    }
-
-    /**
      * Determine whether this instance is locked down.
      *
+     * @param includingStorageIds false to test all but storage ID's, true to require storage ID's to be locked down as well
      * @return true if instance is locked down, otherwise false
      */
-    public final boolean isLockedDown() {
-        return this.lockedDown;
+    public final boolean isLockedDown(boolean includingStorageIds) {
+        return includingStorageIds ? this.lockedDown2 : this.lockedDown1;
     }
 
-    final void verifyNotLockedDown() {
-        if (this.lockedDown)
+    final void verifyNotLockedDown(boolean storageIds) {
+        if (this.lockedDown2 || (!storageIds && this.lockedDown1))
             throw new UnsupportedOperationException("instance is locked down");
     }
 
-    <T extends SchemaItem> NavigableMap<String, T> lockDownMap(NavigableMap<String, T> map) {
-        map.values().forEach(SchemaItem::lockDown);
+    <T extends SchemaItem> NavigableMap<String, T> lockDownMap1(NavigableMap<String, T> map) {
+        map.values().forEach(SchemaItem::lockDown1);
         return Collections.unmodifiableNavigableMap(map);
+    }
+
+    void lockDown1() {
+        this.lockedDown1 = true;
+    }
+
+    void lockDown2() {
+        this.lockedDown2 = true;
     }
 
 // Structural Compatibility
@@ -114,27 +114,19 @@ abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
      * The {@link SchemaId} does <i>not</i> depend on the storage ID.
      *
      * <p>
-     * After this instance has been {@linkplain #lockDown locked down}, repeated invocations
-     * of this method will be very fast, just returning the cached previous result.
+     * This instance must be {@linkplain #isLockedDown locked down} except for storage ID's.
+     * Repeated invocations of this method will be very fast, just returning the cached previous result.
      *
-     * @return structure ID
+     * @return schema ID
      * @see SchemaId
+     * @throws IllegalStateException if this instance is not locked down
      */
     public final SchemaId getSchemaId() {
-
-        // Check for cached value
-        if (this.schemaId != null)
-            return this.schemaId;
-
-        // Compute value
-        final SchemaId newSchemaId = this.computeSchemaId();
-
-        // Cache if possible
-        if (this.lockedDown)
-            this.schemaId = newSchemaId;
-
-        // Done
-        return newSchemaId;
+        if (this.schemaId == null) {
+            Preconditions.checkState(this.lockedDown1, "not locked down");
+            this.schemaId = this.computeSchemaId();
+        }
+        return this.schemaId;
     }
 
     private SchemaId computeSchemaId() {
@@ -207,7 +199,7 @@ abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
      * Deep-clone this instance.
      *
      * <p>
-     * The returned instance will <b>not</b> be {@linkplain #lockDown locked down} even if this one is.
+     * The returned instance will <b>not</b> be {@linkplain #isLockedDown locked down} even if this one is.
      */
     @Override
     protected SchemaSupport clone() {
@@ -218,7 +210,8 @@ abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
             throw new RuntimeException(e);
         }
         clone.schemaId = null;
-        clone.lockedDown = false;
+        clone.lockedDown1 = false;
+        clone.lockedDown2 = false;
         return clone;
     }
 

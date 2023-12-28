@@ -13,8 +13,9 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
+import io.permazen.core.SimpleField;
 import io.permazen.encoding.Encoding;
-import io.permazen.encoding.EncodingId;
+import io.permazen.index.Index1;
 import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
@@ -44,10 +45,12 @@ public class JSimpleField extends JField {
     final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
+// Constructor
+
     @SuppressWarnings("unchecked")
-    JSimpleField(Permazen jdb, String name, int storageId, TypeToken<?> typeToken, Encoding<?> encoding, boolean indexed,
+    JSimpleField(String name, int storageId, TypeToken<?> typeToken, Encoding<?> encoding, boolean indexed,
       io.permazen.annotation.JField annotation, String description, Method getter, Method setter) {
-        super(jdb, name, storageId, annotation, description, getter);
+        super(name, storageId, annotation, description, getter);
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         Preconditions.checkArgument(encoding != null, "null encoding");
         this.typeToken = typeToken;
@@ -79,9 +82,25 @@ public class JSimpleField extends JField {
             this.uniqueExcludes = null;
     }
 
+// Public Methods
+
     @Override
     public io.permazen.annotation.JField getDeclaringAnnotation() {
         return (io.permazen.annotation.JField)super.getDeclaringAnnotation();
+    }
+
+    @Override
+    public String getFullName() {
+        return this.isSubField() ? ((JComplexField)this.parent).name + "." + this.name : this.name;
+    }
+
+    /**
+     * Determine whether this field is a sub-field of a {@link JComplexField}.
+     *
+     * @return true if this field is a sub-field, otherwise false
+     */
+    public boolean isSubField() {
+        return this.parent instanceof JComplexField;
     }
 
     /**
@@ -90,7 +109,7 @@ public class JSimpleField extends JField {
      * @return parent {@link JComplexField}, or null if this instance is not a sub-field
      */
     public JComplexField getParentField() {
-        return this.parent instanceof JComplexField ? (JComplexField)this.parent : null;
+        return this.isSubField() ? (JComplexField)this.parent : null;
     }
 
     /**
@@ -126,6 +145,20 @@ public class JSimpleField extends JField {
     }
 
     /**
+     * View the index on this field.
+     *
+     * @param jtx transaction
+     * @return view of the index on this field in {@code tx}
+     * @throws StaleTransactionException if {@code tx} is no longer usable
+     * @throws IllegalArgumentException if this field is not indexed
+     * @throws IllegalArgumentException if {@code tx} is null
+     */
+    public Index1<?, ?> getIndex(JTransaction jtx) {
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        return jtx.querySimpleIndex(this.getJClass().getType(), this.getFullName(), this.getTypeToken().getRawType());
+    }
+
+    /**
      * Get the setter method associated with this field.
      *
      * @return field property setter method, or null if this field is a sub-field of a complex field
@@ -137,12 +170,13 @@ public class JSimpleField extends JField {
     @Override
     public Object getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        Preconditions.checkArgument(!(this.parent instanceof JComplexField), "field is a complex sub-field");
-        return jobj.getTransaction().readSimpleField(jobj.getObjId(), this.storageId, false);
+        Preconditions.checkArgument(!this.isSubField(), "field is a complex sub-field");
+        return jobj.getTransaction().readSimpleField(jobj.getObjId(), this.name, false);
     }
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJSimpleField(this);
     }
 
@@ -153,7 +187,7 @@ public class JSimpleField extends JField {
 
     /**
      * Set the Java value of this field in the given object.
-     * Does not alter the schema version of the object.
+     * Does not alter the schema of the object.
      *
      * @param jobj object containing this field
      * @param value new value
@@ -166,16 +200,23 @@ public class JSimpleField extends JField {
      */
     public void setValue(JObject jobj, Object value) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        Preconditions.checkArgument(!(this.parent instanceof JComplexField), "field is a complex sub-field");
-        jobj.getTransaction().writeSimpleField(jobj, this.storageId, value, false);
+        Preconditions.checkArgument(!this.isSubField(), "field is a complex sub-field");
+        jobj.getTransaction().writeSimpleField(jobj, this.name, value, false);
     }
+
+    @Override
+    public SimpleField<?> getSchemaItem() {
+        return (SimpleField<?>)super.getSchemaItem();
+    }
+
+// Package Methods
 
     @Override
     boolean isSameAs(JField that0) {
         if (!super.isSameAs(that0))
             return false;
         final JSimpleField that = (JSimpleField)that0;
-        if (!this.typeToken.equals(that.typeToken))
+        if (this.isSubField() != that.isSubField())
             return false;
         if (!this.encoding.equals(that.encoding))
             return false;
@@ -187,40 +228,30 @@ public class JSimpleField extends JField {
             return false;
         if (!this.upgradeConversion.equals(that.upgradeConversion))
             return false;
+        if (this.setter != null && that.setter != null
+          && !this.setter.getParameterTypes()[0].equals(that.setter.getParameterTypes()[0]))
+            return false;
         return true;
     }
 
     @Override
-    SimpleSchemaField toSchemaItem(Permazen jdb) {
-        final SimpleSchemaField schemaField = new SimpleSchemaField();
-        this.initialize(jdb, schemaField);
+    SimpleSchemaField toSchemaItem() {
+        final SimpleSchemaField schemaField = (SimpleSchemaField)super.toSchemaItem();
+        if (!schemaField.hasFixedEncoding())
+            schemaField.setEncodingId(this.encoding.getEncodingId());
+        schemaField.setIndexed(this.indexed);
         return schemaField;
     }
 
     @Override
-    SimpleFieldIndexInfo toIndexInfo() {
-        if (!this.indexed)
-            return null;
-        final JComplexField parentField = this.getParentField();
-        return parentField != null ? parentField.toIndexInfo(this) : new RegularSimpleFieldIndexInfo(this);
+    SimpleSchemaField createSchemaItem() {
+        return new SimpleSchemaField();
     }
 
     @Override
     void calculateRequiresDefaultValidation() {
         super.calculateRequiresDefaultValidation();
         this.requiresDefaultValidation |= this.unique;
-    }
-
-    void initialize(Permazen jdb, SimpleSchemaField schemaField) {
-        super.initialize(jdb, schemaField);
-        this.initializeSimpleSchemaFieldEncoding(schemaField);
-        schemaField.setIndexed(this.indexed);
-    }
-
-    void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
-        final EncodingId encodingId = this.encoding.getEncodingId();
-        Preconditions.checkArgument(encodingId != null, "internal error");
-        schemaField.setEncodingId(encodingId);
     }
 
     @Override
@@ -234,17 +265,6 @@ public class JSimpleField extends JField {
         types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<V>() { }, encoding.wrap()));
-    }
-
-    // Get the Enum class that this type represents, or null if not applicable; see note in SimpleFieldIndexInfo
-    Class<? extends Enum<?>> getEnumType() {
-        return null;
-    }
-
-    // Are these two fields compatible in the sense that they can appear in the same index?
-    boolean isIndexCompatibleWith(JSimpleField that) {
-        Preconditions.checkArgument(that != null, "null that");
-        return this.toIndexInfo().equals(that.toIndexInfo());
     }
 
 // POJO import/export
@@ -263,7 +283,7 @@ public class JSimpleField extends JField {
         final Object coreValue = this.importCoreValue(context, value);
 
         // Set field core API value
-        context.getTransaction().getTransaction().writeSimpleField(id, this.storageId, coreValue, true);
+        context.getJTransaction().getTransaction().writeSimpleField(id, this.name, coreValue, true);
     }
 
     @Override
@@ -279,7 +299,7 @@ public class JSimpleField extends JField {
 
         // Get field value
         final Object value = this.exportCoreValue(context,
-          context.getTransaction().getTransaction().readSimpleField(id, this.storageId, true));
+          context.getJTransaction().getTransaction().readSimpleField(id, this.name, true));
 
         // Set POJO value
         try {
@@ -444,7 +464,7 @@ public class JSimpleField extends JField {
 
     void outputReadCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
 
-        // this.$tx.getTransaction().readSimpleField(this.id, STORAGEID, true)
+        // this.$tx.getTransaction().readSimpleField(this.id, NAME, true)
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
@@ -452,7 +472,7 @@ public class JSimpleField extends JField {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitLdcInsn(this.storageId);
+        mv.visitLdcInsn(this.name);
         mv.visitInsn(Opcodes.ICONST_1);
         generator.emitInvoke(mv, ClassGenerator.TRANSACTION_READ_SIMPLE_FIELD_METHOD);
     }
@@ -463,7 +483,7 @@ public class JSimpleField extends JField {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_REGISTER_JOBJECT_METHOD);
 
-        // this.$tx.getTransaction().writeSimpleField(this.id, STORAGEID, STACK[0], true)
+        // this.$tx.getTransaction().writeSimpleField(this.id, NAME, STACK[0], true)
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
@@ -473,7 +493,7 @@ public class JSimpleField extends JField {
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitInsn(Opcodes.SWAP);
-        mv.visitLdcInsn(this.storageId);
+        mv.visitLdcInsn(this.name);
         mv.visitInsn(Opcodes.SWAP);
         mv.visitInsn(Opcodes.ICONST_1);
         generator.emitInvoke(mv, ClassGenerator.TRANSACTION_WRITE_SIMPLE_FIELD_METHOD);

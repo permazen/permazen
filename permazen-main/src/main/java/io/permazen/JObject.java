@@ -5,12 +5,10 @@
 
 package io.permazen;
 
-import com.google.common.base.Preconditions;
-
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.OnCreate;
-import io.permazen.annotation.OnVersionChange;
+import io.permazen.annotation.OnSchemaChange;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
@@ -18,13 +16,14 @@ import io.permazen.core.ReferencedObjectException;
 import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
-import io.permazen.core.TypeNotInSchemaVersionException;
+import io.permazen.core.TypeNotInSchemaException;
+import io.permazen.core.UnknownTypeException;
 import io.permazen.core.util.ObjIdSet;
-import io.permazen.util.NavigableSets;
+import io.permazen.schema.SchemaId;
 
 import jakarta.validation.groups.Default;
 
-import java.util.NavigableSet;
+import java.util.Iterator;
 
 /**
  * Interface implemented by {@link Permazen} Java model objects.
@@ -73,24 +72,24 @@ public interface JObject {
     ObjId getObjId();
 
     /**
-     * Get this instance's current schema version. Does not change this instance's schema version.
-     *
-     * @return the schema version of this instance
-     * @throws DeletedObjectException
-     *  if this object does not exist in the {@link JTransaction} associated with this instance
-     * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
-     */
-    default int getSchemaVersion() {
-        return this.getTransaction().getSchemaVersion(this.getObjId());
-    }
-
-    /**
      * Get this instance's associated {@link JTransaction}.
      *
      * @return the {@link JTransaction} that contains this instance's field state
      */
     JTransaction getTransaction();
+
+    /**
+     * Get the {@link SchemaId} that identifies this instance's current schema.
+     *
+     * @return the ID of this instance's current schema
+     * @throws DeletedObjectException
+     *  if this object does not exist in the {@link JTransaction} associated with this instance
+     * @throws StaleTransactionException
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     */
+    default SchemaId getSchemaId() {
+        return this.getTransaction().getTransaction().getObjType(this.getObjId()).getSchema().getSchemaId();
+    }
 
     /**
      * Delete this instance, if it exists, in this instance's associated transaction.
@@ -162,28 +161,114 @@ public interface JObject {
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
-     * @throws NullPointerException if {@code groups} is null
+     * @throws IllegalArgumentException if {@code groups} is or any group in {@code groups} null
      */
     default void revalidate(Class<?>... groups) {
         this.getTransaction().revalidate(this.getObjId(), groups);
     }
 
     /**
-     * Update the schema version of this instance, if necessary, so that it matches the schema version
-     * of its associated transaction.
+     * Migrate the schema of this instance, if necessary, so that it matches the schema of its associated transaction.
      *
      * <p>
-     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange}
-     * methods will be invoked prior to this method returning.
+     * If a schema change occurs, {@link OnSchemaChange &#64;OnSchemaChange} methods will be invoked
+     * prior to this method returning.
      *
-     * @return true if the object's schema version was changed, false if it was already updated
+     * @return true if the object's schema changed, false if it was already migrated
      * @throws DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
-    default boolean upgrade() {
-        return this.getTransaction().updateSchemaVersion(this);
+    default boolean migrateSchema() {
+        return this.getTransaction().migrateSchema(this);
+    }
+
+    /**
+     * Find all objects reachable through the specified reference cascade.
+     *
+     * <p>
+     * This method finds all objects reachable from the this through
+     * {@linkplain io.permazen.annotation.JField#forwardCascades forward} and
+     * {@linkplain io.permazen.annotation.JField#inverseCascades inverse} reference field cascades of the specified name.
+     * In other words, a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
+     * specified in the corresponding {@linkplain io.permazen.annotation.JField &#64;JField} annotation property.
+     *
+     * <p>
+     * All objects found will be automatically {@linkplain #migrateSchema migrated} to this object's associated
+     * transaction's schema.
+     *
+     * <p>
+     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
+     * measured in the number of reference field "hops" from the given starting object.
+     *
+     * @param cascades zero or more reference cascades that identify additional objects to copy
+     * @param recursionLimit the maximum number of reference fields to hop through, or -1 for infinity
+     * @return the object ID's of the objects reachable from this object (including this object itself)
+     * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
+     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
+     * @throws IllegalArgumentException if {@code cascades} or any element therein is null
+     * @see JTransaction#cascade JTransaction.cascade()
+     * @see io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()
+     * @see io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()
+     */
+    default ObjIdSet cascade(int recursionLimit, String... cascades) {
+        final ObjIdSet ids = new ObjIdSet();
+        for (Iterator<ObjId> i = this.getTransaction().cascade(this.getObjId(), recursionLimit, ids, cascades); i.hasNext(); )
+            i.next();
+        return ids;
+    }
+
+    /**
+     * Copy this instance, and other instances reachable through the specified reference cascades (if any),
+     * into the in-memory, detached transaction associated with this instance's transaction.
+     *
+     * <p>
+     * This method should only be invoked on regular database {@link JObject}s.
+     * The returned object will always live in a {@link DetachedJTransaction}.
+     *
+     * <p>
+     * This is a convenience method, and is equivalent to invoking:
+     * <blockquote><pre>
+     * this.copyTo(this.getTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+     * </pre></blockquote>
+     *
+     * @param cascades zero or more reference cascades that identify additional objects to copy
+     * @return the detached {@link JObject} copy of this instance
+     * @throws SchemaMismatchException if the schema corresponding to this object's version is not identical in both transactions
+     * @throws IllegalArgumentException if this instance is itself a {@linkplain #isDetached detached instance}
+     * @throws IllegalArgumentException if {@code cascades} or any element therein is null
+     * @see #copyIn copyIn()
+     */
+    default JObject copyOut(String... cascades) {
+        return this.copyTo(this.getTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+    }
+
+    /**
+     * Copy this instance, and other instances reachable through the specified reference cascades (if any),
+     * into the transaction associated with the current thread.
+     *
+     * <p>
+     * Normally this method would only be invoked on {@linkplain #isDetached detached} database objects.
+     * The returned object will be a {@link JObject} in the open transaction associated with the current thread.
+     *
+     * <p>
+     * This is a convenience method, and is equivalent to invoking:
+     * <blockquote><pre>
+     * this.copyTo(JTransaction.getCurrent(), -1, new CopyState(), cascades)
+     * </pre></blockquote>
+     *
+     * @param cascades zero or more reference cascades that identify additional objects to copy
+     * @return the regular database copy of this instance
+     * @throws DeletedObjectException if any copied object ends up with a reference to an object
+     *  that does not exist in {@code dest} through a reference field {@linkplain JField#allowDeleted configured}
+     *  to disallow deleted assignment
+     * @throws SchemaMismatchException if the schema corresponding to this object's version is not identical in both transactions
+     * @throws IllegalArgumentException if {@code cascades} or any element therein is null
+     * @see #copyOut copyOut()
+     */
+    default JObject copyIn(String... cascades) {
+        return this.copyTo(JTransaction.getCurrent(), -1, new CopyState(), cascades);
     }
 
     /**
@@ -195,254 +280,61 @@ public interface JObject {
      * for more common and specific use cases.
      *
      * <p>
-     * This method copies this object and all other objects reachable from this instance through any of the specified
-     * {@linkplain ReferencePath reference paths} (including intermediate objects visited).
+     * If a target object does not exist, it will be created, otherwise its schema will be migrated to match the source
+     * object if necessary (with resulting {@link OnSchemaChange &#64;OnSchemaChange} notifications).
+     * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
+     * and {@link OnChange &#64;OnChange} notifications will also be delivered.
      *
      * <p>
-     * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
-     * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
-     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest}).
+     * The {@code copyState} tracks which objects have already been copied. For a "fresh" copy operation,
+     * pass a newly created {@link CopyState}; for a copy operation that is a continuation of a previous copy,
+     * reuse the previous {@link CopyState}. The {@link CopyState} may also be configured to remap object ID's.
      *
      * <p>
-     * The two transactions must be compatible in that for any schema versions encountered, those schema versions
-     * must be identical in both transactions.
+     * This object's transaction and {@code dest} must be compatible in that for any schemas encountered, those schemas
+     * must be identical in both.
      *
      * <p>
-     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
-     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
+     * If {@code dest} is not a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
+     * {@link io.permazen.annotation.JField#allowDeleted}{@code = false}, then any objects referenced by those fields must
+     * also be copied, or else must already exist in {@code dest}. Otherwise, a {@link DeletedObjectException} is thrown
+     * and it is indeterminate which objects were copied.
      *
      * <p>
-     * Warning: if two threads attempt to copy objects between the same two transactions at the same time
-     * but in opposite directions, deadlock could result.
+     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
+     * measured in the number of reference field "hops" from the given starting object.
+     *
+     * <p>
+     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock could result.
      *
      * @param dest destination transaction for copies
-     * @param copyState tracks which indirectly referenced objects have already been copied
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @param copyState tracks which objects have already been copied
+     * @param recursionLimit the maximum number of reference fields to hop through, or -1 for infinity
+     * @param cascades zero or more reference cascades that identify additional objects to copy
      * @return the copied version of this instance in {@code dest}
-     * @throws DeletedObjectException
-     *  if this object does not exist in the {@link JTransaction} associated with this instance
-     *  (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)
      * @throws DeletedObjectException if any object to be copied does not actually exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object
      *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws SchemaMismatchException
-     *  if the schema corresponding to any copied object is not identical in both the {@link JTransaction}
-     *  associated with this instance and {@code dest}
+     * @throws SchemaMismatchException if the schema corresponding to any copied object is not identical in both the
+     *  transaction associated with this instance and {@code dest}
      * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
+     * @throws IllegalArgumentException if any element in {@code cascades} is null
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
-     * @see JTransaction#copyTo(JTransaction, JObject, CopyState, String[]) JTransaction.copyTo()
-     * @see ReferencePath
+     * @see #cascade cascade()
+     * @see JTransaction#copyTo(JTransaction, CopyState, Stream) JTransaction.copyTo()
      */
-    default JObject copyTo(JTransaction dest, CopyState copyState, String... refPaths) {
-        return this.getTransaction().copyTo(dest, this, copyState, refPaths);
-    }
+    default JObject copyTo(JTransaction dest, int recursionLimit, CopyState copyState, String... cascades) {
 
-    /**
-     * Copy this instance and other instances it references through the specified reference paths (if any)
-     * into the associated in-memory detached transaction.
-     *
-     * <p>
-     * This method should only be invoked on regular database {@link JObject}s.
-     * The returned object will always live in a {@link DetachedJTransaction}.
-     *
-     * <p>
-     * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><pre>
-     * this.copyTo(this.getTransaction().getDetachedTransaction(), new CopyState(), refPaths);
-     * </pre></blockquote>
-     *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
-     * @return the detached {@link JObject} copy of this instance
-     * @throws IllegalArgumentException if this instance is itself a {@linkplain #isDetached detached instance}
-     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
-     * @see #copyIn copyIn()
-     */
-    default JObject copyOut(String... refPaths) {
-        return this.copyTo(this.getTransaction().getDetachedTransaction(), new CopyState(), refPaths);
-    }
+        // Identify objects to copy
+        final ObjIdSet ids = this.cascade(recursionLimit, cascades);
 
-    /**
-     * Copy this instance, and other instances it references through the specified {@code refPaths} (if any),
-     * into the transaction associated with the current thread.
-     *
-     * <p>
-     * Normally this method would only be invoked on detached database {@link JObject}s.
-     * The returned object will be a {@link JObject} in the currently open transaction.
-     *
-     * <p>
-     * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><pre>
-     * this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths)
-     * </pre></blockquote>
-     *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
-     * @return the regular database copy of this instance
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeleted configured} to disallow deleted assignment
-     * @throws SchemaMismatchException
-     *  if the schema corresponding to this object's version is not identical in both transactions
-     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
-     * @see #copyOut copyOut()
-     */
-    default JObject copyIn(String... refPaths) {
-        return this.copyTo(JTransaction.getCurrent(), new CopyState(), refPaths);
-    }
+        // Copy objects
+        this.getTransaction().copyTo(dest, copyState, ids);
 
-    /**
-     * Copy this instance and all objects reachable from it via the specified cascade into the specified destination transaction.
-     *
-     * <p>
-     * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><pre>
-     * this.cascadeCopyTo(dest, cascadeName, -1, clone);
-     * </pre></blockquote>
-     *
-     * @param dest destination transaction for copies
-     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
-     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
-     *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
-     * @return the copied version of this instance in {@code dest}
-     * @throws DeletedObjectException if any object to be copied does not exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws SchemaMismatchException
-     *  if the schema version corresponding to any copied object is not identical in both transactions
-     * @throws IllegalArgumentException if {@code dest} is null
-     * @see #cascadeCopyTo(JTransaction, String, int, boolean)
-     */
-    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, boolean clone) {
-        return this.cascadeCopyTo(dest, cascadeName, -1, clone);
-    }
-
-    /**
-     * Copy this instance and all objects reachable from it via the specified cascade into the specified destination transaction.
-     *
-     * <p>
-     * This is a more general method; see {@link #cascadeCopyIn cascadeCopyIn()} and {@link #cascadeCopyOut cascadeCopyOut()}
-     * for more common and specific use cases.
-     *
-     * <p>
-     * This method finds and copies all objects reachable from this object based on
-     * {@link JField#forwardCascades &#64;JField.forwardCascades()} and
-     * {@link JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
-     * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
-     * specified in the corresponding annotation property. See {@link JField &#64;JField} for details.
-     *
-     * <p>
-     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any copied object,
-     * measured in the number of reference field "hops" from this object.
-     *
-     * <p>
-     * This instance will first be {@link #upgrade}ed if necessary. If any copied object already exists in {@code dest},
-     * it will have its schema version updated first, if necessary, then be overwritten.
-     * Any {@link OnVersionChange &#64;OnVersionChange}, {@link OnCreate &#64;OnCreate},
-     * and {@link OnChange &#64;OnChange} methods will be notified accordingly as usual (in {@code dest}).
-     *
-     * <p>
-     * The two transactions must be compatible in that for any schema versions encountered, those schema versions
-     * must be identical in both transactions.
-     *
-     * <p>
-     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copyState} tracks which objects have already been copied and traversed.
-     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
-     *
-     * <p>
-     * Warning: if two threads attempt to copy objects between the same two transactions at the same time
-     * but in opposite directions, deadlock could result.
-     *
-     * @param dest destination transaction for copies
-     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
-     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
-     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in {@code dest},
-     *  or false to preserve the same object ID's, overwriting any existing objects in {@code dest}
-     * @return the copied version of this instance in {@code dest}
-     * @throws DeletedObjectException if any object to be copied does not exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws SchemaMismatchException
-     *  if the schema version corresponding to any copied object is not identical in both transactions
-     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
-     * @throws IllegalArgumentException if {@code dest} is null
-     * @see #cascadeCopyIn cascadeCopyIn()
-     * @see #cascadeCopyOut cascadeCopyOut()
-     * @see JTransaction#cascadeFindAll JTransaction.cascadeFindAll()
-     */
-    default JObject cascadeCopyTo(JTransaction dest, String cascadeName, int recursionLimit, boolean clone) {
-        Preconditions.checkArgument(dest != null, "null dest");
-        final ObjId id = this.getObjId();
-        final JTransaction jtx = this.getTransaction();
-        final ObjIdSet ids = jtx.cascadeFindAll(id, cascadeName, recursionLimit);
-        final CopyState copyState = clone ? new CopyState(dest.createClones(ids)) : new CopyState();
-        jtx.copyTo(dest, copyState, ids);
-        return dest.get(copyState.getDestinationId(id));
-    }
-
-    /**
-     * Copy this instance and all objects reachable from it via the specified cascade
-     * into the associated in-memory detached transaction.
-     *
-     * <p>
-     * This method should only be invoked on regular database {@link JObject}s.
-     * The returned object will always live in a {@link DetachedJTransaction}.
-     *
-     * <p>
-     * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><pre>
-     * this.cascadeCopyTo(this.getTransaction().getDetachedTransaction(), cascadeName, clone);
-     * </pre></blockquote>
-     *
-     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
-     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the detached transaction,
-     *  or false to preserve the same object ID's, overwriting any existing objects
-     * @return the detached {@link JObject} copy of this instance
-     * @throws DeletedObjectException if any object to be copied does not exist
-     * @throws SchemaMismatchException
-     *  if the schema version corresponding to any copied object is not identical in both transactions
-     * @throws IllegalArgumentException if this instance is a {@linkplain #isDetached detached instance}
-     * @see #cascadeCopyIn cascadeCopyIn()
-     * @see #cascadeCopyTo cascadeCopyTo()
-     */
-    default JObject cascadeCopyOut(String cascadeName, boolean clone) {
-        return this.cascadeCopyTo(this.getTransaction().getDetachedTransaction(), cascadeName, clone);
-    }
-
-    /**
-     * Copy this instance and all objects reachable from it via the specified cascade
-     * into the transaction associated with the current thread.
-     *
-     * <p>
-     * Normally this method would only be invoked on detached database {@link JObject}s.
-     * The returned object will be a {@link JObject} in the currently open transaction.
-     *
-     * <p>
-     * This is a convenience method, and is equivalent to invoking:
-     * <blockquote><pre>
-     * this.cascadeCopyTo(JTransaction.getCurrent(), cascadeName, clone);
-     * </pre></blockquote>
-     *
-     * @param cascadeName cascade name, or null for no cascade (i.e., copy only this instance)
-     * @param clone true to clone objects, i.e., assign the copies new, unused object ID's in the database transaction,
-     *  or false to preserve the same object ID's, overwriting any existing objects
-     * @return the regular database copy of this instance
-     * @throws DeletedObjectException if any object to be copied does not exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object
-     *  that does not exist in {@code dest} through a reference field
-     *  {@linkplain JField#allowDeleted configured} to disallow deleted assignment
-     * @throws SchemaMismatchException
-     *  if the schema version corresponding to any copied object is not identical in both transactions
-     * @see #cascadeCopyOut cascadeCopyOut()
-     * @see #cascadeCopyTo cascadeCopyTo()
-     */
-    default JObject cascadeCopyIn(String cascadeName, boolean clone) {
-        return this.cascadeCopyTo(JTransaction.getCurrent(), cascadeName, clone);
+        // Return the copy of this object in dest
+        return dest.get(copyState.getDestId(this.getObjId()));
     }
 
     /**
@@ -460,33 +352,18 @@ public interface JObject {
     void resetCachedFieldValues();
 
     /**
-     * Find all objects of the given type referring to this object through the specified reference field.
-     *
-     * <p>
-     * The {@code fieldName} can be the name of a simple reference field (e.g., {@code "teacher"})
-     * or a sub-field of a complex field (e.g., {@code "students.element"}).
-     *
-     * @param type type of referring objects
-     * @param fieldName name of reference field
-     * @param <R> type of referring objects
-     * @return all objects of the specified type referring to this object through the named field
-     * @throws StaleTransactionException if the transaction associated with this instance is no longer open
-     * @throws IllegalArgumentException if either parameter is null
-     */
-    default <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
-        final NavigableSet<R> set = this.getTransaction().queryIndex(type, fieldName, Object.class).asMap().get(this);
-        return set != null ? set : NavigableSets.empty();
-    }
-
-    /**
      * Get the {@link JClass} of which this {@link JObject} is an instance.
      *
      * @return associated {@link JClass}
-     * @throws TypeNotInSchemaVersionException if this instance has a type that does not exist
-     *  in this instance's schema version, i.e., this instance is an {@link UntypedJObject}
+     * @throws TypeNotInSchemaException if this instance is an {@link UntypedJObject}
      */
     default JClass<?> getJClass() {
-        return this.getTransaction().getPermazen().getJClass(this.getObjId());
+        final ObjId id = this.getObjId();
+        try {
+            return this.getTransaction().getPermazen().getJClass(id);
+        } catch (UnknownTypeException e) {
+            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, "storage ID " + id.getStorageId(), null).initCause(e);
+        }
     }
 
     /**

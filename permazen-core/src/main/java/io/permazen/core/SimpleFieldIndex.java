@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Represents an index on a simple field that is not a sub-field of a complex field.
+ * An index on a simple field that is not a sub-field of a complex field.
  *
  * @param <T> field's value type
  */
@@ -30,8 +30,8 @@ public class SimpleFieldIndex<T> extends SimpleIndex<T> {
 // Public Methods
 
     @Override
-    public CoreIndex<T, ObjId> getIndex(Transaction tx) {
-        return new CoreIndex<>(tx.kvt, new IndexView<>(this.storageId, this.getField().getEncoding(), Encodings.OBJ_ID));
+    public CoreIndex1<T, ObjId> getIndex(Transaction tx) {
+        return new CoreIndex1<>(tx.kvt, new Index1View<>(this.storageId, this.getField().getEncoding(), Encodings.OBJ_ID));
     }
 
 // IndexSwitch

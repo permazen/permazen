@@ -18,8 +18,8 @@ import io.permazen.core.Transaction;
 public class ObjInfo {
 
     private final ObjId id;
-    private final Schema schema;
     private final ObjType type;
+    private final Schema schema;
 
     /**
      * Constructor.
@@ -30,26 +30,26 @@ public class ObjInfo {
      */
     public ObjInfo(Transaction tx, ObjId id) {
         this.id = id;
-        this.schema = tx.getSchemas().getVersion(tx.getSchemaVersion(id));
-        this.type = this.schema.getObjType(id.getStorageId());
+        this.type = tx.getObjType(id);
+        this.schema = this.type.getSchema();
     }
 
     public ObjId getObjId() {
         return this.id;
     }
 
-    public Schema getSchema() {
-        return this.schema;
-    }
-
     public ObjType getObjType() {
         return this.type;
     }
 
+    public Schema getSchema() {
+        return this.schema;
+    }
+
     @Override
     public String toString() {
-        return this.id + " type " + this.type.getName() + "#" + this.type.getStorageId()
-          + " version " + this.schema.getVersionNumber();
+        return String.format("%s type %s#%d (schema \"%s\")",
+          this.id, this.type.getName(), this.type.getStorageId(), this.schema.getSchemaId());
     }
 
     /**

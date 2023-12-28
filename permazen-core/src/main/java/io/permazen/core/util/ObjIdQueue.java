@@ -7,6 +7,8 @@ package io.permazen.core.util;
 
 import io.permazen.core.ObjId;
 
+import java.util.NoSuchElementException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -35,7 +37,8 @@ public interface ObjIdQueue {
     /**
      * Remove and return the next {@link ObjId} from this queue.
      *
-     * @return the next {@link ObjId}, or null if this queue is empty
+     * @return the next {@link ObjId}
+     * @throws NoSuchElementException if this queue is empty
      */
     ObjId next();
 

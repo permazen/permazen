@@ -6,13 +6,13 @@
 package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
-import io.permazen.schema.SimpleSchemaField;
+import io.permazen.core.SimpleField;
 import io.permazen.util.ByteReader;
 
-class SimpleFieldIndex extends SimpleIndex {
+class SimpleFieldIndex<T, I extends io.permazen.core.SimpleFieldIndex<T>> extends SimpleIndex<T, I> {
 
-    SimpleFieldIndex(JsckInfo info, int schemaVersion, SimpleSchemaField field) {
-        super(info, schemaVersion, field);
+    SimpleFieldIndex(JsckInfo info, SimpleField<T> field) {
+        super(info, field);
     }
 
     @Override
@@ -23,13 +23,6 @@ class SimpleFieldIndex extends SimpleIndex {
 
         // Validate field value in object
         if (info.getConfig().isRepair())
-            this.validateSimpleObjectField(info, id, this.storageId, this.type, indexValue);
-    }
-
-// Object
-
-    @Override
-    public String toString() {
-        return "index on simple field #" + this.storageId + " having " + this.type;
+            this.validateSimpleObjectField(info, id, this.getStorageId(), this.encoding, indexValue);
     }
 }

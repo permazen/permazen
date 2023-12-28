@@ -6,23 +6,24 @@
 package io.permazen;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.FollowPath;
+import io.permazen.annotation.JCompositeIndexes;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.EnumValueEncoding;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
+import io.permazen.core.ObjType;
+import io.permazen.core.Schema;
 import io.permazen.core.SetField;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.encoding.SimpleEncodingRegistry;
 import io.permazen.kv.KeyRanges;
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.schema.SchemaField;
 import io.permazen.schema.SchemaObjectType;
 
 import java.lang.reflect.AnnotatedElement;
@@ -30,34 +31,37 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Information about a Java class that is used to represent a specific Permazen object type.
+ * Represents a specific Permazen object type in a {@link Permazen} database.
  *
- * @param <T> the Java class
+ * @param <T> the Java type that represents instances of this database object type
  */
-public class JClass<T> extends JSchemaObject {
+public class JClass<T> extends JSchemaItem {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    final Permazen jdb;
     final Class<T> type;
     final ClassGenerator<T> classGenerator;
-    final TreeMap<Integer, JField> jfields = new TreeMap<>();                           // does not include sub-fields
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();                      // does not include sub-fields
-    final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
+    final TreeMap<Integer, JField> jfieldsByStorageId = new TreeMap<>();                // does not include sub-fields
+    final TreeMap<String, JSimpleField> jsimpleFieldsByName = new TreeMap<>();          // does include sub-fields
+    final TreeMap<Integer, JSimpleField> jsimpleFieldsByStorageId = new TreeMap<>();    // does include sub-fields
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
     final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
     final ArrayList<JCompositeIndex> uniqueConstraintCompositeIndexes = new ArrayList<>();
@@ -70,31 +74,30 @@ public class JClass<T> extends JSchemaObject {
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
     Set<OnValidateScanner<T>.MethodInfo> onValidateMethods;
-    ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
+    Set<OnSchemaChangeScanner<T>.MethodInfo> onSchemaChangeMethods;
 
     boolean requiresDefaultValidation;
     AnnotatedElement elementRequiringJSR303Validation;
-    int[] simpleFieldStorageIds;
 
     /**
      * Constructor.
      *
-     * @param jdb the associated {@link Permazen}
      * @param name the name of the object type
-     * @param storageId object type storage ID
+     * @param storageId object type storage ID, or zero to automatically assign
      * @param type object type Java model class
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     JClass(Permazen jdb, String name, int storageId, Class<T> type) {
-        super(jdb, name, storageId, String.format("object type \"%s\" (%s)", name, type));
+        super(name, storageId, String.format("object type \"%s\" (%s)", name, type));
         Preconditions.checkArgument(name != null, "null name");
         if (UntypedJObject.class.isAssignableFrom(type)) {
             throw new IllegalArgumentException(String.format(
               "invalid model type %s: model types may not subclass %s", type.getName(), UntypedJObject.class.getName()));
         }
+        this.jdb = jdb;
         this.type = type;
-        this.classGenerator = new ClassGenerator<>(this);
+        this.classGenerator = new ClassGenerator<>(jdb, this);
     }
 
     // Get class generator
@@ -114,61 +117,81 @@ public class JClass<T> extends JSchemaObject {
     }
 
     /**
-     * Get all {@link JField}'s associated with this instance, indexed by storage ID.
-     *
-     * @return read-only mapping from storage ID to {@link JClass}
-     */
-    public SortedMap<Integer, JField> getJFieldsByStorageId() {
-        return Collections.unmodifiableSortedMap(this.jfields);
-    }
-
-    /**
      * Get all {@link JField}'s associated with this instance, indexed by name.
      *
-     * @return read-only mapping from storage ID to {@link JClass}
+     * <p>
+     * The returned map does not include sub-fields of complex fields.
+     *
+     * @return read-only mapping from name to {@link JField}
      */
-    public SortedMap<String, JField> getJFieldsByName() {
-        return Collections.unmodifiableSortedMap(this.jfieldsByName);
+    public NavigableMap<String, JField> getJFieldsByName() {
+        return Collections.unmodifiableNavigableMap(this.jfieldsByName);
     }
 
     /**
-     * Get all {@link JCompositeIndex}'s defined on this {@link JClass}.
+     * Get all {@link JField}'s associated with this instance, indexed by storage ID.
+     *
+     * <p>
+     * The returned map does not include sub-fields of complex fields.
+     *
+     * @return read-only mapping from storage ID to {@link JField}
+     */
+    public NavigableMap<Integer, JField> getJFieldsByStorageId() {
+        return Collections.unmodifiableNavigableMap(this.jfieldsByStorageId);
+    }
+
+    /**
+     * Get all {@link JCompositeIndex}'s defined on this {@link JClass}, indexed by name.
      *
      * @return read-only mapping from name to {@link JCompositeIndex}
      */
-    public SortedMap<String, JCompositeIndex> getJCompositeIndexesByName() {
-        return Collections.unmodifiableSortedMap(this.jcompositeIndexesByName);
+    public NavigableMap<String, JCompositeIndex> getJCompositeIndexesByName() {
+        return Collections.unmodifiableNavigableMap(this.jcompositeIndexesByName);
     }
 
     /**
-     * Get the {@link JField} in this instance associated with the specified storage ID, cast to the given type.
+     * Get the specified {@link JField} in this database object type, cast to the given Java type.
      *
-     * @param storageId field storage ID
+     * @param fieldName field name
      * @param type required type
      * @param <T> expected encoding
-     * @return {@link JField} in this instance corresponding to {@code storageId}
-     * @throws UnknownFieldException if {@code storageId} does not correspond to any field in this instance
+     * @return corresponding {@link JField} in this instance
+     * @throws UnknownFieldException if {@code fieldName} is not found
      * @throws UnknownFieldException if the field is not an instance of of {@code type}
+     * @throws IllegalArgumentException if either parameter is null
      */
-    public <T extends JField> T getJField(int storageId, Class<T> type) {
+    public <T extends JField> T getJField(String fieldName, Class<T> type) {
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
         Preconditions.checkArgument(type != null, "null type");
-        final JField jfield = this.jfields.get(storageId);
+        final JField jfield = this.jfieldsByName.get(fieldName);
         if (jfield == null) {
-            throw new UnknownFieldException(storageId,
-              String.format("object type \"%s\" has no field with storage ID %d", this.name, storageId));
+            throw new UnknownFieldException(fieldName,
+              String.format("object type \"%s\" has no field named \"%s\"", this.name, fieldName));
         }
         try {
             return type.cast(jfield);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId,
-              String.format("object type \"%s\" has no field with storage ID %d of type %s (found %s instead)",
-                this.name, storageId, type.getName(), jfield));
+            throw new UnknownFieldException(fieldName,
+              String.format("object type \"%s\" has no field named \"%s\" of type %s (found %s instead)",
+                this.name, fieldName, type.getName(), jfield));
         }
     }
 
-// Internal methods
+    @Override
+    public ObjType getSchemaItem() {
+        return (ObjType)super.getSchemaItem();
+    }
 
-    void createFields(Permazen jdb) {
+// Package Methods
+
+    void replaceSchemaItems(Schema schema) {
+        final ObjType objType = schema.getObjType(this.name);
+        this.schemaItem = objType;
+        this.jfieldsByName.values().forEach(field -> field.replaceSchemaItems(objType));
+        this.jcompositeIndexesByName.values().forEach(index -> index.replaceSchemaItems(objType));
+    }
+
+    void createFields(EncodingRegistry encodingRegistry, Collection<JClass<?>> jclasses) {
 
         // Auto-generate properties?
         final PermazenType permazenType = Util.getAnnotation(this.type, PermazenType.class);
@@ -187,16 +210,11 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
 
-            // Get storage ID
-            int storageId = annotation.storageId();
-            if (storageId == 0)
-                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
-
             // Handle Counter fields
             if (encodingToken.equals(TypeToken.of(Counter.class))) {
 
                 // Sanity check annotation
-                if (annotation.encoding().length() != 0) {
+                if (!annotation.encoding().isEmpty()) {
                     throw new IllegalArgumentException(String.format(
                       "invalid %s: counter fields must not specify an encoding", description));
                 }
@@ -206,7 +224,7 @@ public class JClass<T> extends JSchemaObject {
                 }
 
                 // Create counter field
-                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId, annotation,
+                final JCounterField jfield = new JCounterField(fieldName, annotation.storageId(), annotation,
                   String.format("counter field \"%s\" of object type \"%s\"", fieldName, this.name), getter);
 
                 // Remember upgrade conversion fields
@@ -227,8 +245,9 @@ public class JClass<T> extends JSchemaObject {
             }
 
             // Create simple field
-            final JSimpleField jfield = this.createSimpleField(description, encodingToken, fieldName, storageId,
-              annotation, getter, setter, String.format("field \"%s\" of object type \"%s\"", fieldName, this.name));
+            final JSimpleField jfield = this.createSimpleField(encodingRegistry, jclasses,
+              description, encodingToken, fieldName, annotation.storageId(), annotation, getter, setter,
+              String.format("field \"%s\" of object type \"%s\"", fieldName, this.name));
 
             // Add field
             this.addField(jfield);
@@ -256,27 +275,18 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
 
-            // Get storage ID's
-            int storageId = annotation.storageId();
-            if (storageId == 0)
-                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
-            int elementStorageId = elementAnnotation.storageId();
-            if (elementStorageId == 0) {
-                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)
-                  .generateSetElementStorageId(getter, fieldName);
-            }
-
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
-            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
-              SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
+            final JSimpleField elementField = this.createSimpleField(encodingRegistry, jclasses,
+              "element() property of " + description, elementType, SetField.ELEMENT_FIELD_NAME,
+              elementAnnotation.storageId(), elementAnnotation, null, null,
               String.format("%s sub-field \"%s.%s\" in object type \"%s\"",
               "set", fieldName, SetField.ELEMENT_FIELD_NAME, this.name));
 
             // Create set field
-            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, annotation, elementField,
+            final JSetField jfield = new JSetField(fieldName, annotation.storageId(), annotation, elementField,
               String.format("%s field \"%s\" in object type \"%s\"", "set", fieldName, this.name), getter);
             elementField.parent = jfield;
 
@@ -298,27 +308,18 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
 
-            // Get storage ID's
-            int storageId = annotation.storageId();
-            if (storageId == 0)
-                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
-            int elementStorageId = elementAnnotation.storageId();
-            if (elementStorageId == 0) {
-                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)
-                  .generateListElementStorageId(getter, fieldName);
-            }
-
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
-            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
-              ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
+            final JSimpleField elementField = this.createSimpleField(encodingRegistry, jclasses,
+              "element() property of " + description, elementType, ListField.ELEMENT_FIELD_NAME,
+              elementAnnotation.storageId(), elementAnnotation, null, null,
               String.format("%s sub-field \"%s.%s\" in object type \"%s\"",
               "list", fieldName, ListField.ELEMENT_FIELD_NAME, this.name));
 
             // Create list field
-            final JListField jfield = new JListField(this.jdb, fieldName, storageId, annotation, elementField,
+            final JListField jfield = new JListField(fieldName, annotation.storageId(), annotation, elementField,
               String.format("%s field \"%s\" in object type \"%s\"", "list", fieldName, this.name), getter);
             elementField.parent = jfield;
 
@@ -341,33 +342,23 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found {}", description);
 
-            // Get storage ID's
-            int storageId = annotation.storageId();
-            if (storageId == 0)
-                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
-            int keyStorageId = keyAnnotation.storageId();
-            if (keyStorageId == 0)
-                keyStorageId = jdb.getStorageIdGenerator(keyAnnotation, getter).generateMapKeyStorageId(getter, fieldName);
-            int valueStorageId = valueAnnotation.storageId();
-            if (valueStorageId == 0)
-                valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);
-
             // Get key and value types (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> keyType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
             final TypeToken<?> valueType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 1));
 
             // Create key and value sub-fields
-            final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,
-              MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,
-              String.format("%s sub-field \"%s.%s\" in object type \"%s\"", "map",
-              fieldName, MapField.KEY_FIELD_NAME, this.name));
-            final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,
-              MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,
+            final JSimpleField keyField = this.createSimpleField(encodingRegistry, jclasses,
+              "key() property of " + description, keyType, MapField.KEY_FIELD_NAME,
+              keyAnnotation.storageId(), keyAnnotation, null, null,
+              String.format("%s sub-field \"%s.%s\" in object type \"%s\"", "map", fieldName, MapField.KEY_FIELD_NAME, this.name));
+            final JSimpleField valueField = this.createSimpleField(encodingRegistry, jclasses,
+              "value() property of " + description, valueType, MapField.VALUE_FIELD_NAME,
+              valueAnnotation.storageId(), valueAnnotation, null, null,
               String.format("%s sub-field \"%s.%s\" in object type \"%s\"", "map",
               fieldName, MapField.VALUE_FIELD_NAME, this.name));
 
             // Create map field
-            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, annotation, keyField, valueField,
+            final JMapField jfield = new JMapField(fieldName, annotation.storageId(), annotation, keyField, valueField,
               String.format("%s field \"%s\" in object type \"%s\"", "map", fieldName, this.name), getter);
             keyField.parent = jfield;
             valueField.parent = jfield;
@@ -378,7 +369,7 @@ public class JClass<T> extends JSchemaObject {
 
         // Verify that the generated class will not have any remaining abstract methods
         final Map<MethodKey, Method> abstractMethods = Util.findAbstractMethods(this.type);
-        for (JField jfield : this.jfields.values()) {
+        for (JField jfield : this.jfieldsByName.values()) {
             abstractMethods.remove(new MethodKey(jfield.getter));
             if (jfield instanceof JSimpleField)
                 abstractMethods.remove(new MethodKey(((JSimpleField)jfield).setter));
@@ -397,17 +388,39 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Calculate which fields require default validation
-        this.jfields.values()
-          .forEach(JField::calculateRequiresDefaultValidation);
-
-        // Gather simple field storage ID's
-        this.simpleFieldStorageIds = Ints.toArray(this.jfields.values().stream()
-          .filter(jfield -> jfield instanceof JSimpleField)
-          .map(jfield -> jfield.storageId)
-          .collect(Collectors.toList()));
+        this.jfieldsByName.values().forEach(JField::calculateRequiresDefaultValidation);
     }
 
-    void addCompositeIndex(Permazen jdb, Class<?> declaringType, io.permazen.annotation.JCompositeIndex annotation) {
+    // Like fields, composite indexes are inherited (duplicated) from supertypes
+    void createCompositeIndexes() {
+        for (Class<?> supertype : TypeToken.of(this.type).getTypes().rawTypes()) {
+
+            // Decode possibly repeated annotation(s)
+            final io.permazen.annotation.JCompositeIndex[] annotations;
+            final JCompositeIndexes container = Util.getAnnotation(supertype, JCompositeIndexes.class);
+            if (container != null)
+                annotations = container.value();
+            else {
+                io.permazen.annotation.JCompositeIndex annotation = Util.getAnnotation(supertype,
+                  io.permazen.annotation.JCompositeIndex.class);
+                if (annotation == null)
+                    continue;
+                annotations = new io.permazen.annotation.JCompositeIndex[] { annotation };
+            }
+
+            // Create corresponding indexes
+            for (io.permazen.annotation.JCompositeIndex annotation : annotations) {
+                if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
+                    throw new IllegalArgumentException(String.format(
+                      "invalid @%s annotation on %s: use of uniqueExclude() requires unique = true",
+                      io.permazen.annotation.JCompositeIndex.class.getSimpleName(), supertype));
+                }
+                this.addCompositeIndex(supertype, annotation);
+            }
+        }
+    }
+
+    private void addCompositeIndex(Class<?> declaringType, io.permazen.annotation.JCompositeIndex annotation) {
 
         // Get info
         final String indexName = annotation.name();
@@ -415,7 +428,6 @@ public class JClass<T> extends JSchemaObject {
         // Resolve field names
         final String[] fieldNames = annotation.fields();
         final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];
-        final int[] indexFieldStorageIds = new int[fieldNames.length];
         final HashSet<String> seenFieldNames = new HashSet<>();
         for (int i = 0; i < fieldNames.length; i++) {
             final String fieldName = fieldNames[i];
@@ -427,22 +439,13 @@ public class JClass<T> extends JSchemaObject {
             else if (!(jfield instanceof JSimpleField))
                 throw this.invalidIndex(annotation, "field \"%s\" is not a simple field", fieldName);
             indexFields[i] = (JSimpleField)jfield;
-            indexFieldStorageIds[i] = jfield.storageId;
-        }
-
-        // Get storage ID
-        int storageId = annotation.storageId();
-        if (storageId == 0) {
-            storageId = jdb.getStorageIdGenerator(annotation, type)
-              .generateCompositeIndexStorageId(this.type, indexName, indexFieldStorageIds);
         }
 
         // Create and add index
-        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, declaringType, annotation, indexFields);
-        if (this.jcompositeIndexes.put(index.storageId, index) != null)
-            throw this.invalidIndex(annotation, "duplicate use of storage ID %d", index.storageId);
-        if (this.jcompositeIndexesByName.put(index.name, index) != null)
-            throw this.invalidIndex(annotation, "duplicate use of composite index name \"%s\"", index.name);
+        final JCompositeIndex index = new JCompositeIndex(indexName,
+          annotation.storageId(), declaringType, annotation, indexFields);
+        if (this.jcompositeIndexesByName.put(indexName, index) != null)
+            throw this.invalidIndex(annotation, "duplicate composite index name \"%s\"", indexName);
 
         // Remember unique constraint composite indexes and trigger validation when any indexed field changes
         if (index.unique) {
@@ -452,15 +455,20 @@ public class JClass<T> extends JSchemaObject {
         }
     }
 
+    private IllegalArgumentException invalidIndex(
+      io.permazen.annotation.JCompositeIndex annotation, String format, Object... args) {
+        return new IllegalArgumentException(String.format(
+          "invalid @%s annotation for index \"%s\" on %s: %s", io.permazen.annotation.JCompositeIndex.class.getSimpleName(),
+          annotation.name(), this.type, String.format(format, args)));
+    }
+
     void scanAnnotations() {
         this.followPathMethods = new FollowPathScanner<>(this).findAnnotatedMethods();
         this.onCreateMethods = new OnCreateScanner<>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<>(this).findAnnotatedMethods();
         this.onValidateMethods = new OnValidateScanner<>(this).findAnnotatedMethods();
-        final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<>(this);
-        this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
-        Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
+        this.onSchemaChangeMethods = new OnSchemaChangeScanner<>(this).findAnnotatedMethods();
     }
 
     void calculateValidationRequirement() {
@@ -488,40 +496,41 @@ public class JClass<T> extends JSchemaObject {
     }
 
     @Override
-    SchemaObjectType toSchemaItem(Permazen jdb) {
-        final SchemaObjectType schemaObjectType = new SchemaObjectType();
-        this.initialize(jdb, schemaObjectType);
-        for (JField field : this.jfields.values()) {
-            final SchemaField schemaField = field.toSchemaItem(jdb);
-            schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);
-        }
-        for (JCompositeIndex index : this.jcompositeIndexes.values()) {
-            final SchemaCompositeIndex schemaIndex = index.toSchemaItem(jdb);
-            schemaObjectType.getSchemaCompositeIndexes().put(index.getStorageId(), schemaIndex);
-        }
-        return schemaObjectType;
+    SchemaObjectType toSchemaItem() {
+        final SchemaObjectType objectType = (SchemaObjectType)super.toSchemaItem();
+        this.jfieldsByName.forEach((name, field) -> objectType.getSchemaFields().put(name, field.toSchemaItem()));
+        this.jcompositeIndexesByName.forEach(
+          (name, index) -> objectType.getSchemaCompositeIndexes().put(name, index.toSchemaItem()));
+        return objectType;
     }
 
-    private IllegalArgumentException invalidIndex(
-      io.permazen.annotation.JCompositeIndex annotation, String format, Object... args) {
-        return new IllegalArgumentException(String.format(
-          "invalid @%s annotation for index \"%s\" on %s: %s", io.permazen.annotation.JCompositeIndex.class.getSimpleName(),
-          annotation.name(), this.type, String.format(format, args)));
+    @Override
+    SchemaObjectType createSchemaItem() {
+        return new SchemaObjectType();
     }
 
-    // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts
+    @Override
+    void visitSchemaItems(Consumer<? super JSchemaItem> visitor) {
+        super.visitSchemaItems(visitor);
+        this.jfieldsByName.values().forEach(item -> item.visitSchemaItems(visitor));
+        this.jcompositeIndexesByName.values().forEach(item -> item.visitSchemaItems(visitor));
+    }
+
+    // Add new JField (and sub-fields, if any), checking for name conflicts
     private void addField(JField jfield) {
 
-        // Check for storage ID conflict; note we can get this legitimately when a field is declared only
-        // in supertypes, where two of the supertypes are mutually unassignable from each other. In that
-        // case, verify that the generated field is the same.
-        JField other = this.jfields.get(jfield.storageId);
+        // Check for field name conflict; note we can get this legitimately when a field is declared
+        // only in supertypes when two of the supertypes are mutually unassignable from each other.
+        // In that case, if the generated field is exactlly the same then allow it.
+        JField other = this.jfieldsByName.put(jfield.name, jfield);
         if (other != null) {
 
             // If the descriptions differ, no need to give any more details
-            if (!other.toString().equals(jfield.toString())) {
+            final String desc1 = other.toString();
+            final String desc2 = jfield.toString();
+            if (!desc2.equals(desc1)) {
                 throw new IllegalArgumentException(String.format(
-                  "illegal duplicate use of storage ID %d for both %s and %s", jfield.storageId, other, jfield));
+                  "illegal duplicate use of name \"%s\" for both %s and %s in %s", jfield.name, desc1, desc2, this));
             }
 
             // Check whether the fields are exactly the same; if not, there is a conflict
@@ -529,19 +538,17 @@ public class JClass<T> extends JSchemaObject {
                 throw new IllegalArgumentException(String.format(
                   "two or more methods defining %s conflict: %s and %s", jfield, other.getter, jfield.getter));
             }
-
-            // OK - they are the same thing
-            return;
         }
-        this.jfields.put(jfield.storageId, jfield);
-
-        // Check for name conflict
-        if ((other = this.jfieldsByName.get(jfield.name)) != null) {
-            throw new IllegalArgumentException(String.format(
-              "illegal duplicate use of field name \"%s\" in %s", jfield.name, this));
-        }
-        this.jfieldsByName.put(jfield.name, jfield);
         jfield.parent = this;
+
+        // Update various maps
+        if (jfield instanceof JSimpleField) {
+            final JSimpleField jsimpleField = (JSimpleField)jfield;
+            this.jsimpleFieldsByName.put(jsimpleField.getFullName(), jsimpleField);
+        } else if (jfield instanceof JComplexField) {
+            for (JSimpleField jsimpleField : ((JComplexField)jfield).getSubFields())
+                this.jsimpleFieldsByName.put(jsimpleField.getFullName(), jsimpleField);
+        }
 
         // Logging
         if (this.log.isTraceEnabled())
@@ -572,15 +579,16 @@ public class JClass<T> extends JSchemaObject {
 
     // Create a simple field, either regular object field or sub-field of complex field
     @SuppressWarnings("unchecked")
-    private JSimpleField createSimpleField(String description, TypeToken<?> encodingToken, String fieldName,
-      int storageId, io.permazen.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {
+    private JSimpleField createSimpleField(EncodingRegistry encodingRegistry, Collection<JClass<?>> jclasses, String description,
+      TypeToken<?> encodingToken, String fieldName, int storageId, io.permazen.annotation.JField annotation,
+      Method getter, Method setter, String fieldDescription) {
 
         // Get explicit encoding, if any
         EncodingId encodingId = null;
         final String encodingName = annotation.encoding().length() > 0 ? annotation.encoding() : null;
         if (encodingName != null) {
             try {
-                encodingId = this.jdb.db.getEncodingRegistry().idForAlias(encodingName);
+                encodingId = encodingRegistry.idForAlias(encodingName);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(String.format("invalid %s: invalid encoding \"%s\"", description, encodingName));
             }
@@ -605,7 +613,7 @@ public class JClass<T> extends JSchemaObject {
         // See if encoding encompasses one or more JClass types and is therefore a reference type
         final Class<?> fieldRawType = encodingToken.getRawType();
         boolean isReferenceType = false;
-        for (JClass<?> jclass : this.jdb.jclasses.values()) {
+        for (JClass<?> jclass : jclasses) {
             if (fieldRawType.isAssignableFrom(jclass.type)) {
                 isReferenceType = true;
                 break;
@@ -625,7 +633,7 @@ public class JClass<T> extends JSchemaObject {
         if (encodingId != null) {
 
             // Field encoding is explicitly specified
-            if ((nonReferenceType = this.jdb.db.getEncodingRegistry().getEncoding(encodingId)) == null)
+            if ((nonReferenceType = encodingRegistry.getEncoding(encodingId)) == null)
                 throw new IllegalArgumentException(String.format("invalid %s: unknown encoding \"%s\"", description, encodingName));
 
             // Verify encoding matches what we expect
@@ -638,7 +646,7 @@ public class JClass<T> extends JSchemaObject {
         } else {
 
             // Try to find an encoding supporting getter method return type
-            final List<? extends Encoding<?>> encodings = this.jdb.db.getEncodingRegistry().getEncodings(encodingToken);
+            final List<? extends Encoding<?>> encodings = encodingRegistry.getEncodings(encodingToken);
             switch (encodings.size()) {
             case 0:
                 nonReferenceType = null;
@@ -751,14 +759,14 @@ public class JClass<T> extends JSchemaObject {
         try {
             return
               isReferenceType ?
-                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, encodingToken, annotation, getter, setter) :
+                new JReferenceField(fieldName, storageId, fieldDescription, encodingToken, annotation, jclasses, getter, setter) :
               enumArrayEncoding != null ?
-                new JEnumArrayField(this.jdb, fieldName, storageId, enumType,
-                 enumArrayEncoding, enumArrayDimensions, nonReferenceType, annotation, fieldDescription, getter, setter) :
+                new JEnumArrayField(fieldName, storageId, enumType, enumArrayEncoding,
+                  enumArrayDimensions, nonReferenceType, annotation, fieldDescription, getter, setter) :
               enumType != null ?
-                new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :
-                new JSimpleField(this.jdb, fieldName, storageId, encodingToken,
-                  nonReferenceType, annotation.indexed(), annotation, fieldDescription, getter, setter);
+                new JEnumField(fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :
+                new JSimpleField(fieldName, storageId, encodingToken, nonReferenceType,
+                  annotation.indexed(), annotation, fieldDescription, getter, setter);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(String.format("invalid %s: %s", description, e.getMessage()), e);
         }

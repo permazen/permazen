@@ -19,12 +19,34 @@ public class UnknownFieldException extends DatabaseException {
      *
      * @param type containing object type, or null for none
      * @param fieldName unknown field name
+     */
+    public UnknownFieldException(ObjType type, String fieldName) {
+        this(type, fieldName, "field");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param type containing object type, or null for none
+     * @param fieldName unknown field name
      * @param description description of the unknown field
      */
     public UnknownFieldException(ObjType type, String fieldName, String description) {
         super(String.format("%s has no %s named \"%s\"", type, description, fieldName));
         this.type = type;
         this.fieldName = fieldName;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param type containing object type, or null for none
+     * @param storageId unknown field storage ID
+     */
+    public UnknownFieldException(ObjType type, int storageId) {
+        super(String.format("%s has no field with storage ID %d", type, storageId));
+        this.type = type;
+        this.fieldName = "storage ID " + storageId;
     }
 
     /**

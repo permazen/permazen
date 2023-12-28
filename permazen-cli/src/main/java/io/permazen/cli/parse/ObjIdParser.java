@@ -97,13 +97,13 @@ public class ObjIdParser implements Parser<ObjId> {
             final Transaction tx = session.getTransaction();
             final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
             this.completions.clear();
-            for (Schema schema : tx.getSchemas().getVersions().values()) {
+            for (Schema schema : tx.getSchemaBundle().getSchemasBySchemaId().values()) {
                 for (ObjType objType : schema.getObjTypes().values()) {
                     final int storageId = objType.getStorageId();
                     if ((this.min != null && storageId < this.min.getStorageId())
                       || (this.max != null && storageId > this.max.getStorageId()))
                         continue;
-                    NavigableSet<ObjId> idSet = tx.getAll(storageId);
+                    NavigableSet<ObjId> idSet = tx.getAll(objType.getName());
                     if (this.min != null) {
                         try {
                             idSet = idSet.tailSet(this.min, true);

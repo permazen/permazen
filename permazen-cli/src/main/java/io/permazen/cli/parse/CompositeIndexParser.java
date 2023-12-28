@@ -39,7 +39,7 @@ public class CompositeIndexParser implements Parser<CompositeIndex> {
         if (!ctx.tryLiteral("."))
             throw new ParseException(ctx, "expected composite index name").addCompletion(".");
         ctx.skipWhitespace();
-        final SortedMap<String, CompositeIndex> indexMap = objType.getCompositeIndexesByName();
+        final SortedMap<String, CompositeIndex> indexMap = objType.getCompositeIndexes();
         final Matcher nameMatcher = ctx.tryPattern("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
         if (nameMatcher == null)
             throw new ParseException(ctx, "expected composite index name").addCompletions(indexMap.keySet());

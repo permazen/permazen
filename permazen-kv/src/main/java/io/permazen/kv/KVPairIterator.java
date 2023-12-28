@@ -174,7 +174,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * Reposition this instance by setting the next "target" key.
      *
      * <p>
-     * The target key is the key we will use to find the next element via {@link KVStore#getAtLeast KVStore.getAtLeast()}
+     * The target key is the key we will use to find the next element via {@link KVStore#getAtLeast KVStore.getAtLeast()},
      * or {@link KVStore#getAtMost KVStore.getAtMost()} if this is a reverse iterator. In the forward case, the target key is an
      * inclusive lower bound on the next key, while in the reverse case it is an exclusive upper bound on the next key.
      *

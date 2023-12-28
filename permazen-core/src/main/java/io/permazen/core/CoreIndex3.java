@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Tuple4Encoding;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.kv.KVStore;
@@ -79,7 +79,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex<T> implements I
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
 
         // Create new IndexView
-        final IndexView<Tuple3<V1, V2, V3>, T> tupleIV = iv.asTuple3IndexView();
+        final Index1View<Tuple3<V1, V2, V3>, T> tupleIV = iv.asTuple3Index1View();
 
         // Build map and apply filtering
         IndexMap<Tuple3<V1, V2, V3>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.kv, tupleIV);
@@ -91,7 +91,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex<T> implements I
     }
 
     @Override
-    public NavigableMap<Tuple2<V1, V2>, Index<V3, T>> asMapOfIndex() {
+    public NavigableMap<Tuple2<V1, V2>, Index1<V3, T>> asMapOfIndex1() {
 
         // Get index view
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
@@ -100,7 +100,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex<T> implements I
         final Index2View<Tuple2<V1, V2>, V3, T> tupleIV = iv.asTuple2Index2View();
 
         // Build map and apply filtering
-        IndexMap<Tuple2<V1, V2>, Index<V3, T>> indexMap = new IndexMap.OfIndex<>(this.kv, tupleIV);
+        IndexMap<Tuple2<V1, V2>, Index1<V3, T>> indexMap = new IndexMap.OfIndex1<>(this.kv, tupleIV);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, tupleIV, 1));
 
@@ -129,8 +129,8 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex<T> implements I
     }
 
     @Override
-    public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<>(this.kv, this.getIndex3View().asIndex2View().asIndexView());
+    public CoreIndex1<V1, V2> asIndex1() {
+        return new CoreIndex1<>(this.kv, this.getIndex3View().asIndex2View().asIndex1View());
     }
 
     @Override

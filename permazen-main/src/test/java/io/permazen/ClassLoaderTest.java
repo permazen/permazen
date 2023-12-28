@@ -7,11 +7,10 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
-import io.permazen.test.TestSupport;
 
 import org.testng.annotations.Test;
 
-public class ClassLoaderTest extends TestSupport {
+public class ClassLoaderTest extends MainTestSupport {
 
 /*
 
@@ -27,7 +26,7 @@ public class ClassLoaderTest extends TestSupport {
 */
     @Test
     public void testClassLoaderTest() {
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

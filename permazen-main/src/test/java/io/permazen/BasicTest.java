@@ -10,10 +10,11 @@ import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.core.Database;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ReferencedObjectException;
 import io.permazen.core.util.ObjIdMap;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
@@ -30,13 +31,13 @@ import java.util.SortedSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class BasicTest extends TestSupport {
+public class BasicTest extends MainTestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
     public void testBasicStuff() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen();
+        final Permazen jdb = BasicTest.newPermazen();
 
         final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
@@ -115,7 +116,7 @@ public class BasicTest extends TestSupport {
 
             // Test copyTo() with different target
             final MeanPerson t1dup = tx.create(MeanPerson.class);
-            t1.copyTo(tx, new CopyState(new ObjIdMap<>(Collections.singletonMap(t1.getObjId(), t1dup.getObjId()))));
+            t1.copyTo(tx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(t1.getObjId(), t1dup.getObjId()))));
             this.check(t1dup, true, (byte)123, (short)-32763, '!', -99, 12.34e-13f, Long.MAX_VALUE, Double.POSITIVE_INFINITY,
               "hey there", Mood.HAPPY, t1dup,
               Arrays.asList("apple", "banana", "dinkle"),
@@ -182,7 +183,7 @@ public class BasicTest extends TestSupport {
               new Tuple2<>(21, t1),  buildSet(1, 3),
               new Tuple2<>(22, t1),  buildSet(2),
               new Tuple2<>(23, t1),  buildSet(0)));
-            TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asIndex().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asIndex1().asSet(), buildSet(
               new Tuple2<>(21, t1),
               new Tuple2<>(22, t1),
               new Tuple2<>(23, t1)));
@@ -265,38 +266,47 @@ public class BasicTest extends TestSupport {
         TestSupport.checkMap(t.getRatings(), buildMap(ratingKeyValues));
     }
 
-    public static Permazen getPermazen() {
-        return BasicTest.getPermazen(MeanPerson.class, Person.class);
+    public static Permazen newPermazen() {
+        return BasicTest.newPermazen(MeanPerson.class, Person.class);
     }
 
-    public static Permazen getPermazen(Class<?>... classes) {
-        return BasicTest.getPermazen(Arrays.<Class<?>>asList(classes));
+    public static Permazen newPermazen(Class<?>... classes) {
+        return BasicTest.newPermazen(Arrays.<Class<?>>asList(classes));
     }
 
-    public static Permazen getPermazen(Collection<Class<?>> classes) {
-        return new Permazen(classes);
+    public static Permazen newPermazen(Collection<Class<?>> classes) {
+        final PermazenConfig config = PermazenConfig.builder().modelClasses(classes).build();
+        return new Permazen(config);
+    }
+
+    public static Permazen newPermazen(Database db, Class<?>... classes) {
+        return BasicTest.newPermazen(db, Arrays.<Class<?>>asList(classes));
+    }
+
+    public static Permazen newPermazen(Database db, Collection<Class<?>> classes) {
+        return PermazenConfig.builder().database(db).modelClasses(classes).build().newPermazen();
     }
 
 // Person queries
 
-    public static Index<String, Person> queryNicknames() {
-        return JTransaction.getCurrent().queryIndex(Person.class, "nicknames.element", String.class);
+    public static Index1<String, Person> queryNicknames() {
+        return JTransaction.getCurrent().querySimpleIndex(Person.class, "nicknames.element", String.class);
     }
 
-    public static Index<Mood, Person> queryMoods() {
-        return JTransaction.getCurrent().queryIndex(Person.class, "mood", Mood.class);
+    public static Index1<Mood, Person> queryMoods() {
+        return JTransaction.getCurrent().querySimpleIndex(Person.class, "mood", Mood.class);
     }
 
-    public static Index<Integer, Person> queryScores() {
-        return JTransaction.getCurrent().queryIndex(Person.class, "scores.element", Integer.class);
+    public static Index1<Integer, Person> queryScores() {
+        return JTransaction.getCurrent().querySimpleIndex(Person.class, "scores.element", Integer.class);
     }
 
     public static Index2<Integer, Person, Integer> queryScoreEntries() {
         return JTransaction.getCurrent().queryListElementIndex(Person.class, "scores.element", Integer.class);
     }
 
-    public static Index<Person, Person> queryRatingKeys() {
-        return JTransaction.getCurrent().queryIndex(Person.class, "ratings.key", Person.class);
+    public static Index1<Person, Person> queryRatingKeys() {
+        return JTransaction.getCurrent().querySimpleIndex(Person.class, "ratings.key", Person.class);
     }
 
     public static Index2<Float, Person, Person> queryRatingValueEntries() {
@@ -305,24 +315,24 @@ public class BasicTest extends TestSupport {
 
 // MeanPerson queries
 
-    public static Index<Person, MeanPerson> queryHaters() {
-        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "enemies.element", Person.class);
+    public static Index1<Person, MeanPerson> queryHaters() {
+        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "enemies.element", Person.class);
     }
 
-    public static Index<Mood, MeanPerson> queryMoodsMean() {
-        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "mood", Mood.class);
+    public static Index1<Mood, MeanPerson> queryMoodsMean() {
+        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "mood", Mood.class);
     }
 
-    public static Index<Integer, MeanPerson> queryScoresMean() {
-        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "scores.element", Integer.class);
+    public static Index1<Integer, MeanPerson> queryScoresMean() {
+        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "scores.element", Integer.class);
     }
 
     public static Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
         return JTransaction.getCurrent().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
     }
 
-    public static Index<Person, MeanPerson> queryRatingKeysMean() {
-        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "ratings.key", Person.class);
+    public static Index1<Person, MeanPerson> queryRatingKeysMean() {
+        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "ratings.key", Person.class);
     }
 
     public static Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {

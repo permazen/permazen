@@ -9,19 +9,17 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.testng.annotations.Test;
 
-public class TypeSafetyTest2 extends TestSupport {
+public class TypeSafetyTest2 extends MainTestSupport {
 
     @SuppressWarnings("unchecked")
     @Test
@@ -32,7 +30,7 @@ public class TypeSafetyTest2 extends TestSupport {
 
     // Version 1
 
-        final Permazen jdb1 = new Permazen(db, 1, null, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
+        final Permazen jdb1 = BasicTest.newPermazen(db, Inventory1.class, Car.class, Boat.class);
         JTransaction jtx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
@@ -58,7 +56,7 @@ public class TypeSafetyTest2 extends TestSupport {
 
     // Version 2
 
-        final Permazen jdb2 = new Permazen(db, 2, null, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
+        final Permazen jdb2 = BasicTest.newPermazen(db, Inventory2.class, Car.class, Boat.class);
         jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
@@ -68,7 +66,7 @@ public class TypeSafetyTest2 extends TestSupport {
 
             inventory2 = jtx.getAll(Inventory2.class).iterator().next();
 
-            for (Map.Entry<Color, Index<Inventory2, Car>> entry : Inventory2.queryColorIndex().asMapOfIndex().entrySet()) {
+            for (Map.Entry<Color, Index1<Inventory2, Car>> entry : Inventory2.queryColorIndex().asMapOfIndex1().entrySet()) {
                 final Color color = entry.getKey();
                 final NavigableMap<Inventory2, NavigableSet<Car>> map = entry.getValue().asMap();
                 assert map.size() == 1;

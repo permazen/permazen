@@ -10,6 +10,8 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
@@ -30,8 +32,8 @@ import java.util.List;
 public class ListField<E> extends CollectionField<List<E>, E> {
 
     @SuppressWarnings("serial")
-    ListField(Schema schema, ListSchemaField field, SimpleField<E> elementField) {
-        super(schema, field, new TypeToken<List<E>>() { }
+    ListField(ObjType objType, ListSchemaField field, SimpleField<E> elementField) {
+        super(objType, field, new TypeToken<List<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
@@ -47,6 +49,30 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     public List<E> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
         return (List<E>)tx.readListField(id, this.name, false);
+    }
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * and the specified list index.
+     *
+     * @param id object ID
+     * @param index list index
+     * @return the corresponding {@link KVDatabase} key
+     * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
+     * @throws IllegalArgumentException if {@code index} is negative
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(ObjId id, int index) {
+
+        // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(index >= 0, "negative index");
+
+        // Build key
+        final ByteWriter writer = new ByteWriter();
+        writer.write(super.getKey(id));
+        Encodings.UNSIGNED_INT.write(writer, index);
+        return writer.getBytes();
     }
 
     @Override

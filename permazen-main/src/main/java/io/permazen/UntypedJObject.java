@@ -5,27 +5,27 @@
 
 package io.permazen;
 
-import io.permazen.core.TypeNotInSchemaVersionException;
+import io.permazen.core.TypeNotInSchemaException;
 
 /**
- * Represents a {@link JObject} for which no Java model type is defined in the instance's associated schema version.
+ * Represents a {@link JObject} for which no Java model type is defined in the instance's associated schema.
  *
  * <p>
- * Instances of this class are used to represent objects with a type that is defined in some database schema version
+ * Instances of this class are used to represent objects with a type that is defined in some database schema
  * other than the current one. This situation can occur when a new schema drops a previously defined Java model type
- * of which type objects still exist in the database. If encountered, such objects are represented by instances of
+ * of which objects still exist in the database. If encountered, such objects are represented by instances of
  * this class.
  *
  * <p>
  * These objects are still fully accessible, but they must be accessed via introspection using the
  * {@link JTransaction} field access methods, with the {@code upgradeVersion} parameter set to false
- * (to prevent a {@link TypeNotInSchemaVersionException}).
+ * (to prevent a {@link TypeNotInSchemaException}).
  *
  * <p>
  * For example, suppose a schema update replaces a field referencing {@code Account} with a simple {@link String}
  * field containing the account ID. Then the corresponding schema migration might look like this:
  * <pre>
- *      &#64;OnVersionChange
+ *      &#64;OnSchemaChange
  *      private void applySchemaChanges(Map&lt;String, Object&gt; oldValues) {
  *          if (oldValues.containsKey("account")) {                         // was replaced with "accountId"
  *              final JObject acct = (JObject)oldValues.get("account");     // acct has type UntypedJObject

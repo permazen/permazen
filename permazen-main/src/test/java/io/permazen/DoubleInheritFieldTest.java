@@ -6,36 +6,25 @@
 package io.permazen;
 
 import io.permazen.annotation.PermazenType;
-import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
 import java.util.Date;
 
 import org.testng.annotations.Test;
 
-public class DoubleInheritFieldTest extends TestSupport {
+public class DoubleInheritFieldTest extends MainTestSupport {
 
     @Test
     public void testDoubleInherit1() throws Exception {
-        final PermazenFactory factory = new PermazenFactory();
-        factory.setDatabase(new Database(new SimpleKVDatabase()));
-        factory.setSchemaVersion(1);
-        factory.setModelClasses(Foo1.class);
-        factory.newPermazen();
+        BasicTest.newPermazen(Foo1.class);
     }
 
     @Test
     public void testDoubleInherit2() throws Exception {
-        final PermazenFactory factory = new PermazenFactory();
-        factory.setDatabase(new Database(new SimpleKVDatabase()));
-        factory.setSchemaVersion(1);
-        factory.setModelClasses(Foo2.class);
         try {
-            factory.newPermazen();
-            assert false;
+            BasicTest.newPermazen(Foo2.class);
+            assert false : "expected error here";
         } catch (IllegalArgumentException e) {
-            // expected
+            this.log.debug("got expected {}", e.toString());
         }
     }
 

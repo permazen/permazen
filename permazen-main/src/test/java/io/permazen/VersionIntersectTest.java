@@ -6,6 +6,7 @@
 package io.permazen;
 
 import io.permazen.annotation.PermazenType;
+import io.permazen.schema.SchemaId;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
@@ -13,13 +14,15 @@ import java.util.NavigableSet;
 
 import org.testng.annotations.Test;
 
-public class VersionIntersectTest extends TestSupport {
+public class VersionIntersectTest extends MainTestSupport {
 
+    // Test intersecting the NavigableSets returned by getAll() and querySchemaIndex()
     @SuppressWarnings("unchecked")
     @Test
     public void testVersionIntersect() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Foo.class, Bar.class);
+        final Permazen jdb = BasicTest.newPermazen(Foo.class, Bar.class);
+        final SchemaId schemaId = jdb.getSchemaModel().getSchemaId();
 
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
@@ -30,9 +33,9 @@ public class VersionIntersectTest extends TestSupport {
                 foos[i] = jtx.create(Foo.class);
                 bars[i] = jtx.create(Bar.class);
             }
-            final int version = jdb.getConfiguredVersion();
             final NavigableSet<JObject> set = NavigableSets.<JObject>intersection(
-              jtx.queryVersion(JObject.class).get(version), (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
+              jtx.querySchemaIndex(JObject.class).get(schemaId),
+              (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
             TestSupport.checkSet(set, buildSet(foos[0], foos[1], foos[2], foos[3]));
 
             jtx.commit();

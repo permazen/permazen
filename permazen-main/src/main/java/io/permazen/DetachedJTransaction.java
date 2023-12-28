@@ -5,6 +5,7 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
 import io.permazen.core.DetachedTransaction;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
@@ -45,7 +46,7 @@ import java.io.Closeable;
  * <p>
  * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by
  * {@link KVTransaction#readOnlySnapshot} allows an efficient "copy" of the entire database into a {@link DetachedJTransaction}
- * using {@link Permazen#createDetachedTransaction(KVStore, boolean, ValidationMode) Permazen.createDetachedTransaction()}.
+ * using {@link Permazen#createDetachedTransaction(KVStore, ValidationMode) Permazen.createDetachedTransaction()}.
  *
  * @see JTransaction#createDetachedTransaction Transaction.createDetachedTransaction()
  * @see Permazen#createDetachedTransaction Permazen.createDetachedTransaction()
@@ -118,7 +119,7 @@ public class DetachedJTransaction extends JTransaction implements Closeable {
      * @return true always
      */
     @Override
-    public boolean isValid() {
+    public boolean isOpen() {
         return true;
     }
 

@@ -424,4 +424,32 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware {
         // Done
         return new KeyRange(lowerBound, upperBound);
     }
+
+    /**
+     * Encode the given value into a {@code byte[]} array.
+     *
+     * @param value value to encode, possibly null
+     * @return encoded value
+     * @throws IllegalArgumentException if {@code obj} is invalid
+     */
+    default byte[] encode(T value) {
+        final ByteWriter writer = new ByteWriter();
+        this.write(writer, value);
+        return writer.getBytes();
+    }
+
+    /**
+     * Decode a valie from the given {@code byte[]} array.
+     *
+     * @param bytes encoded value
+     * @return decoded value, possibly null
+     * @throws IllegalArgumentException if {@code bytes} is null, invalid, or contains trailing garbage
+     */
+    default T decode(byte[] bytes) {
+        final ByteReader reader = new ByteReader(bytes);
+        final T value = this.read(reader);
+        if (reader.remain() > 0)
+            throw new IllegalArgumentException("trailing garbage");
+        return value;
+    }
 }

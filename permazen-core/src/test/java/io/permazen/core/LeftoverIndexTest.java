@@ -35,6 +35,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        schema1.lockDown(true);
         final SchemaId schemaId1 = schema1.getSchemaId();
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
@@ -44,6 +45,7 @@ public class LeftoverIndexTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
+        schema2.lockDown(true);
         final SchemaId schemaId2 = schema2.getSchemaId();
 
         final Database db = new Database(kvstore);

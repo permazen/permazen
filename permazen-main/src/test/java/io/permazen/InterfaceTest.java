@@ -9,11 +9,9 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.index.Index;
-import io.permazen.schema.NameIndex;
+import io.permazen.index.Index1;
 import io.permazen.schema.ReferenceSchemaField;
 import io.permazen.schema.SchemaModel;
-import io.permazen.test.TestSupport;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -22,12 +20,12 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class InterfaceTest extends TestSupport {
+public class InterfaceTest extends MainTestSupport {
 
     @Test
     public void testInterface() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class, Dog.class, Cat.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class, Dog.class, Cat.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -59,7 +57,7 @@ public class InterfaceTest extends TestSupport {
     @Test
     public void testInterfaceModelClasses() {
 
-        final Permazen jdb = BasicTest.getPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
+        final Permazen jdb = BasicTest.newPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -87,11 +85,11 @@ public class InterfaceTest extends TestSupport {
     @Test
     public void testDoubleInherit() {
 
-        final Permazen jdb = BasicTest.getPermazen(Foo.class, Bar.class);
+        final Permazen jdb = BasicTest.newPermazen(Foo.class, Bar.class);
 
         final SchemaModel schema = jdb.getSchemaModel();
-        final NameIndex lookup = new NameIndex(schema);
-        final ReferenceSchemaField fooField = (ReferenceSchemaField)lookup.getSchemaField(lookup.getSchemaObjectType("Bar"), "foo");
+        final ReferenceSchemaField fooField = (ReferenceSchemaField)schema.getSchemaObjectTypes()
+          .get("Bar").getSchemaFields().get("foo");
 
         Assert.assertEquals(fooField.getInverseDelete(), DeleteAction.DELETE);
     }
@@ -110,12 +108,12 @@ public class InterfaceTest extends TestSupport {
         @JSetField(element = @JField(indexed = true))
         public abstract Set<Pet> getPets();
 
-        public static Index<Dog, Pet> queryEnemies() {
-            return JTransaction.getCurrent().queryIndex(Pet.class, "enemy", Dog.class);
+        public static Index1<Dog, Pet> queryEnemies() {
+            return JTransaction.getCurrent().querySimpleIndex(Pet.class, "enemy", Dog.class);
         }
 
-        public static Index<Pet, Person> queryPets() {
-            return JTransaction.getCurrent().queryIndex(Person.class, "pets.element", Pet.class);
+        public static Index1<Pet, Person> queryPets() {
+            return JTransaction.getCurrent().querySimpleIndex(Person.class, "pets.element", Pet.class);
         }
     }
 
@@ -129,8 +127,8 @@ public class InterfaceTest extends TestSupport {
         public abstract Dog getEnemy();
         public abstract void setEnemy(Dog enemy);
 
-        public static Index<Pet, Cat> queryFriend() {
-            return JTransaction.getCurrent().queryIndex(Cat.class, "friend", Pet.class);
+        public static Index1<Pet, Cat> queryFriend() {
+            return JTransaction.getCurrent().querySimpleIndex(Cat.class, "friend", Pet.class);
         }
     }
 

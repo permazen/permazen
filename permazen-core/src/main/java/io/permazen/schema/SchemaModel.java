@@ -82,7 +82,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
     private NavigableMap<String, SchemaObjectType> objectTypes = new TreeMap<>();
 
-    // Cached info (after lockdown only)
+    // Cached info (after full lockdown only)
     private RuntimeException validation;
 
 // Properties
@@ -115,10 +115,35 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
 // Lockdown
 
+    /**
+     * Lock down this {@link SchemaModel} and every {@link SchemaItem} it contains so that no further changes can be made.
+     *
+     * <p>
+     * There are two levels of lock down: the first level locks everything, except storage ID's that are zero
+     * may be changed to a non-zero value. The second level locks down everything. Levels increase monotonically.
+     *
+     * <p>
+     * Attempts to modify a locked down schema item generate an {@link UnsupportedOperationException}.
+     *
+     * @param includingStorageIds false to exclude storage ID's, true to lock down everything
+     */
+    public void lockDown(boolean includingStorageIds) {
+        if (!this.lockedDown1)
+            this.lockDown1();
+        if (includingStorageIds && !this.lockedDown2)
+            this.lockDown2();
+    }
+
     @Override
-    public void lockDown() {
-        super.lockDown();
-        this.objectTypes = this.lockDownMap(this.objectTypes);
+    void lockDown1() {
+        super.lockDown1();
+        this.objectTypes = this.lockDownMap1(this.objectTypes);
+    }
+
+    @Override
+    void lockDown2() {
+        super.lockDown2();
+        this.objectTypes.values().forEach(SchemaObjectType::lockDown2);
     }
 
 // XML Serialization
@@ -211,6 +236,9 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      */
     public final void validate() {
 
+        // Sanity check
+        Preconditions.checkArgument(this.lockedDown1, "not locked down");
+
         // Compute validation status if not already cached
         RuntimeException result;
         if (this.validation != null)
@@ -225,8 +253,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
                 result = e;
             }
 
-            // Cache value if locked down
-            if (this.lockedDown)
+            // Cache value if fully locked down
+            if (this.lockedDown2)
                 this.validation = result;
         }
 
@@ -284,6 +312,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * @param encodingRegistry registry of encodings
      * @throws InvalidSchemaException if this instance is itself invalid
      * @throws InvalidSchemaException if any simple field's encoding ID can't be resovled by {@code encodingRegistry}
+     * @throws IllegalStateException if this instance is not locked down
      * @throws IllegalArgumentException if {@code encodingRegistry} is null
      */
     public void validateWithEncodings(EncodingRegistry encodingRegistry) {
@@ -311,7 +340,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     /**
      * Reset all non-zero storage ID's in this instance back to zero.
      *
-     * @throws UnsupportedOperationException if this instance is {@linkplain #lockDown locked down}
+     * @throws UnsupportedOperationException if this instance is {@linkplain #lockDown fully locked down}
      */
     public void resetStorageIds() {
         this.visitSchemaItems(item -> item.setStorageId(0));
@@ -387,8 +416,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         case 0:
             break;
         default:
-            throw new XMLStreamException(String.format(
-              "unrecognized schema XML format version %d", formatAttr), reader.getLocation());
+            throw this.newInvalidInputException(reader, "unrecognized schema XML format version %d", formatAttr);
         }
 
         // Read object type tags
@@ -396,10 +424,8 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
             final SchemaObjectType objectType = new SchemaObjectType();
             objectType.readXML(reader, formatVersion);
             final String typeName = objectType.getName();
-            if (this.objectTypes.put(typeName, objectType) != null) {
-                throw new XMLStreamException(String.format(
-                  "duplicate use of object name \"%s\"", typeName), reader.getLocation());
-            }
+            if (this.objectTypes.put(typeName, objectType) != null)
+                throw this.newInvalidInputException(reader, "duplicate use of object name \"%s\"", typeName);
         }
     }
 

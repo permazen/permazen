@@ -7,9 +7,6 @@ package io.permazen;
 
 import io.permazen.annotation.JTransient;
 import io.permazen.annotation.PermazenType;
-import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,17 +15,16 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class SchemaGenerationTest extends TestSupport {
+public class SchemaGenerationTest extends MainTestSupport {
 
     @Test(dataProvider = "invalidCases")
     public void testBogusAbstract(Class<?>[] classes) throws Exception {
-        final PermazenFactory factory = new PermazenFactory();
-        factory.setDatabase(new Database(new SimpleKVDatabase()));
-        factory.setSchemaVersion(1);
-        factory.setModelClasses(Foo.class, BogusAbstract.class);
+        final PermazenConfig config = PermazenConfig.builder()
+          .modelClasses(Foo.class, BogusAbstract.class)
+          .build();
         try {
-            factory.newPermazen();
-            assert false;
+            config.newPermazen();
+            assert false : "should have failed";
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());
         }
@@ -36,13 +32,13 @@ public class SchemaGenerationTest extends TestSupport {
 
     @Test(dataProvider = "validCases")
     public void testSchemaGeneration(String expected, Class<?>[] types) throws Exception {
-        final PermazenFactory factory = new PermazenFactory();
-        factory.setDatabase(new Database(new SimpleKVDatabase()));
-        factory.setSchemaVersion(1);
-        factory.setModelClasses(types);
+        final PermazenConfig config = PermazenConfig.builder()
+          .modelClasses(types)
+          .build();
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        factory.newPermazen().getSchemaModel().toXML(buf, true);
-        final String actual = new String(buf.toByteArray(), StandardCharsets.UTF_8);
+        config.newPermazen().getSchemaModel(false).toXML(buf, true);
+        final String actual = new String(buf.toByteArray(), StandardCharsets.UTF_8)
+          .replaceAll("<!--((?!--).)*-->", ""); // strip schema ID comments
         Assert.assertEquals(actual.replaceAll("\\r\\n?", "\n"), expected);
     }
 
@@ -62,7 +58,7 @@ public class SchemaGenerationTest extends TestSupport {
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
+          + "        <SimpleField name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class } },
@@ -71,11 +67,11 @@ public class SchemaGenerationTest extends TestSupport {
         {   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
           + "    <ObjectType storageId=\"1\" name=\"Foo\">\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
+          + "        <SimpleField name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "    <ObjectType storageId=\"3\" name=\"Foo3\">\n"
-          + "        <SimpleField storageId=\"7189\" name=\"concreteField\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
-          + "        <SimpleField storageId=\"51616\" name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
+          + "        <SimpleField name=\"concreteField\" encoding=\"urn:fdc:permazen.io:2020:int\"/>\n"
+          + "        <SimpleField name=\"value\" encoding=\"urn:fdc:permazen.io:2020:long\"/>\n"
           + "    </ObjectType>\n"
           + "</Schema>\n",
           new Class<?>[] { Foo.class, Foo3.class } },

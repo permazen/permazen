@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -27,14 +29,13 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index index at which the removal occurred
      * @param element the element that was removed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldRemove(T jobj, int storageId, String fieldName, int index, E element) {
-        super(jobj, storageId, fieldName);
+    public ListFieldRemove(T jobj, String fieldName, int index, E element) {
+        super(jobj, fieldName);
         this.index = index;
         this.element = element;
     }
@@ -46,7 +47,9 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readListField(jobj.getObjId(), this.getStorageId(), false).remove(this.index);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        jtx.readListField(jobj.getObjId(), this.getFieldName(), false).remove(this.index);
     }
 
     /**

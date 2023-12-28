@@ -9,7 +9,6 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.OnDelete;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ import java.util.HashSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnDeleteTest extends TestSupport {
+public class OnDeleteTest extends MainTestSupport {
 
     private static final ThreadLocal<HashSet<JObject>> CALLBACKS = new ThreadLocal<HashSet<JObject>>() {
         @Override
@@ -37,7 +36,7 @@ public class OnDeleteTest extends TestSupport {
     @Test
     public void testOnDelete() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

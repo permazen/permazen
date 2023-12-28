@@ -9,27 +9,32 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
-import io.permazen.core.Database;
+import io.permazen.core.Encodings;
+import io.permazen.core.Field;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
+import io.permazen.core.Schema;
+import io.permazen.core.SchemaBundle;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
-import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ParseContext;
-import io.permazen.util.UnsignedIntEncoder;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Applies consistency checks to, and optionally repairs corruption of, a Permazen key/value database.
@@ -53,9 +58,8 @@ public class Jsck {
      * @return the number of issues encountered
      * @throws IllegalArgumentException if database is not a Permazen database
      *  (i.e., no {@linkplain Layout#getFormatVersionKey format version key})
-     * @throws IllegalArgumentException if a {@linkplain JsckConfig#getForceSchemaVersions forced schema version} is invalid
-     * @throws IllegalArgumentException if the database's recorded schemas are mutually inconsistent
-     *  (requiring forced schema version overrides)
+     * @throws IllegalArgumentException if an {@linkplain JsckConfig#getSchemaOverrides override schema} is invalid
+     * @throws SchemaMismatchException if the database's recorded schemas are mutually inconsistent (due to schema overrides)
      */
     public long check(KVStore kv, Consumer<? super Issue> consumer) {
         final JsckInfo info;
@@ -76,33 +80,42 @@ public class Jsck {
 
         // Get key prefixes
         final byte[] formatVersionKey = Layout.getFormatVersionKey();
-        final byte[] schemaKeyPrefix = Layout.getSchemaKeyPrefix();
-        final byte[] objectVersionIndexKeyPrefix = Layout.getObjectVersionIndexKeyPrefix();
+        final byte[] schemaTablePrefix = Layout.getSchemaTablePrefix();
+        final byte[] storageIdTablePrefix = Layout.getStorageIdTablePrefix();
+        final byte[] schemaIndexKeyPrefix = Layout.getSchemaIndexKeyPrefix();
         final byte[] userMetaDataKeyPrefix = Layout.getUserMetaDataKeyPrefix();
 
-        assert schemaKeyPrefix[0] == 0;
-        assert objectVersionIndexKeyPrefix[0] == 0;
-        assert userMetaDataKeyPrefix[0] == 0;
+        assert Layout.METADATA_PREFIX_BYTE == 0;
+        assert schemaTablePrefix[0] == Layout.METADATA_PREFIX_BYTE;
+        assert schemaIndexKeyPrefix[0] == Layout.METADATA_PREFIX_BYTE;
+        assert storageIdTablePrefix[0] == Layout.METADATA_PREFIX_BYTE;
+        assert userMetaDataKeyPrefix[0] == Layout.METADATA_PREFIX_BYTE;
 
-        assert ByteUtil.compare(schemaKeyPrefix, formatVersionKey) > 0;
-        assert ByteUtil.compare(objectVersionIndexKeyPrefix, schemaKeyPrefix) > 0;
-        assert ByteUtil.compare(userMetaDataKeyPrefix, objectVersionIndexKeyPrefix) > 0;
+        assert ByteUtil.compare(schemaTablePrefix, formatVersionKey) > 0;
+        assert ByteUtil.compare(storageIdTablePrefix, schemaTablePrefix) > 0;
+        assert ByteUtil.compare(schemaIndexKeyPrefix, storageIdTablePrefix) > 0;
+        assert ByteUtil.compare(userMetaDataKeyPrefix, schemaIndexKeyPrefix) > 0;
 
         // Check format version
         info.info("checking format version");
-        int forceFormatVersion = this.config.getForceFormatVersion();
-        if (forceFormatVersion < 0 || forceFormatVersion > Layout.CURRENT_FORMAT_VERSION)
-            forceFormatVersion = 0;
+        int formatVersionOverride = this.config.getFormatVersionOverride();
+        if (formatVersionOverride < 0 || formatVersionOverride > Layout.CURRENT_FORMAT_VERSION) {
+            throw new IllegalArgumentException(String.format(
+              "invalid format version override: %d is not in the range 1..%d",
+              formatVersionOverride, Layout.CURRENT_FORMAT_VERSION));
+        }
         final KVStore kv = info.getKVStore();
         byte[] val = kv.get(formatVersionKey);
         try {
+
+            // Read and validate format version
             if (val == null) {
                 throw new IllegalArgumentException(kv.getAtLeast(ByteUtil.EMPTY, null) == null ? "database is empty" :
                   "missing Permazen signature/format version key " + Jsck.ds(formatVersionKey));
             }
             final ByteReader reader = new ByteReader(val);
             try {
-                info.setFormatVersion(UnsignedIntEncoder.read(reader));
+                info.setFormatVersion(Encodings.UNSIGNED_INT.read(reader));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid Permazen signature/format version value "
                   + Jsck.ds(val) + ": can't decode version number");
@@ -119,169 +132,123 @@ public class Jsck {
                 throw new IllegalArgumentException("invalid Permazen signature/format version key value "
                   + Jsck.ds(val) + ": unrecognized format version number " + info.getFormatVersion());
             }
+
+            // Override format version, if needed
+            if (formatVersionOverride != 0 && formatVersionOverride != info.getFormatVersion()) {
+                final byte[] newValue = Encodings.UNSIGNED_INT.encode(formatVersionOverride);
+                info.handle(new InvalidValue(formatVersionKey, newValue).setDetail(String.format(
+                  "forcibly override format version %d with override version %d",
+                  info.getFormatVersion(), formatVersionOverride)));
+            }
         } catch (IllegalArgumentException e) {
-            if (forceFormatVersion == 0)
+            if (formatVersionOverride == 0)
                 throw e;
-            info.setFormatVersion(forceFormatVersion);
-            final byte[] newValue = UnsignedIntEncoder.encode(info.getFormatVersion());
+            info.setFormatVersion(formatVersionOverride);
+            final byte[] newValue = Encodings.UNSIGNED_INT.encode(formatVersionOverride);
             info.handle(new InvalidValue(formatVersionKey, val, newValue).setDetail(e.getMessage()));
         }
 
         // Check empty space before format version
-        this.checkEmpty(info, new KeyRange(ByteUtil.EMPTY, Layout.getFormatVersionKey()), "key range prior to format version");
+        this.checkEmpty(info, new KeyRange(ByteUtil.EMPTY, formatVersionKey), "key range prior to format version");
 
-        // Check empty space before schemas
-        this.checkEmpty(info, new KeyRange(ByteUtil.getNextKey(Layout.getFormatVersionKey()), schemaKeyPrefix),
-          "key range between format version and recorded schemas");
+        // Check empty space before schema table
+        this.checkEmpty(info, new KeyRange(ByteUtil.getNextKey(formatVersionKey), schemaTablePrefix),
+          "key range between format version and schema table");
 
-        // Check schema versions
-        info.info("checking recorded schema versions");
-        Map<Integer, SchemaModel> forceSchemaVersions = this.config.getForceSchemaVersions();
-        if (forceSchemaVersions == null)
-            forceSchemaVersions = Collections.emptyMap();
-        try (CloseableIterator<KVPair> i = kv.getRange(Layout.getSchemaKeyRange())) {
-            while (i.hasNext()) {
-                final KVPair pair = i.next();
-                int version = 0;
-                SchemaModel schema = null;
-                try {
+        // Check the schema table
+        final Function<byte[], SchemaModel> schemaDecoder = bytes -> {
 
-                    // Get version number
-                    final ByteReader reader = new ByteReader(pair.getKey());
-                    reader.skip(schemaKeyPrefix.length);
-                    version = UnsignedIntEncoder.read(reader);
-                    if (reader.remain() > 0) {
-                        throw new IllegalArgumentException("invalid schema entry key " + Jsck.ds(pair.getKey())
-                          + ": trailing garbage " + Jsck.ds(reader, reader.getOffset())
-                          + " follows format version number " + info.getFormatVersion());
-                    }
-                    if (version == 0) {
-                        throw new IllegalArgumentException("invalid schema entry key "
-                          + Jsck.ds(val) + ": version number is zero");
-                    }
-
-                    // Decode schema model
-                    try {
-                        schema = Layout.decodeSchema(pair.getValue(), info.getFormatVersion());
-                    } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid encoded schema: " + e.getMessage(), e);
-                    } catch (InvalidSchemaException e) {
-                        throw new IllegalArgumentException("invalid schema model: " + e.getMessage(), e);
-                    }
-
-                    // Is there a forced override? If so, replace/delete schema version
-                    if (forceSchemaVersions.containsKey(version)) {
-                        final SchemaModel forcedSchema = forceSchemaVersions.get(version);
-                        if (!schema.equals(forcedSchema)) {
-                            if (forcedSchema != null) {
-                                final byte[] newValue = Layout.encodeSchema(forcedSchema, info.getFormatVersion());
-                                info.handle(new InvalidValue(pair, newValue).setDetail("forcibly override schema version "
-                                  + version + " with provided version having these differences: "
-                                  + forcedSchema.differencesFrom(schema)));
-                                schema = forcedSchema;
-                            } else {
-                                info.handle(new InvalidValue(pair).setDetail("forcibly delete schema version " + version));
-                                continue;
-                            }
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-
-                    // Invalid version/key?
-                    if (version == 0) {
-                        info.handle(new InvalidKey(pair).setDetail(e.getMessage()));
-                        continue;
-                    }
-
-                    // Is there no forced override? If so, bail out requiring user to correct
-                    if (!forceSchemaVersions.containsKey(version)) {
-                        throw new IllegalArgumentException("schema version " + version
-                          + " is invalid (forced schema override required): " + e.getMessage(), e);
-                    }
-
-                    // Replace/delete schema version with forced override
-                    final SchemaModel forcedSchema = forceSchemaVersions.get(version);
-                    if (forcedSchema != null) {
-                        info.handle(new InvalidValue(pair, Layout.encodeSchema(forcedSchema, info.getFormatVersion())).setDetail(
-                          "forcibly override invalid schema version " + version + " which is invalid anyway: " + e.getMessage()));
-                        schema = forcedSchema;
-                    } else {
-                        info.handle(new InvalidValue(pair).setDetail("forcibly delete schema version "
-                          + version + " which is invalid anyway: " + e.getMessage()));
-                        continue;
-                    }
-                }
-                assert schema != null;
-
-                // Validate schema, and if not valid, bail out requiring user to correct
-                info.info("validating schema version " + version);
-                try {
-                    Database.validateSchema(this.config.getEncodingRegistry(), schema);
-                } catch (InvalidSchemaException e) {
-                    throw new IllegalArgumentException((schema == forceSchemaVersions.get(version) ? "forced " : "")
-                      + "schema version " + version + " is invalid (forced schema override required): " + e.getMessage(), e);
-                }
-
-                // Note recorded schema
-                info.getSchemas().put(version, schema);
-            }
-        }
-
-        // Install any forced schema versions that do not exist in the database
-        for (Map.Entry<Integer, SchemaModel> entry : forceSchemaVersions.entrySet()) {
-            final int version = entry.getKey();
-            final SchemaModel schema = entry.getValue();
-            if (info.getSchemas().containsKey(version))
-                continue;
+            // Decode schema model
+            final SchemaModel schema;
             try {
-                Database.validateSchema(this.config.getEncodingRegistry(), schema);
+                schema = Layout.decodeSchema(new ByteReader(bytes));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid encoded schema: " + e.getMessage(), e);
             } catch (InvalidSchemaException e) {
-                throw new IllegalArgumentException("forced schema version " + version + " is invalid: " + e.getMessage(), e);
+                throw new IllegalArgumentException("invalid schema model: " + e.getMessage(), e);
             }
-            final ByteWriter writer = new ByteWriter(schemaKeyPrefix.length + 5);
-            writer.write(schemaKeyPrefix);
-            UnsignedIntEncoder.write(writer, version);
-            final byte[] newKey = writer.getBytes();
-            final byte[] newValue = Layout.encodeSchema(schema, info.getFormatVersion());
-            info.handle(new InvalidValue(newKey, null, newValue).setDetail(
-              "forcibly override schema version " + version + " with provided version"));
-        }
+            schema.lockDown(true);
 
-        // Validate schemas are mutually consistent; if not, bail out requiring user to correct
-        info.info("validating schema compatibility among all versions " + info.getSchemas().keySet());
+            // Validate schema model
+            try {
+                schema.validateWithEncodings(this.config.getEncodingRegistry());
+            } catch (InvalidSchemaException e) {
+                throw new IllegalArgumentException(String.format("schema invalid: %s", e.getMessage()), e);
+            }
+
+            // Done
+            return schema;
+        };
+        final Function<SchemaModel, byte[]> schemaEncoder = schema -> {
+            final ByteWriter writer = new ByteWriter();
+            Layout.encodeSchema(writer, schema);
+            return writer.getBytes();
+        };
+        final Map<Integer, SchemaModel> schemaMap = this.checkTable(true,
+          info, this.config.getSchemaOverrides(), schemaEncoder, schemaDecoder);
+
+        // Check empty space before storage ID table
+        this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(schemaTablePrefix), storageIdTablePrefix),
+          "key range between schema table and storage ID table");
+
+        // Check the storage ID table
+        final Function<byte[], SchemaId> schemaIdDecoder = bytes -> {
+            final ByteReader reader = new ByteReader(bytes);
+            final SchemaId schemaId;
+            try {
+                schemaId = new SchemaId(Encodings.STRING.read(reader));
+                if (reader.remain() > 0)
+                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid schema ID: " + e.getMessage(), e);
+            }
+            return schemaId;
+        };
+        final Function<SchemaId, byte[]> schemaIdEncoder = schemaId -> {
+            final ByteWriter writer = new ByteWriter();
+            Encodings.STRING.write(writer, schemaId.getId());
+            return writer.getBytes();
+        };
+        final Map<Integer, SchemaId> storageIdMap = this.checkTable(false,
+          info, this.config.getStorageIdOverrides(), schemaIdEncoder, schemaIdDecoder);
+
+        // Validate schema table + storage ID table together
+        info.info("validating consistency of schema table and storage ID table");
+        final TreeMap<Integer, byte[]> schemaBytes = new TreeMap<>();
+        final TreeMap<Integer, byte[]> storageIdBytes = new TreeMap<>();
+        schemaMap.forEach((schemaIndex, schema) -> schemaBytes.put(schemaIndex, schemaEncoder.apply(schema)));
+        storageIdMap.forEach((storageId, schemaId) -> storageIdBytes.put(storageId, schemaIdEncoder.apply(schemaId)));
         try {
-            Database.validateSchemas(this.config.getEncodingRegistry(), info.getSchemas().values());
+            final SchemaBundle.Encoded encoded = new SchemaBundle.Encoded(schemaBytes, storageIdBytes);
+            info.setSchemaBundle(new SchemaBundle(encoded, this.config.getEncodingRegistry()));
         } catch (InvalidSchemaException e) {
-            throw new IllegalArgumentException("database schemas are mutually inconsistent (forced schema override(s) required): "
+            throw new IllegalArgumentException("inconsistent schema and/or storage ID tables (override(s) required): "
               + e.getMessage(), e);
         }
 
-        // Build lookup maps
+        // Build storage objects
         info.inventoryStorages();
 
-        // Check empty space between schemas and object version index
-        this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(schemaKeyPrefix), objectVersionIndexKeyPrefix),
-          "key range between recorded schemas and object version index");
+        // Check empty space between storage ID table and object version index
+        this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(storageIdTablePrefix), schemaIndexKeyPrefix),
+          "key range between storage ID table and object schema index");
 
-        // Check empty space between object version index and user meta-data area
-        this.checkEmpty(info,
-          new KeyRange(ByteUtil.getKeyAfterPrefix(objectVersionIndexKeyPrefix), Layout.getUserMetaDataKeyPrefix()),
-          "key range between object version index and user meta-data");
+        // Check empty space between object schema index and user meta-data area
+        this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(schemaIndexKeyPrefix), userMetaDataKeyPrefix),
+          "key range between object schema index and user meta-data");
 
-        // Get all storage ID's
-        final int[] allStorageIds = info.getStorages().values().stream()
-          .map(Map::keySet)
-          .flatMapToInt(keys -> keys.stream().mapToInt(Integer::intValue))
-          .sorted()
-          .distinct()
-          .toArray();
+        // Build map from storage ID to REPRESENTATIVE Storage instance
+        final TreeMap<Integer, Storage<?>> storageMap = info.getStorages().stream()
+          .collect(Collectors.toMap(Storage::getStorageId, s -> s, (s1, s2) -> s1, TreeMap::new));
 
         // Check empty space between storage ID ranges
-        byte[] nextEmptyStartKey = ByteUtil.getKeyAfterPrefix(Layout.getUserMetaDataKeyPrefix());
+        byte[] nextEmptyStartKey = ByteUtil.getKeyAfterPrefix(userMetaDataKeyPrefix);
         String prevDescription = "user meta-data";
-        for (int storageId : allStorageIds) {
-            final byte[] stopKey = UnsignedIntEncoder.encode(storageId);
-            final String nextDescription = "storage ID " + storageId;
+        for (Map.Entry<Integer, Storage<?>> entry : storageMap.entrySet()) {
+            final int storageId = entry.getKey();
+            final  Storage<?> storage = entry.getValue();
+            final byte[] stopKey = Encodings.UNSIGNED_INT.encode(storageId);
+            final String nextDescription = storage.toString();
             this.checkEmpty(info, new KeyRange(nextEmptyStartKey, stopKey),
               "key range between " + prevDescription + " and " + nextDescription);
             nextEmptyStartKey = this.getKeyRange(storageId).getMax();
@@ -291,151 +258,104 @@ public class Jsck {
         // Check empty space after the last storage ID
         this.checkEmpty(info, new KeyRange(nextEmptyStartKey, new byte[] { (byte)0xff }), "key range after " + prevDescription);
 
-        // Get all object type storage ID's
-        final int[] objectTypeStorageIds = info.getStorages().values().stream()
-          .map(Map::values)
-          .flatMap(Collection::stream)
-          .filter(ObjectType.class::isInstance)
-          .mapToInt(Storage::getStorageId)
-          .sorted()
-          .distinct()
-          .toArray();
-
         // Check object types
-        for (int storageId : objectTypeStorageIds) {
-            final String rangeDescription = "the key range of object type storage ID " + storageId;
+        info.getStorages().stream()
+          .filter(ObjectType.class::isInstance)
+          .map(ObjectType.class::cast)
+          .iterator().forEachRemaining(objectType -> {
+            final String rangeDescription = "the key range of " + objectType;
             info.info("checking " + rangeDescription);
-            try (CloseableIterator<KVPair> ci = kv.getRange(this.getKeyRange(storageId))) {
+            try (CloseableIterator<KVPair> ci = kv.getRange(objectType.getKeyRange())) {
                 for (final PeekingIterator<KVPair> i = Iterators.peekingIterator(ci); i.hasNext(); ) {
                     final KVPair pair = i.next();
                     final byte[] idKey = pair.getKey();
 
                     // The next key should be an object ID
                     if (idKey.length < ObjId.NUM_BYTES) {
-                        info.handle(new InvalidKey(pair).setDetail("invalid key " + Jsck.ds(idKey) + " in " + rangeDescription
-                          + ": key is truncated (length " + idKey.length + " < " + ObjId.NUM_BYTES + ")"));
+                        info.handle(new InvalidKey(pair).setDetail(String.format(
+                          "invalid key %s in %s: key is truncated (length %d < %d)",
+                          Jsck.ds(idKey), rangeDescription, idKey.length, ObjId.NUM_BYTES)));
                         continue;
                     }
                     final ByteReader idKeyReader = new ByteReader(idKey);
                     final ObjId id = new ObjId(idKeyReader);                            // this should never throw an exception
+                    assert id.getStorageId() == objectType.getStorageId();
 
                     // Check object meta-data
                     if (info.isDetailEnabled())
                         info.detail("checking object meta-data for " + id);
-                    SchemaObjectType objectType = null;
-                    int version = 0;
+                    int schemaIndex = -1;
+                    Schema schema = null;
                     do {
 
-                        // Check for extra garbage after object ID
+                        // Check for trailing garbage after object ID, which means the object meta-data entry was missed
                         if (idKeyReader.remain() > 0) {
-                            String detail = "invalid key " + Jsck.ds(idKey) + " in " + rangeDescription
-                              + ": no such object " + id + " exists";
-                            int fieldStorageId = -1;
+                            String bestGuess;
                             try {
-                                fieldStorageId = UnsignedIntEncoder.read(idKeyReader);
+                                final int fieldStorageId = Encodings.UNSIGNED_INT.read(idKeyReader);
+                                bestGuess = "field #" + fieldStorageId;
+                                final Field<?> field = objectType.schemaItem.getField(fieldStorageId);
+                                bestGuess = field.toString();
                             } catch (IllegalArgumentException e) {
-                                // ignore
+                                bestGuess = "some unknown field";
                             }
-                            if (fieldStorageId > 0 && idKeyReader.remain() == 0)
-                                detail += " (possibly orphaned content for field #" + fieldStorageId + ")";
-                            info.handle(new InvalidKey(pair).setDetail(detail));
+                            info.handle(new InvalidKey(pair).setDetail(String.format(
+                              "invalid key %s in %s: no such object %s exists (possibly orphaned content for %s)",
+                              Jsck.ds(idKey), rangeDescription, id, bestGuess)));
                             break;
                         }
 
-                        // Read meta-data format version
+                        // Read object schema index
                         final ByteReader metaData = new ByteReader(pair.getValue());
                         try {
-                            final int metaDataVersion = UnsignedIntEncoder.read(metaData);
-                            switch (metaDataVersion) {
-                            case 1:
-                                break;
-                            case 0:
-                                throw new IllegalArgumentException("invalid zero object meta-data format version");
-                            default:
-                                throw new IllegalArgumentException("unknown object meta-data format version " + metaDataVersion);
-                            }
+                            if ((schemaIndex = Encodings.UNSIGNED_INT.read(metaData)) == 0)
+                                throw new IllegalArgumentException("schema index is zero");
                         } catch (IllegalArgumentException e) {
-                            info.handle(new InvalidValue(pair).setDetail("invalid meta-data " + Jsck.ds(metaData)
-                              + " for object " + id + ": can't decode object meta-data format version: " + e.getMessage()));
+                            info.handle(new InvalidValue(pair).setDetail(String.format(
+                              "invalid meta-data %s for object %s: invalid object schema index: %s",
+                              Jsck.ds(metaData), id, e.getMessage())));
                             break;
                         }
 
-                        // Read object schema version
+                        // Verify corresponding schema
                         try {
-                            if ((version = UnsignedIntEncoder.read(metaData)) == 0)
-                                throw new IllegalArgumentException("invalid zero version number");
+                            schema = info.getSchemaBundle().getSchema(schemaIndex);
                         } catch (IllegalArgumentException e) {
-                            info.handle(new InvalidValue(pair).setDetail("invalid meta-data " + Jsck.ds(metaData)
-                              + " for object " + id + ": can't decode object schema version: " + e.getMessage()));
+                            info.handle(new InvalidValue(pair).setDetail(String.format(
+                              "invalid schema index %d in object %s meta-data %s: %s",
+                              schemaIndex, id, Jsck.ds(metaData), e.getMessage())));
                             break;
                         }
 
-                        // Retrieve schema
-                        final SchemaModel schema = info.getSchemas().get(version);
-                        if (schema == null) {
-                            info.handle(new InvalidValue(pair).setDetail("invalid meta-data "
-                              + Jsck.ds(metaData) + " for object " + id + ": invalid schema version " + version
-                              + ": no such schema version exists"));
-                            break;
-                        }
-
-                        // Retrieve schema object type
-                        if ((objectType = schema.getSchemaObjectTypes().get(id.getStorageId())) == null) {
-                            info.handle(new InvalidValue(pair).setDetail("invalid object ID " + id
-                              + " with storage ID " + id.getStorageId() + ": no such object type exists in schema version "
-                              + version));
-                            break;
-                        }
-
-                        // Read delete notified flag - since it should always be zero, we can always fix it
-                        final int mark = metaData.mark();
+                        // Read flags byte
                         try {
                             if (metaData.remain() == 0)
-                                throw new IllegalArgumentException("missing delete notified byte");
-                            final int deleteNotified = metaData.readByte();
-                            if (deleteNotified != 0) {
-                                throw new IllegalArgumentException(String.format(
-                                  "invalid notified byte 0x%02x != 0x00", deleteNotified));
-                            }
+                                throw new IllegalArgumentException("missing flags byte");
+                            final int flags = metaData.readByte();
+                            if ((flags & ~Layout.OBJECT_FLAGS_VALID_BITS) != 0)
+                                throw new IllegalArgumentException(String.format("invalid object flags byte 0x%02x", flags));
                             if (metaData.remain() > 0)
-                                throw new IllegalArgumentException("meta-data contains extra garbage");
+                                throw new IllegalArgumentException("meta-data contains trailing garbage");
                         } catch (IllegalArgumentException e) {
-                            final ByteWriter fixup = new ByteWriter(mark + 1);
-                            fixup.write(metaData.getBytes(0, mark));
-                            fixup.writeByte(0);
-                            info.handle(new InvalidValue(pair, fixup.getBytes()).setDetail("invalid meta-data "
-                              + Jsck.ds(metaData) + " for object " + id + ": " + e.getMessage()));
+                            info.handle(new InvalidValue(pair, new byte[] { 0 }).setDetail(String.format(
+                              "invalid meta-data %s for object %s: %s",
+                              Jsck.ds(metaData), id, e.getMessage())));
                         }
                     } while (false);
 
                     // If object meta-data was not repairable, discard all other data in object's range
-                    if (objectType == null) {
+                    if (schema == null) {
                         Jsck.deleteRange(info, idKey, i, "object " + id);
                         continue;
                     }
 
-                    // Find corresponding object type storage
-                    final ObjectType objType = (ObjectType)info.getStorages().get(version).get(id.getStorageId());
-                    assert objType != null;
-
                     // Validate object's fields content
-                    assert version > 0;
                     if (info.isDetailEnabled())
                         info.detail("checking object content for " + id);
-                    objType.validateObjectData(info, id, version, i);
+                    objectType.validateObjectData(info, id, schemaIndex, i);
                 }
             }
-        }
-
-        // Get all index storage ID's
-        final int[] indexStorageIds = info.getStorages().values().stream()
-          .map(Map::values)
-          .flatMap(Collection::stream)
-          .filter(Index.class::isInstance)
-          .mapToInt(Storage::getStorageId)
-          .sorted()
-          .distinct()
-          .toArray();
+        });
 
         // NOTE: the checking of indexes is limited to checking "well-formedness" if we are not actually repairing the database.
         // This is because we can't see the effects of any repairs to objects that would otherwise be made, so checks for the
@@ -443,8 +363,12 @@ public class Jsck {
         // are repairing the database, the checking of indexes must come after the checking of objects.
 
         // Check indexes
-        for (int storageId : indexStorageIds) {
-            final Index index = info.getIndexes().get(storageId);
+        final HashSet<Integer> visitedStorageIds = new HashSet<>();
+        info.getStorages().stream()
+          .filter(Index.class::isInstance)
+          .map(Index.class::cast)
+          .filter(index -> visitedStorageIds.add(index.getStorageId()))
+          .iterator().forEachRemaining(index -> {
             final String rangeDescription = "the key range of " + index;
             info.info("checking " + rangeDescription);
             try (CloseableIterator<KVPair> i = kv.getRange(index.getKeyRange())) {
@@ -465,71 +389,208 @@ public class Jsck {
                         info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail(index, "value should be empty"));
                 }
             }
-        }
+        });
 
-        // Check the object version index
-        info.info("checking object version index; recorded schema versions are " + info.getSchemas().keySet());
-        final HashSet<Integer> unusedSchemaVersions = new HashSet<>(info.getSchemas().keySet());
-        try (CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(objectVersionIndexKeyPrefix))) {
+        // Check the object version index (and detect obsolete schemas while we're at it)
+        final HashSet<SchemaId> obsoleteSchemas = new HashSet<>(info.getSchemaBundle().getSchemasBySchemaId().keySet());
+        info.info(String.format("checking object schema index; recorded schemas are:",
+          info.getSchemaBundle().getSchemasBySchemaIndex().entrySet().stream()
+           .map(entry -> String.format("%n  [%d] \"%s\"", entry.getKey(), entry.getValue().getSchemaId()))));
+        try (CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(schemaIndexKeyPrefix))) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
 
                 // Read version
-                final ByteReader reader = new ByteReader(pair.getKey());
-                reader.skip(objectVersionIndexKeyPrefix.length);
-                final int version;
+                final ByteReader reader = new ByteReader(pair.getKey(), schemaIndexKeyPrefix.length);
+                final int schemaIndex;
+                final Schema schema;
                 try {
-                    version = UnsignedIntEncoder.read(reader);
+                    if ((schemaIndex = Encodings.UNSIGNED_INT.read(reader)) == 0)
+                        throw new IllegalArgumentException("schema index is zero");
+                    schema = info.getSchemaBundle().getSchema(schemaIndex);
                 } catch (IllegalArgumentException e) {
-                    info.handle(new InvalidKey(pair).setDetail("invalid object version index entry "
-                      + Jsck.ds(reader.getBytes()) + ": can't interpret version number: " + e.getMessage()));
+                    info.handle(new InvalidKey(pair).setDetail(String.format(
+                      "invalid schema index key %s: %s", Jsck.ds(reader.getBytes()), e.getMessage())));
                     continue;
                 }
 
-                // Read object ID
+                // Validate index entry
                 final ObjId id;
                 try {
-                    id = new ObjId(reader);
-                    if (reader.remain() > 0)
-                        throw new IllegalArgumentException("index entry contains extra garbage");
-                } catch (IllegalArgumentException e) {
-                    info.handle(new InvalidKey(pair).setDetail("invalid object version index entry "
-                      + Jsck.ds(reader.getBytes()) + " for version " + version + ": can't interpret object ID: "
-                      + e.getMessage()));
-                    continue;
-                }
 
-                // Verify object still exists
-                if (kv.get(id.getBytes()) == null) {
-                    info.handle(new InvalidKey(pair).setDetail("invalid object version index entry "
-                      + Jsck.ds(reader.getBytes()) + " for version " + version + ": object " + id + " does not exist"));
+                    // Read object ID
+                    try {
+                        id = new ObjId(reader);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("entry contains invalid object ID", e);
+                    }
+                    if (reader.remain() > 0)
+                        throw new IllegalArgumentException("entry contains trailing garbage");
+
+                    // Verify object actually exists
+                    if (kv.get(id.getBytes()) == null)
+                        throw new IllegalArgumentException(String.format("object %s does not exist", id));
+                } catch (IllegalArgumentException e) {
+                    info.handle(new InvalidKey(pair).setDetail(String.format(
+                      "invalid schema index value %s under schema index %d: %s",
+                      Jsck.ds(reader.getBytes()), schemaIndex, e.getMessage())));
                     continue;
                 }
 
                 // Mark object's schema version in use
-                if (unusedSchemaVersions.remove(version) && this.config.isGarbageCollectSchemas())
-                    info.info("marking schema version " + version + " in use");
+                if (obsoleteSchemas.remove(schema.getSchemaId()) && this.config.isGarbageCollectSchemas())
+                    info.info(String.format("marking schema version \"%s\" in use", schema.getSchemaId()));
 
                 // Validate value, which should be empty
                 if (pair.getValue().length > 0) {
-                    info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail("invalid object version index entry "
-                      + Jsck.ds(reader.getBytes()) + " for version " + version + ": value is " + Jsck.ds(pair.getValue())
-                      + " but should be empty"));
+                    info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail(String.format(
+                      "invalid schema index entry %s for \"%s\" (schema index %d): value is %s but should be empty",
+                      Jsck.ds(reader.getBytes()), schema.getSchemaId(), schemaIndex, Jsck.ds(pair.getValue()))));
                 }
             }
         }
 
-        // Garbage collect schema versions
-        info.info("found " + unusedSchemaVersions.size() + " unused schema version(s)"
-          + (!unusedSchemaVersions.isEmpty() ? ": " + unusedSchemaVersions : ""));
+        // Report obsolete schema versions
+        if (obsoleteSchemas.isEmpty())
+            info.info("found zero obsolete schemas");
+        else {
+            info.info(String.format("found %d obsolete schema(s): %s", obsoleteSchemas.size(),
+              obsoleteSchemas.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(", "))));
+        }
+
+        // Garbage collect obsolete schemas and storage ID's
         if (this.config.isGarbageCollectSchemas()) {
-            for (int version : unusedSchemaVersions) {
-                final byte[] key = Layout.getSchemaKey(version);
-                final byte[] value = kv.get(key);
-                if (value != null)
-                    info.handle(new InvalidKey("unused schema version", key, null).setDetail("schema version " + version), true);
+
+            // Build new SchemaBundle with obsolete schemas removed
+            SchemaBundle schemaBundle = info.getSchemaBundle();
+            SchemaBundle.Encoded encodedBundle = schemaBundle.getEncoded();
+            for (SchemaId schemaId : obsoleteSchemas) {
+                final Schema schema = schemaBundle.getSchema(schemaId);
+                encodedBundle = schemaBundle.withSchemaRemoved(schemaId);
+                schemaBundle = new SchemaBundle(encodedBundle, schemaBundle.getEncodingRegistry());
+            }
+
+            // Add fixups that remove the deleted schema table entries
+            schemaBundle.getSchemasBySchemaIndex().forEach((schemaIndex, schema) -> {
+                final byte[] key = Encodings.UNSIGNED_INT.encode(schemaIndex);
+                final byte[] schemaVal = kv.get(key);
+                if (schemaVal != null) {
+                    info.handle(new InvalidValue("obsolete schema", key, schemaVal, null).setDetail(String.format(
+                      "schema \"%s\"", schema.getSchemaId())), true);
+                }
+            });
+
+            // Add fixups that remove the deleted storage ID table entries
+            schemaBundle.getSchemaIdsByStorageId().forEach((storageId, schemaId) -> {
+                final byte[] key = Encodings.UNSIGNED_INT.encode(storageId);
+                final byte[] idVal = kv.get(key);
+                if (idVal != null) {
+                    info.handle(new InvalidValue("obsolete storage ID", key, idVal, null).setDetail(String.format(
+                      "storage ID %d for schema ID \"%s\"", storageId, schemaId)), true);
+                }
+            });
+        }
+    }
+
+    private <T> Map<Integer, T> checkTable(boolean schemaTable, JsckInfo info,
+      Map<Integer, T> overrides, Function<T, byte[]> encoder, Function<byte[], T> decoder) {
+
+        // Prep stuff
+        final String tableName = schemaTable ? "schema" : "storage ID";
+        final String keyName = schemaTable ? "schema index" : "storage ID";
+        final String valueName = schemaTable ? "schema" : "schema ID";
+        final byte[] prefix = schemaTable ? Layout.getSchemaTablePrefix() : Layout.getStorageIdTablePrefix();
+
+        // Copy overrides so we can mutate
+        overrides = overrides != null ? new HashMap<>(overrides) : Collections.emptyMap();
+
+        // Check schema versions
+        info.info("checking the " + tableName + " table");
+        final HashMap<Integer, T> itemMap = new HashMap<>();
+        try (CloseableIterator<KVPair> i = info.getKVStore().getRange(KeyRange.forPrefix(prefix))) {
+            while (i.hasNext()) {
+                final KVPair pair = i.next();
+                int index = 0;
+                T item = null;
+                try {
+
+                    // Decode index
+                    final ByteReader reader = new ByteReader(pair.getKey(), prefix.length);
+                    index = Encodings.UNSIGNED_INT.read(reader);
+                    if (reader.remain() > 0) {
+                        throw new IllegalArgumentException(String.format(
+                          "invalid %s table key %s: trailing garbage %s follows %s %d",
+                          tableName, Jsck.ds(pair.getKey()), Jsck.ds(reader, reader.getOffset()), keyName, index));
+                    }
+                    if (index == 0) {
+                        throw new IllegalArgumentException(String.format(
+                          "invalid %s table key %s: invalid %s %d",
+                          tableName, Jsck.ds(reader), keyName, keyName, index));
+                    }
+
+                    // Decode item
+                    item = decoder.apply(pair.getValue());
+
+                } catch (IllegalArgumentException e) {
+
+                    // Invalid key?
+                    if (index == 0) {
+                        info.handle(new InvalidKey(pair).setDetail(e.getMessage()));
+                        continue;
+                    }
+
+                    // Replace/delete item if overridden
+                    final boolean hasOverride = overrides.containsKey(index);
+                    final T overrideItem = overrides.remove(index);
+                    if (overrideItem != null) {
+                        info.handle(new InvalidValue(pair, encoder.apply(overrideItem)).setDetail(String.format(
+                          "forcibly %s invalid %s with %s %d: %s", "override", valueName, keyName, index, e.getMessage())));
+                        item = overrideItem;
+                    } else if (hasOverride) {
+                        info.handle(new InvalidValue(pair).setDetail(String.format(
+                          "forcibly %s invalid %s with %s %d: %s", "delete", valueName, keyName, index, e.getMessage())));
+                        continue;
+                    } else
+                        throw e;
+                }
+                assert item != null;
+                itemMap.put(index, item);
             }
         }
+
+        // Apply any remaining overrides
+        for (Map.Entry<Integer, T> entry : overrides.entrySet()) {
+            final int index = entry.getKey();
+            final T overrideItem = entry.getValue();
+            final T originalItem = itemMap.get(index);
+
+            // Reconstruct table key
+            final ByteWriter writer = new ByteWriter(prefix.length + 5);
+            writer.write(prefix);
+            Encodings.UNSIGNED_INT.write(writer, index);
+            final byte[] key = writer.getBytes();
+
+            // Apply override
+            if (overrideItem == null) {
+                if (originalItem != null) {
+                    info.handle(new InvalidValue(key, null, null).setDetail(String.format(
+                      "forcibly remove %s with %s %s", valueName, keyName, index)));
+                }
+            } else {
+                final byte[] value = encoder.apply(overrideItem);
+                if (originalItem != null) {
+                    info.handle(new InvalidValue(key, null, value).setDetail(String.format(
+                      "forcibly %s %s with %s %d with provided version", "replace", valueName, keyName, index)));
+                } else {
+                    info.handle(new InvalidValue(key, null, value).setDetail(String.format(
+                      "forcibly %s %s with %s %d with provided version", "add", valueName, keyName, index)));
+                }
+                itemMap.put(index, overrideItem);
+            }
+        }
+
+        // Done
+        return itemMap;
     }
 
     static void deleteRange(JsckInfo info, byte[] prefix, PeekingIterator<KVPair> i, String description) {
@@ -554,7 +615,7 @@ public class Jsck {
     }
 
     private long checkEmpty(JsckInfo info, KeyRange range, String description) {
-        info.info("checking that " + description + " is empty");
+        info.info(String.format("checking that %s %s is empty", description, range));
         long count = 0;
         try (CloseableIterator<KVPair> i = info.getKVStore().getRange(range)) {
             while (i.hasNext()) {
@@ -566,6 +627,6 @@ public class Jsck {
     }
 
     private KeyRange getKeyRange(int storageId) {
-        return KeyRange.forPrefix(UnsignedIntEncoder.encode(storageId));
+        return KeyRange.forPrefix(Encodings.UNSIGNED_INT.encode(storageId));
     }
 }

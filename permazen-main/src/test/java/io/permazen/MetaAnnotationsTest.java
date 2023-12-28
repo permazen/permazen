@@ -8,7 +8,6 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.test.TestSupport;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,11 +18,11 @@ import org.springframework.core.annotation.AliasFor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class MetaAnnotationsTest extends TestSupport {
+public class MetaAnnotationsTest extends MainTestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Mommy.class, Baby.class);
+        final Permazen jdb = BasicTest.newPermazen(Mommy.class, Baby.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -44,7 +43,7 @@ public class MetaAnnotationsTest extends TestSupport {
 
             baby2.setMommy(null);
 
-            final Baby baby1copy = (Baby)baby1.cascadeCopyOut("load", false);
+            final Baby baby1copy = (Baby)baby1.copyOut("load");
             Assert.assertNotNull(baby1copy.getMommy());
 
             jtx.commit();

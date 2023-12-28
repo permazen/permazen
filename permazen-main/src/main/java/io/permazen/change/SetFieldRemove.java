@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -26,13 +28,12 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param element the element that was removed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SetFieldRemove(T jobj, int storageId, String fieldName, E element) {
-        super(jobj, storageId, fieldName);
+    public SetFieldRemove(T jobj, String fieldName, E element) {
+        super(jobj, fieldName);
         this.element = element;
     }
 
@@ -43,7 +44,9 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readSetField(jobj.getObjId(), this.getStorageId(), false).remove(this.element);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        jtx.readSetField(jobj.getObjId(), this.getFieldName(), false).remove(this.element);
     }
 
     /**

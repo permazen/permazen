@@ -6,17 +6,22 @@
 package io.permazen;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.DeleteAction;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferenceEncoding;
+import io.permazen.core.ReferenceField;
+import io.permazen.core.Transaction;
 import io.permazen.schema.ReferenceSchemaField;
-import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -36,16 +41,35 @@ public class JReferenceField extends JSimpleField {
     final boolean allowDeleted;
     final String[] forwardCascades;
     final String[] inverseCascades;
+    final Set<JClass<?>> objectTypes;
 
-    JReferenceField(Permazen jdb, String name, int storageId, String description, TypeToken<?> typeToken,
-      io.permazen.annotation.JField annotation, Method getter, Method setter) {
-        super(jdb, name, storageId, typeToken, new ReferenceEncoding(), true, annotation, description, getter, setter);
+// Constructor
+
+    JReferenceField(String name, int storageId, String description, TypeToken<?> typeToken,
+      io.permazen.annotation.JField annotation, Collection<JClass<?>> jclasses, Method getter, Method setter) {
+        super(name, storageId, typeToken, new ReferenceEncoding(), true, annotation, description, getter, setter);
         this.inverseDelete = annotation.inverseDelete();
         this.forwardDelete = annotation.forwardDelete();
         this.allowDeleted = annotation.allowDeleted();
         this.forwardCascades = annotation.forwardCascades();
         this.inverseCascades = annotation.inverseCascades();
+
+        // Calculate allowed object types
+        final Class<?> rawType = this.typeToken.getRawType();
+        assert !UntypedJObject.class.isAssignableFrom(rawType);
+        if (rawType.isAssignableFrom(JObject.class))
+            this.objectTypes = null;
+        else {
+            assert !rawType.isAssignableFrom(UntypedJObject.class);
+            this.objectTypes = new HashSet<>();
+            for (JClass<?> jclass : jclasses) {
+                if (rawType.isAssignableFrom(jclass.type))
+                    this.objectTypes.add(jclass);
+            }
+        }
     }
+
+// Public Methods
 
     @Override
     public JObject getValue(JObject jobj) {
@@ -54,6 +78,7 @@ public class JReferenceField extends JSimpleField {
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJReferenceField(this);
     }
 
@@ -113,6 +138,22 @@ public class JReferenceField extends JSimpleField {
         return this.inverseCascades.clone();
     }
 
+    /**
+     * Get the database object types which this field is allowed to reference.
+     *
+     * @return allowed object types to reference, or null if there is no restriction
+     */
+    public Set<JClass<?>> getObjectTypes() {
+        return this.objectTypes != null ? Collections.unmodifiableSet(this.objectTypes) : null;
+    }
+
+    @Override
+    public ReferenceField getSchemaItem() {
+        return (ReferenceField)super.getSchemaItem();
+    }
+
+// Package Methods
+
     @Override
     boolean isSameAs(JField that0) {
         if (!super.isSameAs(that0))
@@ -124,42 +165,40 @@ public class JReferenceField extends JSimpleField {
             return false;
         if (this.allowDeleted != that.allowDeleted)
             return false;
-        if (!new HashSet<>(Arrays.asList(this.forwardCascades)).equals(new HashSet<>(Arrays.asList(that.forwardCascades))))
+        if (!Set.of(this.forwardCascades).equals(Set.of(that.forwardCascades)))
             return false;
-        if (!new HashSet<>(Arrays.asList(this.inverseCascades)).equals(new HashSet<>(Arrays.asList(that.inverseCascades))))
+        if (!Set.of(this.inverseCascades).equals(Set.of(that.inverseCascades)))
+            return false;
+        if (!Objects.equals(this.objectTypes, that.objectTypes))
             return false;
         return true;
     }
 
     @Override
-    ReferenceSchemaField toSchemaItem(Permazen jdb) {
-        final ReferenceSchemaField schemaField = new ReferenceSchemaField();
-        this.initialize(jdb, schemaField);
+    ReferenceSchemaField toSchemaItem() {
+        final ReferenceSchemaField schemaField = (ReferenceSchemaField)super.toSchemaItem();
+        schemaField.setInverseDelete(this.inverseDelete);
+        schemaField.setForwardDelete(this.forwardDelete);
+        schemaField.setAllowDeleted(this.allowDeleted);
+        if (this.objectTypes != null) {
+            schemaField.setObjectTypes(
+              this.objectTypes.stream()
+                .map(JClass::getName)
+                .collect(Collectors.toCollection(TreeSet::new)));
+        }
         return schemaField;
     }
 
     @Override
-    void initialize(Permazen jdb, SimpleSchemaField schemaField0) {
-        super.initialize(jdb, schemaField0);
-        final ReferenceSchemaField schemaField = (ReferenceSchemaField)schemaField0;
-        schemaField.setInverseDelete(this.inverseDelete);
-        schemaField.setForwardDelete(this.forwardDelete);
-        schemaField.setAllowDeleted(this.allowDeleted);
-        final Class<?> rawType = this.typeToken.getRawType();
-        if (!rawType.isAssignableFrom(JObject.class)) {
-            assert !rawType.isAssignableFrom(UntypedJObject.class);
-            if (UntypedJObject.class.isAssignableFrom(rawType))
-                throw new RuntimeException("internal error: " + rawType);
-            schemaField.setObjectTypes(
-              jdb.getJClasses(rawType).stream()
-               .map(jclass -> jclass.storageId)
-               .collect(Collectors.toCollection(TreeSet::new)));
-        }
+    ReferenceSchemaField createSchemaItem() {
+        return new ReferenceSchemaField();
     }
 
-    @Override
-    void initializeSimpleSchemaFieldEncoding(SimpleSchemaField schemaField) {
-        // fixed encoding
+    // Iterate all of the values in this field in the given object, even if this is a sub-field
+    Iterable<ObjId> iterateReferences(Transaction tx, ObjId id) {
+        return this.isSubField() ?
+          this.getParentField().iterateReferences(tx, id, this) :
+          Collections.singleton((ObjId)tx.readSimpleField(id, this.name, false));
     }
 
 // POJO import/export

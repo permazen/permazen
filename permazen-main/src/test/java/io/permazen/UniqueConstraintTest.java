@@ -8,18 +8,17 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
-import io.permazen.test.TestSupport;
 
 import java.util.Date;
 
 import org.testng.annotations.Test;
 
-public class UniqueConstraintTest extends TestSupport {
+public class UniqueConstraintTest extends MainTestSupport {
 
     @Test
     public void testUniqueConstraint() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
 
         JTransaction.setCurrent(jtx);
@@ -161,7 +160,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyClone() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
@@ -170,7 +169,10 @@ public class UniqueConstraintTest extends TestSupport {
 
             final UniqueName u1 = jtx.create(UniqueName.class);
             u1.setName("Jeffrey");
-            final UniqueName u2 = (UniqueName)u1.cascadeCopyTo(jtx, null, -1, true);
+
+            final CopyState copyState = new CopyState();
+            copyState.getObjectIdMap().put(u1.getObjId(), null);                // map to new object id
+            final UniqueName u2 = (UniqueName)u1.copyTo(jtx, -1, copyState);
 
             assert u1.exists();
             assert u2.exists();
@@ -195,7 +197,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyIn() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
@@ -212,7 +214,7 @@ public class UniqueConstraintTest extends TestSupport {
             final CopyState copyState = new CopyState();
             copyState.setSuppressNotifications(this.random.nextBoolean());
 
-            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, copyState);
+            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, -1, copyState);
 
             assert u1.exists();
             assert u2s.exists();
@@ -240,7 +242,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testDuplicateAfterCopyOnTopOf() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
         JTransaction jtx;
 
         final ObjId id1;
@@ -286,7 +288,7 @@ public class UniqueConstraintTest extends TestSupport {
 
             final CopyState copyState = new CopyState();
             copyState.setSuppressNotifications(true);
-            u2s.copyTo(jtx, copyState);
+            u2s.copyTo(jtx, -1, copyState);
 
             final UniqueName u1 = jtx.get(id1, UniqueName.class);
             final UniqueName u2 = jtx.get(id2, UniqueName.class);
@@ -314,7 +316,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testSameStorageIdUnique() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName.class, UniqueName2.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName.class, UniqueName2.class);
         JTransaction jtx;
 
         // test 1
@@ -374,7 +376,7 @@ public class UniqueConstraintTest extends TestSupport {
     @Test
     public void testSameStorageIdInherited() throws Exception {
 
-        Permazen jdb = BasicTest.getPermazen(UniqueName3.class, UniqueName4.class);
+        Permazen jdb = BasicTest.newPermazen(UniqueName3.class, UniqueName4.class);
         JTransaction jtx;
 
         jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);

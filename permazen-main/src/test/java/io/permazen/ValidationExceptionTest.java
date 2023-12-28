@@ -8,18 +8,17 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.kv.RetryTransactionException;
-import io.permazen.test.TestSupport;
 
 import jakarta.validation.constraints.Min;
 
 import org.testng.annotations.Test;
 
-public class ValidationExceptionTest extends TestSupport {
+public class ValidationExceptionTest extends MainTestSupport {
 
     @Test
     public void testValidationException() {
 
-        final Permazen jdb = BasicTest.getPermazen(Retryer.class);
+        final Permazen jdb = BasicTest.newPermazen(Retryer.class);
 
         // Transaction with validation disabled
         JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);

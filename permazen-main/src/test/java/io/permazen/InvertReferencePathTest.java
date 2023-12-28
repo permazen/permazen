@@ -16,13 +16,13 @@ import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
-public class InvertReferencePathTest extends TestSupport {
+public class InvertReferencePathTest extends MainTestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen();
+        final Permazen jdb = BasicTest.newPermazen();
 
         final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
@@ -91,7 +91,7 @@ public class InvertReferencePathTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath2() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class);
+        final Permazen jdb = BasicTest.newPermazen(A.class, B.class, C.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {

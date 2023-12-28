@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import io.permazen.cli.Session;
 import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 import java.util.Map;
@@ -47,14 +48,15 @@ public class ShowAllSchemasCommand extends AbstractSchemaCommand {
             AbstractSchemaCommand.runWithoutSchema(session, new SchemaAgnosticAction<Void>() {
                 @Override
                 public Void runWithoutSchema(Session session, Transaction tx) {
-                    for (Map.Entry<Integer, Schema> entry : tx.getSchemas().getVersions().entrySet()) {
-                        final int number = entry.getKey();
+                    for (Map.Entry<SchemaId, Schema> entry : tx.getSchemaBundle().getSchemasBySchemaId().entrySet()) {
+                        final SchemaId schemaId = entry.getKey();
                         final SchemaModel model = entry.getValue().getSchemaModel();
                         if (ShowSchemasAction.this.xml) {
-                            session.getOutput().println("=== Schema version " + number + " ===\n"
-                              + model.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+                            session.getOutput().println(String.format(
+                              "=== Schema \"%s\" ===%n%s",
+                              schemaId, model.toString().replaceAll("^<.xml[^>]+>\\n", "")));
                         } else
-                            session.getOutput().println(number);
+                            session.getOutput().println(schemaId);
                     }
                     return null;
                 }

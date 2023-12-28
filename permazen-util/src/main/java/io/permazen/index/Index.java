@@ -5,51 +5,40 @@
 
 package io.permazen.index;
 
-import io.permazen.tuple.Tuple2;
-import io.permazen.util.Bounds;
+import io.permazen.tuple.Tuple;
 
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 /**
- * An index on a single field.
+ * An index on a one or more fields in some target type.
  *
  * <p>
  * Indexes are read-only and "live", always reflecting the current transaction state.
  *
- * @param <V> indexed value type
  * @param <T> index target type
  * @see io.permazen.index
  */
-public interface Index<V, T> {
+public interface Index<T> {
+
+    /**
+     * Get the number of fields in this index.
+     *
+     * @return the number of indexed fields
+     */
+    int numberOfFields();
 
     /**
      * View this index as a {@link NavigableSet} of tuples.
      *
-     * @return {@link NavigableSet} of tuples containing indexed value and target value
+     * @return {@link NavigableSet} of tuples containing indexed value(s) and target value
      */
-    NavigableSet<Tuple2<V, T>> asSet();
+    NavigableSet<? extends Tuple> asSet();
 
     /**
-     * View this index as a {@link NavigableMap} of target values keyed by indexed value.
+     * View this index as a {@link NavigableMap} of target values keyed by indexed value(s).
      *
-     * @return {@link NavigableMap} from indexed value to the corresponding set of target objects
+     * @return {@link NavigableMap} from indexed value(s) to the corresponding set of target objects
      */
-    NavigableMap<V, NavigableSet<T>> asMap();
-
-    /**
-     * Impose {@link Bounds} that restrict the range of the indexed value.
-     *
-     * @param bounds bounds to impose on the indexed value
-     * @return a view of this index in which only values within {@code bounds} are visible
-     */
-    Index<V, T> withValueBounds(Bounds<V> bounds);
-
-    /**
-     * Impose {@link Bounds} that restrict the range of the target value.
-     *
-     * @param bounds bounds to impose on the target value
-     * @return a view of this index in which only target values within {@code bounds} are visible
-     */
-    Index<V, T> withTargetBounds(Bounds<T> bounds);
+    NavigableMap<?, NavigableSet<T>> asMap();
 }

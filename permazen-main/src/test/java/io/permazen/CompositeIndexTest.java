@@ -11,7 +11,6 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
@@ -25,7 +24,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CompositeIndexTest extends TestSupport {
+public class CompositeIndexTest extends MainTestSupport {
 
     @SuppressWarnings("unchecked")
     @Test
@@ -34,7 +33,7 @@ public class CompositeIndexTest extends TestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        final Permazen jdb = new Permazen(db, 2, null, this.getClasses());
+        final Permazen jdb = BasicTest.newPermazen(db, this.getClasses());
 
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
@@ -139,7 +138,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex2() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(IndexedOn2.class);
+        final Permazen jdb = BasicTest.newPermazen(IndexedOn2.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -203,7 +202,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex3() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(IndexedOn3.class);
+        final Permazen jdb = BasicTest.newPermazen(IndexedOn3.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -318,7 +317,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex4() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(IndexedOn4.class);
+        final Permazen jdb = BasicTest.newPermazen(IndexedOn4.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -406,7 +405,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndexSubTypes() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(A.class, B.class);
+        final Permazen jdb = BasicTest.newPermazen(A.class, B.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -456,7 +455,7 @@ public class CompositeIndexTest extends TestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeInitialUnique() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(C.class, D.class);
+        final Permazen jdb = BasicTest.newPermazen(C.class, D.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

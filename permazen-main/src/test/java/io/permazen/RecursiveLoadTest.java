@@ -8,16 +8,15 @@ package io.permazen;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.test.TestSupport;
 
 import org.testng.annotations.Test;
 
-public class RecursiveLoadTest extends TestSupport {
+public class RecursiveLoadTest extends MainTestSupport {
 
     @Test
     public void testRecursiveLoad() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

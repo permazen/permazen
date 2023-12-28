@@ -8,13 +8,14 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.OnCreate;
-import io.permazen.annotation.OnVersionChange;
-import io.permazen.core.CoreIndex;
+import io.permazen.annotation.OnSchemaChange;
+import io.permazen.core.CoreIndex1;
 import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
 import io.permazen.core.CoreIndex4;
@@ -26,25 +27,25 @@ import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EnumValue;
 import io.permazen.core.Field;
 import io.permazen.core.FieldSwitch;
-import io.permazen.core.Layout;
 import io.permazen.core.ListField;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
-import io.permazen.core.ReferenceEncoding;
 import io.permazen.core.ReferenceField;
 import io.permazen.core.Schema;
+import io.permazen.core.SchemaChangeListener;
+import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
-import io.permazen.core.TypeNotInSchemaVersionException;
+import io.permazen.core.TypeNotInSchemaException;
 import io.permazen.core.UnknownFieldException;
-import io.permazen.core.VersionChangeListener;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.encoding.Encoding;
 import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
@@ -53,6 +54,7 @@ import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.util.AbstractKVNavigableSet;
+import io.permazen.schema.SchemaId;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
@@ -108,26 +110,24 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #rollback rollback()} - Roll back transaction</li>
  *  <li>{@link #getCurrent getCurrent()} - Get the {@link JTransaction} instance associated with the current thread</li>
  *  <li>{@link #setCurrent setCurrent()} - Set the {@link JTransaction} instance associated with the current thread</li>
- *  <li>{@link #isValid isValid()} - Test transaction validity</li>
+ *  <li>{@link #isOpen isOpen()} - Test whether transaction is still open</li>
  *  <li>{@link #performAction performAction()} - Perform action with this instance as the current transaction</li>
  * </ul>
  *
  * <p>
  * <b>Object Access</b>
  * <ul>
- *  <li>{@link #get(ObjId, Class) get()} - Get the Java model object corresponding to a specific database object ID</li>
- *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
- *  <li>{@link #create(Class) create()} - Create a new database object</li>
+ *  <li>{@link #get(ObjId, Class) get()} - Get the Java model object in this transaction corresponding to a
+ *      specific database object ID</li>
+ *  <li>{@link #getAll getAll()} - Get all Java model objects in this transaction that are instances of a given Java type</li>
+ *  <li>{@link #create(Class) create()} - Create a new Java model object in this transaction</li>
+ *  <li>{@link #cascade cascade()} - Find all objects reachable through a reference cascade</li>
  * </ul>
  *
  * <p>
  * <b>Copying Objects</b>
  * <ul>
- *  <li>{@link #copyTo(JTransaction, CopyState, Stream) copyTo()}
- *  - Copy a {@link Stream} of objects into another transaction</li>
- *  <li>{@link #copyTo(JTransaction, JObject, CopyState, String[]) copyTo()}
- *  - Copy objects reachable through specified reference path(s) into another transaction</li>
- *  <li>{@link #cascadeFindAll(ObjId, String, int) cascadeFindAll()} - Find all objects reachable through a named cascade</li>
+ *  <li>{@link #copyTo(JTransaction, CopyState, Stream) copyTo()} - Copy a {@link Stream} of objects into another transaction</li>
  *  <li>{@link ImportContext} - Import plain (POJO) model objects</li>
  *  <li>{@link ExportContext} - Export plain (POJO) model objects</li>
  * </ul>
@@ -142,7 +142,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Index Queries</b>
  * <ul>
- *  <li>{@link #queryIndex(Class, String, Class) queryIndex()}
+ *  <li>{@link #querySimpleIndex(Class, String, Class) querySimpleIndex()}
  *      - Access the index associated with a simple field</li>
  *  <li>{@link #queryListElementIndex queryListElementIndex()}
  *      - Access the composite index associated with a list field that includes corresponding list indices</li>
@@ -155,7 +155,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
- *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
+ *  <li>{@link #querySchemaIndex querySchemaIndex()} - Get database objects grouped by schema</li>
  * </ul>
  *
  * <p>
@@ -178,9 +178,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Lower Layer Access</b>
  * <ul>
- *  <li>{@link #getKey(JObject) getKey()} - Get the {@link KVDatabase} key prefix for a specific object</li>
- *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link KVDatabase}
- *      key for a specific field in a specific object</li>
+ *  <li>{@link #getKey(JObject) getKey()} - Get the {@link KVDatabase} key prefix for an object</li>
+ *  <li>{@link JField#getKey(JObject) JField.getKey()} - Get the {@link KVDatabase} key for one field in an object</li>
  *  <li>{@link #withWeakConsistency withWeakConsistency()} - Perform an operation with weaker transaction consistency</li>
  * </ul>
  *
@@ -208,8 +207,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
  *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
  *  <li>{@link #revalidate revalidate()} - Manually add an object to the validation queue</li>
- *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
- *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
+ *  <li>{@link #getSchemaId getSchemaId()} - Get the schema of an object</li>
+ *  <li>{@link #migrateSchema migrateSchema()} - Migrate an object's schema to match this transaction's data model</li>
  * </ul>
  */
 @ThreadSafe
@@ -280,7 +279,7 @@ public class JTransaction {
             tx.addDeleteListener(new InternalDeleteListener());
 
         // Register listeners for @OnChange
-        for (JClass<?> jclass : jdb.jclasses.values()) {
+        for (JClass<?> jclass : jdb.jclasses) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(tx);
@@ -294,11 +293,11 @@ public class JTransaction {
               .forEach(storageId -> tx.addFieldChangeListener(storageId, new int[0], null, defaultValidationListener));
         }
 
-        // Register listeners for @OnVersionChange and validation on upgrade
-        if (jdb.hasOnVersionChangeMethods
+        // Register listeners for @OnSchemaChange and validation on upgrade
+        if (jdb.hasOnSchemaChangeMethods
           || jdb.hasUpgradeConversions
           || (automaticValidation && jdb.anyJClassRequiresDefaultValidation))
-            tx.addVersionChangeListener(new InternalVersionChangeListener());
+            tx.addSchemaChangeListener(new InternalSchemaChangeListener());
     }
 
 // Thread-local Access
@@ -360,8 +359,8 @@ public class JTransaction {
      * Get all instances of the given type.
      *
      * <p>
-     * The returned set includes objects from all schema versions. Use {@link #queryVersion queryVersion()} to
-     * find objects with a specific schema version.
+     * The returned set includes objects from all schemas. Use {@link #querySchemaIndex querySchemaIndex()} to
+     * find objects with a specific schema.
      *
      * <p>
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
@@ -384,22 +383,26 @@ public class JTransaction {
     }
 
     /**
-     * Get all instances of the given type, grouped according to schema version.
+     * Get all instances of the given type, grouped according to schema index.
      *
      * @param type any Java type; use {@link Object Object.class} to return all database objects
      * @param <T> containing Java type
-     * @return mapping from schema version to objects having that version
+     * @return live, read-only mapping from {@link SchemaId} to objects having that schema
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public <T> NavigableMap<Integer, NavigableSet<T>> queryVersion(Class<T> type) {
+    public <T> NavigableMap<SchemaId, NavigableSet<T>> querySchemaIndex(Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
-        CoreIndex<Integer, ObjId> index = this.tx.queryVersion();
+        CoreIndex1<Integer, ObjId> index = this.tx.querySchemaIndex();
         final KeyRanges keyRanges = this.jdb.keyRangesFor(type);
         if (!keyRanges.isFull())
             index = index.filter(1, keyRanges);
-        return new ConvertedNavigableMap<Integer, NavigableSet<T>, Integer, NavigableSet<ObjId>>(index.asMap(),
-          Converter.<Integer>identity(), new NavigableSetConverter<T, ObjId>(new ReferenceConverter<T>(this, type)));
+        final Converter<SchemaId, Integer> schemaIndexConverter = Converter.from(
+          schemaId -> this.tx.getSchemaBundle().getSchema(schemaId).getSchemaIndex(),
+          schemaIndex -> this.tx.getSchemaBundle().getSchema(schemaIndex).getSchemaId());
+        final Converter<NavigableSet<T>, NavigableSet<ObjId>> valueConverter
+          = new NavigableSetConverter<T, ObjId>(new ReferenceConverter<T>(this, type));
+        return new ConvertedNavigableMap<>(index.asMap(), schemaIndexConverter, valueConverter);
     }
 
     /**
@@ -421,36 +424,6 @@ public class JTransaction {
     public byte[] getKey(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
         return this.tx.getKey(jobj.getObjId());
-    }
-
-    /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the specified field in the specified object.
-     *
-     * <p>
-     * Notes:
-     * <ul>
-     *  <li>Complex fields utilize multiple keys; the return value is the common prefix of all such keys.</li>
-     *  <li>The {@link KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
-     * </ul>
-     *
-     * @param jobj Java model object
-     * @param fieldName the name of a field in {@code jobj}'s type
-     * @return the {@link KVDatabase} key of the field in the specified object
-     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
-     * @throws IllegalArgumentException if {@code jobj} does not contain the specified field
-     * @throws IllegalArgumentException if {@code fieldName} is otherwise invalid
-     * @throws IllegalArgumentException if either parameter is null
-     * @see KVTransaction#watchKey KVTransaction.watchKey()
-     * @see Transaction#getKey(ObjId, int) Transaction.getKey()
-     * @see Layout
-     */
-    public byte[] getKey(JObject jobj, String fieldName) {
-        Preconditions.checkArgument(jobj != null, "null jobj");
-        final JClass<?> jclass = this.jdb.getJClass(jobj.getObjId());
-        final JField jfield = Util.findField(jclass, fieldName, false);
-        if (jfield == null)
-            throw new IllegalArgumentException(String.format("field \"%s\" not found in %s", fieldName, jclass));
-        return this.tx.getKey(jobj.getObjId(), jfield.storageId);
     }
 
 // Detached transactions
@@ -502,101 +475,6 @@ public class JTransaction {
     }
 
     /**
-     * Copy the specified object, and any other objects referenced through the specified reference paths,
-     * into the specified destination transaction.
-     *
-     * <p>
-     * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
-     * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
-     * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
-     * and {@link OnChange &#64;OnChange} notifications will also be delivered.
-     *
-     * <p>
-     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copyState} tracks which objects have already been copied and/or traversed along some reference path.
-     * For a "fresh" copy operation, pass a newly created {@link CopyState}; for a copy operation that is a continuation
-     * of a previous copy, reuse the previous {@code copyState}. The {@link CopyState} may also be configured to remap object ID's.
-     *
-     * <p>
-     * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
-     * must be identical in both transactions.
-     *
-     * <p>
-     * If {@code dest} is not a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
-     * {@link io.permazen.annotation.JField#allowDeleted} equal to {@code false}, then any objects referenced by those fields
-     * must also be copied, or else must already exist in {@code dest}. Otherwise, a {@link DeletedObjectException} is thrown
-     * and it is indeterminate which objects were copied.
-     *
-     * <p>
-     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
-     * deadlock could result.
-     *
-     * @param dest destination transaction
-     * @param jobj object to copy
-     * @param copyState tracks which objects have already been copied and traversed and whether to remap object ID's
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied (including intermediate objects)
-     * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
-     * @throws DeletedObjectException if any object to be copied does not actually exist
-     * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
-     *  in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
-     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
-     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
-     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
-     * @throws IllegalArgumentException if any parameter other than {@code dstId} is null
-     * @see JObject#copyTo JObject.copyTo()
-     * @see JObject#copyOut JObject.copyOut()
-     * @see JObject#copyIn JObject.copyIn()
-     * @see #copyTo(JTransaction, CopyState, Stream)
-     * @see ReferencePath
-     */
-    public JObject copyTo(JTransaction dest, JObject jobj, CopyState copyState, String... refPaths) {
-
-        // Sanity check
-        Preconditions.checkArgument(dest != null, "null dest");
-        Preconditions.checkArgument(jobj != null, "null jobj");
-        Preconditions.checkArgument(copyState != null, "null copyState");
-        Preconditions.checkArgument(refPaths != null, "null refPaths");
-
-        // Handle possible re-entrant object cache load
-        JTransaction.registerJObject(jobj);
-
-        // Get object ID
-        final ObjId id = jobj.getObjId();
-
-        // Parse paths and convert each into an array of reference fields (including the target reference field at the end)
-        final Class<?> startType = this.jdb.getJClass(id).type;
-        final ArrayList<int[]> pathReferencesList = new ArrayList<>(refPaths.length);
-        for (String refPath : refPaths) {
-
-            // Parse reference path
-            Preconditions.checkArgument(refPath != null, "null refPath");
-            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath);
-
-            // Append array of reference fields to our list
-            pathReferencesList.add(path.storageIds);
-        }
-
-        // Reset deleted assignments
-        copyState.deletedAssignments.clear();
-
-        // Ensure object is copied even when there are zero reference paths
-        if (pathReferencesList.isEmpty())
-            this.copyTo(copyState, dest, id, true, 0, new int[0]);
-
-        // Recurse over each reference path
-        for (int[] pathReferences : pathReferencesList)
-            this.copyTo(copyState, dest, id, false/*doesn't matter*/, 0, pathReferences);
-
-        // Check for any remaining deleted assignments
-        copyState.checkDeletedAssignments(this);
-
-        // Done
-        return dest.get(copyState.getDestinationId(id));
-    }
-
-    /**
      * Copy the specified objects into the specified destination transaction.
      *
      * <p>
@@ -609,8 +487,8 @@ public class JTransaction {
      * @throws DeletedObjectException if any object to be copied does not actually exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
      *  in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
-     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
+     * @throws SchemaMismatchException if the schema corresponding to any copied object is not identical
+     *  in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any parameter is null
      */
@@ -623,8 +501,8 @@ public class JTransaction {
      * Copy the specified objects into the specified destination transaction.
      *
      * <p>
-     * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
-     * object if necessary (with resulting {@link OnVersionChange &#64;OnVersionChange} notifications).
+     * If a target object does not exist, it will be created, otherwise its schema will be migrated to match the source
+     * object if necessary (with resulting {@link OnSchemaChange &#64;OnSchemaChange} notifications).
      * If {@link CopyState#isSuppressNotifications()} returns false, {@link OnCreate &#64;OnCreate}
      * and {@link OnChange &#64;OnChange} notifications will also be delivered.
      *
@@ -634,11 +512,11 @@ public class JTransaction {
      * reuse the previous {@link CopyState}. The {@link CopyState} may also be configured to remap object ID's.
      *
      * <p>
-     * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
+     * This instance and {@code dest} must be compatible in that for any schemas encountered, those schemas
      * must be identical in both transactions.
      *
      * <p>
-     * If {@code dest} is a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
+     * If {@code dest} is not a {@link DetachedJTransaction} and any copied objects contain reference fields configured with
      * {@link io.permazen.annotation.JField#allowDeleted}{@code = false}, then any objects referenced by those fields must
      * also be copied, or else must already exist in {@code dest}. Otherwise, a {@link DeletedObjectException} is thrown
      * and it is indeterminate which objects were copied.
@@ -653,273 +531,250 @@ public class JTransaction {
      * @throws DeletedObjectException if any object to be copied does not actually exist
      * @throws DeletedObjectException if any copied object ends up with a reference to an object that does not exist
      *  in {@code dest} through a reference field configured to disallow deleted assignment
-     * @throws io.permazen.core.SchemaMismatchException
-     *  if the schema corresponding to any copied object is not identical in both this instance and {@code dest}
+     * @throws UnknownTypeException if any source object's type does not exist in {@code dest}
+     * @throws SchemaMismatchException if the schema corresponding to any copied object is not identical
+     *  in both this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws IllegalArgumentException if {@code dest}, {@code copyState}, or {@code jobjs} is null
+     * @throws IllegalArgumentException if any parameter is null
      */
     public void copyTo(JTransaction dest, CopyState copyState, Stream<? extends JObject> jobjs) {
+        Preconditions.checkArgument(jobjs != null, "null jobjs");
         this.copyIdStreamTo(dest, copyState, jobjs
           .filter(Objects::nonNull)
           .peek(JTransaction::registerJObject)                              // handle possible re-entrant object cache load
           .map(JObject::getObjId));
     }
 
-    void copyIdStreamTo(JTransaction dest, CopyState copyState, Stream<ObjId> ids) {
+    private void copyIdStreamTo(JTransaction dest, CopyState copyState, Stream<ObjId> ids) {
 
         // Sanity check
         Preconditions.checkArgument(dest != null, "null dest");
         Preconditions.checkArgument(copyState != null, "null copyState");
         Preconditions.checkArgument(ids != null, "null ids");
 
-        // Reset deleted assignments
-        copyState.deletedAssignments.clear();
+        // Track deleted assignments while we copy
+        final ObjIdMap<DeletedAssignment> deletedAssignments = new ObjIdMap<>();
 
-        // Copy objects
-        ids.iterator().forEachRemaining(id -> this.copyTo(copyState, dest, id, true, 0, new int[0]));
+        // Do the copy
+        ids.iterator().forEachRemaining(id -> this.copyTo(copyState, dest, id, deletedAssignments, true));
 
-        // Check for any remaining deleted assignments
-        copyState.checkDeletedAssignments(this);
-    }
-
-    void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, boolean required, int fieldIndex, int[] fields) {
-
-        // Copy current instance unless already copied, upgrading it in the process
-        if (copyState.markCopied(srcId)) {
-
-            // Get destination ID
-            final ObjId dstId = copyState.getDestinationId(srcId);
-
-            // See if we can disable listener notifications
-            boolean disableListenerNotifications = copyState.isSuppressNotifications();
-            final JClass<?> jclass = dest.jdb.jclasses.get(dstId.getStorageId());
-            if (!disableListenerNotifications && dest.isDetached() && jclass != null)
-                disableListenerNotifications = jclass.onCreateMethods.isEmpty() && jclass.onChangeMethods.isEmpty();
-
-            // Reset any cached fields in the destination object
-            final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
-            if (dstObject != null)
-                dstObject.resetCachedFieldValues();
-
-            // Copy object at the core API level
-            final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
-            boolean exists = true;
-            try {
-                this.tx.copy(srcId, dest.tx, true,
-                  !disableListenerNotifications, coreDeletedAssignments, copyState.getObjectIdMap());
-            } catch (DeletedObjectException e) {
-                if (required)
-                    throw e;
-                exists = false;
-            }
-
-            // Revalidate destination object if needed
-            if (dest.validationMode.equals(ValidationMode.AUTOMATIC) && jclass != null && jclass.requiresDefaultValidation)
-                dest.revalidate(Collections.singleton(dstId));
-
-            // Add any deleted assignments from the core API copy to our copy state
-            for (Map.Entry<ObjId, ReferenceField> entry : coreDeletedAssignments.entrySet()) {
-                assert !copyState.isCopied(entry.getKey());
-                copyState.deletedAssignments.put(entry.getKey(), new DeletedAssignment(dstId, entry.getValue()));
-            }
-
-            // If the copy was successful, remove the copied object from the deleted assignments set in our copy state.
-            // This fixes up "forward reference" deleted assignments that get satisfied later in the overall copy operation.
-            if (exists)
-                copyState.deletedAssignments.remove(dstId);
-        }
-
-        // Any more fields to traverse?
-        if (fieldIndex == fields.length)
-            return;
-
-        // Have we already traversed the path?
-        final int[] pathSuffix = fieldIndex == 0 ? fields : Arrays.copyOfRange(fields, fieldIndex, fields.length);
-        if (!copyState.markTraversed(srcId, pathSuffix))
-            return;
-
-        // Recurse through the next reference field in the path
-        final int storageId = fields[fieldIndex++];
-        final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(storageId);
-        assert info == null || info.getEncoding() instanceof ReferenceEncoding;
-        if (info instanceof ComplexSubFieldIndexInfo) {
-            final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
-            subFieldInfo.copyRecurse(copyState, this, dest, srcId, fieldIndex, fields);
-        } else {
-            final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
-            if (referrent != null)
-                this.copyTo(copyState, dest, referrent, false, fieldIndex, fields);
+        // If any deleted assignments remain, grab an arbitrary one and throw an exception
+        final Map.Entry<ObjId, DeletedAssignment> entry = deletedAssignments.removeOne();
+        if (entry != null) {
+            final ObjId targetId = entry.getKey();
+            final DeletedAssignment deletedAssignment = entry.getValue();
+            final ObjId id = deletedAssignment.getId();
+            final ReferenceField field = deletedAssignment.getField();
+            throw new DeletedObjectException(targetId, String.format(
+              "illegal assignment of deleted object %s (%s) to %s in object %s (%s)",
+              targetId, this.tx.getTypeDescription(targetId), field, id, this.tx.getTypeDescription(id)));
         }
     }
 
-    /**
-     * Create a new object in this transaction of the same type for each object ID in the given set.
-     *
-     * <p>
-     * The newly created objects will be in their initial states.
-     *
-     * @param ids object ID's
-     * @return mapping from object ID in {@code ids} to newly created object
-     * @throws IllegalArgumentException if {@code ids} is null
-     */
-    public ObjIdMap<ObjId> createClones(ObjIdSet ids) {
-        Preconditions.checkArgument(ids != null, "null ids");
-        final ObjIdMap<ObjId> map = new ObjIdMap<>(ids.size());
-        for (ObjId id : ids)
-            map.put(id, this.tx.create(id.getStorageId()));
-        return map;
+    void copyTo(CopyState copyState, JTransaction dest, ObjId srcId,
+      ObjIdMap<DeletedAssignment> deletedAssignments, boolean required) {
+
+        // Already copied?
+        if (!copyState.markCopied(srcId))
+            return;
+
+        // Get source and destination JClass
+        final JClass<?> srcJClass = this.jdb.getJClass(srcId);
+        final JClass<?> dstJClass = dest.jdb.getJClass(srcJClass.name);
+
+        // Optimization: see if we can disable listener notifications
+        boolean enableNotifications = !copyState.isSuppressNotifications();
+        if (enableNotifications && dest.isDetached() && dstJClass != null)
+            enableNotifications = !dstJClass.onCreateMethods.isEmpty() || !dstJClass.onChangeMethods.isEmpty();
+
+        // Copy object at the core API level
+        final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
+        try {
+            this.tx.copy(srcId, dest.tx, true, enableNotifications, coreDeletedAssignments, copyState.getObjectIdMap());
+        } catch (DeletedObjectException e) {
+            assert !this.exists(srcId);
+            if (required)
+                throw e;
+            return;
+        }
+
+        // Get destination ID
+        assert copyState.isCopied(srcId);
+        final ObjId dstId = copyState.getDestId(srcId);
+        assert dstId.equals(srcId) || copyState.getObjectIdMap().containsKey(srcId);
+
+        // Reset cached fields in the destination JObject, if any
+        final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
+        if (dstObject != null)
+            dstObject.resetCachedFieldValues();
+
+        // Revalidate destination object if needed
+        if (dest.validationMode.equals(ValidationMode.AUTOMATIC) && dstJClass != null && dstJClass.requiresDefaultValidation)
+            dest.revalidate(Collections.singleton(dstId));
+
+        // Add any deleted assignments from the core API copy to our copy state
+        for (Map.Entry<ObjId, ReferenceField> entry : coreDeletedAssignments.entrySet()) {
+            assert !copyState.isCopied(entry.getKey());
+            deletedAssignments.put(entry.getKey(), new DeletedAssignment(dstId, entry.getValue()));
+        }
+
+        // Remove the copied object from the deleted assignments set in our copy state.
+        // This fixes up "forward reference" deleted assignments.
+        deletedAssignments.remove(dstId);
     }
 
     /**
-     * Recursively traverse cascade references starting from the given object to find all objects reachable
-     * through the specified cascade.
+     * Find all objects reachable through the specified reference cascades.
      *
      * <p>
-     * This method finds all objects reachable from the starting object based on
-     * {@link io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()} and
-     * {@link io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()} annotation properties on
-     * reference fields: a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
-     * specified in the corresponding annotation property. See {@link io.permazen.annotation.JField &#64;JField} for details.
+     * This method finds all objects reachable from the given starting object through
+     * {@linkplain io.permazen.annotation.JField#forwardCascades forward} and
+     * {@linkplain io.permazen.annotation.JField#inverseCascades inverse} reference field cascades with the specified names.
+     * In other words, a reference field is traversed in the forward or inverse direction if any cascade name is
+     * specified in the corresponding {@linkplain io.permazen.annotation.JField &#64;JField} annotation property.
      *
      * <p>
-     * All objects found will be {@linkplain #updateSchemaVersion upgraded} if necessary.
+     * The {@code visited} contains the ID's of objects already visited (or is empty if none); these objects will not
+     * be traversed. In particular, if {@code id} is in {@code visited}, then this method does nothing.
+     * Upon return, {@code visited} will have had all of the new objects found added.
      *
      * <p>
-     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
-     * measured in the number of reference field "hops" from the given object.
+     * All new objects found will be {@linkplain #migrateSchema migrated} to the this transaction's schema if necessary.
+     *
+     * <p>
+     * The {@code maxDistance} parameter can be used to limit the maximum distance of any reachable object,
+     * measured in the number of reference field "hops" from the given starting object. If a value other than -1 is given,
+     * objects will be visited in breadth-first manner (i.e., ordered by distance) and the search will end after that
+     * many hops. If -1 is given, there is no limit and also no implied ordering of reachable objects in the iteration.
      *
      * @param id starting object ID
-     * @param cascadeName cascade name, or null for no cascade (returns just the {@code id} object)
-     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
-     * @return the object ID's of all objects reachable through the specified cascade (including the {@code id} object)
+     * @param maxDistance the maximum number of reference fields to hop through, or -1 for no limit
+     * @param visited on entry objects already visited, on return all objects reached
+     * @param cascades zero or more reference cascade names
+     * @return iteration of reachable objects
      * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
-     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
-     * @throws IllegalArgumentException if {@code id} is null
-     * @see JObject#cascadeCopyTo(JTransaction, String, int, boolean)
+     * @throws IllegalArgumentException if {@code maxDistance} is less than -1
+     * @throws IllegalArgumentException if any parameter is null
+     * @see JObject#cascade JObject.cascade()
+     * @see io.permazen.annotation.JField#forwardCascades &#64;JField.forwardCascades()
+     * @see io.permazen.annotation.JField#inverseCascades &#64;JField.inverseCascades()
      */
-    public ObjIdSet cascadeFindAll(ObjId id, String cascadeName, int recursionLimit) {
-        final ObjIdSet ids = new ObjIdSet();
-        this.cascadeFindAll(id, cascadeName, recursionLimit, ids);
-        return ids;
-    }
-
-    /**
-     * Recursively traverse cascade references starting from the given object to find all objects reachable
-     * through the specified cascade.
-     *
-     * <p>
-     * Upon invocation {@code visitedIds} contains the ID's of objects already visited; these objects will not be traversed.
-     * In particular, if {@code id} is in {@code visitedIds}, then this method does nothing.
-     * Upon return, {@code visitedIds} will also contain the ID's of all new objects found.
-     *
-     * <p>
-     * All objects found will be {@linkplain #updateSchemaVersion upgraded} if necessary.
-     *
-     * <p>
-     * The {@code recursionLimit} parameter can be used to limit the maximum distance of any reachable object,
-     * measured in the number of reference field "hops" from the given object.
-     *
-     * @param id starting object ID
-     * @param cascadeName cascade name, or null for no cascade
-     * @param recursionLimit the maximum number of references to hop through, or -1 for infinity
-     * @param visitedIds on entry objects already visited, on return all objects reachable
-     * @throws DeletedObjectException if any object containing a traversed reference field does not actually exist
-     * @throws IllegalArgumentException if {@code recursionLimit} is less that -1
-     * @throws IllegalArgumentException if {@code id} or {@code visitedIds} is null
-     * @see JObject#cascadeCopyTo(JTransaction, String, int, boolean)
-     */
-    public void cascadeFindAll(ObjId id, String cascadeName, int recursionLimit, ObjIdSet visitedIds) {
+    public Iterator<ObjId> cascade(ObjId id, int maxDistance, ObjIdSet visited, String... cascades) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        Preconditions.checkArgument(recursionLimit >= -1, "recursionLimit < -1");
-        Preconditions.checkArgument(visitedIds != null, "null visitedIds");
+        Preconditions.checkArgument(cascades != null, "null cascades");
+        Preconditions.checkArgument(maxDistance >= -1, "maxDistance < -1");
+        Preconditions.checkArgument(visited != null, "null visited");
+        for (String cascade : cascades)
+            Preconditions.checkArgument(cascade != null, "null cascade");
 
-        // Initialize search
-        ObjIdSet toVisitIds = new ObjIdSet();
-        if (visitedIds.add(id))
-            toVisitIds.add(id);
+        // Build initial set
+        final ObjIdSet initial = new ObjIdSet();
+        if (visited.add(id))
+            initial.add(id);
 
-        // Do we need to cascade?
-        if (cascadeName == null)
-            return;
+        // Handle breadth-first vs. unordered
+        if (maxDistance >= 0) {
+            return new AbstractIterator<ObjId>() {
 
-        // While there are objects remaining to scan, cascade through forward and inverse reference field cascades
-        while (!toVisitIds.isEmpty()) {
-            assert visitedIds.containsAll(toVisitIds);
+                private ObjIdSet currLevel = initial;
+                private ObjIdSet nextLevel = new ObjIdSet();
+                private int remainingHops = maxDistance;
 
-            // Stop if we reach the recursion limit
-            if (recursionLimit != -1 && recursionLimit-- <= 0)
-                break;
+                @Override
+                protected ObjId computeNext() {
 
-            // Find all new objects reachable in one hop from any object in 'toVisitIds'
-            final ObjIdSet newIds = new ObjIdSet();
-            for (ObjId toVisitId : toVisitIds) {
+                    // Any remaining at the current level?
+                    if (!this.currLevel.isEmpty()) {
+                        final ObjId next = this.currLevel.removeOne();
+                        if (this.remainingHops > 0)                 // don't expand past the distance limit
+                            JTransaction.this.gatherCascadeRefs(next, cascades, visited, this.nextLevel);
+                        return next;
+                    }
 
-                // Upgrade object if needed
-                this.tx.updateSchemaVersion(toVisitId);
+                    // Take it to the next level
+                    final ObjIdSet empty = this.currLevel;
+                    this.currLevel = this.nextLevel;
+                    this.nextLevel = empty;
+                    this.remainingHops--;
 
-                // Gather references
-                this.gatherForwardCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
-                this.gatherInverseCascadeRefs(toVisitId, cascadeName, visitedIds, newIds);
-            }
+                    // Anything there?
+                    if (this.currLevel.isEmpty())
+                        return this.endOfData();
 
-            // New objects will be expanded on next time
-            toVisitIds = newIds;
+                    // Continue
+                    return this.computeNext();
+                }
+            };
+        } else {
+            return new AbstractIterator<ObjId>() {
+                @Override
+                protected ObjId computeNext() {
+                    if (!initial.isEmpty()) {
+                        final ObjId next = initial.removeOne();
+                        JTransaction.this.gatherCascadeRefs(next, cascades, visited, initial);
+                        return next;
+                    }
+                    return this.endOfData();
+                }
+            };
         }
     }
 
-    private void gatherForwardCascadeRefs(ObjId id, String cascadeName, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
-        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
-        if (jclass == null)
-            return;
-        final List<JReferenceField> fieldList = jclass.forwardCascadeMap.get(cascadeName);
-        if (fieldList == null)
-            return;
-        for (JReferenceField field : fieldList) {
-            final SimpleFieldIndexInfo info = (SimpleFieldIndexInfo)this.jdb.indexInfoMap.get(field.storageId);
-            assert info.getEncoding() instanceof ReferenceEncoding;
-            if (info instanceof ComplexSubFieldIndexInfo) {
-                final ComplexSubFieldIndexInfo subFieldInfo = (ComplexSubFieldIndexInfo)info;
-                this.gatherRefs(subFieldInfo.iterateReferences(this.tx, id).iterator(), visitedIds, toVisitIds);
-            } else {
-                final ObjId referrent = (ObjId)this.tx.readSimpleField(id, field.storageId, false);
-                if (referrent != null && visitedIds.add(referrent))
-                    toVisitIds.add(referrent);
-            }
+    // Cascade from object
+    private void gatherCascadeRefs(ObjId id, String[] cascades, ObjIdSet visited, ObjIdSet dest) {
+
+        // Migrate schema if needed
+        this.tx.migrateSchema(id);
+
+        // Get object type
+        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
+
+        // Gather references
+        this.gatherForwardCascadeRefs(jclass, id, cascades, visited, dest);
+        this.gatherInverseCascadeRefs(jclass, id, cascades, visited, dest);
+    }
+
+    // Cascade forward from object
+    private void gatherForwardCascadeRefs(JClass<?> jclass, ObjId id, String[] cascades, ObjIdSet visited, ObjIdSet dest) {
+        for (String cascade : cascades) {
+            final List<JReferenceField> fields = jclass.forwardCascadeMap.get(cascade);
+            if (fields == null)
+                continue;
+            fields.forEach(field -> this.addRefs(field.iterateReferences(this.tx, id), visited, dest));
         }
     }
 
-    private void gatherInverseCascadeRefs(ObjId id, String cascadeName, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
-        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
-        if (jclass == null)
-            return;
-        final Map<Integer, KeyRanges> incomingCascades = jclass.inverseCascadeMap.get(cascadeName);
-        if (incomingCascades == null)
-            return;
-        for (Map.Entry<Integer, KeyRanges> entry : incomingCascades.entrySet()) {
-            final int referenceFieldStorageId = entry.getKey();
-            final KeyRanges cascadeReferringTypeRanges = entry.getValue();
+    // Cascade inversely from object
+    @SuppressWarnings("unchecked")
+    private void gatherInverseCascadeRefs(JClass<?> jclass, ObjId id, String[] cascades, ObjIdSet visited, ObjIdSet dest) {
+        for (String cascade : cascades) {
+            final Map<Integer, KeyRanges> refMap = jclass.inverseCascadeMap.get(cascade);
+            if (refMap == null)
+                continue;
+            refMap.forEach((storageId, refTypeRanges) -> {
 
-            // Access the index associated with the reference field
-            CoreIndex<?, ?> index = this.tx.queryIndex(referenceFieldStorageId);
+                // Access the index associated with the reference field
+                CoreIndex1<ObjId, ObjId> index = (CoreIndex1<ObjId, ObjId>)this.tx.querySimpleIndex(storageId);
 
-            // Restrict index to references from objects containing the field with the cascade (their ranges already precomputed)
-            index = index.filter(1, cascadeReferringTypeRanges);
+                // Restrict references from objects containing the field with the cascade (precomputed via "refTypeRanges")
+                index = index.filter(1, refTypeRanges);
 
-            // Find objects referring to "id" through the field and add them to our cascade
-            final NavigableSet<?> refs = index.asMap().get(id);
-            if (refs != null)
-                this.gatherRefs(refs.iterator(), visitedIds, toVisitIds);
+                // Find objects referring to "id" through the field
+                final NavigableSet<ObjId> refs = index.asMap().get(id);
+                if (refs != null)
+                    this.addRefs(refs, visited, dest);
+            });
         }
     }
 
-    private void gatherRefs(Iterator<?> i0, ObjIdSet visitedIds, ObjIdSet toVisitIds) {
-        try (CloseableIterator<?> i = CloseableIterator.wrap(i0)) {
+    private void addRefs(Iterable<ObjId> refs, ObjIdSet visited, ObjIdSet dest) {
+        try (CloseableIterator<ObjId> i = CloseableIterator.wrap(refs.iterator())) {
             while (i.hasNext()) {
-                final ObjId ref = (ObjId)i.next();
-                if (ref != null && visitedIds.add(ref))
-                    toVisitIds.add(ref);
+                final ObjId ref = i.next();
+                if (ref != null && visited.add(ref))
+                    dest.add(ref);
             }
         }
     }
@@ -930,7 +785,8 @@ public class JTransaction {
      * Get the Java model object that is associated with this transaction and has the given ID.
      *
      * <p>
-     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
+     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned
+     * by this instance.
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
@@ -955,7 +811,8 @@ public class JTransaction {
      * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
      *
      * <p>
-     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
+     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned
+     * by this instance.
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
@@ -1025,11 +882,12 @@ public class JTransaction {
      * @param jclass object type
      * @param <T> Java model type
      * @return newly created instance
-     * @throws IllegalArgumentException if {@code jclass} is not valid for this instance
+     * @throws IllegalArgumentException if {@code jclass} is null or not valid for this instance
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(JClass<T> jclass) {
-        final ObjId id = this.tx.create(jclass.storageId);
+        Preconditions.checkArgument(jclass != null, "null jclass");
+        final ObjId id = this.tx.create(jclass.name);
         return jclass.getType().cast(this.get(id));
     }
 
@@ -1044,9 +902,12 @@ public class JTransaction {
      * @throws io.permazen.core.ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
+
+        // Sanity check
+        Preconditions.checkArgument(jobj != null, "null jobj");
 
         // Handle possible re-entrant object cache load
         JTransaction.registerJObject(jobj);
@@ -1079,7 +940,7 @@ public class JTransaction {
      * @param id ID of the object to test for existence
      * @return true if object was found, false if object was not found
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws NullPointerException if {@code id} is null
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean exists(ObjId id) {
         return this.tx.exists(id);
@@ -1094,7 +955,7 @@ public class JTransaction {
      * @param jobj the object to recreate
      * @return true if the object was recreated, false if the object already existed
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
         JTransaction.registerJObject(jobj);                                     // handle possible re-entrant object cache load
@@ -1130,7 +991,7 @@ public class JTransaction {
      * @throws IllegalStateException if transaction commit is already in progress
      */
     public synchronized void resetValidationQueue() {
-        if (!this.tx.isValid())
+        if (!this.tx.isOpen())
             throw new StaleTransactionException(this.tx);
         this.validationQueue.clear();
     }
@@ -1138,7 +999,7 @@ public class JTransaction {
     private synchronized void revalidate(Collection<? extends ObjId> ids, Class<?>... groups) {
 
         // Sanity checks
-        if (!this.tx.isValid())
+        if (!this.tx.isOpen())
             throw new StaleTransactionException(this.tx);
         Preconditions.checkArgument(groups != null, "null groups");
         for (Class<?> group : groups)
@@ -1166,42 +1027,45 @@ public class JTransaction {
     }
 
     /**
-     * Get this schema version of the specified object. Does not change the object's schema version.
+     * Get specified object's current schema's {@link SchemaId}.
      *
      * <p>
-     * This method is typically only used by generated classes; normally, {@link JObject#getSchemaVersion} would be used instead.
+     * This does not change the object's schema.
      *
-     * @param id ID of the object containing the field
-     * @return object's schema version
+     * <p>
+     * This method is typically only used by generated classes; normally, {@link JObject#getSchemaId} would be used instead.
+     *
+     * @param id ID of some object
+     * @return the ID of the object's current schema
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws NullPointerException if {@code id} is null
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public int getSchemaVersion(ObjId id) {
-        return this.tx.getSchemaVersion(id);
+    public SchemaId getSchemaId(ObjId id) {
+        return this.tx.getObjType(id).getSchema().getSchemaId();
     }
 
     /**
-     * Update the schema version of the specified object, if necessary, so that its version matches
-     * the schema version associated with this instance's {@link Permazen}.
+     * Update the schema of the specified object, if necessary, so that it matches
+     * the schema associated with this instance's {@link Permazen}.
      *
      * <p>
-     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange}
-     * methods will be invoked prior to this method returning.
+     * If a schema change occurs, {@link OnSchemaChange &#64;OnSchemaChange} methods will be invoked
+     * prior to this method returning.
      *
      * <p>
-     * This method is typically only used by generated classes; normally, {@link JObject#upgrade} would be used instead.
+     * This method is typically only used by generated classes; normally, {@link JObject#migrateSchema} would be used instead.
      *
      * @param jobj object to update
-     * @return true if the object's schema version was changed, false if it was already updated
+     * @return true if the object's schema was migrated, false if it was already updated
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws TypeNotInSchemaException if the current schema does not contain the object's type
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public boolean updateSchemaVersion(JObject jobj) {
+    public boolean migrateSchema(JObject jobj) {
         JTransaction.registerJObject(jobj);                                     // handle possible re-entrant object cache load
-        return this.tx.updateSchemaVersion(jobj.getObjId());
+        return this.tx.migrateSchema(jobj.getObjId());
     }
 
     /**
@@ -1212,14 +1076,17 @@ public class JTransaction {
      * before the newly created {@link JObject} is fully constructed and associated with its {@link JTransaction}.
      *
      * @param jobj object to register
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
     public static void registerJObject(JObject jobj) {
         jobj.getTransaction().jobjectCache.register(jobj);
     }
 
     /**
-     * Read a simple field. This returns the value returned by {@link Transaction#readSimpleField Transaction.readSimpleField()}
+     * Read a simple field.
+     *
+     * <p>
+     * This returns the value returned by {@link Transaction#readSimpleField Transaction.readSimpleField()}
      * with {@link ObjId}s converted into {@link JObject}s, etc.
      *
      * <p>
@@ -1227,23 +1094,27 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      *
      * @param id ID of the object containing the field
-     * @param storageId storage ID of the {@link JSimpleField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return value of the field in the object
+     * @param fieldName the name of the {@link JSimpleField}
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
+     * @return the value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
-     *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code id} is null
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code fieldName} in {@code id} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but the object has a type
+     *  that does not exist in this instance's schema
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(id, storageId, JSimpleField.class).getConverter(this),
-          this.tx.readSimpleField(id, storageId, updateVersion));
+    public Object readSimpleField(ObjId id, String fieldName, boolean migrateSchema) {
+        return this.convert(
+          this.jdb.getJField(id, fieldName, JSimpleField.class).getConverter(this),
+          this.tx.readSimpleField(id, fieldName, migrateSchema));
     }
 
     /**
-     * Write a simple field. This writes the value via {@link Transaction#writeSimpleField Transaction.writeSimpleField()}
+     * Write a simple field.
+     *
+     * <p>
+     * This writes the value via {@link Transaction#writeSimpleField Transaction.writeSimpleField()}
      * after converting {@link JObject}s into {@link ObjId}s, etc.
      *
      * <p>
@@ -1251,24 +1122,24 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      *
      * @param jobj object containing the field
-     * @param storageId storage ID of the {@link JSimpleField}
+     * @param fieldName the name of the {@link JSimpleField}
      * @param value new value for the field
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
-     *  that does not exist in this instance's schema version
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code fieldName} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
+    public void writeSimpleField(JObject jobj, String fieldName, Object value, boolean migrateSchema) {
         JTransaction.registerJObject(jobj);                                    // handle possible re-entrant object cache load
         final ObjId id = jobj.getObjId();
-        final Converter<?, ?> converter = this.jdb.getJField(id, storageId, JSimpleField.class).getConverter(this);
+        final Converter<?, ?> converter = this.jdb.getJField(id, fieldName, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
-        this.tx.writeSimpleField(id, storageId, value, updateVersion);
+        this.tx.writeSimpleField(id, fieldName, value, migrateSchema);
     }
 
     /**
@@ -1279,25 +1150,28 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      *
      * @param id ID of the object containing the field
-     * @param storageId storage ID of the {@link JCounterField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return value of the counter in the object
+     * @param fieldName the name of the {@link JCounterField}
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
+     * @return the value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
-     *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code id} is null
+     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code fieldName} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but the object has a type
+     *  that does not exist in this instance's schema
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
-        this.jdb.getJField(id, storageId, JCounterField.class);                 // validate encoding
-        if (updateVersion)
-            this.tx.updateSchemaVersion(id);
-        return new Counter(this.tx, id, storageId, updateVersion);
+    public Counter readCounterField(ObjId id, String fieldName, boolean migrateSchema) {
+        this.jdb.getJField(id, fieldName, JCounterField.class);             // validate encoding
+        if (migrateSchema)
+            this.tx.migrateSchema(id);
+        return new Counter(this.tx, id, fieldName, migrateSchema);
     }
 
     /**
-     * Read a set field. This returns the set returned by {@link Transaction#readSetField Transaction.readSetField()} with
+     * Read a set field.
+     *
+     * <p>
+     * This returns the set returned by {@link Transaction#readSetField Transaction.readSetField()} with
      * {@link ObjId}s converted into {@link JObject}s, etc.
      *
      * <p>
@@ -1305,23 +1179,27 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      *
      * @param id ID of the object containing the field
-     * @param storageId storage ID of the {@link JSetField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the set field in the object with storage ID {@code storageId}
+     * @param fieldName the name of the {@link JSetField}
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
+     * @return the value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
-     *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code id} is null
+     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code fieldName} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but the object has a type
+     *  that does not exist in this instance's schema
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(id, storageId, JSetField.class).getConverter(this),
-          this.tx.readSetField(id, storageId, updateVersion));
+    public NavigableSet<?> readSetField(ObjId id, String fieldName, boolean migrateSchema) {
+        return this.convert(
+          this.jdb.getJField(id, fieldName, JSetField.class).getConverter(this),
+          this.tx.readSetField(id, fieldName, migrateSchema));
     }
 
     /**
-     * Read a list field. This returns the list returned by {@link Transaction#readListField Transaction.readListField()} with
+     * Read a list field.
+     *
+     * <p>
+     * This returns the list returned by {@link Transaction#readListField Transaction.readListField()} with
      * {@link ObjId}s converted into {@link JObject}s, etc.
      *
      * <p>
@@ -1329,23 +1207,27 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      *
      * @param id ID of the object containing the field
-     * @param storageId storage ID of the {@link JListField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the list field in the object with storage ID {@code storageId}
+     * @param fieldName the name of the {@link JListField}
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
+     * @return the value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
-     *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code id} is null
+     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code fieldName} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but the object has a type
+     *  that does not exist in this instance's schema
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(id, storageId, JListField.class).getConverter(this),
-          this.tx.readListField(id, storageId, updateVersion));
+    public List<?> readListField(ObjId id, String fieldName, boolean migrateSchema) {
+        return this.convert(
+          this.jdb.getJField(id, fieldName, JListField.class).getConverter(this),
+          this.tx.readListField(id, fieldName, migrateSchema));
     }
 
     /**
-     * Read a map field. This returns the map returned by {@link Transaction#readMapField Transaction.readMapField()} with
+     * Read a map field.
+     *
+     * <p>
+     * This returns the map returned by {@link Transaction#readMapField Transaction.readMapField()} with
      * {@link ObjId}s converted into {@link JObject}s, etc.
      *
      * <p>
@@ -1353,19 +1235,20 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      *
      * @param id ID of the object containing the field
-     * @param storageId storage ID of the {@link JMapField}
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the map field in the object with storage ID {@code storageId}
+     * @param fieldName the name of the {@link JMapField}
+     * @param migrateSchema true to automatically migrate the object's schema, false to not change it
+     * @return the value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
-     *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code id} is null
+     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code fieldName} exists
+     * @throws TypeNotInSchemaException if {@code migrateSchema} is true but the object has a type
+     *  that does not exist in this instance's schema
+     * @throws IllegalArgumentException if {@code id} or {@code fieldName} is null
      */
-    public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(id, storageId, JMapField.class).getConverter(this),
-          this.tx.readMapField(id, storageId, updateVersion));
+    public NavigableMap<?, ?> readMapField(ObjId id, String fieldName, boolean migrateSchema) {
+        return this.convert(
+          this.jdb.getJField(id, fieldName, JMapField.class).getConverter(this),
+          this.tx.readMapField(id, fieldName, migrateSchema));
     }
 
 // Reference Path Access
@@ -1417,21 +1300,22 @@ public class JTransaction {
      *  must include the sub-field name (e.g., {@code "mylist.element"}, {@code "mymap.key"})
      *  unless there is only one sub-field (i.e., sets and lists but not maps)
      * @param valueType the Java type corresponding to the field value
-     * @param <V> Java type corresponding to the indexed field
      * @param <T> Java type containing the field
+     * @param <V> Java type corresponding to the indexed field
      * @return read-only, real-time view of field values mapped to sets of objects having that value in the field
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <V, T> Index<V, T> queryIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
-        assert info.indexInfo instanceof SimpleFieldIndexInfo;          // otherwise getIndexQueryInfo() would have failed...
-        final SimpleFieldIndexInfo indexInfo = (SimpleFieldIndexInfo)info.indexInfo;
-        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(indexInfo.storageId));
-        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
+    public <V, T> Index1<V, T> querySimpleIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(new IndexQuery.Key(fieldName, false, targetType, valueType));
+        final JSimpleField jfield = (JSimpleField)info.schemaItem;
+        final CoreIndex1<?, ObjId> index = info.applyFilters(this.tx.querySimpleIndex(jfield.storageId));
+        final Converter<?, ?> valueConverter = Util.reverse(jfield.getConverter(this));
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
-        return new ConvertedIndex(index, valueConverter, targetConverter);
+        return new ConvertedIndex1(index, valueConverter, targetConverter);
     }
 
     /**
@@ -1441,22 +1325,25 @@ public class JTransaction {
      *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "element"} sub-field name (e.g., {@code "mylist.element"})
      * @param valueType the Java type corresponding to list elements
-     * @param <V> Java type corresponding to the indexed list's element field
      * @param <T> Java type containing the field
+     * @param <V> Java type corresponding to the indexed list's element field
      * @return read-only, real-time view of field values, objects having that value in the field, and corresponding list indices
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(fieldName, false, targetType, valueType));
-        if (!(info.indexInfo instanceof ListElementIndexInfo))
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(new IndexQuery.Key(fieldName, false, targetType, valueType));
+        final JSimpleField jfield = (JSimpleField)info.schemaItem;
+        if (!(jfield.getParentField() instanceof JListField))
             throw new IllegalArgumentException(String.format("field \"%s\" is not a list element sub-field", fieldName));
-        final ListElementIndexInfo indexInfo = (ListElementIndexInfo)info.indexInfo;
-        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(indexInfo.storageId));
-        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
+        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(jfield.storageId));
+        final Converter<?, ?> valueConverter = Util.reverse(jfield.getConverter(this));
+        final Converter<Integer, Integer> indexConverter = Converter.<Integer>identity();
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
-        return new ConvertedIndex2(index, valueConverter, targetConverter, Converter.<Integer>identity());
+        return new ConvertedIndex2(index, valueConverter, targetConverter, indexConverter);
     }
 
     /**
@@ -1467,8 +1354,8 @@ public class JTransaction {
      * @param fieldName name of the indexed field; must include {@code "value"} sub-field name (e.g., {@code "mymap.value"})
      * @param valueType the Java type corresponding to map values
      * @param keyType the Java type corresponding to map keys
-     * @param <V> Java type corresponding to the indexed map's value field
      * @param <T> Java type containing the field
+     * @param <V> Java type corresponding to the indexed map's value field
      * @param <K> Java type corresponding to the indexed map's key field
      * @return read-only, real-time view of map values, objects having that value in the map field, and corresponding map keys
      * @throws IllegalArgumentException if any parameter is null, or invalid
@@ -1477,14 +1364,18 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T, K> Index2<V, T, K> queryMapValueIndex(Class<T> targetType,
       String fieldName, Class<V> valueType, Class<K> keyType) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
-          new IndexQueryInfoKey(fieldName, false, targetType, valueType, keyType));
-        if (!(info.indexInfo instanceof MapValueIndexInfo))
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(
+          new IndexQuery.Key(fieldName, false, targetType, valueType, keyType));
+        final JSimpleField jfield = (JSimpleField)info.schemaItem;
+        final JMapField parentField;
+        if (!(jfield.getParentField() instanceof JMapField)
+          || jfield != (parentField = (JMapField)jfield.getParentField()).valueField)
             throw new IllegalArgumentException(String.format("field \"%s\" is not a map value sub-field", fieldName));
-        final MapValueIndexInfo indexInfo = (MapValueIndexInfo)info.indexInfo;
-        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(indexInfo.storageId));
-        final Converter<?, ?> valueConverter = indexInfo.getConverter(this).reverse();
-        final Converter<?, ?> keyConverter = indexInfo.getKeyConverter(this).reverse();
+        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(jfield.storageId));
+        final Converter<?, ?> valueConverter = Util.reverse(jfield.getConverter(this));
+        final Converter<?, ?> keyConverter = Util.reverse(parentField.keyField.getConverter(this));
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, valueConverter, targetConverter, keyConverter);
     }
@@ -1496,9 +1387,9 @@ public class JTransaction {
      * @param indexName the name of the composite index
      * @param value1Type the Java type corresponding to the first field value
      * @param value2Type the Java type corresponding to the second field value
+     * @param <T> Java type containing the field
      * @param <V1> Java type corresponding to the first indexed field
      * @param <V2> Java type corresponding to the second indexed field
-     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1506,12 +1397,14 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, T> Index2<V1, V2, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
-          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type));
-        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
-        final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(indexInfo.storageId));
-        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
-        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(
+          new IndexQuery.Key(indexName, true, targetType, value1Type, value2Type));
+        final JCompositeIndex jindex = (JCompositeIndex)info.schemaItem;
+        final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(jindex.storageId));
+        final Converter<?, ?> value1Converter = Util.reverse(jindex.jfields.get(0).getConverter(this));
+        final Converter<?, ?> value2Converter = Util.reverse(jindex.jfields.get(1).getConverter(this));
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, value1Converter, value2Converter, targetConverter);
     }
@@ -1524,10 +1417,10 @@ public class JTransaction {
      * @param value1Type the Java type corresponding to the first field value
      * @param value2Type the Java type corresponding to the second field value
      * @param value3Type the Java type corresponding to the third field value
+     * @param <T> Java type containing the field
      * @param <V1> Java type corresponding to the first indexed field
      * @param <V2> Java type corresponding to the second indexed field
      * @param <V3> Java type corresponding to the third indexed field
-     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1535,13 +1428,15 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, T> Index3<V1, V2, V3, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
-          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type));
-        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
-        final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(indexInfo.storageId));
-        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
-        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
-        final Converter<?, ?> value3Converter = indexInfo.getConverter(this, 2).reverse();
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(
+          new IndexQuery.Key(indexName, true, targetType, value1Type, value2Type, value3Type));
+        final JCompositeIndex jindex = (JCompositeIndex)info.schemaItem;
+        final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(jindex.storageId));
+        final Converter<?, ?> value1Converter = Util.reverse(jindex.jfields.get(0).getConverter(this));
+        final Converter<?, ?> value2Converter = Util.reverse(jindex.jfields.get(1).getConverter(this));
+        final Converter<?, ?> value3Converter = Util.reverse(jindex.jfields.get(2).getConverter(this));
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex3(index, value1Converter, value2Converter, value3Converter, targetConverter);
     }
@@ -1555,11 +1450,11 @@ public class JTransaction {
      * @param value2Type the Java type corresponding to the second field value
      * @param value3Type the Java type corresponding to the third field value
      * @param value4Type the Java type corresponding to the fourth field value
+     * @param <T> Java type containing the field
      * @param <V1> Java type corresponding to the first indexed field
      * @param <V2> Java type corresponding to the second indexed field
      * @param <V3> Java type corresponding to the third indexed field
      * @param <V4> Java type corresponding to the fourth indexed field
-     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1567,14 +1462,16 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, V4, T> Index4<V1, V2, V3, V4, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type, Class<V4> value4Type) {
-        final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
-          new IndexQueryInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
-        final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
-        final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(indexInfo.storageId));
-        final Converter<?, ?> value1Converter = indexInfo.getConverter(this, 0).reverse();
-        final Converter<?, ?> value2Converter = indexInfo.getConverter(this, 1).reverse();
-        final Converter<?, ?> value3Converter = indexInfo.getConverter(this, 2).reverse();
-        final Converter<?, ?> value4Converter = indexInfo.getConverter(this, 3).reverse();
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
+        final IndexQuery info = this.jdb.getIndexQuery(
+          new IndexQuery.Key(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
+        final JCompositeIndex jindex = (JCompositeIndex)info.schemaItem;
+        final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(jindex.storageId));
+        final Converter<?, ?> value1Converter = Util.reverse(jindex.jfields.get(0).getConverter(this));
+        final Converter<?, ?> value2Converter = Util.reverse(jindex.jfields.get(1).getConverter(this));
+        final Converter<?, ?> value3Converter = Util.reverse(jindex.jfields.get(2).getConverter(this));
+        final Converter<?, ?> value4Converter = Util.reverse(jindex.jfields.get(3).getConverter(this));
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex4(index, value1Converter, value2Converter, value3Converter, value4Converter, targetConverter);
     }
@@ -1596,41 +1493,45 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Object queryIndex(int storageId) {
+    public Index<?> queryIndex(int storageId) {
+
+        // Check transcaction
+        if (!this.tx.isOpen())
+            throw new StaleTransactionException(this.tx);
 
         // Find index
-        final IndexInfo indexInfo = this.jdb.indexInfoMap.get(storageId);
-        if (indexInfo == null) {
+        final JSchemaItem schemaItem = this.jdb.indexesByStorageId.get(storageId);
+        if (schemaItem == null) {
             throw new IllegalArgumentException(String.format(
               "no composite index or simple indexed field exists with storage ID %d", storageId));
         }
 
         // Handle a composite index
-        if (indexInfo instanceof CompositeIndexInfo) {
-            final CompositeIndexInfo compositeInfo = (CompositeIndexInfo)indexInfo;
-            switch (compositeInfo.getStorageIds().size()) {
+        if (schemaItem instanceof JCompositeIndex) {
+            final JCompositeIndex index = (JCompositeIndex)schemaItem;
+            switch (index.jfields.size()) {
             case 2:
             {
-                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
-                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
-                return new ConvertedIndex2(this.tx.queryCompositeIndex2(indexInfo.storageId),
+                final Converter<?, ?> value1Converter = Util.reverse(index.jfields.get(0).getConverter(this));
+                final Converter<?, ?> value2Converter = Util.reverse(index.jfields.get(1).getConverter(this));
+                return new ConvertedIndex2(this.tx.queryCompositeIndex2(index.storageId),
                   value1Converter, value2Converter, this.referenceConverter);
             }
             case 3:
             {
-                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
-                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
-                final Converter<?, ?> value3Converter = compositeInfo.getConverter(this, 2).reverse();
-                return new ConvertedIndex3(this.tx.queryCompositeIndex3(indexInfo.storageId),
+                final Converter<?, ?> value1Converter = Util.reverse(index.jfields.get(0).getConverter(this));
+                final Converter<?, ?> value2Converter = Util.reverse(index.jfields.get(1).getConverter(this));
+                final Converter<?, ?> value3Converter = Util.reverse(index.jfields.get(2).getConverter(this));
+                return new ConvertedIndex3(this.tx.queryCompositeIndex3(index.storageId),
                   value1Converter, value2Converter, value3Converter, this.referenceConverter);
             }
             case 4:
             {
-                final Converter<?, ?> value1Converter = compositeInfo.getConverter(this, 0).reverse();
-                final Converter<?, ?> value2Converter = compositeInfo.getConverter(this, 1).reverse();
-                final Converter<?, ?> value3Converter = compositeInfo.getConverter(this, 2).reverse();
-                final Converter<?, ?> value4Converter = compositeInfo.getConverter(this, 3).reverse();
-                return new ConvertedIndex4(this.tx.queryCompositeIndex4(indexInfo.storageId),
+                final Converter<?, ?> value1Converter = Util.reverse(index.jfields.get(0).getConverter(this));
+                final Converter<?, ?> value2Converter = Util.reverse(index.jfields.get(1).getConverter(this));
+                final Converter<?, ?> value3Converter = Util.reverse(index.jfields.get(2).getConverter(this));
+                final Converter<?, ?> value4Converter = Util.reverse(index.jfields.get(3).getConverter(this));
+                return new ConvertedIndex4(this.tx.queryCompositeIndex4(index.storageId),
                   value1Converter, value2Converter, value3Converter, value4Converter, this.referenceConverter);
             }
             // COMPOSITE-INDEX
@@ -1640,7 +1541,7 @@ public class JTransaction {
         }
 
         // Must be a simple field index
-        return ((SimpleFieldIndexInfo)indexInfo).toIndex(this);
+        return ((JSimpleField)schemaItem).getIndex(this);
     }
 
 // Transaction Lifecycle
@@ -1664,7 +1565,7 @@ public class JTransaction {
     public synchronized void commit() {
 
         // Sanity check
-        if (!this.tx.isValid())
+        if (!this.tx.isOpen())
             throw new StaleTransactionException(this.tx);
         synchronized (this) {
             if (this.commitInvoked)
@@ -1699,10 +1600,10 @@ public class JTransaction {
      * Determine whether this transaction is still usable.
      *
      * @return true if this transaction is still valid
-     * @see Transaction#isValid
+     * @see Transaction#isOpen
      */
-    public boolean isValid() {
-        return this.tx.isValid();
+    public boolean isOpen() {
+        return this.tx.isOpen();
     }
 
     /**
@@ -1727,7 +1628,7 @@ public class JTransaction {
     public void validate() {
 
         // Sanity check
-        if (!this.tx.isValid())
+        if (!this.tx.isOpen())
             throw new StaleTransactionException(this.tx);
 
         // Check validation mode
@@ -1786,7 +1687,7 @@ public class JTransaction {
 
     @SuppressWarnings("unchecked")
     private void doValidate() {
-        final ValidatorFactory validatorFactory = this.jdb.getValidatorFactory();
+        final ValidatorFactory validatorFactory = this.jdb.validatorFactory;
         final Validator validator = validatorFactory != null ? validatorFactory.getValidator() : null;
         while (true) {
 
@@ -1809,7 +1710,7 @@ public class JTransaction {
 
             // Get object and verify type exists in current schema (if not, the remaining validation is unneccessary)
             final JObject jobj = this.get(id);
-            final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
+            final JClass<?> jclass = this.jdb.jclassesByStorageId.get(id.getStorageId());
             if (jclass == null)
                 return;
 
@@ -1825,8 +1726,9 @@ public class JTransaction {
                     throw e;
                 }
                 if (!violations.isEmpty()) {
-                    throw new ValidationException(jobj, violations, "validation error for object " + id + " of type \""
-                      + this.jdb.jclasses.get(id.getStorageId()).name + "\":\n" + ValidationUtil.describe(violations));
+                    throw new ValidationException(jobj, violations, String.format(
+                      "validation error for object %s of type \"%s\":%n%s",
+                      id, jclass.name, ValidationUtil.describe(violations)));
                 }
             }
 
@@ -1849,7 +1751,7 @@ public class JTransaction {
                     assert jfield.unique;
 
                     // Get field's (core API) value
-                    final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
+                    final Object value = this.tx.readSimpleField(id, jfield.name, false);
 
                     // Compare to excluded value list
                     if (jfield.uniqueExcludes != null
@@ -1858,9 +1760,8 @@ public class JTransaction {
 
                     // Query core API index to find other objects with the same value in the field, but restrict the search to
                     // only include those types having the annotated method, not some other method with the same name/storage ID.
-                    final IndexQueryInfo info = this.jdb.getIndexQueryInfo(new IndexQueryInfoKey(jfield.name,
-                      false, jfield.getter.getDeclaringClass(), jfield.typeToken.wrap().getRawType()));
-                    final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(jfield.storageId));
+                    final IndexQuery info = this.jdb.getIndexQuery(new IndexQuery.Key(jfield));
+                    final CoreIndex1<?, ObjId> index = info.applyFilters(this.tx.querySimpleIndex(jfield.storageId));
 
                     // Seach for other objects with the same value in the field and report violation if any are found
                     final List<ObjId> conflictors = this.findUniqueConflictors(id, index.asMap().get(value));
@@ -1871,40 +1772,39 @@ public class JTransaction {
                 }
 
                 // Check composite index uniqueness constraints
-                for (JCompositeIndex index : jclass.uniqueConstraintCompositeIndexes) {
-                    assert index.unique;
+                for (JCompositeIndex jindex : jclass.uniqueConstraintCompositeIndexes) {
+                    assert jindex.unique;
 
                     // Get field (core API) values
-                    final int numFields = index.jfields.size();
+                    final int numFields = jindex.jfields.size();
                     final List<Object> values = new ArrayList<>(numFields);
-                    for (JSimpleField jfield : index.jfields)
-                        values.add(this.tx.readSimpleField(id, jfield.storageId, false));
+                    for (JSimpleField jfield : jindex.jfields)
+                        values.add(this.tx.readSimpleField(id, jfield.name, false));
 
                     // Compare to excluded value combinations list
-                    if (index.uniqueExcludes != null
-                      && Collections.binarySearch(index.uniqueExcludes, values, index.uniqueComparator) >= 0)
+                    if (jindex.uniqueExcludes != null
+                      && Collections.binarySearch(jindex.uniqueExcludes, values, jindex.uniqueComparator) >= 0)
                         continue;
 
                     // Query core API index to find all objects with the same values in the fields
-                    final IndexQueryInfo info = this.jdb.getIndexQueryInfo(
-                      new IndexQueryInfoKey(index.name, true, index.declaringType, index.getQueryInfoValueTypes()));
-                    final CompositeIndexInfo indexInfo = (CompositeIndexInfo)info.indexInfo;
+                    final IndexQuery info = this.jdb.getIndexQuery(new IndexQuery.Key(jindex));
+                    final JCompositeIndex index = (JCompositeIndex)info.schemaItem;
                     final NavigableSet<ObjId> ids;
                     switch (numFields) {
                     case 2:
                         final CoreIndex2<Object, Object, ObjId> coreIndex2
-                          = (CoreIndex2<Object, Object, ObjId>)this.tx.queryCompositeIndex2(indexInfo.storageId);
+                          = (CoreIndex2<Object, Object, ObjId>)this.tx.queryCompositeIndex2(index.storageId);
                         ids = info.applyFilters(coreIndex2).asMap().get(new Tuple2<Object, Object>(values.get(0), values.get(1)));
                         break;
                     case 3:
                         final CoreIndex3<Object, Object, Object, ObjId> coreIndex3
-                          = (CoreIndex3<Object, Object, Object, ObjId>)this.tx.queryCompositeIndex3(indexInfo.storageId);
+                          = (CoreIndex3<Object, Object, Object, ObjId>)this.tx.queryCompositeIndex3(index.storageId);
                         ids = info.applyFilters(coreIndex3).asMap().get(
                           new Tuple3<Object, Object, Object>(values.get(0), values.get(1), values.get(2)));
                         break;
                     case 4:
                         final CoreIndex4<Object, Object, Object, Object, ObjId> coreIndex4
-                          = (CoreIndex4<Object, Object, Object, Object, ObjId>)this.tx.queryCompositeIndex4(indexInfo.storageId);
+                          = (CoreIndex4<Object, Object, Object, Object, ObjId>)this.tx.queryCompositeIndex4(index.storageId);
                         ids = info.applyFilters(coreIndex4).asMap().get(
                           new Tuple4<Object, Object, Object, Object>(values.get(0), values.get(1), values.get(2), values.get(3)));
                         break;
@@ -1916,7 +1816,7 @@ public class JTransaction {
                     // Seach for other objects with the same values in the same fields and report violation if any are found
                     final List<ObjId> conflictors = this.findUniqueConflictors(id, ids);
                     if (!conflictors.isEmpty()) {
-                        throw new ValidationException(jobj, "uniqueness constraint on composite index \"" + index.name
+                        throw new ValidationException(jobj, "uniqueness constraint on composite index \"" + jindex.name
                           + "\" failed for object " + id + ": field value combination " + values + " is also shared by object(s) "
                           + conflictors);
                     }
@@ -1955,7 +1855,7 @@ public class JTransaction {
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(id);
-        } catch (TypeNotInSchemaVersionException e) {
+        } catch (TypeNotInSchemaException e) {
             return;                                             // object type does not exist in our schema
         }
 
@@ -1990,7 +1890,7 @@ public class JTransaction {
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(id);
-        } catch (TypeNotInSchemaVersionException e) {
+        } catch (TypeNotInSchemaException e) {
             return;                                             // object type does not exist in our schema
         }
 
@@ -2003,25 +1903,26 @@ public class JTransaction {
         }
     }
 
-// InternalVersionChangeListener
+// InternalSchemaChangeListener
 
-    private static class InternalVersionChangeListener implements VersionChangeListener {
+    private static class InternalSchemaChangeListener implements SchemaChangeListener {
 
         @Override
-        public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
+        public void onSchemaChange(Transaction tx, ObjId id,
+          SchemaId oldSchemaId, SchemaId newSchemaId, Map<String, Object> oldValues) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
-            jtx.doOnVersionChange(id, oldVersion, newVersion, oldValues);
+            jtx.doOnSchemaChange(id, oldSchemaId, newSchemaId, oldValues);
         }
     }
 
-    private void doOnVersionChange(ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
+    private void doOnSchemaChange(ObjId id, SchemaId oldSchemaId, SchemaId newSchemaId, Map<String, Object> oldValues) {
 
         // Get JClass, if known
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(id);
-        } catch (TypeNotInSchemaVersionException e) {
+        } catch (TypeNotInSchemaException e) {
             return;                                             // object type does not exist in our schema
         }
 
@@ -2029,30 +1930,31 @@ public class JTransaction {
         if (this.validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
             this.revalidate(Collections.singleton(id));
 
-        // Skip the rest if there are no fields to convert and no @OnChange methods
-        if (jclass.upgradeConversionFields.isEmpty() && jclass.onVersionChangeMethods.isEmpty())
+        // Skip the rest if there are no fields to convert and no @OnSchemaChange methods
+        if (jclass.upgradeConversionFields.isEmpty() && jclass.onSchemaChangeMethods.isEmpty())
             return;
 
         // Get old and new object type info
-        final Schema oldSchema = this.tx.getSchemas().getVersion(oldVersion);
+        final Schema oldSchema = this.tx.getSchemaBundle().getSchema(oldSchemaId);
         final Schema newSchema = this.tx.getSchema();
+        assert newSchemaId.equals(newSchema.getSchemaId());
         final ObjType oldObjType = oldSchema.getObjType(id.getStorageId());
         final ObjType newObjType = newSchema.getObjType(id.getStorageId());
 
         // Auto-convert any upgrade-convertable fields
         for (JField jfield0 : jclass.upgradeConversionFields) {
-            final int storageId = jfield0.getStorageId();
+            final String fieldName = jfield0.name;
 
             // Find the old version of the field, if any
             final Field<?> oldField0;
             try {
-                oldField0 = oldObjType.getField(storageId);
+                oldField0 = oldObjType.getField(fieldName);
             } catch (UnknownFieldException e) {
                 continue;
             }
 
             // Get old field value
-            final Object oldValue = oldValues.get(storageId);
+            final Object oldValue = oldValues.get(fieldName);
 
             // Handle conversion to counter field from counter field or simple numeric field
             if (jfield0 instanceof JCounterField) {
@@ -2072,16 +1974,17 @@ public class JTransaction {
                     if (Number.class.isAssignableFrom(oldEncoding.getTypeToken().wrap().getRawType())) {
                         final Number value = (Number)oldValue;
                         if (value != null)
-                            this.tx.writeCounterField(id, storageId, value.longValue(), false);
+                            this.tx.writeCounterField(id, fieldName, value.longValue(), false);
                         continue;
                     }
                 }
 
                 // Conversion is not possible
                 if (jfield.upgradeConversion.isRequireConversion()) {
-                    throw new UpgradeConversionException(id, storageId, "conversion from the previous schema version's "
-                      + (oldValue != null ? "non-numeric " : "null ") + oldField0 + " to " + jfield
-                      + " is not supported, but the upgrade conversion policy is configured as " + jfield.upgradeConversion);
+                    throw new UpgradeConversionException(id, fieldName, String.format(
+                      "automatic conversion from the old schema %s %s to %s is not supported,"
+                      + " but the upgrade conversion policy is configured as %s",
+                      oldValue != null ? "non-numeric " : "null ", oldField0, jfield, jfield.upgradeConversion));
                 }
                 continue;
             }
@@ -2089,7 +1992,7 @@ public class JTransaction {
             // Get new field, which must be simple
             final JSimpleField jfield = (JSimpleField)jfield0;
             assert jfield.upgradeConversion.isConvertsValues();
-            final SimpleField<?> newField = (SimpleField)newObjType.getField(storageId);
+            final SimpleField<?> newField = (SimpleField)newObjType.getField(fieldName);
 
             // Handle conversion from counter field to numeric simple field
             if (oldField0 instanceof CounterField) {
@@ -2108,31 +2011,21 @@ public class JTransaction {
             this.convertAndSetField(id, oldField, newField, oldValue, jfield.upgradeConversion);
         }
 
-        // Skip the rest if there are no @OnChange methods
-        if (jclass.onVersionChangeMethods.isEmpty())
+        // Skip the rest if there are no @OnSchemaChange methods
+        if (jclass.onSchemaChangeMethods.isEmpty())
             return;
 
-        // The object that was upgraded
-        JObject jobj = null;
-
         // Convert old field values from core API objects to JDB layer objects, but do not convert EnumValue objects
-        final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldValues,
-          (storageId, oldValue) -> this.convertOldVersionValue(id, oldObjType.getField(storageId), oldValue));
+        final Map<String, Object> convertedOldValues = Maps.transformEntries(oldValues,
+          (fieldName, oldValue) -> this.convertOldSchemaValue(id, oldObjType.getField(fieldName), oldValue));
 
-        // Build alternate version of old values map that is keyed by field name instead of storage ID
-        final Map<String, Object> oldValuesByName = Maps.transformValues(oldObjType.getFieldsByName(),
-          field -> oldValuesByStorageId.get(field.getStorageId()));
+        // Get the object that was upgraded
+        final JObject jobj = this.get(id);
 
         // Invoke listener methods
-        for (OnVersionChangeScanner<?>.MethodInfo info0 : jclass.onVersionChangeMethods) {
-            final OnVersionChangeScanner<?>.VersionChangeMethodInfo info = (OnVersionChangeScanner<?>.VersionChangeMethodInfo)info0;
-
-            // Get Java model object
-            if (jobj == null)
-                jobj = this.get(id);
-
-            // Invoke method
-            info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
+        for (OnSchemaChangeScanner<?>.MethodInfo info0 : jclass.onSchemaChangeMethods) {
+            final OnSchemaChangeScanner<?>.SchemaChangeMethodInfo info = (OnSchemaChangeScanner<?>.SchemaChangeMethodInfo)info0;
+            info.invoke(jobj, convertedOldValues, oldSchemaId, newSchemaId);
         }
     }
 
@@ -2165,9 +2058,10 @@ public class JTransaction {
             newValue = newEncoding.convert(oldEncoding, oldValue);
         } catch (IllegalArgumentException e) {
             if (policy.isRequireConversion()) {
-                throw new UpgradeConversionException(id, newField.getStorageId(), "the value " + oldEncoding.toString(oldValue)
-                  + " in the previous schema version's " + oldField + " could not be converted type to the new encoding "
-                  + newEncoding + ", but the upgrade conversion policy is configured as " + policy, e);
+                throw new UpgradeConversionException(id, newField.getName(), String.format(
+                  "the value %s in the old schema %s could not be automatically converted to the new type %s,"
+                  + " but the upgrade conversion policy is configured as %s",
+                  oldEncoding.toString(oldValue), oldField, newEncoding.getTypeToken(), policy), e);
             }
             return;
         }
@@ -2184,25 +2078,25 @@ public class JTransaction {
     }
 
     /**
-     * Convert a core API field value from a different schema version.
-     * We need to do this to convert the old field values after a schema upgrade.
+     * Convert a core API field value from a different schema.
+     * We need to do this to convert the old field values after a schema migration.
      *
      * @param id originating object
      * @param field originating core API field
      * @param value field value
      * @return converted value
      */
-    private Object convertOldVersionValue(ObjId id, Field<?> field, Object value) {
+    private Object convertOldSchemaValue(ObjId id, Field<?> field, Object value) {
 
         // Null always converts to null
         if (value == null)
             return null;
 
         // Convert the value
-        return this.convert(field.visit(new OldVersionValueConverterBuilder()), value);
+        return this.convert(field.visit(new OldSchemaValueConverterBuilder()), value);
     }
 
-// OldVersionValueConverterBuilder
+// OldSchemaValueConverterBuilder
 
     /**
      * Builds a {@link Converter} for core API {@link Field} that converts, in the forward direction, core API values
@@ -2214,7 +2108,7 @@ public class JTransaction {
      * Returns null if no conversion is necessary.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private class OldVersionValueConverterBuilder implements FieldSwitch<Converter<?, ?>> {
+    private class OldSchemaValueConverterBuilder implements FieldSwitch<Converter<?, ?>> {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {
@@ -2344,7 +2238,7 @@ public class JTransaction {
         private void revalidateIfNeeded(Transaction tx, ObjId id, Field<?> field, NavigableSet<ObjId> referrers) {
             final JTransaction jtx = (JTransaction)tx.getUserObject();
             assert jtx != null && jtx.tx == tx;
-            final JField jfield = jtx.jdb.getJField(id, field.getStorageId(), JField.class);
+            final JField jfield = jtx.jdb.getJField(id, field.getName(), JField.class);
             if (jfield.requiresDefaultValidation)
                 jtx.revalidate(referrers);
         }

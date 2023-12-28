@@ -6,16 +6,15 @@
 package io.permazen;
 
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class GetModelClassTest extends TestSupport {
+public class GetModelClassTest extends MainTestSupport {
 
     @Test
     public void testGetModelClass() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(ModelA.class, ModelB.class);
+        final Permazen jdb = BasicTest.newPermazen(ModelA.class, ModelB.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {

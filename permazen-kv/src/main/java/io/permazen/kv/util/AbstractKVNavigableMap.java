@@ -428,11 +428,11 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         // Avoid creating an inverted key range
         if (newMinKey == null)
             newMinKey = ByteUtil.EMPTY;
-        if (newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
+        else if (newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
             newMaxKey = newMinKey;
 
         // Build KeyRange
-        return new KeyRange(newMinKey != null ? newMinKey : ByteUtil.EMPTY, newMaxKey);
+        return new KeyRange(newMinKey, newMaxKey);
     }
 
 // KeySet

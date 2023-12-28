@@ -256,10 +256,10 @@ public class Database {
     public Transaction createTransaction(KVTransaction kvt, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final SchemaResult schemaResult = this.verifySchemaBundle(kvt, txConfig);
+        final Schema schema = this.verifySchemaBundle(kvt, txConfig);
 
         // Create transaction
-        final Transaction tx = new Transaction(this, kvt, schemaResult.getSchema(), schemaResult.getSchemaBundle());
+        final Transaction tx = new Transaction(this, kvt, schema);
 
         // Synchronize with all future synchronized transaction access
         synchronized (tx) {
@@ -295,11 +295,10 @@ public class Database {
     public DetachedTransaction createDetachedTransaction(KVStore kvstore, TransactionConfig txConfig) {
 
         // Validate meta-data
-        final SchemaResult schemaResult = this.verifySchemaBundle(kvstore, txConfig);
+        final Schema schema = this.verifySchemaBundle(kvstore, txConfig);
 
         // Create detached transaction
-        final DetachedTransaction tx = new DetachedTransaction(this,
-          kvstore, schemaResult.getSchema(), schemaResult.getSchemaBundle());
+        final DetachedTransaction tx = new DetachedTransaction(this, kvstore, schema);
 
         // Synchronize with all future transaction access
         synchronized (tx) {
@@ -314,7 +313,7 @@ public class Database {
      * @param txConfig transaction configuration
      * @throws IllegalArgumentException if {@code kvstore} or {@code txConfig} is null
      */
-    private SchemaResult verifySchemaBundle(KVStore kvstore, TransactionConfig txConfig) {
+    private Schema verifySchemaBundle(KVStore kvstore, TransactionConfig txConfig) {
 
         // Sanity check
         Preconditions.checkArgument(kvstore != null, "null kvstore");
@@ -327,11 +326,12 @@ public class Database {
         final byte[] schemaPrefix = Layout.getSchemaTablePrefix();
         final byte[] storageIdPrefix = Layout.getStorageIdTablePrefix();
         final byte[] endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
-        final byte[] schemaIndexPrefix = Layout.getObjectSchemaIndexKeyPrefix();
+        final byte[] schemaIndexPrefix = Layout.getSchemaIndexKeyPrefix();
 
         // Extract config info
         final SchemaModel schemaModel = txConfig.getSchemaModel();
-        assert schemaModel.isLockedDown();
+        assert schemaModel.isLockedDown(true);
+        final boolean emptySchema = schemaModel.isEmpty();
         final SchemaId schemaId = schemaModel.getSchemaId();
 
         // Debug
@@ -388,7 +388,8 @@ public class Database {
                       last == null || !Arrays.equals(testIterator.next().getKey(), last.getKey()) : last != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtMost() and getRange()");
                 }
-                this.checkAddNewSchema(schemaId, txConfig);
+                if (!emptySchema)
+                    this.checkAddNewSchema(schemaId, txConfig);
 
                 // Initialize database
                 formatVersion = Layout.CURRENT_FORMAT_VERSION;
@@ -440,7 +441,6 @@ public class Database {
 
         // Read the schema and storage ID tables
         SchemaBundle.Encoded encodedBundle = SchemaBundle.Encoded.readFrom(kvstore);
-        //this.log.info("*** CREATE TRANSACTION(\"{}\"):\n{}\n*** FOUND BUNDLE:\n{}", schemaId, schemaModel, encodedBundle);
 
         // There should not be any meta data between the storage ID table and the object version index
         try (CloseableIterator<KVPair> i = kvstore.getRange(endOfStorageIdTable, schemaIndexPrefix)) {
@@ -460,7 +460,7 @@ public class Database {
 
             // Optimization: if everything is the same as last time, re-use the previous schema bundle
             if (this.schemaCache != null && this.schemaCache.matches(txConfig, txEncodingRegistry, encodedBundle))
-                return this.schemaCache.getSchemaResult();
+                return this.schemaCache.getSchema();
 
             // Decode schema and storage ID tables
             schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
@@ -485,9 +485,12 @@ public class Database {
             }
         }
 
-        // If the schema we're using is not registered, we need to add it
-        Schema schema = schemaBundle.getSchemasBySchemaId().get(schemaId);
-        if (schema == null) {
+        // If the schema we're using is not registered, we need to add it (unless empty)
+        Schema schema;
+        if (emptySchema) {
+            schema = new Schema(schemaBundle);
+            this.log.debug("using empty schema");
+        } else if ((schema = schemaBundle.getSchemasBySchemaId().get(schemaId)) == null) {
 
             // Check whether we can add a new schema
             String schemaList = schemaBundle.getSchemasBySchemaId().keySet().stream()
@@ -498,12 +501,8 @@ public class Database {
             this.log.debug("schema \"{}\" not found in database (recorded schemas: {})", schemaId, schemaList);
             this.checkAddNewSchema(schemaId, txConfig);
 
-            // Add new schema
-            encodedBundle = schemaBundle.withSchemaAdded(schemaModel);
-
-            //this.log.info("*** ADDING SCHEMA MODEL \"{}\"", schemaModel.getSchemaId());
-            //schemaModel.visitSchemaItems(item -> this.log.info("SCHEMA ITEM: \"{}\" -> {}", item.getSchemaId(), item));
-
+            // Build new bundle containing new schema
+            encodedBundle = schemaBundle.withSchemaAdded(0, schemaModel);
             schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
             modifiedBundle = true;
             schema = schemaBundle.getSchema(schemaId);
@@ -518,16 +517,13 @@ public class Database {
         if (modifiedBundle)
             encodedBundle.writeTo(kvstore);
 
-        // Prepare result
-        final SchemaResult schemaResult = new SchemaResult(schema, schemaBundle);
-
         // Save for possible reuse next time
         synchronized (this) {
-            this.schemaCache = new SchemaCache(schemaResult, txConfig, txEncodingRegistry, encodedBundle);
+            this.schemaCache = new SchemaCache(schema, txConfig, txEncodingRegistry, encodedBundle);
         }
 
         // Done
-        return schemaResult;
+        return schema;
     }
 
     private void checkAddNewSchema(SchemaId schemaId, TransactionConfig txConfig) {
@@ -537,47 +533,26 @@ public class Database {
         }
     }
 
-// SchemaResult
-
-    private static class SchemaResult {
-
-        private final Schema schema;
-        private final SchemaBundle schemaBundle;
-
-        SchemaResult(Schema schema, SchemaBundle schemaBundle) {
-            this.schema = schema;
-            this.schemaBundle = schemaBundle;
-        }
-
-        public Schema getSchema() {
-            return this.schema;
-        }
-
-        public SchemaBundle getSchemaBundle() {
-            return this.schemaBundle;
-        }
-    }
-
 // SchemaCache
 
     // Used to optimize transaction startup when the schema information in the database has not changed
     private static class SchemaCache {
 
-        private final SchemaResult schemaResult;
+        private final Schema schema;
         private final TransactionConfig txConfig;
         private final EncodingRegistry encodingRegistry;
         private final SchemaBundle.Encoded encoded;
 
-        SchemaCache(SchemaResult schemaResult, TransactionConfig txConfig, EncodingRegistry encodingRegistry,
+        SchemaCache(Schema schema, TransactionConfig txConfig, EncodingRegistry encodingRegistry,
           SchemaBundle.Encoded encoded) {
-            this.schemaResult = schemaResult;
+            this.schema = schema;
             this.txConfig = txConfig;
             this.encodingRegistry = encodingRegistry;
             this.encoded = encoded;
         }
 
-        public SchemaResult getSchemaResult() {
-            return this.schemaResult;
+        public Schema getSchema() {
+            return this.schema;
         }
 
         public boolean matches(TransactionConfig txConfig, EncodingRegistry encodingRegistry, SchemaBundle.Encoded encoded) {

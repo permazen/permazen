@@ -12,7 +12,6 @@ import io.permazen.annotation.JSetField;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.Change;
-import io.permazen.change.ChangeCopier;
 import io.permazen.change.FieldChange;
 import io.permazen.change.ListFieldAdd;
 import io.permazen.change.ListFieldChange;
@@ -29,7 +28,6 @@ import io.permazen.change.SetFieldChange;
 import io.permazen.change.SetFieldClear;
 import io.permazen.change.SetFieldRemove;
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.test.TestSupport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +38,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnChangeTest extends TestSupport {
+public class OnChangeTest extends MainTestSupport {
 
     private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = new ThreadLocal<ArrayList<FieldChange<?>>>() {
         @Override
@@ -52,7 +50,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testSimpleFieldChange() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class, MeanPerson.class, NicePerson.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class, MeanPerson.class, NicePerson.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -67,53 +65,53 @@ public class OnChangeTest extends TestSupport {
             this.verify();
 
             p1.setName("Person #1");
-            this.verify(new SimpleFieldChange<>(p1, 101, "name", null, "Person #1"));
+            this.verify(new SimpleFieldChange<>(p1, "name", null, "Person #1"));
 
             n1.setAge(10);      // no path to n1 yet
             this.verify();
 
             p1.getKnownPeople().add(n1);
-            this.verify(new ListFieldAdd<Person, Person>(p1, 103, "knownPeople", 0, n1));
+            this.verify(new ListFieldAdd<Person, Person>(p1, "knownPeople", 0, n1));
 
             p1.getKnownPeople().add(n2);
-            this.verify(new ListFieldAdd<Person, Person>(p1, 103, "knownPeople", 1, n2));
+            this.verify(new ListFieldAdd<Person, Person>(p1, "knownPeople", 1, n2));
 
             p1.getKnownPeople().add(0, m1);
-            this.verify(new ListFieldAdd<Person, Person>(p1, 103, "knownPeople", 0, m1));
+            this.verify(new ListFieldAdd<Person, Person>(p1, "knownPeople", 0, m1));
 
             p1.getKnownPeople().add(n2);
-            this.verify(new ListFieldAdd<Person, Person>(p1, 103, "knownPeople", 3, n2));
+            this.verify(new ListFieldAdd<Person, Person>(p1, "knownPeople", 3, n2));
 
             p1.getKnownPeople().set(3, n2);     // no change
             this.verify();
 
             p1.getKnownPeople().set(3, p1);
-            this.verify(new ListFieldReplace<>(p1, 103, "knownPeople", 3, n2, p1));
+            this.verify(new ListFieldReplace<>(p1, "knownPeople", 3, n2, p1));
 
             p1.getKnownPeople().remove(3);
-            this.verify(new ListFieldRemove<>(p1, 103, "knownPeople", 3, p1));
+            this.verify(new ListFieldRemove<>(p1, "knownPeople", 3, p1));
 
             n1.setAge(10);      // no path to n1 yet
             this.verify();
 
             m1.getEnemies().put(n1, 0.5f);
-            this.verify(new MapFieldAdd<>(m1, 201, "enemies", n1, 0.5f));
+            this.verify(new MapFieldAdd<>(m1, "enemies", n1, 0.5f));
 
             // Now there exists a path p1.knownPeople.element -> m1.enemies.key -> n1
             n1.setAge(20);
-            this.verify(new SimpleFieldChange<Person, Integer>(n1, 102, "age", 10, 20));
+            this.verify(new SimpleFieldChange<Person, Integer>(n1, "age", 10, 20));
 
             m1.getEnemies().put(n1, 0.5f);      // no change
             this.verify();
 
             m1.getEnemies().put(n1, 2.5f);
-            this.verify(new MapFieldReplace<>(m1, 201, "enemies", n1, 0.5f, 2.5f));
+            this.verify(new MapFieldReplace<>(m1, "enemies", n1, 0.5f, 2.5f));
 
             m1.getEnemies().remove(n2);
             this.verify();
 
             m1.getEnemies().remove(n1);
-            this.verify(new MapFieldRemove<>(m1, 201, "enemies", n1, 2.5f));
+            this.verify(new MapFieldRemove<>(m1, "enemies", n1, 2.5f));
 
             m1.getEnemies().remove(n1);
             this.verify();
@@ -122,10 +120,10 @@ public class OnChangeTest extends TestSupport {
             this.verify();
 
             m1.getEnemies().put(null, 2.5f);
-            this.verify(new MapFieldAdd<MeanPerson, NicePerson, Float>(m1, 201, "enemies", null, 2.5f));
+            this.verify(new MapFieldAdd<MeanPerson, NicePerson, Float>(m1, "enemies", null, 2.5f));
 
             m1.getEnemies().clear();
-            this.verify(new MapFieldClear<>(m1, 201, "enemies"));
+            this.verify(new MapFieldClear<>(m1, "enemies"));
 
         } finally {
             JTransaction.setCurrent(null);
@@ -135,7 +133,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testColorChange() {
 
-        final Permazen jdb = BasicTest.getPermazen(ColorHolder.class);
+        final Permazen jdb = BasicTest.newPermazen(ColorHolder.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -162,7 +160,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testNoParamChange() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person2.class);
+        final Permazen jdb = BasicTest.newPermazen(Person2.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -205,7 +203,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testNonGenericParameter() {
 
-        final Permazen jdb = BasicTest.getPermazen(NonGenericChange.class);
+        final Permazen jdb = BasicTest.newPermazen(NonGenericChange.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -216,8 +214,7 @@ public class OnChangeTest extends TestSupport {
 
             c.setName("fred");
 
-            Assert.assertEquals(c.getChange(),
-              new SimpleFieldChange<NonGenericChange, String>(c, 123, "name", null, "fred"));
+            Assert.assertEquals(c.getChange(), new SimpleFieldChange<NonGenericChange, String>(c, "name", null, "fred"));
 
             jtx.commit();
 
@@ -229,7 +226,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testInversePaths() {
 
-        final Permazen jdb = BasicTest.getPermazen(InversePaths.class);
+        final Permazen jdb = BasicTest.newPermazen(InversePaths.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -250,7 +247,7 @@ public class OnChangeTest extends TestSupport {
 
             child3.setName("pee-wee");
 
-            final SimpleFieldChange<InversePaths, String> change = new SimpleFieldChange<>(child3, 123, "name", null, "pee-wee");
+            final SimpleFieldChange<InversePaths, String> change = new SimpleFieldChange<>(child3, "name", null, "pee-wee");
 
             Assert.assertNull(parent.getChange());
             Assert.assertEquals(child1.getChange(), change);
@@ -267,7 +264,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testInverseRestrictedTypes() {
 
-        final Permazen jdb = BasicTest.getPermazen(A.class, B.class, C.class, D.class);
+        final Permazen jdb = BasicTest.newPermazen(A.class, B.class, C.class, D.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -290,7 +287,7 @@ public class OnChangeTest extends TestSupport {
             d.setMiddleMan(b);                  // @OnChange path should match now because "b" is the middle object
             d.setFoo(456);
 
-            Assert.assertEquals(a.getChange(), new SimpleFieldChange<D, Integer>(d, 10, "foo", 123, 456));
+            Assert.assertEquals(a.getChange(), new SimpleFieldChange<D, Integer>(d, "foo", 123, 456));
 
             jtx.commit();
 
@@ -302,7 +299,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testCounter() {
         try {
-            BasicTest.getPermazen(HasCounter.class);
+            BasicTest.newPermazen(HasCounter.class);
             assert false;
         } catch (java.lang.IllegalArgumentException e) {
             // expected
@@ -318,7 +315,7 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testChangeWithDelete() {
 
-        final Permazen jdb = BasicTest.getPermazen(Node.class);
+        final Permazen jdb = BasicTest.newPermazen(Node.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -332,7 +329,7 @@ public class OnChangeTest extends TestSupport {
             child.delete();
 
             final List<?> actual = parent.getChanges();
-            final List<?> expected = Arrays.asList(new SimpleFieldChange<>(child, 20, "color", null, Color.RED));
+            final List<?> expected = Arrays.asList(new SimpleFieldChange<>(child, "color", null, Color.RED));
             Assert.assertEquals(actual, expected,
                 "\n  ACTUAL: " + actual
               + "\nEXPECTED: " + expected);
@@ -348,14 +345,6 @@ public class OnChangeTest extends TestSupport {
         if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore detached changes
             return;
         EVENTS.get().add(change);
-    }
-
-    private static void verifyCopy(Change<?> change) {
-        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore detached changes
-            return;
-        final Change<?> copy1 = change.visit(new ChangeCopier());
-        final Change<?> copy2 = copy1.visit(new ChangeCopier(JTransaction.getCurrent()));
-        Assert.assertEquals(copy2, change);
     }
 
 // Model Classes
@@ -376,7 +365,6 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange(path = "->knownPeople->enemies.key", value = "age")
         private void knownEnemyAgeChange(SimpleFieldChange<NicePerson, Integer> change) {
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
@@ -385,18 +373,15 @@ public class OnChangeTest extends TestSupport {
         @OnChange("name")
         private void nameChange(FieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("name")
         private void nameChange(SimpleFieldChange<? extends Person, String> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("name")
         private static void personNameChange(SimpleFieldChange<? extends Person, String> change) {
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
@@ -405,40 +390,34 @@ public class OnChangeTest extends TestSupport {
         @OnChange("knownPeople")
         private void knownPeopleChange(FieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldChange<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldAdd<? extends Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldRemove<? extends Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldReplace<? extends Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldClear<? extends Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
@@ -461,40 +440,34 @@ public class OnChangeTest extends TestSupport {
         @OnChange("enemies")
         private void enemiesChange(FieldChange<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldChange<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldClear<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldAdd<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldRemove<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldReplace<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
     }
@@ -514,41 +487,35 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange("ratings")
         private void ratingsChange(FieldChange<NicePerson> change) {
-            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldChange<NicePerson> change) {
-            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldAdd<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldRemove<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldReplace<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldClear<NicePerson> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
@@ -556,34 +523,29 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange("friends")
         private void friendsChange(FieldChange<NicePerson> change) {
-            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldChange<NicePerson> change) {
-            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldAdd<NicePerson, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldRemove<NicePerson, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldClear<NicePerson> change) {
             Assert.assertSame(change.getObject(), this);
-            OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
     }

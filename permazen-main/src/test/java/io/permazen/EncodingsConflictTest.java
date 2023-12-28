@@ -8,7 +8,6 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,12 +21,12 @@ import org.testng.annotations.Test;
  * This test just proves that fields with the same name can have different types in different
  * classes as long as they are not both indexed.
  */
-public class EncodingsConflictTest extends TestSupport {
+public class EncodingsConflictTest extends MainTestSupport {
 
     @Test
     public void testEncodingsNoConflict() {
 
-        final Permazen jdb = BasicTest.getPermazen(Encodings1.class, Encodings2.class, Encodings3.class);
+        final Permazen jdb = BasicTest.newPermazen(Encodings1.class, Encodings2.class, Encodings3.class);
 
         Encodings1 ft1;
         Encodings2 ft2;
@@ -88,26 +87,13 @@ public class EncodingsConflictTest extends TestSupport {
 
     @Test
     public void testEncodingsConflict() {
-
-        try {
-            BasicTest.getPermazen(Conflictor1.class, Conflictor2.class);
-            assert false : "expected exception";
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-
-        try {
-            BasicTest.getPermazen(Conflictor3.class, Conflictor4.class);
-            assert false : "expected exception";
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-
+        BasicTest.newPermazen(Conflictor1.class, Conflictor2.class);        // ok now
+        BasicTest.newPermazen(Conflictor3.class, Conflictor4.class);        // ok now
     }
 
     @Test
     public void testEncodingsNoConflict2() {
-        BasicTest.getPermazen(NonConflictor1.class, NonConflictor2.class);
+        BasicTest.newPermazen(NonConflictor1.class, NonConflictor2.class);
     }
 
 // Model Classes

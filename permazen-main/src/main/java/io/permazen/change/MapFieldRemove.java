@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -28,14 +30,13 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that changed
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param key the key of the removed key/value pair
      * @param value the value of the removed key/value pair
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldRemove(T jobj, int storageId, String fieldName, K key, V value) {
-        super(jobj, storageId, fieldName);
+    public MapFieldRemove(T jobj, String fieldName, K key, V value) {
+        super(jobj, fieldName);
         this.key = key;
         this.value = value;
     }
@@ -47,7 +48,9 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readMapField(jobj.getObjId(), this.getStorageId(), false).remove(this.key);
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        jtx.readMapField(jobj.getObjId(), this.getFieldName(), false).remove(this.key);
     }
 
     /**

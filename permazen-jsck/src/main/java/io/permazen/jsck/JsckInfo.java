@@ -5,25 +5,20 @@
 
 package io.permazen.jsck;
 
-import io.permazen.core.EnumValueEncoding;
-import io.permazen.core.ReferenceEncoding;
-import io.permazen.encoding.Encoding;
+import io.permazen.core.CounterField;
+import io.permazen.core.Field;
+import io.permazen.core.FieldSwitch;
+import io.permazen.core.ListField;
+import io.permazen.core.MapField;
+import io.permazen.core.ObjType;
+import io.permazen.core.Schema;
+import io.permazen.core.SchemaBundle;
+import io.permazen.core.SetField;
+import io.permazen.core.SimpleField;
 import io.permazen.kv.KVStore;
-import io.permazen.schema.CounterSchemaField;
-import io.permazen.schema.EnumSchemaField;
-import io.permazen.schema.ListSchemaField;
-import io.permazen.schema.MapSchemaField;
-import io.permazen.schema.ReferenceSchemaField;
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.schema.SchemaField;
-import io.permazen.schema.SchemaFieldSwitch;
-import io.permazen.schema.SchemaModel;
-import io.permazen.schema.SchemaObjectType;
-import io.permazen.schema.SetSchemaField;
-import io.permazen.schema.SimpleSchemaField;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -35,11 +30,10 @@ class JsckInfo implements JsckLogger {
     private final JsckConfig config;
     private final KVStore kv;
     private final AtomicLong counter = new AtomicLong();
-    private final Map<Integer, SchemaModel> schemas = new HashMap<>();              // version -> SchemaModel
-    private final Map<Integer, Map<Integer, Storage>> storages = new HashMap<>();   // version -> (storage ID -> Storage)
-    private final Map<Integer, Index> indexes = new HashMap<>();                    // storage ID -> Index
+    private final Set<Storage<?>> storages = new HashSet<>();
     private final Consumer<? super Issue> handler;
 
+    private SchemaBundle schemaBundle;
     private int formatVersion;
 
     JsckInfo(JsckConfig config, KVStore kv, Consumer<? super Issue> handler) {
@@ -58,23 +52,22 @@ class JsckInfo implements JsckLogger {
         return this.kv;
     }
 
-    public Map<Integer, SchemaModel> getSchemas() {
-        return this.schemas;
-    }
-
-    public Map<Integer, Map<Integer, Storage>> getStorages() {
-        return this.storages;
-    }
-
-    public Map<Integer, Index> getIndexes() {
-        return this.indexes;
-    }
-
     public int getFormatVersion() {
         return this.formatVersion;
     }
     public void setFormatVersion(int formatVersion) {
         this.formatVersion = formatVersion;
+    }
+
+    public SchemaBundle getSchemaBundle() {
+        return this.schemaBundle;
+    }
+    public void setSchemaBundle(SchemaBundle schemaBundle) {
+        this.schemaBundle = schemaBundle;
+    }
+
+    public Set<Storage<?>> getStorages() {
+        return this.storages;
     }
 
     // Handle an issue
@@ -120,118 +113,65 @@ class JsckInfo implements JsckLogger {
 
 // Internal stuff
 
-    // Inventory all storage ID's
+    // Inventory all storages
     void inventoryStorages() {
-        for (Map.Entry<Integer, SchemaModel> entry : this.schemas.entrySet())
-            this.inventoryStorages(entry.getKey(), entry.getValue());
+        for (Schema schema : this.schemaBundle.getSchemasBySchemaId().values()) {
+            for (ObjType objType : schema.getObjTypes().values())
+                this.inventoryStorages(objType);
+        }
     }
 
-    private void inventoryStorages(int schemaVersion, SchemaModel schema) {
-        for (SchemaObjectType objectType : schema.getSchemaObjectTypes().values())
-            this.inventoryStorages(schemaVersion, objectType);
-    }
-
-    private void inventoryStorages(final int schemaVersion, SchemaObjectType objectType) {
+    // Inventory all storages associated with the given object type
+    private void inventoryStorages(ObjType objType) {
 
         // Add storage for object type
-        this.addStorage(schemaVersion, new ObjectType(this, objectType));
+        this.storages.add(new ObjectType(this, objType));
 
         // Add storage for field indexes
-        for (SchemaField field : objectType.getSchemaFields().values()) {
-            field.visit(new SchemaFieldSwitch<Void>() {
+        for (Field<?> field : objType.getFields().values()) {
+            field.visit(new FieldSwitch<Void>() {
 
                 @Override
-                public Void caseSimpleSchemaField(SimpleSchemaField field) {
-                    if (field.isIndexed())
-                        JsckInfo.this.addStorage(schemaVersion, new SimpleFieldIndex(JsckInfo.this, schemaVersion, field));
+                public <T> Void caseSimpleField(SimpleField<T> field) {
+                    if (field.isIndexed()) {
+                        JsckInfo.this.storages.add(
+                          new SimpleFieldIndex<T, io.permazen.core.SimpleFieldIndex<T>>(JsckInfo.this, field));
+                    }
                     return null;
                 }
 
                 @Override
-                public Void caseSetSchemaField(SetSchemaField field) {
+                public <E> Void caseSetField(SetField<E> field) {
                     if (field.getElementField().isIndexed())
-                        JsckInfo.this.addStorage(schemaVersion, new SetElementIndex(JsckInfo.this, schemaVersion, field));
+                        JsckInfo.this.storages.add(new SetElementIndex<>(JsckInfo.this, field));
                     return null;
                 }
 
                 @Override
-                public Void caseListSchemaField(ListSchemaField field) {
+                public <E> Void caseListField(ListField<E> field) {
                     if (field.getElementField().isIndexed())
-                        JsckInfo.this.addStorage(schemaVersion, new ListElementIndex(JsckInfo.this, schemaVersion, field));
+                        JsckInfo.this.storages.add(new ListElementIndex<>(JsckInfo.this, field));
                     return null;
                 }
 
                 @Override
-                public Void caseMapSchemaField(MapSchemaField field) {
+                public <K, V> Void caseMapField(MapField<K, V> field) {
                     if (field.getKeyField().isIndexed())
-                        JsckInfo.this.addStorage(schemaVersion, new MapKeyIndex(JsckInfo.this, schemaVersion, field));
+                        JsckInfo.this.storages.add(new MapKeyIndex<>(JsckInfo.this, field));
                     if (field.getValueField().isIndexed())
-                        JsckInfo.this.addStorage(schemaVersion, new MapValueIndex(JsckInfo.this, schemaVersion, field));
+                        JsckInfo.this.storages.add(new MapValueIndex<>(JsckInfo.this, field));
                     return null;
                 }
 
                 @Override
-                public Void caseCounterSchemaField(CounterSchemaField field) {
+                public Void caseCounterField(CounterField field) {
                     return null;
                 }
             });
         }
 
         // Add storage for composite indexes
-        for (SchemaCompositeIndex index : objectType.getSchemaCompositeIndexes().values())
-            this.addStorage(schemaVersion, new CompositeIndex(this, schemaVersion, objectType, index));
-    }
-
-    // Find Encoding for field
-    Encoding<?> findEncoding(final int schemaVersion, final SimpleSchemaField schemaField) {
-        return schemaField.visit(new SchemaFieldSwitch<Encoding<?>>() {
-
-            @Override
-            public Encoding<?> caseEnumSchemaField(EnumSchemaField field) {
-                return new EnumValueEncoding(field.getIdentifiers());
-            }
-
-            @Override
-            public Encoding<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-                return new ReferenceEncoding(field.getObjectTypes());
-            }
-
-            @Override
-            public Encoding<?> caseSimpleSchemaField(SimpleSchemaField field) {
-                final Encoding<?> encoding = JsckInfo.this.config.getEncodingRegistry().getEncoding(field.getEncodingId());
-                if (encoding == null) {
-                    throw new IllegalArgumentException("no field encoding \"" + field.getEncodingId() + "\""
-                      + " (used by " + field + " in schema version " + schemaVersion
-                      + ") was found in the configured EncodingRepository");
-                }
-                return encoding;
-            }
-        });
-    }
-
-    // Add new Storage, checking for conflicts
-    private void addStorage(final int schemaVersion, final Storage storage) {
-
-        // Set schema version
-        storage.setSchemaVersion(schemaVersion);
-
-        // Double-check compatibility
-        final int storageId = storage.getStorageId();
-        for (Map<Integer, Storage> map : this.storages.values()) {
-            final Storage other = map.get(storageId);
-            assert other == null || !(storage instanceof ObjectType) || !(other instanceof ObjectType);
-            if (other != null && !storage.isCompatible(other)) {
-                throw new IllegalArgumentException("schemas conflict for storage ID " + storageId
-                  + ":\n  in schema version " + other.getSchemaVersion() + ": " + other
-                  + ":\n  in schema version " + storage.getSchemaVersion() + ": " + storage);
-            }
-        }
-
-        // Add storage
-        this.storages.computeIfAbsent(schemaVersion, v -> new HashMap<>()).put(storageId, storage);
-
-        // Add index
-        if (storage instanceof Index)
-            this.indexes.put(storageId, (Index)storage);
+        for (io.permazen.core.CompositeIndex index : objType.getCompositeIndexes().values())
+            this.storages.add(new CompositeIndex(this, index));
     }
 }

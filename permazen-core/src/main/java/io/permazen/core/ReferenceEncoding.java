@@ -11,6 +11,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.encoding.NullSafeEncoding;
 import io.permazen.util.ByteWriter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,19 +32,20 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
     private final Schema schema;
     private final Set<ObjType> objectTypes;
     private final TreeSet<String> objectTypeNames;
-    private final TreeSet<Integer> objectTypeStorageIds;
+    private final HashSet<Integer> objectTypeStorageIds;
 
     /**
      * Constructor.
      *
      * <p>
      * No restrictions will be placed on encoded references.
-     *
-     * @param schema associated schema
-     * @throws IllegalArgumentException if {@code schema} is null
      */
-    public ReferenceEncoding(Schema schema) {
-        this(schema, null);
+    public ReferenceEncoding() {
+        super(null, Encodings.OBJ_ID);
+        this.schema = null;
+        this.objectTypes = null;
+        this.objectTypeNames = null;
+        this.objectTypeStorageIds = null;
     }
 
 // Public Methods
@@ -62,7 +64,7 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
         this.objectTypes = objectTypes;
         if (this.objectTypes != null) {
             this.objectTypeNames = new TreeSet<>();
-            this.objectTypeStorageIds = new TreeSet<>();
+            this.objectTypeStorageIds = new HashSet<>(this.objectTypes.size());
             for (ObjType objType : this.objectTypes) {
                 this.objectTypeNames.add(objType.getName());
                 this.objectTypeStorageIds.add(objType.getStorageId());
@@ -102,11 +104,17 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
      * @throws InvalidReferenceException if {@code id} has a storage ID that is not allowed by this instance
      */
     public ObjId checkAllowed(ObjId id) {
+
+        // Are there any restrictions?
         if (id == null || this.objectTypes == null)
             return id;
+
+        // Check object type vs. restrictions
         final int storageId = id.getStorageId();
         if (this.objectTypeStorageIds.contains(storageId))
             return id;
+
+        // Build and throw exception
         String typeName;
         try {
             typeName = this.schema.getObjType(storageId).getName();
@@ -129,12 +137,16 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
 
 // Package Methods
 
-    TreeSet<String> getObjectTypeNames() {
+    Set<String> getObjectTypeNames() {
         return this.objectTypeNames;
     }
 
-    TreeSet<Integer> getObjectTypeStorageIds() {
+    Set<Integer> getObjectTypeStorageIds() {
         return this.objectTypeStorageIds;
+    }
+
+    ReferenceEncoding genericizeForIndex() {
+        return this.objectTypes == null ? this : new ReferenceEncoding();
     }
 
 // Object

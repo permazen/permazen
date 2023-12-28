@@ -28,14 +28,14 @@ import java.io.Closeable;
  *
  * @see Transaction#createDetachedTransaction Transaction.createDetachedTransaction()
  * @see Database#createDetachedTransaction Database.createDetachedTransaction()
- * @see io.permazen.detachedJTransaction
+ * @see io.permazen.DetachedJTransaction
  */
 public class DetachedTransaction extends Transaction implements Closeable {
 
 // Constructors
 
-    DetachedTransaction(Database db, KVStore kvstore, Schema schema, SchemaBundle schemaBundle) {
-        super(db, new DetachedKVTransaction(kvstore), schema, schemaBundle);
+    DetachedTransaction(Database db, KVStore kvstore, Schema schema) {
+        super(db, new DetachedKVTransaction(kvstore), schema);
     }
 
 // Methods

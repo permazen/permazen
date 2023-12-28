@@ -103,7 +103,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
             try {
                 key = ByteUtil.parse(reader.getElementText());
             } catch (IllegalArgumentException e) {
-                throw new XMLStreamException("invalid hexadecimal key", reader.getLocation(), e);
+                throw this.newInvalidInputException(reader, e, "invalid hexadecimal key");
             }
             if (!this.expect(reader, true, VALUE_TAG)) {
                 this.kv.put(key, ByteUtil.EMPTY);
@@ -113,7 +113,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
             try {
                 value = ByteUtil.parse(reader.getElementText());
             } catch (IllegalArgumentException e) {
-                throw new XMLStreamException("invalid hexadecimal value", reader.getLocation(), e);
+                throw this.newInvalidInputException(reader, e, "invalid hexadecimal value");
             }
             this.kv.put(key, value);
             this.expectClose(reader);               // read closing </entry> tag

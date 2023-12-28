@@ -50,7 +50,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
         final SchemaId schemaId1 = schema1.getSchemaId();
-        schema1.lockDown();
+        schema1.lockDown(true);
         Assert.assertEquals(schema1.getSchemaId(), schemaId1);
 
         final Database db = new Database(kvstore);

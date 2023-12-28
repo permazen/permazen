@@ -8,7 +8,6 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnCreate;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -17,14 +16,14 @@ import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OnCreateTest extends TestSupport {
+public class OnCreateTest extends MainTestSupport {
 
     static boolean createFriend;
 
     @Test
     public void testOnCreate1() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -51,7 +50,7 @@ public class OnCreateTest extends TestSupport {
     @Test
     public void testOnCreate2() {
 
-        final Permazen jdb = BasicTest.getPermazen(HasUUID.class);
+        final Permazen jdb = BasicTest.newPermazen(HasUUID.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

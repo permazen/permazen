@@ -5,19 +5,20 @@
 
 package io.permazen;
 
+import io.permazen.annotation.JField;
+import io.permazen.annotation.JListField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class JObjectCopyTest extends TestSupport {
+public class JObjectCopyTest extends MainTestSupport {
 
     @Test
     public void testCopyWithPath() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         final DetachedJTransaction stx = jtx.getDetachedTransaction();
         JTransaction.setCurrent(jtx);
@@ -39,7 +40,7 @@ public class JObjectCopyTest extends TestSupport {
             p2b.getFriends().add(p3);
 
             // Copy out
-            p1.copyOut("->friends->friends");
+            p1.copyOut("friends");
 
             // Verify p3 got copied out
             Assert.assertTrue(stx.get(p3).exists());
@@ -53,7 +54,7 @@ public class JObjectCopyTest extends TestSupport {
 
     @Test
     public void testCopyMultiplePath() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         final DetachedJTransaction stx = jtx.getDetachedTransaction();
         JTransaction.setCurrent(jtx);
@@ -67,7 +68,7 @@ public class JObjectCopyTest extends TestSupport {
             p2.setRef(p3);
 
             // Copy out
-            p1.copyOut("->ref", "->ref->ref");
+            p1.copyOut("ref", "ref");
 
             // Verify p3 got copied out
             Assert.assertTrue(stx.get(p3).exists());
@@ -84,9 +85,11 @@ public class JObjectCopyTest extends TestSupport {
     @PermazenType
     public abstract static class Person implements JObject {
 
+        @JField(forwardCascades = "ref")
         public abstract Person getRef();
         public abstract void setRef(Person ref);
 
+        @JListField(element = @JField(forwardCascades = "friends"))
         public abstract List<Person> getFriends();
 
         @Override

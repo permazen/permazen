@@ -7,8 +7,12 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.CompositeIndex;
 import io.permazen.core.Database;
+import io.permazen.core.ObjType;
 import io.permazen.encoding.Encoding;
+import io.permazen.index.Index2;
+import io.permazen.index.Index3;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.util.ParseContext;
 
@@ -18,11 +22,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A composite index.
  */
-public class JCompositeIndex extends JSchemaObject {
+public class JCompositeIndex extends JSchemaItem {
 
     final Class<?> declaringType;
     final List<JSimpleField> jfields;
@@ -30,20 +36,10 @@ public class JCompositeIndex extends JSchemaObject {
     final List<List<Object>> uniqueExcludes;    // note: these are core API values, sorted lexicographically by jfield.encoding
     final Comparator<List<Object>> uniqueComparator;
 
-    /**
-     * Constructor.
-     *
-     * @param jdb associated database
-     * @param name the name of the object type
-     * @param storageId object type storage ID
-     * @param declaringType object type annotation is declared on (for scoping unique())
-     * @param annotation original annotation
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code storageId} is non-positive
-     */
-    JCompositeIndex(Permazen jdb, String name, int storageId, Class<?> declaringType,
+    JCompositeIndex(String name, int storageId, Class<?> declaringType,
       io.permazen.annotation.JCompositeIndex annotation, JSimpleField... jfields) {
-        super(jdb, name, storageId, "composite index \"" + name + "\" on fields " + Arrays.asList(jfields));
+        super(name, storageId, String.format("composite index \"%s\" on fields %s",
+          name, Stream.of(jfields).map(field -> "\"" + field.getName() + "\"").collect(Collectors.joining(", "))));
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(declaringType != null, "null declaringType");
         Preconditions.checkArgument(jfields.length >= 2 && jfields.length <= Database.MAX_INDEXED_FIELDS, "invalid field count");
@@ -67,8 +63,8 @@ public class JCompositeIndex extends JSchemaObject {
                     try {
                         values.add(jfield.encoding.fromParseableString(ctx));
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(
-                          String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
+                        throw new IllegalArgumentException(String.format(
+                          "invalid uniqueExclude() value \"%s\" for %s: %s", string, jfield, e.getMessage()), e);
                     }
                     if (values.size() < numFields) {
                         ctx.skipWhitespace();
@@ -112,24 +108,43 @@ public class JCompositeIndex extends JSchemaObject {
         return this.jfields;
     }
 
-// Package methods
-
-    @Override
-    IndexInfo toIndexInfo() {
-        return new CompositeIndexInfo(this);
+    /**
+     * View this index.
+     *
+     * <p>
+     * The returned index will have time {@link Index2}, {@link Index3}, etc., depending on the number of fields indexed.
+     *
+     * @param jtx transaction
+     * @return view of this index in {@code jtx}
+     * @throws StaleTransactionException if {@code jtx} is no longer usable
+     * @throws IllegalArgumentException if {@code jtx} is null
+     */
+    public Object getIndex(JTransaction jtx) {
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        return jtx.queryIndex(this.storageId);
     }
 
     @Override
-    SchemaCompositeIndex toSchemaItem(Permazen jdb) {
-        final SchemaCompositeIndex schemaIndex = new SchemaCompositeIndex();
-        this.initialize(jdb, schemaIndex);
+    public CompositeIndex getSchemaItem() {
+        return (CompositeIndex)super.getSchemaItem();
+    }
+
+// Package methods
+
+    void replaceSchemaItems(ObjType objType) {
+        this.schemaItem = objType.getCompositeIndex(this.name);
+    }
+
+    @Override
+    SchemaCompositeIndex toSchemaItem() {
+        final SchemaCompositeIndex schemaIndex = (SchemaCompositeIndex)super.toSchemaItem();
+        this.jfields.forEach(jfield -> schemaIndex.getIndexedFields().add(jfield.name));
         return schemaIndex;
     }
 
-    void initialize(Permazen jdb, SchemaCompositeIndex schemaIndex) {
-        super.initialize(jdb, schemaIndex);
-        for (JSimpleField jfield : this.jfields)
-            schemaIndex.getIndexedFields().add(jfield.getStorageId());
+    @Override
+    SchemaCompositeIndex createSchemaItem() {
+        return new SchemaCompositeIndex();
     }
 
     Class<?>[] getQueryInfoValueTypes() {

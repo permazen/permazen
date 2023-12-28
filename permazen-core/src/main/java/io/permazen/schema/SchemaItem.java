@@ -57,7 +57,7 @@ public abstract class SchemaItem extends SchemaSupport {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setName(String name) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.name = name;
     }
 
@@ -80,7 +80,7 @@ public abstract class SchemaItem extends SchemaSupport {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setStorageId(int storageId) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(true);
         this.storageId = storageId;
     }
 
@@ -220,9 +220,9 @@ public abstract class SchemaItem extends SchemaSupport {
         try {
             return Enum.valueOf(type, text);
         } catch (IllegalArgumentException e) {
-            throw new XMLStreamException(String.format(
-              "invalid value \"%s\" for \"%s\" attribute in %s", text, name.getLocalPart(), this),
-              reader.getLocation());
+            throw this.newInvalidInputException(reader, e,
+              "invalid value \"%s\" for \"%s\" attribute in %s",
+              text, name.getLocalPart(), this);
         }
     }
 

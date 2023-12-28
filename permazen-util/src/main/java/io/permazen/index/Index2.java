@@ -23,7 +23,12 @@ import java.util.NavigableSet;
  * @param <T> index target type
  * @see io.permazen.index
  */
-public interface Index2<V1, V2, T> {
+public interface Index2<V1, V2, T> extends Index<T> {
+
+    @Override
+    default int numberOfFields() {
+        return 2;
+    }
 
     /**
      * View this index as a {@link NavigableSet} of tuples.
@@ -40,18 +45,18 @@ public interface Index2<V1, V2, T> {
     NavigableMap<Tuple2<V1, V2>, NavigableSet<T>> asMap();
 
     /**
-     * View this index as a {@link NavigableMap} of {@link Index}s keyed by the first value.
+     * View this index as a {@link NavigableMap} of {@link Index1}s keyed by the first value.
      *
-     * @return {@link NavigableMap} from first value to {@link Index}
+     * @return {@link NavigableMap} from first value to {@link Index1}
      */
-    NavigableMap<V1, Index<V2, T>> asMapOfIndex();
+    NavigableMap<V1, Index1<V2, T>> asMapOfIndex1();
 
     /**
      * Get the prefix of this instance that only includes the first two indexed fields.
      *
      * @return prefix of this index
      */
-    Index<V1, V2> asIndex();
+    Index1<V1, V2> asIndex1();
 
     /**
      * Impose {@link Bounds} that restrict the range of the first indexed value.

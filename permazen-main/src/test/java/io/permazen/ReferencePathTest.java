@@ -11,7 +11,6 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import java.util.List;
 import java.util.NavigableMap;
@@ -21,15 +20,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class ReferencePathTest extends TestSupport {
+public class ReferencePathTest extends MainTestSupport {
 
     private Permazen jdb1;
     private Permazen jdb2;
 
     @BeforeClass
     public void setup() {
-        this.jdb1 = BasicTest.getPermazen(Person.class, MeanPerson.class, Dog.class);
-        this.jdb2 = BasicTest.getPermazen(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
+        this.jdb1 = BasicTest.newPermazen(Person.class, MeanPerson.class, Dog.class);
+        this.jdb2 = BasicTest.newPermazen(WackyPaths1.class, WackyPaths2.class, WackyPaths3.class);
     }
 
     @Test(dataProvider = "paths1")

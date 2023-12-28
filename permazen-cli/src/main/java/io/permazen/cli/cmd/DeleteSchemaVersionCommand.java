@@ -6,13 +6,14 @@
 package io.permazen.cli.cmd;
 
 import io.permazen.cli.Session;
+import io.permazen.schema.SchemaId;
 
 import java.util.Map;
 
 public class DeleteSchemaVersionCommand extends AbstractCommand {
 
     public DeleteSchemaVersionCommand() {
-        super("delete-schema-version version:int");
+        super("delete-schema-version schemaId");
     }
 
     @Override
@@ -28,21 +29,21 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
 
     @Override
     public Session.Action getAction(Session session, Map<String, Object> params) {
-        return new DeleteSchemaAction((Integer)params.get("version"));
+        return new DeleteSchemaAction(new SchemaId((String)params.get("schemaId")));
     }
 
     private static class DeleteSchemaAction implements Session.Action, Session.TransactionalAction {
 
-        private final int version;
+        private final SchemaId schemaId;
 
-        DeleteSchemaAction(int version) {
-            this.version = version;
+        DeleteSchemaAction(SchemaId schemaId) {
+            this.schemaId = schemaId;
         }
 
         @Override
         public void run(Session session) throws Exception {
-            final boolean deleted = session.getTransaction().deleteSchemaVersion(this.version);
-            session.getOutput().println("Schema version " + this.version + " " + (deleted ? "deleted" : "not found"));
+            final boolean deleted = session.getTransaction().removeSchema(this.schemaId);
+            session.getOutput().println("Schema version " + this.schemaId + " " + (deleted ? "deleted" : "not found"));
         }
     }
 }

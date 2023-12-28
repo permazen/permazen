@@ -40,6 +40,8 @@ abstract class AbstractIndexView {
         this.prefix = prefix;
         this.prefixMode = prefixMode;
         this.encodings = encodings;
+        for (int i = 0; i < this.encodings.length; i++)
+            this.encodings[i] = Index.genericize(this.encodings[i]);
         this.filters = new KeyFilter[this.encodings.length];
     }
 

@@ -33,7 +33,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     private DeleteAction inverseDelete;
     private boolean forwardDelete;
     private boolean allowDeleted;
-    private NavigableSet<String> objectTypes = new TreeSet<>();
+    private NavigableSet<String> objectTypes;
 
 // Properties
 
@@ -53,7 +53,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setInverseDelete(DeleteAction inverseDelete) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.inverseDelete = inverseDelete;
     }
 
@@ -73,7 +73,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setForwardDelete(boolean forwardDelete) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.forwardDelete = forwardDelete;
     }
 
@@ -93,7 +93,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setAllowDeleted(boolean allowDeleted) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.allowDeleted = allowDeleted;
     }
 
@@ -109,11 +109,31 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return this.objectTypes;
     }
 
+    /**
+     * Set the object types this field is allowed to reference.
+     *
+     * @param objectTypes names of the allowed object types, or null if there is no restriction
+     */
+    public void setObjectTypes(NavigableSet<String> objectTypes) {
+        this.verifyNotLockedDown(false);
+        this.objectTypes = objectTypes != null ? new TreeSet<>(objectTypes) : null;
+    }
+
+    @Override
+    public boolean hasFixedEncoding() {
+        return true;
+    }
+
+    @Override
+    public boolean isAlwaysIndexed() {
+        return true;
+    }
+
 // Lockdown
 
     @Override
-    public void lockDown() {
-        super.lockDown();
+    void lockDown1() {
+        super.lockDown1();
         if (this.objectTypes != null)
             this.objectTypes = Collections.unmodifiableNavigableSet(this.objectTypes);
     }
@@ -131,16 +151,6 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         }
         if (this.objectTypes != null && this.objectTypes.stream().anyMatch(Objects::isNull))
             throw new InvalidSchemaException(String.format("invalid %s: object types contains null", this));
-    }
-
-    @Override
-    boolean hasFixedEncoding() {
-        return true;
-    }
-
-    @Override
-    boolean isAlwaysIndexed() {
-        return true;
     }
 
 // SchemaFieldSwitch
@@ -222,7 +232,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         }
 
         // Read list of zero or more permitted type names
-        this.objectTypes.clear();
+        this.objectTypes = new TreeSet<>();
         while (this.expect(reader, true, XMLConstants.OBJECT_TYPE_TAG)) {
             this.objectTypes.add(this.getAttr(reader, XMLConstants.NAME_ATTRIBUTE));
             this.expectClose(reader);           // </ObjectType>

@@ -103,7 +103,7 @@ public class ExportContext {
      *
      * @return associated transaction
      */
-    public JTransaction getTransaction() {
+    public JTransaction getJTransaction() {
         return this.jtx;
     }
 
@@ -127,7 +127,7 @@ public class ExportContext {
      * @return exported object, or null if the {@code objectMapper} returned null for {@code jobj.getObjId()}
      * @throws io.permazen.core.DeletedObjectException if {@code id} refers to an object that does not exist
      *  in the transaction associated with this instance
-     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code jobj} is an {@link UntypedJObject}
+     * @throws io.permazen.core.TypeNotInSchemaException if {@code jobj} is an {@link UntypedJObject}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public Object exportPlain(JObject jobj) {
@@ -146,8 +146,8 @@ public class ExportContext {
      * @return exported object, or null if the {@code objectMapper} returned null for {@code id}
      * @throws io.permazen.core.DeletedObjectException if {@code id} refers to an object that does not exist
      *  in the transaction associated with this instance
-     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code id} refers to a type that does not exist
-     *  in this instance's transaction's schema version
+     * @throws io.permazen.core.TypeNotInSchemaException if {@code id} refers to a type that does not exist
+     *  in this instance's transaction's schema
      * @throws IllegalArgumentException if {@code id} is null
      */
     public Object exportPlain(ObjId id) {
@@ -176,7 +176,7 @@ public class ExportContext {
             i.remove();
 
             // Copy fields
-            for (JField jfield : this.jtx.jdb.getJClass(id).jfields.values())
+            for (JField jfield : this.jtx.jdb.getJClass(id).jfieldsByName.values())
                 jfield.exportPlain(this, id, obj);
         }
     }

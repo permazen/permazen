@@ -15,7 +15,7 @@ import io.permazen.change.SetFieldChange;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.test.TestSupport;
 import io.permazen.util.NavigableSets;
 
@@ -30,12 +30,12 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class DetachedTest extends TestSupport {
+public class DetachedTest extends MainTestSupport {
 
     @Test(dataProvider = "shapshotCases")
     public void testDetached1(Class<? extends Person> personClass) throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(personClass);
+        final Permazen jdb = BasicTest.newPermazen(personClass);
 
         Person p1;
         Person p2;
@@ -87,7 +87,7 @@ public class DetachedTest extends TestSupport {
             p2.getMap1().put(p2, 0.0f);
             p2.getMap2().put(0.0f, p2);
 
-            Person p1b = (Person)p1.copyOut("->set");
+            Person p1b = (Person)p1.copyOut("set");
             Assert.assertSame(p1a, p1b);
             Assert.assertTrue(p1b.exists());
 
@@ -98,7 +98,7 @@ public class DetachedTest extends TestSupport {
             Assert.assertSame(p2a, p2b);
 
             Assert.assertFalse(p1.isDetached());
-            Person p1c = (Person)p1.copyOut("->list", "->map1.key", "->map2.value");
+            Person p1c = (Person)p1.copyOut("list", "map1.key", "map2.value");
             Assert.assertTrue(p1c.isDetached());
             Assert.assertSame(p1c, p1b);
             Assert.assertTrue(p1c.getMap1().keySet().iterator().next().exists());
@@ -154,7 +154,7 @@ public class DetachedTest extends TestSupport {
             Assert.assertFalse(p1.exists());
             Assert.assertFalse(p1.isDetached());
 
-            detached.copyTo(tx2, new CopyState());
+            detached.copyTo(tx2, -1, new CopyState());
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -175,7 +175,7 @@ public class DetachedTest extends TestSupport {
             detached.getMap2().put(33.33f, p2);
             detached.getMap2().put(null, p3);
 
-            detached.copyTo(tx2, new CopyState());
+            detached.copyTo(tx2, -1, new CopyState());
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
@@ -201,52 +201,9 @@ public class DetachedTest extends TestSupport {
     }
 
     @Test
-    public void testDetachedInvalid() throws Exception {
-
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(tx);
-        try {
-
-            Person p1 = tx.create(Person.class);
-
-            try {
-                p1.copyOut("age");
-                assert false;
-            } catch (IllegalArgumentException e) {
-                this.log.info("got expected {}", e.toString());
-            }
-
-            try {
-                p1.copyOut("set.foo");
-                assert false;
-            } catch (IllegalArgumentException e) {
-                this.log.info("got expected {}", e.toString());
-            }
-
-            try {
-                p1.copyOut("map1.value");
-                assert false;
-            } catch (IllegalArgumentException e) {
-                this.log.info("got expected {}", e.toString());
-            }
-
-            try {
-                p1.copyOut("map2.key");
-                assert false;
-            } catch (IllegalArgumentException e) {
-                this.log.info("got expected {}", e.toString());
-            }
-
-        } finally {
-            JTransaction.setCurrent(null);
-        }
-    }
-
-    @Test
     public void testCopyRelated() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Foo.class);
+        final Permazen jdb = BasicTest.newPermazen(Foo.class);
 
         final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         final JTransaction stx = tx.getDetachedTransaction();
@@ -291,7 +248,7 @@ public class DetachedTest extends TestSupport {
     @Test
     public void testDanglingReference() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Foo.class, Foo2.class);
+        final Permazen jdb = BasicTest.newPermazen(Foo.class, Foo2.class);
 
         final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
         final JTransaction stx = tx.getDetachedTransaction();
@@ -335,20 +292,20 @@ public class DetachedTest extends TestSupport {
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JSetField(storageId = 103, element = @JField(storageId = 104))
+        @JSetField(storageId = 103, element = @JField(storageId = 104, forwardCascades = "set"))
         public abstract Set<Person> getSet();
 
-        @JListField(storageId = 105, element = @JField(storageId = 106))
+        @JListField(storageId = 105, element = @JField(storageId = 106, forwardCascades = "list"))
         public abstract List<Person> getList();
 
         @JMapField(storageId = 107,
-          key = @JField(storageId = 108),
+          key = @JField(storageId = 108, forwardCascades = "map1.key"),
           value = @JField(storageId = 109))
         public abstract Map<Person, Float> getMap1();
 
         @JMapField(storageId = 110,
           key = @JField(storageId = 111),
-          value = @JField(storageId = 112))
+          value = @JField(storageId = 112, forwardCascades = "map2.value"))
         public abstract Map<Float, Person> getMap2();
     }
 
@@ -380,8 +337,8 @@ public class DetachedTest extends TestSupport {
             return referrers != null ? referrers : NavigableSets.<Foo>empty();
         }
 
-        public Index<Foo, Foo> queryFoo() {
-            return this.getTransaction().queryIndex(Foo.class, "ref", Foo.class);
+        public Index1<Foo, Foo> queryFoo() {
+            return this.getTransaction().querySimpleIndex(Foo.class, "ref", Foo.class);
         }
 
         public Stream<Foo> getWithRelatedObjects() {

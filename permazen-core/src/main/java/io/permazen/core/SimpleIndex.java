@@ -6,6 +6,8 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.schema.SimpleSchemaField;
 
 import java.util.Collections;
@@ -14,7 +16,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Represents an index on a single simple field, either a regular simple field or a sub-field of a complex field.
+ * An index on a simple field, either a regular simple field or a sub-field of a complex field.
  *
  * @param <T> field's value type
  */
@@ -43,12 +45,40 @@ public abstract class SimpleIndex<T> extends Index {
      *
      * @return the indexed field's encoding
      */
+    @SuppressWarnings("unchecked")
     public Encoding<T> getEncoding() {
-        return this.getField().getEncoding();
+        return (Encoding<T>)this.getEncodings().get(0);
     }
 
     @Override
-    public abstract CoreIndex<T, ObjId> getIndex(Transaction tx);
+    public abstract CoreIndex1<T, ObjId> getIndex(Transaction tx);
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value in this index.
+     *
+     * <p>
+     * The returned key will be the prefix of all index entries with the given value over all objects.
+     *
+     * @param value indexed value
+     * @return the corresponding {@link KVDatabase} key
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(T value) {
+        return this.getKey(new Object[] { value });
+    }
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value and target object
+     * in this index.
+     *
+     * @param id target object ID
+     * @param value indexed value
+     * @return the corresponding {@link KVDatabase} key
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(ObjId id, T value) {
+        return this.getKey(id, new Object[] { value });
+    }
 
 // Package methods
 

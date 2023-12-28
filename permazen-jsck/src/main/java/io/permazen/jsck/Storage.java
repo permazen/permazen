@@ -7,65 +7,60 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Arrays;
 
 /**
  * Represents a storage ID used for stored information.
  */
-abstract class Storage {
+abstract class Storage<T extends io.permazen.core.SchemaItem> {
 
     protected final JsckInfo info;
-    protected final int storageId;
+    protected final T schemaItem;
 
-    private int schemaVersion;
-
-    protected Storage(JsckInfo info, int storageId) {
+    protected Storage(JsckInfo info, T schemaItem) {
         Preconditions.checkArgument(info != null, "null info");
-        Preconditions.checkArgument(storageId > 0, "non-positive storageId");
+        Preconditions.checkArgument(schemaItem != null, "null schemaItem");
         this.info = info;
-        this.storageId = storageId;
+        this.schemaItem = schemaItem;
     }
 
     /**
-     * Get one schema version where this storage is defined. Informational only - not included in {@link #equals equals()}.
+     * Get the schema item.
      */
-    public int getSchemaVersion() {
-        return this.schemaVersion;
-    }
-    public void setSchemaVersion(int schemaVersion) {
-        this.schemaVersion = schemaVersion;
+    public T getSchemaItem() {
+        return this.schemaItem;
     }
 
     /**
-     * Get corresponding storage ID.
+     * Get the storage ID.
      */
     public int getStorageId() {
-        return this.storageId;
+        return this.schemaItem.getStorageId();
     }
 
     /**
      * Get key range.
      */
     public KeyRange getKeyRange() {
-        return KeyRange.forPrefix(UnsignedIntEncoder.encode(this.storageId));
+        return KeyRange.forPrefix(Encodings.UNSIGNED_INT.encode(this.getStorageId()));
     }
 
     /**
-     * Validate the object actually exists.
+     * Verify that an object actually exists.
      *
      * <p>
      * If we are not repairing, this does nothing.
      */
     protected void validateObjectExists(JsckInfo info, ByteReader reader, ObjId id) {
         if (info.getConfig().isRepair() && info.getKVStore().get(id.getBytes()) == null)
-            throw new IllegalArgumentException("object with " + id + " does not exist");
+            throw new IllegalArgumentException("object " + id + " does not exist");
     }
 
     /**
@@ -73,17 +68,17 @@ abstract class Storage {
      *
      * @return encoded field value
      */
-    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> type) {
+    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> encoding) {
 
         // Decode value and capture bytes
         final T value;
         final int off = reader.getOffset();
         try {
-            value = type.read(reader);
+            value = encoding.read(reader);
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("can't decode value of " + type + " because value is truncated");
+            throw new IllegalArgumentException("can't decode value of " + encoding + " because value is truncated");
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can't decode value of " + type + ": " + e.getMessage());
+            throw new IllegalArgumentException("can't decode value of " + encoding + ": " + e.getMessage());
         }
         final int len = reader.getOffset() - off;
         final byte[] bytes = reader.getBytes(off, len);
@@ -91,15 +86,15 @@ abstract class Storage {
         // Verify correct and consistent encoding
         final ByteWriter writer = new ByteWriter(bytes.length);
         try {
-            type.write(writer, value);
+            encoding.write(writer, value);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("decoding then re-encoding value "
-              + Jsck.ds(bytes) + " (" + value + ") using " + type + " throws " + e, e);
+              + Jsck.ds(bytes) + " (" + value + ") using " + encoding + " throws " + e, e);
         }
         final byte[] bytes2 = writer.getBytes();
         if (!Arrays.equals(bytes2, bytes)) {
             throw new IllegalArgumentException("decoding then re-encoding value "
-              + Jsck.ds(bytes) + " (" + value + ") using " + type + " results in" + " a different value " + Jsck.ds(bytes2));
+              + Jsck.ds(bytes) + " (" + value + ") using " + encoding + " results in" + " a different value " + Jsck.ds(bytes2));
         }
 
         // Done
@@ -111,8 +106,8 @@ abstract class Storage {
      *
      * @return decoded field value
      */
-    protected <T> T validateEncodedValue(ByteReader reader, Encoding<T> type) {
-        return type.read(new ByteReader(this.validateEncodedBytes(reader, type)));
+    protected <T> T validateEncodedValue(ByteReader reader, Encoding<T> encoding) {
+        return encoding.read(new ByteReader(this.validateEncodedBytes(reader, encoding)));
     }
 
     protected void validateEOF(ByteReader reader) {
@@ -128,20 +123,14 @@ abstract class Storage {
     protected ByteWriter buildFieldKey(ObjId id, int storageId) {
         final ByteWriter writer = new ByteWriter();
         id.writeTo(writer);
-        UnsignedIntEncoder.write(writer, storageId);
+        Encodings.UNSIGNED_INT.write(writer, storageId);
         return writer;
     }
 
 // Object
 
     @Override
-    public abstract String toString();
-
-    public boolean isCompatible(Storage that) {
-        if (this.storageId != that.storageId)
-            return false;
-        if (this.getClass() != that.getClass())
-            return false;
-        return true;
+    public String toString() {
+        return this.schemaItem.toString();
     }
 }

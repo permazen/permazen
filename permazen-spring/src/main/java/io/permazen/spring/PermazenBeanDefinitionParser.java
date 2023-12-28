@@ -21,10 +21,7 @@ import org.w3c.dom.NodeList;
 class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final String KVSTORE_ATTRIBUTE = "kvstore";
-    private static final String SCHEMA_VERSION_ATTRIBUTE = "schema-version";
     private static final String ENCODING_REGISTRY_ATTRIBUTE = "encoding-registry";
-    private static final String STORAGE_ID_GENERATOR_ATTRIBUTE = "storage-id-generator";
-    private static final String AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE = "auto-generate-storage-ids";
 
     @Override
     protected Class<Permazen> getBeanClass(Element element) {
@@ -38,28 +35,9 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
         if (element.hasAttribute(KVSTORE_ATTRIBUTE))
             builder.addPropertyReference("KVStore", element.getAttribute(KVSTORE_ATTRIBUTE));
 
-        // Get schema version (optional)
-        if (element.hasAttribute(SCHEMA_VERSION_ATTRIBUTE))
-            builder.addPropertyValue("schemaVersion", element.getAttribute(SCHEMA_VERSION_ATTRIBUTE));
-
         // Get EncodingRegistry (optional)
         if (element.hasAttribute(ENCODING_REGISTRY_ATTRIBUTE))
             builder.addPropertyValue("encodingRegistry", element.getAttribute(ENCODING_REGISTRY_ATTRIBUTE));
-
-        // Get storage ID generator bean name (optional)
-        final boolean autogenStorageIds = !element.hasAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE)
-          || Boolean.valueOf(element.getAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE));
-        if (!autogenStorageIds)
-            builder.addPropertyValue("storageIdGenerator", null);
-        if (element.hasAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE)) {
-            if (!autogenStorageIds) {
-                parserContext.getReaderContext().fatal("<" + element.getTagName() + "> cannot have a \""
-                  + STORAGE_ID_GENERATOR_ATTRIBUTE + "\" attribute and " + AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE + "=\"false\"",
-                  parserContext.extractSource(element));
-                return;
-            }
-            builder.addPropertyReference("storageIdGenerator", element.getAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE));
-        }
 
         // Construct PermazenFactoryBean bean definition
         builder.getRawBeanDefinition().setBeanClass(PermazenFactoryBean.class);

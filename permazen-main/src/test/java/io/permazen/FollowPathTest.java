@@ -16,11 +16,11 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FollowPathTest extends TestSupport {
+public class FollowPathTest extends MainTestSupport {
 
     @Test
     public void testFollowPath() {
-        final Permazen jdb = BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, GoodChild.class);
+        final Permazen jdb = BasicTest.newPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, GoodChild.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -107,7 +107,7 @@ public class FollowPathTest extends TestSupport {
     @Test(dataProvider = "badClasses")
     public void testBadChild(Class<?> badClass) {
         try {
-            BasicTest.getPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badClass);
+            BasicTest.newPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badClass);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());

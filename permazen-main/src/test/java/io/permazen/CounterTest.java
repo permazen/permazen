@@ -8,21 +8,20 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import java.util.NavigableMap;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CounterTest extends TestSupport {
+public class CounterTest extends MainTestSupport {
 
     static boolean createFriend;
 
     @Test
     public void testCounter() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {

@@ -77,10 +77,10 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
 // Tuple views
 
-    public IndexView<Tuple2<V1, V2>, T> asTuple2IndexView() {
+    public Index1View<Tuple2<V1, V2>, T> asTuple2Index1View() {
 
         // Create new IndexView
-        IndexView<Tuple2<V1, V2>, T> indexView = new IndexView<>(this.prefix, this.prefixMode,
+        Index1View<Tuple2<V1, V2>, T> indexView = new Index1View<>(this.prefix, this.prefixMode,
           new Tuple2Encoding<>(this.getValue1Encoding(), this.getValue2Encoding()), this.getTargetEncoding());
 
         // Apply filters
@@ -108,10 +108,10 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
 // Prefix view
 
-    public IndexView<V1, V2> asIndexView() {
+    public Index1View<V1, V2> asIndex1View() {
 
         // Create IndexView
-        IndexView<V1, V2> indexView = new IndexView<>(this.prefix, true, this.getValue1Encoding(), this.getValue2Encoding());
+        Index1View<V1, V2> indexView = new Index1View<>(this.prefix, true, this.getValue1Encoding(), this.getValue2Encoding());
 
         // Apply filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -127,10 +127,10 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
 // Suffix view
 
-    public IndexView<V2, T> asIndexView(byte[] keyPrefix) {
+    public Index1View<V2, T> asIndex1View(byte[] keyPrefix) {
 
         // Create IndexView
-        IndexView<V2, T> indexView = new IndexView<>(keyPrefix,
+        Index1View<V2, T> indexView = new Index1View<>(keyPrefix,
           this.prefixMode, this.getValue2Encoding(), this.getTargetEncoding());
 
         // Apply filters

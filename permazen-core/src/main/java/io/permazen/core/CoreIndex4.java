@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Tuple5Encoding;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
@@ -82,7 +82,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implemen
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
 
         // Create new IndexView
-        final IndexView<Tuple4<V1, V2, V3, V4>, T> tupleIV = iv.asTuple4IndexView();
+        final Index1View<Tuple4<V1, V2, V3, V4>, T> tupleIV = iv.asTuple4Index1View();
 
         // Build map and apply filtering
         IndexMap<Tuple4<V1, V2, V3, V4>, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(
@@ -95,7 +95,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implemen
     }
 
     @Override
-    public NavigableMap<Tuple3<V1, V2, V3>, Index<V4, T>> asMapOfIndex() {
+    public NavigableMap<Tuple3<V1, V2, V3>, Index1<V4, T>> asMapOfIndex1() {
 
         // Get index view
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
@@ -104,7 +104,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implemen
         final Index2View<Tuple3<V1, V2, V3>, V4, T> tupleIV = iv.asTuple3Index2View();
 
         // Build map and apply filtering
-        IndexMap<Tuple3<V1, V2, V3>, Index<V4, T>> indexMap = new IndexMap.OfIndex<>(this.kv, tupleIV);
+        IndexMap<Tuple3<V1, V2, V3>, Index1<V4, T>> indexMap = new IndexMap.OfIndex1<>(this.kv, tupleIV);
         if (iv.hasFilters())
             indexMap = indexMap.filterKeys(new IndexKeyFilter(this.kv, tupleIV, 1));
 
@@ -156,8 +156,8 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implemen
     }
 
     @Override
-    public CoreIndex<V1, V2> asIndex() {
-        return new CoreIndex<>(this.kv, this.getIndex4View().asIndex3View().asIndex2View().asIndexView());
+    public CoreIndex1<V1, V2> asIndex1() {
+        return new CoreIndex1<>(this.kv, this.getIndex4View().asIndex3View().asIndex2View().asIndex1View());
     }
 
     @Override

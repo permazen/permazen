@@ -12,7 +12,8 @@ import io.permazen.util.NavigableSets;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -69,8 +70,8 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
 // Lockdown
 
     @Override
-    public void lockDown() {
-        super.lockDown();
+    void lockDown1() {
+        super.lockDown1();
 
         // Set simple sub-fields' parent field to null
         this.fields.values().stream()
@@ -85,8 +86,15 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
           .forEachRemaining(item -> item.setObjectType(this));
 
         // Lock down maps
-        this.fields = this.lockDownMap(this.fields);
-        this.indexes = this.lockDownMap(this.indexes);
+        this.fields = this.lockDownMap1(this.fields);
+        this.indexes = this.lockDownMap1(this.indexes);
+    }
+
+    @Override
+    void lockDown2() {
+        super.lockDown2();
+        this.fields.values().forEach(SchemaField::lockDown2);
+        this.indexes.values().forEach(SchemaCompositeIndex::lockDown2);
     }
 
 // Validation
@@ -116,17 +124,29 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
             }
         });
 
-        // Verify there are no duplicate composite indexes and that field and composite index names don't conflict
-        final HashMap<List<String>, SchemaCompositeIndex> fieldListMap = new HashMap<>();
-        for (SchemaCompositeIndex index : this.indexes.values()) {
-            final SchemaCompositeIndex previous = fieldListMap.put(index.getIndexedFields(), index);
-            if (previous != null) {
-                throw new InvalidSchemaException(String.format(
-                  "composite index \"%s\" duplicates composite index \"%s\"", index.getName(), previous.getName()));
+        // Verify no two composite indexes overlap
+        final ArrayList<SchemaCompositeIndex> indexList = new ArrayList<>(this.indexes.values());
+        for (int i = 0; i < indexList.size() - 1; i++) {
+            final SchemaCompositeIndex index1 = indexList.get(i);
+            final List<String> fieldList1 = index1.getIndexedFields();
+            for (int j = i + 1; j < indexList.size(); j++) {
+                final SchemaCompositeIndex index2 = indexList.get(j);
+                final List<String> fieldList2 = index2.getIndexedFields();
+                final int overlapLen = Math.min(fieldList1.size(), fieldList2.size());
+                if (fieldList1.subList(0, overlapLen).equals(fieldList2.subList(0, overlapLen))) {
+                    throw new InvalidSchemaException(String.format(
+                      "composite indexes \"%s\" and \"%s\" overlap redundantly", index1.getName(), index2.getName()));
+                }
             }
-            if (this.fields.containsKey(index.getName())) {
+        }
+
+        // Verify that simple field full names (which are used as simple index names) and composite index names don't conflict
+        final HashSet<String> fieldAndSubFieldNames = new HashSet<>();
+        this.visitSchemaItems(SimpleSchemaField.class, field -> fieldAndSubFieldNames.add(field.getFullName()));
+        for (SchemaCompositeIndex index : this.indexes.values()) {
+            if (fieldAndSubFieldNames.contains(index.getName())) {
                 throw new InvalidSchemaException(String.format(
-                  "composite index name \"%s\" is already used as a field name", index.getName()));
+                  "composite index name \"%s\" conflicts with the simple field of the same name", index.getName()));
             }
         }
     }
@@ -141,17 +161,15 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
         for (SchemaItem item; (item = this.readMappedType(reader, true, SchemaModel.FIELD_OR_COMPOSITE_INDEX_TAG_MAP)) != null; ) {
             if (item instanceof SchemaField) {
                 if (seenCompositeIndex)
-                    throw new XMLStreamException("composite indexes must appear after fields", reader.getLocation());
+                    throw this.newInvalidInputException(reader, "composite indexes must appear after fields");
                 final SchemaField field = (SchemaField)item;
                 field.readXML(reader, formatVersion);
                 final String fieldName = field.getName();
                 if (fieldName == null)
                     throw this.newInvalidAttributeException(reader, XMLConstants.NAME_ATTRIBUTE, "name is required");
                 final SchemaField previous = this.fields.put(fieldName, field);
-                if (previous != null) {
-                    throw new XMLStreamException(String.format(
-                      "duplicate %s name \"%s\" in %s", "field", fieldName, this), reader.getLocation());
-                }
+                if (previous != null)
+                    throw this.newInvalidInputException(reader, "duplicate %s name \"%s\" in %s", "field", fieldName, this);
                 field.setObjectType(this);
             } else if (item instanceof SchemaCompositeIndex) {
                 final SchemaCompositeIndex index = (SchemaCompositeIndex)item;
@@ -161,8 +179,8 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
                     throw this.newInvalidAttributeException(reader, XMLConstants.NAME_ATTRIBUTE, "name is required");
                 final SchemaCompositeIndex previous = this.indexes.put(indexName, index);
                 if (previous != null) {
-                    throw new XMLStreamException(String.format(
-                      "duplicate %s name \"%s\" in %s", "composite index", indexName, this), reader.getLocation());
+                    throw this.newInvalidInputException(reader,
+                      "duplicate %s name \"%s\" in %s", "composite index", indexName, this);
                 }
                 index.setObjectType(this);
                 seenCompositeIndex = true;

@@ -8,22 +8,22 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 
 /**
- * Converts {@link Index}es.
+ * Converts {@link Index1}es.
  *
  * @param <V> value type of converted indexes
  * @param <T> target type of converted indexes
  * @param <WV> value type of unconverted (wrapped) indexes
  * @param <WT> target type of unconverted (wrapped) indexes
  */
-class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>> {
+class Index1Converter<V, T, WV, WT> extends Converter<Index1<V, T>, Index1<WV, WT>> {
 
     private final Converter<V, WV> valueConverter;
     private final Converter<T, WT> targetConverter;
 
-    IndexConverter(Converter<V, WV> valueConverter, Converter<T, WT> targetConverter) {
+    Index1Converter(Converter<V, WV> valueConverter, Converter<T, WT> targetConverter) {
         Preconditions.checkArgument(valueConverter != null, "null valueConverter");
         Preconditions.checkArgument(targetConverter != null, "null targetConverter");
         this.valueConverter = valueConverter;
@@ -31,17 +31,17 @@ class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>>
     }
 
     @Override
-    protected Index<WV, WT> doForward(Index<V, T> index) {
+    protected Index1<WV, WT> doForward(Index1<V, T> index) {
         if (index == null)
             return null;
-        return new ConvertedIndex<WV, WT, V, T>(index, this.valueConverter.reverse(), this.targetConverter.reverse());
+        return new ConvertedIndex1<WV, WT, V, T>(index, this.valueConverter.reverse(), this.targetConverter.reverse());
     }
 
     @Override
-    protected Index<V, T> doBackward(Index<WV, WT> index) {
+    protected Index1<V, T> doBackward(Index1<WV, WT> index) {
         if (index == null)
             return null;
-        return new ConvertedIndex<>(index, this.valueConverter, this.targetConverter);
+        return new ConvertedIndex1<>(index, this.valueConverter, this.targetConverter);
     }
 
 // Object
@@ -52,7 +52,7 @@ class IndexConverter<V, T, WV, WT> extends Converter<Index<V, T>, Index<WV, WT>>
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final IndexConverter<?, ?, ?, ?> that = (IndexConverter<?, ?, ?, ?>)obj;
+        final Index1Converter<?, ?, ?, ?> that = (Index1Converter<?, ?, ?, ?>)obj;
         return this.valueConverter.equals(that.valueConverter) && this.targetConverter.equals(that.targetConverter);
     }
 

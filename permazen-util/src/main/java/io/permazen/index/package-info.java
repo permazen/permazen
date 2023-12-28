@@ -10,14 +10,14 @@
  * Indexes provide fast lookup of objects based on field value(s). The {@code Index*} interfaces in this package have
  * generic type parameters that correspond to the field value type(s), plus a final generic type parameter
  * corresponding to the "target type". For example, an index on field {@code int }{@code getAccountNumber()} of type
- * {@code User} will be represented by a {@link io.permazen.index.Index}{@code <Integer, User>}, and may be viewed
+ * {@code User} will be represented by a {@link io.permazen.index.Index1}{@code <Integer, User>}, and may be viewed
  * either as a {@link java.util.NavigableSet}{@code <}{@link io.permazen.tuple.Tuple2}{@code <Integer, User>>}
  * or a {@link java.util.NavigableMap}{@code <Integer, }{@link java.util.NavigableSet}{@code <User>>}.
  *
  * <p>
  * Indexes are accessible through the {@link io.permazen.JTransaction} API:
  * <ul>
- *  <li>{@link io.permazen.JTransaction#queryIndex(Class, String, Class) JTransaction.queryIndex()}
+ *  <li>{@link io.permazen.JTransaction#querySimpleIndex(Class, String, Class) JTransaction.querySimpleIndex()}
  *      - Access the index associated with a simple field</li>
  *  <li>{@link io.permazen.JTransaction#queryListElementIndex JTransaction.queryListElementIndex()}
  *      - Access the composite index associated with a list field that includes corresponding list indices</li>
@@ -30,7 +30,7 @@
  *  <li>{@link io.permazen.JTransaction#queryCompositeIndex(Class, String, Class, Class, Class, Class)
  *      JTransaction.queryCompositeIndex()} - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
- *  <li>{@link io.permazen.JTransaction#queryVersion JTransaction.queryVersion()}
+ *  <li>{@link io.permazen.JTransaction#querySchemaIndex JTransaction.querySchemaIndex()}
  *      - Get database objects grouped according to their schema versions</li>
  * </ul>
  *
@@ -54,7 +54,7 @@
  * <p>
  * A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
  * or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
- * any prefix of the indexed fields; for example, see {@link io.permazen.index.Index2#asIndex}.
+ * any prefix of the indexed fields; for example, see {@link io.permazen.index.Index2#asIndex1}.
  *
  * <p>
  * <b>Complex Sub-Fields</b>
@@ -85,7 +85,7 @@
  *  <td>Set element</td>
  *  <td><i>n/a</i></td>
  *  <td><i>n/a</i></td>
- *  <td>{@link io.permazen.index.Index}{@code <E, Foobar>}</td>
+ *  <td>{@link io.permazen.index.Index1}{@code <E, Foobar>}</td>
  * </tr>
  * <tr>
  *  <td>{@link java.util.List}{@code <E>}</td>
@@ -99,7 +99,7 @@
  *  <td>Map key</td>
  *  <td><i>n/a</i></td>
  *  <td><i>n/a</i></td>
- *  <td>{@link io.permazen.index.Index}{@code <K, Foobar>}</td>
+ *  <td>{@link io.permazen.index.Index1}{@code <K, Foobar>}</td>
  * </tr>
  * <tr>
  *  <td>{@link java.util.Map}{@code <K, V>}</td>

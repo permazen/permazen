@@ -38,10 +38,16 @@ public abstract class ComplexSchemaField extends SchemaField {
 // Lockdown
 
     @Override
-    public void lockDown() {
-        super.lockDown();
+    void lockDown1() {
+        super.lockDown1();
         this.getSubFields().values().forEach(field -> field.setParent(this));
-        this.lockDownMap(this.getSubFields());
+        this.lockDownMap1(this.getSubFields());
+    }
+
+    @Override
+    void lockDown2() {
+        super.lockDown2();
+        this.getSubFields().values().forEach(SimpleSchemaField::lockDown2);
     }
 
 // Validation

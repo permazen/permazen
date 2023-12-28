@@ -11,6 +11,8 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
@@ -23,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -41,8 +43,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     final SimpleField<V> valueField;
 
     @SuppressWarnings("serial")
-    MapField(Schema schema, MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        super(schema, field, new TypeToken<NavigableMap<K, V>>() { }
+    MapField(ObjType objType, MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
+        super(objType, field, new TypeToken<NavigableMap<K, V>>() { }
           .where(new TypeParameter<K>() { }, keyField.typeToken.wrap())
           .where(new TypeParameter<V>() { }, valueField.typeToken.wrap()));
         this.keyField = keyField;
@@ -108,6 +110,28 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     public NavigableMap<K, V> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
         return (NavigableMap<K, V>)tx.readMapField(id, this.name, false);
+    }
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * and the specified map key.
+     *
+     * @param id object ID
+     * @param key map key
+     * @return the corresponding {@link KVDatabase} key
+     * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(ObjId id, K key) {
+
+        // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
+
+        // Build key
+        final ByteWriter writer = new ByteWriter();
+        writer.write(super.getKey(id));
+        this.keyField.encoding.write(writer, key);
+        return writer.getBytes();
     }
 
     @Override
@@ -238,7 +262,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+    void unreferenceRemovedTypes(Transaction tx, ObjId id, ReferenceField subField, Set<Integer> removedStorageIds) {
         assert subField == this.keyField || subField == this.valueField;
         for (Iterator<Map.Entry<K, V>> i = this.getValueInternal(tx, id).entrySet().iterator(); i.hasNext(); ) {
             final Map.Entry<K, V> entry = i.next();

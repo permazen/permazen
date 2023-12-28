@@ -8,7 +8,7 @@ package io.permazen;
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.index.Index4;
@@ -80,11 +80,11 @@ class ConvertedIndex4<V1, V2, V3, V4, T, WV1, WV2, WV3, WV4, WT> implements Inde
     }
 
     @Override
-    public NavigableMap<Tuple3<V1, V2, V3>, Index<V4, T>> asMapOfIndex() {
-        return new ConvertedNavigableMap<Tuple3<V1, V2, V3>, Index<V4, T>, Tuple3<WV1, WV2, WV3>, Index<WV4, WT>>(
-          this.index.asMapOfIndex(),
+    public NavigableMap<Tuple3<V1, V2, V3>, Index1<V4, T>> asMapOfIndex1() {
+        return new ConvertedNavigableMap<Tuple3<V1, V2, V3>, Index1<V4, T>, Tuple3<WV1, WV2, WV3>, Index1<WV4, WT>>(
+          this.index.asMapOfIndex1(),
           new Tuple3Converter<V1, V2, V3, WV1, WV2, WV3>(this.value1Converter, this.value2Converter, this.value3Converter),
-          new IndexConverter<V4, T, WV4, WT>(this.value4Converter, this.targetConverter));
+          new Index1Converter<V4, T, WV4, WT>(this.value4Converter, this.targetConverter));
     }
 
     @Override
@@ -117,33 +117,33 @@ class ConvertedIndex4<V1, V2, V3, V4, T, WV1, WV2, WV3, WV4, WT> implements Inde
     }
 
     @Override
-    public Index<V1, V2> asIndex() {
-        return new ConvertedIndex<>(this.index.asIndex(), this.value1Converter, this.value2Converter);
+    public Index1<V1, V2> asIndex1() {
+        return new ConvertedIndex1<>(this.index.asIndex1(), this.value1Converter, this.value2Converter);
     }
 
     @Override
     public Index4<V1, V2, V3, V4, T> withValue1Bounds(Bounds<V1> bounds) {
-        return this.convert(this.index.withValue1Bounds(ConvertedIndex.convert(bounds, this.value1Converter)));
+        return this.convert(this.index.withValue1Bounds(ConvertedIndex1.convert(bounds, this.value1Converter)));
     }
 
     @Override
     public Index4<V1, V2, V3, V4, T> withValue2Bounds(Bounds<V2> bounds) {
-        return this.convert(this.index.withValue2Bounds(ConvertedIndex.convert(bounds, this.value2Converter)));
+        return this.convert(this.index.withValue2Bounds(ConvertedIndex1.convert(bounds, this.value2Converter)));
     }
 
     @Override
     public Index4<V1, V2, V3, V4, T> withValue3Bounds(Bounds<V3> bounds) {
-        return this.convert(this.index.withValue3Bounds(ConvertedIndex.convert(bounds, this.value3Converter)));
+        return this.convert(this.index.withValue3Bounds(ConvertedIndex1.convert(bounds, this.value3Converter)));
     }
 
     @Override
     public Index4<V1, V2, V3, V4, T> withValue4Bounds(Bounds<V4> bounds) {
-        return this.convert(this.index.withValue4Bounds(ConvertedIndex.convert(bounds, this.value4Converter)));
+        return this.convert(this.index.withValue4Bounds(ConvertedIndex1.convert(bounds, this.value4Converter)));
     }
 
     @Override
     public Index4<V1, V2, V3, V4, T> withTargetBounds(Bounds<T> bounds) {
-        return this.convert(this.index.withTargetBounds(ConvertedIndex.convert(bounds, this.targetConverter)));
+        return this.convert(this.index.withTargetBounds(ConvertedIndex1.convert(bounds, this.targetConverter)));
     }
 
     private Index4<V1, V2, V3, V4, T> convert(Index4<WV1, WV2, WV3, WV4, WT> boundedIndex) {

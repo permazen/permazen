@@ -19,8 +19,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * Generates a schema XML file from a set of Permazen model classes.
  *
  * <p>
- * Such a file can be used to detect schema changes that require a new schema version number
- * as Java model classes are modified over time.
+ * Such a file can be used to detect Java model class changes that result in a new schema.
  */
 @Mojo(name = "generate",
   requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME,

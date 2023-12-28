@@ -84,16 +84,16 @@ public class CompositeIndexTest extends CoreAPITestSupport {
           new Tuple2<>(666, id3), buildSet(id3),
           new Tuple2<>(666, id4), buildSet(id4, id5)));
 
-        TestSupport.checkSet(index.asMapOfIndex().get(555).asSet(), buildSet(
+        TestSupport.checkSet(index.asMapOfIndex1().get(555).asSet(), buildSet(
           new Tuple2<>(id3, id1),
           new Tuple2<>(id4, id2)));
 
-        TestSupport.checkSet(index.asMapOfIndex().get(666).asSet(), buildSet(
+        TestSupport.checkSet(index.asMapOfIndex1().get(666).asSet(), buildSet(
           new Tuple2<>(id3, id3),
           new Tuple2<>(id4, id4),
           new Tuple2<>(id4, id5)));
 
-        TestSupport.checkSet(index.asIndex().asSet(), buildSet(
+        TestSupport.checkSet(index.asIndex1().asSet(), buildSet(
           new Tuple2<>(555, id3),
           new Tuple2<>(555, id4),
           new Tuple2<>(666, id3),

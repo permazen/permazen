@@ -5,11 +5,18 @@
 
 package io.permazen.jsck;
 
-import io.permazen.schema.CollectionSchemaField;
+import io.permazen.core.CollectionField;
 
-abstract class CollectionElementIndex extends ComplexFieldIndex {
+import java.util.Collection;
 
-    protected CollectionElementIndex(JsckInfo info, int schemaVersion, CollectionSchemaField field, String parentFieldName) {
-        super(info, schemaVersion, field, field.getElementField(), parentFieldName, "element");
+abstract class CollectionElementIndex<
+    C extends Collection<E>,
+    PF extends CollectionField<C, E>,
+    E,
+    I extends io.permazen.core.CollectionElementIndex<C, E>>
+  extends ComplexSubFieldIndex<C, PF, E, I> {
+
+    protected CollectionElementIndex(JsckInfo info, PF collectionField) {
+        super(info, collectionField, collectionField.getElementField());
     }
 }

@@ -263,6 +263,7 @@ public class Bounds<T> {
      *
      * This instance is "inverted" if it has both lower and upper bounds and
      * the lower bound's value is strictly greater than the upper bound's value.
+     * The bounds' types (i.e., whether {@link BoundType#INCLUSIVE} or {@link BoundType#EXCLUSIVE}) is not considered.
      *
      * @param comparator comparator used to compare values, or null for natural ordering
      * @return true if this instance is backwards

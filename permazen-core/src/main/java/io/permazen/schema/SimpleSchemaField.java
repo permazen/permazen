@@ -78,7 +78,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public final void setParent(ComplexSchemaField parent) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.parent = parent;
     }
 
@@ -98,7 +98,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setEncodingId(EncodingId encodingId) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.encodingId = encodingId;
     }
 
@@ -118,8 +118,26 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setIndexed(boolean indexed) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.indexed = indexed;
+    }
+
+    /**
+     * Determine if this field has a fixed encoding.
+     *
+     * @return true if this is a {@link ReferenceSchemaField} or {@link AbstractEnumSchemaField}, otherwise false
+     */
+    public boolean hasFixedEncoding() {
+        return false;
+    }
+
+    /**
+     * Determine if this field is always indexed.
+     *
+     * @return true if this is a {@link ReferenceSchemaField}, otherwise false
+     */
+    public boolean isAlwaysIndexed() {
+        return false;
     }
 
 // Validation
@@ -133,14 +151,6 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
             throw new InvalidSchemaException(String.format("invalid %s: %s", this, "encoding ID should be null"));
         if (this.isAlwaysIndexed() && !this.isIndexed())
             throw new IllegalArgumentException("invalid " + this + ": field must always be indexed");
-    }
-
-    boolean hasFixedEncoding() {
-        return false;
-    }
-
-    boolean isAlwaysIndexed() {
-        return false;
     }
 
 // SchemaFieldSwitch

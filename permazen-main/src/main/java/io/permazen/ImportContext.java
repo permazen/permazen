@@ -27,15 +27,15 @@ import java.util.function.Function;
  * classes and model classes that implement common Java interfaces.
  *
  * <p>
- * The {@link ObjId} for the corresponding imported Permazen object is determined by the configured {@code storageIdMapper}.
- * If {@code storageIdMapper} returns null, the POJO is not imported, and nulls replace any copied references to it; otherwise,
- * the returned object must exist in the transaction. If {@code storageIdMapper} is itself null, the default behavior is
+ * The {@link ObjId} for the corresponding imported Permazen object is determined by the configured {@code objectIdMapper}.
+ * If {@code objectIdMapper} returns null, the POJO is not imported, and nulls replace any copied references to it; otherwise,
+ * the returned object must exist in the transaction. If {@code objectIdMapper} is itself null, the default behavior is
  * to create a new Permazen object using {@link JTransaction#create(Class)}, providing the POJO's class as the model class.
  *
  * <p>
  * Instances ensure that an already-imported POJO will be recognized and not imported twice.
  * Note this determination is based on object identity, not {@link Object#equals Object.equals()}.
- * The {@code storageIdMapper} is invoked at most once for any POJO.
+ * The {@code objectIdMapper} is invoked at most once for any POJO.
  *
  * <p>
  * Once the target object for a POJO has been identified, common properties are copied, overwriting any previous values.
@@ -55,7 +55,7 @@ import java.util.function.Function;
 public class ImportContext {
 
     private final JTransaction jtx;
-    private final Function<Object, ObjId> storageIdMapper;
+    private final Function<Object, ObjId> objectIdMapper;
     private final IdentityHashMap<Object, ObjId> objectMap = new IdentityHashMap<>();
     private final IdentityHashMap<Object, ObjId> needingFieldsCopied = new IdentityHashMap<>();
 
@@ -63,7 +63,7 @@ public class ImportContext {
      * Constructor.
      *
      * <p>
-     * Uses a default {@code storageIdMapper} that creates new instances for imported objects via
+     * Uses a default {@code objectIdMapper} that creates new instances for imported objects via
      * {@link JTransaction#create(Class)}, using the Permazen model type found by
      * {@link Permazen#findJClass(Class)} when given the POJO's class.
      *
@@ -73,7 +73,7 @@ public class ImportContext {
     public ImportContext(JTransaction jtx) {
         Preconditions.checkArgument(jtx != null);
         this.jtx = jtx;
-        this.storageIdMapper = obj -> {
+        this.objectIdMapper = obj -> {
             final JClass<?> modelClass = this.jtx.jdb.findJClass(obj.getClass());
             if (modelClass == null)
                 throw new IllegalArgumentException("no Permazen model class corresponds to POJO " + obj.getClass());
@@ -85,14 +85,14 @@ public class ImportContext {
      * Constructor.
      *
      * @param jtx the transaction in which to import objects
-     * @param storageIdMapper function assigning {@link ObjId}'s to imported objects (or null to skip the corresponding object)
+     * @param objectIdMapper function assigning {@link ObjId}'s to imported objects (or null to skip the corresponding object)
      * @throws IllegalArgumentException if either parameter is null
      */
-    public ImportContext(JTransaction jtx, Function<Object, ObjId> storageIdMapper) {
+    public ImportContext(JTransaction jtx, Function<Object, ObjId> objectIdMapper) {
         Preconditions.checkArgument(jtx != null);
-        Preconditions.checkArgument(storageIdMapper != null);
+        Preconditions.checkArgument(objectIdMapper != null);
         this.jtx = jtx;
-        this.storageIdMapper = storageIdMapper;
+        this.objectIdMapper = objectIdMapper;
     }
 
     /**
@@ -100,7 +100,7 @@ public class ImportContext {
      *
      * @return associated transaction
      */
-    public JTransaction getTransaction() {
+    public JTransaction getJTransaction() {
         return this.jtx;
     }
 
@@ -120,9 +120,9 @@ public class ImportContext {
      * If {@code obj} has already been imported, the previously assigned {@link JObject} is returned.
      *
      * @param obj object to import; must not be null
-     * @return imported object, or null if the {@code storageIdMapper} returned null for {@code obj}
-     * @throws io.permazen.core.DeletedObjectException if {@code storageIdMapper} returns the object ID of a non-existent object
-     * @throws io.permazen.core.TypeNotInSchemaVersionException if {@code storageIdMapper} returns an object ID that does not
+     * @return imported object, or null if the {@code objectIdMapper} returned null for {@code obj}
+     * @throws io.permazen.core.DeletedObjectException if {@code objectIdMapper} returns the object ID of a non-existent object
+     * @throws io.permazen.core.TypeNotInSchemaException if {@code objectIdMapper} returns an object ID that does not
      *  corresponding to any Permazen model class
      * @throws IllegalArgumentException if {@code obj} is null
      */
@@ -152,7 +152,7 @@ public class ImportContext {
             i.remove();
 
             // Copy fields
-            for (JField jfield : this.jtx.jdb.getJClass(id).jfields.values())
+            for (JField jfield : this.jtx.jdb.getJClass(id).jfieldsByName.values())
                 jfield.importPlain(this, obj, id);
         }
     }
@@ -166,7 +166,7 @@ public class ImportContext {
             return id;
 
         // Get object ID assignment and associated type
-        if ((id = this.storageIdMapper.apply(obj)) == null) {
+        if ((id = this.objectIdMapper.apply(obj)) == null) {
             this.objectMap.put(obj, null);                              // null means "don't import this object"
             return null;
         }

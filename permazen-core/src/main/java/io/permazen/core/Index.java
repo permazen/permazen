@@ -5,9 +5,13 @@
 
 package io.permazen.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
+import io.permazen.util.ByteWriter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Represents a simple or composite index on an {@link ObjType}.
+ * A simple or composite index on some field(s) an {@link ObjType}.
  */
 public abstract class Index extends SchemaItem {
 
@@ -34,10 +38,10 @@ public abstract class Index extends SchemaItem {
         this.fields = Collections.unmodifiableList(Lists.newArrayList(fields));
         assert this.fields.size() >= 1 && this.fields.size() <= Database.MAX_INDEXED_FIELDS;
 
-        // Gather encodings
+        // Gather encodings, with special handling for reference encodings
         final ArrayList<Encoding<?>> encodingList = new ArrayList<>(this.fields.size());
         for (int i = 0; i < this.fields.size(); i++)
-            encodingList.add(this.fields.get(i).getEncoding());
+            encodingList.add(Index.genericize(this.fields.get(i).getEncoding()));
         this.encodings = Collections.unmodifiableList(encodingList);
     }
 
@@ -62,6 +66,20 @@ public abstract class Index extends SchemaItem {
     }
 
     /**
+     * Get the field encoding(s).
+     *
+     * <p>
+     * Note that the core API treats reference fields with the same name as the same field, regardless of their
+     * object type restrictions. Therefore, the encodings in an index corresponding to reference fields do not
+     * have type restrictions and therefore can be different from the encodings associated with the fields themselves.
+     *
+     * @return list of indexed fields
+     */
+    public List<Encoding<?>> getEncodings() {
+        return this.encodings;
+    }
+
+    /**
      * Determine whether this is a composite index, i.e., and index on two or more fields.
      *
      * @return true if composite
@@ -78,6 +96,50 @@ public abstract class Index extends SchemaItem {
      * @throws IllegalArgumentException if {@code tx} is null
      */
     public abstract AbstractCoreIndex<ObjId> getIndex(Transaction tx);
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value tuple in this index.
+     *
+     * <p>
+     * The returned key will be the prefix of all index entries with the given value tuple over all objects.
+     *
+     * @param values indexed values
+     * @return the corresponding {@link KVDatabase} key
+     * @throws IllegalArgumentException if {@code values} is null
+     * @throws IllegalArgumentException if {@code values} has the wrong length for this index
+     * @throws IllegalArgumentException if any value in {@code values} has the wrong type
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(Object... values) {
+        Preconditions.checkArgument(values != null, "null values");
+        Preconditions.checkArgument(values.length == this.encodings.size(), "wrong number of values");
+        final ByteWriter writer = new ByteWriter();
+        Encodings.UNSIGNED_INT.write(writer, this.storageId);
+        int i = 0;
+        for (Encoding<?> encoding : this.encodings)
+            encoding.validateAndWrite(writer, values[i++]);
+        return writer.getBytes();
+    }
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value tuple and target object
+     * in this index.
+     *
+     * @param id target object ID
+     * @param values indexed values
+     * @return the corresponding {@link KVDatabase} key
+     * @throws IllegalArgumentException if {@code values} is null
+     * @throws IllegalArgumentException if {@code values} has the wrong length for this index
+     * @throws IllegalArgumentException if any value in {@code values} has the wrong type
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(ObjId id, Object... values) {
+        Preconditions.checkArgument(id != null, "null id");
+        final ByteWriter writer = new ByteWriter();
+        writer.write(this.getKey(values));
+        id.writeTo(writer);
+        return writer.getBytes();
+    }
 
 // IndexSwitch
 
@@ -97,12 +159,28 @@ public abstract class Index extends SchemaItem {
     public String toString() {
         return String.format("index \"%s\" on field%s %s",
           this.name, this.fields.size() != 1 ? "s" : "",
-          this.fields.stream().map(this::getFieldDisplayName).collect(Collectors.joining(", ")));
+          this.fields.stream().map(SimpleField::getFullName).collect(Collectors.joining(", ")));
     }
 
 // Package Methods
 
-    String getFieldDisplayName(SimpleField<?> field) {
-        return field.name;
+    /**
+     * Genericize the given encoding for use in a index.
+     *
+     * <p>
+     * For encodings other than {@link ReferenceEncoding}, this just returns the given encoding unchanged.
+     * For {@link ReferenceEncoding}, this returns the encoding with all type restrictions removed.
+     * This is required because the type restrictions associated with reference fields are allowed to vary
+     * across schemas without changing the identity of the field. When querying indexes, reference fields
+     * are instead restricted according to the types specified in the query.
+     *
+     * @param encoding simple field encoding
+     * @return {@code encoding} genericized for use in an index, or {@code encoding} itself if no change is needed
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Encoding<T> genericize(Encoding<T> encoding) {
+        if (encoding instanceof ReferenceEncoding)
+            encoding = (Encoding<T>)((ReferenceEncoding)encoding).genericizeForIndex();
+        return encoding;
     }
 }

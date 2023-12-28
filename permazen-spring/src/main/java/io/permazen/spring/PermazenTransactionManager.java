@@ -209,7 +209,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      *
      * <p>
      * The implementation in {@link PermazenTransactionManager} just delegates to
-     * {@link Permazen#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
+     * {@link Permazen#createTransaction(ValidationMode, Map)} using this instance's configured
      * settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options

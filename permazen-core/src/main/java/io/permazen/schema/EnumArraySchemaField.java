@@ -45,7 +45,7 @@ public class EnumArraySchemaField extends AbstractEnumSchemaField {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public void setDimensions(final int dimensions) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.dimensions = dimensions;
     }
 

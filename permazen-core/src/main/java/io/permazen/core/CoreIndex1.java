@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Tuple2Encoding;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.tuple.Tuple2;
@@ -16,7 +16,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 /**
- * Core API {@link Index} implementation representing a index on a single field.
+ * Core API {@link Index1} implementation representing an index on a single field.
  *
  * <p>
  * Instances are immutable.
@@ -24,33 +24,33 @@ import java.util.NavigableSet;
  * @param <V> index value type
  * @param <T> index target type
  */
-public class CoreIndex<V, T> extends AbstractCoreIndex<T> implements Index<V, T> {
+public class CoreIndex1<V, T> extends AbstractCoreIndex<T> implements Index1<V, T> {
 
 // Constructors
 
-    CoreIndex(KVStore kv, IndexView<V, T> indexView) {
+    CoreIndex1(KVStore kv, Index1View<V, T> indexView) {
         super(kv, 2, indexView);
     }
 
 // Methods
 
     @Override
-    public CoreIndex<V, T> filter(int index, KeyFilter filter) {
-        return new CoreIndex<>(this.kv, this.getIndexView().filter(index, filter));
+    public CoreIndex1<V, T> filter(int index, KeyFilter filter) {
+        return new CoreIndex1<>(this.kv, this.getIndex1View().filter(index, filter));
     }
 
     @SuppressWarnings("unchecked")
-    IndexView<V, T> getIndexView() {
-        return (IndexView<V, T>)this.indexView;
+    Index1View<V, T> getIndex1View() {
+        return (Index1View<V, T>)this.indexView;
     }
 
-// Index
+// Index1
 
     @Override
     public NavigableSet<Tuple2<V, T>> asSet() {
 
         // Get index view
-        final IndexView<V, T> iv = this.getIndexView();
+        final Index1View<V, T> iv = this.getIndex1View();
 
         // Create tuple encoding
         final Tuple2Encoding<V, T> tupleEncoding = new Tuple2Encoding<>(iv.getValueEncoding(), iv.getTargetEncoding());
@@ -68,7 +68,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex<T> implements Index<V, T>
     public NavigableMap<V, NavigableSet<T>> asMap() {
 
         // Get index view
-        final IndexView<V, T> iv = this.getIndexView();
+        final Index1View<V, T> iv = this.getIndex1View();
 
         // Build map and apply filtering
         IndexMap<V, NavigableSet<T>> indexMap = new IndexMap.OfValues<>(this.kv, iv);
@@ -81,13 +81,13 @@ public class CoreIndex<V, T> extends AbstractCoreIndex<T> implements Index<V, T>
 
     @Override
     @SuppressWarnings("unchecked")
-    public CoreIndex<V, T> withValueBounds(Bounds<V> bounds) {
-        return (CoreIndex<V, T>)this.filter(0, this.getIndexView().getValueEncoding(), bounds);
+    public CoreIndex1<V, T> withValueBounds(Bounds<V> bounds) {
+        return (CoreIndex1<V, T>)this.filter(0, this.getIndex1View().getValueEncoding(), bounds);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public CoreIndex<V, T> withTargetBounds(Bounds<T> bounds) {
-        return (CoreIndex<V, T>)this.filter(1, this.getIndexView().getTargetEncoding(), bounds);
+    public CoreIndex1<V, T> withTargetBounds(Bounds<T> bounds) {
+        return (CoreIndex1<V, T>)this.filter(1, this.getIndex1View().getTargetEncoding(), bounds);
     }
 }

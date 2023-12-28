@@ -18,7 +18,7 @@ import java.util.NavigableSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class UntypedJObjectTest extends TestSupport {
+public class UntypedJObjectTest extends MainTestSupport {
 
     @Test
     public void testUntypedJObject() throws Exception {
@@ -30,11 +30,11 @@ public class UntypedJObjectTest extends TestSupport {
         final ObjId fooId;
         final ObjId barId;
 
-        final PermazenFactory factory1 = new PermazenFactory();
-        factory1.setDatabase(db);
-        factory1.setSchemaVersion(1);
-        factory1.setModelClasses(Foo.class, Bar.class);
-        final Permazen jdb1 = factory1.newPermazen();
+        final Permazen jdb1 = PermazenConfig.builder()
+          .database(db)
+          .modelClasses(Foo.class, Bar.class)
+          .build()
+          .newPermazen();
         final JTransaction jtx1 = jdb1.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx1);
         try {
@@ -57,11 +57,11 @@ public class UntypedJObjectTest extends TestSupport {
 
     // Query getAll() in schema version 2 transaction
 
-        final PermazenFactory factory2 = new PermazenFactory();
-        factory2.setDatabase(db);
-        factory2.setSchemaVersion(2);
-        factory2.setModelClasses(Foo.class);
-        final Permazen jdb2 = factory2.newPermazen();
+        final Permazen jdb2 = PermazenConfig.builder()
+          .database(db)
+          .modelClasses(Foo.class)
+          .build()
+          .newPermazen();
         final JTransaction jtx2 = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx2);
         try {
@@ -95,9 +95,12 @@ public class UntypedJObjectTest extends TestSupport {
         JTransaction.setCurrent(jtx3);
         try {
 
-            final NavigableMap<String, NavigableSet<Foo>> fobjs = jtx3.queryIndex(Foo.class, "name", String.class).asMap();
-            final NavigableMap<String, NavigableSet<HasName>> hobjs = jtx3.queryIndex(HasName.class, "name", String.class).asMap();
-            final NavigableMap<String, NavigableSet<JObject>> jobjs = jtx3.queryIndex(JObject.class, "name", String.class).asMap();
+            final NavigableMap<String, NavigableSet<Foo>> fobjs
+              = jtx3.querySimpleIndex(Foo.class, "name", String.class).asMap();
+            final NavigableMap<String, NavigableSet<HasName>> hobjs
+              = jtx3.querySimpleIndex(HasName.class, "name", String.class).asMap();
+            final NavigableMap<String, NavigableSet<JObject>> jobjs
+              = jtx3.querySimpleIndex(JObject.class, "name", String.class).asMap();
 
             final Foo foo = jtx3.get(fooId, Foo.class);
             final JObject bar = jtx3.get(barId);

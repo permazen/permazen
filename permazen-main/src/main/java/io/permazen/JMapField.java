@@ -16,6 +16,7 @@ import io.permazen.change.MapFieldRemove;
 import io.permazen.change.MapFieldReplace;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
+import io.permazen.core.Transaction;
 import io.permazen.schema.MapSchemaField;
 
 import java.lang.reflect.Method;
@@ -36,14 +37,18 @@ public class JMapField extends JComplexField {
     final JSimpleField keyField;
     final JSimpleField valueField;
 
-    JMapField(Permazen jdb, String name, int storageId, io.permazen.annotation.JMapField annotation,
+// Constructor
+
+    JMapField(String name, int storageId, io.permazen.annotation.JMapField annotation,
       JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
-        super(jdb, name, storageId, annotation, description, getter);
+        super(name, storageId, annotation, description, getter);
         Preconditions.checkArgument(keyField != null, "null keyField");
         Preconditions.checkArgument(valueField != null, "null valueField");
         this.keyField = keyField;
         this.valueField = valueField;
     }
+
+// Public Methods
 
     @Override
     public io.permazen.annotation.JMapField getDeclaringAnnotation() {
@@ -71,11 +76,12 @@ public class JMapField extends JComplexField {
     @Override
     public NavigableMap<?, ?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readMapField(jobj.getObjId(), this.storageId, false);
+        return jobj.getTransaction().readMapField(jobj.getObjId(), this.name, false);
     }
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJMapField(this);
     }
 
@@ -85,42 +91,34 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    boolean isSameAs(JField that0) {
-        if (!super.isSameAs(that0))
-            return false;
-        final JMapField that = (JMapField)that0;
-        if (!this.keyField.isSameAs(that.keyField))
-            return false;
-        if (!this.valueField.isSameAs(that.valueField))
-            return false;
-        return true;
+    public MapField<?, ?> getSchemaItem() {
+        return (MapField<?, ?>)super.getSchemaItem();
+    }
+
+// Package Methods
+
+    @Override
+    MapSchemaField createSchemaItem() {
+        return new MapSchemaField();
     }
 
     @Override
-    String getSubFieldName(JSimpleField subField) {
-        if (subField == this.keyField)
-            return MapField.KEY_FIELD_NAME;
-        if (subField == this.valueField)
-            return MapField.VALUE_FIELD_NAME;
-        throw new IllegalArgumentException("unknown sub-field");
-    }
-
-    @Override
-    MapSchemaField toSchemaItem(Permazen jdb) {
-        final MapSchemaField schemaField = new MapSchemaField();
-        super.initialize(jdb, schemaField);
-        schemaField.setKeyField(this.keyField.toSchemaItem(jdb));
-        schemaField.setValueField(this.valueField.toSchemaItem(jdb));
+    MapSchemaField toSchemaItem() {
+        final MapSchemaField schemaField = (MapSchemaField)super.toSchemaItem();
+        schemaField.setKeyField(this.keyField.toSchemaItem());
+        schemaField.setValueField(this.valueField.toSchemaItem());
         return schemaField;
     }
 
     @Override
-    ComplexSubFieldIndexInfo toIndexInfo(JSimpleField subField) {
+    @SuppressWarnings("unchecked")
+    Iterable<ObjId> iterateReferences(Transaction tx, ObjId id, JReferenceField subField) {
+        final NavigableMap<?, ?> map = tx.readMapField(id, this.name, false);
         if (subField == this.keyField)
-            return new MapKeyIndexInfo(this);
+            return (Iterable<ObjId>)map.keySet();
         if (subField == this.valueField)
-            return new MapValueIndexInfo(this);
-        throw new IllegalArgumentException("unknown sub-field");
+            return (Iterable<ObjId>)map.values();
+        throw new RuntimeException("internal error");
     }
 
     @Override
@@ -197,8 +195,8 @@ public class JMapField extends JComplexField {
             return;
 
         // Get core API map
-        final Map<Object, Object> coreMap = (Map<Object, Object>)context.getTransaction().getTransaction().readMapField(
-          id, this.storageId, true);
+        final Map<Object, Object> coreMap = (Map<Object, Object>)context.getJTransaction().getTransaction().readMapField(
+          id, this.name, true);
 
         // Copy key/value pairs over
         coreMap.clear();
@@ -241,7 +239,7 @@ public class JMapField extends JComplexField {
         }
 
         // Get core API map
-        final Map<?, ?> coreMap = context.getTransaction().getTransaction().readMapField(id, this.storageId, true);
+        final Map<?, ?> coreMap = context.getJTransaction().getTransaction().readMapField(id, this.name, true);
 
         // Copy values over
         objMap.clear();

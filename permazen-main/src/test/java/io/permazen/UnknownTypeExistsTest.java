@@ -8,22 +8,22 @@ package io.permazen;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.test.TestSupport;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class UnknownTypeExistsTest extends TestSupport {
+public class UnknownTypeExistsTest extends MainTestSupport {
 
     @Test
     public void testUnknownTypeExists() throws Exception {
 
         final Database db = new Database(new SimpleKVDatabase());
-        final PermazenFactory factory1 = new PermazenFactory();
-        factory1.setDatabase(db);
-        factory1.setSchemaVersion(1);
-        factory1.setModelClasses(Foo.class);
-        final Permazen jdb1 = factory1.newPermazen();
+
+        final Permazen jdb1 = PermazenConfig.builder()
+          .database(db)
+          .modelClasses(Foo.class)
+          .build()
+          .newPermazen();
 
         JTransaction jtx;
 
@@ -49,11 +49,11 @@ public class UnknownTypeExistsTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        final PermazenFactory factory2 = new PermazenFactory();
-        factory2.setDatabase(db);
-        factory2.setSchemaVersion(2);
-        factory2.setModelClasses(Bar.class);
-        final Permazen jdb2 = factory2.newPermazen();
+        final Permazen jdb2 = PermazenConfig.builder()
+          .database(db)
+          .modelClasses(Bar.class)
+          .build()
+          .newPermazen();
 
         jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);

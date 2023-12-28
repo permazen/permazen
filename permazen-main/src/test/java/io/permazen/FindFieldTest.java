@@ -10,7 +10,6 @@ import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import java.util.List;
 import java.util.Map;
@@ -20,13 +19,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FindFieldTest extends TestSupport {
+public class FindFieldTest extends MainTestSupport {
 
     private Permazen jdb;
 
     @BeforeClass
     public void setup() {
-        this.jdb = BasicTest.getPermazen(Model1.class);
+        this.jdb = BasicTest.newPermazen(Model1.class);
     }
 
     @Test(dataProvider = "tests")

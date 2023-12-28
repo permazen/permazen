@@ -29,7 +29,7 @@ import java.util.TreeMap;
  */
 public class Schema {
 
-    private final int schemaIndex;
+    private final int schemaIndex;                                              // zero only if schema is empty
     private final SchemaModel schemaModel;
     private final SchemaBundle schemaBundle;
     private final TreeMap<String, ObjType> objTypesByName = new TreeMap<>();
@@ -40,12 +40,15 @@ public class Schema {
 
 // Constructor
 
+    // Create a non-empty schema
     Schema(SchemaBundle schemaBundle, int schemaIndex, SchemaModel schemaModel) {
 
         // Sanity check
         Preconditions.checkArgument(schemaBundle != null, "null schemaBundle");
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
         Preconditions.checkArgument(schemaIndex > 0, "non-positive schemaIndex");
-        Preconditions.checkArgument(schemaModel.isLockedDown(), "schemaModel not locked down");
+        Preconditions.checkArgument(!schemaModel.isEmpty(), "empty schema model");
+        Preconditions.checkArgument(schemaModel.isLockedDown(true), "schemaModel not locked down");
         schemaModel.validate();                             // this should already be done so this should be quick
 
         // Initialize fields
@@ -61,6 +64,15 @@ public class Schema {
             this.objTypesByName.put(objType.getName(), objType);
             this.objTypesByStorageId.put(objType.getStorageId(), objType);
         }
+    }
+
+    // Create an empty schema
+    Schema(SchemaBundle schemaBundle) {
+        Preconditions.checkArgument(schemaBundle != null, "null schemaBundle");
+        this.schemaIndex = 0;
+        this.schemaBundle = schemaBundle;
+        this.schemaModel = new SchemaModel();
+        this.schemaModel.lockDown(true);
     }
 
 // Initialization
@@ -116,6 +128,18 @@ public class Schema {
 // Public Methods
 
     /**
+     * Determine whether this schema is empty, i.e., contains zero object types.
+     *
+     * <p>
+     * Empty schemas are not recorded in the database.
+     *
+     * @return true if empty, otherwise false
+     */
+    public boolean isEmpty() {
+        return this.schemaIndex == 0;
+    }
+
+    /**
      * Get the schema bundle that this instance is a member of.
      *
      * @return the containing schema bundle
@@ -127,7 +151,7 @@ public class Schema {
     /**
      * Get the schema index associated with this instance.
      *
-     * @return schema index
+     * @return schema index, or zero if this is the empty schema
      */
     public int getSchemaIndex() {
         return this.schemaIndex;
@@ -168,7 +192,9 @@ public class Schema {
         if (!withStorageIds)
             return this.schemaModel;
         final SchemaModel model = this.schemaModel.clone();
+        model.lockDown(false);
         model.visitSchemaItems(item -> item.setStorageId(this.schemaBundle.getStorageId(item.getSchemaId())));
+        model.lockDown(true);
         return model;
     }
 

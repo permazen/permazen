@@ -14,6 +14,7 @@ import io.permazen.change.ListFieldAdd;
 import io.permazen.change.ListFieldClear;
 import io.permazen.change.ListFieldRemove;
 import io.permazen.change.ListFieldReplace;
+import io.permazen.core.ListField;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.schema.ListSchemaField;
@@ -27,10 +28,14 @@ import java.util.List;
  */
 public class JListField extends JCollectionField {
 
-    JListField(Permazen jdb, String name, int storageId,
-      io.permazen.annotation.JListField annotation, JSimpleField elementField, String description, Method getter) {
-        super(jdb, name, storageId, annotation, elementField, description, getter);
+// Constructor
+
+    JListField(String name, int storageId, io.permazen.annotation.JListField annotation,
+      JSimpleField elementField, String description, Method getter) {
+        super(name, storageId, annotation, elementField, description, getter);
     }
+
+// Public Methods
 
     @Override
     public io.permazen.annotation.JListField getDeclaringAnnotation() {
@@ -40,25 +45,31 @@ public class JListField extends JCollectionField {
     @Override
     public List<?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readListField(jobj.getObjId(), this.storageId, false);
+        return jobj.getTransaction().readListField(jobj.getObjId(), this.name, false);
     }
 
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
+        Preconditions.checkArgument(target != null, "null target");
         return target.caseJListField(this);
     }
 
     @Override
-    ListSchemaField toSchemaItem(Permazen jdb) {
-        final ListSchemaField schemaField = new ListSchemaField();
-        super.initialize(jdb, schemaField);
-        return schemaField;
+    public ListField<?> getSchemaItem() {
+        return (ListField<?>)super.getSchemaItem();
+    }
+
+// Package Methods
+
+    @Override
+    ListSchemaField createSchemaItem() {
+        return new ListSchemaField();
     }
 
     @Override
-    ListElementIndexInfo toIndexInfo(JSimpleField subField) {
-        assert subField == this.elementField;
-        return new ListElementIndexInfo(this);
+    @SuppressWarnings("unchecked")
+    Iterable<ObjId> iterateReferences(Transaction tx, ObjId id, JReferenceField subField) {
+        return (Iterable<ObjId>)tx.readListField(id, this.name, false);
     }
 
     @Override
@@ -104,7 +115,7 @@ public class JListField extends JCollectionField {
 
     @Override
     List<?> readCoreCollection(Transaction tx, ObjId id) {
-        return tx.readListField(id, this.storageId, true);
+        return tx.readListField(id, this.name, true);
     }
 
 // Bytecode generation

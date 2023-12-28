@@ -21,21 +21,22 @@ import io.permazen.core.Transaction;
  * Counter fields do not support indexing or change listeners.
  *
  * <p>
- * Note: during schema version change notification, counter field values appear as plain {@code long} values.
+ * Note: during schema change notifications, counter field values appear as plain {@code Long} values.
  */
 public class Counter {
 
     private final Transaction tx;
     private final ObjId id;
-    private final int storageId;
+    private final String name;
     private final boolean updateVersion;
 
-    Counter(Transaction tx, ObjId id, int storageId, boolean updateVersion) {
+    Counter(Transaction tx, ObjId id, String name, boolean updateVersion) {
         Preconditions.checkArgument(tx != null, "null tx");
         Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(name != null, "null name");
         this.tx = tx;
         this.id = id;
-        this.storageId = storageId;
+        this.name = name;
         this.updateVersion = updateVersion;
     }
 
@@ -49,7 +50,7 @@ public class Counter {
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public long get() {
-        return this.tx.readCounterField(this.id, this.storageId, this.updateVersion);
+        return this.tx.readCounterField(this.id, this.name, this.updateVersion);
     }
 
     /**
@@ -62,7 +63,7 @@ public class Counter {
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void set(long value) {
-        this.tx.writeCounterField(this.id, this.storageId, value, this.updateVersion);
+        this.tx.writeCounterField(this.id, this.name, value, this.updateVersion);
     }
 
     /**
@@ -74,7 +75,7 @@ public class Counter {
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void adjust(long offset) {
-        this.tx.adjustCounterField(this.id, this.storageId, offset, this.updateVersion);
+        this.tx.adjustCounterField(this.id, this.name, offset, this.updateVersion);
     }
 
     /**

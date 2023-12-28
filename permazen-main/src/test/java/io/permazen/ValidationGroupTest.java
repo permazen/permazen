@@ -8,18 +8,17 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.OnValidate;
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.groups.Default;
 
 import org.testng.annotations.Test;
 
-public class ValidationGroupTest extends TestSupport {
+public class ValidationGroupTest extends MainTestSupport {
 
     @Test
     public void testValidationGroups() {
-        final Permazen jdb = BasicTest.getPermazen(Foobar.class);
+        final Permazen jdb = BasicTest.newPermazen(Foobar.class);
         JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {

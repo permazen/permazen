@@ -13,7 +13,6 @@ import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldChange;
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.test.TestSupport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class OnChangeMultipleTest extends TestSupport {
+public class OnChangeMultipleTest extends MainTestSupport {
 
     private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = new ThreadLocal<ArrayList<FieldChange<?>>>() {
         @Override
@@ -36,7 +35,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test
     public void testMultiFieldChange() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class, Person2.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class, Person2.class);
         final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -47,22 +46,22 @@ public class OnChangeMultipleTest extends TestSupport {
             this.verify();
 
             p1.setName("Person #1");
-            this.verify(new SimpleFieldChange<>(p1, 101, "name", null, "Person #1"));
+            this.verify(new SimpleFieldChange<>(p1, "name", null, "Person #1"));
 
             p1.getFriends().add(p2);
-            this.verify(new SetFieldAdd<Person, Person>(p1, 103, "friends", p2));
+            this.verify(new SetFieldAdd<Person, Person>(p1, "friends", p2));
 
             p2.setName("Person #2");
-            this.verify(new SimpleFieldChange<Person, String>(p2, 101, "name", null, "Person #2"));
+            this.verify(new SimpleFieldChange<Person, String>(p2, "name", null, "Person #2"));
 
             final Person2 p3 = tx.create(Person2.class);
             p2.getFriends().add(p3);
-            this.verify(new SetFieldAdd<Person, Person>(p2, 103, "friends", p3));
+            this.verify(new SetFieldAdd<Person, Person>(p2, "friends", p3));
 
             p3.setName("Person #3");
             this.verify(
-              new SimpleFieldChange<Person, String>(p3, 101, "name", null, "Person #3"),     // one for p2 (friends.element.name)
-              new SimpleFieldChange<Person, String>(p3, 101, "name", null, "Person #3"));    // one for p3 (name)
+              new SimpleFieldChange<Person, String>(p3, "name", null, "Person #3"),     // one for p2 (friends.element.name)
+              new SimpleFieldChange<Person, String>(p3, "name", null, "Person #3"));    // one for p3 (name)
 
         } finally {
             JTransaction.setCurrent(null);
@@ -72,7 +71,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test(dataProvider = "invalidClasses")
     public void testInvalidOnChange(List<Class<?>> classes) throws Exception {
         try {
-            BasicTest.getPermazen(classes);
+            BasicTest.newPermazen(classes);
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());
@@ -82,7 +81,7 @@ public class OnChangeMultipleTest extends TestSupport {
     @Test(dataProvider = "validClasses")
     public void testValidOnChange(List<Class<?>> classes) throws Exception {
         try {
-            BasicTest.getPermazen(classes);
+            BasicTest.newPermazen(classes);
         } catch (Exception e) {
             assert false;
         }

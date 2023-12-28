@@ -5,16 +5,16 @@
 
 package io.permazen.ant;
 
-import io.permazen.DefaultStorageIdGenerator;
 import io.permazen.Permazen;
-import io.permazen.PermazenFactory;
-import io.permazen.StorageIdGenerator;
+import io.permazen.PermazenConfig;
+import io.permazen.annotation.OnSchemaChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.TransactionConfig;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
 
@@ -53,7 +53,7 @@ import org.apache.tools.ant.types.Resource;
  * <p>
  * This task can also check for conflicts between the schema in question and older schema versions that may still
  * exist in production databases. These other schema versions are specified using nested {@code <oldschemas>}
- * elements, which work just like {@code <fileset>}'s.
+ * elements, which work just like {@code <fileset>}'s. Conflicts are only possible when explicit storage ID's are used.
  *
  * <p>
  * The following attributes are supported by this task:
@@ -90,28 +90,6 @@ import org.apache.tools.ant.types.Resource;
  * </td>
  * </tr>
  * <tr>
- *  <td>{@code matchNames}</td>
- *  <td>No</td>
- *  <td>
- *      <p>
- *      Whether to verify not only {@link SchemaModel#isCompatibleWith "same version"
- *      schema compatibility} but also that the two schemas are actually identical, i.e.,
- *      the same names are used for object types, fields, and composite indexes, and non-structural
- *      attributes such as delete cascades have not changed.
- *      </p>
- *
- *      <p>
- *      Two schemas that are equivalent except for names are compatible, because the core API uses storage ID's,
- *      not names. However, if names change then some Permazen layer operations, such as index queries
- *      and reference path inversion, may need to be updated.
- *      </p>
- *
- *      <p>
- *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.
- *      </p>
- * </td>
- * </tr>
- * <tr>
  *  <td>{@code failOnError}</td>
  *  <td>No</td>
  *  <td>
@@ -142,14 +120,13 @@ import org.apache.tools.ant.types.Resource;
  * </td>
  * </tr>
  * <tr>
- *  <td>{@code schemaVersionProperty}</td>
+ *  <td>{@code schemaIdProperty}</td>
  *  <td>No</td>
  *  <td>
  *      <p>
- *      The name of an ant property to set to the auto-generated schema version number. This is the schema
- *      version number that will be auto-generated when a schema version number of {@code -1} is configured.
- *      This auto-generated version number is based on
- *      {@linkplain SchemaModel#autogenerateVersion hashing the generated schema}.
+ *      The name of an ant property to set to the {@link SchemaId} associated with the generated schema.
+ *      This is a string value that looks like {@code "Schema_d462f3e631781b00ef812561115c48f6"}.
+ *      These values are provided to {@link OnSchemaChange &#64;OnSchemaChange} annotated methods.
  *      </p>
  *
  *      <p>
@@ -201,19 +178,6 @@ import org.apache.tools.ant.types.Resource;
  *
  *      <p>
  *      By default, a {@link DefaultEncodingRegistry} is used.
- *      </p>
- * </td>
- * </tr>
- * <tr>
- *  <td>{@code storageIdGeneratorClass}</td>
- *  <td>No</td>
- *  <td>
- *      <p>
- *      Specifies the name of an optional custom {@link StorageIdGenerator} class.
- *      </p>
- *
- *      <p>
- *      By default, a {@link DefaultStorageIdGenerator} is used.
  *      </p>
  * </td>
  * </tr>
@@ -272,14 +236,12 @@ public class SchemaGeneratorTask extends Task {
     public static final String MODE_GENERATE_AND_VERIFY = "generate-and-verify";
 
     private String mode = MODE_VERIFY;
-    private boolean matchNames = true;
     private boolean failOnError = true;
     private String verifiedProperty;
-    private String schemaVersionProperty;
+    private String schemaIdProperty;
     private File file;
     private Path classPath;
     private String encodingRegistryClassName;
-    private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
     private final ArrayList<FileSet> oldSchemasList = new ArrayList<>();
     private final LinkedHashSet<String> classes = new LinkedHashSet<>();
     private final LinkedHashSet<String> packages = new LinkedHashSet<>();
@@ -296,10 +258,6 @@ public class SchemaGeneratorTask extends Task {
         this.mode = mode;
     }
 
-    public void setMatchNames(boolean matchNames) {
-        this.matchNames = matchNames;
-    }
-
     public void setFailOnError(boolean failOnError) {
         this.failOnError = failOnError;
     }
@@ -308,8 +266,8 @@ public class SchemaGeneratorTask extends Task {
         this.verifiedProperty = verifiedProperty;
     }
 
-    public void setSchemaVersionProperty(String schemaVersionProperty) {
-        this.schemaVersionProperty = schemaVersionProperty;
+    public void setSchemaIdProperty(String schemaIdProperty) {
+        this.schemaIdProperty = schemaIdProperty;
     }
 
     public void setFile(File file) {
@@ -331,10 +289,6 @@ public class SchemaGeneratorTask extends Task {
 
     public void setEncodingRegistryClass(String encodingRegistryClassName) {
         this.encodingRegistryClassName = encodingRegistryClassName;
-    }
-
-    public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
-        this.storageIdGeneratorClassName = storageIdGeneratorClassName;
     }
 
     public void addOldSchemas(FileSet oldSchemas) {
@@ -398,9 +352,9 @@ public class SchemaGeneratorTask extends Task {
                 final String packageNames = buf.toString();
 
                 // Scan for @PermazenType classes
-                this.log("scanning for @PermazenType annotations in packages: " + packageNames);
+                this.flog("scanning for @PermazenType annotations in packages: %s", packageNames);
                 for (String className : new PermazenClassScanner().scanForClasses(packageNames)) {
-                    this.log("adding Permazen model class " + className);
+                    this.flog("adding Permazen model class %s", className);
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
@@ -422,7 +376,7 @@ public class SchemaGeneratorTask extends Task {
 
                 // Add model classes
                 if (cl.isAnnotationPresent(PermazenType.class)) {
-                    this.log("adding Permazen model " + cl);
+                    this.flog("adding Permazen model %s", cl);
                     modelClasses.add(cl);
                 }
             }
@@ -439,50 +393,33 @@ public class SchemaGeneratorTask extends Task {
                 }
             }
 
-            // Instantiate StorageIdGenerator
-            final StorageIdGenerator storageIdGenerator;
-            try {
-                storageIdGenerator = Class.forName(this.storageIdGeneratorClassName,
-                   false, Thread.currentThread().getContextClassLoader())
-                  .asSubclass(StorageIdGenerator.class).getConstructor().newInstance();
-            } catch (Exception e) {
-                throw new BuildException("failed to instantiate class \"" + this.storageIdGeneratorClassName + "\"", e);
-            }
-
             // Set up database
             final Database db = new Database(new SimpleKVDatabase());
 
-            // Set up factory
-            final PermazenFactory factory = new PermazenFactory();
-            factory.setDatabase(db);
-            factory.setSchemaVersion(1);
-            factory.setEncodingRegistry(encodingRegistry);
-            factory.setStorageIdGenerator(storageIdGenerator);
-            factory.setModelClasses(modelClasses);
+            // Set up config
+            final PermazenConfig config = PermazenConfig.builder()
+              .database(db)
+              .encodingRegistry(encodingRegistry)
+              .modelClasses(modelClasses)
+              .build();
 
             // Build schema model
             this.log("generating Permazen schema from schema classes");
             final SchemaModel schemaModel;
             try {
-                schemaModel = factory.newPermazen().getSchemaModel();
+                schemaModel = config.newPermazen().getSchemaModel(false);
             } catch (Exception e) {
                 throw new BuildException("schema generation failed: " + e, e);
             }
-            this.log("auto-generate schema version is " + schemaModel.autogenerateVersion());
-
-            // Record schema model in database
-            final TransactionConfig txConfig1 = TransactionConfig.builder()
-              .schemaModel(schemaModel)
-              .schemaVersion(1)
-              .build();
-            db.createTransaction(txConfig1).commit();
+            final SchemaId schemaId = schemaModel.getSchemaId();
+            this.flog("schema ID is \"%s\"", schemaId);
 
             // Parse verification file
             SchemaModel verifyModel = null;
             if (verify)  {
 
                 // Read file
-                this.log("reading Permazen verification file \"" + this.file + "\"");
+                this.flog("reading Permazen verification file \"%s\"", this.file);
                 try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                     verifyModel = SchemaModel.fromXML(input);
                 } catch (IOException e) {
@@ -492,7 +429,7 @@ public class SchemaGeneratorTask extends Task {
 
             // Generate new file
             if (generate) {
-                this.log("writing generated Permazen schema to \"" + this.file + "\"");
+                this.flog("writing generated Permazen schema to \"%s\"", this.file);
                 try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
                     schemaModel.toXML(output, true);
                 } catch (IOException e) {
@@ -503,35 +440,33 @@ public class SchemaGeneratorTask extends Task {
             // Compare
             boolean verified = true;
             if (verify) {
-                final boolean matched = matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel);
+                final boolean matched = schemaModel.equals(verifyModel);
                 if (!matched)
                     verified = false;
-                this.log("schema verification " + (matched ? "succeeded" : "failed"));
+                this.flog("schema verification %s", matched ? "succeeded" : "failed");
                 if (!matched)
                     this.log(schemaModel.differencesFrom(verifyModel).toString());
             }
 
             // Check for conflicts with other schema versions
             if (verify && verified) {
-                int schemaVersion = 2;
                 for (FileSet oldSchemas : this.oldSchemasList) {
                     for (Iterator<?> i = oldSchemas.iterator(); i.hasNext(); ) {
                         final Resource resource = (Resource)i.next();
-                        this.log("checking schema for conflicts with " + resource);
+                        this.flog("checking schema for conflicts with %s", resource);
                         final SchemaModel otherSchema;
                         try (BufferedInputStream input = new BufferedInputStream(resource.getInputStream())) {
                             otherSchema = SchemaModel.fromXML(input);
                         } catch (IOException e) {
                             throw new BuildException("error reading schema from \"" + resource + "\": " + e, e);
                         }
-                        final TransactionConfig txConfig2 = TransactionConfig.builder()
+                        final TransactionConfig txConfig = TransactionConfig.builder()
                           .schemaModel(otherSchema)
-                          .schemaVersion(schemaVersion++)
                           .build();
                         try {
-                            db.createTransaction(txConfig2).commit();
+                            db.createTransaction(txConfig).commit();
                         } catch (Exception e) {
-                            this.log("schema conflicts with " + resource + ": " + e);
+                            this.flog("schema conflicts with %s: %s", resource, e);
                             verified = false;
                         }
                     }
@@ -543,8 +478,8 @@ public class SchemaGeneratorTask extends Task {
                 this.getProject().setProperty(this.verifiedProperty, "" + verified);
 
             // Set auto-generated schema version property
-            if (this.schemaVersionProperty != null)
-                this.getProject().setProperty(this.schemaVersionProperty, "" + schemaModel.autogenerateVersion());
+            if (this.schemaIdProperty != null)
+                this.getProject().setProperty(this.schemaIdProperty, "" + schemaId);
 
             // Check verification results
             if (verify && !verified && this.failOnError)
@@ -553,5 +488,9 @@ public class SchemaGeneratorTask extends Task {
             loader.resetThreadContextLoader();
             loader.cleanup();
         }
+    }
+
+    private void flog(String format, Object... args) {
+        this.log(String.format(format, args));
     }
 }

@@ -29,7 +29,7 @@ import io.permazen.core.ObjId;
 import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
-import io.permazen.core.TypeNotInSchemaVersionException;
+import io.permazen.core.TypeNotInSchemaException;
 import io.permazen.core.UnknownFieldException;
 
 import java.lang.reflect.Method;
@@ -121,9 +121,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
                 // Get field list, but replace an empty list with every notifying field in the target object type
                 final List<String> fieldNames = wildcard ?
-                  jclass.jfields.values().stream()
+                  jclass.jfieldsByName.values().stream()
                     .filter(JField::supportsChangeNotifications)
-                    .map(jfield -> jfield.name + "#" + jfield.storageId)
+                    .map(JField::getName)
                     .collect(Collectors.toList()) :
                   Arrays.asList(annotation.value());
 
@@ -248,7 +248,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SimpleFieldChange.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SimpleFieldChange(jobj, field.getStorageId(), field.getName(), joldValue, jnewValue));
+            this.invoke(jtx, referrers, new SimpleFieldChange(jobj, jfield.name, joldValue, jnewValue));
         }
 
     // SetFieldChangeListener
@@ -266,7 +266,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SetFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldAdd(jobj, jfield.storageId, jfield.name, jvalue));
+            this.invoke(jtx, referrers, new SetFieldAdd(jobj, jfield.name, jvalue));
         }
 
         @Override
@@ -282,7 +282,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SetFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldRemove(jobj, jfield.storageId, jfield.name, jvalue));
+            this.invoke(jtx, referrers, new SetFieldRemove(jobj, jfield.name, jvalue));
         }
 
         @Override
@@ -295,7 +295,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, SetFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, jfield.storageId, jfield.name));
+            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, jfield.name));
         }
 
     // ListFieldChangeListener
@@ -313,7 +313,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldAdd(jobj, jfield.storageId, jfield.name, index, jvalue));
+            this.invoke(jtx, referrers, new ListFieldAdd(jobj, jfield.name, index, jvalue));
         }
 
         @Override
@@ -329,7 +329,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldRemove(jobj, jfield.storageId, jfield.name, index, jvalue));
+            this.invoke(jtx, referrers, new ListFieldRemove(jobj, jfield.name, index, jvalue));
         }
 
         @Override
@@ -346,8 +346,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldReplace.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers,
-              new ListFieldReplace(jobj, jfield.storageId, jfield.name, index, joldValue, jnewValue));
+            this.invoke(jtx, referrers, new ListFieldReplace(jobj, jfield.name, index, joldValue, jnewValue));
         }
 
         @Override
@@ -360,7 +359,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, ListFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, jfield.storageId, jfield.name));
+            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, jfield.name));
         }
 
     // MapFieldChangeListener
@@ -379,7 +378,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, MapFieldAdd.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldAdd(jobj, jfield.storageId, jfield.name, jkey, jvalue));
+            this.invoke(jtx, referrers, new MapFieldAdd(jobj, jfield.name, jkey, jvalue));
         }
 
         @Override
@@ -396,7 +395,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, MapFieldRemove.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldRemove(jobj, jfield.storageId, jfield.name, jkey, jvalue));
+            this.invoke(jtx, referrers, new MapFieldRemove(jobj, jfield.name, jkey, jvalue));
         }
 
         @Override
@@ -415,7 +414,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (jobj == null)
                 return;
             this.invoke(jtx, referrers,
-              new MapFieldReplace(jobj, jfield.storageId, jfield.name, jkey, joldValue, jnewValue));
+              new MapFieldReplace(jobj, jfield.name, jkey, joldValue, jnewValue));
         }
 
         @Override
@@ -428,15 +427,15 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.checkTypes(jtx, MapFieldClear.class, id);
             if (jobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, jfield.storageId, jfield.name));
+            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, jfield.name));
         }
 
     // Internal methods
 
         private <T extends JField> T getJField(JTransaction jtx, ObjId id, Field<?> field, Class<T> type) {
             try {
-                return jtx.jdb.getJField(id, field.getStorageId(), type);
-            } catch (TypeNotInSchemaVersionException | UnknownFieldException e) {
+                return jtx.jdb.getJField(id, field.getName(), type);
+            } catch (TypeNotInSchemaException | UnknownFieldException e) {
                 return null;        // somebody changed the field directly via the core API without first upgrading the object
             }
         }

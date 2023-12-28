@@ -20,7 +20,6 @@
     <cli-command-implementation class="io.permazen.cli.cmd.SaveCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.SetAllowNewSchemaCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.SetHistoryFileCommand"/>
-    <cli-command-implementation class="io.permazen.cli.cmd.SetSchemaVersionCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.SetSessionModeCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.SetValidationModeCommand"/>
     <cli-command-implementation class="io.permazen.cli.cmd.SetVerboseCommand"/>

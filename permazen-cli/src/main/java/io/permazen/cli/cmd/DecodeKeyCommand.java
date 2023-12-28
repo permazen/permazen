@@ -20,8 +20,8 @@ import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
 import io.permazen.core.ReferenceEncoding;
 import io.permazen.core.Schema;
+import io.permazen.core.SchemaBundle;
 import io.permazen.core.SchemaItem;
-import io.permazen.core.Schemas;
 import io.permazen.core.SetField;
 import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
@@ -52,9 +52,9 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "This command takes a byte[] array or hexadecimal string containing a key/value key, and attempts to decode"
-          + " what the key represents given the currently configured schema. If multiple byte[] arrays are given, they are"
-          + " concatenated into a single key.";
+        return "This command takes a byte[] array or hexadecimal string containing a key and attempts to decode"
+          + " what the key represents in the key/value store given the currently configured schema. If multiple"
+          + " byte[] arrays are given, they are concatenated into a single key.";
     }
 
     @Override
@@ -87,10 +87,10 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             return "Empty byte array";
 
         // Get info
-        final Schemas schemas = tx.getSchemas();
+        final SchemaBundle schemaBundle = tx.getSchemaBundle();
         final HashMap<Integer, SchemaItem> storageIdMap = new HashMap<>();
         final HashMap<Integer, ComplexField<?>> parentMap = new HashMap<>();
-        for (Schema schema : schemas.getVersions().values()) {
+        for (Schema schema : schemaBundle.getSchemasBySchemaId().values()) {
             for (ObjType objType : schema.getObjTypes().values()) {
                 storageIdMap.put(objType.getStorageId(), objType);
                 for (CompositeIndex index : objType.getCompositeIndexes().values())
@@ -130,24 +130,28 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             while (true) {
 
                 // Handle meta-data
-                if (reader.readByte() == 0x00) {
+                if (reader.readByte() == Layout.METADATA_PREFIX_BYTE) {
                     decodes.add("Meta-data key prefix");
                     switch (reader.readByte()) {
-                    case 0x00:
+                    case Layout.METADATA_FORMAT_VERSION_BYTE:
                         decodes.add("Format version prefix");
                         if (Arrays.equals(reader.getBytes(), Layout.getFormatVersionKey()))
                             decodes.addRemainder("Format version key");
                         break;
-                    case 0x01:
-                        decodes.add("Recorded schemas prefix");
-                        decodes.add("Schema version #" + UnsignedIntEncoder.read(reader));
+                    case Layout.METADATA_SCHEMA_TABLE_BYTE:
+                        decodes.add("Schema table prefix");
+                        decodes.add("Schema index #" + UnsignedIntEncoder.read(reader));
                         break;
-                    case 0x80:
-                        decodes.add("Object version index");
-                        decodes.add("Object version #" + UnsignedIntEncoder.read(reader));
+                    case Layout.METADATA_STORAGE_ID_TABLE_BYTE:
+                        decodes.add("Storage ID table prefix");
+                        decodes.add("Storage ID #" + UnsignedIntEncoder.read(reader));
+                        break;
+                    case Layout.METADATA_SCHEMA_INDEX_BYTE:
+                        decodes.add("Object schema index");
+                        decodes.add("Schema index #" + UnsignedIntEncoder.read(reader));
                         decodes.add(new ObjId(reader));
                         break;
-                    case 0xff:
+                    case Layout.METADATA_USER_META_DATA_BYTE:
                         decodes.add("User meta-data range");
                         decodes.addRemainder("User meta-data key");
                         break;

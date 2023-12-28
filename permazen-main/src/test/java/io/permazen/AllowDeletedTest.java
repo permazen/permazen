@@ -9,19 +9,18 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
-import io.permazen.test.TestSupport;
 
 import java.util.Arrays;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class AllowDeletedTest extends TestSupport {
+public class AllowDeletedTest extends MainTestSupport {
 
     @Test
     public void testAllowDeleted() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -48,7 +47,7 @@ public class AllowDeletedTest extends TestSupport {
     @Test
     public void testCopy() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -74,7 +73,7 @@ public class AllowDeletedTest extends TestSupport {
             // copyIn() of one object and one other object it refers to
             jtx.getAll(Person.class).forEach(JObject::delete);
             try {
-                p1.copyIn("->definitelyExistsFriend");
+                p1.copyTo(jtx, 1, new CopyState(), "definitelyExistsFriend");
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -82,7 +81,7 @@ public class AllowDeletedTest extends TestSupport {
 
             // copyIn() of all three objects through reference paths from first object
             jtx.getAll(Person.class).forEach(JObject::delete);
-            p1.copyIn("->definitelyExistsFriend", "->definitelyExistsFriend->definitelyExistsFriend");
+            p1.copyIn("definitelyExistsFriend");
             Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
 
             // copyTo() of 2/3 objects
@@ -110,7 +109,7 @@ public class AllowDeletedTest extends TestSupport {
     @PermazenType
     public abstract static class Person implements JObject {
 
-        @JField(inverseDelete = DeleteAction.UNREFERENCE)
+        @JField(inverseDelete = DeleteAction.UNREFERENCE, forwardCascades = "definitelyExistsFriend")
         public abstract Person getDefinitelyExistsFriend();
         public abstract void setDefinitelyExistsFriend(Person friend);
 

@@ -6,17 +6,16 @@
 package io.permazen;
 
 import io.permazen.annotation.PermazenType;
-import io.permazen.test.TestSupport;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class ToStringTest extends TestSupport {
+public class ToStringTest extends MainTestSupport {
 
     @Test(dataProvider = "cases")
     private <T extends Person> void testToString(Class<T> cl, String pattern) throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(cl);
+        final Permazen jdb = BasicTest.newPermazen(cl);
         final JTransaction jtx = jdb.createTransaction();
         JTransaction.setCurrent(jtx);
         try {
@@ -29,8 +28,7 @@ public class ToStringTest extends TestSupport {
             final String expected = pattern
               .replaceAll("@OBJID@", person.getObjId().toString())
               .replaceAll("@TYPENAME@", cl.getSimpleName())
-              .replaceAll("@TYPEID@", "" + person.getJClass().getStorageId())
-              .replaceAll("@VERSION@", "" + person.getSchemaVersion());
+              .replaceAll("@SCHEMAID@", "" + person.getSchemaId());
 
             Assert.assertEquals(person.toString(), expected);
 
@@ -44,8 +42,8 @@ public class ToStringTest extends TestSupport {
     @DataProvider(name = "cases")
     public Object[][] testToStringCases() throws Exception {
         return new Object[][] {
-            { Person1.class,  "object @OBJID@ type @TYPENAME@#@TYPEID@ version @VERSION@\n age = 23\nname = \"fred\"" },
-            { Person2.class,  "object @OBJID@ type @TYPENAME@#@TYPEID@ version @VERSION@\n age = 23\nname = \"fred\"" },
+            { Person1.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = 23\nname = \"fred\"" },
+            { Person2.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = 23\nname = \"fred\"" },
             { Person3.class,  "fred:23" },
         };
     }

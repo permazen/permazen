@@ -29,7 +29,7 @@ abstract class AbstractObjectTypeMember extends SchemaItem {
      * @throws UnsupportedOperationException if this instance is locked down
      */
     public final void setObjectType(SchemaObjectType objectType) {
-        this.verifyNotLockedDown();
+        this.verifyNotLockedDown(false);
         this.objectType = objectType;
     }
 

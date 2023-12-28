@@ -11,22 +11,21 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
-import io.permazen.test.TestSupport;
 
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class GenericsFunTest extends TestSupport {
+public class GenericsFunTest extends MainTestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Widget.class);
+        final Permazen jdb = BasicTest.newPermazen(Widget.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
-            jtx.queryIndex(AbstractData.class, "name", String.class);
+            jtx.querySimpleIndex(AbstractData.class, "name", String.class);
         } finally {
             JTransaction.setCurrent(null);
         }
@@ -34,13 +33,13 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics2() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(AccountEvent.class, Account.class);
+        final Permazen jdb = BasicTest.newPermazen(AccountEvent.class, Account.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
-            jtx.queryIndex(AbstractData.class, "name", String.class);
-            jtx.queryIndex(Account.class, "name", String.class);
-            jtx.queryIndex(AccountEvent.class, "account", Account.class);
+            jtx.querySimpleIndex(AbstractData.class, "name", String.class);
+            jtx.querySimpleIndex(Account.class, "name", String.class);
+            jtx.querySimpleIndex(AccountEvent.class, "account", Account.class);
         } finally {
             JTransaction.setCurrent(null);
         }
@@ -48,7 +47,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics3() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
+        final Permazen jdb = BasicTest.newPermazen(Class2.class, Class3.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -63,7 +62,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics4() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(Class2.class, Class3.class);
+        final Permazen jdb = BasicTest.newPermazen(Class2.class, Class3.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
@@ -81,7 +80,7 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics5() throws Exception {
-        final Permazen jdb = BasicTest.getPermazen(ListSub1.class, ListSub2.class);
+        final Permazen jdb = BasicTest.newPermazen(ListSub1.class, ListSub2.class);
 
         final JClass<ListSub1> jclass1 = jdb.getJClass(ListSub1.class);
         final JClass<ListSub2> jclass2 = jdb.getJClass(ListSub2.class);
@@ -109,17 +108,17 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics6() throws Exception {
-        BasicTest.getPermazen(GenericBeanProperty.class);
+        BasicTest.newPermazen(GenericBeanProperty.class);
     }
 
     @Test
     public void testGenerics7() throws Exception {
-        BasicTest.getPermazen(GenericBeanProperty2.class);
+        BasicTest.newPermazen(GenericBeanProperty2.class);
     }
 
     @Test
     public void testGenerics8() throws Exception {
-        BasicTest.getPermazen(Model8B.class, HappyPerson.class);
+        BasicTest.newPermazen(Model8B.class, HappyPerson.class);
     }
 
 // Model Classes #1

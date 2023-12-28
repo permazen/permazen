@@ -5,6 +5,8 @@
 
 package io.permazen.change;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.annotation.OnChange;
@@ -20,12 +22,11 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that was cleared
-     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldClear(T jobj, int storageId, String fieldName) {
-        super(jobj, storageId, fieldName);
+    public ListFieldClear(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 
     @Override
@@ -35,7 +36,9 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readListField(jobj.getObjId(), this.getStorageId(), false).clear();
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        jtx.readListField(jobj.getObjId(), this.getFieldName(), false).clear();
     }
 
 // Object

@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Represents a {@link Database} object type.
@@ -28,14 +27,16 @@ import java.util.TreeSet;
 public class ObjType extends SchemaItem {
 
     final TreeMap<String, Field<?>> fields = new TreeMap<>();                               // does not include sub-fields
+    final TreeMap<Integer, Field<?>> fieldsByStorageId = new TreeMap<>();                   // does not include sub-fields
     final TreeMap<String, Field<?>> fieldsAndSubFields = new TreeMap<>();                   // includes sub-fields
     final TreeMap<String, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<String, SimpleField<?>> simpleFields = new TreeMap<>();                   // does not include sub-fields
     final HashSet<SimpleField<?>> indexedSimpleFields = new HashSet<>();                    // does not include sub-fields
     final TreeMap<String, CounterField> counterFields = new TreeMap<>();
     final TreeMap<String, ReferenceField> referenceFieldsAndSubFields = new TreeMap<>();    // includes sub-fields
-    final TreeSet<Integer> fieldStorageIds = new TreeSet<>();                               // does not include sub-fields
     final TreeMap<String, CompositeIndex> compositeIndexes = new TreeMap<>();               // composite indexes
+
+// Constructor
 
     /**
      * Constructor.
@@ -43,6 +44,8 @@ public class ObjType extends SchemaItem {
     ObjType(Schema schema, SchemaObjectType schemaType) {
         super(schema, schemaType, schemaType.getName());
     }
+
+// Initialization
 
     /**
      * Initialization.
@@ -60,7 +63,7 @@ public class ObjType extends SchemaItem {
             // Build field
             final Field<?> field = schemaField.visit(fieldBuilder);
             this.fields.put(field.name, field);
-            this.fieldStorageIds.add(field.storageId);
+            this.fieldsByStorageId.put(field.storageId, field);
             this.fieldsAndSubFields.put(field.name, field);
 
             // Populate maps from simple fields
@@ -143,6 +146,22 @@ public class ObjType extends SchemaItem {
         return index;
     }
 
+// Public Methods
+
+    /**
+     * Create a new database object of this type in the given transaction.
+     *
+     * @param tx transaction
+     * @return new instance of this type
+     * @throws UnknownTypeException if this object type does not exist in the given transaction
+     * @throws StaleTransactionException if {@code tx} no longer usable
+     * @throws IllegalArgumentException if {@code tx} is null
+     */
+    public ObjId create(Transaction tx) {
+        Preconditions.checkArgument(tx != null, "null tx");
+        return tx.create(this.name, this.schema.getSchemaId());
+    }
+
     /**
      * Get all fields associated with this object type keyed by name. Does not include sub-fields of complex fields.
      *
@@ -160,19 +179,36 @@ public class ObjType extends SchemaItem {
      *
      * @param name field name
      * @return the named {@link Field}
-     * @throws UnknownFieldException if such field exists
+     * @throws UnknownFieldException if no such field exists
      */
     public Field<?> getField(String name) {
         final Field<?> field = this.fieldsAndSubFields.get(name);
         if (field == null)
-            throw new UnknownFieldException(this, name, "field");
+            throw new UnknownFieldException(this, name);
+        return field;
+    }
+
+    /**
+     * Get the {@link Field} in this instance with the given storage ID.
+     *
+     * <p>
+     * This does not find sub-fields.
+     *
+     * @param storageId field storage ID
+     * @return the corresponding {@link Field}
+     * @throws UnknownFieldException if no such field exists
+     */
+    public Field<?> getField(int storageId) {
+        final Field<?> field = this.fieldsByStorageId.get(storageId);
+        if (field == null)
+            throw new UnknownFieldException(this, storageId);
         return field;
     }
 
     /**
      * Get all fields associated with this object type keyed by name. Includes sub-fields of complex fields.
      *
-     * @return unmodifiable mapping from field name to field
+     * @return unmodifiable mapping from field full name to field
      */
     public NavigableMap<String, Field<?>> getFieldsAndSubFields() {
         return Collections.unmodifiableNavigableMap(this.fieldsAndSubFields);
@@ -200,6 +236,8 @@ public class ObjType extends SchemaItem {
             throw new UnknownIndexException(name, String.format("no composite index named \"%s\" exists", name));
         return index;
     }
+
+// Object
 
     @Override
     public String toString() {

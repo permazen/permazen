@@ -6,7 +6,6 @@
 package io.permazen.annotation;
 
 import io.permazen.JObject;
-import io.permazen.StorageIdGenerator;
 import io.permazen.UniquenessConstraints;
 import io.permazen.encoding.Encoding;
 
@@ -20,25 +19,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation defining a composite index on all {@link PermazenType}-annotated sub-types.
+ * Java annotation that defines a composite index.
  *
  * <p>
- * A composite index is an index on two or more fields (to define a single-field index,
- * just set {@link JField#indexed} to true). All fields indexed in a composite index
- * must be (a) simple and (b) not a sub-field of a complex field.
+ * A composite index is an index on two or more fields (to define a single-field index, see {@link JField#indexed}.
+ * All fields participating in a composite index must be (a) simple and (b) not a sub-field of a complex field.
  *
  * <p>
- * {@link JCompositeIndex &#64;JCompositeIndex} is a {@linkplain Repeatable repeatable annotation}. Instances
- * may annotate any {@link PermazenType &#64;PermazenType}-annotated class or supertype thereof. Put another way,
- * instances of a {@link PermazenType &#64;PermazenType}-annotated class that is a subtype of a
- * {@link JCompositeIndex &#64;JCompositeIndex}-annotated type will be included in the corresponding composite index.
+ * The class or interface does not have to be {@link PermazenType &#64;PermazenType}-annotated; annotations
+ * are "inherited" and so apply to all {@link PermazenType &#64;PermazenType}-annotated sub-types.
+ *
+ * <p>
+ * {@link JCompositeIndex &#64;JCompositeIndex} is a {@linkplain Repeatable repeatable annotation}.
  *
  * <p><b>Uniqueness Constraints</b></p>
  *
  * Uniqueness constraints are supported, and their enforcement is handled in the same way as for uniqueness constraints
  * on simply indexed fields (see {@link JField#unique &#64;JField.unique()}). A uniqueness constriant on a composite
- * index means each object's combination of field values must be unique. Specific field value combinations may be
- * excluded from the uniqueness constraint by specifying the corresponding comma-separated {@link String} encoded tuples
+ * index means each combination of field values must be unique to a single object. Specific field value combinations may be
+ * excluded from the uniqueness constraint by specifying the corresponding comma-separated {@link String}-encoded tuples
  * in {@link #uniqueExclude}.
  *
  * @see PermazenType
@@ -51,18 +50,25 @@ import java.lang.annotation.Target;
 public @interface JCompositeIndex {
 
     /**
-     * The name of this composite index. Must be unique with respect to any indexed Java model type.
+     * The name of this index.
+     *
+     * <p>
+     * The name must be unique among all other indexes and simple fields in a Java model type.
      *
      * @return the index name
      */
     String name();
 
     /**
-     * The storage ID for this composite index. Value should be positive; if zero, the configured
-     * {@link StorageIdGenerator} will be consulted to auto-generate a value.
+     * Storage ID for this index.
      *
-     * @return the index storage ID
-     * @see StorageIdGenerator#generateCompositeIndexStorageId StorageIdGenerator.generateCompositeIndexStorageId()
+     * <p>
+     * Normally this value is left as zero, in which case a value will be automatically assigned.
+     *
+     * <p>
+     * Otherwise, the value should be positive and unique within the schema.
+     *
+     * @return this index's storage ID, or zero for automatic assignment
      */
     int storageId() default 0;
 

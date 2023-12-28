@@ -80,37 +80,12 @@
  *      {@link io.permazen.kv.simple.SimpleKVDatabase} instance.</td>
  * </tr>
  * <tr>
- *  <td>{@code schema-version}</td>
- *  <td>Integer</td>
- *  <td>No</td>
- *  <td>The schema version corresponding to the configured Java model classes. A value of zero means to use
- *      whatever is the highest schema version already recorded in the database. A value of -1 (the default)
- *      means to {@linkplain io.permazen.schema.SchemaModel#autogenerateVersion auto-generate} a version number
- *      based on the {@linkplain io.permazen.schema.SchemaModel#compatibilityHash compatibility hash} of the
- *      {@link io.permazen.schema.SchemaModel} generated from the Java model classes.</td>
- * </tr>
- * <tr>
  *  <td>{@code encoding-registry}</td>
  *  <td>Bean reference</td>
  *  <td>No</td>
  *  <td>To use a custom {@link io.permazen.encoding.EncodingRegistry}, specify the name of a Spring bean that
  *      implements the {@link io.permazen.encoding.EncodingRegistry} interface. By default, a
  *      {@link io.permazen.encoding.DefaultEncodingRegistry} is used.</td>
- * </tr>
- * <tr>
- *  <td>{@code storage-id-generator}</td>
- *  <td>Bean reference</td>
- *  <td>No</td>
- *  <td>To use a custom {@link io.permazen.StorageIdGenerator}, specify the name of a Spring bean that
- *      implements the {@link io.permazen.StorageIdGenerator} interface. By default, a
- *      {@link io.permazen.DefaultStorageIdGenerator} is used. If this attribute is set, then
- *      {@code auto-generate-storage-ids} must not be set to false.</td>
- * </tr>
- * <tr>
- *  <td>{@code auto-generate-storage-ids}</td>
- *  <td>Boolean</td>
- *  <td>No</td>
- *  <td>Whether to auto-generate storage ID's. Default is true</td>
  * </tr>
  * </table>
  * </div>
@@ -145,7 +120,7 @@
  *
  *     &lt;!-- Create a Permazen transaction manager --&gt;
  *     &lt;bean id="transactionManager" class="io.permazen.spring.PermazenTransactionManager"
- *       p:Permazen-ref="permazen" p:allowNewSchema="true"/&gt;
+ *       p:Permazen-ref="permazen"/&gt;
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
  *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;

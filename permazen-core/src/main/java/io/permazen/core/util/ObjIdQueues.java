@@ -9,6 +9,8 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.ObjId;
 
+import java.util.NoSuchElementException;
+
 /**
  * Factory methods for creating {@link ObjIdQueue}'s.
  */
@@ -113,7 +115,10 @@ public final class ObjIdQueues {
 
         @Override
         public ObjId next() {
-            return this.ids.removeOne();
+            final ObjId id = this.ids.removeOne();
+            if (id == null)
+                throw new NoSuchElementException();
+            return id;
         }
 
         @Override
@@ -168,7 +173,7 @@ public final class ObjIdQueues {
         @Override
         public final ObjId next() {
             if (this.len == 0)
-                return null;
+                throw new NoSuchElementException();
             final long id = this.doNext();
             this.len--;
             return new ObjId(id);
@@ -255,12 +260,13 @@ public final class ObjIdQueues {
 
         @Override
         protected void copyData(long[] newIds) {
-            final int wrap = (int)((long)this.off + (long)this.len - (long)this.ids.length);
-            if (wrap <= 0)
+            final int wrapped = (int)((long)this.off + (long)this.len - (long)this.ids.length);
+            if (wrapped <= 0)
                 System.arraycopy(this.ids, this.off, newIds, 0, this.len);
             else {
-                System.arraycopy(this.ids, this.off, newIds, 0, this.len - wrap);
-                System.arraycopy(this.ids, 0, newIds, this.len - wrap, wrap);
+                final int unwrapped = this.len - wrapped;   // how many prior to overflow
+                System.arraycopy(this.ids, this.off, newIds, 0, unwrapped);
+                System.arraycopy(this.ids, 0, newIds, unwrapped, wrapped);
             }
             this.off = 0;
         }

@@ -9,12 +9,14 @@ import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.JTransaction;
 import io.permazen.Permazen;
+import io.permazen.PermazenConfig;
 import io.permazen.ValidationMode;
 import io.permazen.annotation.JCompositeIndex;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.JListField;
 import io.permazen.annotation.JMapField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.core.Encodings;
 import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KVStore;
@@ -23,7 +25,6 @@ import io.permazen.kv.test.KVTestSupport;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,13 +42,16 @@ import org.testng.annotations.Test;
 
 public class JsckTest extends KVTestSupport {
 
-    private static final int SNAPSHOT_VERSION = 1;
+    private static final int SNAPSHOT_SCHEMA_INDEX = 1;
 
     private Permazen jdb;
 
     @BeforeClass
     private void setupTestDatabase() {
-        this.jdb = new Permazen(Person.class, Pet.class);
+        this.jdb = PermazenConfig.builder()
+          .modelClasses(Person.class, Pet.class)
+          .build()
+          .newPermazen();
     }
 
     @Test(dataProvider = "cases")
@@ -66,8 +70,8 @@ public class JsckTest extends KVTestSupport {
         // Remove all index information
         final ArrayList<Consumer<? super KVStore>> mutations = new ArrayList<>();
         for (int indexStorageId : new int[] { 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfe, 0xef })
-            actual.removeRange(KeyRange.forPrefix(UnsignedIntEncoder.encode(indexStorageId)));
-        actual.removeRange(KeyRange.forPrefix(Layout.getObjectVersionIndexKeyPrefix()));
+            actual.removeRange(KeyRange.forPrefix(Encodings.UNSIGNED_INT.encode(indexStorageId)));
+        actual.removeRange(KeyRange.forPrefix(Layout.getSchemaIndexKeyPrefix()));
 
         // Test not repairing
         this.mutateAndCompare(this.getConfig(false), false, actual, actual.clone(), Collections.emptySet());
@@ -81,7 +85,7 @@ public class JsckTest extends KVTestSupport {
 
         // Setup db
         final NavigableMapKVStore kv = new NavigableMapKVStore();
-        final JTransaction jtx = this.jdb.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person p1 = this.create(jtx, Person.class, 0x1011111111111111L);
@@ -100,11 +104,11 @@ public class JsckTest extends KVTestSupport {
 
         // Secretly delete p3
         final ObjId deletedId = deleted.getObjId();
-        final int deletedVersion = jtx.getSchemaVersion(deletedId);
+        final int deletedSchemaIndex = jtx.getTransaction().getObjType(deletedId).getSchema().getSchemaIndex();
         kv.removeRange(KeyRange.forPrefix(deletedId.getBytes()));
         kv.remove(ByteUtil.parse("aaff1022222222222222"));                  // index entry for delete.name
         kv.remove(ByteUtil.parse("bbff1022222222222222"));                  // index entry for delete.spouse
-        kv.remove(Layout.buildVersionIndexKey(deletedId, deletedVersion));
+        kv.remove(Layout.buildSchemaIndexKey(deletedId, deletedSchemaIndex));
 
         // Prepare KV's
         final NavigableMapKVStore damaged = kv.clone();
@@ -120,8 +124,11 @@ public class JsckTest extends KVTestSupport {
     @Test
     public void testSchemaCompat() throws Exception {
         final NavigableMapKVStore kv = new NavigableMapKVStore();
-        final Permazen refsDB = new Permazen(Refs1.class, Refs2.class, Person.class, Pet.class);
-        final JTransaction jtx = refsDB.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
+        final Permazen refsDB = PermazenConfig.builder()
+          .modelClasses(Refs1.class, Refs2.class, Person.class, Pet.class)
+          .build()
+          .newPermazen();
+        final JTransaction jtx = refsDB.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         final Person person1 = this.create(jtx, Person.class, 0x1011111111111111L);
         final Person person2 = this.create(jtx, Person.class, 0x1022222222222222L);
@@ -204,10 +211,16 @@ public class JsckTest extends KVTestSupport {
         final ArrayList<Object[]> list = new ArrayList<>();
         list.add(new Object[] { index++, standardConfig, base.clone(), base.clone(), Collections.<Void>emptySet() });
 
+        // Get key prefixes
+        final byte[] formatVersionKey = Layout.getFormatVersionKey();
+        final byte[] schemaTablePrefix = Layout.getSchemaTablePrefix();
+        final byte[] storageIdTablePrefix = Layout.getStorageIdTablePrefix();
+        final byte[] schemaIndexKeyPrefix = Layout.getSchemaIndexKeyPrefix();
+
         // Test adding random extra keys that don't belong
         final ByteWriter versionPrefixWriter = new ByteWriter();
-        versionPrefixWriter.write(Layout.getObjectVersionIndexKeyPrefix());
-        UnsignedIntEncoder.write(versionPrefixWriter, SNAPSHOT_VERSION);
+        versionPrefixWriter.write(schemaIndexKeyPrefix);
+        Encodings.UNSIGNED_INT.write(versionPrefixWriter, SNAPSHOT_SCHEMA_INDEX);
         final byte[] versionPrefix = versionPrefixWriter.getBytes();
         for (int i = 0; i < 1; i++) {
             final NavigableMapKVStore before = base.clone();
@@ -221,9 +234,11 @@ public class JsckTest extends KVTestSupport {
                     continue;
 
                 // Avoid keys that intersect with meta-data
-                if (Arrays.equals(key, Layout.getFormatVersionKey()))
+                if (Arrays.equals(key, formatVersionKey))
                     continue;
-                if (Arrays.equals(key, Layout.buildSchemaKey(SNAPSHOT_VERSION)))
+                if (ByteUtil.isPrefixOf(schemaTablePrefix, key))
+                    continue;
+                if (ByteUtil.isPrefixOf(storageIdTablePrefix, key))
                     continue;
                 if (ByteUtil.isPrefixOf(versionPrefix, key) && key.length == versionPrefix.length + ObjId.NUM_BYTES)
                     continue;
@@ -261,7 +276,7 @@ public class JsckTest extends KVTestSupport {
 
     private void populate(NavigableMapKVStore kv) {
 
-        final JTransaction jtx = this.jdb.createSnapshotTransaction(kv, true, ValidationMode.AUTOMATIC);
+        final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person mom =      this.create(jtx, Person.class, 0x1011111111111111L);

@@ -11,7 +11,6 @@ import io.permazen.annotation.JMapField;
 import io.permazen.annotation.JSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
-import io.permazen.test.TestSupport;
 
 import java.util.List;
 import java.util.Map;
@@ -20,12 +19,12 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DeleteCascadeTest extends TestSupport {
+public class DeleteCascadeTest extends MainTestSupport {
 
     @Test
     public void testDeleteCascade() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -112,7 +111,7 @@ public class DeleteCascadeTest extends TestSupport {
     @Test
     public void testDeleteCircular() {
 
-        final Permazen jdb = BasicTest.getPermazen(Person.class);
+        final Permazen jdb = BasicTest.newPermazen(Person.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

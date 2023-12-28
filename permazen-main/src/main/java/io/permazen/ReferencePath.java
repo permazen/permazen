@@ -13,7 +13,6 @@ import io.permazen.annotation.OnChange;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.schema.SchemaObjectType;
 import io.permazen.tuple.Tuple2;
 
 import java.util.ArrayList;
@@ -251,7 +250,6 @@ public class ReferencePath {
         Preconditions.checkArgument(startTypes != null, "null startTypes");
         Preconditions.checkArgument(!startTypes.isEmpty(), "empty startTypes");
         Preconditions.checkArgument(path != null, "null path");
-        startTypes.forEach(jclass -> Preconditions.checkArgument(jclass == null || jclass.jdb == jdb, "foreign model type"));
         this.jdb = jdb;
         this.path = path;
 
@@ -358,7 +356,7 @@ public class ReferencePath {
               .collect(Collectors.toSet());
 
             // If UntypedObject is possible, then all model types should be possible
-            assert !currentTypes.contains(null) || currentTypes.containsAll(this.jdb.jclasses.values());
+            assert !currentTypes.contains(null) || currentTypes.containsAll(this.jdb.jclasses);
 
             // Add to current types to list
             if (this.log.isTraceEnabled())
@@ -681,7 +679,7 @@ public class ReferencePath {
                     throw new IllegalArgumentException(String.format("%s: no such type and/or reference field found", errorPrefix));
                 if (try1 != null && try2 != null
                   && (!try1.getValue1().equals(try2.getValue1())
-                   || !try1.getValue2().isIndexCompatibleWith(try2.getValue2()))) {
+                   || !try1.getValue2().getSchemaId().equals(try2.getValue2().getSchemaId()))) {
                     throw new IllegalArgumentException(String.format(
                       "%s: ambiguous reference; matched %s in %s and %s in %s",
                       errorPrefix, try1.getValue2(), try1.getValue1(), try2.getValue2(), try2.getValue1()));
@@ -759,9 +757,8 @@ public class ReferencePath {
             final String fieldName = typeAndField.substring(dotIndex + 1);
 
             // Try resolving type name as a schema model object type
-            final Class<?> modelType = Optional.ofNullable(ReferencePath.this.jdb.getNameIndex().getSchemaObjectType(typeName))
-              .map(SchemaObjectType::getStorageId)
-              .map(ReferencePath.this.jdb::getJClass)
+            final Class<?> modelType = Optional.of(ReferencePath.this.jdb.jclassesByName)
+              .map(map -> map.get(typeName))
               .map(JClass::getType)
               .orElse(null);
 
@@ -806,7 +803,7 @@ public class ReferencePath {
                 // Check for ambiguity
                 if (jfield == null)
                     jfield = jfield2;
-                else if (!jfield2.isIndexCompatibleWith(jfield)) {
+                else if (!jfield2.getSchemaId().equals(jfield.getSchemaId())) {
                     throw new IllegalArgumentException(String.format(
                       "%s: ambiguous field \"%s\" in %s matches both %s and %s",
                       errorPrefix, fieldName, nextJClass, jfield, jfield2));

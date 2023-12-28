@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
-import io.permazen.index.Index;
+import io.permazen.index.Index1;
 import io.permazen.test.TestSupport;
 import io.permazen.util.BoundType;
 import io.permazen.util.Bounds;
@@ -18,13 +18,13 @@ import java.util.NavigableSet;
 
 import org.testng.annotations.Test;
 
-public class IndexQueryTest extends TestSupport {
+public class IndexQueryTest extends MainTestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
     public void testSharedStorageId() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(Account.class, Foo.class, Bar.class, Jam.class);
+        final Permazen jdb = BasicTest.newPermazen(Account.class, Foo.class, Bar.class, Jam.class);
 
         final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
@@ -68,19 +68,19 @@ public class IndexQueryTest extends TestSupport {
             TestSupport.checkSet(a2.getFooBars(), buildSet(f2, b2));
 
             try {
-                jtx.queryIndex(HasAccount.class, "name", Account.class);
+                jtx.querySimpleIndex(HasAccount.class, "name", Account.class);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
             }
 
-            TestSupport.checkMap(jtx.queryIndex(Jam.class, "account", Account.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
 
-            TestSupport.checkMap(jtx.queryIndex(Jam.class, "age", Integer.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "age", Integer.class).asMap(),
               buildMap(123, buildSet(j1)));
 
-            TestSupport.checkMap(jtx.queryIndex(Jam.class, "age", int.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "age", int.class).asMap(),
               buildMap(123, buildSet(j1)));
 
         // JObject.getReferring()
@@ -102,7 +102,7 @@ public class IndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testQueryIndexType() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(HasNameImpl.class);
+        final Permazen jdb = BasicTest.newPermazen(HasNameImpl.class);
         final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -113,19 +113,19 @@ public class IndexQueryTest extends TestSupport {
             h1.setName("h1");
             h2.setName("h2");
 
-            TestSupport.checkMap(jtx.queryIndex(HasNameImpl.class, "name", String.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(HasNameImpl.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.queryIndex(HasName.class, "name", String.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(HasName.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.queryIndex(JObject.class, "name", String.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(JObject.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.queryIndex(Object.class, "name", String.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(Object.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.queryIndex(HasNameImpl.class, "name", Object.class).asMap(),
+            TestSupport.checkMap(jtx.querySimpleIndex(HasNameImpl.class, "name", Object.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
             jtx.commit();
@@ -139,7 +139,7 @@ public class IndexQueryTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testBoundedIndexes() throws Exception {
 
-        final Permazen jdb = BasicTest.getPermazen(HasNameAndAge.class);
+        final Permazen jdb = BasicTest.newPermazen(HasNameAndAge.class);
         final JTransaction jtx = jdb.createTransaction();
         JTransaction.setCurrent(jtx);
         try {
@@ -165,8 +165,8 @@ public class IndexQueryTest extends TestSupport {
             eve.setName("eve");
             eve.setAge(73);
 
-            final Index<String, HasNameAndAge> nameIndex = jtx.queryIndex(HasNameAndAge.class, "name", String.class);
-            final Index<Integer, HasNameAndAge> ageIndex = jtx.queryIndex(HasNameAndAge.class, "age", Integer.class);
+            final Index1<String, HasNameAndAge> nameIndex = jtx.querySimpleIndex(HasNameAndAge.class, "name", String.class);
+            final Index1<Integer, HasNameAndAge> ageIndex = jtx.querySimpleIndex(HasNameAndAge.class, "age", Integer.class);
 
         // Restrict name
 
@@ -279,20 +279,25 @@ public class IndexQueryTest extends TestSupport {
             return fooBars != null ? fooBars : NavigableSets.<FooBar>empty();
         }
 
-        public static Index<Account, HasAccount> queryHasAccount() {
-            return JTransaction.getCurrent().queryIndex(HasAccount.class, "account", Account.class);
+        public static Index1<Account, HasAccount> queryHasAccount() {
+            return JTransaction.getCurrent().querySimpleIndex(HasAccount.class, "account", Account.class);
         }
 
-        public static Index<Account, Foo> queryFoo() {
-            return JTransaction.getCurrent().queryIndex(Foo.class, "account", Account.class);
+        public static Index1<Account, Foo> queryFoo() {
+            return JTransaction.getCurrent().querySimpleIndex(Foo.class, "account", Account.class);
         }
 
-        public static Index<Account, Bar> queryBar() {
-            return JTransaction.getCurrent().queryIndex(Bar.class, "account", Account.class);
+        public static Index1<Account, Bar> queryBar() {
+            return JTransaction.getCurrent().querySimpleIndex(Bar.class, "account", Account.class);
         }
 
-        public static Index<Account, FooBar> queryFooBar() {
-            return JTransaction.getCurrent().queryIndex(FooBar.class, "account", Account.class);
+        public static Index1<Account, FooBar> queryFooBar() {
+            return JTransaction.getCurrent().querySimpleIndex(FooBar.class, "account", Account.class);
+        }
+
+        public <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
+            final NavigableSet<R> set = this.getTransaction().querySimpleIndex(type, fieldName, Object.class).asMap().get(this);
+            return set != null ? set : NavigableSets.empty();
         }
     }
 

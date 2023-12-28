@@ -7,10 +7,10 @@ package io.permazen.jsck;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.CompositeIndex;
+import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KVStore;
-import io.permazen.schema.SchemaCompositeIndex;
-import io.permazen.schema.SchemaField;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ParseContext;
 
@@ -107,15 +107,15 @@ public abstract class Issue {
         return this.setDetail("for object " + id + ": " + detail);
     }
 
-    public Issue setDetail(ObjId id, SchemaField field, String detail) {
+    public Issue setDetail(ObjId id, Field<?> field, String detail) {
         return this.setDetail("for object " + id + " " + field + ": " + detail);
     }
 
-    public Issue setDetail(ObjId id, SchemaCompositeIndex index, String detail) {
+    public Issue setDetail(ObjId id, CompositeIndex index, String detail) {
         return this.setDetail("for object " + id + " " + index + ": " + detail);
     }
 
-    public Issue setDetail(Index index, String detail) {
+    public Issue setDetail(Index<?> index, String detail) {
         return this.setDetail("for " + index + ": " + detail);
     }
 

@@ -5,17 +5,17 @@
 
 package io.permazen.jsck;
 
+import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
 import io.permazen.encoding.Encoding;
-import io.permazen.encoding.UnsignedIntEncoding;
 import io.permazen.util.ByteReader;
 
 import java.util.Arrays;
 
-abstract class Index extends Storage {
+abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
 
-    protected Index(JsckInfo info, int storageId) {
-        super(info, storageId);
+    protected Index(JsckInfo info, I index) {
+        super(info, index);
     }
 
     /**
@@ -24,8 +24,8 @@ abstract class Index extends Storage {
      * @throws IllegalArgumentException if entry is invalid
      */
     public final void validateIndexEntry(JsckInfo info, ByteReader reader) {
-        final int entryStorageId = this.validateEncodedValue(reader, new UnsignedIntEncoding());
-        assert entryStorageId == this.storageId;
+        final int entryStorageId = this.validateEncodedValue(reader, Encodings.UNSIGNED_INT);
+        assert entryStorageId == this.getStorageId();
         this.validateIndexEntryContent(info, reader);
     }
 
@@ -42,12 +42,12 @@ abstract class Index extends Storage {
      *
      * @throws IllegalArgumentException if field does not have the expected value
      */
-    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, Encoding<?> type, byte[] expectedValue) {
+    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, Encoding<?> encoding, byte[] expectedValue) {
 
         // If we are repairing, the key/value store will contain any corrections by this point, so it's safe to read the field
         if (info.getConfig().isRepair()) {
             final byte[] actualValue = info.getKVStore().get(this.buildFieldKey(id, storageId).getBytes());
-            if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : type.getDefaultValue()))
+            if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : encoding.getDefaultValue()))
                 throw new IllegalArgumentException("field value != " + Jsck.ds(expectedValue));
         }
     }
@@ -62,9 +62,9 @@ abstract class Index extends Storage {
     }
 
     @Override
-    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> type) {
+    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> encoding) {
         try {
-            return super.validateEncodedBytes(reader, type);
+            return super.validateEncodedBytes(reader, encoding);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("invalid index entry: " + e.getMessage());
         }

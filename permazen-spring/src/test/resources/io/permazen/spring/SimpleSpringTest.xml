@@ -20,7 +20,7 @@
 
      <permazen:scan-classes base-package="io.permazen.demo"/>
 
-     <permazen:permazen id="permazen" kvstore="kvdb" schema-version="1">
+     <permazen:permazen id="permazen" kvstore="kvdb">
          <permazen:scan-classes base-package="io.permazen.spring">
              <permazen:exclude-filter type="regex" expression=".*Banana.*"/>
          </permazen:scan-classes>

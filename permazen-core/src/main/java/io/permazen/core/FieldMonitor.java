@@ -38,6 +38,7 @@ class FieldMonitor {
      * @param listener listener to notify
      */
     FieldMonitor(int fieldStorageId, int[] path, KeyRanges[] filters, Object listener) {
+        Preconditions.checkArgument(fieldStorageId > 0, "invalid fieldStorageId");
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
         Preconditions.checkArgument(filters == null || filters.length == path.length + 1, "wrong filters length");

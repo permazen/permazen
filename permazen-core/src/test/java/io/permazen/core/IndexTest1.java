@@ -6,6 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
+import io.permazen.kv.KeyRanges;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -332,14 +334,14 @@ public class IndexTest1 extends CoreAPITestSupport {
           "bar3",   buildSortedSet(ids[3]),
           "jam",    buildSortedSet(ids[1], ids[2], ids[3])));
 
-        Assert.assertEquals(tx.queryListElementIndex(21).asMapOfIndex().get("blah"), null);
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo1").asMap(), buildMap(ids[1], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo2").asMap(), buildMap(ids[2], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("foo3").asMap(), buildMap(ids[3], buildSet(0)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar1").asMap(), buildMap(ids[1], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar2").asMap(), buildMap(ids[2], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("bar3").asMap(), buildMap(ids[3], buildSet(1)));
-        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex().get("jam").asMap(),  buildMap(
+        Assert.assertEquals(tx.queryListElementIndex(21).asMapOfIndex1().get("blah"), null);
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("foo1").asMap(), buildMap(ids[1], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("foo2").asMap(), buildMap(ids[2], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("foo3").asMap(), buildMap(ids[3], buildSet(0)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("bar1").asMap(), buildMap(ids[1], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("bar2").asMap(), buildMap(ids[2], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("bar3").asMap(), buildMap(ids[3], buildSet(1)));
+        TestSupport.checkMap(tx.queryListElementIndex(21).asMapOfIndex1().get("jam").asMap(),  buildMap(
           ids[1], buildSet(2),
           ids[2], buildSet(2),
           ids[3], buildSet(2)));
@@ -425,24 +427,24 @@ public class IndexTest1 extends CoreAPITestSupport {
           "valueC3",    buildSortedSet(ids[3]),
           "valueD",     buildSortedSet(ids[1], ids[2], ids[3])));
 
-        Assert.assertEquals(tx.queryMapValueIndex(23).asMapOfIndex().get("blah"), null);
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA1").asSet(),
+        Assert.assertEquals(tx.queryMapValueIndex(23).asMapOfIndex1().get("blah"), null);
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueA1").asSet(),
           buildSet(new Tuple2<>(ids[1], 1001)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA2").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueA2").asSet(),
           buildSet(new Tuple2<>(ids[2], 1002)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueA3").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueA3").asSet(),
           buildSet(new Tuple2<>(ids[3], 1003)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueB").asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueB").asSet(), buildSet(
           new Tuple2<>(ids[1], 2001),
           new Tuple2<>(ids[2], 2002),
           new Tuple2<>(ids[3], 2003)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC1").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueC1").asSet(),
           buildSet(new Tuple2<>(ids[1], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC2").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueC2").asSet(),
           buildSet(new Tuple2<>(ids[2], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueC3").asSet(),
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueC3").asSet(),
           buildSet(new Tuple2<>(ids[3], 3000)));
-        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex().get("valueD").asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(23).asMapOfIndex1().get("valueD").asSet(), buildSet(
           new Tuple2<>(ids[1], 4000),
           new Tuple2<>(ids[2], 4000),
           new Tuple2<>(ids[3], 4000)));
@@ -475,7 +477,7 @@ public class IndexTest1 extends CoreAPITestSupport {
           new Tuple2<>("valueD", ids[2]), buildSet(4000),
           new Tuple2<>("valueD", ids[3]), buildSet(4000)));
 
-        TestSupport.checkMap(tx.queryMapValueIndex(23).asIndex().asMap(), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapValueIndex(23).asIndex1().asMap(), buildSortedMap(
           "valueA1",    buildSet(ids[1]),
           "valueA2",    buildSet(ids[2]),
           "valueA3",    buildSet(ids[3]),
@@ -495,5 +497,79 @@ public class IndexTest1 extends CoreAPITestSupport {
           buildSortedSet(1001, 1002, 1003, 2001, 2002, 2003, 3000, 4000));
         TestSupport.checkSet(tx.querySimpleIndex(23).asMap().navigableKeySet(),
           buildSortedSet("valueA1", "valueA2", "valueA3", "valueB", "valueC1", "valueC2", "valueC3", "valueD"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testKeySetEquals() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema>\n"
+          + "  <ObjectType name=\"Foo1\" storageId=\"1\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"7\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Foo2\" storageId=\"3\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"7\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Foo3\" storageId=\"2\">\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"7\"/>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n"
+          ).getBytes(StandardCharsets.UTF_8)));
+        Transaction tx = db.createTransaction(schema);
+
+        ObjId foo1 = tx.create("Foo1");
+        ObjId foo2 = tx.create("Foo2");
+        ObjId foo3 = tx.create("Foo3");
+
+        tx.writeSimpleField(foo1, "ref", foo2, false);
+        tx.writeSimpleField(foo2, "ref", foo3, false);
+        tx.writeSimpleField(foo3, "ref", foo1, false);
+
+        CoreIndex1<ObjId, ObjId> index = (CoreIndex1<ObjId, ObjId>)tx.querySimpleIndex(7);
+
+        final Set<ObjId> set1 = index.asMap().keySet();
+        final Set<ObjId> set2 = buildSet(foo1, foo2, foo3);
+
+        assert set1.equals(set1);
+        assert set1.equals(set2);
+        assert set2.equals(set1);
+
+        TestSupport.checkSet(set1, set2);
+
+        final Set<ObjId> foo1s = buildSet(foo1);
+        final Set<ObjId> foo2s = buildSet(foo2);
+        final Set<ObjId> foo3s = buildSet(foo3);
+
+        final KeyRanges foo1range = new KeyRanges(ObjId.getKeyRange(1));
+        final KeyRanges foo2range = new KeyRanges(ObjId.getKeyRange(3));
+        final KeyRanges foo3range = new KeyRanges(ObjId.getKeyRange(2));
+
+        // Test overall index
+        TestSupport.checkMap(index.asMap(), buildMap(
+          foo1,  foo3s,
+          foo2,  foo1s,
+          foo3,  foo2s));
+
+        // Test filtering on index value
+        TestSupport.checkMap(index.filter(0, foo1range).asMap(), buildMap(
+          foo1,  buildSet(foo3)));
+        TestSupport.checkMap(index.filter(0, foo2range).asMap(), buildMap(
+          foo2,  buildSet(foo1)));
+        TestSupport.checkMap(index.filter(0, foo3range).asMap(), buildMap(
+          foo3,  buildSet(foo2)));
+
+        // Test filtering on index target
+        //this.showKV(tx, "KVSTORE");
+        TestSupport.checkMap(index.filter(1, foo1range).asMap(), buildMap(
+          foo2,  foo1s));
+        TestSupport.checkMap(index.filter(1, foo2range).asMap(), buildMap(
+          foo3,  foo2s));
+        TestSupport.checkMap(index.filter(1, foo3range).asMap(), buildMap(
+          foo1,  foo3s));
     }
 }

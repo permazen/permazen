@@ -8,9 +8,7 @@ package io.permazen.annotation;
 import io.permazen.Counter;
 import io.permazen.JObject;
 import io.permazen.Permazen;
-import io.permazen.PermazenFactory;
 import io.permazen.ReferencePath;
-import io.permazen.StorageIdGenerator;
 import io.permazen.UpgradeConversionPolicy;
 
 import java.lang.annotation.Documented;
@@ -52,7 +50,7 @@ import java.lang.annotation.Target;
  *  <li>{@link OnCreate &#64;OnCreate} - annotates a method to be invoked just after object creation
  *  <li>{@link OnDelete &#64;OnDelete} - annotates a method to be invoked just prior to object deletion
  *  <li>{@link OnValidate &#64;OnValidate} - annotates a method to be invoked whenever the object is (re)validated
- *  <li>{@link OnVersionChange &#64;OnVersionChange} - annotates a method to be invoked when the object's schema version changes
+ *  <li>{@link OnSchemaChange &#64;OnSchemaChange} - annotates a method to be invoked when the object's schema changes
  *  <li>{@link FollowPath &#64;FollowPath} - annotates a method returning objects found by traversing a {@link ReferencePath}
  * </ul>
  *
@@ -99,11 +97,15 @@ public @interface PermazenType {
     String name() default "";
 
     /**
-     * Storage ID for this object type. Value should be positive;
-     * if zero, the configured {@link StorageIdGenerator} will be consulted to auto-generate a value.
+     * Storage ID for this object type.
      *
-     * @return object type storage ID
-     * @see StorageIdGenerator#generateClassStorageId StorageIdGenerator.generateClassStorageId()
+     * <p>
+     * Normally this value is left as zero, in which case a value will be automatically assigned.
+     *
+     * <p>
+     * Otherwise, the value should be positive and unique within the schema.
+     *
+     * @return this object type's storage ID, or zero for automatic assignment
      */
     int storageId() default 0;
 
@@ -120,8 +122,7 @@ public @interface PermazenType {
      * <p>
      * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}
      * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause
-     * the corresponding simple fields to be generated. Auto-generation of storage ID's is performed by the
-     * configured {@link StorageIdGenerator}.
+     * the corresponding simple fields to be generated.
      *
      * <p>
      * A {@link JTransient &#64;JTransient} annotation on the getter method, or any overridden superclass method,
@@ -131,7 +132,6 @@ public @interface PermazenType {
      *
      * @return whether to auto-generate fields from abstract methods
      * @see #autogenNonAbstract
-     * @see PermazenFactory#setStorageIdGenerator PermazenFactory.setStorageIdGenerator()
      */
     boolean autogenFields() default true;
 
@@ -171,7 +171,7 @@ public @interface PermazenType {
      * <p>
      * If {@link #autogenFields} is false, this property is ignored. Otherwise, any auto-generated fields will
      * have the specified {@link UpgradeConversionPolicy} applied when upgrading an object from some other schema
-     * version to the current schema version.
+     * to the current schema.
      *
      * @return type conversion policy for auto-generated fields
      * @see JField#upgradeConversion

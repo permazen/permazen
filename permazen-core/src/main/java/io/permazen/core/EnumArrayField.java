@@ -23,8 +23,8 @@ public class EnumArrayField extends SimpleField<Object> {
     private final int dimensions;
 
     @SuppressWarnings("unchecked")
-    EnumArrayField(Schema schema, EnumArraySchemaField field, EnumValueEncoding baseType, Encoding<?> encoding, boolean indexed) {
-        super(schema, field, (Encoding<Object>)encoding, indexed);
+    EnumArrayField(ObjType objType, EnumArraySchemaField field, EnumValueEncoding baseType, Encoding<?> encoding, boolean indexed) {
+        super(objType, field, (Encoding<Object>)encoding, indexed);
         this.baseType = baseType;
         this.dimensions = field.getDimensions();
         Preconditions.checkArgument(dimensions >= 1 && dimensions <= Encoding.MAX_ARRAY_DIMENSIONS);

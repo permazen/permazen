@@ -11,6 +11,8 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
+import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVTransaction;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
@@ -29,8 +31,8 @@ import java.util.TreeSet;
 public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @SuppressWarnings("serial")
-    SetField(Schema schema, SetSchemaField field, SimpleField<E> elementField) {
-        super(schema, field, new TypeToken<NavigableSet<E>>() { }
+    SetField(ObjType objType, SetSchemaField field, SimpleField<E> elementField) {
+        super(objType, field, new TypeToken<NavigableSet<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
@@ -46,6 +48,28 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     public NavigableSet<E> getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
         return (NavigableSet<E>)tx.readSetField(id, this.name, false);
+    }
+
+    /**
+     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * and the specified element.
+     *
+     * @param id object ID
+     * @param element set element
+     * @return the corresponding {@link KVDatabase} key
+     * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
+     * @see KVTransaction#watchKey KVTransaction.watchKey()
+     */
+    public byte[] getKey(ObjId id, E element) {
+
+        // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
+
+        // Build key
+        final ByteWriter writer = new ByteWriter();
+        writer.write(super.getKey(id));
+        this.elementField.encoding.write(writer, element);
+        return writer.getBytes();
     }
 
     @Override
