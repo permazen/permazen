@@ -11,7 +11,7 @@ import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingId;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.encoding.StringEncodedEncoding;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -25,8 +25,7 @@ public class SchemaTest extends CoreAPITestSupport {
     @Test(dataProvider = "cases")
     public void testSchema(boolean valid, String xml) throws Exception {
         xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml + "</Schema>\n";
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         this.log.info("*** testSchema():\nXML:\n{}", xml);
 
@@ -64,8 +63,7 @@ public class SchemaTest extends CoreAPITestSupport {
 
             this.log.info("*** testUpgradeSchema():\nXML1:\n{}XML2:\n{}", xml1, xml2);
 
-            final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-            final Database db = new Database(kvstore);
+            final Database db = new Database(new MemoryKVDatabase());
 
             xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml1 + "</Schema>\n";
             final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
@@ -133,8 +131,7 @@ public class SchemaTest extends CoreAPITestSupport {
     }
 
     private void validate(EncodingRegistry encodingRegistry, boolean expectedValid, SchemaModel... schemas) {
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
         db.setEncodingRegistry(encodingRegistry);
         try {
             for (SchemaModel schema : schemas) {

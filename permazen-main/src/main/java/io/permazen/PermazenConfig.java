@@ -11,7 +11,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingRegistry;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -41,7 +41,7 @@ public final class PermazenConfig {
     private PermazenConfig(Builder builder) {
         assert builder != null;
         Preconditions.checkArgument(builder.modelClasses != null, "no Java model classes have been configured");
-        this.database = Optional.ofNullable(builder.database).orElseGet(() -> new Database(new SimpleKVDatabase()));
+        this.database = Optional.ofNullable(builder.database).orElseGet(() -> new Database(new MemoryKVDatabase()));
         this.encodingRegistry = Optional.ofNullable(builder.encodingRegistry).orElseGet(DefaultEncodingRegistry::new);
         this.validatorFactory = builder.validatorFactory;
         this.modelClasses = builder.modelClasses;
@@ -129,7 +129,7 @@ public final class PermazenConfig {
          * Configure the underlying {@link Database}.
          *
          * <p>
-         * By default an initially empty, in-memory {@link SimpleKVDatabase} is used.
+         * By default an initially empty, in-memory {@link MemoryKVDatabase} is used.
          *
          * @param database core API database to use
          * @return this instance

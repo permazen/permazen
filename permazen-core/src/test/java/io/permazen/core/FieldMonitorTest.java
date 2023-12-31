@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -27,8 +27,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testFieldMonitors() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -412,8 +411,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
     @Test
     public void testListenerSet() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

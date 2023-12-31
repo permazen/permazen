@@ -12,7 +12,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.change.SetFieldRemove;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import java.util.NavigableSet;
 
@@ -25,8 +25,7 @@ public class TypeSafetyTest3 extends MainTestSupport {
     @Test
     public void testTypeSafety3() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
     // Version 1
 

@@ -10,7 +10,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import jakarta.validation.constraints.NotNull;
@@ -27,8 +27,6 @@ public class ValidateOnUpdateTest extends MainTestSupport {
     @Test
     public void testValidateOnUpdate() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-
     // Version 1
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
@@ -40,7 +38,7 @@ public class ValidateOnUpdateTest extends MainTestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
         final TransactionConfig txConfig1 = TransactionConfig.builder()
           .schemaModel(schema1)
           .build();

@@ -39,19 +39,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of the {@link KVDatabase} interface that provides a concurrent, transactional view
- * of an underlying {@link KVStore} with strong ACID semantics (<b>D</b>urability must be provided by the {@link KVStore}).
+ * of an underlying {@link KVStore} with strong ACID semantics (assuming <b>A</b>tomicity and <b>D</b>urability
+ * is provided by the underlying {@link KVStore}).
  *
  * <p>
- * The ACID semantics, as well as {@linkplain #getWaitTimeout wait timeouts} and {@linkplain #getHoldTimeout hold timeouts},
- * are provided by the {@link LockManager} class. If the wait timeout is exceeded, a {@link RetryTransactionException}
- * is thrown. If the hold timeout is exceeded, a {@link TransactionTimeoutException} is thrown.
+ * Transaction isolation is implemented via key range locking using a {@link LockManager}. Conflicting access
+ * will block, subject to the {@linkplain #getWaitTimeout wait timeout} and {@linkplain #getHoldTimeout hold timeout}.
+ * If the wait timeout is exceeded, a {@link RetryTransactionException} is thrown. If the hold timeout is exceeded,
+ * a {@link TransactionTimeoutException} is thrown.
  *
  * <p>
  * Instances wrap an underlying {@link KVStore} which provides persistence and from which committed data is read and written.
  * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
- * applied to the underlying {@link KVStore} all at once, and this operation is bracketed by calls to
+ * applied to the underlying {@link KVStore} all at once. This commit operation is bracketed by calls to
  * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}. If the underlying {@link KVStore}
- * is an {@link AtomicKVStore}, then {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()} is used.
+ * is an {@link AtomicKVStore}, then {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()} is used
+ * to ensure atomicity.
  *
  * <p>
  * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
@@ -60,6 +63,9 @@ import org.slf4j.LoggerFactory;
  * Instances implement {@link Serializable} if the underlying {@link KVStore} is; this is the case when the default
  * constructor, which uses a {@link NavigableMapKVStore}, is used. However, key watches and open transactions are not
  * remembered across a (de)serialization cycle.
+ *
+ * <p>
+ * For a simple in-memory implementation, see {@link MemoryKVDatabase}.
  *
  * @see LockManager
  */
@@ -90,50 +96,40 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
     private long waitTimeout;
 
-    /**
-     * Constructor. Uses an internal in-memory {@link NavigableMapKVStore} and the default wait and hold timeouts.
-     */
-    public SimpleKVDatabase() {
-        this(new NavigableMapKVStore());
-    }
+// Constructors
 
     /**
-     * Constructor taking caller-supplied storage. Will use the default wait and hold timeouts.
+     * Constructor.
      *
-     * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link KVStore}
+     * <p>
+     * Uses the default wait and hold timeouts.
+     *
+     * @param kv {@link KVStore} for the committed data
+     * @throws IllegalArgumentException if {@code kv} is null
      */
     public SimpleKVDatabase(KVStore kv) {
         this(kv, DEFAULT_WAIT_TIMEOUT, DEFAULT_HOLD_TIMEOUT);
     }
 
     /**
-     * Constructor taking timeout settings. Uses an internal in-memory {@link KVStore}.
-     *
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
-     *  in milliseconds, or zero for unlimited
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
-     *  in milliseconds, or zero for unlimited
-     * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
-     */
-    public SimpleKVDatabase(long waitTimeout, long holdTimeout) {
-        this(null, waitTimeout, holdTimeout);
-    }
-
-    /**
      * Primary constructor.
      *
-     * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link NavigableMapKVStore}
+     * @param kv {@link KVStore} for the committed data
      * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
      * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
+     * @throws IllegalArgumentException if {@code kv} is null
      */
     public SimpleKVDatabase(KVStore kv, long waitTimeout, long holdTimeout) {
-        this.kv = kv != null ? kv : new NavigableMapKVStore();
+        Preconditions.checkArgument(kv != null, "null kv");
+        this.kv = kv;
         this.setWaitTimeout(waitTimeout);
         this.setHoldTimeout(holdTimeout);
     }
+
+// Properties
 
     /**
      * Get the wait timeout for newly created transactions.

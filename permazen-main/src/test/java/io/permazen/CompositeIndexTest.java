@@ -10,7 +10,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
@@ -30,8 +30,7 @@ public class CompositeIndexTest extends MainTestSupport {
     @Test
     public void testCompositeIndex() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final Permazen jdb = BasicTest.newPermazen(db, this.getClasses());
 

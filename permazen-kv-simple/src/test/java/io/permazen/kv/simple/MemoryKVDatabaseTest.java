@@ -8,7 +8,6 @@ package io.permazen.kv.simple;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.test.KVDatabaseTest;
-import io.permazen.kv.util.NavigableMapKVStore;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -16,30 +15,30 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-public class SimpleKVDatabaseTest extends KVDatabaseTest {
+public class MemoryKVDatabaseTest extends KVDatabaseTest {
 
     protected long timeoutTestStartTime;
 
-    private SimpleKVDatabase simpleKV;
+    private MemoryKVDatabase memoryKV;
 
     @BeforeClass(groups = "configure")
-    @Parameters("testSimpleKV")
-    public void setTestSimpleKV(@Optional String testSimpleKV) {
-        if (testSimpleKV != null && Boolean.valueOf(testSimpleKV))
-            this.simpleKV = new SimpleKVDatabase(new NavigableMapKVStore(), 250, 5000);
+    @Parameters("testMemoryKV")
+    public void setTestMemoryKV(@Optional String testMemoryKV) {
+        if (testMemoryKV != null && Boolean.valueOf(testMemoryKV))
+            this.memoryKV = new MemoryKVDatabase(250, 5000);
     }
 
     @Override
     protected KVDatabase getKVDatabase() {
-        return this.simpleKV;
+        return this.memoryKV;
     }
 
     @Test
-    public void testSimpleKVTimeouts() throws Exception {
+    public void testMemoryKVTimeouts() throws Exception {
 
         // Test hold and wait timeouts both not attained
         this.timeoutTestStartTime = System.currentTimeMillis();
-        SimpleKVDatabase store = new SimpleKVDatabase(200, 400);
+        MemoryKVDatabase store = new MemoryKVDatabase(200, 400);
         HolderThread holderThread = new HolderThread(store, 100);
         WaiterThread waiterThread = new WaiterThread(store, holderThread);
         holderThread.start();
@@ -51,7 +50,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
         // Test wait but not hold timeout attained
         this.timeoutTestStartTime = System.currentTimeMillis();
-        store = new SimpleKVDatabase(200, 400);
+        store = new MemoryKVDatabase(200, 400);
         holderThread = new HolderThread(store, 300);
         waiterThread = new WaiterThread(store, holderThread);
         holderThread.start();
@@ -63,7 +62,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
         // Test hold timeout by itself - no exception because nobody is waiting
         this.timeoutTestStartTime = System.currentTimeMillis();
-        store = new SimpleKVDatabase(100, 100);
+        store = new MemoryKVDatabase(100, 100);
         holderThread = new HolderThread(store, 200);
         holderThread.start();
         holderThread.join();
@@ -71,7 +70,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
         // Test hold but not wait timeout attained - exception because somebody is waiting
         this.timeoutTestStartTime = System.currentTimeMillis();
-        store = new SimpleKVDatabase(400, 200);
+        store = new MemoryKVDatabase(400, 200);
         holderThread = new HolderThread(store, 300);
         waiterThread = new WaiterThread(store, holderThread);
         holderThread.start();
@@ -86,11 +85,11 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
     public abstract class TestThread extends Thread {
 
-        protected final SimpleKVDatabase store;
+        protected final MemoryKVDatabase store;
 
         protected String result;
 
-        protected TestThread(SimpleKVDatabase store) {
+        protected TestThread(MemoryKVDatabase store) {
             this.store = store;
         }
 
@@ -105,7 +104,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
                 this.result = "success";
             } catch (Throwable t) {
                 if (t instanceof Error)
-                    SimpleKVDatabaseTest.this.log.error("error thrown by test", t);
+                    MemoryKVDatabaseTest.this.log.error("error thrown by test", t);
                 this.result = t.getClass().getSimpleName();
             } finally {
                 this.log("result = " + this.result);
@@ -115,8 +114,8 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
         protected abstract void doTest() throws Exception;
 
         protected void log(String message) {
-//            final long offset = System.currentTimeMillis() - SimpleKVDatabaseTest.this.timeoutTestStartTime;
-//            SimpleKVDatabaseTest.this.log.info(String.format("[%04d]: ", offset)
+//            final long offset = System.currentTimeMillis() - MemoryKVDatabaseTest.this.timeoutTestStartTime;
+//            MemoryKVDatabaseTest.this.log.info(String.format("[%04d]: ", offset)
 //              + this.getClass().getSimpleName() + ": " + message);
         }
     }
@@ -127,7 +126,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
         private boolean ready;
 
-        public HolderThread(SimpleKVDatabase store, long delay) {
+        public HolderThread(MemoryKVDatabase store, long delay) {
             super(store);
             this.delay = delay;
         }
@@ -159,7 +158,7 @@ public class SimpleKVDatabaseTest extends KVDatabaseTest {
 
         private final HolderThread holderThread;
 
-        public WaiterThread(SimpleKVDatabase store, HolderThread holderThread) {
+        public WaiterThread(MemoryKVDatabase store, HolderThread holderThread) {
             super(store);
             this.holderThread = holderThread;
         }

@@ -39,8 +39,8 @@ public class MemoryKVImplementation extends KVImplementation<Boolean> {
     }
 
     @Override
-    public SimpleKVDatabase createKVDatabase(Boolean config, KVDatabase kvdb, AtomicKVStore kvstore) {
-        return new SimpleKVDatabase();
+    public MemoryKVDatabase createKVDatabase(Boolean config, KVDatabase kvdb, AtomicKVStore kvstore) {
+        return new MemoryKVDatabase();
     }
 
     @Override

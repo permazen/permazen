@@ -14,7 +14,7 @@ import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
 import io.permazen.core.TypeNotInSchemaException;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
@@ -36,8 +36,6 @@ public class TypeSafetyTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testTypeSafety() throws Exception {
-
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
     // Version 1
 
@@ -69,7 +67,7 @@ public class TypeSafetyTest extends MainTestSupport {
         schema1.lockDown(true);
         final SchemaId schemaId1 = schema1.getSchemaId();
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
         final TransactionConfig txConfig1 = TransactionConfig.builder()
           .schemaModel(schema1)
           .build();

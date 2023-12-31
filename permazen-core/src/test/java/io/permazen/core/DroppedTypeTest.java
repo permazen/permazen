@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -17,8 +17,6 @@ public class DroppedTypeTest extends CoreAPITestSupport {
 
     @Test
     public void testDroppedType() throws Exception {
-
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -41,7 +39,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         Transaction tx = db.createTransaction(schema1);
         final ObjId foo = tx.create("Foo");

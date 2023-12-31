@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import com.google.common.collect.Sets;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
@@ -24,8 +24,6 @@ public class SchemaChangeListenerTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testSchemaChangeListener() throws Exception {
-
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -64,7 +62,7 @@ public class SchemaChangeListenerTest extends CoreAPITestSupport {
         schema3.lockDown(true);
         final SchemaId schemaId3 = schema3.getSchemaId();
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
     // Tx #1
 

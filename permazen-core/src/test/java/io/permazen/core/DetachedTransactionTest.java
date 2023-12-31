@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.kv.util.NavigableMapKVStore;
 import io.permazen.schema.SchemaModel;
@@ -152,8 +153,8 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
     public void testDetachedConflict() throws Exception {
 
         // Setup databases
-        final Database db1 = new Database(new SimpleKVDatabase());
-        final Database db2 = new Database(new SimpleKVDatabase());
+        final Database db1 = new Database(new MemoryKVDatabase());
+        final Database db2 = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -201,7 +202,7 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
     public void testDetachedSame() throws Exception {
 
         // Setup databases
-        final Database db1 = new Database(new SimpleKVDatabase());
+        final Database db1 = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

@@ -7,7 +7,7 @@ package io.permazen.schema;
 
 import io.permazen.core.CoreAPITestSupport;
 import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -54,8 +54,7 @@ public class LockDownTest extends CoreAPITestSupport {
           + "</ObjectType>\n"
           + "</Schema>\n";
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
         // Lock down schema

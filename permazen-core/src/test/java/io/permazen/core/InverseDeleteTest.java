@@ -8,7 +8,7 @@ package io.permazen.core;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple3;
@@ -52,8 +52,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testInverseDelete() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         for (DeleteAction inverseDelete : DeleteAction.values()) {
             final String xml = XML_TEMPLATE.replaceAll("@INVERSE_DELETE@", inverseDelete.name());
@@ -344,8 +343,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testInverseDeleteUpdate() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         assert DeleteAction.IGNORE.ordinal() == 0;
         assert DeleteAction.EXCEPTION.ordinal() == 1;

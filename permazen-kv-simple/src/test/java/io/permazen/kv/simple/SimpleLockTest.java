@@ -15,13 +15,13 @@ import org.testng.annotations.Test;
 public class SimpleLockTest extends KVTestSupport {
 
     private volatile int step;
-    private SimpleKVDatabase db;
+    private MemoryKVDatabase db;
 
     @Test
     private void testSimpleLock() throws Exception {
 
         // Setup databse
-        this.db = new SimpleKVDatabase();
+        this.db = new MemoryKVDatabase();
         SimpleKVTransaction tx = db.createTransaction();
         tx.put(ByteUtil.parse("01"), ByteUtil.parse("aaaa"));
         tx.put(ByteUtil.parse("0101"), ByteUtil.parse("bbbb"));

@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.core.util.ObjIdMap;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -21,8 +21,6 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
     public void testCopyToWrongType() throws Exception {
 
         // Setup database
-
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -41,7 +39,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         Transaction tx = db.createTransaction(schema);
 

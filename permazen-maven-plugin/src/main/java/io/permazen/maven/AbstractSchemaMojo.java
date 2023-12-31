@@ -8,10 +8,12 @@ package io.permazen.maven;
 import io.permazen.Permazen;
 import io.permazen.PermazenConfig;
 import io.permazen.annotation.PermazenType;
+import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.TransactionConfig;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingRegistry;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.spring.PermazenClassScanner;
@@ -252,7 +254,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             final Permazen jdb;
             final SchemaModel schema;
             try {
+                final Database db = new Database(new MemoryKVDatabase());
+                if (encodingRegistry != null)
+                    db.setEncodingRegistry(encodingRegistry);
                 jdb = PermazenConfig.builder()
+                  .database(db)
                   .modelClasses(modelClasses)
                   .encodingRegistry(encodingRegistry)
                   .build()

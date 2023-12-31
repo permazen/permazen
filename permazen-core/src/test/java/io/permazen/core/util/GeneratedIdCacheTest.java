@@ -10,7 +10,7 @@ import io.permazen.core.Database;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -25,8 +25,7 @@ public class GeneratedIdCacheTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testGeneratedIdCache() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

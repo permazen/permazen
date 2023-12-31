@@ -27,7 +27,7 @@ import org.dellroad.stuff.io.FileStreamRepository;
 import org.dellroad.stuff.io.StreamRepository;
 
 /**
- * A {@link SimpleKVDatabase} made persistent by storing its XML content in a file or custom {@link StreamRepository}.
+ * A {@link MemoryKVDatabase} made persistent by storing its XML content in a file or custom {@link StreamRepository}.
  *
  * <p>
  * The database XML is rewritten in its entirety after each successful commit, so this class should not be used
@@ -68,7 +68,7 @@ import org.dellroad.stuff.io.StreamRepository;
  * @see AtomicUpdateFileOutputStream
  * @see io.permazen.spring.SpringXMLKVDatabase
  */
-public class XMLKVDatabase extends SimpleKVDatabase {
+public class XMLKVDatabase extends MemoryKVDatabase {
 
     private static final long serialVersionUID = 5699298282473179002L;
 

@@ -12,7 +12,7 @@ import io.permazen.PermazenConfig;
 import io.permazen.core.Database;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import java.util.Collection;
 
@@ -60,7 +60,7 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
     protected Permazen createInstance() {
 
         // Build underlying database
-        final Database db = new Database(this.kvstore != null ? this.kvstore : new SimpleKVDatabase());
+        final Database db = new Database(this.kvstore != null ? this.kvstore : new MemoryKVDatabase());
 
         // Build Permazen
         return PermazenConfig.builder()

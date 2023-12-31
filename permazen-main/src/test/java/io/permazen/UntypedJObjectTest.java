@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.test.TestSupport;
 
 import java.util.NavigableMap;
@@ -25,7 +25,7 @@ public class UntypedJObjectTest extends MainTestSupport {
 
     // Create a Foo and Bar in schema version 1
 
-        final Database db = new Database(new SimpleKVDatabase());
+        final Database db = new Database(new MemoryKVDatabase());
 
         final ObjId fooId;
         final ObjId barId;

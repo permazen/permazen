@@ -6,8 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.core.util.ObjIdMap;
-import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -284,8 +283,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
     }
 
     private Transaction createTx() {
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
-        final SimpleKVDatabase kv = new SimpleKVDatabase(kvstore, 100, 500);
+        final MemoryKVDatabase kv = new MemoryKVDatabase(100, 500);
         final Database db = new Database(kv);
         return db.createTransaction(this.schema);
     }

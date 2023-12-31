@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
@@ -21,8 +21,7 @@ public class IndexTest2 extends CoreAPITestSupport {
 
     private Transaction buildTransaction() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

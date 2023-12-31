@@ -11,7 +11,7 @@ import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.kv.KVPair;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.CloseableIterator;
@@ -33,8 +33,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testXMLObjectSerializer() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

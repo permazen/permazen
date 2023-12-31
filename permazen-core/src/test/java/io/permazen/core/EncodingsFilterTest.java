@@ -11,7 +11,7 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
@@ -29,7 +29,7 @@ public class EncodingsFilterTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testEncodingsFilter() throws Exception {
 
-        final SimpleKVDatabase kvdb = new SimpleKVDatabase();
+        final MemoryKVDatabase kvdb = new MemoryKVDatabase();
         final Database db = new Database(kvdb);
 
         KVTransaction kvt = kvdb.createTransaction();

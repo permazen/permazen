@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -17,7 +17,7 @@ public class UnknownTypeExistsTest extends MainTestSupport {
     @Test
     public void testUnknownTypeExists() throws Exception {
 
-        final Database db = new Database(new SimpleKVDatabase());
+        final Database db = new Database(new MemoryKVDatabase());
 
         final Permazen jdb1 = PermazenConfig.builder()
           .database(db)

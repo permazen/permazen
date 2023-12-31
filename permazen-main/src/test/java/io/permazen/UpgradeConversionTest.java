@@ -9,7 +9,7 @@ import io.permazen.annotation.JField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import java.util.Arrays;
 
@@ -21,8 +21,7 @@ public class UpgradeConversionTest extends MainTestSupport {
     @Test
     public void testUpgradeConversion() {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
     // Version 1
 

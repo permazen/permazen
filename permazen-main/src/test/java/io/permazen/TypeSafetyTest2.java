@@ -11,7 +11,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.index.Index1;
 import io.permazen.index.Index2;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 
 import java.util.Map;
 import java.util.NavigableMap;
@@ -25,8 +25,7 @@ public class TypeSafetyTest2 extends MainTestSupport {
     @Test
     public void testTypeSafety2() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
     // Version 1
 

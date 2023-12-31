@@ -11,7 +11,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.test.TestSupport;
 
@@ -32,8 +32,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
     @Test
     public void testOnSchemaChange() {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         ObjId id1;
         ObjId id2;

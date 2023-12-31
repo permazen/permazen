@@ -506,7 +506,7 @@
                         <raftNetworkDropRatio>0.10</raftNetworkDropRatio>
 
                         <!-- kv-simple -->
-                        <testSimpleKV>true</testSimpleKV>
+                        <testMemoryKV>true</testMemoryKV>
                         <xmlFilePrefix>xmldb</xmlFilePrefix>
 
                         <!-- kv-sqlite -->

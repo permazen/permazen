@@ -7,7 +7,7 @@ package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple2;
@@ -52,8 +52,7 @@ public class IndexTest1 extends CoreAPITestSupport {
     @Test
     public void testSimpleFieldIndexes() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -148,8 +147,7 @@ public class IndexTest1 extends CoreAPITestSupport {
     @Test
     public void testArrayFieldIndexes() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -250,8 +248,7 @@ public class IndexTest1 extends CoreAPITestSupport {
     @Test
     public void testComplexFieldIndexes() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -503,8 +500,7 @@ public class IndexTest1 extends CoreAPITestSupport {
     @Test
     public void testKeySetEquals() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

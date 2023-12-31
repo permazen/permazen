@@ -8,7 +8,7 @@ package io.permazen.core;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
@@ -38,8 +38,6 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testPrimitiveFields() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
@@ -53,7 +51,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         schema1.lockDown(true);
         Assert.assertEquals(schema1.getSchemaId(), schemaId1);
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         Transaction tx = db.createTransaction(schema1);
         Assert.assertEquals(tx.getSchema().getSchemaId(), schemaId1);
@@ -189,7 +187,6 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testPrimitiveArrays() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema>\n"
@@ -208,7 +205,7 @@ public class BasicTest1 extends CoreAPITestSupport {
           ).getBytes(StandardCharsets.UTF_8)));
         final SchemaId schemaId = schema.getSchemaId();
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         Transaction tx = db.createTransaction(schema);
         //this.showKV(tx, "testPrimitiveFields: 1");
@@ -252,8 +249,7 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testComplexDelete() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -362,8 +358,7 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testSetField() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -727,8 +722,7 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testListField() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -881,8 +875,7 @@ public class BasicTest1 extends CoreAPITestSupport {
     @Test
     public void testMapField() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

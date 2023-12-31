@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -20,8 +20,7 @@ public class DeleteListenerTest extends CoreAPITestSupport {
     @SuppressWarnings("unchecked")
     public void testDeleteListener() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final String xml =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

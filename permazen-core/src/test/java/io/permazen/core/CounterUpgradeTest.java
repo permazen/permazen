@@ -5,7 +5,7 @@
 
 package io.permazen.core;
 
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -33,8 +33,7 @@ public class CounterUpgradeTest extends CoreAPITestSupport {
           + "  </ObjectType>\n"
           + "</Schema>";
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes(StandardCharsets.UTF_8)));
         schema1.lockDown(true);

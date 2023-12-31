@@ -14,7 +14,7 @@ import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
-import io.permazen.kv.simple.SimpleKVDatabase;
+import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
@@ -32,8 +32,6 @@ public class EnumFieldTest extends MainTestSupport {
 
     @Test
     public void testEnumFieldUpgrade() throws Exception {
-
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
     // Version 1
 
@@ -57,7 +55,7 @@ public class EnumFieldTest extends MainTestSupport {
         schema1.lockDown(true);
         final SchemaId schemaId1 = schema1.getSchemaId();
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final TransactionConfig txConfig1 = TransactionConfig.builder()
           .schemaModel(schema1)
@@ -126,8 +124,7 @@ public class EnumFieldTest extends MainTestSupport {
     @Test
     public void testEnumNoConflict() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         BasicTest.newPermazen(db, EnumNoConflict1.class, EnumNoConflict2.class);
     }
@@ -224,8 +221,6 @@ public class EnumFieldTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testListOfEnumUpgrade() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-
     // Version 1
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
@@ -243,7 +238,7 @@ public class EnumFieldTest extends MainTestSupport {
           + "</Schema>\n"
           ).getBytes(StandardCharsets.UTF_8)));
 
-        final Database db = new Database(kvstore);
+        final Database db = new Database(new MemoryKVDatabase());
 
         final TransactionConfig txConfig1 = TransactionConfig.builder()
           .schemaModel(schema1)
