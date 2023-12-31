@@ -5,6 +5,7 @@
 
 package io.permazen.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.MapMaker;
 
 import java.net.MalformedURLException;
@@ -57,22 +58,14 @@ public final class ApplicationClassLoader extends URLClassLoader {
      * {@inheritDoc}
      *
      * @param url the URL to be added to the search path of URLs
-     * @throws IllegalArgumentException if {@code url} cannot be {@linkplain URL#toURI converted into} an {@link URI}
+     * @throws IllegalArgumentException if {@code url} cannot be {@linkplain URL#toURI converted} into an {@link URI}
+     * @throws IllegalArgumentException if {@code url} is null
      */
     @Override
     public void addURL(URL url) {
 
-        // Sanity check
-        if (url == null)
-            return;
-
         // Get URI form of URL
-        final URI uri;
-        try {
-            uri = url.toURI();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("can't convert URL into an URI", e);
-        }
+        final URI uri = this.toURI(url);
 
         // Add to all extant instances (if new)
         synchronized (ApplicationClassLoader.class) {
@@ -82,17 +75,25 @@ public final class ApplicationClassLoader extends URLClassLoader {
     }
 
     private void addURI(URI uri) {
+        super.addURL(this.toURL(uri));
+    }
 
-        // Convert URI back into URL
-        final URL url;
+    private URL toURL(URI uri) {
+        Preconditions.checkArgument(uri != null, "null uri");
         try {
-            url = uri.toURL();
+            return uri.toURL();
         } catch (MalformedURLException e) {
-            throw new RuntimeException("unexpected error", e);
+            throw new IllegalArgumentException(String.format("can't convert %s \"%s\" into an %s", "URI", uri, "URL"), e);
         }
+    }
 
-        // Add to class loader path
-        super.addURL(url);
+    private URI toURI(URL url) {
+        Preconditions.checkArgument(url != null, "null url");
+        try {
+            return url.toURI();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(String.format("can't convert %s \"%s\" into an %s", "URL", url, "URI"), e);
+        }
     }
 
 /*
