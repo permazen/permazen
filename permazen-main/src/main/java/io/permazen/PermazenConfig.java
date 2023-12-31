@@ -9,8 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
-import io.permazen.encoding.DefaultEncodingRegistry;
-import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.simple.MemoryKVDatabase;
 
 import jakarta.validation.Validation;
@@ -32,7 +30,6 @@ public final class PermazenConfig {
 
     // Config information
     private final Database database;
-    private final EncodingRegistry encodingRegistry;
     private final ValidatorFactory validatorFactory;
     private final LinkedHashSet<Class<?>> modelClasses;
 
@@ -42,7 +39,6 @@ public final class PermazenConfig {
         assert builder != null;
         Preconditions.checkArgument(builder.modelClasses != null, "no Java model classes have been configured");
         this.database = Optional.ofNullable(builder.database).orElseGet(() -> new Database(new MemoryKVDatabase()));
-        this.encodingRegistry = Optional.ofNullable(builder.encodingRegistry).orElseGet(DefaultEncodingRegistry::new);
         this.validatorFactory = builder.validatorFactory;
         this.modelClasses = builder.modelClasses;
     }
@@ -56,15 +52,6 @@ public final class PermazenConfig {
      */
     public Database getDatabase() {
         return this.database;
-    }
-
-    /**
-     * Get the {@link EncodingRegistry} to be used.
-     *
-     * @return {@link EncodingRegistry} for finding simple field encodings
-     */
-    public EncodingRegistry getEncodingRegistry() {
-        return this.encodingRegistry;
     }
 
     /**
@@ -114,7 +101,6 @@ public final class PermazenConfig {
     public static final class Builder implements Cloneable {
 
         private Database database;
-        private EncodingRegistry encodingRegistry;
         private ValidatorFactory validatorFactory;
         private LinkedHashSet<Class<?>> modelClasses;
 
@@ -136,17 +122,6 @@ public final class PermazenConfig {
          */
         public Builder database(Database database) {
             this.database = database;
-            return this;
-        }
-
-        /**
-         * Configure the {@link EncodingRegistry}.
-         *
-         * @param encodingRegistry custom {@link EncodingRegistry}, or null for the default
-         * @return this instance
-         */
-        public Builder encodingRegistry(EncodingRegistry encodingRegistry) {
-            this.encodingRegistry = encodingRegistry;
             return this;
         }
 

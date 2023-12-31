@@ -47,13 +47,6 @@
                             ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="encoding-registry" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
-            Bean name reference to a custom EncodingRegistry.
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>

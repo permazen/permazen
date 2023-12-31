@@ -260,7 +260,6 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 jdb = PermazenConfig.builder()
                   .database(db)
                   .modelClasses(modelClasses)
-                  .encodingRegistry(encodingRegistry)
                   .build()
                   .newPermazen();
                 schema = jdb.getSchemaModel();

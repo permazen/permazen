@@ -21,7 +21,6 @@ import org.w3c.dom.NodeList;
 class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final String KVSTORE_ATTRIBUTE = "kvstore";
-    private static final String ENCODING_REGISTRY_ATTRIBUTE = "encoding-registry";
 
     @Override
     protected Class<Permazen> getBeanClass(Element element) {
@@ -34,10 +33,6 @@ class PermazenBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
         // Get KVDatabase bean name (optional)
         if (element.hasAttribute(KVSTORE_ATTRIBUTE))
             builder.addPropertyReference("KVStore", element.getAttribute(KVSTORE_ATTRIBUTE));
-
-        // Get EncodingRegistry (optional)
-        if (element.hasAttribute(ENCODING_REGISTRY_ATTRIBUTE))
-            builder.addPropertyValue("encodingRegistry", element.getAttribute(ENCODING_REGISTRY_ATTRIBUTE));
 
         // Construct PermazenFactoryBean bean definition
         builder.getRawBeanDefinition().setBeanClass(PermazenFactoryBean.class);

@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.Permazen;
 import io.permazen.PermazenConfig;
 import io.permazen.core.Database;
-import io.permazen.encoding.EncodingRegistry;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.simple.MemoryKVDatabase;
 
@@ -24,17 +23,12 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
 
     private KVDatabase kvstore;
-    private EncodingRegistry encodingRegistry;
     private Collection<Class<?>> modelClasses;
 
 // Properties
 
     public void setKVStore(KVDatabase kvstore) {
         this.kvstore = kvstore;
-    }
-
-    public void setEncodingRegistry(EncodingRegistry encodingRegistry) {
-        this.encodingRegistry = encodingRegistry;
     }
 
     public void setModelClasses(Collection<Class<?>> modelClasses) {
@@ -65,7 +59,6 @@ class PermazenFactoryBean extends AbstractFactoryBean<Permazen> {
         // Build Permazen
         return PermazenConfig.builder()
           .database(db)
-          .encodingRegistry(this.encodingRegistry)
           .modelClasses(this.modelClasses)
           .build()
           .newPermazen();

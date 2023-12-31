@@ -79,14 +79,6 @@
  *      the {@link io.permazen.kv.KVDatabase} interface. If unset, defaults to a new
  *      {@link io.permazen.kv.simple.SimpleKVDatabase} instance.</td>
  * </tr>
- * <tr>
- *  <td>{@code encoding-registry}</td>
- *  <td>Bean reference</td>
- *  <td>No</td>
- *  <td>To use a custom {@link io.permazen.encoding.EncodingRegistry}, specify the name of a Spring bean that
- *      implements the {@link io.permazen.encoding.EncodingRegistry} interface. By default, a
- *      {@link io.permazen.encoding.DefaultEncodingRegistry} is used.</td>
- * </tr>
  * </table>
  * </div>
  *

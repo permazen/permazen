@@ -238,7 +238,7 @@ public class Permazen {
         this.classGenerators.add(this.untypedClassGenerator);
 
         // Create fields
-        this.jclasses.forEach(jclass -> jclass.createFields(config.getEncodingRegistry(), this.jclasses));
+        this.jclasses.forEach(jclass -> jclass.createFields(this.db.getEncodingRegistry(), this.jclasses));
 
         // Create composite indexes
         this.jclasses.forEach(JClass::createCompositeIndexes);
