@@ -7,14 +7,11 @@ package io.permazen.kv.simple;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.util.XMLSerializer;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Locale;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -31,16 +27,25 @@ import org.dellroad.stuff.io.FileStreamRepository;
 import org.dellroad.stuff.io.StreamRepository;
 
 /**
- * Simple persistent {@link KVDatabase} backed by an XML file stored in a {@link StreamRepository}.
- * The data is kept in memory, and the XML file is rewritten in its entirety after each successful commit.
- * In normal usage, the XML file is stored in a regular {@link File} using a {@link FileStreamRepository}, which
- * guarantees (via the use of {@link AtomicUpdateFileOutputStream}) that a partially written XML file can never exist.
+ * A {@link SimpleKVDatabase} made persistent by storing its XML content in a file or custom {@link StreamRepository}.
  *
  * <p>
- * If a {@link FileNotFoundException} is caught when trying to read the XML file, we assume that the underlying file has
- * not yet been created and the database will initially be empty. Alternately, you can configure a file containing
- * default initial content via {@link #setInitialContentFile setInitialContentFile()}, or override {@link #getInitialContent}
- * to create the initial content more dynamically.
+ * The database XML is rewritten in its entirety after each successful commit, so this class should not be used
+ * for high-performance applications.
+ *
+ * <p>
+ * The XML is persisted in a {@link StreamRepository} which provides atomicity and any durability. When constructed
+ * with a {@link File} for persistence, that file gets wrapped in a {@link FileStreamRepository}.
+ *
+ * <p><b>Initial Content</b>
+ *
+ * <p>
+ * At startup, if a {@link FileNotFoundException} is caught when trying to read the XML, we assume that the underlying
+ * data has not yet been created and so the database is initialized as empty. Alternatively, you can configure some
+ * default initial content for this scenario via {@link #setInitialContentFile setInitialContentFile()}, or by overriding
+ * {@link #getInitialContent}.
+ *
+ * <p><b>Out-Of-Band Updates</b>
  *
  * <p>
  * When a {@link FileStreamRepository} is used, instances support "out-of-band" updates of the XML file. In that case,
@@ -49,9 +54,9 @@ import org.dellroad.stuff.io.StreamRepository;
  * the XML file and the transaction will fail with a {@link RetryTransactionException}.
  *
  * <p>
- * Note that two different processes modifying the XML file at the same time is not without race conditions: e.g., it's possible
- * for an external process to update the XML file just as a transaction associated with this instance is being committed
- * and written to the file, which will result in overwriting the external process' changes.
+ * Note that "out-of-band" updates are not without race conditions: e.g., it's possible for an external process to update
+ * the XML file just as a transaction associated with this instance is being committed and written to the file, which will
+ * result in overwriting the external process' changes.
  *
  * <p>
  * {@linkplain XMLKVTransaction#watchKey Key watches} are supported.
@@ -105,8 +110,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * @throws IllegalArgumentException if {@code file} is null
      */
     public XMLKVDatabase(File file, long waitTimeout, long holdTimeout) {
-        this(XMLKVDatabase.isWindows() ? XMLKVDatabase.buildWindowsStreamRepository(file) : new FileStreamRepository(file),
-          waitTimeout, holdTimeout, file);
+        this(new FileStreamRepository(file), waitTimeout, holdTimeout, file);
     }
 
     /**
@@ -149,6 +153,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         this.file = file;
     }
 
+// Initial Content
+
     /**
      * Get the initial content for an uninitialized database. This method is invoked when, on the first load,
      * the backing XML file is not found. It should return a stream that reads initial content for the database,
@@ -174,6 +180,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     public void setInitialContentFile(File initialContentFile) {
         this.initialContentFile = initialContentFile;
     }
+
+// Other Methods
 
     @Override
     public synchronized void start() {
@@ -326,51 +334,5 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         } catch (IOException | XMLStreamException e) {
             throw new KVDatabaseException(this, "error writing XML content", e);
         }
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).contains("win");
-    }
-
-    // Windows workaround crap
-    private static StreamRepository buildWindowsStreamRepository(final File file) {
-        final Object lock = new Object();
-        return new StreamRepository() {
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                synchronized (lock) {
-                    final ByteArrayOutputStream data = new ByteArrayOutputStream();
-                    try (FileInputStream input = new FileInputStream(file)) {
-                        final byte[] buf = new byte[1024];
-                        int r;
-                        while ((r = input.read(buf)) != -1)
-                            data.write(buf, 0, r);
-                    }
-                    return new ByteArrayInputStream(data.toByteArray());
-                }
-            }
-
-            @Override
-            public OutputStream getOutputStream() {
-                return new ByteArrayOutputStream() {
-
-                    private boolean closed;
-
-                    @Override
-                    public void close() throws IOException {
-                        synchronized (lock) {
-                            if (this.closed)
-                                return;
-                            try (FileOutputStream output = new FileOutputStream(file)) {
-                                output.write(this.toByteArray());
-                                output.getChannel().force(false);
-                            }
-                            this.closed = true;
-                        }
-                    }
-                };
-            }
-        };
     }
 }
