@@ -8,6 +8,7 @@ package io.permazen.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.MapMaker;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,6 +54,17 @@ public final class ApplicationClassLoader extends URLClassLoader {
     }
 
 // URLClassLoader
+
+    /**
+     * Append the specified file to the search classpath.
+     *
+     * @param file classpath component
+     * @throws IllegalArgumentException if {@code file} is null
+     */
+    public void addFile(File file) {
+        Preconditions.checkArgument(file != null, "null file");
+        this.addURL(this.toURL(file.toURI()));
+    }
 
     /**
      * {@inheritDoc}
