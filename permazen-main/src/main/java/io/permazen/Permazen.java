@@ -248,7 +248,8 @@ public class Permazen {
         this.jclassesByName.forEach((name, jclass) -> this.schemaModel.getSchemaObjectTypes().put(name, jclass.toSchemaItem()));
         this.schemaModel.lockDown(false);
         this.schemaModel.validate();
-        this.log.debug("Permazen schema generated from annotated classes:\n{}", this.schemaModel);
+        if (!this.schemaModel.isEmpty())
+            this.log.debug("Permazen schema generated from annotated classes:\n{}", this.schemaModel);
 
         // Copy it now so we have a pre-storage ID assignment version
         this.origSchemaModel = this.schemaModel.clone();
