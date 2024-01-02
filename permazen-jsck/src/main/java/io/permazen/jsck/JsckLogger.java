@@ -18,16 +18,18 @@ public interface JsckLogger {
     /**
      * Log a low-detail (informational) message.
      *
-     * @param message message to log
+     * @param format {@link String#format String.format()} format string
+     * @param args format arguments
      */
-    void info(String message);
+    void info(String format, Object... args);
 
     /**
      * Log a high-detail message.
      *
-     * @param message message to log
+     * @param format {@link String#format String.format()} format string
+     * @param args format arguments
      */
-    void detail(String message);
+    void detail(String format, Object... args);
 
     /**
      * Determine whether detailed logging should be performed.
@@ -75,33 +77,33 @@ public interface JsckLogger {
             }
 
             @Override
-            public void info(String message) {
-                this.log(infoLevel, message);
+            public void info(String format, Object... args) {
+                this.log(infoLevel, format, args);
             }
 
             @Override
-            public void detail(String message) {
-                this.log(detailLevel, message);
+            public void detail(String format, Object... args) {
+                this.log(detailLevel, format, args);
             }
 
-            private void log(Level level, String message) {
+            private void log(Level level, String format, Object... args) {
                 if (!this.isEnabled(level))
                     return;
                 switch (level) {
                 case TRACE:
-                    logger.trace(message);
+                    logger.trace("{}", String.format(format, args));
                     break;
                 case DEBUG:
-                    logger.debug(message);
+                    logger.debug("{}", String.format(format, args));
                     break;
                 case INFO:
-                    logger.info(message);
+                    logger.info("{}", String.format(format, args));
                     break;
                 case WARN:
-                    logger.warn(message);
+                    logger.warn("{}", String.format(format, args));
                     break;
                 case ERROR:
-                    logger.error(message);
+                    logger.error("{}", String.format(format, args));
                     break;
                 default:
                     break;

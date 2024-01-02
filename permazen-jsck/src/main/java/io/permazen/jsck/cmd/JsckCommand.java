@@ -176,13 +176,13 @@ public class JsckCommand extends AbstractCommand {
                     return verbose;
                 }
                 @Override
-                public void info(String message) {
-                    out.println("jsck: " + message);
+                public void info(String format, Object... args) {
+                    out.println("jsck: " + String.format(format, args));
                 }
                 @Override
-                public void detail(String message) {
+                public void detail(String format, Object... args) {
                     if (verbose)
-                        out.println("jsck: " + message);
+                        out.println("jsck: " + String.format(format, args));
                 }
             });
 

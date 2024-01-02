@@ -96,8 +96,11 @@ public class Jsck {
         assert ByteUtil.compare(schemaIndexKeyPrefix, storageIdTablePrefix) > 0;
         assert ByteUtil.compare(userMetaDataKeyPrefix, schemaIndexKeyPrefix) > 0;
 
+        // Check empty space before format version
+        this.checkEmpty(info, new KeyRange(ByteUtil.EMPTY, formatVersionKey), "the key range prior to format version");
+
         // Check format version
-        info.info("checking format version");
+        info.info("checking the format version under key %s", Jsck.ds(formatVersionKey));
         int formatVersionOverride = this.config.getFormatVersionOverride();
         if (formatVersionOverride < 0 || formatVersionOverride > Layout.CURRENT_FORMAT_VERSION) {
             throw new IllegalArgumentException(String.format(
@@ -114,24 +117,28 @@ public class Jsck {
                   "missing Permazen signature/format version key " + Jsck.ds(formatVersionKey));
             }
             final ByteReader reader = new ByteReader(val);
+            final int formatVersion;
             try {
-                info.setFormatVersion(Encodings.UNSIGNED_INT.read(reader));
+                formatVersion = Encodings.UNSIGNED_INT.read(reader);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid Permazen signature/format version value "
-                  + Jsck.ds(val) + ": can't decode version number");
+                throw new IllegalArgumentException(String.format(
+                  "invalid Permazen signature/format version value %s: can't decode version number", Jsck.ds(val)));
             }
             if (reader.remain() > 0) {
-                throw new IllegalArgumentException("invalid Permazen signature/format version value "
-                  + Jsck.ds(val) + ": trailing garbage " + Jsck.ds(reader, reader.getOffset())
-                  + " follows format version number " + info.getFormatVersion());
+                throw new IllegalArgumentException(String.format(
+                  "invalid Permazen signature/format version value %s: trailing garbage %s follows format version number %d",
+                  Jsck.ds(val), Jsck.ds(reader, reader.getOffset()), info.getFormatVersion()));
             }
-            switch (info.getFormatVersion()) {
+            info.setFormatVersion(formatVersion);
+            switch (formatVersion) {
             case Layout.FORMAT_VERSION_1:
                 break;
             default:
-                throw new IllegalArgumentException("invalid Permazen signature/format version key value "
-                  + Jsck.ds(val) + ": unrecognized format version number " + info.getFormatVersion());
+                throw new IllegalArgumentException(String.format(
+                  "invalid Permazen signature/format version key value %s: unrecognized format version number %d",
+                  Jsck.ds(val), formatVersion));
             }
+            info.info("database format version is %d (current format version is %d)", formatVersion, Layout.CURRENT_FORMAT_VERSION);
 
             // Override format version, if needed
             if (formatVersionOverride != 0 && formatVersionOverride != info.getFormatVersion()) {
@@ -148,12 +155,9 @@ public class Jsck {
             info.handle(new InvalidValue(formatVersionKey, val, newValue).setDetail(e.getMessage()));
         }
 
-        // Check empty space before format version
-        this.checkEmpty(info, new KeyRange(ByteUtil.EMPTY, formatVersionKey), "key range prior to format version");
-
         // Check empty space before schema table
         this.checkEmpty(info, new KeyRange(ByteUtil.getNextKey(formatVersionKey), schemaTablePrefix),
-          "key range between format version and schema table");
+          "the key range between format version and schema table");
 
         // Check the schema table
         final Function<byte[], SchemaModel> schemaDecoder = bytes -> {
@@ -189,7 +193,7 @@ public class Jsck {
 
         // Check empty space before storage ID table
         this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(schemaTablePrefix), storageIdTablePrefix),
-          "key range between schema table and storage ID table");
+          "the key range between schema table and storage ID table");
 
         // Check the storage ID table
         final Function<byte[], SchemaId> schemaIdDecoder = bytes -> {
@@ -213,7 +217,7 @@ public class Jsck {
           info, this.config.getStorageIdOverrides(), schemaIdEncoder, schemaIdDecoder);
 
         // Validate schema table + storage ID table together
-        info.info("validating consistency of schema table and storage ID table");
+        info.info("validating consistency of schema and storage ID tables");
         final TreeMap<Integer, byte[]> schemaBytes = new TreeMap<>();
         final TreeMap<Integer, byte[]> storageIdBytes = new TreeMap<>();
         schemaMap.forEach((schemaIndex, schema) -> schemaBytes.put(schemaIndex, schemaEncoder.apply(schema)));
@@ -231,11 +235,11 @@ public class Jsck {
 
         // Check empty space between storage ID table and object version index
         this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(storageIdTablePrefix), schemaIndexKeyPrefix),
-          "key range between storage ID table and object schema index");
+          "the key range between storage ID table and object schema index");
 
         // Check empty space between object schema index and user meta-data area
         this.checkEmpty(info, new KeyRange(ByteUtil.getKeyAfterPrefix(schemaIndexKeyPrefix), userMetaDataKeyPrefix),
-          "key range between object schema index and user meta-data");
+          "the key range between object schema index and user meta-data");
 
         // Build map from storage ID to REPRESENTATIVE Storage instance
         final TreeMap<Integer, Storage<?>> storageMap = info.getStorages().stream()
@@ -250,13 +254,13 @@ public class Jsck {
             final byte[] stopKey = Encodings.UNSIGNED_INT.encode(storageId);
             final String nextDescription = storage.toString();
             this.checkEmpty(info, new KeyRange(nextEmptyStartKey, stopKey),
-              "key range between " + prevDescription + " and " + nextDescription);
+              "the key range between " + prevDescription + " and " + nextDescription);
             nextEmptyStartKey = this.getKeyRange(storageId).getMax();
             prevDescription = nextDescription;
         }
 
         // Check empty space after the last storage ID
-        this.checkEmpty(info, new KeyRange(nextEmptyStartKey, new byte[] { (byte)0xff }), "key range after " + prevDescription);
+        this.checkEmpty(info, new KeyRange(nextEmptyStartKey, new byte[] { (byte)0xff }), "the key range after " + prevDescription);
 
         // Check object types
         info.getStorages().stream()
@@ -264,7 +268,7 @@ public class Jsck {
           .map(ObjectType.class::cast)
           .iterator().forEachRemaining(objectType -> {
             final String rangeDescription = "the key range of " + objectType;
-            info.info("checking " + rangeDescription);
+            info.info("checking %s", rangeDescription);
             try (CloseableIterator<KVPair> ci = kv.getRange(objectType.getKeyRange())) {
                 for (final PeekingIterator<KVPair> i = Iterators.peekingIterator(ci); i.hasNext(); ) {
                     final KVPair pair = i.next();
@@ -283,7 +287,7 @@ public class Jsck {
 
                     // Check object meta-data
                     if (info.isDetailEnabled())
-                        info.detail("checking object meta-data for " + id);
+                        info.detail("checking object meta-data for %s", id);
                     int schemaIndex = -1;
                     Schema schema = null;
                     do {
@@ -351,7 +355,7 @@ public class Jsck {
 
                     // Validate object's fields content
                     if (info.isDetailEnabled())
-                        info.detail("checking object content for " + id);
+                        info.detail("checking object content for %s", id);
                     objectType.validateObjectData(info, id, schemaIndex, i);
                 }
             }
@@ -370,7 +374,7 @@ public class Jsck {
           .filter(index -> visitedStorageIds.add(index.getStorageId()))
           .iterator().forEachRemaining(index -> {
             final String rangeDescription = "the key range of " + index;
-            info.info("checking " + rangeDescription);
+            info.info("checking %s", rangeDescription);
             try (CloseableIterator<KVPair> i = kv.getRange(index.getKeyRange())) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
@@ -393,14 +397,18 @@ public class Jsck {
 
         // Check the object version index (and detect obsolete schemas while we're at it)
         final HashSet<SchemaId> obsoleteSchemas = new HashSet<>(info.getSchemaBundle().getSchemasBySchemaId().keySet());
-        info.info(String.format("checking object schema index; recorded schemas are:",
-          info.getSchemaBundle().getSchemasBySchemaIndex().entrySet().stream()
-           .map(entry -> String.format("%n  [%d] \"%s\"", entry.getKey(), entry.getValue().getSchemaId()))));
+        final String schemaList = info.getSchemaBundle().getSchemasBySchemaIndex().entrySet().stream()
+           .map(entry -> String.format("  [%d] \"%s\"", entry.getKey(), entry.getValue().getSchemaId()))
+           .collect(Collectors.joining("\n"));
+        if (!schemaList.isEmpty())
+            info.info("checking object schema index; recorded schemas are:\n%s", schemaList);
+        else
+            info.info("checking object schema index (there are zero recorded schemas)");
         try (CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(schemaIndexKeyPrefix))) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
 
-                // Read version
+                // Read and validate schema index
                 final ByteReader reader = new ByteReader(pair.getKey(), schemaIndexKeyPrefix.length);
                 final int schemaIndex;
                 final Schema schema;
@@ -439,7 +447,7 @@ public class Jsck {
 
                 // Mark object's schema version in use
                 if (obsoleteSchemas.remove(schema.getSchemaId()) && this.config.isGarbageCollectSchemas())
-                    info.info(String.format("marking schema version \"%s\" in use", schema.getSchemaId()));
+                    info.info("marking schema version \"%s\" in use", schema.getSchemaId());
 
                 // Validate value, which should be empty
                 if (pair.getValue().length > 0) {
@@ -454,8 +462,10 @@ public class Jsck {
         if (obsoleteSchemas.isEmpty())
             info.info("found zero obsolete schemas");
         else {
-            info.info(String.format("found %d obsolete schema(s): %s", obsoleteSchemas.size(),
-              obsoleteSchemas.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(", "))));
+            info.info("found %s obsolete schema(s): %s", obsoleteSchemas.size(),
+              obsoleteSchemas.stream()
+                .map(id -> String.format("\"%s\"", id))
+                .collect(Collectors.joining(", ")));
         }
 
         // Garbage collect obsolete schemas and storage ID's
@@ -505,9 +515,10 @@ public class Jsck {
         overrides = overrides != null ? new HashMap<>(overrides) : Collections.emptyMap();
 
         // Check schema versions
-        info.info("checking the " + tableName + " table");
+        final KeyRange keyRange = KeyRange.forPrefix(prefix);
+        info.info("checking the %s table %s", tableName, keyRange);
         final HashMap<Integer, T> itemMap = new HashMap<>();
-        try (CloseableIterator<KVPair> i = info.getKVStore().getRange(KeyRange.forPrefix(prefix))) {
+        try (CloseableIterator<KVPair> i = info.getKVStore().getRange(keyRange)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 int index = 0;
@@ -614,16 +625,16 @@ public class Jsck {
         return Jsck.ds(reader.getBytes(off));
     }
 
-    private long checkEmpty(JsckInfo info, KeyRange range, String description) {
-        info.info(String.format("checking that %s %s is empty", description, range));
-        long count = 0;
+    private void checkEmpty(JsckInfo info, KeyRange range, String description) {
+        if (range.isEmpty())
+            return;
+        info.info("checking that %s %s is empty", description, range);
         try (CloseableIterator<KVPair> i = info.getKVStore().getRange(range)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
                 info.handle(new InvalidKey(pair.getKey(), pair.getValue()).setDetail(description));
             }
         }
-        return count;
     }
 
     private KeyRange getKeyRange(int storageId) {

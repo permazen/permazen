@@ -109,7 +109,7 @@ class ObjectType extends Storage<ObjType> {
 
             // Scan field
             if (info.isDetailEnabled())
-                info.detail(String.format("checking object %s %s", id, field));
+                info.detail("checking object %s %s", id, field);
             field.visit(new FieldSwitch<Void>() {
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {
@@ -417,7 +417,7 @@ class ObjectType extends Storage<ObjType> {
 
     private void verifyIndexEntry(JsckInfo info, ObjId id, byte[] key, String description) {
         if (info.isDetailEnabled())
-            info.detail(String.format("checking object %s %s entry", id, description));
+            info.detail("checking object %s %s entry", id, description);
         final byte[] value = info.getKVStore().get(key);
         if (value == null)
             info.handle(new MissingKey(String.format("missing index entry for %s", description), key, ByteUtil.EMPTY));

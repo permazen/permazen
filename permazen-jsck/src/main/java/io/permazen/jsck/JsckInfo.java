@@ -98,17 +98,17 @@ class JsckInfo implements JsckLogger {
     }
 
     @Override
-    public void info(String message) {
+    public void info(String format, Object... args) {
         final JsckLogger logger = this.config.getJsckLogger();
         if (logger != null)
-            logger.info(message);
+            logger.info(format, args);
     }
 
     @Override
-    public void detail(String message) {
+    public void detail(String format, Object... args) {
         final JsckLogger logger = this.config.getJsckLogger();
         if (logger != null && logger.isDetailEnabled())
-            logger.detail(message);
+            logger.detail(format, args);
     }
 
 // Internal stuff
