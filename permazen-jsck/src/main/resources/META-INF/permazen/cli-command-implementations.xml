@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<cli-command-implementations>
-    <cli-command-implementation class="io.permazen.jsck.cmd.JsckCommand"/>
-</cli-command-implementations>

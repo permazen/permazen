@@ -89,6 +89,7 @@
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- Versions for dependencies used by multiple modules -->
+        <jopt-simple.version>6.0-alpha-3</jopt-simple.version>
         <testng.version>7.7.1</testng.version>
     </properties>
 
@@ -256,6 +257,13 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>permazen-util</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!-- JOpt-Simple -->
+            <dependency>
+                <groupId>net.sf.jopt-simple</groupId>
+                <artifactId>jopt-simple</artifactId>
+                <version>${jopt-simple.version}</version>
             </dependency>
 
             <!-- TestNG -->

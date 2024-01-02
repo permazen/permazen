@@ -5,39 +5,48 @@
 
 package io.permazen.kv.bdb;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
 import java.io.File;
-import java.util.ArrayDeque;
 
-public class BerkeleyKVImplementation extends KVImplementation<BerkeleyKVImplementation.Config> {
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
-    public BerkeleyKVImplementation() {
-        super(Config.class);
+public class BerkeleyKVImplementation implements KVImplementation<BerkeleyKVImplementation.Config> {
+
+    private OptionSpec<File> directoryOption;
+    private OptionSpec<String> databaseNameOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.directoryOption == null, "duplicate option");
+        Preconditions.checkState(this.databaseNameOption == null, "duplicate option");
+        this.directoryOption = parser.accepts("bdb", "Use Berkeley DB Java Edition key/value database in specified directory")
+          .withRequiredArg()
+          .describedAs("directory")
+          .ofType(File.class);
+        this.databaseNameOption = parser.accepts("bdb-database",
+            String.format("Specify Berkeley DB database name (default \"%s\")", BerkeleyKVDatabase.DEFAULT_DATABASE_NAME))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("database-name")
+          .defaultsTo(BerkeleyKVDatabase.DEFAULT_DATABASE_NAME);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--bdb directory",
-              "Use Berkeley DB Java Edition key/value database in specified directory" },
-            { "--bdb-database name",
-              "Specify Berkeley DB database name (default \"" + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "\")" },
-        };
-    }
-
-    @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        final String dir = this.parseCommandLineOption(options, "--bdb");
+    public Config buildConfig(OptionSet options) {
+        final File dir = this.directoryOption.value(options);
         if (dir == null)
             return null;
-        final Config config = new Config(new File(dir));
-        final String dbname = this.parseCommandLineOption(options, "--bdb-database");
-        if (dbname != null)
-            config.setDatabaseName(dbname);
-        return config;
+        if (dir.exists() && !dir.isDirectory())
+            throw new IllegalArgumentException(String.format("file \"%s\" is not a directory", dir));
+        return new Config(dir, this.databaseNameOption.value(options));
     }
 
     @Override
@@ -58,12 +67,13 @@ public class BerkeleyKVImplementation extends KVImplementation<BerkeleyKVImpleme
     public static class Config {
 
         private File dir;
-        private String databaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
+        private String databaseName;
 
-        public Config(File dir) {
-            if (dir == null)
-                throw new IllegalArgumentException("null dir");
+        public Config(File dir, String databaseName) {
+            Preconditions.checkArgument(dir != null, "null dir");
+            Preconditions.checkArgument(databaseName != null, "null databaseName");
             this.dir = dir;
+            this.databaseName = databaseName;
         }
 
         public File getDirectory() {
@@ -72,10 +82,6 @@ public class BerkeleyKVImplementation extends KVImplementation<BerkeleyKVImpleme
 
         public String getDatabaseName() {
             return this.databaseName;
-        }
-
-        public void setDatabaseName(String databaseName) {
-            this.databaseName = databaseName;
         }
     }
 }

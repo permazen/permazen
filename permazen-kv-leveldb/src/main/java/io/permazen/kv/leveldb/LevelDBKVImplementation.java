@@ -5,30 +5,40 @@
 
 package io.permazen.kv.leveldb;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
 import java.io.File;
-import java.util.ArrayDeque;
 
-public class LevelDBKVImplementation extends KVImplementation<File> {
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
-    public LevelDBKVImplementation() {
-        super(File.class);
+public class LevelDBKVImplementation implements KVImplementation<File> {
+
+    private OptionSpec<File> directoryOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.directoryOption == null, "duplicate option");
+        this.directoryOption = parser.accepts("leveldb", "Use LevelDB key/value database in the specified directory")
+          .withRequiredArg()
+          .describedAs("directory")
+          .ofType(File.class);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--leveldb directory", "Use LevelDB key/value database in the specified directory" },
-        };
-    }
-
-    @Override
-    public File parseCommandLineOptions(ArrayDeque<String> options) {
-        final String arg = this.parseCommandLineOption(options, "--leveldb");
-        return arg != null ? new File(arg) : null;
+    public File buildConfig(OptionSet options) {
+        final File dir = this.directoryOption.value(options);
+        if (dir == null)
+            return null;
+        if (dir.exists() && !dir.isDirectory())
+            throw new IllegalArgumentException(String.format("file \"%s\" is not a directory", dir));
+        return dir;
     }
 
     @Override

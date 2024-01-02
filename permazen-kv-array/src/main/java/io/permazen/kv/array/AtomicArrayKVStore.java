@@ -216,7 +216,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 // Accessors
 
     /**
-     * Get the filesystem directory containing the database. If not set, this class functions as an im-memory store.
+     * Get the filesystem directory containing the database. If not set, this class functions as an in-memory store.
      *
      * @return database directory, or null for none
      */
@@ -230,7 +230,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     /**
-     * Configure the filesystem directory containing the database. If not set, this class functions as an im-memory store.
+     * Configure the filesystem directory containing the database. If not set, this class functions as an in-memory store.
      *
      * @param directory database directory, or null for none
      * @throws IllegalStateException if this instance is already {@link #start}ed

@@ -5,37 +5,30 @@
 
 package io.permazen.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
-public class MemoryKVImplementation extends KVImplementation<Boolean> {
+public class MemoryKVImplementation implements KVImplementation<Boolean> {
 
-    public MemoryKVImplementation() {
-        super(Boolean.class);
+    private OptionSpec<Void> memOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.memOption == null, "duplicate option");
+        this.memOption = parser.accepts("mem", "Use an initially empty, in-memory database");
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--mem", "Use an initially empty, in-memory database" }
-        };
-    }
-
-    @Override
-    public Boolean parseCommandLineOptions(ArrayDeque<String> options) {
-        Boolean config = null;
-        for (Iterator<String> i = options.iterator(); i.hasNext(); ) {
-            final String option = i.next();
-            if (option.equals("--mem")) {
-                config = true;
-                i.remove();
-            }
-        }
-        return config;
+    public Boolean buildConfig(OptionSet options) {
+        return options.has(this.memOption) ? true : null;
     }
 
     @Override

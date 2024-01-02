@@ -66,8 +66,6 @@ public class ObjIdParser implements Parser<ObjId> {
             max = null;
         }
 
-        // TODO: if multiple storage ID's match, complete only through the storage ID
-
         // Find object IDs in the range
         final CompletionFinder finder = new CompletionFinder(min, max);
         try {

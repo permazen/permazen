@@ -7,7 +7,10 @@ package io.permazen.kv.cockroach;
 
 import io.permazen.kv.sql.SQLDriverKVImplementation;
 
-import java.util.ArrayDeque;
+import java.net.URI;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 public class CockroachKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
@@ -26,20 +29,17 @@ public class CockroachKVImplementation extends SQLDriverKVImplementation<SQLDriv
      * @param driverClassName Cockroach {@link java.sql.Driver} implementation class name
      */
     public CockroachKVImplementation(String driverClassName) {
-        super(Config.class, driverClassName);
+        super(driverClassName);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--cockroach URL", "Use CockroachDB key/value store with the given JDBC URL" },
-        };
+    protected void addJdbcUriOption(OptionParser parser) {
+        this.addJdbcUriOption(parser, "cockroach", "Use CockroachDB key/value store with the given JDBC URL");
     }
 
     @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        final String url = this.parseCommandLineOption(options, "--cockroach");
-        return url != null ? new Config(url) : null;
+    protected Config buildConfig(OptionSet options, URI uri) {
+        return new Config(uri);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class CockroachKVImplementation extends SQLDriverKVImplementation<SQLDriv
     }
 
     @Override
-    protected CockroachKVDatabase createSQLKVDatabase(Config configuration) {
+    protected CockroachKVDatabase createSQLKVDatabase(Config config) {
         return new CockroachKVDatabase();
     }
 }

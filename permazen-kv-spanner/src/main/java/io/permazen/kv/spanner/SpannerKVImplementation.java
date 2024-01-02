@@ -12,34 +12,53 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
-import java.util.ArrayDeque;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
-public class SpannerKVImplementation extends KVImplementation<SpannerKVImplementation.Config> {
+public class SpannerKVImplementation implements KVImplementation<SpannerKVImplementation.Config> {
 
-    public SpannerKVImplementation() {
-        super(Config.class);
+    private OptionSpec<String> instanceOption;
+    private OptionSpec<String> projectOption;
+    private OptionSpec<String> databaseOption;
+    private OptionSpec<String> tableOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.instanceOption == null, "duplicate option");
+        Preconditions.checkState(this.projectOption == null, "duplicate option");
+        Preconditions.checkState(this.databaseOption == null, "duplicate option");
+        Preconditions.checkState(this.tableOption == null, "duplicate option");
+        this.instanceOption = parser.accepts("spanner", "Specify Google Cloud Spanner instance ID")
+          .withRequiredArg()
+          .describedAs("instance-id");
+        this.projectOption = parser.accepts("spanner-project", "Specify Google Cloud Spanner project ID")
+          .availableIf(this.instanceOption)
+          .withRequiredArg()
+          .describedAs("project-id");
+        this.databaseOption = parser.accepts("spanner-database",
+            String.format("Specify Google Cloud Spanner database ID (default \"%s\")", SpannerKVDatabase.DEFAULT_DATABASE_ID))
+          .availableIf(this.instanceOption)
+          .withRequiredArg()
+          .describedAs("database-id");
+        this.tableOption = parser.accepts("spanner-table",
+            String.format("Specify Google Cloud Spanner table name (default \"%s\")", SpannerKVDatabase.DEFAULT_TABLE_NAME))
+          .availableIf(this.instanceOption)
+          .withRequiredArg()
+          .describedAs("table-name");
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--spanner id",           "Specify Google Cloud Spanner instance ID" },
-            { "--spanner-project id",   "Specify Google Cloud Spanner project ID" },
-            { "--spanner-database id",
-                "Specify Google Cloud Spanner database ID (default \"" + SpannerKVDatabase.DEFAULT_DATABASE_ID + "\")" },
-            { "--spanner-table name",
-                "Specify Google Cloud Spanner table name (default \"" + SpannerKVDatabase.DEFAULT_TABLE_NAME + "\")" },
-        };
-    }
-
-    @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        final Config config = new Config();
-        config.setInstanceId(this.parseCommandLineOption(options, "--spanner"));
-        config.setProjectId(this.parseCommandLineOption(options, "--spanner-project"));
-        config.setDatabaseId(this.parseCommandLineOption(options, "--spanner-database"));
-        config.setTableName(this.parseCommandLineOption(options, "--spanner-table"));
-        return !config.isEmpty() ? config : null;
+    public Config buildConfig(OptionSet options) {
+        final String instanceId = this.instanceOption.value(options);
+        if (instanceId == null)
+            return null;
+        final Config config = new Config(instanceId);
+        config.setProjectId(this.projectOption.value(options));
+        config.setDatabaseId(this.databaseOption.value(options));
+        config.setTableName(this.tableOption.value(options));
+        return config;
     }
 
     @Override
@@ -58,23 +77,26 @@ public class SpannerKVImplementation extends KVImplementation<SpannerKVImplement
 
     public static class Config {
 
+        private final String instanceId;
+
         private String projectId;
-        private String instanceId;
         private String databaseId;
         private String tableName;
+
+        public Config(String instanceId) {
+            Preconditions.checkArgument(instanceId != null, "null instanceId");
+            this.instanceId = instanceId;
+        }
+
+        public String getInstanceId() {
+            return this.instanceId;
+        }
 
         public String getProjectId() {
             return this.projectId;
         }
         public void setProjectId(String projectId) {
             this.projectId = projectId;
-        }
-
-        public String getInstanceId() {
-            return this.instanceId;
-        }
-        public void setInstanceId(String instanceId) {
-            this.instanceId = instanceId;
         }
 
         public String getDatabaseId() {
@@ -91,12 +113,7 @@ public class SpannerKVImplementation extends KVImplementation<SpannerKVImplement
             this.tableName = tableName;
         }
 
-        public boolean isEmpty() {
-            return this.projectId == null && this.instanceId == null && this.databaseId == null && this.tableName == null;
-        }
-
         public void configure(SpannerKVDatabase kvdb) {
-            Preconditions.checkArgument(this.instanceId != null, "Spanner instance ID must be specified via the `--spanner' flag");
             final SpannerOptions.Builder builder = SpannerOptions.newBuilder();
             if (this.projectId != null)
                 builder.setProjectId(this.projectId);

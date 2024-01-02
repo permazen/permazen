@@ -5,58 +5,87 @@
 
 package io.permazen.kv.mvstore;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
 import java.io.File;
-import java.util.ArrayDeque;
 import java.util.Optional;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import org.h2.mvstore.MVStore;
 
-public class MVStoreKVImplementation extends KVImplementation<MVStoreKVImplementation.Config> {
+public class MVStoreKVImplementation implements KVImplementation<MVStoreKVImplementation.Config> {
 
     /**
      * Default MVStore map name to use ({@value #DEFAULT_MAP_NAME}).
      */
     public static final String DEFAULT_MAP_NAME = "Permazen";
 
-    public MVStoreKVImplementation() {
-        super(Config.class);
+    private OptionSpec<File> fileOption;
+    private OptionSpec<Void> memoryOption;
+    private OptionSpec<Void> readOnlyOption;
+    private OptionSpec<Void> compressLzfOption;
+    private OptionSpec<Void> compressDeflateOption;
+    private OptionSpec<String> encryptionKeyOption;
+    private OptionSpec<String> mapNameOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.fileOption == null, "duplicate option");
+        Preconditions.checkState(this.memoryOption == null, "duplicate option");
+        Preconditions.checkState(this.readOnlyOption == null, "duplicate option");
+        Preconditions.checkState(this.compressLzfOption == null, "duplicate option");
+        Preconditions.checkState(this.compressDeflateOption == null, "duplicate option");
+        Preconditions.checkState(this.encryptionKeyOption == null, "duplicate option");
+        Preconditions.checkState(this.mapNameOption == null, "duplicate option");
+        this.fileOption = parser.accepts("mvstore", "Use MVStore key/value database using the specified file")
+          .withRequiredArg()
+          .describedAs("file")
+          .ofType(File.class);
+        this.memoryOption = parser.accepts("mvstore-memory", "Use MVStore key/value database with in-memory storage")
+          .availableUnless(this.fileOption);
+        this.readOnlyOption = parser.accepts("mvstore-read-only", "Open MVStore key/value database read-only")
+          .availableIf(this.fileOption, this.memoryOption);
+        this.compressLzfOption = parser.accepts("mvstore-compress-lzf", "Enable MVStore LZF compression")
+          .availableIf(this.fileOption, this.memoryOption);
+        this.compressDeflateOption = parser.accepts("mvstore-compress-deflate", "Enable MVStore Deflate compression")
+          .availableIf(this.fileOption, this.memoryOption)
+          .availableUnless(this.compressLzfOption);
+        this.encryptionKeyOption = parser.accepts("mvstore-encrypt", "Enable MVStore encryption using the specified key")
+          .availableIf(this.fileOption, this.memoryOption)
+          .withRequiredArg()
+          .describedAs("key");
+        this.mapNameOption = parser.accepts("mvstore-map",
+            String.format("Specify MVStore map name (default \"%s\")", DEFAULT_MAP_NAME))
+          .availableIf(this.fileOption, this.memoryOption)
+          .withRequiredArg()
+          .describedAs("map-name")
+          .defaultsTo(DEFAULT_MAP_NAME);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--mvstore file",
-              "Use MVStore key/value database using the specified file" },
-            { "--mvstore-memory",
-              "Use MVStore key/value database with non-persistent in-memory storage" },
-            { "--mvstore-read-only",
-              "Open MVStore key/value database read-only" },
-            { "--mvstore-compress-lzf",
-              "Enable MVStore LZF compression" },
-            { "--mvstore-compress-deflate",
-              "Enable MVStore Deflate compression" },
-            { "--mvstore-encrypt key",
-              "Enable MVStore encryption using the specified key" },
-            { "--mvstore-map name",
-              "Specify MVStore map name (default \"" + DEFAULT_MAP_NAME + "\")" },
-        };
-    }
-
-    @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
+    public Config buildConfig(OptionSet options) {
         final Config config = new Config();
-        config.setFile(Optional.ofNullable(this.parseCommandLineOption(options, "--mvstore")).map(File::new).orElse(null));
-        config.setMemory(this.parseCommandLineFlag(options, "--mvstore-memory"));
-        config.setReadOnly(this.parseCommandLineFlag(options, "--mvstore-read-only"));
-        config.setCompress(this.parseCommandLineFlag(options, "--mvstore-compress-lzf"));
-        config.setCompressHigh(this.parseCommandLineFlag(options, "--mvstore-compress-deflate"));
-        config.setEncryptKey(this.parseCommandLineOption(options, "--mvstore-encrypt"));
-        config.setMapName(Optional.ofNullable(this.parseCommandLineOption(options, "--mvstore-map")).orElse(DEFAULT_MAP_NAME));
-        return config.isEnabled() ? config.validate() : null;
+        final File file = this.fileOption.value(options);
+        if (file != null)
+            config.setFile(file);
+        else if (options.has(this.memoryOption))
+            config.setMemory(true);
+        else
+            return null;
+        config.setReadOnly(options.has(this.readOnlyOption));
+        config.setCompress(options.has(this.compressLzfOption));
+        config.setCompressHigh(options.has(this.compressDeflateOption));
+        config.setEncryptKey(this.encryptionKeyOption.value(options));
+        config.setMapName(this.mapNameOption.value(options));
+        return config;
     }
 
     @Override
@@ -138,16 +167,6 @@ public class MVStoreKVImplementation extends KVImplementation<MVStoreKVImplement
             kvstore.setBuilder(builder);
             kvstore.setMapName(this.mapName);
             return kvstore;
-        }
-
-        public Config validate() {
-            if ((this.file != null) == this.memory)
-                throw new IllegalArgumentException("exactly one of \"--mvstore\" or \"--mvstore-memory\" must be specified");
-            if (this.compress && this.compressHigh) {
-                throw new IllegalArgumentException("flags \"--mvstore-compress-lzf\" and \"--mvstore-compress-deflate\""
-                  + " are incompatible");
-            }
-            return this;
         }
     }
 }

@@ -7,7 +7,10 @@ package io.permazen.kv.mssql;
 
 import io.permazen.kv.sql.SQLDriverKVImplementation;
 
-import java.util.ArrayDeque;
+import java.net.URI;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 public class MSSQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
@@ -26,20 +29,17 @@ public class MSSQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
      * @param driverClassName SQL Server {@link java.sql.Driver} implementation class name
      */
     public MSSQLKVImplementation(String driverClassName) {
-        super(Config.class, driverClassName);
+        super(driverClassName);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--mssql URL", "Use SQL Server key/value store with the given JDBC URL" },
-        };
+    protected void addJdbcUriOption(OptionParser parser) {
+        this.addJdbcUriOption(parser, "mssql", "Use MS SQL Server key/value store with the given JDBC URL");
     }
 
     @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        final String url = this.parseCommandLineOption(options, "--mssql");
-        return url != null ? new Config(url) : null;
+    protected Config buildConfig(OptionSet options, URI uri) {
+        return new Config(uri);
     }
 
     @Override

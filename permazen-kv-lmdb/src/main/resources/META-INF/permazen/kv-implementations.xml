@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<kv-implementations>
-    <kv-implementation class="io.permazen.kv.lmdb.LMDBKVImplementation"/>
-</kv-implementations>

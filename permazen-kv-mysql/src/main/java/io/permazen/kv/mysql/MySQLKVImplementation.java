@@ -7,7 +7,10 @@ package io.permazen.kv.mysql;
 
 import io.permazen.kv.sql.SQLDriverKVImplementation;
 
-import java.util.ArrayDeque;
+import java.net.URI;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKVImplementation.Config> {
 
@@ -26,20 +29,17 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
      * @param driverClassName MySQL {@link java.sql.Driver} implementation class name
      */
     public MySQLKVImplementation(String driverClassName) {
-        super(Config.class, driverClassName);
+        super(driverClassName);
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--mysql URL", "Use MySQL key/value store with the given JDBC URL" },
-        };
+    protected void addJdbcUriOption(OptionParser parser) {
+        this.addJdbcUriOption(parser, "mysql", "Use MySQL key/value store with the given JDBC URL");
     }
 
     @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        final String url = this.parseCommandLineOption(options, "--mysql");
-        return url != null ? new Config(url) : null;
+    protected Config buildConfig(OptionSet options, URI uri) {
+        return new Config(uri);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
     }
 
     @Override
-    protected MySQLKVDatabase createSQLKVDatabase(Config configuration) {
+    protected MySQLKVDatabase createSQLKVDatabase(Config config) {
         return new MySQLKVDatabase();
     }
 }

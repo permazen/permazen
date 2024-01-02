@@ -5,6 +5,8 @@
 
 package io.permazen.kv.raft;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
@@ -19,138 +21,198 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayDeque;
+import java.util.Optional;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import org.dellroad.stuff.net.TCPNetwork;
 
-public class RaftKVImplementation extends KVImplementation<RaftKVImplementation.Config> {
+public class RaftKVImplementation implements KVImplementation<RaftKVImplementation.Config> {
 
-    public RaftKVImplementation() {
-        super(Config.class);
+    private OptionSpec<File> directoryOption;
+    private OptionSpec<String> minElectionTimeoutOption;
+    private OptionSpec<String> maxElectionTimeoutOption;
+    private OptionSpec<String> heartbeatTimeoutOption;
+    private OptionSpec<String> identityOption;
+    private OptionSpec<String> addressOption;
+    private OptionSpec<String> portOption;
+    private OptionSpec<File> fallbackOption;
+    private OptionSpec<String> fallbackCheckIntervalOption;
+    private OptionSpec<String> fallbackCheckTimeoutOption;
+    private OptionSpec<String> fallbackMinAvailableOption;
+    private OptionSpec<String> fallbackMinUnavailableOption;
+    private OptionSpec<String> fallbackUnavailableMergeOption;
+    private OptionSpec<String> fallbackUnavailableRejoinOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.directoryOption == null, "duplicate option");
+        Preconditions.checkState(this.minElectionTimeoutOption == null, "duplicate option");
+        Preconditions.checkState(this.maxElectionTimeoutOption == null, "duplicate option");
+        Preconditions.checkState(this.heartbeatTimeoutOption == null, "duplicate option");
+        Preconditions.checkState(this.identityOption == null, "duplicate option");
+        Preconditions.checkState(this.addressOption == null, "duplicate option");
+        Preconditions.checkState(this.portOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackCheckIntervalOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackCheckTimeoutOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackMinAvailableOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackMinUnavailableOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackUnavailableMergeOption == null, "duplicate option");
+        Preconditions.checkState(this.fallbackUnavailableRejoinOption == null, "duplicate option");
+        this.directoryOption = parser.accepts("raft", "Use Raft key/value database in specified directory")
+          .withRequiredArg()
+          .describedAs("directory")
+          .ofType(File.class);
+        this.minElectionTimeoutOption = parser.accepts("raft-min-election-timeout",
+            String.format("Specify Raft minimum election timeout in ms (default %d)", RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.maxElectionTimeoutOption = parser.accepts("raft-max-election-timeout",
+            String.format("Specify Raft maximum election timeout in ms (default %d)", RaftKVDatabase.DEFAULT_MAX_ELECTION_TIMEOUT))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.heartbeatTimeoutOption = parser.accepts("raft-heartbeat-timeout",
+            String.format("Specify Raft leader heartbeat timeout in ms (default %d)", RaftKVDatabase.DEFAULT_HEARTBEAT_TIMEOUT))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.identityOption = parser.accepts("raft-identity", "Specify Raft identity string")
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("string");
+        this.addressOption = parser.accepts("raft-address", "Specify Specify local Raft node's IP address")
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("ipaddr[:port]");
+        this.portOption = parser.accepts("raft-port",
+            String.format("Specify Specify local Raft node's TCP port (default %d)", RaftKVDatabase.DEFAULT_TCP_PORT))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("port");
+        this.fallbackOption = parser.accepts("raft-fallback", "Use Raft fallback database with specified state file")
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("file")
+          .ofType(File.class);
+        this.fallbackCheckIntervalOption = parser.accepts("raft-fallback-check-interval",
+            String.format("Specify Raft fallback check interval in milliseconds (default %d)",
+              FallbackTarget.DEFAULT_CHECK_INTERVAL))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.fallbackCheckTimeoutOption = parser.accepts("raft-fallback-check-timeout",
+            String.format("Specify Raft fallback availability check TX timeout in milliseconds (default %d)",
+             FallbackTarget.DEFAULT_TRANSACTION_TIMEOUT))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.fallbackMinAvailableOption = parser.accepts("raft-fallback-min-available",
+            String.format("Specify Raft fallback min available time in milliseconds (default %d)",
+              FallbackTarget.DEFAULT_MIN_AVAILABLE_TIME))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.fallbackMinUnavailableOption = parser.accepts("raft-fallback-min-unavailable",
+            String.format("Specify Raft fallback min unavailable time in milliseconds (default %d)",
+              FallbackTarget.DEFAULT_MIN_UNAVAILABLE_TIME))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("millis");
+        this.fallbackUnavailableMergeOption = parser.accepts("raft-fallback-unavailable-merge",
+            String.format("Specify Raft fallback unavailable merge strategy class name (default \"%s\")",
+              OverwriteMergeStrategy.class.getName()))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("class-name");
+        this.fallbackUnavailableRejoinOption = parser.accepts("raft-fallback-rejoin-merge",
+            String.format("Specify Raft fallback rejoin merge strategy class name (default \"%s\")",
+              NullMergeStrategy.class.getName()))
+          .availableIf(this.fallbackOption)
+          .withRequiredArg()
+          .describedAs("class-name");
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--raft directory",
-              "Use Raft key/value database in specified directory" },
-            { "--raft-min-election-timeout timeout",
-              "Specify Raft minimum election timeout in ms (default " + RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT + ")" },
-            { "--raft-max-election-timeout timeout",
-              "Specify Raft maximum election timeout in ms (default " + RaftKVDatabase.DEFAULT_MAX_ELECTION_TIMEOUT + ")" },
-            { "--raft-heartbeat-timeout timeout",
-              "Specify Raft leader heartbeat timeout in ms (default " + RaftKVDatabase.DEFAULT_HEARTBEAT_TIMEOUT + ")" },
-            { "--raft-identity identity",
-              "Specify Raft identity" },
-            { "--raft-address address",
-              "Specify Specify local Raft node's IP address" },
-            { "--raft-port port",
-              "Specify Specify local Raft node's TCP port (default " + RaftKVDatabase.DEFAULT_TCP_PORT + ")" },
-            { "--raft-fallback statefile",
-              "Use Raft fallback database with specified state file" },
-            { "--raft-fallback-check-interval millis",
-              "Specify Raft fallback check interval in milliseconds (default " + FallbackTarget.DEFAULT_CHECK_INTERVAL + ")" },
-            { "--raft-fallback-min-available millis",
-              "Specify Raft fallback min available time in milliseconds (default "
-                + FallbackTarget.DEFAULT_MIN_AVAILABLE_TIME + ")" },
-            { "--raft-fallback-min-unavailable millis",
-              "Specify Raft fallback min unavailable time in milliseconds (default "
-                + FallbackTarget.DEFAULT_MIN_UNAVAILABLE_TIME + ")" },
-            { "--raft-fallback-check-timeout millis",
-              "Specify Raft fallback availability check TX timeout in milliseconds (default "
-                + FallbackTarget.DEFAULT_TRANSACTION_TIMEOUT + ")" },
-            { "--raft-fallback-unavailable-merge class",
-              "Specify Raft fallback unavailable merge strategy class name (default \""
-                + OverwriteMergeStrategy.class.getName() + "\")" },
-            { "--raft-fallback-rejoin-merge class",
-              "Specify Raft fallback rejoin merge strategy class name (default \""
-                + NullMergeStrategy.class.getName() + "\")" },
-        };
-    }
-
-    @Override
-    public String getUsageText() {
-        return "Raft requires its own internal key/value store, which should also be specified along with `--raft'.\n"
-          + "For Raft fallback, specify `--raft-fallback' in addition.";
-    }
-
-    @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-
-        // Raft options
-        String arg = this.parseCommandLineOption(options, "--raft");
-        if (arg == null)
+    public Config buildConfig(OptionSet options) {
+        final File dir = options.valueOf(this.directoryOption);
+        if (dir == null)
             return null;
-        final Config config = new Config(new File(arg));
-        if ((arg = this.parseCommandLineOption(options, "--raft-identity")) != null)
-            config.getRaft().setIdentity(arg);
-        if ((arg = this.parseCommandLineOption(options, "--raft-address")) != null) {
-            config.setAddress(TCPNetwork.parseAddressPart(arg));
-            config.setPort(TCPNetwork.parsePortPart(arg, config.getPort()));
-        }
-        if ((arg = this.parseCommandLineOption(options, "--raft-port")) != null) {
+        if (dir.exists() && !dir.isDirectory())
+            throw new IllegalArgumentException(String.format("file \"%s\" is not a directory", dir));
+        final Config config = new Config(dir);
+        Optional.ofNullable(options.valueOf(this.identityOption))
+          .ifPresent(config.getRaft()::setIdentity);
+        Optional.ofNullable(options.valueOf(this.addressOption))
+          .ifPresent(address -> {
+            config.setAddress(TCPNetwork.parseAddressPart(address));
+            config.setPort(TCPNetwork.parsePortPart(address, config.getPort()));
+          });
+        Optional.ofNullable(options.valueOf(this.portOption))
+          .ifPresent(arg -> {
             final int port = TCPNetwork.parsePortPart("x:" + arg, -1);
             if (port == -1)
                 throw new IllegalArgumentException("invalid TCP port \"" + arg + "\"");
             config.setPort(port);
+          });
+        Optional.ofNullable(options.valueOf(this.minElectionTimeoutOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getRaft()::setMinElectionTimeout);
+        Optional.ofNullable(options.valueOf(this.maxElectionTimeoutOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getRaft()::setMaxElectionTimeout);
+        Optional.ofNullable(options.valueOf(this.heartbeatTimeoutOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getRaft()::setHeartbeatTimeout);
+        final File fallbackFile = options.valueOf(this.fallbackOption);
+        if (fallbackFile != null) {
+            if (fallbackFile.exists() && !fallbackFile.isFile())
+                throw new IllegalArgumentException(String.format("file \"%s\" is not a regular file", fallbackFile));
+            config.getFallback().setStateFile(fallbackFile);
         }
-        int value;
-        if ((value = this.parseMillisecondsOption(options, "min-election-timeout")) != -1)
-            config.getRaft().setMinElectionTimeout(value);
-        if ((value = this.parseMillisecondsOption(options, "max-election-timeout")) != -1)
-            config.getRaft().setMaxElectionTimeout(value);
-        if ((value = this.parseMillisecondsOption(options, "heartbeat-timeout")) != -1)
-            config.getRaft().setHeartbeatTimeout(value);
-        if ((value = this.parseMillisecondsOption(options, "fallback-check-interval")) != -1)
-            config.getFallbackTarget().setCheckInterval(value);
-        if ((value = this.parseMillisecondsOption(options, "fallback-check-timeout")) != -1)
-            config.getFallbackTarget().setTransactionTimeout(value);
-        if ((value = this.parseMillisecondsOption(options, "fallback-min-available")) != -1)
-            config.getFallbackTarget().setMinAvailableTime(value);
-        if ((value = this.parseMillisecondsOption(options, "fallback-min-unavailable")) != -1)
-            config.getFallbackTarget().setMinUnavailableTime(value);
-
-        // Raft fallback options
-        if ((arg = this.parseCommandLineOption(options, "--raft-fallback")) != null) {
-            final File stateFile = new File(arg);
-            if (stateFile.exists() && !stateFile.isFile())
-                throw new IllegalArgumentException("file \"" + arg + "\" is not a regular file");
-            config.getFallback().setStateFile(stateFile);
-        }
-        MergeStrategy mergeStrategy;
-        if ((mergeStrategy = this.parseMergeStrategy(options, "unavailable")) != null)
-            config.getFallbackTarget().setUnavailableMergeStrategy(mergeStrategy);
-        if ((mergeStrategy = this.parseMergeStrategy(options, "rejoin")) != null)
-            config.getFallbackTarget().setRejoinMergeStrategy(mergeStrategy);
-
-        // Done
+        Optional.ofNullable(options.valueOf(this.fallbackCheckIntervalOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getFallbackTarget()::setCheckInterval);
+        Optional.ofNullable(options.valueOf(this.fallbackCheckTimeoutOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getFallbackTarget()::setTransactionTimeout);
+        Optional.ofNullable(options.valueOf(this.fallbackMinAvailableOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getFallbackTarget()::setMinAvailableTime);
+        Optional.ofNullable(options.valueOf(this.fallbackMinUnavailableOption))
+          .map(this::parseMillisecondsOption)
+          .ifPresent(config.getFallbackTarget()::setMinUnavailableTime);
+        Optional.ofNullable(options.valueOf(this.fallbackUnavailableMergeOption))
+          .map(this::parseMergeStrategy)
+          .ifPresent(config.getFallbackTarget()::setUnavailableMergeStrategy);
+        Optional.ofNullable(options.valueOf(this.fallbackUnavailableRejoinOption))
+          .map(this::parseMergeStrategy)
+          .ifPresent(config.getFallbackTarget()::setRejoinMergeStrategy);
         return config;
     }
 
-    private MergeStrategy parseMergeStrategy(ArrayDeque<String> options, String name) {
-        final String className = this.parseCommandLineOption(options, "--raft-fallback-" + name + "-merge");
-        if (className == null)
-            return null;
+    private MergeStrategy parseMergeStrategy(String className) {
         try {
             return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance())
               .getConstructor().newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException("invalid Raft fallback merge strategy \"" + className + "\": " + e.getMessage(), e);
+            throw new IllegalArgumentException("invalid Raft fallback strategy class \"" + className + "\": " + e.getMessage(), e);
         }
     }
 
-    private int parseMillisecondsOption(ArrayDeque<String> options, String name) {
-        final String arg = this.parseCommandLineOption(options, "--raft-" + name);
-        if (arg == null)
-            return -1;
+    private int parseMillisecondsOption(String string) {
         try {
-            final int value = Integer.parseInt(arg, 10);
+            final int value = Integer.parseInt(string, 10);
             if (value < 0)
                 throw new NumberFormatException("value cannot be negative");
             return value;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("invalid milliseconds value \""
-              + arg + "\" for \"--raft-" + name + "\": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format("invalid milliseconds value \"%s\": %s", string, e.getMessage()), e);
         }
     }
 

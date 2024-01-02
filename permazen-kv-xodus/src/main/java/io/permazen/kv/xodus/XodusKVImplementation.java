@@ -12,31 +12,41 @@ import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
 import java.io.File;
-import java.util.ArrayDeque;
 
-public class XodusKVImplementation extends KVImplementation<XodusKVImplementation.Config> {
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
-    public XodusKVImplementation() {
-        super(Config.class);
+public class XodusKVImplementation implements KVImplementation<XodusKVImplementation.Config> {
+
+    private OptionSpec<File> directoryOption;
+    private OptionSpec<String> storeNameOption;
+
+    @Override
+    public void addOptions(OptionParser parser) {
+        Preconditions.checkArgument(parser != null, "null parser");
+        Preconditions.checkState(this.directoryOption == null, "duplicate option");
+        Preconditions.checkState(this.storeNameOption == null, "duplicate option");
+        this.directoryOption = parser.accepts("xodus", "Use Xodus key/value database in the specified directory")
+          .withRequiredArg()
+          .describedAs("directory")
+          .ofType(File.class);
+        this.storeNameOption = parser.accepts("xodus-store",
+            String.format("Specify Xodus store name (default \"%s\")", XodusKVDatabase.DEFAULT_STORE_NAME))
+          .availableIf(this.directoryOption)
+          .withRequiredArg()
+          .describedAs("store-name");
     }
 
     @Override
-    public String[][] getCommandLineOptions() {
-        return new String[][] {
-            { "--xodus directory",  "Use Xodus key/value database in the specified directory" },
-            { "--xodus-store name", "Specify Xodus store name (default \"" + XodusKVDatabase.DEFAULT_STORE_NAME + "\")" },
-        };
-    }
-
-    @Override
-    public Config parseCommandLineOptions(ArrayDeque<String> options) {
-        String arg = this.parseCommandLineOption(options, "--xodus");
-        if (arg == null)
+    public Config buildConfig(OptionSet options) {
+        final File dir = options.valueOf(this.directoryOption);
+        if (dir == null)
             return null;
-        final Config config = new Config();
-        config.setDirectory(new File(arg));
-        if ((arg = this.parseCommandLineOption(options, "--xodus-store")) != null)
-            config.setStoreName(arg);
+        if (dir.exists() && !dir.isDirectory())
+            throw new IllegalArgumentException(String.format("file \"%s\" is not a directory", dir));
+        final Config config = new Config(dir);
+        config.setStoreName(options.valueOf(this.storeNameOption));
         return config;
     }
 
@@ -59,11 +69,13 @@ public class XodusKVImplementation extends KVImplementation<XodusKVImplementatio
         private File directory;
         private String storeName;
 
+        public Config(File directory) {
+            Preconditions.checkArgument(directory != null, "null directory");
+            this.directory = directory;
+        }
+
         public File getDirectory() {
             return this.directory;
-        }
-        public void setDirectory(File directory) {
-            this.directory = directory;
         }
 
         public String getStoreName() {
@@ -74,7 +86,6 @@ public class XodusKVImplementation extends KVImplementation<XodusKVImplementatio
         }
 
         public void configure(XodusKVDatabase kvdb) {
-            Preconditions.checkArgument(this.directory != null, "Xodus directory must be specified via the `--xodus' flag");
             kvdb.setDirectory(this.directory);
             if (this.storeName != null)
                 kvdb.setStoreName(this.storeName);
