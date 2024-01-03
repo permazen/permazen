@@ -34,6 +34,8 @@ public class StringConvertedEncoding<T> extends AbstractEncoding<T> {
     private static final long serialVersionUID = -2432755812735736593L;
 
     private final StringEncoding stringType = new StringEncoding();
+
+    @SuppressWarnings("serial")
     private final Converter<T, String> converter;
 
 // Constructors

@@ -28,6 +28,7 @@ public class SpringXMLKVDatabase extends XMLKVDatabase {
 
     private static final long serialVersionUID = -4186155909343684572L;
 
+    @SuppressWarnings("serial")
     private Resource initialContentResource;
 
 // Constructors

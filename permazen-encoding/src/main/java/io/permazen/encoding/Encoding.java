@@ -17,6 +17,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.NaturalSortAware;
 import io.permazen.util.ParseContext;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -65,7 +66,7 @@ import java.util.Comparator;
  * @param <T> The associated Java type
  * @see EncodingRegistry
  */
-public interface Encoding<T> extends Comparator<T>, NaturalSortAware {
+public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializable {
 
     /**
      * The maximum number of supported array dimensions ({@value #MAX_ARRAY_DIMENSIONS}).

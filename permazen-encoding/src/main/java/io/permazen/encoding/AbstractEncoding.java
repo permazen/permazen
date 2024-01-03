@@ -27,6 +27,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     protected final EncodingId encodingId;
     protected final TypeToken<T> typeToken;
 
+    @SuppressWarnings("serial")
     private final T defaultValueObject;
 
     private transient byte[] defaultValue;

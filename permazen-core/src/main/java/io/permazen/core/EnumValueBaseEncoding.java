@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
  * <p>
  * Binary encoding is via the {@link UnsignedIntEncoder}-encoded {@linkplain EnumValue#getOrdinal ordinal} value.
  */
+@SuppressWarnings("serial")
 class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
 
     private static final long serialVersionUID = -5645700883023141035L;

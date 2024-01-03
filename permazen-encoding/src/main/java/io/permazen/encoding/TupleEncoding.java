@@ -13,6 +13,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.ParseContext;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
 
     private static final long serialVersionUID = 8691368371643936848L;
 
-    final List<Encoding<?>> encodings;
+    final ArrayList<Encoding<?>> encodings;
     final int size;
 
 // Constructors
@@ -50,7 +51,7 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     protected TupleEncoding(EncodingId encodingId, TypeToken<T> typeToken, Encoding<?>... encodings) {
         super(encodingId, typeToken, null);
         Preconditions.checkArgument(encodings != null, "null encodings");
-        this.encodings = Arrays.<Encoding<?>>asList(encodings);
+        this.encodings = new ArrayList<>(Arrays.<Encoding<?>>asList(encodings));
         this.size = this.encodings.size();
     }
 

@@ -87,6 +87,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     /**
      * The {@link KVStore} for the committed data.
      */
+    @SuppressWarnings("serial")
     protected final KVStore kv;
 
     protected /*final*/ transient Logger log = LoggerFactory.getLogger(this.getClass());

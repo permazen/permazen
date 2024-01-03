@@ -72,6 +72,7 @@ public class XMLKVDatabase extends MemoryKVDatabase {
 
     private static final long serialVersionUID = 5699298282473179002L;
 
+    @SuppressWarnings("serial")
     private /*final*/ StreamRepository repository;
     private final File file;
 
