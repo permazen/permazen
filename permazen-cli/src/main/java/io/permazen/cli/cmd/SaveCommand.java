@@ -54,7 +54,7 @@ public class SaveCommand extends AbstractCommand {
         return new SaveAction(nameFormat, weak, file);
     }
 
-    private static class SaveAction implements Session.Action, Session.RetryableAction, Session.HasTransactionOptions {
+    private static class SaveAction implements Session.RetryableTransactionalAction, Session.TransactionalActionWithOptions {
 
         private final boolean nameFormat;
         private final boolean weak;

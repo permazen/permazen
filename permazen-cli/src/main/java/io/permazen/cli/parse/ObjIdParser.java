@@ -79,7 +79,7 @@ public class ObjIdParser implements Parser<ObjId> {
           .addCompletions(ParseUtil.complete(finder.getCompletions(), param));
     }
 
-    private static class CompletionFinder implements Session.Action, Session.RetryableAction {
+    private static class CompletionFinder implements Session.RetryableTransactionalAction {
 
         private final ArrayList<String> completions = new ArrayList<>();
         private final ObjId min;

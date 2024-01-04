@@ -107,7 +107,7 @@ public class JsckCommand extends AbstractCommand {
           verbose, weak);
     }
 
-    private static class JsckAction implements Session.Action, Session.TransactionalAction, Session.HasTransactionOptions {
+    private static class JsckAction implements Session.TransactionalActionWithOptions {
 
         private final JsckConfig config;
 /*

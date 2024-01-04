@@ -45,7 +45,7 @@ public class LoadCommand extends AbstractCommand {
         return new LoadAction(file, reset);
     }
 
-    private static class LoadAction implements Session.Action, Session.RetryableAction {
+    private static class LoadAction implements Session.RetryableTransactionalAction {
 
         private final File file;
         private final boolean reset;

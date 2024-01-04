@@ -23,7 +23,7 @@ public abstract class AbstractTransactionRaftCommand extends AbstractRaftCommand
     }
 
     protected abstract class RaftTransactionAction extends RaftAction
-      implements Session.RetryableAction, Session.HasTransactionOptions {
+      implements Session.RetryableTransactionalAction, Session.TransactionalActionWithOptions {
 
         @Override
         public final void run(Session session, RaftKVDatabase db) throws Exception {

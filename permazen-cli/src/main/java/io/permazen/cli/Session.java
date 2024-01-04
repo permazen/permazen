@@ -312,7 +312,7 @@ public class Session {
     }
 
     /**
-     * Get the maximum number of allowed retries when a {@link RetryableAction} is given to
+     * Get the maximum number of allowed retries when a {@link RetryableTransactionalAction} is given to
      * {@link #performSessionAction performSessionAction()}.
      *
      * <p>
@@ -330,7 +330,7 @@ public class Session {
     }
 
     /**
-     * Get the initial retry delay when a {@link RetryableAction} is given to
+     * Get the initial retry delay when a {@link RetryableTransactionalAction} is given to
      * {@link #performSessionAction performSessionAction()}.
      *
      * <p>
@@ -348,7 +348,7 @@ public class Session {
     }
 
     /**
-     * Configure the maximum retry delay when a {@link RetryableAction} is given to
+     * Configure the maximum retry delay when a {@link RetryableTransactionalAction} is given to
      * {@link #performSessionAction performSessionAction()}.
      *
      * <p>
@@ -511,7 +511,7 @@ public class Session {
      * <p>
      * If {@code action} is a {@link TransactionalAction}, and there is no transaction currently associated with this instance,
      * a new transaction will be created, held open while {@code action} executes, then committed; any transaction options
-     * from {@code action} implementing {@link HasTransactionOptions} will be appied. Otherwise, {@code action}
+     * from {@code action} implementing {@link TransactionalActionWithOptions} will be appied. Otherwise, {@code action}
      * is just executed directly.
      *
      * <p>
@@ -523,8 +523,9 @@ public class Session {
      * executes and upon return.
      *
      * <p>
-     * If {@code action} is a {@link RetryableAction}, and a newly created transaction throws a {@link RetryTransactionException},
-     * it will be retried automatically up to the configured {@linkplain #getMaxRetries maximum number of retry attempts}.
+     * If {@code action} is a {@link RetryableTransactionalAction}, and a newly created transaction throws a
+     * {@link RetryTransactionException}, it will be retried automatically up to the configured
+     * {@linkplain #getMaxRetries maximum number of retry attempts}.
      * An exponential back-off algorithm is used: after the first failed attempt, the current thread sleeps for the
      * {@linkplain #getInitialRetryDelay initial retry delay}. After each subsequent failed attempt, the retry delay is doubled,
      * up to the limit imposed by the configured {@linkplain #getMaximumRetryDelay maximum retry delay}.
@@ -556,9 +557,9 @@ public class Session {
         // Retry transaction as necessary
         int retryNumber = 0;
         int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
-        final boolean shouldRetry = action instanceof RetryableAction;
-        final Map<String, ?> options = action instanceof HasTransactionOptions ?
-          ((HasTransactionOptions)action).getTransactionOptions() : null;
+        final boolean shouldRetry = action instanceof RetryableTransactionalAction;
+        final Map<String, ?> options = action instanceof TransactionalActionWithOptions ?
+          ((TransactionalActionWithOptions)action).getTransactionOptions() : null;
         while (true) {
 
             // If this is not the first attempt, sleep for a while before retrying
@@ -759,28 +760,28 @@ public class Session {
     }
 
     /**
-     * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
+     * Extension of {@link Action} that indicates the action requires an open transaction.
      *
      * <p>
      * A new transaction will be created if necessary before this action is executed.
      * If a transaction already exists, it will be (re)used.
      */
-    public interface TransactionalAction {
+    public interface TransactionalAction extends Action {
     }
 
     /**
-     * Tagging interface indicating a {@link TransactionalAction} that should be retried if a
+     * Extension of {@link TransactionalAction} that indicates the transaction should be retried if a
      * {@link RetryTransactionException} is thrown.
      */
-    public interface RetryableAction extends TransactionalAction {
+    public interface RetryableTransactionalAction extends TransactionalAction {
     }
 
     /**
-     * Interface implemented by {@link TransactionalAction}'s that want to provide custom transaction options.
+     * Extension of {@link TransactionalAction} that indicates the action provides custom transaction options.
      *
      * @see KVDatabase#createTransaction(Map) KVDatabase#createTransaction()
      */
-    public interface HasTransactionOptions extends TransactionalAction {
+    public interface TransactionalActionWithOptions extends TransactionalAction {
 
         /**
          * Get the options, if any, to be used when creating a new transaction for this action to run in.

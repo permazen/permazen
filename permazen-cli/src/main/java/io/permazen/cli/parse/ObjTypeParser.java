@@ -81,7 +81,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         }
     }
 
-    private class ParserAction implements Session.Action, Session.RetryableAction {
+    private class ParserAction implements Session.RetryableTransactionalAction {
 
         private final ParseContext ctx;
         private final boolean complete;

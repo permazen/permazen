@@ -66,7 +66,7 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
         session.performParseSessionAction((RetryableParseAction)session2 -> action.run());
     }
 
-    private interface RetryableParseAction extends ParseSession.Action, Session.RetryableAction {
+    private interface RetryableParseAction extends ParseSession.Action, Session.RetryableTransactionalAction {
     }
 
     @Override

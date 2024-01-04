@@ -32,7 +32,7 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
         return new DeleteSchemaAction(new SchemaId((String)params.get("schemaId")));
     }
 
-    private static class DeleteSchemaAction implements Session.Action, Session.TransactionalAction {
+    private static class DeleteSchemaAction implements Session.TransactionalAction {
 
         private final SchemaId schemaId;
 

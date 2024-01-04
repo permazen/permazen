@@ -294,7 +294,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         return decodes.toString();
     }
 
-    private static class DecodeKeyAction implements Session.Action, Session.RetryableAction {
+    private static class DecodeKeyAction implements Session.RetryableTransactionalAction {
 
         private final List<byte[]> bytesList;
 

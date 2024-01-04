@@ -39,7 +39,7 @@ public class KVPutCommand extends AbstractKVCommand {
         return new PutAction((byte[])params.get("key"), (byte[])params.get("value"));
     }
 
-    private static class PutAction implements Session.Action, Session.RetryableAction {
+    private static class PutAction implements Session.RetryableTransactionalAction {
 
         private final byte[] key;
         private final byte[] value;

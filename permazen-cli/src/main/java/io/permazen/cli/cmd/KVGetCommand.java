@@ -56,7 +56,7 @@ public class KVGetCommand extends AbstractKVCommand {
         return new GetAction(cstrings, range, novals, key, maxKey, limit);
     }
 
-    private static class GetAction implements Session.Action, Session.TransactionalAction {
+    private static class GetAction implements Session.TransactionalAction {
 
         private final boolean cstrings;
         private final boolean range;
