@@ -17,6 +17,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 /**
  * An immutable {@link NavigableMap} implementation optimized for read efficiency.
@@ -29,7 +30,7 @@ import java.util.Objects;
  * @param <V> value type
  */
 @SuppressWarnings("serial")
-public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
+public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> implements ConcurrentNavigableMap<K, V> {
 
     private final K[] keys;
     private final V[] vals;
@@ -170,7 +171,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
         return this.find(key);
     }
 
-// NavigableSet
+// NavigableMap
 
     @Override
     public Comparator<? super K> comparator() {
@@ -301,6 +302,67 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> {
             entries[i - this.minIndex] = this.createEntry(i);
         return new ImmutableNavigableSet<>(entries, Comparator.comparing(Map.Entry::getKey, this.actualComparator));
     }
+
+// ConcurrentNavigableMap
+
+    @Override
+    public V putIfAbsent(K key, V value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public V replace(K key, V value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+// Narrowing Overrides
+
+    @Override
+    public ImmutableNavigableMap<K, V> descendingMap() {
+        return (ImmutableNavigableMap<K, V>)super.descendingMap();
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> subMap(K minKey, K maxKey) {
+        return (ImmutableNavigableMap<K, V>)super.subMap(minKey, maxKey);
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> headMap(K maxKey) {
+        return (ImmutableNavigableMap<K, V>)super.headMap(maxKey);
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> tailMap(K minKey) {
+        return (ImmutableNavigableMap<K, V>)super.tailMap(minKey);
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> headMap(K newMaxKey, boolean inclusive) {
+        return (ImmutableNavigableMap<K, V>)super.headMap(newMaxKey, inclusive);
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> tailMap(K newMinKey, boolean inclusive) {
+        return (ImmutableNavigableMap<K, V>)super.tailMap(newMinKey, inclusive);
+    }
+
+    @Override
+    public ImmutableNavigableMap<K, V> subMap(K newMinKey, boolean minInclusive, K newMaxKey, boolean maxInclusive) {
+        return (ImmutableNavigableMap<K, V>)super.subMap(newMinKey, minInclusive, newMaxKey, maxInclusive);
+    }
+
+// AbstractNavigableMap
 
     @Override
     protected ImmutableNavigableMap<K, V> createSubMap(boolean reverse, Bounds<K> newBounds) {
