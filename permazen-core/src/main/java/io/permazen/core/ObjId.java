@@ -23,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
  * Object IDs. Instances identify individual {@link Database} objects.
  */
 @Immutable
-public class ObjId implements Comparable<ObjId>, Serializable {
+public final class ObjId implements Comparable<ObjId>, Serializable {
 
     /**
      * The number of bytes in the binary encoding of an {@link ObjId}.

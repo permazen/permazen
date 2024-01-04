@@ -57,6 +57,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
      * @param tx LMDB transaction
      * @throws IllegalArgumentException if {@code db} or {@code tx} is null
      */
+    @SuppressWarnings("this-escape")
     protected LMDBKVStore(Dbi<T> db, Txn<T> tx) {
         Preconditions.checkArgument(db != null, "null db");
         Preconditions.checkArgument(tx != null, "null tx");

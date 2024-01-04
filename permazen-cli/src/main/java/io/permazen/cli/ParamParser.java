@@ -39,6 +39,7 @@ public class ParamParser {
     private final ArrayList<Param> params = new ArrayList<>();
     private final EncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
 
+    @SuppressWarnings("this-escape")
     public ParamParser(String spec) {
         if (spec.length() > 0) {
             for (String pspec : spec.split("\\s+")) {
@@ -229,6 +230,7 @@ public class ParamParser {
         private final int min;
         private final int max;
 
+        @SuppressWarnings("this-escape")
         public Param(String spec) {
 
             // Sanity check

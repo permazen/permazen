@@ -109,6 +109,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * @param reverse true to iterate in a reverse direction, false to iterate in a forward direction
      * @throws IllegalArgumentException if {@code kv} is null
      */
+    @SuppressWarnings("this-escape")
     public KVPairIterator(KVStore kv, KeyRange keyRange, KeyFilter keyFilter, boolean reverse) {
         Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;

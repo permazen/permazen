@@ -39,6 +39,7 @@ public class AppendResponse extends Message {
      * @param matchIndex highest known matching log index
      * @param lastLogIndex index of follower's last log entry
      */
+    @SuppressWarnings("this-escape")
     public AppendResponse(int clusterId, String senderId, String recipientId, long term, Timestamp leaderTimestamp,
       boolean success, long matchIndex, long lastLogIndex) {
         super(Message.APPEND_RESPONSE_TYPE, clusterId, senderId, recipientId, term);

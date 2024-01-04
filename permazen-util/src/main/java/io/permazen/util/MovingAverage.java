@@ -37,6 +37,7 @@ public class MovingAverage {
      * @throws IllegalArgumentException if {@code alpha} is not a finite number in the range 0.0 to 1.0 (inclusive)
      * @throws IllegalArgumentException if {@code initialValue} is not a finite number
      */
+    @SuppressWarnings("this-escape")
     public MovingAverage(double alpha, double initialValue) {
         this(alpha);
         this.add(initialValue);

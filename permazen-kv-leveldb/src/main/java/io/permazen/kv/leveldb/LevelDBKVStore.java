@@ -59,6 +59,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
      * @param writeBatch batch for write operations, or null for none
      * @throws IllegalArgumentException if {@code db} is null
      */
+    @SuppressWarnings("this-escape")
     public LevelDBKVStore(DB db, ReadOptions readOptions, WriteBatch writeBatch) {
         Preconditions.checkArgument(db != null, "null db");
         this.db = db;

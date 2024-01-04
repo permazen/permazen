@@ -80,6 +80,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      * @param consistency transaction consistency level
      * @throws IllegalArgumentException if any paramter is null
      */
+    @SuppressWarnings("this-escape")
     protected SpannerKVTransaction(SpannerKVDatabase kvdb, DatabaseClient client, String tableName, TimestampBound consistency) {
         Preconditions.checkArgument(kvdb != null);
         Preconditions.checkArgument(client != null);

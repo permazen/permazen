@@ -41,6 +41,7 @@ public class InstallSnapshot extends Message {
      * @param lastChunk true if this is the last chunk in the snapshot
      * @param data encoded key/value pairs
      */
+    @SuppressWarnings("this-escape")
     public InstallSnapshot(int clusterId, String senderId, String recipientId, long term, long snapshotTerm,
       long snapshotIndex, long pairIndex, Map<String, String> snapshotConfig, boolean lastChunk, ByteBuffer data) {
         super(Message.INSTALL_SNAPSHOT_TYPE, clusterId, senderId, recipientId, term);

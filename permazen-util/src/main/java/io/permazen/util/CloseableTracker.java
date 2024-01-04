@@ -68,7 +68,9 @@ public class CloseableTracker implements Closeable {
      * Constructor.
      */
     public CloseableTracker() {
-        this.reset();
+        this.unclosedItems = new HashSet<>();
+        this.queue = new ReferenceQueue<>();
+        synchronized (this) { }
     }
 
 // Public API

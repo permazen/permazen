@@ -65,6 +65,7 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Ser
      * @throws NullPointerException if {@code map} is null
      * @throws IllegalArgumentException if {@code map} contains a null key
      */
+    @SuppressWarnings("this-escape")
     public ObjIdMap(Map<? extends ObjId, ? extends V> map) {
         this(map.size());
         for (Map.Entry<? extends ObjId, ? extends V> entry : map.entrySet())

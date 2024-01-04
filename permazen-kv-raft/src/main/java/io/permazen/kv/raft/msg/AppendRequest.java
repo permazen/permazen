@@ -72,6 +72,7 @@ public class AppendRequest extends Message {
      * @param logEntryTerm term of this log entry
      * @param mutationData log entry serialized mutations, or null if follower should have the data already
      */
+    @SuppressWarnings("this-escape")
     public AppendRequest(int clusterId, String senderId, String recipientId, long term, Timestamp leaderTimestamp,
       Timestamp leaderLeaseTimeout, long leaderCommit, long prevLogTerm, long prevLogIndex, long logEntryTerm,
       ByteBuffer mutationData) {

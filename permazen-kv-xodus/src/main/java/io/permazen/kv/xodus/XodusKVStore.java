@@ -73,6 +73,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
      * @param txType transaction type
      * @throws IllegalArgumentException if {@code env}, {@code storeName}, or {@code txType} is null
      */
+    @SuppressWarnings("this-escape")
     public XodusKVStore(Environment env, String storeName, boolean keyPrefixing, TransactionType txType) {
         Preconditions.checkArgument(env != null, "null env");
         Preconditions.checkArgument(storeName != null, "null storeName");

@@ -49,14 +49,15 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
      * Constructor.
      *
      * @param kvdb associated database
-     * @param waitTimeout wait timeout for this transaction
+     * @param timeout timeout for this transaction
      * @throws IllegalArgumentException if {@code kvdb} is null
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
-    protected SimpleKVTransaction(SimpleKVDatabase kvdb, long waitTimeout) {
+    protected SimpleKVTransaction(SimpleKVDatabase kvdb, long timeout) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.kvdb = kvdb;
-        this.setTimeout(waitTimeout);
+        this.waitTimeout = timeout;
     }
 
     @Override

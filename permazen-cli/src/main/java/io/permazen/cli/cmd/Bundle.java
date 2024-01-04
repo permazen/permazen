@@ -15,6 +15,7 @@ import org.dellroad.jct.core.simple.TreeMapBundle;
 @SuppressWarnings("serial")
 public class Bundle extends TreeMapBundle {
 
+    @SuppressWarnings("this-escape")
     public Bundle() {
         super("Permazen Commands");
         ServiceLoader.load(Command.class, ApplicationClassLoader.getInstance()).stream()

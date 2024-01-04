@@ -108,7 +108,7 @@ public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementat
         }
 
         public Config(URI uri) {
-            this.setJdbcUri(uri);
+            this.uri = uri;
         }
 
         public URI getJdbcUri() {

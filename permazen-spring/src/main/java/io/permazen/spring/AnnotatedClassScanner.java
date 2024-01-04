@@ -35,6 +35,7 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
      * @param annotationTypes type annotations to search for
      * @throws IllegalArgumentException if {@code annotationTypes} is null, empty, or contains any non-annotation types
      */
+    @SuppressWarnings("this-escape")
     public AnnotatedClassScanner(ClassLoader loader, Class<?>... annotationTypes) {
         super(AnnotatedClassScanner.initHack(true, annotationTypes));
         this.initializeResourceLoader(loader);
@@ -51,6 +52,7 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
      * @param annotationTypes type annotations to search for
      * @throws IllegalArgumentException if {@code annotationTypes} is null, empty, or contains any non-annotation types
      */
+    @SuppressWarnings("this-escape")
     public AnnotatedClassScanner(ClassLoader loader, boolean useDefaultFilters, Environment environment,
       Class<?>... annotationTypes) {
         super(AnnotatedClassScanner.initHack(useDefaultFilters, annotationTypes), environment);

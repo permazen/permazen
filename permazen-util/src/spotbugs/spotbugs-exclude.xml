@@ -20,4 +20,9 @@
         <Class name="io.permazen.util.ConvertedMapEntry"/>
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.util.CloseableTracker"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="ESync_EMPTY_SYNC"/>
+    </Match>
 </FindBugsFilter>

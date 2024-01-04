@@ -31,6 +31,7 @@ public class RequestVote extends Message {
      * @param lastLogTerm term of the sender's last log entry
      * @param lastLogIndex index of the sender's last log entry
      */
+    @SuppressWarnings("this-escape")
     public RequestVote(int clusterId, String senderId, String recipientId, long term, long lastLogTerm, long lastLogIndex) {
         super(Message.REQUEST_VOTE_TYPE, clusterId, senderId, recipientId, term);
         this.lastLogTerm = lastLogTerm;

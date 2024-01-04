@@ -132,6 +132,7 @@ public class Permazen {
     final HashSet<Integer> fieldsRequiringDefaultValidation = new HashSet<>();
     final HashMap<Integer, JSchemaItem> indexesByStorageId = new HashMap<>();       // contains REPRESENTATIVE schema items
     final HashMap<Tuple2<Integer, String>, JField> typeFieldMap = new HashMap<>();
+    @SuppressWarnings("this-escape")
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator;
     final ArrayList<ClassGenerator<?>> classGenerators;
@@ -151,6 +152,7 @@ public class Permazen {
     // Cached listener sets used by JTransaction.<init>()
     final Transaction.ListenerSet[] listenerSets = new Transaction.ListenerSet[4];
 
+    @SuppressWarnings("this-escape")
     private final LoadingCache<IndexQuery.Key, IndexQuery> indexQueryCache = CacheBuilder.newBuilder()
       .maximumSize(MAX_INDEX_QUERY_INFO_CACHE_SIZE)
       .build(CacheLoader.from(key -> key.getIndexQuery(this)));
@@ -165,6 +167,7 @@ public class Permazen {
      * @throws IllegalArgumentException if {@code config} is null
      * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
+    @SuppressWarnings("this-escape")
     public Permazen(PermazenConfig config) {
 
         // Initialize

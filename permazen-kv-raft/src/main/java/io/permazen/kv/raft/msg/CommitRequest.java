@@ -43,6 +43,7 @@ public class CommitRequest extends Message {
      * @param readsData keys read during the transaction
      * @param mutationData transaction mutations, or null for none (i.e., read only transaction)
      */
+    @SuppressWarnings("this-escape")
     public CommitRequest(int clusterId, String senderId, String recipientId, long term,
       long txId, long baseTerm, long baseIndex, ByteBuffer readsData, ByteBuffer mutationData) {
         super(Message.COMMIT_REQUEST_TYPE, clusterId, senderId, recipientId, term);

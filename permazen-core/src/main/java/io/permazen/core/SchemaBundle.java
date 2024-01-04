@@ -94,6 +94,7 @@ public class SchemaBundle {
      * @throws InconsistentDatabaseException if the encoded data is invalid
      * @throws IllegalArgumentException if either parameter is null
      */
+    @SuppressWarnings("this-escape")
     public SchemaBundle(Encoded encoded, EncodingRegistry encodingRegistry) {
 
         // Sanity check

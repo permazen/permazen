@@ -79,9 +79,15 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
 
 // Constructor
 
+    /**
+     * Constructor.
+     *
+     * <p>
+     * This constructor invokes {@link #initialize}.
+     */
+    @SuppressWarnings("this-escape")
     public DefaultEncodingRegistry() {
-        this.addBuiltinEncodings();
-        this.findCustomEncodingRegistries();
+        this.initialize();
 //        System.out.println("ENCODINGS BY ID:");
 //        new java.util.TreeMap<>(this.byId).forEach((k, v) -> System.out.println(String.format("    %-40s -> %s", k, v)));
 //        System.out.println("ENCODINGS BY TYPETOKEN:");
@@ -139,6 +145,18 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
     }
 
 // Internal Methods
+
+    /**
+     * Initialize this instance.
+     *
+     * <p>
+     * This method is invoked by the default constructor. The implementation in {@link DefaultEncodingRegistry}
+     * invokes {@link #addBuiltinEncodings} and then {@link #findCustomEncodingRegistries}.
+     */
+    protected void initialize() {
+        this.addBuiltinEncodings();
+        this.findCustomEncodingRegistries();
+    }
 
     /**
      * Register Permazen's built-in encodings.

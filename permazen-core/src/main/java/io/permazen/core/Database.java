@@ -149,7 +149,7 @@ public class Database {
     public Database(KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
-        this.setEncodingRegistry(new DefaultEncodingRegistry());
+        this.encodingRegistry = new DefaultEncodingRegistry();
     }
 
     /**

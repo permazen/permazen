@@ -25,6 +25,7 @@ public class PingRequest extends AbstractPingMessage {
      * @param term sender's current term
      * @param timestamp request timestamp
      */
+    @SuppressWarnings("this-escape")
     public PingRequest(int clusterId, String senderId, String recipientId, long term, Timestamp timestamp) {
         super(Message.PING_REQUEST_TYPE, clusterId, senderId, recipientId, term, timestamp);
         this.checkArguments();

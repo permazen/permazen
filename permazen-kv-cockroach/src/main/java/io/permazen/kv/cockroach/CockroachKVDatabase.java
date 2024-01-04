@@ -23,6 +23,7 @@ import java.sql.Statement;
  */
 public class CockroachKVDatabase extends SQLKVDatabase {
 
+    @SuppressWarnings("this-escape")
     public CockroachKVDatabase() {
         // https://forum.cockroachlabs.com/t/read-only-transactions-consistency-and-rollback/452
         this.setRollbackForReadOnly(false);

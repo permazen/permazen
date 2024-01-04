@@ -67,6 +67,7 @@ public class CommitResponse extends Message {
      * @param commitIndex transaction commit index
      * @param commitLeaderLeaseTimeout minimum leader lease time required for commit, or null for none
      */
+    @SuppressWarnings("this-escape")
     public CommitResponse(int clusterId, String senderId, String recipientId, long term,
       long txId, long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
         this(clusterId, senderId, recipientId, term, txId, commitTerm, commitIndex, commitLeaderLeaseTimeout, null);
@@ -82,6 +83,7 @@ public class CommitResponse extends Message {
      * @param txId recipient's original transaction ID
      * @param errorMessage failure error message
      */
+    @SuppressWarnings("this-escape")
     public CommitResponse(int clusterId, String senderId, String recipientId, long term, long txId, String errorMessage) {
         this(clusterId, senderId, recipientId, term, txId, 0, 0, null, errorMessage);
         Preconditions.checkArgument(errorMessage != null, "null errorMessage");

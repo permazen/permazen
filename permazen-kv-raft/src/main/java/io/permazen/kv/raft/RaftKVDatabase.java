@@ -458,6 +458,7 @@ public class RaftKVDatabase implements KVDatabase {
     @GuardedBy("this")
     long keyWatchIndex;                                                 // index of last log entry that triggered key watches
     @GuardedBy("this")
+    @SuppressWarnings("this-escape")
     final Log log = new Log(this);                                      // applied and unapplied log entries (empty if unconfigured)
 
     @GuardedBy("this")

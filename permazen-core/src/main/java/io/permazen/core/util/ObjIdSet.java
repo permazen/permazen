@@ -61,6 +61,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
      * @throws IllegalArgumentException if {@code ids} is null
      * @throws NullPointerException if any ID in {@code ids} is null
      */
+    @SuppressWarnings("this-escape")
     public ObjIdSet(Iterable<? extends ObjId> ids) {
         this(new LongSet());
         for (ObjId id : ids)

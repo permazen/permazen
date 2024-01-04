@@ -52,6 +52,7 @@ public class ValidationException extends DatabaseException {
      * @param message exception message
      * @param cause underlying cause, or null for none
      */
+    @SuppressWarnings("this-escape")
     public ValidationException(JObject jobj, String message, Throwable cause) {
         this(jobj, null, message);
         if (cause != null)

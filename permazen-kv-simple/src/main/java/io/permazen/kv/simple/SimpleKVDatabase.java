@@ -92,6 +92,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
     protected /*final*/ transient Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @SuppressWarnings("this-escape")
     private /*final*/ transient LockManager lockManager = new LockManager(this);
     private /*final*/ transient KeyWatchTracker keyWatchTracker;
 
@@ -125,9 +126,10 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      */
     public SimpleKVDatabase(KVStore kv, long waitTimeout, long holdTimeout) {
         Preconditions.checkArgument(kv != null, "null kv");
+        Preconditions.checkArgument(waitTimeout >= 0, "waitTimeout < 0");
         this.kv = kv;
-        this.setWaitTimeout(waitTimeout);
-        this.setHoldTimeout(holdTimeout);
+        this.waitTimeout = waitTimeout;
+        this.lockManager.setHoldTimeout(holdTimeout);
     }
 
 // Properties

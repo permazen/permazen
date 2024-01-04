@@ -53,6 +53,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @param ranges individual key ranges
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
      */
+    @SuppressWarnings("this-escape")
     public KeyRanges(Iterable<? extends KeyRange> ranges) {
         Preconditions.checkArgument(ranges != null, "null ranges");
         this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
@@ -74,6 +75,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @param ranges individual key ranges
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
      */
+    @SuppressWarnings("this-escape")
     public KeyRanges(Stream<? extends KeyRange> ranges) {
         Preconditions.checkArgument(ranges != null, "null ranges");
         this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
