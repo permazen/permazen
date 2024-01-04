@@ -1,2 +1,3 @@
 io.permazen.kv.simple.MemoryKVImplementation
+io.permazen.kv.simple.SimpleKVImplementation
 io.permazen.kv.simple.XMLKVImplementation
