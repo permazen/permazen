@@ -65,10 +65,15 @@ public class PermazenShell extends SimpleShell {
 // SimpleShell
 
     @Override
-    public final PermazenShellSession newExecSession(ShellRequest request, LineReader reader) throws IOException {
+    public PermazenShellSession newShellSession(ShellRequest request) throws IOException {
+        return (PermazenShellSession)super.newShellSession(request);
+    }
+
+    @Override
+    public final PermazenShellSession newShellSession(ShellRequest request, LineReader reader) throws IOException {
         final PermazenShellSession shellSession = this.createPermazenShellSession(request, reader);
-        final io.permazen.cli.Session session = this.createSession(shellSession);
-        shellSession.setPermazenSession(session);
+        if (shellSession.getPermazenSession() == null)
+            shellSession.setPermazenSession(this.createSession(shellSession));
         return shellSession;
     }
 

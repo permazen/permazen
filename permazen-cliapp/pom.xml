@@ -24,12 +24,12 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.dellroad</groupId>
-            <artifactId>java-console-toolkit-core</artifactId>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>org.dellroad</groupId>
-            <artifactId>java-console-toolkit-ssh</artifactId>
+            <artifactId>java-console-toolkit-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.dellroad</groupId>
@@ -40,15 +40,11 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
 
         <!-- Siblings -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-app</artifactId>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-main</artifactId>
@@ -61,5 +57,168 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-jsck</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-array</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-bdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-cockroach</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-fdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-leveldb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-lmdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-mssql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-mvstore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-raft</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-spanner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-sqlite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-xodus</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <!--
+                Make the JAR executable, and shade all dependencies into the JAR.
+                This way, ${java.class.path}, which will just be "permazen-cli.jar",
+                will contain all the dependencies and so when "permazen-cli.jar"
+                gets copied to JShell's class-path then JShell will see them.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+
+                                <!-- The commons-logging classes overlap with spring-jcl -->
+                                <excludes>
+                                    <exclude>commons-logging:commons-logging</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+
+                                <!-- Configure main entry point -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>io.permazen.cli.app.CliMain</mainClass>
+                                    <manifestEntries>
+                                        <Multi-Release>true</Multi-Release><!-- Because some of our dependencies use this -->
+                                    </manifestEntries>
+                                </transformer>
+
+                                <!-- Combine META-INF/services/some.class.name files so implementations don't get lost -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+
+                                <!-- Combine various properties files -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                    <resource>META-INF/spring.tooling</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                    <resource>META-INF/spring/aot.factories</resource>
+                                </transformer>
+                            </transformers>
+
+                            <!-- Filter out junk we don't need -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>LICENSE</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/DEPENDENCIES</exclude>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>META-INF/NOTICE.txt</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/license.txt</exclude>
+                                        <exclude>META-INF/notice.txt</exclude>
+                                        <exclude>META-INF/versions/*/module-info.class</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Build distribution ZIP file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/dist.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

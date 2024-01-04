@@ -1,9 +1,6 @@
 io.permazen.cli.cmd.CompareSchemasCommand
 io.permazen.cli.cmd.DecodeKeyCommand
-io.permazen.cli.cmd.DeleteSchemaVersionCommand
-io.permazen.cli.cmd.EvalCommand
-io.permazen.cli.cmd.HelpCommand
-io.permazen.cli.cmd.ImportCommand
+io.permazen.cli.cmd.DeleteSchemaCommand
 io.permazen.cli.cmd.InfoCommand
 io.permazen.cli.cmd.KVGetCommand
 io.permazen.cli.cmd.KVLoadCommand
@@ -11,16 +8,10 @@ io.permazen.cli.cmd.KVPutCommand
 io.permazen.cli.cmd.KVRemoveCommand
 io.permazen.cli.cmd.KVSaveCommand
 io.permazen.cli.cmd.LoadCommand
-io.permazen.cli.cmd.QuitCommand
-io.permazen.cli.cmd.RegisterCommandCommand
-io.permazen.cli.cmd.RegisterFunctionCommand
 io.permazen.cli.cmd.SaveCommand
 io.permazen.cli.cmd.SetAllowNewSchemaCommand
-io.permazen.cli.cmd.SetHistoryFileCommand
 io.permazen.cli.cmd.SetSessionModeCommand
 io.permazen.cli.cmd.SetValidationModeCommand
 io.permazen.cli.cmd.SetVerboseCommand
 io.permazen.cli.cmd.ShowAllSchemasCommand
-io.permazen.cli.cmd.ShowImportsCommand
 io.permazen.cli.cmd.ShowSchemaCommand
-io.permazen.cli.cmd.ShowVariablesCommand

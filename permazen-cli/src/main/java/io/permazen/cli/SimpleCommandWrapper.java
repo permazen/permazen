@@ -68,7 +68,7 @@ public class SimpleCommandWrapper implements SimpleCommand {
 
     @Override
     public int execute(ConsoleSession<?, ?> consoleSession, String name, List<String> args) throws InterruptedException {
-        final Session session = ((PermazenConsoleSession)consoleSession).getPermazenSession();
+        final Session session = ((HasPermazenSession)consoleSession).getPermazenSession();
         return this.command.execute(session, name, args);
     }
 }

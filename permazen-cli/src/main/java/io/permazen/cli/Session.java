@@ -73,6 +73,7 @@ public class Session {
     private ValidationMode validationMode;
     private String databaseDescription;
     private boolean allowNewSchema;
+    private boolean garbageCollectSchemas;
     private boolean readOnly;
 
     private KVTransaction kvt;
@@ -94,10 +95,10 @@ public class Session {
      *
      * @param consoleSession console session
      * @param kvdb key/value database
-     * @throws IllegalArgumentException if {@code kvdb} is null
+     * @throws IllegalArgumentException if either parameter is null
      */
     public Session(ConsoleSession<?, ?> consoleSession, KVDatabase kvdb) {
-        this(consoleSession, null, null, notNull(kvdb, "kvdb"));
+        this(consoleSession, null, null, Session.notNull(kvdb, "kvdb"));
     }
 
     /**
@@ -105,10 +106,10 @@ public class Session {
      *
      * @param consoleSession console session
      * @param db core database
-     * @throws IllegalArgumentException if {@code db} is null
+     * @throws IllegalArgumentException if either parameter is null
      */
     public Session(ConsoleSession<?, ?> consoleSession, Database db) {
-        this(consoleSession, null, notNull(db, "db"), db.getKVDatabase());
+        this(consoleSession, null, Session.notNull(db, "db"), db.getKVDatabase());
     }
 
     /**
@@ -116,14 +117,14 @@ public class Session {
      *
      * @param consoleSession console session
      * @param jdb database
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if either parameter is null
      */
     public Session(ConsoleSession<?, ?> consoleSession, Permazen jdb) {
-        this(consoleSession, notNull(jdb, "jdb"), jdb.getDatabase(), jdb.getDatabase().getKVDatabase());
+        this(consoleSession, Session.notNull(jdb, "jdb"), jdb.getDatabase(), jdb.getDatabase().getKVDatabase());
     }
 
     Session(ConsoleSession<?, ?> consoleSession, Permazen jdb, Database db, KVDatabase kvdb) {
-        this.consoleSession = notNull(consoleSession, "consoleSession");
+        this.consoleSession = Session.notNull(consoleSession, "consoleSession");
         this.mode = jdb != null ? SessionMode.PERMAZEN : db != null ? SessionMode.CORE_API : SessionMode.KEY_VALUE;
         this.jdb = jdb;
         this.db = db;
@@ -283,11 +284,11 @@ public class Session {
     }
 
     /**
-     * Get whether the recording of new schema versions should be allowed.
+     * Get whether the recording of new schemas should be allowed.
      * Default value is false.
      *
      * <p>
-     * In {@link SessionMode#KEY_VALUE}, this setting is ignored.
+     * This setting is ignored except in {@link SessionMode#CORE_API}.
      *
      * @return whether this session allows recording a new schema version
      */
@@ -296,6 +297,22 @@ public class Session {
     }
     public void setAllowNewSchema(boolean allowNewSchema) {
         this.allowNewSchema = allowNewSchema;
+    }
+
+    /**
+     * Get whether the garbage collection of old schemas is enabled.
+     * Default value is false.
+     *
+     * <p>
+     * This setting is ignored except in {@link SessionMode#CORE_API}.
+     *
+     * @return whether this session allows recording a new schema version
+     */
+    public boolean isGarbageCollectSchemas() {
+        return this.garbageCollectSchemas;
+    }
+    public void setGarbageCollectSchemas(boolean garbageCollectSchemas) {
+        this.garbageCollectSchemas = garbageCollectSchemas;
     }
 
     /**
@@ -557,7 +574,6 @@ public class Session {
         // Retry transaction as necessary
         int retryNumber = 0;
         int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
-        final boolean shouldRetry = action instanceof RetryableTransactionalAction;
         final Map<String, ?> options = action instanceof TransactionalActionWithOptions ?
           ((TransactionalActionWithOptions)action).getTransactionOptions() : null;
         while (true) {
@@ -569,16 +585,19 @@ public class Session {
             }
 
             // Perform transactional action within a newly created transaction
+            boolean shouldRetry = false;
             try {
                 if (!this.openTransaction(options))
                     return false;
                 boolean success = false;
                 this.rollbackOnly = false;
                 try {
+                    shouldRetry = action instanceof RetryableTransactionalAction;
                     action.run(this);
+                    shouldRetry = false;
                     success = true;
                 } finally {
-                    success &= this.closeTransaction(success && !this.rollbackOnly);
+                    this.closeTransaction(success && !this.rollbackOnly);
                 }
                 return success;
             } catch (InterruptedException e) {
@@ -613,7 +632,13 @@ public class Session {
         this.rollbackOnly = true;
     }
 
-    private boolean openTransaction(Map<String, ?> options) {
+    /**
+     * Open a transaction.
+     *
+     * <p>
+     * For experts only.
+     */
+    public boolean openTransaction(Map<String, ?> options) throws Exception {
         final SessionMode currentMode = this.mode;
         boolean success = false;
         try {
@@ -630,6 +655,7 @@ public class Session {
                 this.tx = TransactionConfig.builder()
                   .schemaModel(this.schemaModel)
                   .allowNewSchema(this.allowNewSchema)
+                  .garbageCollectSchemas(this.garbageCollectSchemas)
                   .kvOptions(options)
                   .build()
                   .newTransaction(this.db);
@@ -663,8 +689,6 @@ public class Session {
 
             // OK
             success = true;
-        } catch (Exception e) {
-            this.reportException(e);
         } finally {
             if (!success)
                 this.cleanupTx(currentMode);
@@ -674,7 +698,13 @@ public class Session {
         return success;
     }
 
-    private boolean closeTransaction(boolean commit) {
+    /**
+     * Close a transaction.
+     *
+     * <p>
+     * For experts only.
+     */
+    public void closeTransaction(boolean commit) throws Exception {
         final SessionMode currentMode = this.mode;
         try {
             Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
@@ -701,10 +731,6 @@ public class Session {
                 assert false;
                 break;
             }
-            return true;
-        } catch (Exception e) {
-            this.reportException(e);
-            return false;
         } finally {
             this.cleanupTx(currentMode);
         }

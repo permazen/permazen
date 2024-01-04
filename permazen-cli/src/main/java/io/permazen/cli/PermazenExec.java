@@ -63,6 +63,11 @@ public class PermazenExec extends SimpleExec {
 // SimpleExec
 
     @Override
+    public PermazenExecSession newExecSession(ExecRequest request) throws IOException {
+        return (PermazenExecSession)super.newExecSession(request);
+    }
+
+    @Override
     public final PermazenExecSession newExecSession(ExecRequest request, FoundCommand command) throws IOException {
         final PermazenExecSession execSession = this.createPermazenExecSession(request, command);
         final io.permazen.cli.Session session = this.createSession(execSession);

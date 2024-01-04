@@ -3,4 +3,9 @@
         <Class name="~.*"/>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.cli.jshell.PermazenJShellShellSession"/>
+        <Method name="removeIfTemporary"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
 </FindBugsFilter>

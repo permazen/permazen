@@ -5,6 +5,8 @@
 
 package io.permazen.cli;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 
 import org.dellroad.jct.core.ExecRequest;
@@ -13,7 +15,7 @@ import org.dellroad.jct.core.simple.SimpleExec;
 /**
  * A {@link SimpleExec.Session} with an associated Permazen database.
  */
-public class PermazenExecSession extends SimpleExec.Session implements PermazenConsoleSession {
+public class PermazenExecSession extends SimpleExec.Session implements HasPermazenSession {
 
     protected Session session;
 
@@ -21,6 +23,7 @@ public class PermazenExecSession extends SimpleExec.Session implements PermazenC
 
     public PermazenExecSession(PermazenExec exec, ExecRequest request, SimpleExec.FoundCommand command) throws IOException {
         super(exec, request, command);
+        // Maybe: this.session = ((PermazenExecRequest)request).getPermazenSession() ?
     }
 
 // AbstractConsoleSession
@@ -30,15 +33,14 @@ public class PermazenExecSession extends SimpleExec.Session implements PermazenC
         return (PermazenExec)super.getOwner();
     }
 
-// PermazenConsoleSession
+// HasPermazenSession
 
     @Override
     public Session getPermazenSession() {
         return this.session;
     }
     void setPermazenSession(Session session) {
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(session != null, "null session");
         this.session = session;
     }
 }

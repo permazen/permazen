@@ -10,10 +10,10 @@ import io.permazen.schema.SchemaId;
 
 import java.util.Map;
 
-public class DeleteSchemaVersionCommand extends AbstractCommand {
+public class DeleteSchemaCommand extends AbstractCommand {
 
-    public DeleteSchemaVersionCommand() {
-        super("delete-schema-version schemaId");
+    public DeleteSchemaCommand() {
+        super("delete-schema schemaId");
     }
 
     @Override
@@ -23,8 +23,8 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "This command deletes a schema version recorded in the database. The schema version must not be the"
-          + " currently configured schema version and there must not be any objects having that version in the database";
+        return "This command removes a recorded schema from the database. The schema version must not be the"
+          + " currently configured schema, and there must not be any objects in the schema remaining in the database";
     }
 
     @Override

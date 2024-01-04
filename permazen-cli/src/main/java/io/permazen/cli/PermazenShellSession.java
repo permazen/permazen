@@ -5,6 +5,8 @@
 
 package io.permazen.cli;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 
 import org.dellroad.jct.core.ShellRequest;
@@ -15,7 +17,7 @@ import org.jline.reader.LineReader;
 /**
  * A {@link ShellSession} that with an associated Permazen database.
  */
-public class PermazenShellSession extends SimpleShell.Session implements PermazenConsoleSession {
+public class PermazenShellSession extends SimpleShell.Session implements HasPermazenSession {
 
     protected Session session;
 
@@ -23,6 +25,7 @@ public class PermazenShellSession extends SimpleShell.Session implements Permaze
 
     public PermazenShellSession(PermazenShell shell, ShellRequest request, LineReader reader) throws IOException {
         super(shell, request, reader);
+        // Maybe: this.session = ((PermazenShellRequest)request).getPermazenSession() ?
     }
 
 // AbstractConsoleSession
@@ -36,18 +39,21 @@ public class PermazenShellSession extends SimpleShell.Session implements Permaze
 
     @Override
     public String getGreeting() {
-        return String.format("Welcome to Permazen. You are in %s mode.", this.session.getMode());
+        String greeting = "Welcome to Permazen.";
+        final SessionMode mode = this.session.getMode();
+        if (!mode.equals(SessionMode.PERMAZEN))
+            greeting += String.format(" You are in %s mode.", mode);
+        return String.format("%n%s%n", greeting);
     }
 
-// PermazenConsoleSession
+// HasPermazenSession
 
     @Override
     public Session getPermazenSession() {
         return this.session;
     }
     void setPermazenSession(Session session) {
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(session != null, "null session");
         this.session = session;
     }
 }

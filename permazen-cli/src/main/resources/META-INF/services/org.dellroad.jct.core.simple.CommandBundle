@@ -1,0 +1,8 @@
+# java-console-toolkit simple commands like "echo", "date", etc.
+org.dellroad.jct.core.simple.command.Bundle
+
+# java-console-toolkit "jshell" command
+org.dellroad.jct.jshell.command.Bundle
+
+# Permazen command bundle
+io.permazen.cli.cmd.Bundle
