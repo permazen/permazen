@@ -29,7 +29,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaItem;
 import io.permazen.schema.SchemaModel;
@@ -506,7 +506,7 @@ public class Permazen {
     }
 
     /**
-     * Create a new, empty {@link DetachedJTransaction} backed by a {@link NavigableMapKVStore}.
+     * Create a new, empty {@link DetachedJTransaction} backed by a {@link MemoryKVStore}.
      *
      * <p>
      * The returned {@link DetachedJTransaction} does not support {@link DetachedJTransaction#commit commit()} or
@@ -516,7 +516,7 @@ public class Permazen {
      * @return initially empty detached transaction
      */
     public DetachedJTransaction createDetachedTransaction(ValidationMode validationMode) {
-        return this.createDetachedTransaction(new NavigableMapKVStore(), validationMode);
+        return this.createDetachedTransaction(new MemoryKVStore(), validationMode);
     }
 
     /**

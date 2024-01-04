@@ -17,20 +17,25 @@ import io.permazen.util.CloseableIterator;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides a {@link KVStore} view of an underlying
- * {@link ConcurrentSkipListMap NavigableMap&lt;byte[], byte[]&gt;} whose keys are sorted lexicographically as unsigned bytes.
+ * Provides a {@link KVStore} view of an underlying {@link ConcurrentNavigableMap ConcurrentNavigableMap&lt;byte[], byte[]&gt;}
+ * whose keys are sorted lexicographically as unsigned bytes.
+ *
+ * <p>
+ * Implementaions are serializable if the underlying map is.
  */
 @ThreadSafe
-public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, Serializable {
+public class MemoryKVStore extends AbstractKVStore implements Cloneable, Serializable {
 
     private static final long serialVersionUID = -8112493152056118516L;
 
-    private /*final*/ ConcurrentSkipListMap<byte[], byte[]> map;
+    @SuppressWarnings("serial")
+    protected /*final*/ ConcurrentNavigableMap<byte[], byte[]> map;
 
     /**
      * Convenience constructor. Uses an internally constructed {@link ConcurrentSkipListMap}.
@@ -38,12 +43,12 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      * <p>
      * Equivalent to:
      * <blockquote><pre>
-     * NavigableMapKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
+     * MemoryKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
      * </pre></blockquote>
      *
      * @see ByteUtil#COMPARATOR
      */
-    public NavigableMapKVStore() {
+    public MemoryKVStore() {
         this(new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR));
     }
 
@@ -58,7 +63,7 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
      * @throws IllegalArgumentException if an invalid comparator is detected (this check is not reliable)
      * @see ByteUtil#COMPARATOR
      */
-    public NavigableMapKVStore(ConcurrentSkipListMap<byte[], byte[]> map) {
+    public MemoryKVStore(ConcurrentNavigableMap<byte[], byte[]> map) {
         Preconditions.checkArgument(map != null, "null map");
         Preconditions.checkArgument(map.comparator() != null
           && map.comparator().compare(ByteUtil.parse("00"), ByteUtil.parse("ff")) < 0, "invalid comparator");
@@ -66,21 +71,12 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
     }
 
     /**
-     * Get the underlying {@link NavigableMap} used by this instance.
+     * Get the underlying {@link ConcurrentNavigableMap} used by this instance.
      *
      * @return the underlying map
      */
-    public ConcurrentSkipListMap<byte[], byte[]> getNavigableMap() {
+    public ConcurrentNavigableMap<byte[], byte[]> getNavigableMap() {
         return this.map;
-    }
-
-    /**
-     * Get the number of key/value pairs in this instance.
-     *
-     * @return size of this instance
-     */
-    public int size() {
-        return this.map.size();
     }
 
 // KVStore
@@ -150,14 +146,17 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
 // Cloneable
 
     @Override
-    public NavigableMapKVStore clone() {
-        final NavigableMapKVStore clone;
+    public MemoryKVStore clone() {
+        final MemoryKVStore clone;
         try {
-            clone = (NavigableMapKVStore)super.clone();
+            clone = (MemoryKVStore)super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.map = this.map.clone();
+        if (clone.map instanceof ConcurrentSkipListMap)
+            clone.map = ((ConcurrentSkipListMap<byte[], byte[]>)clone.map).clone();
+        else
+            clone.map = new ConcurrentSkipListMap<>(clone.map);
         return clone;
     }
 }

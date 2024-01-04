@@ -15,7 +15,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ByteReader;
@@ -673,7 +673,7 @@ public class Transaction {
      * @see Database#createDetachedTransaction Database.createDetachedTransaction()
      */
     public synchronized DetachedTransaction createDetachedTransaction() {
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        final MemoryKVStore kvstore = new MemoryKVStore();
         Layout.copyMetaData(this.kvt, kvstore);
         return new DetachedTransaction(this.db, kvstore, this.schema);
     }

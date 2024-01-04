@@ -24,7 +24,7 @@ public class XMLSerializerTest extends TestSupport {
     @Test
     public void testXMLSerializer() throws Exception {
 
-        final ConcurrentSkipListMap<byte[], byte[]> data1 = new NavigableMapKVStore().getNavigableMap();
+        final ConcurrentSkipListMap<byte[], byte[]> data1 = new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR);
 
         data1.put(b("8901"), b(""));
         data1.put(b("0123"), b("4567"));
@@ -52,10 +52,10 @@ public class XMLSerializerTest extends TestSupport {
         final String expectedNodent = expectedIndent.replaceAll(">\\s+", ">");
 
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        new XMLSerializer(new NavigableMapKVStore(data1)).write(buf, true);
+        new XMLSerializer(new MemoryKVStore(data1)).write(buf, true);
         final byte[] xmlIndent = buf.toByteArray();
         buf.reset();
-        new XMLSerializer(new NavigableMapKVStore(data1)).write(buf, false);
+        new XMLSerializer(new MemoryKVStore(data1)).write(buf, false);
         final byte[] xmlNodent = buf.toByteArray();
 
         final String actualIndent = new String(xmlIndent);
@@ -64,12 +64,12 @@ public class XMLSerializerTest extends TestSupport {
         Assert.assertEquals(actualIndent, expectedIndent);
         Assert.assertEquals(actualNodent, expectedNodent);
 
-        final ConcurrentSkipListMap<byte[], byte[]> data2 = new NavigableMapKVStore().getNavigableMap();
-        new XMLSerializer(new NavigableMapKVStore(data2)).read(new ByteArrayInputStream(xmlIndent));
+        final ConcurrentSkipListMap<byte[], byte[]> data2 = new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR);
+        new XMLSerializer(new MemoryKVStore(data2)).read(new ByteArrayInputStream(xmlIndent));
         Assert.assertEquals(s(data1), s(data2));
 
         data2.clear();
-        new XMLSerializer(new NavigableMapKVStore(data2)).read(new ByteArrayInputStream(xmlNodent));
+        new XMLSerializer(new MemoryKVStore(data2)).read(new ByteArrayInputStream(xmlNodent));
         Assert.assertEquals(s(data1), s(data2));
     }
 

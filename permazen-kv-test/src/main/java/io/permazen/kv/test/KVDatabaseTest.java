@@ -16,7 +16,7 @@ import io.permazen.kv.StaleTransactionException;
 import io.permazen.kv.TransactionTimeoutException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -759,7 +759,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Create some mutations
         final RandomTask task = new RandomTask(0, store, this.random.nextLong());
-        final MutableView mutableView = new MutableView(new NavigableMapKVStore());
+        final MutableView mutableView = new MutableView(new MemoryKVStore());
         final Mutations mutations = mutableView.getWrites();
         task.performRandomAccess(mutableView);
 

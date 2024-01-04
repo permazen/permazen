@@ -17,7 +17,7 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -138,10 +138,10 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
 
         // Build copy
         CloseableKVStore kvstore;
-        if (this.kvdb.kv instanceof NavigableMapKVStore) {
-            final NavigableMapKVStore kv;
+        if (this.kvdb.kv instanceof MemoryKVStore) {
+            final MemoryKVStore kv;
             synchronized (this.kvdb) {
-                kv = ((NavigableMapKVStore)this.kvdb.kv).clone();
+                kv = ((MemoryKVStore)this.kvdb.kv).clone();
             }
             kvstore = new CloseableForwardingKVStore(kv.clone());
         } else if (this.kvdb.kv instanceof AtomicKVStore) {

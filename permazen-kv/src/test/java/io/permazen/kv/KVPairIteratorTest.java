@@ -8,7 +8,7 @@ package io.permazen.kv;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class KVPairIteratorTest extends KeyRangeTestSupport {
 
         // Fill KV store with data
         final Function<byte[], KVPair> pairer = value -> new KVPair(value, value);
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final MemoryKVStore kv = new MemoryKVStore();
         for (byte[] ba : data)
             kv.put(ba, ba);
 
@@ -104,7 +104,7 @@ public class KVPairIteratorTest extends KeyRangeTestSupport {
 
     @Test
     public void testNextTarget() throws Exception {
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final MemoryKVStore kv = new MemoryKVStore();
         kv.put(b(""), b("33"));
         kv.put(b("0fffff"), b("abcd"));
         kv.put(b("10"), b("aa"));

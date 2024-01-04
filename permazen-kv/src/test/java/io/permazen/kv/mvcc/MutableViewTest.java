@@ -11,7 +11,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
@@ -78,7 +78,7 @@ public class MutableViewTest extends TestSupport {
 
     @Test
     public void testReadTracking() throws Exception {
-        final KVStore kvstore = new NavigableMapKVStore();
+        final KVStore kvstore = new MemoryKVStore();
         final MutableView mv = new MutableView(kvstore);
 
         // Define three key ranges
@@ -109,8 +109,8 @@ public class MutableViewTest extends TestSupport {
 
     @Test
     public void testRandomWrites() throws Exception {
-        KVStore kvstore = new NavigableMapKVStore();
-        KVStore expected = new NavigableMapKVStore();
+        KVStore kvstore = new MemoryKVStore();
+        KVStore expected = new MemoryKVStore();
         MutableView mv = new MutableView(kvstore);
         for (int i = 0; i < 100000; i++) {
 
@@ -181,7 +181,7 @@ public class MutableViewTest extends TestSupport {
     @Test
     public void testClone() throws Exception {
 
-        final MutableView view = new MutableView(new NavigableMapKVStore());
+        final MutableView view = new MutableView(new MemoryKVStore());
         view.getWrites().getRemoves().add(KeyRanges.forPrefix(b("3311")));
 
         final MutableView view2 = new MutableView(view.getKVStore(), view.getWrites().readOnlySnapshot());
@@ -216,7 +216,7 @@ public class MutableViewTest extends TestSupport {
     public void testConflict(List<Access> access1, List<Access> access2, boolean expected) {
 
         // Set up KVStore
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final MemoryKVStore kv = new MemoryKVStore();
         this.setup(kv);
 
         // Create views

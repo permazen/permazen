@@ -8,7 +8,7 @@ package io.permazen.kv.array;
 import com.google.common.collect.Lists;
 
 import io.permazen.kv.mvcc.MutableView;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
 
@@ -24,7 +24,7 @@ public class WriteMergedTest extends TestSupport {
     private void testWriteMerged() throws Exception {
 
         // Setup k/v store
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        final MemoryKVStore kvstore = new MemoryKVStore();
         kvstore.put(ByteUtil.parse("0001"), ByteUtil.parse("aaaa"));
         kvstore.put(ByteUtil.parse("000101"), ByteUtil.parse("bbbb"));
         kvstore.put(ByteUtil.parse("000102"), ByteUtil.parse("cccc"));

@@ -27,7 +27,7 @@ public class KeyListEncoderTest extends TestSupport {
         for (int count = 0; count < 1000; count++) {
 
             // Populate k/v store with random data
-            final NavigableMapKVStore original = new NavigableMapKVStore();
+            final MemoryKVStore original = new MemoryKVStore();
             for (int j = 0; j < this.random.nextInt(100); j++) {
                 final byte[] key = this.rb(1 << this.random.nextInt(6));
                 final byte[] val = this.rb(1 << this.random.nextInt(12));
@@ -43,7 +43,7 @@ public class KeyListEncoderTest extends TestSupport {
             Assert.assertEquals(buf.size(), length);
 
             // Decode
-            final NavigableMapKVStore copy = new NavigableMapKVStore();
+            final MemoryKVStore copy = new MemoryKVStore();
             for (Iterator<KVPair> i = KeyListEncoder.readPairs(new ByteArrayInputStream(buf.toByteArray())); i.hasNext(); ) {
                 final KVPair kv = i.next();
                 copy.put(kv.getKey(), kv.getValue());

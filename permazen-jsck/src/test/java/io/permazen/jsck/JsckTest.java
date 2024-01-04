@@ -22,7 +22,7 @@ import io.permazen.core.ObjId;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.test.KVTestSupport;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 
@@ -55,7 +55,7 @@ public class JsckTest extends KVTestSupport {
     }
 
     @Test(dataProvider = "cases")
-    public void testJsck(int index, JsckConfig config, NavigableMapKVStore actual, NavigableMapKVStore expected,
+    public void testJsck(int index, JsckConfig config, MemoryKVStore actual, MemoryKVStore expected,
       Iterable<? extends Consumer<? super KVStore>> mutations) {
         this.mutateAndCompare(config, true, actual, expected, mutations);
     }
@@ -64,8 +64,8 @@ public class JsckTest extends KVTestSupport {
     public void testRepairIndexes() throws Exception {
 
         // Setup db
-        final NavigableMapKVStore actual = this.populate();
-        final NavigableMapKVStore expected = actual.clone();
+        final MemoryKVStore actual = this.populate();
+        final MemoryKVStore expected = actual.clone();
 
         // Remove all index information
         final ArrayList<Consumer<? super KVStore>> mutations = new ArrayList<>();
@@ -84,7 +84,7 @@ public class JsckTest extends KVTestSupport {
     public void testDeletedReference() throws Exception {
 
         // Setup db
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final MemoryKVStore kv = new MemoryKVStore();
         final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
@@ -111,11 +111,11 @@ public class JsckTest extends KVTestSupport {
         kv.remove(Layout.buildSchemaIndexKey(deletedId, deletedSchemaIndex));
 
         // Prepare KV's
-        final NavigableMapKVStore damaged = kv.clone();
+        final MemoryKVStore damaged = kv.clone();
         p1.setSpouse(null);
         p1.getAmountOwed().remove(deleted);
         p3.getFriends().remove(1);
-        final NavigableMapKVStore repaired = kv.clone();
+        final MemoryKVStore repaired = kv.clone();
 
         // Test repair - dangling references to deleted should get cleaned up
         this.repairAndCompare(this.getConfig(true), damaged, repaired);
@@ -123,7 +123,7 @@ public class JsckTest extends KVTestSupport {
 
     @Test
     public void testSchemaCompat() throws Exception {
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final MemoryKVStore kv = new MemoryKVStore();
         final Permazen refsDB = PermazenConfig.builder()
           .modelClasses(Refs1.class, Refs2.class, Person.class, Pet.class)
           .build()
@@ -152,7 +152,7 @@ public class JsckTest extends KVTestSupport {
         this.repairAndCompare(this.getConfig(true), kv.clone(), kv.clone());
     }
 
-    private void mutateAndCompare(JsckConfig config, boolean repair, NavigableMapKVStore actual, NavigableMapKVStore expected,
+    private void mutateAndCompare(JsckConfig config, boolean repair, MemoryKVStore actual, MemoryKVStore expected,
       Iterable<? extends Consumer<? super KVStore>> mutations) {
 
         // Apply mutations
@@ -174,7 +174,7 @@ public class JsckTest extends KVTestSupport {
         assert diff == null : "Difference in resulting XML:\n" + diff;
     }
 
-    private void repairAndCompare(JsckConfig config, NavigableMapKVStore damaged, NavigableMapKVStore repaired) {
+    private void repairAndCompare(JsckConfig config, MemoryKVStore damaged, MemoryKVStore repaired) {
 
         // Run checker
         final Jsck jsck = new Jsck(config);
@@ -190,8 +190,8 @@ public class JsckTest extends KVTestSupport {
         assert diff == null : "Difference in resulting XML:\n" + diff;
     }
 
-    private NavigableMapKVStore populate() {
-        final NavigableMapKVStore kv = new NavigableMapKVStore();
+    private MemoryKVStore populate() {
+        final MemoryKVStore kv = new MemoryKVStore();
         this.populate(kv);
         return kv;
     }
@@ -200,7 +200,7 @@ public class JsckTest extends KVTestSupport {
     public Object[][] genCases() {
 
         // Populate starting db
-        final NavigableMapKVStore base = this.populate();
+        final MemoryKVStore base = this.populate();
         //this.showKV(base, "BASE CONTENT");
 
         // Setup
@@ -223,8 +223,8 @@ public class JsckTest extends KVTestSupport {
         Encodings.UNSIGNED_INT.write(versionPrefixWriter, SNAPSHOT_SCHEMA_INDEX);
         final byte[] versionPrefix = versionPrefixWriter.getBytes();
         for (int i = 0; i < 1; i++) {
-            final NavigableMapKVStore before = base.clone();
-            final NavigableMapKVStore after = base.clone();
+            final MemoryKVStore before = base.clone();
+            final MemoryKVStore after = base.clone();
             final ArrayList<Consumer<KVStore>> mutations = new ArrayList<>(40);
             for (int j = 0; j < 40; j++) {
                 final byte[] key = this.randomBytes(0, 20, false);
@@ -262,7 +262,7 @@ public class JsckTest extends KVTestSupport {
         return list.toArray(new Object[list.size()][]);
     }
 
-    private void copy(NavigableMapKVStore from, NavigableMapKVStore to) {
+    private void copy(MemoryKVStore from, MemoryKVStore to) {
         to.getNavigableMap().clear();
         to.getNavigableMap().putAll(from.getNavigableMap());
     }
@@ -274,7 +274,7 @@ public class JsckTest extends KVTestSupport {
         return config;
     }
 
-    private void populate(NavigableMapKVStore kv) {
+    private void populate(MemoryKVStore kv) {
 
         final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 

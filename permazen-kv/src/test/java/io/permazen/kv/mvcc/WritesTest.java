@@ -9,7 +9,7 @@ import com.google.common.base.Converter;
 
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
@@ -73,7 +73,7 @@ public class WritesTest extends TestSupport {
     public void testMutations() throws Exception {
 
         // Create store
-        final NavigableMapKVStore beforeMutations = new NavigableMapKVStore();
+        final MemoryKVStore beforeMutations = new MemoryKVStore();
         beforeMutations.put(b("01"), b("1234"));
         beforeMutations.put(b("02"), b("5555"));
         beforeMutations.put(b("33"), b("38"));
@@ -105,7 +105,7 @@ public class WritesTest extends TestSupport {
         writes.getAdjusts().put(b("62"), -19L);
 
         // Get expected result
-        final NavigableMapKVStore afterMutations = new NavigableMapKVStore();
+        final MemoryKVStore afterMutations = new MemoryKVStore();
 
         // After removes...
         afterMutations.put(b("02"), b("5555"));
@@ -125,7 +125,7 @@ public class WritesTest extends TestSupport {
         afterMutations.put(b("62"), afterMutations.encodeCounter(12345L - 19L));
 
         // Apply mutations and check result
-        final NavigableMapKVStore kv1 = new NavigableMapKVStore();
+        final MemoryKVStore kv1 = new MemoryKVStore();
         kv1.getNavigableMap().putAll(beforeMutations.getNavigableMap());
         writes.applyTo(kv1);
         this.compare(kv1, afterMutations);
@@ -135,7 +135,7 @@ public class WritesTest extends TestSupport {
         writes.serialize(output);
         final ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
         final Writes writes2 = Writes.deserialize(input);
-        final NavigableMapKVStore kv2 = new NavigableMapKVStore();
+        final MemoryKVStore kv2 = new MemoryKVStore();
         kv2.getNavigableMap().putAll(beforeMutations.getNavigableMap());
         writes2.applyTo(kv2);
         this.compare(kv2, afterMutations);
@@ -188,7 +188,7 @@ public class WritesTest extends TestSupport {
         writes3.getAdjusts().put(b("45"), 6789L);
     }
 
-    private void compare(NavigableMapKVStore actual, NavigableMapKVStore expected) {
+    private void compare(MemoryKVStore actual, MemoryKVStore expected) {
         final NavigableMap<String, String> actualView = this.stringView(actual.getNavigableMap());
         final NavigableMap<String, String> expectedView = this.stringView(expected.getNavigableMap());
         Assert.assertEquals(actualView, expectedView,

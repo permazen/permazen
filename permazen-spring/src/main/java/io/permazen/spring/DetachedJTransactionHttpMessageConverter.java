@@ -12,7 +12,7 @@ import io.permazen.JObject;
 import io.permazen.Permazen;
 import io.permazen.ValidationException;
 import io.permazen.ValidationMode;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 
 import jakarta.validation.groups.Default;
 
@@ -28,7 +28,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 /**
  * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter} capable of
  * encoding and decoding a graph of {@link JObject}s contained in a {@link DetachedJTransaction} that is
- * backed by a {@link NavigableMapKVStore}.
+ * backed by a {@link MemoryKVStore}.
  *
  * <p>
  * The MIME type used is {@code application/x-permazen-transaction}.
@@ -122,7 +122,7 @@ public class DetachedJTransactionHttpMessageConverter extends AbstractHttpMessag
       throws IOException {
 
         // Decode key/value store
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        final MemoryKVStore kvstore = new MemoryKVStore();
         KVStoreHttpMessageConverter.readKVStore(kvstore, input);
 
         // Create detached transaction

@@ -18,7 +18,7 @@ import io.permazen.kv.TransactionTimeoutException;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.KeyWatchTracker;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.ByteUtil;
 
 import jakarta.annotation.PostConstruct;

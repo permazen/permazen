@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.util.KeyListEncoder;
-import io.permazen.kv.util.NavigableMapKVStore;
+import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.CloseableIterator;
 
 import java.io.IOException;
@@ -68,12 +68,12 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KV
 
     @Override
     protected boolean supports(Class<?> clazz) {
-        return clazz == KVStore.class || clazz == NavigableMapKVStore.class;
+        return clazz == KVStore.class || clazz == MemoryKVStore.class;
     }
 
     @Override
     protected KVStore readInternal(Class<? extends KVStore> clazz, HttpInputMessage input) throws IOException {
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        final MemoryKVStore kvstore = new MemoryKVStore();
         KVStoreHttpMessageConverter.readKVStore(kvstore, input);
         return clazz.cast(kvstore);
     }

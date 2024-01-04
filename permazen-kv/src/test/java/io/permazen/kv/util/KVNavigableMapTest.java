@@ -33,7 +33,7 @@ public class KVNavigableMapTest extends TestSupport {
         final TreeMap<byte[], byte[]> map1 = new TreeMap<>(ByteUtil.COMPARATOR);
 
         // Create k/v map
-        final NavigableMapKVStore kv2 = new NavigableMapKVStore();
+        final MemoryKVStore kv2 = new MemoryKVStore();
         final KVNavigableMap map2 = new KVNavigableMap(kv2);
 
         // Verify they behave the same
