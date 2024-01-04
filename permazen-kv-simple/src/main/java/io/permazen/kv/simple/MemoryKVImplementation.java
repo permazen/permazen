@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.kv.mvcc.MemoryAtomicKVStore;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -40,6 +41,11 @@ public class MemoryKVImplementation extends AbstractSimpleKVImplementation<Memor
         final MemoryKVDatabase memoryKV = new MemoryKVDatabase();
         config.applyTo(memoryKV);
         return memoryKV;
+    }
+
+    @Override
+    public MemoryAtomicKVStore createAtomicKVStore(Config config) {
+        return new MemoryAtomicKVStore();
     }
 
     @Override

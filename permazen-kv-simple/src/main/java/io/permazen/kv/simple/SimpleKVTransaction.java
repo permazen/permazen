@@ -14,10 +14,8 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -136,32 +134,24 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     @Override
     public CloseableKVStore readOnlySnapshot() {
 
-        // Build copy
-        CloseableKVStore kvstore;
-        if (this.kvdb.kv instanceof MemoryKVStore) {
-            final MemoryKVStore kv;
-            synchronized (this.kvdb) {
-                kv = ((MemoryKVStore)this.kvdb.kv).clone();
-            }
-            kvstore = new CloseableForwardingKVStore(kv.clone());
-        } else if (this.kvdb.kv instanceof AtomicKVStore) {
-            final AtomicKVStore kv = (AtomicKVStore)this.kvdb.kv;
-            final CloseableKVStore snapshot = kv.readOnlySnapshot();
-            final MutableView view = new MutableView(snapshot, false);
-            kvstore = new CloseableForwardingKVStore(view, snapshot);
-        } else {
-            throw new UnsupportedOperationException("underlying KVStore "
-              + this.kvdb.kv.getClass().getSimpleName() + " is not an AtomicKVStore");
-        }
+        // Get a snapshot of the underlying key/value store
+        CloseableKVStore snapshot = this.kvdb.kv.readOnlySnapshot();
 
-        // Apply mutations
+        // If there are any mutations in this transaction, overlay a MutableView and copy them into it
         synchronized (this.kvdb) {
-            for (Mutation mutation : this.mutations)
-                mutation.apply(kvstore);
+            if (!this.mutations.isEmpty()) {
+
+                // Wrap snapshot in a MutableView that closes the snapshot on close()
+                snapshot = new CloseableForwardingKVStore(new MutableView(snapshot, false), snapshot);
+
+                // Apply mutations
+                for (Mutation mutation : this.mutations)
+                    mutation.apply(snapshot);
+            }
         }
 
         // Done
-        return kvstore;
+        return snapshot;
     }
 
     // Find the mutation that overlaps with the given key, if any.

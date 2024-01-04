@@ -24,7 +24,15 @@ import java.util.stream.Stream;
  * <p><b>Thread Safety</b></p>
  *
  * <p>
- * Instances must be thread safe, with the exception of the {@link java.util.Iterator} returned by {@link #getRange getRange()}.
+ * Instances must be thread safe, in the sense that multi-threaded operations never lead to a behavior
+ * that is inconsisitent with some consistent total ordering of those operations. So for example if
+ * thread A invokes {@link #removeRange removeRange()} while thread B does a {@link #put put} to some
+ * key in the range, then afterwards either the range is empty or it contains only the key, but in
+ * any case no other outcome is possible.
+ *
+ * <p>
+ * With respect to thread safety, the set of possible "operations" includes accessing the {@link CloseableIterator}
+ * returned by {@link #getRange getRange()}; see {@link #getRange(byte[], byte[], boolean) getRange()} for details.
  *
  * <p><b>Lock-free Counters</b></p>
  *
@@ -104,8 +112,8 @@ public interface KVStore {
     KVPair getAtMost(byte[] maxKey, byte[] minKey);
 
     /**
-     * Iterate the key/value pairs in the specified range. The returned {@link java.util.Iterator}'s
-     * {@link java.util.Iterator#remove remove()} method must be supported and should have the same effect as
+     * Iterate the key/value pairs in the specified range. The returned {@link CloseableIterator}'s
+     * {@link CloseableIterator#remove remove()} method must be supported and should have the same effect as
      * invoking {@link #remove remove()} on the corresponding key.
      *
      * <p>
@@ -117,13 +125,15 @@ public interface KVStore {
      * then this method behaves as if {@code maxKey} were null.
      *
      * <p>
-     * The returned {@link java.util.Iterator} must not throw {@link java.util.ConcurrentModificationException};
-     * however, whether or not a "live" {@link java.util.Iterator} reflects any modifications made after its creation is
-     * implementation dependent. Implementations that do make post-creation updates visible in the {@link java.util.Iterator},
+     * The returned {@link CloseableIterator} is <i>weakly consistent</i> (see {@link java.util.concurrent}).
+     * In short, the returned {@link CloseableIterator} must not throw {@link java.util.ConcurrentModificationException};
+     * however, whether or not a "live" {@link CloseableIterator} reflects any modifications made after its creation is
+     * implementation dependent. Implementations that do make post-creation updates visible in the {@link CloseableIterator},
      * even if the update occurs after some delay, must preserve the order in which the modifications actually occurred.
      *
      * <p>
-     * The returned {@link java.util.Iterator} itself is not guaranteed to be thread safe.
+     * The returned {@link CloseableIterator} itself is not guaranteed to be thread safe; is should only be used
+     * in the thread that created it.
      *
      * <p>
      * Invokers of this method are encouraged to {@link java.io.Closeable#close close()} the returned iterators,
@@ -293,6 +303,10 @@ public interface KVStore {
      * via {@link #remove remove()} (for removals of a single key), {@link #removeRange removeRange()},
      * {@link #put put()}, and/or {@link #adjustCounter adjustCounter()}. Implementations that can process
      * batch updates more efficiently are encouraged to override this method.
+     *
+     * <p>
+     * Unlike {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()}, this method is
+     * <i>not</i> required to apply the mutations atomically.
      *
      * @param mutations mutations to apply
      * @throws IllegalArgumentException if {@code mutations} is null

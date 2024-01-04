@@ -10,7 +10,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryTransactionException;
 import io.permazen.kv.StaleTransactionException;
@@ -39,8 +38,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of the {@link KVDatabase} interface that provides a concurrent, transactional view
- * of an underlying {@link KVStore} with strong ACID semantics (assuming <b>A</b>tomicity and <b>D</b>urability
- * is provided by the underlying {@link KVStore}).
+ * of an underlying {@link AtomicKVStore} with strong ACID semantics (assuming <b>A</b>tomicity and <b>D</b>urability
+ * are provided by the underlying {@link AtomicKVStore}).
  *
  * <p>
  * Transaction isolation is implemented via key range locking using a {@link LockManager}. Conflicting access
@@ -49,19 +48,17 @@ import org.slf4j.LoggerFactory;
  * a {@link TransactionTimeoutException} is thrown.
  *
  * <p>
- * Instances wrap an underlying {@link KVStore} which provides persistence and from which committed data is read and written.
- * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
- * applied to the underlying {@link KVStore} all at once. This commit operation is bracketed by calls to
- * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}. If the underlying {@link KVStore}
- * is an {@link AtomicKVStore}, then {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()} is used
- * to ensure atomicity.
+ * Instances wrap an underlying {@link AtomicKVStore} which from which committed data is read and written.
+ * During a transaction, all mutations are recorded in memory; if/when the transaction is committed, those mutations are
+ * applied to the {@link AtomicKVStore} all at once via {@link AtomicKVStore#apply(Mutations, boolean) AtomicKVStore.apply()}.
+ * This commit operation is bracketed by calls to {@link #preCommit preCommit()} and {@link #postCommit postCommit()}.
  *
  * <p>
  * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
  *
  * <p>
- * Instances implement {@link Serializable} if the underlying {@link KVStore} is; this is the case when the default
- * constructor, which uses a {@link NavigableMapKVStore}, is used. However, key watches and open transactions are not
+ * Instances implement {@link Serializable} if the underlying {@link AtomicKVStore} is; this is the case when the default
+ * constructor, which uses a {@link MemoryKVStore}, is used. However, key watches and open transactions are not
  * remembered across a (de)serialization cycle.
  *
  * <p>
@@ -85,10 +82,10 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     private static final long serialVersionUID = -6960954436594742251L;
 
     /**
-     * The {@link KVStore} for the committed data.
+     * The {@link AtomicKVStore} for the committed data.
      */
     @SuppressWarnings("serial")
-    protected final KVStore kv;
+    protected final AtomicKVStore kv;
 
     protected /*final*/ transient Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -106,17 +103,17 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * <p>
      * Uses the default wait and hold timeouts.
      *
-     * @param kv {@link KVStore} for the committed data
+     * @param kv storage for the committed data
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    public SimpleKVDatabase(KVStore kv) {
+    public SimpleKVDatabase(AtomicKVStore kv) {
         this(kv, DEFAULT_WAIT_TIMEOUT, DEFAULT_HOLD_TIMEOUT);
     }
 
     /**
      * Primary constructor.
      *
-     * @param kv {@link KVStore} for the committed data
+     * @param kv {@link AtomicKVStore} for the committed data
      * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
      * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
@@ -124,7 +121,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    public SimpleKVDatabase(KVStore kv, long waitTimeout, long holdTimeout) {
+    public SimpleKVDatabase(AtomicKVStore kv, long waitTimeout, long holdTimeout) {
         Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(waitTimeout >= 0, "waitTimeout < 0");
         this.kv = kv;
@@ -220,7 +217,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 // Subclass hooks
 
     /**
-     * Invoked during transaction commit just prior to writing changes to the underlying {@link KVStore}.
+     * Invoked during transaction commit just prior to writing changes to the underlying {@link AtomicKVStore}.
      *
      * <p>
      * {@link SimpleKVDatabase} guarantees this method and {@link #postCommit postCommit()} will be invoked in matching pairs,
@@ -236,61 +233,57 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     }
 
     /**
-     * Invoked during transaction commit just after writing changes to the underlying {@link KVStore}.
+     * Invoked during transaction commit just after writing changes to the underlying {@link AtomicKVStore}.
      *
      * <p>
      * {@link SimpleKVDatabase} guarantees this method and {@link #preCommit preCommit()} will be invoked in matching pairs,
      * and that this instance will be locked when these methods are invoked.
      *
      * <p>
-     * This method is invoked even if the underlying {@link KVStore} throws an exception while changes were being written to it.
-     * In that case, {@code successful} will be false.
+     * This method is invoked even if the underlying {@link AtomicKVStore} throws an exception while changes were being
+     * written to it. In that case, {@code successful} will be false.
      *
      * <p>
      * The implementation in {@link SimpleKVDatabase} does nothing.
      *
      * @param tx the transaction that was committed
      * @param successful true if all changes were written back successfully,
-     *  false if the underlying {@link KVStore} threw an exception during commit update
+     *  false if the underlying {@link AtomicKVStore} threw an exception during commit update
      */
     protected void postCommit(SimpleKVTransaction tx, boolean successful) {
     }
 
     /**
-     * Apply mutations to the underlying {@link KVStore}.
+     * Apply mutations to the underlying {@link AtomicKVStore}.
      */
     void applyMutations(final Collection<Mutation> mutations) {
-        if (this.kv instanceof AtomicKVStore) {
-            ((AtomicKVStore)this.kv).apply(new Mutations() {
-                @Override
-                public Stream<KeyRange> getRemoveRanges() {
-                    return mutations.stream()
-                      .filter(Del.class::isInstance)
-                      .map(Del.class::cast);
-                }
-                @Override
-                public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
-                    return mutations.stream()
-                      .filter(Put.class::isInstance)
-                      .map(Put.class::cast)
-                      .map(Put::toMapEntry);
-                }
-                @Override
-                public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
-                    return Stream.empty();
-                }
-            }, true);
-        } else {
-            for (Mutation mutation : mutations)
-                mutation.apply(this.kv);
-        }
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        this.kv.apply(new Mutations() {
+            @Override
+            public Stream<KeyRange> getRemoveRanges() {
+                return mutations.stream()
+                  .filter(Del.class::isInstance)
+                  .map(Del.class::cast);
+            }
+            @Override
+            public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+                return mutations.stream()
+                  .filter(Put.class::isInstance)
+                  .map(Put.class::cast)
+                  .map(Put::toMapEntry);
+            }
+            @Override
+            public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+                return Stream.empty();
+            }
+        }, true);
     }
 
     /**
      * Verify that the given transaction is still usable.
      *
      * <p>
-     * This method is invoked at the start of the {@link KVStore} data access and {@link SimpleKVTransaction#commit commit()}
+     * This method is invoked at the start of the {@link AtomicKVStore} data access and {@link SimpleKVTransaction#commit commit()}
      * methods of the {@link SimpleKVTransaction} associated with this instance. This allows for any checks which depend on
      * a consistent view of the transaction and database together. This instance's lock will be held when this method is invoked.
      * Note: transaction state is also protected by this instance's lock.
@@ -312,8 +305,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             throw new StaleTransactionException(tx);
         if (this.lockManager.checkHoldTimeout(tx.lockOwner) == -1) {
             this.rollback(tx);
-            throw new TransactionTimeoutException(tx,
-              "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
+            throw new TransactionTimeoutException(tx, String.format(
+              "transaction taking too long: hold timeout of %dms has expired", this.lockManager.getHoldTimeout()));
         }
     }
 

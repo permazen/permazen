@@ -244,8 +244,9 @@ public class XMLKVDatabase extends MemoryKVDatabase {
         this.checkForOutOfBandUpdate();
         final int txGeneration = ((XMLKVTransaction)tx).getGeneration();
         if (txGeneration != this.generation) {
-            throw new RetryTransactionException(tx, "XML file changed since transaction started (generation number changed from "
-              + txGeneration + " to " + this.generation + ")");
+            throw new RetryTransactionException(tx, String.format(
+              "XML file changed since transaction started (generation number changed from %d to %d)",
+              txGeneration, this.generation));
         }
     }
 
@@ -288,9 +289,9 @@ public class XMLKVDatabase extends MemoryKVDatabase {
             }
             final String desc = this.file != null ? "file \"" + this.file + "\"" : "database file";
             if (input == null)
-                this.log.info(desc + " not found and no initial content is configured; creating new, empty database");
+                this.log.info("{} not found and no initial content is configured; creating new, empty database", desc);
             else
-                this.log.info(desc + " not found; applying default initial content");
+                this.log.info("{} not found; applying default initial content", desc);
         } catch (IOException e) {
             throw new KVDatabaseException(this, "error opening XML content", e);
         }
