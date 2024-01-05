@@ -77,7 +77,13 @@ public class PermazenExecutionControl extends LocalExecutionControl {
 
 // Internal Methods
 
-    private static Object invokeWrapper() throws Throwable {
+    /**
+     * Invocation wrapper method.
+     *
+     * <p>
+     * This method is only used internally but is required to be public due to Java access controls.
+     */
+    public static Object invokeWrapper() throws Throwable {
 
         // Get the target method info stashed by invoke()
         final ThreadGroup lookupKey = Thread.currentThread().getThreadGroup().getParent();
