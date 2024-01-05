@@ -393,7 +393,7 @@ public class Database {
 
                 // Initialize database
                 formatVersion = Layout.CURRENT_FORMAT_VERSION;
-                this.log.debug("detected an uninitialized database; initializing now (format version {})", formatVersion);
+                this.log.debug("detected an uninitialized database; initializing with format version {}", formatVersion);
                 final byte[] encodedFormatVersion = UnsignedIntEncoder.encode(formatVersion);
                 kvstore.put(formatKey, encodedFormatVersion);
 
