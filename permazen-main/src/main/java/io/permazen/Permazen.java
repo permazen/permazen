@@ -22,7 +22,6 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.core.UnknownTypeException;
-import io.permazen.core.util.ObjIdSet;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
@@ -50,9 +49,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -798,71 +795,6 @@ public class Permazen {
     }
 
 // Misc utility
-
-    /**
-     * Utility method to get all of the objects directly referenced by a given object via any field.
-     *
-     * <p>
-     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an {@link ObjIdSet} if necessary.
-     *
-     * @param jobj starting object
-     * @return all objects directly referenced by {@code jobj}
-     * @throws IllegalArgumentException if {@code jobj} is null
-     */
-    public Stream<JObject> getReferencedObjects(final JObject jobj) {
-
-        // Sanity check
-        Preconditions.checkArgument(jobj != null, "null jobj");
-        final ObjId id = jobj.getObjId();
-
-        // Visit fields
-        final ArrayList<Stream<JObject>> streamList = new ArrayList<>();
-        for (JField jfield : this.getJClass(id).getJFieldsByStorageId().values()) {
-            jfield.visit(new JFieldSwitch<Void>() {
-
-                @Override
-                public Void caseJReferenceField(JReferenceField field) {
-                    final JObject ref = field.getValue(jobj);
-                    if (ref != null)
-                        streamList.add(Stream.of(ref));
-                    return null;
-                }
-
-                @Override
-                public Void caseJMapField(JMapField field) {
-                    if (field.getKeyField() instanceof JReferenceField) {
-                        streamList.add(field.getValue(jobj).keySet().stream()
-                          .filter(JObject.class::isInstance)
-                          .map(JObject.class::cast));
-                    }
-                    if (field.getValueField() instanceof JReferenceField) {
-                        streamList.add(field.getValue(jobj).values().stream()
-                          .filter(JObject.class::isInstance)
-                          .map(JObject.class::cast));
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void caseJCollectionField(JCollectionField field) {
-                    if (field.getElementField() instanceof JReferenceField) {
-                        streamList.add(field.getValue(jobj).stream()
-                          .filter(JObject.class::isInstance)
-                          .map(JObject.class::cast));
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void caseJField(JField field) {
-                    return null;
-                }
-            });
-        }
-
-        // Done
-        return streamList.stream().flatMap(Function.identity());
-    }
 
 // IndexQuery Cache
 
