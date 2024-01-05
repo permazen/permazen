@@ -37,7 +37,7 @@ public class PermazenCliConfig extends CoreApiCliConfig {
     protected Permazen jdb;
 
     // Internal state
-    private final HashSet<Class<?>> modelClasses = new HashSet<>();
+    protected final HashSet<Class<?>> modelClasses = new HashSet<>();
 
 // Options
 
@@ -142,6 +142,10 @@ public class PermazenCliConfig extends CoreApiCliConfig {
               "%s read from \"--schema-file\" flag conflicts with %s generated from scanned classes",
               describer.apply(explicitSchemaModel), describer.apply(permazenSchemaModel)));
         }
+
+        // Initialize database (PERMAZEN mode only)
+        if (this.sessionMode.equals(SessionMode.PERMAZEN))
+            this.jdb.initialize();
     }
 
     @Override

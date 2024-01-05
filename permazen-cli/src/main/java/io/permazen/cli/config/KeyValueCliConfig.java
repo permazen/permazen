@@ -33,13 +33,13 @@ public class KeyValueCliConfig extends CliConfig {
     protected final ArrayList<KVImpl<?>> kvis = new ArrayList<>();
 
     // Database
-    protected String kvdbDescription;
     protected KVDatabase kvdb;
+    protected String kvdbDescription;
 
     // Internal State
-    private KVImpl<?> kvi;
-    private AtomicKVStore nestedKVStore;
-    private KVDatabase nestedKVDatabase;
+    protected KVImpl<?> kvi;
+    protected AtomicKVStore nestedKVStore;
+    protected KVDatabase nestedKVDatabase;
 
 // Options
 

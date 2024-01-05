@@ -54,8 +54,8 @@ public abstract class CliConfig {
     protected final ApplicationClassLoader loader = ApplicationClassLoader.getInstance();
 
     // Internal state
-    private boolean setReadOnly;
-    private boolean setVerbose;
+    protected boolean setReadOnly;
+    protected boolean setVerbose;
 
 // Workflow
 

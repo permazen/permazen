@@ -44,11 +44,10 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
 
     // Internal State
     protected SchemaModel schemaModel;
-
-    private EncodingRegistry encodingRegistry;
-    private SessionMode sessionMode;
-    private boolean disableNewSchema;
-    private boolean enableGcScemas;
+    protected EncodingRegistry encodingRegistry;
+    protected SessionMode sessionMode;
+    protected boolean disableNewSchema;
+    protected boolean enableGcScemas;
 
 // Options
 
@@ -135,7 +134,9 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
                 throw new IllegalArgumentException(String.format("can't load schema from \"%s\": %s", file, e.getMessage()), e);
             }
           });
-        this.sessionMode = Optional.ofNullable(this.sessionModeOption).map(options::valueOf).orElse(null);
+        this.sessionMode = Optional.ofNullable(this.sessionModeOption)
+          .map(options::valueOf)
+          .orElseGet(this::getDefaultSessionMode);
         this.disableNewSchema = this.noNewSchemaOption != null && options.has(this.noNewSchemaOption);
         this.enableGcScemas = this.gcSchemasOption != null && options.has(this.gcSchemasOption);
     }
@@ -171,8 +172,7 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
         super.configureSession(session);
         if (this.schemaModel != null)
             session.setSchemaModel(this.schemaModel);
-        if (this.sessionMode != null)
-            session.setMode(this.sessionMode);
+        session.setMode(this.sessionMode);
         if (this.disableNewSchema)
             session.setAllowNewSchema(false);
         if (this.enableGcScemas)
