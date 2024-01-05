@@ -86,6 +86,11 @@ public abstract class SQLDriverKVImplementation<C extends SQLDriverKVImplementat
         return sqlKV;
     }
 
+    @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
     /**
      * Instantiate a {@link SQLKVDatabase}.
      *

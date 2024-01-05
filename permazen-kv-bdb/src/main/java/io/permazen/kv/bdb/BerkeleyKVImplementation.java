@@ -50,6 +50,11 @@ public class BerkeleyKVImplementation implements KVImplementation<BerkeleyKVImpl
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public BerkeleyKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
         bdb.setDirectory(config.getDirectory());

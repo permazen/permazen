@@ -22,7 +22,7 @@ public class SimpleKVImplementation extends AbstractSimpleKVImplementation<Simpl
     public void addOptions(OptionParser parser) {
         Preconditions.checkArgument(parser != null, "null parser");
         Preconditions.checkState(this.simpleOption == null, "duplicate option");
-        this.simpleOption = parser.accepts("simple", "Use a simple locking key/value database on top of a KVStore");
+        this.simpleOption = parser.accepts("simple", "Use a simple locking key/value database (requires key/value store)");
         this.addSimpleOptions(parser, this.simpleOption, "simple");
     }
 
@@ -33,6 +33,11 @@ public class SimpleKVImplementation extends AbstractSimpleKVImplementation<Simpl
         final Config config = new Config();
         this.applySimpleOptions(options, config);
         return config;
+    }
+
+    @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
     }
 
     @Override

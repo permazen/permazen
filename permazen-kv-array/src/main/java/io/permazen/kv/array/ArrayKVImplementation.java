@@ -25,7 +25,7 @@ public class ArrayKVImplementation implements KVImplementation<File> {
     public void addOptions(OptionParser parser) {
         Preconditions.checkArgument(parser != null, "null parser");
         Preconditions.checkState(this.directoryOption == null, "duplicate option");
-        this.directoryOption = parser.accepts("arraydb", "Use array key/value database in the specified directory")
+        this.directoryOption = parser.accepts("array", "Use array key/value database (or key/value store)")
           .withRequiredArg()
           .describedAs("directory")
           .ofType(File.class);
@@ -39,6 +39,16 @@ public class ArrayKVImplementation implements KVImplementation<File> {
         if (dir.exists() && !dir.isDirectory())
             throw new IllegalArgumentException(String.format("file \"%s\" is not a directory", dir));
         return dir;
+    }
+
+    @Override
+    public boolean providesKVDatabase(File config) {
+        return true;
+    }
+
+    @Override
+    public boolean providesAtomicKVStore(File config) {
+        return true;
     }
 
     @Override

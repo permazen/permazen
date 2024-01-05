@@ -45,7 +45,7 @@ public class MVStoreKVImplementation implements KVImplementation<MVStoreKVImplem
         Preconditions.checkState(this.compressDeflateOption == null, "duplicate option");
         Preconditions.checkState(this.encryptionKeyOption == null, "duplicate option");
         Preconditions.checkState(this.mapNameOption == null, "duplicate option");
-        this.fileOption = parser.accepts("mvstore", "Use MVStore key/value database using the specified file")
+        this.fileOption = parser.accepts("mvstore", "Use MVStore key/value database (or key/value store)")
           .withRequiredArg()
           .describedAs("file")
           .ofType(File.class);
@@ -86,6 +86,16 @@ public class MVStoreKVImplementation implements KVImplementation<MVStoreKVImplem
         config.setEncryptKey(this.encryptionKeyOption.value(options));
         config.setMapName(this.mapNameOption.value(options));
         return config;
+    }
+
+    @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
+    public boolean providesAtomicKVStore(Config config) {
+        return true;
     }
 
     @Override

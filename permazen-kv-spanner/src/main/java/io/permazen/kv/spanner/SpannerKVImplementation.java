@@ -62,6 +62,11 @@ public class SpannerKVImplementation implements KVImplementation<SpannerKVImplem
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public SpannerKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final SpannerKVDatabase spannerKV = new SpannerKVDatabase();
         config.configure(spannerKV);

@@ -23,7 +23,7 @@ public class MemoryKVImplementation extends AbstractSimpleKVImplementation<Memor
     public void addOptions(OptionParser parser) {
         Preconditions.checkArgument(parser != null, "null parser");
         Preconditions.checkState(this.memoryOption == null, "duplicate option");
-        this.memoryOption = parser.accepts("memory", "Use an initially empty, in-memory database");
+        this.memoryOption = parser.accepts("memory", "Use an in-memory database (or key/value store)");
         this.addSimpleOptions(parser, this.memoryOption, "memory");
     }
 
@@ -34,6 +34,16 @@ public class MemoryKVImplementation extends AbstractSimpleKVImplementation<Memor
         final Config config = new Config();
         this.applySimpleOptions(options, config);
         return config;
+    }
+
+    @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
+    public boolean providesAtomicKVStore(Config config) {
+        return true;
     }
 
     @Override

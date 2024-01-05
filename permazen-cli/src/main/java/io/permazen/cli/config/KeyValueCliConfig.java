@@ -12,8 +12,10 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,15 +30,14 @@ import joptsimple.OptionSet;
 public class KeyValueCliConfig extends CliConfig {
 
     // Options
-    protected final HashMap<KVImplementation<?>, Object> kviOptions = new HashMap<>();
+    protected final ArrayList<KVImpl<?>> kvis = new ArrayList<>();
 
     // Database
     protected String kvdbDescription;
     protected KVDatabase kvdb;
 
     // Internal State
-    private KVImplementation<?> kvi;
-    private Object config;
+    private KVImpl<?> kvi;
     private AtomicKVStore nestedKVStore;
     private KVDatabase nestedKVDatabase;
 
@@ -64,70 +65,79 @@ public class KeyValueCliConfig extends CliConfig {
         Preconditions.checkArgument(parser != null, "null parser");
         ServiceLoader.load(KVImplementation.class, this.loader).stream()
           .map(ServiceLoader.Provider::get)
-          .forEach(kv -> {
-            kv.addOptions(parser);
-            this.kviOptions.put(kv, null);
-        });
+          .map(impl -> (KVImplementation<?>)impl)
+          .forEach(impl -> this.addImpl(parser, impl));
+    }
+
+    private <C> void addImpl(OptionParser parser, KVImplementation<C> impl) {
+        impl.addOptions(parser);
+        this.kvis.add(new KVImpl<>(impl));
     }
 
     @Override
     protected void processOptions(OptionSet options) {
         super.processOptions(options);
 
-        // Apply options to key/value implementation(s)
-        for (Iterator<Map.Entry<KVImplementation<?>, Object>> i = kviOptions.entrySet().iterator(); i.hasNext(); ) {
-            final Map.Entry<KVImplementation<?>, Object> entry = i.next();
-            assert entry.getValue() == null;
-            final KVImplementation<?> kv = entry.getKey();
-            final Object kvConfig = kv.buildConfig(options);
-            if (kvConfig != null)
-                entry.setValue(kvConfig);           // this implementation got configured, so use it
-            else
-                i.remove();                         // this implementation was not configured, so discard it
-        }
+        // Apply options to key/value implementation(s) and remove those that were not selected
+        this.kvis.removeIf(kvi -> !kvi.configure(options));
 
-        // Decode what key/value implementations where specified and how they nest, if at all
-        final Iterator<Map.Entry<KVImplementation<?>, Object>> i = kviOptions.entrySet().iterator();
-        switch (this.kviOptions.size()) {
+        // Sort those that remain
+        this.kvis.sort(Comparator.comparingDouble(KVImpl::sortPoints));
+
+        // Check result
+        switch (this.kvis.size()) {
         case 0:
             throw new IllegalArgumentException(String.format("no key/value database specified"));
         case 1:
-            final Map.Entry<KVImplementation<?>, Object> entry = i.next();
-            kvi = entry.getKey();
-            config = entry.getValue();
-            if (this.requiresAtomicKVStore(kvi, config) || this.requiresKVDatabase(kvi, config)) {
+            this.kvi = this.kvis.get(0);
+            final String requirement = this.kvi.requiresAtomicKVStore() ? "store" :
+              this.kvi.requiresKVDatabase() ? "database" : null;
+            if (requirement != null) {
                 throw new IllegalArgumentException(String.format(
-                  "%s requires the configuration of an underlying key/value technology", this.describe(kvi, config)));
+                  "%s requires the configuration of an underlying key/value %s", this.kvi.describe(), requirement));
             }
             break;
 
         case 2:
-
-            // Put them in proper order: inner first, outer second
-            final Map.Entry<KVImplementation<?>, Object> entry1 = i.next();
-            final Map.Entry<KVImplementation<?>, Object> entry2 = i.next();
-            final KVImplementation<?>[] kvis = new KVImplementation<?>[] { entry1.getKey(), entry2.getKey() };
-            final Object[] configs = new Object[] { entry1.getValue(), entry2.getValue() };
-            if (this.requiresAtomicKVStore(kvis[0], configs[0]) || this.requiresKVDatabase(kvis[0], configs[0])) {
-                Collections.reverse(Arrays.asList(kvis));
-                Collections.reverse(Arrays.asList(configs));
+        {
+            final KVImpl<?> kvi1 = this.kvis.get(0);
+            final KVImpl<?> kvi2 = this.kvis.get(1);
+            if (kvi1.requiresAtomicKVStore()
+              || kvi1.requiresKVDatabase()
+              || !kvi1.providesAtomicKVStore()
+              || kvi2.requiresKVDatabase()
+              || !kvi2.providesKVDatabase()
+              || !kvi2.requiresAtomicKVStore()) {
+                throw new IllegalArgumentException(String.format(
+                  "incompatible combination of %s and %s", kvi1.describe(), kvi2.describe()));
             }
-
-            // Sanity check nesting requirements
-            if ((this.requiresAtomicKVStore(kvis[0], configs[0]) || this.requiresKVDatabase(kvis[0], configs[0]))
-              || !(this.requiresAtomicKVStore(kvis[1], configs[1]) || this.requiresKVDatabase(kvis[1], configs[1]))) {
-                throw new IllegalArgumentException(String.format("incompatible combination of %s and %s",
-                  this.describe(kvis[0], configs[0]), this.describe(kvis[1], configs[1])));
-            }
-
-            // Nest them as required
-            if (this.requiresAtomicKVStore(kvis[1], configs[1]))
-                this.nestedKVStore = this.createAtomicKVStore(kvis[0], configs[0]);
-            else
-                this.nestedKVDatabase = this.createKVDatabase(kvis[0], configs[0], null, null);
-            this.kvi = kvis[1];
-            this.config = configs[1];
+            this.nestedKVStore = kvi1.createAtomicKVStore();
+            this.kvi = kvi2;
             break;
+        }
+
+        case 3:
+        {
+            final KVImpl<?> kvi1 = this.kvis.get(0);
+            final KVImpl<?> kvi2 = this.kvis.get(1);
+            final KVImpl<?> kvi3 = this.kvis.get(2);
+            if (kvi1.requiresAtomicKVStore()
+              || kvi1.requiresKVDatabase()
+              || !kvi1.providesAtomicKVStore()
+              || kvi2.requiresKVDatabase()
+              || kvi2.requiresAtomicKVStore()
+              || !kvi2.providesKVDatabase()
+              || !kvi3.requiresAtomicKVStore()
+              || !kvi3.requiresKVDatabase()
+              || !kvi3.providesKVDatabase()) {
+                throw new IllegalArgumentException(String.format(
+                  "incompatible combination of %s, %s, and %s", kvi1.describe(), kvi2.describe(), kvi3.describe()));
+            }
+            this.nestedKVStore = kvi1.createAtomicKVStore();
+            this.nestedKVDatabase = kvi2.createKVDatabase(null, null);
+            this.kvi = kvi3;
+            break;
+        }
 
         default:
             throw new IllegalArgumentException("too many key/value store(s) specified");
@@ -144,8 +154,8 @@ public class KeyValueCliConfig extends CliConfig {
         Preconditions.checkState(this.kvdb == null, "already started");
 
         // Create key/value database, including an underlying database/store as needed
-        this.kvdb = this.createKVDatabase(this.kvi, this.config, this.nestedKVDatabase, this.nestedKVStore);
-        this.kvdbDescription = this.describe(this.kvi, this.config);
+        this.kvdb = this.kvi.createKVDatabase(this.nestedKVDatabase, this.nestedKVStore);
+        this.kvdbDescription = this.kvi.describe();
 
         // Start up database
         this.log.debug("using database: {}", this.kvdbDescription);
@@ -177,22 +187,63 @@ public class KeyValueCliConfig extends CliConfig {
         super.configureSession(session);                // nothing else to do here
     }
 
-// Internal Methods
+// KVImpl
 
-    // Generic type futzing
-    private <C> boolean requiresAtomicKVStore(KVImplementation<C> kvi, Object config) {
-        return kvi.requiresAtomicKVStore(kvi.getConfigType().cast(config));
-    }
-    private <C> boolean requiresKVDatabase(KVImplementation<C> kvi, Object config) {
-        return kvi.requiresKVDatabase(kvi.getConfigType().cast(config));
-    }
-    private <C> String describe(KVImplementation<C> kvi, Object config) {
-        return kvi.getDescription(kvi.getConfigType().cast(config));
-    }
-    private <C> KVDatabase createKVDatabase(KVImplementation<C> kvi, Object config, KVDatabase kvdb, AtomicKVStore kvstore) {
-        return kvi.createKVDatabase(kvi.getConfigType().cast(config), kvdb, kvstore);
-    }
-    private <C> AtomicKVStore createAtomicKVStore(KVImplementation<C> kvi, Object config) {
-        return kvi.createAtomicKVStore(kvi.getConfigType().cast(config));
+    private static class KVImpl<C> {
+
+        private final KVImplementation<C> kvi;
+
+        private C config;
+
+        KVImpl(KVImplementation<C> kvi) {
+            this.kvi = kvi;
+        }
+
+        public boolean configure(OptionSet options) {
+            final Object configObject = this.kvi.buildConfig(options);
+            if (configObject == null)
+                return false;
+            this.config = this.kvi.getConfigType().cast(configObject);
+            return true;
+        }
+
+        public boolean providesAtomicKVStore() {
+            return this.kvi.providesAtomicKVStore(this.config);
+        }
+
+        public boolean providesKVDatabase() {
+            return this.kvi.providesKVDatabase(this.config);
+        }
+
+        public boolean requiresAtomicKVStore() {
+            return this.kvi.requiresAtomicKVStore(this.config);
+        }
+
+        public boolean requiresKVDatabase() {
+            return this.kvi.requiresKVDatabase(this.config);
+        }
+
+        public String describe() {
+            return this.kvi.getDescription(this.config);
+        }
+
+        public AtomicKVStore createAtomicKVStore() {
+            return this.kvi.createAtomicKVStore(this.config);
+        }
+
+        public KVDatabase createKVDatabase(KVDatabase kvdb, AtomicKVStore kvstore) {
+            return this.kvi.createKVDatabase(this.config, kvdb, kvstore);
+        }
+
+        public double sortPoints() {
+            double points = 0.0;
+            if (this.requiresKVDatabase())
+                points += 2;
+            else if (this.requiresAtomicKVStore())
+                points += 1;
+            if (!this.providesAtomicKVStore())
+                points += 0.5;
+            return points;
+        }
     }
 }

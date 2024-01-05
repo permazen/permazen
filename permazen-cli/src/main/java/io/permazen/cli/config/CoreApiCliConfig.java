@@ -82,6 +82,7 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
                 .collect(Collectors.joining(", ")),
               SessionModeConverter.toString(this.getDefaultSessionMode())))
           .withRequiredArg()
+          .describedAs("mode")
           .withValuesConvertedBy(new SessionModeConverter());
     }
 

@@ -50,8 +50,6 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * {@linkplain SnapshotKVTransaction#watchKey Key watches} are supported.
- *
- * @see AtomicKVDatabase
  */
 @ThreadSafe
 public abstract class SnapshotKVDatabase implements KVDatabase {

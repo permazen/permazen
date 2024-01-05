@@ -53,6 +53,11 @@ public class FoundationKVImplementation implements KVImplementation<FoundationKV
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public FoundationKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final FoundationKVDatabase fdb = new FoundationKVDatabase();
         fdb.setClusterFilePath(config.getClusterFile().toString());

@@ -44,6 +44,11 @@ public class XMLKVImplementation extends AbstractSimpleKVImplementation<XMLKVImp
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public XMLKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final XMLKVDatabase xmlKV = new XMLKVDatabase(config.getFile());
         config.applyTo(xmlKV);

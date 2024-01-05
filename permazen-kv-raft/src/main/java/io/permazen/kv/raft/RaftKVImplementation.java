@@ -63,7 +63,7 @@ public class RaftKVImplementation implements KVImplementation<RaftKVImplementati
         Preconditions.checkState(this.fallbackMinUnavailableOption == null, "duplicate option");
         Preconditions.checkState(this.fallbackUnavailableMergeOption == null, "duplicate option");
         Preconditions.checkState(this.fallbackUnavailableRejoinOption == null, "duplicate option");
-        this.directoryOption = parser.accepts("raft", "Use Raft key/value database in specified directory")
+        this.directoryOption = parser.accepts("raft", "Use Raft key/value database (requires key/value store)")
           .withRequiredArg()
           .describedAs("directory")
           .ofType(File.class);
@@ -214,6 +214,11 @@ public class RaftKVImplementation implements KVImplementation<RaftKVImplementati
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(String.format("invalid milliseconds value \"%s\": %s", string, e.getMessage()), e);
         }
+    }
+
+    @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
     }
 
     @Override

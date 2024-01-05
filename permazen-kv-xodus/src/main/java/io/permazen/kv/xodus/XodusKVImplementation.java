@@ -51,6 +51,11 @@ public class XodusKVImplementation implements KVImplementation<XodusKVImplementa
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public XodusKVDatabase createKVDatabase(Config config, KVDatabase ignored, AtomicKVStore kvstore) {
         final XodusKVDatabase kvdb = new XodusKVDatabase();
         config.configure(kvdb);

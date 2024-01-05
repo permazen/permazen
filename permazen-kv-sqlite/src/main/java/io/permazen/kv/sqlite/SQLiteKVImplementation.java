@@ -57,6 +57,11 @@ public class SQLiteKVImplementation implements KVImplementation<SQLiteKVImplemen
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public SQLiteKVDatabase createKVDatabase(Config config, KVDatabase kvdb, AtomicKVStore kvstore) {
         final SQLiteKVDatabase sqlite = new SQLiteKVDatabase();
         config.configure(sqlite);

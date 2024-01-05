@@ -50,6 +50,11 @@ public class LMDBKVImplementation implements KVImplementation<LMDBKVImplementati
     }
 
     @Override
+    public boolean providesKVDatabase(Config config) {
+        return true;
+    }
+
+    @Override
     public LMDBKVDatabase<?> createKVDatabase(Config config, KVDatabase ignored, AtomicKVStore kvstore) {
         final ByteArrayLMDBKVDatabase kvdb = new ByteArrayLMDBKVDatabase();
         kvdb.setDirectory(config.getDirectory());

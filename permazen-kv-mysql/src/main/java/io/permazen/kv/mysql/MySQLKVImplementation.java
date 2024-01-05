@@ -43,7 +43,7 @@ public class MySQLKVImplementation extends SQLDriverKVImplementation<SQLDriverKV
     }
 
     @Override
-    public String getDescription(Config configuration) {
+    public String getDescription(Config config) {
         return "MySQL";
     }
 

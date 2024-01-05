@@ -15,11 +15,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 /**
- * Descriptor for a {@link KVDatabase} implementation.
+ * Descriptor for a provider of {@link KVDatabase} and/or {@link AtomicKVStore} implementations.
  *
  * <p>
  * Instances of this class provide information about how to configure and instantiate some
- * technology-specific implementation of the {@link KVDatabase} and {@link AtomicKVStore}
+ * technology-specific implementation of the {@link KVDatabase} and/or {@link AtomicKVStore}
  * interfaces.
  *
  * @param <C> configuration object type
@@ -64,14 +64,49 @@ public interface KVImplementation<C> {
     C buildConfig(OptionSet options);
 
     /**
+     * Determine whether this {@link KVImplementation} includes an implementation of the {@link AtomicKVStore} interface.
+     *
+     * <p>
+     * The implementation in {@link KVImplementation} return false.
+     *
+     * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
+     * @return true if this instance can create an {@link AtomicKVStore}
+     * @throws IllegalArgumentException if {@code config} is null
+     */
+    default boolean providesAtomicKVStore(C config) {
+        return false;
+    }
+
+    /**
+     * Determine whether this {@link KVImplementation} includes an implementation of the {@link KVDatabase} interface.
+     *
+     * <p>
+     * The implementation in {@link KVImplementation} return false.
+     *
+     * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
+     * @return true if this instance can create an {@link KVDatabase}
+     * @throws IllegalArgumentException if {@code config} is null
+     */
+    default boolean providesKVDatabase(C config) {
+        return false;
+    }
+
+    /**
      * Create an {@link KVDatabase} using the specified configuration.
+     *
+     * <p>
+     * The implementation in {@link KVImplementation} always throws {@link UnsupportedOperationException}.
      *
      * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
      * @param kvdb required {@link KVDatabase}; will be null unless {@link #requiresKVDatabase} returned true
      * @param kvstore required {@link AtomicKVStore}; will be null unless {@link #requiresAtomicKVStore} returned true
      * @return new {@link KVDatabase} instance
+     * @throws UnsupportedOperationException if {@link #providesKVDatabase} returns false
+     * @throws IllegalArgumentException if {@code config} is null
      */
-    KVDatabase createKVDatabase(C config, KVDatabase kvdb, AtomicKVStore kvstore);
+    default KVDatabase createKVDatabase(C config, KVDatabase kvdb, AtomicKVStore kvstore) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Create an {@link AtomicKVStore} using the specified configuration.
@@ -83,13 +118,14 @@ public interface KVImplementation<C> {
      *
      * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
      * @return new {@link AtomicKVStore} instance
+     * @throws IllegalArgumentException if {@code config} is null
      */
     default AtomicKVStore createAtomicKVStore(C config) {
-        return new AtomicKVDatabase(this.createKVDatabase(config, null, null));
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * Determine whether this {@link KVDatabase} implementation requires an underlying {@link AtomicKVStore}.
+     * Determine whether this instance's {@link KVDatabase} implementation requires an underlying {@link AtomicKVStore}.
      *
      * <p>
      * This method and {@link #requiresKVDatabase requiresKVDatabase()} may not both return true.
@@ -99,13 +135,14 @@ public interface KVImplementation<C> {
      *
      * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
      * @return true if the implementation relies on an underlying {@link AtomicKVStore}
+     * @throws IllegalArgumentException if {@code config} is null
      */
     default boolean requiresAtomicKVStore(C config) {
         return false;
     }
 
     /**
-     * Determine whether this {@link KVDatabase} implementation requires some other underlying {@link KVDatabase}.
+     * Determine whether this instance's {@link KVDatabase} implementation requires some other underlying {@link KVDatabase}.
      *
      * <p>
      * This method and {@link #requiresAtomicKVStore requiresAtomicKVStore()} may not both return true.
@@ -115,6 +152,7 @@ public interface KVImplementation<C> {
      *
      * @param config implementation configuration returned by {@link #buildConfig buildConfig()}
      * @return true if the implementation relies on an underlying {@link KVDatabase}
+     * @throws IllegalArgumentException if {@code config} is null
      */
     default boolean requiresKVDatabase(C config) {
         return false;
