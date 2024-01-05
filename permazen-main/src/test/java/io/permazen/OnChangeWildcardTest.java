@@ -138,7 +138,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     @Test(dataProvider = "bogusPaths")
     public void testBogusPaths(Class<? extends JObject> cl) throws Exception {
         try {
-            BasicTest.newPermazen(Person.class, cl);
+            BasicTest.newPermazen(Person.class, cl).initialize();
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected exception from {}: {}", cl, e.toString());

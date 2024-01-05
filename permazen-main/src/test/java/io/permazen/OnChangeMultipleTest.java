@@ -71,7 +71,7 @@ public class OnChangeMultipleTest extends MainTestSupport {
     @Test(dataProvider = "invalidClasses")
     public void testInvalidOnChange(List<Class<?>> classes) throws Exception {
         try {
-            BasicTest.newPermazen(classes);
+            BasicTest.newPermazen(classes).initialize();
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());

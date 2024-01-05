@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DetachedTransaction;
+import io.permazen.core.InvalidSchemaException;
 import io.permazen.core.ObjId;
 import io.permazen.core.Schema;
 import io.permazen.core.SchemaBundle;
@@ -51,6 +52,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
@@ -101,6 +103,14 @@ import org.slf4j.LoggerFactory;
  * {@link JTransaction#getDetachedTransaction}, {@link JObject#copyOut JObject.copyOut()}, and
  * {@link JObject#copyIn JObject.copyIn()}.
  *
+ * <p><b>Initialization</b>
+ *
+ * <p>
+ * Instances of this class must be {@linkplain #initialize initialized} before use. This involves accessing the underlying
+ * database and registering the Java data model's schema. This will happen automatically (if needed) when any method that
+ * requires the registered schema is invoked (including creating a transaction), or by explicit invocation of {@link #initialize}.
+ * See also {@link PermazenConfig.Builder#initializeOnCreation(boolean) PermazenConfig.Builder.initializeOnCreation()}.
+ *
  * @see JObject
  * @see JTransaction
  * @see PermazenConfig
@@ -139,15 +149,21 @@ public class Permazen {
     final SchemaModel schemaModel;                                                  // includes storage ID assignments
     final Database db;
 
-    final boolean hasOnCreateMethods;
-    final boolean hasOnDeleteMethods;
-    final boolean hasOnSchemaChangeMethods;
-    final boolean hasUpgradeConversions;
-    final boolean anyJClassRequiresDefaultValidation;
     final AnnotatedElement elementRequiringJSR303Validation;
+
+    volatile boolean hasOnCreateMethods;
+    volatile boolean hasOnDeleteMethods;
+    volatile boolean hasOnSchemaChangeMethods;
+    volatile boolean hasUpgradeConversions;
+    volatile boolean anyJClassRequiresDefaultValidation;
 
     // Cached listener sets used by JTransaction.<init>()
     final Transaction.ListenerSet[] listenerSets = new Transaction.ListenerSet[4];
+
+    @GuardedBy("this")
+    boolean initializing;
+    @GuardedBy("this")
+    boolean initialized;
 
     @SuppressWarnings("this-escape")
     private final LoadingCache<IndexQuery.Key, IndexQuery> indexQueryCache = CacheBuilder.newBuilder()
@@ -162,7 +178,7 @@ public class Permazen {
      * @param config configuration to use
      * @throws IllegalArgumentException if {@code config} contains a null class or a class with invalid annotation(s)
      * @throws IllegalArgumentException if {@code config} is null
-     * @throws io.permazen.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
+     * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     @SuppressWarnings("this-escape")
     public Permazen(PermazenConfig config) {
@@ -254,6 +270,87 @@ public class Permazen {
         // Copy it now so we have a pre-storage ID assignment version
         this.origSchemaModel = this.schemaModel.clone();
         this.origSchemaModel.lockDown(true);
+
+        // Determine which JClass's have validation requirement(s) on creation
+        this.jclasses.forEach(JClass::calculateValidationRequirement);
+        boolean anyDefaultValidation = false;
+        AnnotatedElement someElementRequiringJSR303Validation = null;
+        for (JClass<?> jclass : this.jclasses) {
+            anyDefaultValidation |= jclass.requiresDefaultValidation;
+            if (someElementRequiringJSR303Validation == null)
+                someElementRequiringJSR303Validation = jclass.elementRequiringJSR303Validation;
+        }
+        this.anyJClassRequiresDefaultValidation = anyDefaultValidation;
+        this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
+
+        // Initialize ValidatorFactory (only if needed)
+        ValidatorFactory optionalValidatorFactory = config.getValidatorFactory();
+        if (optionalValidatorFactory == null && elementRequiringJSR303Validation != null) {
+            try {
+                optionalValidatorFactory = Validation.buildDefaultValidatorFactory();
+            } catch (Exception e) {
+                try {
+                    final MessageInterpolator messageInterpolator = (MessageInterpolator)Class.forName(
+                      HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME, false, Thread.currentThread().getContextClassLoader())
+                      .getConstructor()
+                      .newInstance();
+                    optionalValidatorFactory = Validation.byDefaultProvider()
+                      .configure()
+                      .messageInterpolator(messageInterpolator)
+                      .buildValidatorFactory();
+                } catch (Exception e2) {
+                    throw new PermazenException(String.format(
+                      "JSR 303 validation constraint found on %s but creation of default ValidatorFactory failed;"
+                      + " is there a JSR 303 validation implementation on the classpath?", elementRequiringJSR303Validation), e2);
+                }
+            }
+        }
+        this.validatorFactory = optionalValidatorFactory;
+
+        // Auto-initialize?
+        if (config.isInitializeOnCreation())
+            this.initialize();
+    }
+
+// Initialization
+
+    /**
+     * Determine whether this instance is {@linkplain #initialize initialized}.
+     *
+     * @return true if initialized, otherwise false
+     */
+    public synchronized boolean isInitialized() {
+        return this.initialized;
+    }
+
+    /**
+     * Initialize this instance if needed.
+     *
+     * @return true if this instance was actually initialized, false if it was already initialized and so nothing happened
+     * @throws InvalidSchemaException if the data model schema conflicts with what's registered in the database
+     */
+    public synchronized boolean initialize() {
+
+        // Already initialized?
+        if (this.initialized)
+            return false;
+
+        // Set "initialized" flag but unset if initialization fails
+        boolean success = false;
+        this.initialized = true;
+        try {
+            this.doInitialize();
+            success = true;
+        } finally {
+            if (!success)
+                this.initialized = false;
+        }
+
+        // Done
+        return true;
+    }
+
+    private void doInitialize() {
 
         // Connect to database and register schema
         final Transaction tx = this.db.createTransaction(this.buildTransactionConfig(null));
@@ -347,18 +444,6 @@ public class Permazen {
         // Scan for various method-level annotations
         this.jclasses.forEach(JClass::scanAnnotations);
 
-        // Determine which JClass's have validation requirement(s) on creation
-        this.jclasses.forEach(JClass::calculateValidationRequirement);
-        boolean anyDefaultValidation = false;
-        AnnotatedElement someElementRequiringJSR303Validation = null;
-        for (JClass<?> jclass : this.jclasses) {
-            anyDefaultValidation |= jclass.requiresDefaultValidation;
-            if (someElementRequiringJSR303Validation == null)
-                someElementRequiringJSR303Validation = jclass.elementRequiringJSR303Validation;
-        }
-        this.anyJClassRequiresDefaultValidation = anyDefaultValidation;
-        this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
-
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnSchemaChange methods
         boolean anyOnCreateMethods = false;
         boolean anyOnDeleteMethods = false;
@@ -379,30 +464,6 @@ public class Permazen {
         this.untypedClassGenerator.generateClass();
         for (JClass<?> jclass : this.jclasses)
             jclass.getClassGenerator().generateClass();
-
-        // Initialize ValidatorFactory (only if needed)
-        ValidatorFactory optionalValidatorFactory = config.getValidatorFactory();
-        if (optionalValidatorFactory == null && elementRequiringJSR303Validation != null) {
-            try {
-                optionalValidatorFactory = Validation.buildDefaultValidatorFactory();
-            } catch (Exception e) {
-                try {
-                    final MessageInterpolator messageInterpolator = (MessageInterpolator)Class.forName(
-                      HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME, false, Thread.currentThread().getContextClassLoader())
-                      .getConstructor()
-                      .newInstance();
-                    optionalValidatorFactory = Validation.byDefaultProvider()
-                      .configure()
-                      .messageInterpolator(messageInterpolator)
-                      .buildValidatorFactory();
-                } catch (Exception e2) {
-                    throw new PermazenException(String.format(
-                      "JSR 303 validation constraint found on %s but creation of default ValidatorFactory failed;"
-                      + " is there a JSR 303 validation implementation on the classpath?", elementRequiringJSR303Validation), e2);
-                }
-            }
-        }
-        this.validatorFactory = optionalValidatorFactory;
     }
 
 // Accessors
@@ -470,6 +531,7 @@ public class Permazen {
      */
     public JTransaction createTransaction(ValidationMode validationMode, Map<String, ?> kvoptions) {
         Preconditions.checkArgument(validationMode != null, "null validationMode");
+        this.initialize();
         return this.createTransaction(this.db.createTransaction(this.buildTransactionConfig(kvoptions)), validationMode);
     }
 
@@ -491,12 +553,16 @@ public class Permazen {
      */
     public JTransaction createTransaction(KVTransaction kvt, ValidationMode validationMode) {
         Preconditions.checkArgument(validationMode != null, "null validationMode");
+        this.initialize();
         return this.createTransaction(this.db.createTransaction(kvt, this.buildTransactionConfig(null)), validationMode);
     }
 
     private JTransaction createTransaction(Transaction tx, ValidationMode validationMode) {
         assert tx != null;
         assert validationMode != null;
+        synchronized (this) {
+            assert this.initialized;
+        }
         final JTransaction jtx = new JTransaction(this, tx, validationMode);
         tx.addCallback(new CleanupCurrentCallback(jtx));
         return jtx;
@@ -540,6 +606,7 @@ public class Permazen {
      */
     public DetachedJTransaction createDetachedTransaction(KVStore kvstore, ValidationMode validationMode) {
         Preconditions.checkArgument(validationMode != null, "null validationMode");
+        this.initialize();
         final DetachedTransaction dtx = this.db.createDetachedTransaction(kvstore, this.buildTransactionConfig(null));
         return new DetachedJTransaction(this, dtx, validationMode);
     }
@@ -548,10 +615,18 @@ public class Permazen {
      * Build the {@link TransactionConfig} for a new core API transaction.
      *
      * @return core API transaction config
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     protected TransactionConfig buildTransactionConfig(Map<String, ?> kvoptions) {
+
+        // Protect schema model while it's not yet locked down
+        SchemaModel txModel = this.schemaModel;
+        if (!txModel.isLockedDown(true))
+            txModel = txModel.clone();
+
+        // Build config
         return TransactionConfig.builder()
-          .schemaModel(this.schemaModel)
+          .schemaModel(txModel)
           .allowNewSchema(true)
           .garbageCollectSchemas(true)
           .kvOptions(kvoptions)
@@ -568,6 +643,7 @@ public class Permazen {
      * Equivalent to: {@link #getSchemaModel(boolean) getSchemaModel}{@code (true)}.
      *
      * @return schema model used by this database
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public SchemaModel getSchemaModel() {
         return this.getSchemaModel(true);
@@ -578,8 +654,11 @@ public class Permazen {
      *
      * @param withStorageIds true to include actual storage ID assignments
      * @return schema model used by this database
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public SchemaModel getSchemaModel(boolean withStorageIds) {
+        if (withStorageIds)
+            this.initialize();
         return withStorageIds ? this.schemaModel : this.origSchemaModel;
     }
 
@@ -589,8 +668,10 @@ public class Permazen {
      * Get all {@link JClass}'s associated with this instance, indexed by object type name.
      *
      * @return read-only mapping from object type name to {@link JClass}
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public NavigableMap<String, JClass<?>> getJClassesByName() {
+        this.initialize();
         return Collections.unmodifiableNavigableMap(this.jclassesByName);
     }
 
@@ -601,8 +682,10 @@ public class Permazen {
      * @return {@link JClass} instance
      * @throws UnknownTypeException if {@code typeName} is unknown
      * @throws IllegalArgumentException if {@code typeName} is null
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public JClass<?> getJClass(String typeName) {
+        this.initialize();
         final JClass<?> jclass = this.jclassesByName.get(typeName);
         if (jclass == null)
             throw new UnknownTypeException(typeName, null);
@@ -613,8 +696,10 @@ public class Permazen {
      * Get all {@link JClass}'s associated with this instance, indexed by storage ID.
      *
      * @return read-only mapping from storage ID to {@link JClass}
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public NavigableMap<Integer, JClass<?>> getJClassesByStorageId() {
+        this.initialize();
         return Collections.unmodifiableNavigableMap(this.jclassesByStorageId);
     }
 
@@ -622,8 +707,10 @@ public class Permazen {
      * Get all {@link JClass}'s associated with this instance, indexed by Java model type.
      *
      * @return read-only mapping from Java model type to {@link JClass}
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public Map<Class<?>, JClass<?>> getJClassesByType() {
+        this.initialize();
         return Collections.unmodifiableMap(this.jclassesByType);
     }
 
@@ -634,9 +721,11 @@ public class Permazen {
      * @param <T> Java model type
      * @return associated {@link JClass}
      * @throws IllegalArgumentException if {@code type} is not equal to a known Java object model type
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     @SuppressWarnings("unchecked")
     public <T> JClass<T> getJClass(Class<T> type) {
+        this.initialize();
         final JClass<?> jclass = this.jclassesByType.get(type);
         if (jclass == null)
             throw new IllegalArgumentException("java model type is not recognized: " + type);
@@ -649,9 +738,11 @@ public class Permazen {
      * @param type (sub)type of some Java object model type
      * @param <T> Java model type or subtype thereof
      * @return narrowest {@link JClass} whose Java object model type is a supertype of {@code type}, or null if none found
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     @SuppressWarnings("unchecked")
     public <T> JClass<? super T> findJClass(Class<T> type) {
+        this.initialize();
         for (Class<? super T> superType = type; superType != null; superType = superType.getSuperclass()) {
             final JClass<?> jclass = this.jclassesByType.get(superType);
             if (jclass != null)
@@ -667,6 +758,7 @@ public class Permazen {
      * @return {@link JClass} instance
      * @throws UnknownTypeException if {@code id} has a type that is not defined in this instance's schema
      * @throws IllegalArgumentException if {@code id} is null
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public JClass<?> getJClass(ObjId id) {
         Preconditions.checkArgument(id != null, "null id");
@@ -679,8 +771,10 @@ public class Permazen {
      * @param storageId object type storage ID
      * @return {@link JClass} instance
      * @throws UnknownTypeException if {@code storageId} does not represent an object type
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     public JClass<?> getJClass(int storageId) {
+        this.initialize();
         final JClass<?> jclass = this.jclassesByStorageId.get(storageId);
         if (jclass == null)
             throw new UnknownTypeException("storage ID " + storageId, null);
@@ -693,9 +787,11 @@ public class Permazen {
      * @param type type restriction, or null for no restrction
      * @param <T> Java model type
      * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      */
     @SuppressWarnings("unchecked")
     public <T> List<JClass<? extends T>> getJClasses(Class<T> type) {
+        this.initialize();
         return this.jclasses.stream()
           .filter(jclass -> type == null || type.isAssignableFrom(jclass.type))
           .map(jclass -> (JClass<? extends T>)jclass)
@@ -767,6 +863,7 @@ public class Permazen {
      * @throws IllegalArgumentException if no model types are instances of {@code startType}
      * @throws IllegalArgumentException if {@code path} is invalid
      * @throws IllegalArgumentException if either parameter is null
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      * @see ReferencePath
      */
     public ReferencePath parseReferencePath(Class<?> startType, String path) {
@@ -788,6 +885,7 @@ public class Permazen {
      * @throws IllegalArgumentException if {@code startTypes} is empty or contains null
      * @throws IllegalArgumentException if {@code path} is invalid
      * @throws IllegalArgumentException if either parameter is null
+     * @throws InvalidSchemaException if this instance is not yet {@link #initialize initialized} and schema registration fails
      * @see ReferencePath
      */
     public ReferencePath parseReferencePath(Set<JClass<?>> startTypes, String path) {

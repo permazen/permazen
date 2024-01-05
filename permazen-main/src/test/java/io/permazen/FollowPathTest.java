@@ -107,7 +107,7 @@ public class FollowPathTest extends MainTestSupport {
     @Test(dataProvider = "badClasses")
     public void testBadChild(Class<?> badClass) {
         try {
-            BasicTest.newPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badClass);
+            BasicTest.newPermazen(Family.class, Car.class, Bike.class, Dad.class, Mom.class, badClass).initialize();
             assert false;
         } catch (IllegalArgumentException e) {
             this.log.info("got expected {}", e.toString());

@@ -32,6 +32,7 @@ public final class PermazenConfig {
     private final Database database;
     private final ValidatorFactory validatorFactory;
     private final LinkedHashSet<Class<?>> modelClasses;
+    private final boolean initializeOnCreation;
 
 // Constructor
 
@@ -41,6 +42,7 @@ public final class PermazenConfig {
         this.database = Optional.ofNullable(builder.database).orElseGet(() -> new Database(new MemoryKVDatabase()));
         this.validatorFactory = builder.validatorFactory;
         this.modelClasses = builder.modelClasses;
+        this.initializeOnCreation = builder.initializeOnCreation;
     }
 
 // Property Methods
@@ -70,6 +72,16 @@ public final class PermazenConfig {
      */
     public Set<Class<?>> getModelClasses() {
         return Collections.unmodifiableSet(this.modelClasses);
+    }
+
+    /**
+     * Determine whether the {@link Permazen} instance should {@link Permazen#initialize initialize()} automatically
+     * on instantiation.
+     *
+     * @return true to initialize on instantiation, false to defer initialization
+     */
+    public boolean isInitializeOnCreation() {
+        return this.initializeOnCreation;
     }
 
 // Other Methods
@@ -103,6 +115,7 @@ public final class PermazenConfig {
         private Database database;
         private ValidatorFactory validatorFactory;
         private LinkedHashSet<Class<?>> modelClasses;
+        private boolean initializeOnCreation;
 
     // Constructors
 
@@ -175,6 +188,20 @@ public final class PermazenConfig {
         public Builder modelClasses(Class<?>... modelClasses) {
             Preconditions.checkArgument(modelClasses != null, "null modelClasses");
             return this.modelClasses(Arrays.asList(modelClasses));
+        }
+
+        /**
+         * Configure whether the {@link Permazen} instance should {@link Permazen#initialize initialize()} automatically
+         * on instantiation.
+         *
+         * <p>
+         * The default is false.
+         *
+         * @param initializeOnCreation true to initialize on instantiation, false to defer initialization
+         */
+        public Builder initializeOnCreation(boolean initializeOnCreation) {
+            this.initializeOnCreation = initializeOnCreation;
+            return this;
         }
 
         /**

@@ -271,7 +271,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             SignatureBad4.class
         }) {
             try {
-                BasicTest.newPermazen(c);
+                BasicTest.newPermazen(c).initialize();
                 assert false : "expected error";
             } catch (IllegalArgumentException e) {
                 log.info("got expected {}", e.toString());

@@ -299,7 +299,7 @@ public class OnChangeTest extends MainTestSupport {
     @Test
     public void testCounter() {
         try {
-            BasicTest.newPermazen(HasCounter.class);
+            BasicTest.newPermazen(HasCounter.class).initialize();
             assert false;
         } catch (java.lang.IllegalArgumentException e) {
             // expected
