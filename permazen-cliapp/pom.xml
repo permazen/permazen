@@ -138,6 +138,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
 
                                 <!-- The commons-logging classes overlap with spring-jcl -->
