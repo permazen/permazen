@@ -22,6 +22,8 @@ import io.permazen.util.ParseException;
 
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.dellroad.jct.core.ConsoleSession;
 import org.slf4j.Logger;
@@ -109,7 +111,7 @@ public class Session {
      * @throws IllegalArgumentException if either parameter is null
      */
     public Session(ConsoleSession<?, ?> consoleSession, Database db) {
-        this(consoleSession, null, Session.notNull(db, "db"), db.getKVDatabase());
+        this(consoleSession, null, Session.notNull(db, "db"), null);
     }
 
     /**
@@ -120,15 +122,29 @@ public class Session {
      * @throws IllegalArgumentException if either parameter is null
      */
     public Session(ConsoleSession<?, ?> consoleSession, Permazen jdb) {
-        this(consoleSession, Session.notNull(jdb, "jdb"), jdb.getDatabase(), jdb.getDatabase().getKVDatabase());
+        this(consoleSession, Session.notNull(jdb, "jdb"), null, null);
     }
 
     Session(ConsoleSession<?, ?> consoleSession, Permazen jdb, Database db, KVDatabase kvdb) {
+        Preconditions.checkArgument(Stream.of(kvdb, db, jdb).filter(Objects::nonNull).count() == 1,
+          "exactly one parameter must be non-null");
         this.consoleSession = Session.notNull(consoleSession, "consoleSession");
-        this.mode = jdb != null ? SessionMode.PERMAZEN : db != null ? SessionMode.CORE_API : SessionMode.KEY_VALUE;
-        this.jdb = jdb;
-        this.db = db;
-        this.kvdb = kvdb;
+        if (jdb != null) {
+            this.jdb = jdb;
+            this.db = this.jdb.getDatabase();
+            this.kvdb = this.db.getKVDatabase();
+            this.mode = SessionMode.PERMAZEN;
+        } else if (db != null) {
+            this.jdb = null;
+            this.db = db;
+            this.kvdb = this.db.getKVDatabase();
+            this.mode = SessionMode.CORE_API;
+        } else {
+            this.jdb = null;
+            this.db = null;
+            this.kvdb = kvdb;
+            this.mode = SessionMode.KEY_VALUE;
+        }
     }
 
     private static <T> T notNull(T obj, String name) {
