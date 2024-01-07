@@ -7,6 +7,7 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;

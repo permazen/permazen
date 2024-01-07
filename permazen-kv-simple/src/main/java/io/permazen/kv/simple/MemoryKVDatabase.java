@@ -17,7 +17,7 @@ import io.permazen.kv.mvcc.MemoryAtomicKVStore;
  * See {@link SimpleKVDatabase} for further details.
  *
  * @see SimpleKVDatabase
- * @see MemoryKVStore
+ * @see MemoryAtomicKVStore
  */
 public class MemoryKVDatabase extends SimpleKVDatabase {
 
