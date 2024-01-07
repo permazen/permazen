@@ -19,10 +19,8 @@ By default, storage ID's are assigned automatically starting from 1, so unless t
 
 ## Object ID's
 
-Objects are uniquely identified by their Object ID. An object ID is a 64-bit value consisting of the concatenation of:
-
-* The storage ID corresponding to the object's type
-* Random bits to make the object ID unique
+Objects are uniquely identified by their Object ID. An object ID is a 64-bit value consisting of the concatenation of
+the storage ID corresponding to the object's type, and (usually) 56 random bits that make the object ID unique.
 
     ┏━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
     ┃ Storage ID ┃     Random Bits      ┃
