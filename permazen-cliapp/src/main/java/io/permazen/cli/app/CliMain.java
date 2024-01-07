@@ -16,11 +16,17 @@ import io.permazen.cli.jshell.PermazenJShellCommand;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.dellroad.jct.core.ShellSession;
 import org.dellroad.jct.core.simple.CommandBundle;
 import org.dellroad.jct.core.simple.SimpleShellRequest;
@@ -30,8 +36,11 @@ import org.jline.terminal.TerminalBuilder;
 
 public class CliMain {
 
+    public static final Level DEFAULT_LOG_LEVEL = Level.INFO;       // Note: keep this consistent with log4j2.xml
+
     private static CliMain instance;
 
+    private boolean showErrorStackTraces;
     private Session cliSession;
 
 // Constructor
@@ -59,20 +68,19 @@ public class CliMain {
 
     public int run(String[] args) {
 
+        // Try to detect "--verbose" flag early
+        this.showErrorStackTraces |= Stream.of(args).anyMatch(s -> s.matches("-v|--verbose"));
+
         // Build CLI config
-        final PermazenCliConfig config = new PermazenCliConfig() {
-            @Override
-            protected void processOptions(OptionSet options) {
-                super.processOptions(options);
-                if (!options.nonOptionArguments().isEmpty())
-                    throw new IllegalArgumentException("this command does not take any parameters");
-            }
-        };
+        final CliMainConfig config = new CliMainConfig();
         try {
             if (!config.startup(System.out, System.err, -1, args))
                 return 0;
         } catch (IllegalArgumentException e) {
-            System.err.println(String.format("%s: %s", this.getErrorPrefix(), e.getMessage()));
+            final String description = Optional.ofNullable(e.getMessage()).orElseGet(e::toString);
+            System.err.println(String.format("%s: %s", this.getErrorPrefix(), description));
+            if (this.showErrorStackTraces)
+                e.printStackTrace(System.err);
             return 1;
         }
 
@@ -100,6 +108,8 @@ public class CliMain {
               .build();
         } catch (IOException e) {
             System.err.println(String.format("%s: error creating system terminal: %s", this.getErrorPrefix(), e));
+            if (this.showErrorStackTraces)
+                e.printStackTrace(System.err);
             return 1;
         }
 
@@ -109,6 +119,8 @@ public class CliMain {
             shellSession = shell.newShellSession(new SimpleShellRequest(terminal, Collections.emptyList(), System.getenv()));
         } catch (IOException e) {
             System.err.println(String.format("%s: error creating %s session: %s", this.getErrorPrefix(), "shell", e));
+            if (this.showErrorStackTraces)
+                e.printStackTrace(System.err);
             return 1;
         }
         shellSessionRef.set(shellSession);
@@ -137,5 +149,59 @@ public class CliMain {
 
         // Exit with exit value
         System.exit(exitValue);
+    }
+
+// Log Level
+
+    public static void setLogLevel(String levelName) {
+        final Level level;
+        try {
+            level = Level.valueOf(levelName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("invalid logging level \"" + levelName + "\"", e);
+        }
+        Configurator.setAllLevels("", level);
+    }
+
+// CliMainConfig
+
+    private class CliMainConfig extends PermazenCliConfig {
+
+        protected OptionSpec<Level> logLevelOption;
+        protected Level logLevel;
+
+        @Override
+        public void addOptions(OptionParser parser) {
+            super.addOptions(parser);
+            Preconditions.checkState(this.logLevelOption == null, "duplicate option");
+            this.logLevelOption = parser.accepts("log-level",
+                String.format("Log level, one of: %s (default \"%s\")",
+                  Stream.of(Level.values())
+                    .sorted()
+                    .map(Level::name)
+                    .map(s -> String.format("\"%s\"", s))
+                    .collect(Collectors.joining(", ")),
+                  DEFAULT_LOG_LEVEL))
+              .withRequiredArg()
+              .ofType(Level.class)
+              .describedAs("level");
+        }
+
+        @Override
+        protected void processOptions(OptionSet options) {
+
+            // Process log leve as early as possible
+            this.logLevel = Optional.ofNullable(this.logLevelOption)
+              .map(options::valueOf)
+              .orElse(DEFAULT_LOG_LEVEL);
+            CliMain.setLogLevel(this.logLevel.name());
+            if (this.logLevel.isLessSpecificThan(Level.DEBUG))
+                CliMain.this.showErrorStackTraces = true;
+
+            // Proceed
+            super.processOptions(options);
+            if (!options.nonOptionArguments().isEmpty())
+                throw new IllegalArgumentException("this command does not take any parameters");
+        }
     }
 }
