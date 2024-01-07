@@ -1142,18 +1142,18 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Validate recovered state
             if (this.isConfigured()) {
-                Preconditions.checkArgument(this.clusterId != 0);
-                Preconditions.checkArgument(this.currentTerm > 0);
-                Preconditions.checkArgument(this.log.getLastTerm() > 0);
-                Preconditions.checkArgument(this.log.getLastIndex() > 0);
-                Preconditions.checkArgument(!this.currentConfig.isEmpty());
+                Preconditions.checkArgument(this.clusterId != 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.currentTerm > 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getLastTerm() > 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getLastIndex() > 0, "inconsistent raft state");
+                Preconditions.checkArgument(!this.currentConfig.isEmpty(), "inconsistent raft state");
             } else {
-                Preconditions.checkArgument(this.log.getLastAppliedTerm() == 0);
-                Preconditions.checkArgument(this.log.getLastAppliedIndex() == 0);
-                Preconditions.checkArgument(this.log.getLastTerm() == 0);
-                Preconditions.checkArgument(this.log.getLastIndex() == 0);
-                Preconditions.checkArgument(this.currentConfig.isEmpty());
-                Preconditions.checkArgument(this.log.getNumTotal() == 0);
+                Preconditions.checkArgument(this.log.getLastAppliedTerm() == 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getLastAppliedIndex() == 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getLastTerm() == 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getLastIndex() == 0, "inconsistent raft state");
+                Preconditions.checkArgument(this.currentConfig.isEmpty(), "inconsistent raft state");
+                Preconditions.checkArgument(this.log.getNumTotal() == 0, "inconsistent raft state");
             }
 
             // Start as follower (with unknown leader)
