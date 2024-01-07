@@ -94,7 +94,7 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      * @return current RTT estimate in nanoseconds
      */
     public double getRttEstimate() {
-        return ((CachingKVStore)this.getKVStore()).getRttEstimate();
+        return ((CachingKVStore)this.getBaseKVStore()).getRttEstimate();
     }
 
     /**
@@ -182,6 +182,6 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
      */
     @Override
     public void close() {
-        ((CloseableKVStore)this.getKVStore()).close();
+        ((CloseableKVStore)this.getBaseKVStore()).close();
     }
 }

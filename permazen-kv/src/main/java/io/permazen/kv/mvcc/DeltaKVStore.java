@@ -55,7 +55,7 @@ public interface DeltaKVStore extends KVStore {
      *
      * @return underlying {@link KVStore}
      */
-    KVStore getKVStore();
+    KVStore getBaseKVStore();
 
     /**
      * Get the {@link Reads} associated with this instance.

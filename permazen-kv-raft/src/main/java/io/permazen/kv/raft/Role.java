@@ -632,7 +632,7 @@ public abstract class Role {
                 final MostRecentView view = new MostRecentView(this.raft, baseIndex);
                 assert view.getTerm() == baseTerm;
                 assert view.getIndex() == baseIndex;
-                tx.rebase(baseTerm, baseIndex, view.getView().getKVStore(), view.getSnapshot());
+                tx.rebase(baseTerm, baseIndex, view.getView().getBaseKVStore(), view.getSnapshot());
                 break;
             case COMMIT_READY:
                 tx.rebase(baseTerm, baseIndex);

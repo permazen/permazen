@@ -767,10 +767,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Clone the modifications currrently being compacted, if any
             Writes compactingWrites = null;
-            if (this.mods.getKVStore() instanceof MutableView) {                            // we are compacting
+            if (this.mods.getBaseKVStore() instanceof MutableView) {                        // we are compacting
                 assert this.compaction != null;
-                final MutableView compactingMods = (MutableView)this.mods.getKVStore();
-                assert compactingMods.getKVStore() == this.kvstore;
+                final MutableView compactingMods = (MutableView)this.mods.getBaseKVStore();
+                assert compactingMods.getBaseKVStore() == this.kvstore;
                 synchronized (compactingMods) {
                     if (!compactingMods.getWrites().isEmpty())
                         compactingWrites = compactingMods.getWrites().readOnlySnapshot();

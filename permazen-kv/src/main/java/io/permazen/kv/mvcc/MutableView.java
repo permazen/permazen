@@ -97,7 +97,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 // DeltaKVStore
 
     @Override
-    public synchronized KVStore getKVStore() {
+    public synchronized KVStore getBaseKVStore() {
         return this.kv;
     }
 
