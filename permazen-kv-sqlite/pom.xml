@@ -21,7 +21,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.sqlite</automatic.module.name>
-        <sqlite.version>3.40.0.0</sqlite.version>
+        <sqlite.version>3.41.2.2</sqlite.version>
     </properties>
     <dependencies>
         <dependency>
