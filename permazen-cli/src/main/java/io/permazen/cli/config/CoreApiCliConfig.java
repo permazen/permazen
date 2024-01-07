@@ -76,13 +76,13 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
         this.sessionModeOption = parser.accepts("session-mode",
             String.format("Session mode, one of: %s (default \"%s\")",
               Stream.of(SessionMode.values())
-                .map(SessionModeConverter::toString)
+                .map(SessionMode::name)
                 .map(s -> String.format("\"%s\"", s))
                 .collect(Collectors.joining(", ")),
-              SessionModeConverter.toString(this.getDefaultSessionMode())))
+              this.getDefaultSessionMode()))
           .withRequiredArg()
-          .describedAs("mode")
-          .withValuesConvertedBy(new SessionModeConverter());
+          .ofType(SessionMode.class)
+          .describedAs("mode");
     }
 
     /**
