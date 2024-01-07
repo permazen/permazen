@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<assembly
+  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+   http://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.1.1 http://maven.apache.org/xsd/assembly-2.1.1.xsd">
+    <id>dist</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <!-- README files, etc. -->
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/dist</directory>
+            <outputDirectory/>
+        </fileSet>
+    </fileSets>
+
+    <!-- Executable JAR-->
+    <files>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
+            <destName>${project.parent.artifactId}-cli.jar</destName>
+            <outputDirectory/>
+        </file>
+    </files>
+</assembly>
