@@ -21,7 +21,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.mvstore</automatic.module.name>
-        <mvstore.version>2.1.214</mvstore.version>
+        <mvstore.version>2.2.220</mvstore.version>
     </properties>
     <dependencies>
         <dependency>
