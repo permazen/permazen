@@ -18,7 +18,6 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.MovingAverage;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -240,11 +239,11 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
      * @throws IllegalArgumentException if {@code rttEstimate} is negative
      */
     public CachingKVStore(CloseableKVStore kvstore, ExecutorService executor, long rttEstimate) {
-        this(kvstore, kvstore, executor, rttEstimate);
+        this(kvstore, kvstore::close, executor, rttEstimate);
     }
 
-    private CachingKVStore(KVStore kvstore, Closeable closeable, ExecutorService executor, long rttEstimate) {
-        super(kvstore, closeable);
+    private CachingKVStore(KVStore kvstore, Runnable closeAction, ExecutorService executor, long rttEstimate) {
+        super(kvstore, closeAction);
         Preconditions.checkArgument(executor != null, "null executor");
         Preconditions.checkArgument(rttEstimate >= 0, "rttEstimate < 0");
         this.executor = executor;

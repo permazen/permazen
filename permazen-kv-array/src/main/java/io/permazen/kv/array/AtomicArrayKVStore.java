@@ -794,7 +794,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 snapshot = new MutableView(snapshot, outstandingWrites);
 
             // Done
-            return new CloseableForwardingKVStore(snapshot);
+            return new CloseableForwardingKVStore(snapshot, null);
         } finally {
             this.readLock.unlock();
         }

@@ -689,7 +689,7 @@ public class RaftKVTransaction implements KVTransaction {
             this.snapshotRefs.ref();
             final MutableView snapshotView = new MutableView(this.snapshotRefs.getTarget(), writes);
             snapshotView.setReadOnly();
-            return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
+            return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs::unref);
         }
     }
 

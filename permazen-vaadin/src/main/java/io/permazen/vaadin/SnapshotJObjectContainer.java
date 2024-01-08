@@ -93,7 +93,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
             this.kvstore.close();
             this.kvstore = null;
         }
-        this.kvstore = new CloseableForwardingKVStore(new MutableView(snapshot), snapshot);
+        this.kvstore = new CloseableForwardingKVStore(new MutableView(snapshot), snapshot::close);
 
         // Create snapshot transaction based on the key/value store snapshot and load container
         final SnapshotJTransaction snapshotTx = this.jdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);

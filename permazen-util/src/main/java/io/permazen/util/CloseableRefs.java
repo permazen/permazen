@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -100,19 +99,6 @@ public class CloseableRefs<C extends Closeable> {
      */
     public int refs() {
         return this.refs.get();
-    }
-
-    /**
-     * Create an empty {@link Closeable} that, when {@link Closeable#close close()}'d, decrements the reference count.
-     *
-     * @return unreferencing {@link Closeable}
-     */
-    public Closeable getUnrefCloseable() {
-        final AtomicBoolean closed = new AtomicBoolean();
-        return () -> {
-            if (closed.compareAndSet(false, true))
-                this.unref();
-        };
     }
 
     /**

@@ -142,7 +142,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
             if (!this.mutations.isEmpty()) {
 
                 // Wrap snapshot in a MutableView that closes the snapshot on close()
-                snapshot = new CloseableForwardingKVStore(new MutableView(snapshot, false), snapshot);
+                snapshot = new CloseableForwardingKVStore(new MutableView(snapshot, false), snapshot::close);
 
                 // Apply mutations
                 for (Mutation mutation : this.mutations)

@@ -11,7 +11,6 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,65 +25,47 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
       System.getProperty(CloseableForwardingKVStore.class.getName() + ".TRACK_ALLOCATIONS", "false"));
 
     private final KVStore kvstore;
-    private final Closeable closeable;
+    private final Runnable closeAction;
     private final Throwable allocation;
 
     private boolean closed;
 
-    /**
-     * Constructor for a do-nothing {@link #close}.
-     *
-     * <p>
-     * With this constructor, nothing will actually be closed when {@link #close} is invoked.
-     *
-     * @param kvstore key/value store for forwarding
-     * @throws IllegalArgumentException if {@code kvstore} is null
-     */
-    public CloseableForwardingKVStore(KVStore kvstore) {
-        this(kvstore, null);
-    }
+// Constructors
 
     /**
-     * Convenience constructor.
-     *
-     * @param kvstore key/value store for forwarding; will be closed on {@link #close}
-     * @throws IllegalArgumentException if {@code kvstore} is null
-     */
-    public CloseableForwardingKVStore(CloseableKVStore kvstore) {
-        this(kvstore, kvstore);
-    }
-
-    /**
-     * Primary constructor.
+     * Constructor.
      *
      * @param kvstore key/value store for forwarding
-     * @param resource {@link Closeable} resource, or null for none
+     * @param closeAction action to perform on {@link #close}, or null for none
      * @throws IllegalArgumentException if {@code kvstore} is null
      */
-    public CloseableForwardingKVStore(KVStore kvstore, Closeable resource) {
+    public CloseableForwardingKVStore(KVStore kvstore, Runnable closeAction) {
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         this.kvstore = kvstore;
-        this.closeable = resource;
-        this.allocation = CloseableForwardingKVStore.TRACK_ALLOCATIONS ? new Throwable("allocated here") : null;
+        this.closeAction = closeAction;
+        this.allocation = CloseableForwardingKVStore.TRACK_ALLOCATIONS && this.closeAction != null ?
+          new Throwable("allocated here") : null;
     }
+
+// ForwardingKVStore
 
     @Override
     protected KVStore delegate() {
         return this.kvstore;
     }
 
+// CloseableKVStore
+
     @Override
     public synchronized void close() {
-        if (this.closed)
-            return;
-        try {
-            if (this.closeable != null)
-                this.closeable.close();
-        } catch (IOException e) {
-            // ignore
+        if (!this.closed) {
+            this.closed = true;
+            if (this.closeAction != null)
+                this.closeAction.run();
         }
-        this.closed = true;
     }
+
+// Object
 
     /**
      * Ensure the associated resource is {@link #close}'d before reclaiming memory.
@@ -99,7 +80,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
             }
             if (leaked) {
                 final Logger log = LoggerFactory.getLogger(this.getClass());
-                final String msg = this.getClass().getSimpleName() + "[" + this.closeable + "] leaked without invoking close()";
+                final String msg = this.getClass().getSimpleName() + "[" + this.closeAction + "] leaked without invoking close()";
                 if (this.allocation != null)
                     log.warn(msg, this.allocation);
                 else
