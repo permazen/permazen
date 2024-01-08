@@ -5,8 +5,8 @@
 
 package io.permazen.core;
 
+import io.permazen.kv.mvcc.MemoryAtomicKVStore;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaModel;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +21,7 @@ public class UserMetaDataTest extends CoreAPITestSupport {
     public void testUserMetaData() throws Exception {
 
         // Setup database with meta-data
-        final MemoryKVStore kvstore = new MemoryKVStore();
+        final MemoryAtomicKVStore kvstore = new MemoryAtomicKVStore();
         kvstore.put(Layout.getUserMetaDataKeyPrefix(), new byte[] { 1, 2, 3});
 
         // Create database

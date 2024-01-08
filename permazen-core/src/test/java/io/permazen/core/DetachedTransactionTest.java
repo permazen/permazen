@@ -9,9 +9,9 @@ import com.google.common.collect.Lists;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.mvcc.MemoryAtomicKVStore;
 import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.kv.simple.SimpleKVDatabase;
-import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaModel;
 import io.permazen.test.TestSupport;
 
@@ -31,7 +31,7 @@ public class DetachedTransactionTest extends CoreAPITestSupport {
     public void testDetachedTransaction() throws Exception {
 
         // Setup database
-        final MemoryKVStore kvstore1 = new MemoryKVStore();
+        final MemoryAtomicKVStore kvstore1 = new MemoryAtomicKVStore();
         final SimpleKVDatabase kv1 = new SimpleKVDatabase(kvstore1, 100, 500);
         final Database db1 = new Database(kv1);
 
