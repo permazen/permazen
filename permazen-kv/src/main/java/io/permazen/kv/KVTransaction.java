@@ -93,6 +93,7 @@ public interface KVTransaction extends KVStore {
      *  <li>{@link #setReadOnly setReadOnly()} may only be invoked prior to mutating data; and/or</li>
      *  <li>Once set to read-only, a transaction may not be set back to read-write</li>
      * </ul>
+     * If one of the above constraints is violated, an {@link IllegalStateException} is thrown.
      *
      * <p>
      * Note: for some implementations, the data read from a transaction that is never {@link #commit}'ed is
@@ -202,7 +203,7 @@ public interface KVTransaction extends KVStore {
      * <p>
      * This method may be invoked at any time, even after a previous invocation of
      * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
-     * In particular, this method should <b>not</b> throw {@link StaleTransactionException}.
+     * In particular, this method must <b>not</b> throw {@link StaleTransactionException}.
      */
     void rollback();
 

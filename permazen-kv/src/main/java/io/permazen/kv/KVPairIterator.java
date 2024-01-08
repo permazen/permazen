@@ -15,9 +15,12 @@ import java.util.NoSuchElementException;
 
 /**
  * An {@link java.util.Iterator} that iterates over all key/value pairs in a {@link KVStore} within a range of keys,
- * without using the {@link KVStore#getRange KVStore.getRange()} method. Therefore, it can be used to implement
- * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementations that don't natively support iteration.
- * Instances support forward or reverse iteration and {@link #remove java.util.Iterator.remove()}.
+ * without using the {@link KVStore#getRange KVStore.getRange()} method.
+ *
+ * <p>
+ * This class can be used to implement {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementations that
+ * don't natively support iteration. Instances support forward and reverse iteration and
+ * {@link #remove java.util.Iterator.remove()}.
  *
  * <p>
  * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},

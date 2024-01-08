@@ -40,9 +40,9 @@ import io.permazen.kv.KVStore;
  * <b>Thread Safety</b>
  *
  * <p>
- * Instances are thread safe and always present an up-to-date view even in the face of multiple threads making changes.
- * However, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe without first locking
- * the {@link DeltaKVStore} that owns them.
+ * Instances are thread safe and always present an up-to-date view even in the face of multiple threads making changes,
+ * and all operations are atomic. However, directly accessing the associated {@link Reads} or {@link Writes} is not
+ * safe without first locking the {@link DeltaKVStore} that owns them.
  */
 public interface DeltaKVStore extends KVStore {
 
@@ -65,7 +65,7 @@ public interface DeltaKVStore extends KVStore {
      * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
      *
      * <p>
-     * The returned object is "live" and should only be accessed while synchronized on this instance.
+     * The returned object is "live" and should only be accessed while synchronized on <i>this</i> instance.
      *
      * <p>
      * The read tracking may be imprecise, as long as all actual reads are included. For example, if keys {@code 10001},
@@ -82,7 +82,7 @@ public interface DeltaKVStore extends KVStore {
      * Get the {@link Writes} associated with this instance.
      *
      * <p>
-     * The returned object is "live" and should only be accessed while synchronized on this instance.
+     * The returned object is "live" and should only be accessed while synchronized on <i>this</i> instance.
      *
      * @return writes recorded
      */
@@ -126,7 +126,10 @@ public interface DeltaKVStore extends KVStore {
      * If {@code allowWrites} is false, then any write attempts by {@code action} will provoke an
      * {@link IllegalStateException}.
      *
-     * @param allowWrites whether to allow writes
+     * <p>
+     * Read tracking is disabled only for the current thread, and it ends when this method returns.
+     *
+     * @param allowWrites whether to allow writes (usually this is a bad idea)
      * @param action the action to perform
      * @throws IllegalArgumentException if {@code action} is null
      */
