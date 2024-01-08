@@ -25,6 +25,16 @@ public class ReadRemoveConflict extends Conflict {
     /**
      * Constructor.
      *
+     * @param key the single key that conflicted
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    public ReadRemoveConflict(byte[] key) {
+        this(new KeyRange(key));
+    }
+
+    /**
+     * Constructor.
+     *
      * @param range the range of keys that conflict
      * @throws IllegalArgumentException if {@code range} is null
      */
