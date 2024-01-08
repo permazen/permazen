@@ -295,14 +295,8 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         this.kv = new LevelDBKVStore(this.db, new ReadOptions().verifyChecksums(this.options.verifyChecksums()), null);
 
         // Add shutdown hook so we don't leak native resources
-        if (this.shutdownHookRegistered.compareAndSet(false, true)) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LevelDBAtomicKVStore.this.stop();
-                }
-            });
-        }
+        if (this.shutdownHookRegistered.compareAndSet(false, true))
+            Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     @Override
