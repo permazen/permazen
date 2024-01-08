@@ -149,6 +149,11 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
     }
 
     @Override
+    public synchronized boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    @Override
     public synchronized void setReadOnly() {
         this.readOnly = true;
     }

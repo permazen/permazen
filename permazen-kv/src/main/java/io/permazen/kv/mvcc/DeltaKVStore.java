@@ -89,6 +89,13 @@ public interface DeltaKVStore extends KVStore {
     Writes getWrites();
 
     /**
+     * Determine if this instance is read-only.
+     *
+     * @return true if this instance is read-only, otherwise false
+     */
+    boolean isReadOnly();
+
+    /**
      * Configure this instance as read-only.
      *
      * <p>
