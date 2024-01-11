@@ -16,7 +16,7 @@
 
     <context:annotation-config/>
 
-     <bean id="kvdb" class="io.permazen.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
+     <bean id="kvdb" class="io.permazen.kv.simple.MemoryKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
 
      <permazen:scan-classes base-package="io.permazen.demo"/>
 
