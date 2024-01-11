@@ -37,7 +37,7 @@ import java.util.Comparator;
  * <ul>
  *  <li>They have an associated Java type which can represent any of the field's values in Java (possibly including null).
  *  <li>They may have an {@link EncodingId}, which is a globally unique URN-style identifier that allows the encoding
- *      to be looked up by name in an {@link EncodingRegistry}. Encodings with no {@link EncodingId} are <i>anonymous</i>.
+ *      to be looked up by name in an {@link EncodingRegistry}. Encodings with no {@link EncodingId} are called <i>anonymous</i>.
  *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
  *      then the two orderings do not necessarily have to agree, but they should if possible; see also {@link #sortsNaturally}.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)

@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Field Names</b>
  *
  * <p>
- * In the case of complex fields, the {@code fieldName} must include a sub-field:
+ * In the case of complex fields, the {@code fieldName} must specify the sub-field:
  * <ul>
  *  <li>For List and Set fields, the only sub-field is {@code element}; for these field types,
  *      {@code myfield} can be used as an abbreviation for {@code myfield.element}.

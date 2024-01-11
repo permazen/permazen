@@ -827,7 +827,7 @@ public class JTransaction {
      * @param <T> expected Java model type
      * @return Java model object
      * @throws ClassCastException if the Java model object does not have type {@code type}
-     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if either parameter is null
      * @see #get(ObjId)
      * @see #get(JObject)
      */

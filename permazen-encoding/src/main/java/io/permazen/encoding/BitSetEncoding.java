@@ -19,7 +19,8 @@ import java.util.BitSet;
  * {@link BitSet} type. Null values are not supported by this class.
  *
  * <p>
- * Instances are ordered like boolean numbers, i.e., lexicographically, with higher index bits being more significant.
+ * Instances are ordered as if they were giant unsigned integers, i.e., whichever instance has the highest bit set
+ * to one where the other instance has it set to zero is considered bigger. So the empty instance is the smallest possible.
  */
 public class BitSetEncoding extends BuiltinEncoding<BitSet> {
 

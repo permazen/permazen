@@ -53,9 +53,9 @@ import java.util.Iterator;
  * <p>
  * This interface provides methods for copying a graph of objects between transactions, for example, from an open
  * key/value database transaction into an in-memory detached transaction ("copy out"), or vice-versa ("copy in").
- * A graph of objects can be copied by specifying a starting object and either a list of reference paths, or
- * a cascade name (see {@link JField &#64;JField}). Object ID's can be remapped during
- * the copy if necessary, e.g., to ensure existing objects are not overwritten (see {@link CopyState}).
+ * A graph of objects can be copied by specifying a starting object and a list of reference cascades.
+ * (see {@link JField &#64;JField}). Object ID's can be remapped during the copy if necessary, e.g., to ensure
+ * existing objects are not overwritten (see {@link CopyState}).
  *
  * @see JTransaction
  */

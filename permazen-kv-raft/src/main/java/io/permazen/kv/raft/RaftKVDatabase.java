@@ -19,6 +19,7 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Reads;
 import io.permazen.kv.mvcc.SnapshotKVDatabase;
+import io.permazen.kv.mvcc.TransactionConflictException;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.fallback.FallbackKVDatabase;
 import io.permazen.kv.raft.msg.AppendRequest;
@@ -144,7 +145,7 @@ import org.slf4j.LoggerFactory;
  *      <li>On commit, the transaction's {@link Reads}, {@link Writes}, base index and term, and any config change are
  *          {@linkplain CommitRequest sent} to the leader.</li>
  *      <li>The leader confirms that the log entry corresponding to the transaction's base index and term matches its log.
- *          If this is not the case, then the transaction is rejected with a {@link RetryTransactionException}.
+ *          If this is not the case, then the transaction is rejected with a {@link TransactionConflictException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
  *          do not create {@linkplain Reads#isConflict conflicts} when compared against the transaction's
  *          {@link Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
@@ -155,11 +156,12 @@ import org.slf4j.LoggerFactory;
  *          transaction's commit term and index, then the transaction is complete.</li>
  *      <li>As a small optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
- *      <li>After adding a new log entry, both followers and leaders "rebase" any open {@link Consistency#LINEARIZABLE}
- *          transactions by checking for conflicts in the manner described above.</li>
+ *      <li>After adding a new log entry, both followers and leaders "rebase" any open transactions by checking for conflicts
+ *          in the manner described above. In this way, conflicts are detected as early as possible.</li>
  *      </ul>
  *  </li>
- *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
+ *  <li>For transactions occurring on a leader, the logic is similar except of course the leader is talking to itself
+ *      when it commits the transaction.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
  *      which is the earliest time at which it is possible for another leader to be elected.
@@ -215,8 +217,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * An unconfigured node becomes <i>configured</i> when either:
  * <ol>
- *  <li>{@link RaftKVTransaction#configChange RaftKVTransaction.configChange()} is invoked and committed within
- *      a local transaction, which creates a new single node cluster, with the current node as leader,
+ *  <li>{@link RaftKVTransaction#configChange(String, String) RaftKVTransaction.configChange()} is invoked and committed
+ *      within a local transaction, which creates a new single node cluster, with the current node as leader,
  *      and commits the cluster's first log entry; or</li>
  *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
  *      records the cluster ID thereby joining the cluster (see below), and applies the received cluster configuration.</li>
@@ -280,10 +282,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * {@linkplain RaftKVTransaction#watchKey Key watches} are supported.
  *
- * <p><b>Mutable Snapshots</b></p>
+ * <p><b>Snapshots</b></p>
  *
  * <p>
- * {@linkplain RaftKVTransaction#readOnlySnapshot Snapshots} are supported.
+ * {@linkplain RaftKVTransaction#readOnlySnapshot Snapshots} are supported and can be created in constant time, because
+ * with Raft every node maintains a complete copy of the database.
  *
  * <p><b>Spring Isolation Levels</b></p>
  *
