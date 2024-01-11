@@ -32,7 +32,7 @@ public enum BoundType {
     }
 
     /**
-     * Return{@link BoundType#INCLUSIVE} or {@link BoundType#EXCLUSIVE} based on the given boolean.
+     * Returns {@link BoundType#INCLUSIVE} or {@link BoundType#EXCLUSIVE} based on the given boolean.
      *
      * @param inclusive true for {@link BoundType#INCLUSIVE}, false for {@link BoundType#EXCLUSIVE}
      * @return the corresponding {@link BoundType}

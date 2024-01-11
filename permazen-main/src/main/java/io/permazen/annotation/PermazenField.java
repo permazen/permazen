@@ -37,11 +37,11 @@ import java.lang.annotation.Target;
  * This annotation is used in two scenarios:
  * <ul>
  *  <li>To configure a <b>simple</b> or <b>counter</b> database field, by annotating the corresponding abstract Java bean
- *      property "getter" method</li>
+ *      property "getter" method
  *  <li>To configure the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
  *      a collection {@code element} field, or a map {@code key} or {@code value} field. In this case this annotation
- *      nests within the corresponding {@link PermazenListField &#64;PermazenListField}, {@link PermazenSetField &#64;PermazenSetField},
- *      or {@link PermazenMapField &#64;PermazenMapField} annotation.</li>
+ *      nests within the corresponding {@link PermazenListField &#64;PermazenListField},
+ *      {@link PermazenSetField &#64;PermazenSetField}, or {@link PermazenMapField &#64;PermazenMapField} annotation.
  * </ul>
  *
  * <p>
@@ -97,7 +97,8 @@ import java.lang.annotation.Target;
  * {@link Counter} fields may not be indexed.
  *
  * <p>
- * Two or more simple fields may be indexed together in a composite index; see {@link PermazenCompositeIndex &#64;PermazenCompositeIndex}.
+ * Two or more simple fields may be indexed together in a composite index; see
+ * {@link PermazenCompositeIndex &#64;PermazenCompositeIndex}.
  *
  * <p><b>Cascades</b></p>
  *
@@ -194,7 +195,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * This annotation may be configured indirectly as a Spring
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)

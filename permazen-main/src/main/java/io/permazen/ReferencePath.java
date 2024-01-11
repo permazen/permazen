@@ -189,7 +189,8 @@ import org.slf4j.LoggerFactory;
  *  <td>{@code Elephant}</td>
  *  <td>{@code "->enemies<-Giraffe.friend}<br>  {@code ->enemies<-Elephant.friend"}</td>
  *  <td>{@code Elephant}</td>
- *  <td>All {@code Elephant}s who's friend is an enemy of some {@code Giraffe} for whom one of the original {@code Elephant}'s enemies is their friend</td>
+ *  <td>All {@code Elephant}s who's friend is an enemy of some {@code Giraffe} for whom one of the original
+ *      {@code Elephant}'s enemies is their friend</td>
  * </tr>
  * <tr>
  *  <td>{@code Elephant}</td>
@@ -204,7 +205,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Reference paths may be explicitly created via {@link Permazen#parseReferencePath Permazen.parseReferencePath()}
- * and traversed in the forward direction via {@link PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()}
+ * and traversed in the forward direction via
+ * {@link PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()}
  * or in the inverse direction via {@link PermazenTransaction#invertReferencePath PermazenTransaction.invertReferencePath()}.
  *
  * <p>

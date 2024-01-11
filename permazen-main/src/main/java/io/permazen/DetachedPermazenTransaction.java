@@ -22,8 +22,8 @@ import java.io.Closeable;
  *
  * <p>
  * For convenience, each {@link PermazenTransaction} has a default, initially empty {@link DetachedPermazenTransaction} instance
- * {@linkplain PermazenTransaction#getDetachedTransaction associated} with it; {@link PermazenObject#copyOut PermazenObject.copyOut()}
- * copies objects there.
+ * {@linkplain PermazenTransaction#getDetachedTransaction associated} with it;
+ * {@link PermazenObject#copyOut PermazenObject.copyOut()} copies objects there.
  *
  * <p>
  * Because {@link DetachedPermazenTransaction}s live indefinitely, their objects can be used just like normal Java objects,
@@ -39,14 +39,14 @@ import java.io.Closeable;
  *
  * <p>
  * More general usage beyond copies of regular transactions is possible: an empty {@link DetachedPermazenTransaction} can be created
- * on the fly via {@link PermazenTransaction#createDetachedTransaction PermazenTransaction.createDetachedTransaction()} and then used as simple
- * in-memory transaction workspace. The resulting key/value pairs could then be (de)serialized and sent over the network;
- * see for example {@link io.permazen.spring.PermazenObjectHttpMessageConverter}.
+ * on the fly via {@link PermazenTransaction#createDetachedTransaction PermazenTransaction.createDetachedTransaction()} and then
+ * used as simple in-memory transaction workspace. The resulting key/value pairs could then be (de)serialized and sent over the
+ * network; see for example {@link io.permazen.spring.PermazenObjectHttpMessageConverter}.
  *
  * <p>
- * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by
- * {@link KVTransaction#readOnlySnapshot} allows an efficient "copy" of the entire database into a {@link DetachedPermazenTransaction}
- * using {@link Permazen#createDetachedTransaction(KVStore, ValidationMode) Permazen.createDetachedTransaction()}.
+ * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by {@link KVTransaction#readOnlySnapshot}
+ * allows an efficient "copy" of the entire database into a {@link DetachedPermazenTransaction} using
+ * {@link Permazen#createDetachedTransaction(KVStore, ValidationMode) Permazen.createDetachedTransaction()}.
  *
  * @see PermazenTransaction#createDetachedTransaction Transaction.createDetachedTransaction()
  * @see Permazen#createDetachedTransaction Permazen.createDetachedTransaction()

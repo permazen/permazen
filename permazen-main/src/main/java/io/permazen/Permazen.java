@@ -90,11 +90,12 @@ import org.slf4j.LoggerFactory;
  * their state derives from the underlying key/value {@link KVTransaction}.
  *
  * <p>
- * Java model class instances have a unique {@link ObjId} which represents database identity.
- * {@link Permazen} guarantees that at most one Java instance will exist for any given {@link PermazenTransaction} and {@link ObjId}.
+ * Java model class instances have a unique {@link ObjId} which represents database identity. {@link Permazen} guarantees that
+ * at most one Java instance will exist for any given {@link PermazenTransaction} and {@link ObjId}.
  *
  * <p>
- * New instance creation, index queries, and certain other database-related tasks are initiated through a {@link PermazenTransaction}.
+ * New instance creation, index queries, and certain other database-related tasks are initiated through a
+ * {@link PermazenTransaction}.
  * Normal database transactions are created via {@link #createTransaction createTransaction()}. Detached transactions are
  * purely in-memory transactions that are detached from the database and may persist indefinitely; their purpose is to hold a
  * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,

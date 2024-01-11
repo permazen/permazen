@@ -255,7 +255,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * This annotation may be configured indirectly as a Spring
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
  * @see ReferencePath

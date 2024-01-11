@@ -17,7 +17,8 @@ public interface PermazenFieldSwitch<R> {
      * Handle a {@link PermazenSetField}.
      *
      * <p>
-     * The implementation in {@link PermazenFieldSwitch} delegates to {@link #casePermazenCollectionField casePermazenCollectionField()}.
+     * The implementation in {@link PermazenFieldSwitch} delegates to
+     * {@link #casePermazenCollectionField casePermazenCollectionField()}.
      *
      * @param field the visiting field
      * @return visitor return value
@@ -30,7 +31,8 @@ public interface PermazenFieldSwitch<R> {
      * Handle a {@link PermazenListField}.
      *
      * <p>
-     * The implementation in {@link PermazenFieldSwitch} delegates to {@link #casePermazenCollectionField casePermazenCollectionField()}.
+     * The implementation in {@link PermazenFieldSwitch} delegates to
+     * {@link #casePermazenCollectionField casePermazenCollectionField()}.
      *
      * @param field the visiting field
      * @return visitor return value

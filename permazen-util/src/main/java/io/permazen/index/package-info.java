@@ -23,8 +23,8 @@
  *      - Access the composite index associated with a list field that includes corresponding list indices</li>
  *  <li>{@link io.permazen.PermazenTransaction#queryMapValueIndex PermazenTransaction.queryMapValueIndex()}
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
- *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class) PermazenTransaction.queryCompositeIndex()}
- *      - Access a composite index defined on two fields</li>
+ *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class)
+ *      PermazenTransaction.queryCompositeIndex()} - Access a composite index defined on two fields</li>
  *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class, Class)
  *      PermazenTransaction.queryCompositeIndex()} - Access a composite index defined on three fields</li>
  *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class, Class, Class)
@@ -53,8 +53,11 @@
  *
  * <p>
  * A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
- * or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
- * any prefix of the indexed fields; for example, see {@link io.permazen.index.Index2#asIndex1}.
+ * or more indexed field values to subsequent values.
+ *
+ * <p>
+ * A composite index may always be viewed as a simpler index on any prefix of its indexed fields; for example, see
+ * {@link io.permazen.index.Index2#asIndex1}.
  *
  * <p>
  * <b>Complex Sub-Fields</b>
@@ -67,8 +70,8 @@
  * <p>
  * For those complex sub-fields that can contain duplicate values (namely, {@link java.util.List} element and
  * {@link java.util.Map} value), the associated distinguishing value (respectively, {@link java.util.List} index
- * and {@link java.util.Map} key) is appended to the index and becomes the new target type.
- * Therefore the resulting index types associated with indexes on complex sub-fields are as follows:
+ * and {@link java.util.Map} key) becomes a new value that is appended to the index.
+ * The resulting index types associated with indexes on complex sub-fields of some object type {@code Foobar} are as follows:
  *
  * <div style="margin-left: 20px;">
  * <table class="striped">
@@ -110,5 +113,9 @@
  * </tr>
  * </table>
  * </div>
+ *
+ * <p>
+ * To ignore the distinguishing values, convert the {@link io.permazen.index.Index2} back into an {@link io.permazen.index.Index1}
+ * via {@link io.permazen.index.Index2#asIndex1}.
  */
 package io.permazen.index;

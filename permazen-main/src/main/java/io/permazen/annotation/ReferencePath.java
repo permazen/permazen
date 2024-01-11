@@ -116,7 +116,7 @@ import java.util.Optional;
  *
  * <p>
  * This annotation may be configured indirectly as a Spring
- * <a href="https://github.com/spring-projects/spring-framework/wiki/Spring-Annotation-Programming-Model#meta-annotations">meta-annotation</a>
+ * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)

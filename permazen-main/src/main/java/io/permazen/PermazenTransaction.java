@@ -127,7 +127,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Copying Objects</b>
  * <ul>
- *  <li>{@link #copyTo(PermazenTransaction, CopyState, Stream) copyTo()} - Copy a {@link Stream} of objects into another transaction</li>
+ *  <li>{@link #copyTo(PermazenTransaction, CopyState, Stream) copyTo()} - Copy a {@link Stream} of objects into another
+ *      transaction</li>
  *  <li>{@link ImportContext} - Import plain (POJO) model objects</li>
  *  <li>{@link ExportContext} - Export plain (POJO) model objects</li>
  * </ul>
@@ -179,7 +180,8 @@ import org.slf4j.LoggerFactory;
  * <b>Lower Layer Access</b>
  * <ul>
  *  <li>{@link #getKey(PermazenObject) getKey()} - Get the {@link KVDatabase} key prefix for an object</li>
- *  <li>{@link PermazenField#getKey(PermazenObject) PermazenField.getKey()} - Get the {@link KVDatabase} key for one field in an object</li>
+ *  <li>{@link PermazenField#getKey(PermazenObject) PermazenField.getKey()} - Get the {@link KVDatabase} key for one field
+ *      in an object</li>
  *  <li>{@link #withWeakConsistency withWeakConsistency()} - Perform an operation with weaker transaction consistency</li>
  * </ul>
  *
@@ -838,7 +840,8 @@ public class PermazenTransaction {
     }
 
     /**
-     * Get the Java model object with the same object ID as the given {@link PermazenObject} and whose state derives from this transaction.
+     * Get the Java model object with the same object ID as the given {@link PermazenObject} and whose state derives from
+     * this transaction.
      *
      * <p>
      * This method can be thought of as a "refresh" operation for objects being imported from other transactions into this one.
@@ -1055,7 +1058,8 @@ public class PermazenTransaction {
      * prior to this method returning.
      *
      * <p>
-     * This method is typically only used by generated classes; normally, {@link PermazenObject#migrateSchema} would be used instead.
+     * This method is typically only used by generated classes; normally, {@link PermazenObject#migrateSchema}
+     * would be used instead.
      *
      * @param pobj object to update
      * @return true if the object's schema was migrated, false if it was already updated

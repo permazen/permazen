@@ -476,7 +476,8 @@ public class Session {
 // Transactions
 
     /**
-     * Associate the current {@link PermazenTransaction} with this instance, if not already associated, while performing the given action.
+     * Associate the current {@link PermazenTransaction} with this instance, if not already associated,
+     * while performing the given action.
      *
      * <p>
      * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}

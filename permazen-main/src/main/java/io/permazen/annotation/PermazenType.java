@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
  * <p>
  * {@linkplain #autogenFields By default}, database fields are created automatically for all abstract getter methods,
  * so no annotations are required. To override the defaults, or define database fields for non-abstract getter methods,
- * add the appropriate {@link PermazenField &#64;PermazenField}, {@link PermazenSetField &#64;PermazenSetField}, {@link PermazenListField &#64;PermazenListField},
- * or {@link PermazenMapField &#64;PermazenMapField} annotation.
+ * add the appropriate {@link PermazenField &#64;PermazenField}, {@link PermazenSetField &#64;PermazenSetField},
+ * {@link PermazenListField &#64;PermazenListField}, or {@link PermazenMapField &#64;PermazenMapField} annotation.
  *
  * <p>
  * These annotations are also supported on the methods in a {@link PermazenType &#64;PermazenType}-annotated class:
@@ -78,7 +78,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * This annotation may be configured indirectly as a Spring
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -157,8 +157,8 @@ public @interface PermazenType {
      * <p>
      * If {@link #autogenFields} is false, this property is ignored. Otherwise, if this property is true,
      * any auto-generated reference fields will allow assignment to deleted objects in normal transactions.
-     * In other words, they will behave as if they had a {@link PermazenField &#64;PermazenField} annotation with {@link PermazenField#allowDeleted}
-     * set to true.
+     * In other words, they will behave as if they had a {@link PermazenField &#64;PermazenField} annotation with
+     * {@link PermazenField#allowDeleted} set to true.
      *
      * @return whether auto-generated reference fields should allow assignment to a deleted object in normal transactions
      * @see PermazenField#allowDeleted

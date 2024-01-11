@@ -165,8 +165,9 @@ class PermazenObjectCache {
      * Register the given {@link PermazenObject} with this instance.
      *
      * Use of this method is required to handle the case where the Java model class constructor invokes, before the constructor
-     * has even returned, a {@link PermazenTransaction} method that needs to find the {@link PermazenObject} being constructed by its object ID.
-     * In that case, we don't have the {@link PermazenObject} in our cache yet. This methods puts it in there if necessary.
+     * has even returned, a {@link PermazenTransaction} method that needs to find the {@link PermazenObject} being constructed
+     * by its object ID. In that case, we don't have the {@link PermazenObject} in our cache yet. This methods puts it in there
+     * if necessary.
      */
     void register(PermazenObject pobj) {
 

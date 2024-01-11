@@ -12,7 +12,8 @@ import jakarta.validation.ConstraintViolation;
 import java.util.Set;
 
 /**
- * Thrown when {@link PermazenTransaction#validate} (or {@link PermazenTransaction#commit}) fails due to one or more validation errors.
+ * Thrown when {@link PermazenTransaction#validate} (or {@link PermazenTransaction#commit}) fails due to one or more
+ * validation errors.
  *
  * @see PermazenTransaction#validate
  */
